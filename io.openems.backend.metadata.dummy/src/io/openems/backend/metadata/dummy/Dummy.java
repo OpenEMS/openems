@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
@@ -32,10 +31,8 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(Dummy.class);
 
-	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
-	private final Map<String, BackendUser> users = new HashMap<>();
 	private final Map<String, Edge> edges = new HashMap<>();
 
 	public Dummy() {

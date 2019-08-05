@@ -1,17 +1,36 @@
 package io.openems.backend.metadata.odoo;
 
-import io.openems.backend.metadata.api.BackendUser;
-
-public class MyUser extends BackendUser {
+/**
+ * Represents a Backend-User within Metadata Service.
+ */
+public class MyUser {
 
 	private final int odooId;
+	private final String id;
+	private final String name;
+	private final String sessionId;
 
 	public MyUser(int odooId, String name, String sessionId) {
-		super(String.valueOf(odooId), name, sessionId);
+		this.id = String.valueOf(odooId);
 		this.odooId = odooId;
+		this.name = name;
+		this.sessionId = sessionId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getSessionId() {
+		return sessionId;
 	}
 
 	public int getOdooId() {
 		return odooId;
 	}
+
 }

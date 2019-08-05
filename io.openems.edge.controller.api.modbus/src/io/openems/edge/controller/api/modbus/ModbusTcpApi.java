@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.common.session.User;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -339,7 +338,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest message)
 			throws OpenemsNamedException {
 		switch (message.getMethod()) {
 		case GetModbusProtocolRequest.METHOD:

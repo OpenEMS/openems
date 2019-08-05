@@ -24,7 +24,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 
@@ -62,7 +61,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     private CompletableFuture<? extends JsonrpcResponseSuccess> handleAuthenticateWithUsernameAndPasswordRequest(WsData wsData, AuthenticateWithUsernameAndPasswordRequest request) throws OpenemsException {
         Pair<UUID, RoleId> tokenRolePair;
         try {
-            tokenRolePair = this.parent.accessControl.login(request.getUsername(), request.getPassword());
+            tokenRolePair = this.parent.accessControl.login(request.getUsername(), request.getPassword(), true);
         } catch (AuthenticationException e) {
             wsData.setRoleId(null);
             throw (e);
@@ -224,7 +223,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeId, SubscribeSystemLogRequest.METHOD);
 
         // Forward to Edge
-        return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, user, token, request);
+        return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, token, request);
     }
 
     /**
@@ -327,7 +326,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         //user.assertRoleIsAtLeast(CreateComponentConfigRequest.METHOD, Role.INSTALLER);
         this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeId, CreateComponentConfigRequest.METHOD);
 
-        return this.parent.edgeWebsocket.send(edgeId, user, createComponentConfigRequest);
+        return this.parent.edgeWebsocket.send(edgeId, createComponentConfigRequest);
     }
 
     /**
@@ -345,7 +344,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 //		user.assertRoleIsAtLeast(UpdateComponentConfigRequest.METHOD, Role.INSTALLER);
         this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeId, UpdateComponentConfigRequest.METHOD);
 
-        return this.parent.edgeWebsocket.send(edgeId, user, updateComponentConfigRequest);
+        return this.parent.edgeWebsocket.send(edgeId, updateComponentConfigRequest);
     }
 
     /**
@@ -363,7 +362,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         // user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
         this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeId, DeleteComponentConfigRequest.METHOD);
 
-        return this.parent.edgeWebsocket.send(edgeId, user, deleteComponentConfigRequest);
+        return this.parent.edgeWebsocket.send(edgeId, deleteComponentConfigRequest);
     }
 
     /**
@@ -380,7 +379,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         //user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
 
         this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeId, SetChannelValueRequest.METHOD);
-        return this.parent.edgeWebsocket.send(edgeId, user, request);
+        return this.parent.edgeWebsocket.send(edgeId, request);
     }
 
     /**
@@ -397,7 +396,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
                                                                                     ComponentJsonApiRequest componentJsonApiRequest) throws OpenemsNamedException {
         // user.assertRoleIsAtLeast(ComponentJsonApiRequest.METHOD, Role.GUEST);
         this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeId, ComponentJsonApiRequest.METHOD);
-        return this.parent.edgeWebsocket.send(edgeId, user, componentJsonApiRequest);
+        return this.parent.edgeWebsocket.send(edgeId, componentJsonApiRequest);
     }
 
 }

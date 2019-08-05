@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.GsonBuilder;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
@@ -42,10 +41,6 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private OdooCredentials odooCredentials;
 
-	/**
-	 * Maps User-ID to User.
-	 */
-	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
 	/**
 	 * Caches Edges.
 	 */

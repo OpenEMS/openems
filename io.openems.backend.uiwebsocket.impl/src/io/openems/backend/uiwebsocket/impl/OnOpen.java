@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
@@ -30,9 +29,6 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
     public void run(WebSocket ws, JsonObject handshake) throws OpenemsException {
         // get websocket attachment
         WsData wsData = ws.getAttachment();
-
-        // declare user
-        BackendUser user;
 
         // login using session_id from the handshake
         Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,

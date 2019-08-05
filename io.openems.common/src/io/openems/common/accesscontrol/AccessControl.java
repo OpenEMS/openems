@@ -16,10 +16,11 @@ public interface AccessControl {
      *
      * @param username the username
      * @param password the password
-     * @return the roleId
+     * @param createSession true if a session id should be created and stored, if false UUID will be null
+     * @return the roleId and the UUID in case a session should have been created
      * @throws AuthenticationException authentication did not succeed
      */
-    Pair<UUID, RoleId> login(String username, String password) throws AuthenticationException;
+    Pair<UUID, RoleId> login(String username, String password, boolean createSession) throws AuthenticationException;
 
     /**
      * Logs in the user with the given session id and returns the roleId.

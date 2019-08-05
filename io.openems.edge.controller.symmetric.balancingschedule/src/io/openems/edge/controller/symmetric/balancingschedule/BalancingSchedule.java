@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.common.session.User;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -164,7 +163,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest message)
 			throws OpenemsNamedException {
 		SetGridConnScheduleRequest request = SetGridConnScheduleRequest.from(message);
 		this.schedule = request.getSchedule();

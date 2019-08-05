@@ -1,13 +1,8 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.Optional;
-
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.common.exceptions.OpenemsException;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
 

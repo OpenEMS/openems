@@ -12,7 +12,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
@@ -55,9 +54,6 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	@Reference
-	protected UserService userService;
 
 	@Reference
 	protected AccessControl accessControl;

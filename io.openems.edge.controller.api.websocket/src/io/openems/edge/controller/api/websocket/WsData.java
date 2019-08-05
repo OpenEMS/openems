@@ -1,10 +1,8 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import io.openems.common.accesscontrol.RoleId;
-import io.openems.edge.common.user.EdgeUser;
+
+import java.util.UUID;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
@@ -15,11 +13,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * 'null' for a short period of time on open of the websocket.
 	 */
 	private UUID sessionToken = null;
-
-	/**
-	 * TODO remove when the change to RoleId has been done
-	 */
-	private Optional<EdgeUser> user = Optional.empty();
 
 	private RoleId roleId;
 
@@ -43,18 +36,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return roleId;
 	}
 
-	public void setUser(EdgeUser user) {
-		this.user = Optional.ofNullable(user);
-	}
-
-	public void unsetUser() {
-		this.user = Optional.empty();
-	}
-
-	public Optional<EdgeUser> getUser() {
-		return user;
-	}
-
 	/**
 	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
 	 * 
@@ -72,7 +53,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		} else {
 			tokenString = "UNKNOWN";
 		}
-		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + user + "]";
+		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", role=" + roleId + "]";
 	}
 
 }

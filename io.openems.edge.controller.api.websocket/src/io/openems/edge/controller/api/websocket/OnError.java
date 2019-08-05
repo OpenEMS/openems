@@ -1,13 +1,10 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.Optional;
-
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.user.EdgeUser;
 
 public class OnError implements io.openems.common.websocket.OnError {
 
@@ -22,15 +19,7 @@ public class OnError implements io.openems.common.websocket.OnError {
 	public void run(WebSocket ws, Exception ex) throws OpenemsException {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
-		Optional<EdgeUser> user = wsData.getUser();
-
-		String logMessage;
-		if (user.isPresent()) {
-			logMessage = "User [" + user.get().getName() + "] error: ";
-		} else {
-			logMessage = "Unknown User [" + wsData.getSessionToken() + "] error: ";
-		}
-
+		String logMessage = "Role [" + wsData.getRoleId() + "] error: ";
 		this.parent.logWarn(this.log, logMessage + ex.getMessage());
 	}
 

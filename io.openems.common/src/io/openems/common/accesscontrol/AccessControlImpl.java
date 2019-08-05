@@ -49,24 +49,26 @@ public class AccessControlImpl implements AccessControl {
     }
 
     @Override
-    public Pair<UUID, RoleId> login(String username, String password) throws AuthenticationException {
+    public Pair<UUID, RoleId> login(String username, String password, boolean createSession) throws AuthenticationException {
         initializeProviders();
         User matchingUser = accessControlDataManager.getUsers().stream().filter(
                 userNew -> (userNew.getUsername().equals(username) && userNew.validatePlainPassword(password)))
                 .findFirst()
                 .orElseThrow(AuthenticationException::new);
         RoleId roleId = matchingUser.getRoleId();
-        UUID sessionId;
-        Optional<Map.Entry<UUID, RoleId>> entry = this.sessionTokens.entrySet().stream().filter((e) -> e.getValue().equals(roleId)).findAny();
-        if (entry.isPresent()) {
-            this.log.info("Creating a new Session for role (" + entry.get().getValue() + ") did not work since a valid session is already up");
-            sessionId = entry.get().getKey();
-        } else {
-            sessionId = UUID.randomUUID();
-            this.sessionTokens.put(sessionId, roleId);
+        UUID sessionId = null;
+        if (createSession) {
+            Optional<Map.Entry<UUID, RoleId>> entry = this.sessionTokens.entrySet().stream().filter((e) -> e.getValue().equals(roleId)).findAny();
+            if (entry.isPresent()) {
+                this.log.info("Creating a new Session for role (" + entry.get().getValue() + ") did not work since a valid session is already up");
+                sessionId = entry.get().getKey();
+            } else {
+                sessionId = UUID.randomUUID();
+                this.sessionTokens.put(sessionId, roleId);
 
-            // remember the new logged in user
-            this.activeUsers.put(sessionId, matchingUser);
+                // remember the new logged in user
+                this.activeUsers.put(sessionId, matchingUser);
+            }
         }
 
         return new Pair<>(sessionId, roleId);

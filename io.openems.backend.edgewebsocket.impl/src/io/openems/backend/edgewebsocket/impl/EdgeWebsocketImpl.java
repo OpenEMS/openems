@@ -31,7 +31,6 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
-import io.openems.common.session.User;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -100,13 +99,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
 			// Wrap Request in AuthenticatedRpc
-			AuthenticatedRpcRequest authenticatedRpc = new AuthenticatedRpcRequest(user, request);
+			AuthenticatedRpcRequest authenticatedRpc = new AuthenticatedRpcRequest(request);
 			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(authenticatedRpc);
 
 			// Unwrap Response
@@ -164,9 +163,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId,
+																					 UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, token, request);
 	}
 
 	/**
@@ -177,6 +176,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param notification the SystemLogNotification
 	 */
 	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
-		this.systemLogHandler.handleSystemLogNotification(edgeId, null, notification);
+		this.systemLogHandler.handleSystemLogNotification(edgeId, notification);
 	}
 }

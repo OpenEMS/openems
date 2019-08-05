@@ -28,7 +28,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.SubscribedChannelsWorker;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.user.EdgeUser;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -46,11 +45,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         WsData wsData = ws.getAttachment();
 
         // special handling for 'authenticate' request
-        switch (request.getMethod()) {
-            case AuthenticateWithPasswordRequest.METHOD:
-                return this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
-            case AuthenticateWithUsernameAndPasswordRequest.METHOD:
-                return this.handleAuthenticateWithUsernameAndPasswordRequest(wsData, AuthenticateWithUsernameAndPasswordRequest.from(request));
+        if (AuthenticateWithUsernameAndPasswordRequest.METHOD.equals(request.getMethod())) {
+            return this.handleAuthenticateWithUsernameAndPasswordRequest(wsData, AuthenticateWithUsernameAndPasswordRequest.from(request));
         }
 
         if (EdgeRpcRequest.METHOD.equals(request.getMethod())) {
@@ -135,37 +131,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         return result;
     }
 
-    /**
-     * Handles a AuthenticateWithPasswordRequest.
-     *
-     * @param wsData  the WebSocket attachment
-     * @param request the AuthenticateWithPasswordRequest
-     * @return the JSON-RPC Success Response Future
-     * @throws OpenemsNamedException on error
-     */
-    private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
-                                                                                            AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
-        Optional<EdgeUser> userOpt = this.parent.userService.authenticate(request.getPassword());
-        if (!userOpt.isPresent()) {
-            wsData.unsetUser();
-            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-        }
-
-        // authentication successful
-        EdgeUser user = userOpt.get();
-        wsData.setUser(user);
-        // TODO set when access control gets used
-        wsData.setRoleId(null);
-        // this.parent.sessionTokens.put(wsData.getSessionToken(), user);
-        // TODO unset on logout!
-        return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
-                wsData.getSessionToken(), Utils.getEdgeMetadata(null)));
-    }
-
     private CompletableFuture<? extends JsonrpcResponseSuccess> handleAuthenticateWithUsernameAndPasswordRequest(WsData wsData, AuthenticateWithUsernameAndPasswordRequest request) throws OpenemsException {
         Pair<UUID, RoleId> sessionRolePair;
         try {
-            sessionRolePair = this.parent.accessControl.login(request.getUsername(), request.getPassword());
+            sessionRolePair = this.parent.accessControl.login(request.getUsername(), request.getPassword(), true);
         } catch (AuthenticationException e) {
             wsData.setRoleId(null);
             throw(e);
@@ -363,8 +332,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
         // call JsonApi
         JsonApi jsonApi = (JsonApi) component;
-        CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(
-                /*TODO fix this!*/null, request.getPayload());
+        CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(request.getPayload());
 
         // handle null response
         if (responseFuture == null) {

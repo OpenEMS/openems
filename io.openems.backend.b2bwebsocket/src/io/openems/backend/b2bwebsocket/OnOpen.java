@@ -3,13 +3,13 @@ package io.openems.backend.b2bwebsocket;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import io.openems.common.accesscontrol.RoleId;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -44,11 +44,10 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			String username = values[0];
 			String password = values[1];
 
-			// TODO handle dat case
-			// BackendUser user = this.parent.metadata.authenticate(username, password);
-			// WsData wsData = ws.getAttachment();
-			// wsData.setUser(user);
-			//this.parent.logInfo(this.log, "User [" + user.getName() + "] logged in");
+			RoleId roleId = this.parent.accessControl.login(username, password, false).getValue();
+			WsData wsData = ws.getAttachment();
+			wsData.setRoleId(roleId);
+			this.parent.logInfo(this.log, "User [" + username + "] logged in with role (" + roleId + ").");
 
 		} catch (OpenemsNamedException e) {
 			ws.close();

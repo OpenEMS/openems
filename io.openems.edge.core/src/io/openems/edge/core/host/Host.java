@@ -15,8 +15,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.Role;
-import io.openems.common.session.User;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -53,17 +51,18 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest request)
 			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
+		// TODO authorization
+		// user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
 
 		switch (request.getMethod()) {
 
 		case GetNetworkConfigRequest.METHOD:
-			return this.handleGetNetworkConfigRequest(user, GetNetworkConfigRequest.from(request));
+			return this.handleGetNetworkConfigRequest(GetNetworkConfigRequest.from(request));
 
 		case SetNetworkConfigRequest.METHOD:
-			return this.handleSetNetworkConfigRequest(user, SetNetworkConfigRequest.from(request));
+			return this.handleSetNetworkConfigRequest(SetNetworkConfigRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -73,13 +72,11 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 	/**
 	 * Handles a GetNetworkConfigRequest.
 	 * 
-	 * @param user    the User
 	 * @param request the GetNetworkConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetNetworkConfigRequest(User user,
-			GetNetworkConfigRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetNetworkConfigRequest(GetNetworkConfigRequest request) throws OpenemsNamedException {
 		NetworkConfiguration config = this.operatingSystem.getNetworkConfiguration();
 		GetNetworkConfigResponse response = new GetNetworkConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
@@ -88,13 +85,11 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 	/**
 	 * Handles a SetNetworkConfigRequest.
 	 * 
-	 * @param user    the User
 	 * @param request the SetNetworkConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSetNetworkConfigRequest(User user,
-			SetNetworkConfigRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetNetworkConfigRequest(SetNetworkConfigRequest request) throws OpenemsNamedException {
 		NetworkConfiguration oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
 		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

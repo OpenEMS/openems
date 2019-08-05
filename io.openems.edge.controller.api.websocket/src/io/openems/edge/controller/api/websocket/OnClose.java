@@ -1,13 +1,10 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.Optional;
-
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.user.EdgeUser;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
 

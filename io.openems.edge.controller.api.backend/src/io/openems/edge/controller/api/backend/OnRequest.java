@@ -22,8 +22,6 @@ import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
-import io.openems.common.session.Role;
-import io.openems.common.session.User;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 
@@ -53,44 +51,42 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a AuthenticatedRpcRequest.
 	 *
-	 * @param getEdgeConfigRequest the AuthenticatedRpcRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<AuthenticatedRpcResponse> handleAuthenticatedRpcRequest(
 			AuthenticatedRpcRequest authenticatedRpcRequest) throws OpenemsNamedException {
-		User user = authenticatedRpcRequest.getUser();
 		JsonrpcRequest request = authenticatedRpcRequest.getPayload();
 
 		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 
 		case GetEdgeConfigRequest.METHOD:
-			resultFuture = this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+			resultFuture = this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(request));
 			break;
 
 		case CreateComponentConfigRequest.METHOD:
-			resultFuture = this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
+			resultFuture = this.handleCreateComponentConfigRequest(CreateComponentConfigRequest.from(request));
 			break;
 
 		case UpdateComponentConfigRequest.METHOD:
-			resultFuture = this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
+			resultFuture = this.handleUpdateComponentConfigRequest(UpdateComponentConfigRequest.from(request));
 			break;
 
 		case DeleteComponentConfigRequest.METHOD:
-			resultFuture = this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
+			resultFuture = this.handleDeleteComponentConfigRequest(DeleteComponentConfigRequest.from(request));
 			break;
 
 		case SetChannelValueRequest.METHOD:
-			resultFuture = this.handleSetChannelValueRequest(user, SetChannelValueRequest.from(request));
+			resultFuture = this.handleSetChannelValueRequest(SetChannelValueRequest.from(request));
 			break;
 
 		case ComponentJsonApiRequest.METHOD:
-			resultFuture = this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
+			resultFuture = this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
 			break;
 
 		case SubscribeSystemLogRequest.METHOD:
-			resultFuture = this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
+			resultFuture = this.handleSubscribeSystemLogRequest(SubscribeSystemLogRequest.from(request));
 			break;
 
 		default:
@@ -108,88 +104,82 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a GetEdgeConfigRequest.
 	 *
-	 * @param user                 the User
 	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GenericJsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
-			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleGetEdgeConfigRequest(GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(OpenemsConstants.COMPONENT_MANAGER_ID,
 				getEdgeConfigRequest);
 
-		return this.handleComponentJsonApiRequest(user, request);
+		return this.handleComponentJsonApiRequest(request);
 	}
 
 	/**
 	 * Handles a CreateComponentConfigRequest.
 	 *
-	 * @param user                         the User
 	 * @param createComponentConfigRequest the CreateComponentConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GenericJsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
-			CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleCreateComponentConfigRequest(CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
+		// TODO authorization
+		// user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
 
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, createComponentConfigRequest);
 
-		return this.handleComponentJsonApiRequest(user, request);
+		return this.handleComponentJsonApiRequest(request);
 	}
 
 	/**
 	 * Handles a UpdateComponentConfigRequest.
 	 *
-	 * @param user                         the User
 	 * @param updateComponentConfigRequest the UpdateComponentConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GenericJsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
-			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.OWNER);
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleUpdateComponentConfigRequest(UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
+		// TODO authorization
+		// user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.OWNER);
 
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
 
-		return this.handleComponentJsonApiRequest(user, request);
+		return this.handleComponentJsonApiRequest(request);
 	}
 
 	/**
 	 * Handles a DeleteComponentConfigRequest.
 	 *
-	 * @param user                         the User
 	 * @param deleteComponentConfigRequest the DeleteComponentConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GenericJsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
-			DeleteComponentConfigRequest deleteComponentConfigRequest) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleDeleteComponentConfigRequest(DeleteComponentConfigRequest deleteComponentConfigRequest) throws OpenemsNamedException {
+		// TODO authorization
+		// user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
 
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, deleteComponentConfigRequest);
 
-		return this.handleComponentJsonApiRequest(user, request);
+		return this.handleComponentJsonApiRequest(request);
 	}
 
 	/**
 	 * Handles a SetChannelValueRequest.
 	 *
-	 * @param user    the User
 	 * @param request the SetChannelValueRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(User user,
-			SetChannelValueRequest request) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(SetChannelValueRequest request) throws OpenemsNamedException {
+		// TODO authorization
+		// user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
 
 		return this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager, request);
 	}
@@ -198,13 +188,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles a ComponentJsonApiRequest.
 	 *
 	 *
-	 * @param user
 	 * @param request the ComponentJsonApiRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-    private CompletableFuture<GenericJsonrpcResponseSuccess> handleComponentJsonApiRequest(User user,
-                                                                                           ComponentJsonApiRequest request) throws OpenemsNamedException {
+    private CompletableFuture<GenericJsonrpcResponseSuccess> handleComponentJsonApiRequest(ComponentJsonApiRequest request) throws OpenemsNamedException {
 		// get Component
 		String componentId = request.getComponentId();
 		OpenemsComponent component = this.parent.componentManager.getComponent(componentId);
@@ -220,7 +208,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
 		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(
-				user, request.getPayload());
+			request.getPayload());
 
 		// handle null response
 		if (responseFuture == null) {
@@ -243,8 +231,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(User user,
-			SubscribeSystemLogRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		this.parent.setSystemLogSubscribed(request.getSubscribe());
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
