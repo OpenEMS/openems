@@ -68,6 +68,7 @@ export const TRANSLATION = {
                 ProductionDC: "Generación DC"
             },
             Widgets: {
+                Info: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 CHP: {
                     LowThreshold: "Umbral bajo",
                     HighThreshold: "Umbral alto"

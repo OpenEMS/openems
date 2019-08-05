@@ -14,17 +14,16 @@ import { ModalComponent as FixDigitalOutputModalComponent } from './fixdigitalou
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
-import { ModalComponentEvcs } from './evcs/evcs-modal/evcs-modal.page';
-import { EvcsChart } from './evcs/evcs-modal/evcs-chart/evcs.chart';
-import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
-import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
+import { GridModalComponent } from './grid/modal/modal.component';
+import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { ProductionModalComponent } from './production/modal/modal.component';
 
 @NgModule({
   imports: [
     SharedModule,
     EnergymonitorModule,
   ],
-  entryComponents: [StorageModalComponent],
+  entryComponents: [StorageModalComponent, GridModalComponent, ConsumptionModalComponent, ProductionModalComponent],
   declarations: [
     LiveComponent,
     FixDigitalOutputModalComponent,
@@ -39,11 +38,10 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
     StorageModalComponent,
+    GridModalComponent,
     ChpSocComponent,
-    ModalComponentEvcs,
-    ModalComponentEvcsCluster,
-    EvcsChart,
-    EvcsClusterComponent
+    ConsumptionModalComponent,
+    ProductionModalComponent
   ]
 })
 export class LiveModule { }

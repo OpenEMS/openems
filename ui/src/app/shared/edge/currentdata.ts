@@ -29,6 +29,7 @@ export class CurrentData {
                 maxApparentPower: null,
                 effectiveChargePower: null,
                 effectiveDischargePower: null,
+                capacity: null,
             }, production: {
                 hasDC: false,
                 powerRatio: null,
@@ -99,6 +100,7 @@ export class CurrentData {
             result.storage.soc = c['_sum/EssSoc'];
             const essActivePower: number = c['_sum/EssActivePower'];
             result.storage.maxApparentPower = c['_sum/EssMaxApparentPower'];
+            result.storage.capacity = c['_sum/EssCapacity'];
 
             if (!result.storage.maxApparentPower) {
                 result.storage.maxApparentPower = 5000;
