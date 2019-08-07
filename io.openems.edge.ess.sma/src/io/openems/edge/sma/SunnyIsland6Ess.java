@@ -108,20 +108,20 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(30051, Priority.ONCE, //
-						m(SiChannelId.DEVICE_CLASS, new UnsignedDoublewordElement(30051)), //
-						m(SiChannelId.DEVICE_TYPE, new UnsignedDoublewordElement(30053)).debug(), //
-						new DummyRegisterElement(30055, 30056), //
-						m(SiChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(30057)).debug(), //
-						m(SiChannelId.SOFTWARE_PACKAGE, new UnsignedDoublewordElement(30059))), //
-				new FC3ReadRegistersTask(30199, Priority.ONCE, //
-						m(SiChannelId.WAITING_TIME_UNTIL_FEED_IN, new UnsignedDoublewordElement(30199))), //
-				new FC3ReadRegistersTask(30201, Priority.LOW, //
+//				new FC3ReadRegistersTask(30051, Priority.ONCE, //
+//						m(SiChannelId.DEVICE_CLASS, new UnsignedDoublewordElement(30051)), //
+//						m(SiChannelId.DEVICE_TYPE, new UnsignedDoublewordElement(30053)).debug(), //
+//						new DummyRegisterElement(30055, 30056), //
+//						m(SiChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(30057)).debug(), //
+//						m(SiChannelId.SOFTWARE_PACKAGE, new UnsignedDoublewordElement(30059))), //
+//				new FC3ReadRegistersTask(30199, Priority.ONCE, //
+//						m(SiChannelId.WAITING_TIME_UNTIL_FEED_IN, new UnsignedDoublewordElement(30199))), //
+				new FC3ReadRegistersTask(30201, Priority.HIGH, //
 						m(SiChannelId.SYSTEM_STATE, new UnsignedDoublewordElement(30201))), //
-				new FC3ReadRegistersTask(30211, Priority.ONCE, //
-						m(SiChannelId.RECOMMENDED_ACTION, new UnsignedDoublewordElement(30211)), //
-						m(SiChannelId.MESSAGE, new UnsignedDoublewordElement(30213)), //
-						m(SiChannelId.FAULT_CORRECTION_MEASURE, new UnsignedDoublewordElement(30215))), //
+//				new FC3ReadRegistersTask(30211, Priority.ONCE, //
+//						m(SiChannelId.RECOMMENDED_ACTION, new UnsignedDoublewordElement(30211)), //
+//						m(SiChannelId.MESSAGE, new UnsignedDoublewordElement(30213)), //
+//						m(SiChannelId.FAULT_CORRECTION_MEASURE, new UnsignedDoublewordElement(30215))), //
 				// TODO Energy values
 				// new FC3ReadRegistersTask(30513, Priority.LOW,
 				// m(SunnyIsland6Ess.ChannelId.TOTAL_YIELD, new
@@ -170,16 +170,18 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(30777)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(30779)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(30781)), //
-						m(SiChannelId.GRID_VOLTAGE_L1, new SignedDoublewordElement(30783),
+						m(SiChannelId.GRID_VOLTAGE_L1, new UnsignedDoublewordElement(30783),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(SiChannelId.GRID_VOLTAGE_L2, new SignedDoublewordElement(30785),
+						m(SiChannelId.GRID_VOLTAGE_L2, new UnsignedDoublewordElement(30785),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(SiChannelId.GRID_VOLTAGE_L3, new SignedDoublewordElement(30787),
+						m(SiChannelId.GRID_VOLTAGE_L3, new UnsignedDoublewordElement(30787),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(30789, 30802), //
-						m(SiChannelId.FREQUENCY, new UnsignedDoublewordElement(30803)), //
-						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(30805),
-								ElementToChannelConverter.INVERT), //
+						m(SiChannelId.FREQUENCY, new UnsignedDoublewordElement(30803),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+//						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(30805),
+//								ElementToChannelConverter.INVERT), //
+						new DummyRegisterElement(30805, 30806), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(30807),
 								ElementToChannelConverter.INVERT), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(30809),
@@ -188,32 +190,29 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 								ElementToChannelConverter.INVERT)), //
 				new FC3ReadRegistersTask(30825, Priority.LOW, //
 						m(SiChannelId.OPERATING_MODE_FOR_REACTIVE_POWER, new UnsignedDoublewordElement(30825))), //
-				new FC3ReadRegistersTask(30831, Priority.LOW, //
-						m(SiChannelId.COSPHI_SET_POINT_READ, new SignedDoublewordElement(30831)), //
-						new DummyRegisterElement(30833, 30834), //
+//				new FC3ReadRegistersTask(30831, Priority.LOW, //
+//						m(SiChannelId.COSPHI_SET_POINT_READ, new SignedDoublewordElement(30831)), //
+				new FC3ReadRegistersTask(30831, Priority.HIGH, //
 						m(SiChannelId.OPERATING_MODE_FOR_ACTIVE_POWER_LIMITATION,
 								new UnsignedDoublewordElement(30835))), //
-				new FC3ReadRegistersTask(30845, Priority.HIGH, //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedDoublewordElement(30845))), //
-				// TODO implement and test missing registers
-				// m(SunnyIsland6Ess.ChannelId.CURRENT_BATTERY_CAPACITY, new
-				// SignedDoublewordElement(30847)), //
-				// m(SunnyIsland6Ess.ChannelId.BATTERY_TEMPERATURE, new
-				// SignedDoublewordElement(30849),
-				// ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				// m(SunnyIsland6Ess.ChannelId.BATTERY_VOLTAGE, new
-				// UnsignedDoublewordElement(30851)), //
-				// m(SunnyIsland6Ess.ChannelId.ACTIVE_BATTERY_CHARGING_MODE, new
-				// UnsignedDoublewordElement(30853)), //
-				// m(SunnyIsland6Ess.ChannelId.CURRENT_BATTERY_CHARGING_SET_VOLTAGE,
-				// new UnsignedDoublewordElement(30855))),//
-				// new FC3ReadRegistersTask(30857, Priority.LOW, //
-				// m(SunnyIsland6Ess.ChannelId.NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS,
-				// new SignedDoublewordElement(30857)), //
-				// m(SunnyIsland6Ess.ChannelId.BATTERY_MAINT_SOC, new
-				// UnsignedDoublewordElement(30859)), //
-				// m(SunnyIsland6Ess.ChannelId.LOAD_POWER, new SignedDoublewordElement(30861)),
-				// //
+				new FC3ReadRegistersTask(30843, Priority.HIGH, //
+						m(SiChannelId.BATTERY_CURRENT, new UnsignedDoublewordElement(30843),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+						m(SymmetricEss.ChannelId.SOC, new UnsignedDoublewordElement(30845)), //
+						// TODO implement and test missing registers
+						// m(SunnyIsland6Ess.ChannelId.CURRENT_BATTERY_CAPACITY, new
+						// SignedDoublewordElement(30847)), //
+						new DummyRegisterElement(30846, 30847), //
+						m(SiChannelId.BATTERY_TEMPERATURE, new SignedDoublewordElement(30849),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(SiChannelId.BATTERY_VOLTAGE, new UnsignedDoublewordElement(30851)), //
+						m(SiChannelId.ACTIVE_BATTERY_CHARGING_MODE, new UnsignedDoublewordElement(30853)), //
+						m(SiChannelId.CURRENT_BATTERY_CHARGING_SET_VOLTAGE, new UnsignedDoublewordElement(30855))), //
+				new FC3ReadRegistersTask(30857, Priority.LOW, //
+						m(SiChannelId.NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS, new SignedDoublewordElement(30857)), //
+						m(SiChannelId.BATTERY_MAINT_SOC, new UnsignedDoublewordElement(30859))), //
+//				 m(SiChannelId.LOAD_POWER, new SignedDoublewordElement(30861)),
+				//
 				// new DummyRegisterElement(30863, 30864), //
 				// m(SunnyIsland6Ess.ChannelId.POWER_GRID_REFERENCE, new
 				// SignedDoublewordElement(30865)), //
@@ -261,13 +260,10 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// m(SunnyIsland6Ess.ChannelId.SPEED_WIRE_CONNECTION_STATUS_OF_NETWORK_TERMINAL_A,
 				// new UnsignedDoublewordElement(30929))), //
 
-				// new FC3ReadRegistersTask(30977, Priority.LOW, //
-				// m(SunnyIsland6Ess.ChannelId.GRID_CURRENT_L1, new
-				// SignedDoublewordElement(30977)), //
-				// m(SunnyIsland6Ess.ChannelId.GRID_CURRENT_L2, new
-				// SignedDoublewordElement(30979)), //
-				// m(SunnyIsland6Ess.ChannelId.GRID_CURRENT_L3, new
-				// SignedDoublewordElement(30981)), //
+				new FC3ReadRegistersTask(30977, Priority.LOW, //
+						m(SiChannelId.GRID_CURRENT_L1, new SignedDoublewordElement(30977)), //
+						m(SiChannelId.GRID_CURRENT_L2, new SignedDoublewordElement(30979)), //
+						m(SiChannelId.GRID_CURRENT_L3, new SignedDoublewordElement(30981))), //
 				// m(SunnyIsland6Ess.ChannelId.OUTPUT_OF_PHOTOVOLTAICS, new
 				// UnsignedDoublewordElement(30983)), //
 				// m(SunnyIsland6Ess.ChannelId.TOTAL_CURRENT_EXTERNAL_GRID_CONNECTION,
@@ -621,10 +617,9 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// m(SunnyIsland6Ess.ChannelId.SENSIVITY_OF_GENERATOR_FAILURE_DETECTION,
 				// new UnsignedDoublewordElement(40747)), //
 				// new DummyRegisterElement(40749, 40750), //
-				// m(SunnyIsland6Ess.ChannelId.INVERTER_NOMINAL_VOLTAGE, new
-				// UnsignedDoublewordElement(40751)), //
-				// m(SunnyIsland6Ess.ChannelId.INVERTER_NOMINAL_FREQUENCY, new
-				// UnsignedDoublewordElement(40753)), //
+				new FC3ReadRegistersTask(40751, Priority.HIGH, //
+						m(SiChannelId.INVERTER_NOMINAL_VOLTAGE, new UnsignedDoublewordElement(40751)), //
+						m(SiChannelId.INVERTER_NOMINAL_FREQUENCY, new UnsignedDoublewordElement(40753))), //
 				// m(SunnyIsland6Ess.ChannelId.MAXIMUM_AC_BATTERY_CHARGE_CURRENT,
 				// new UnsignedDoublewordElement(40755)), //
 				// m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_1,
