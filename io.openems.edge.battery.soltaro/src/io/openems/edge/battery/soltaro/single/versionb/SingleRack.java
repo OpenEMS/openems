@@ -151,7 +151,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleStateMachine() {
-		log.info("SingleRack.handleStateMachine(): State: " + this.getStateMachineState());
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
@@ -897,8 +896,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
 				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() + "|State:"
-				+ this.getStateMachineState();
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() //
+				+ "|State:" + this.getStateMachineState();
 	}
 
 	private void startSystem() {

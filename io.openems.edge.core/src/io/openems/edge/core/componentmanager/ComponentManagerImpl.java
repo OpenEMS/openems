@@ -113,7 +113,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))")
-	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	private volatile List<OpenemsComponent> enabledComponents = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(!(service.factoryPid=Core.ComponentManager))")
+	private volatile List<OpenemsComponent> allComponents = new CopyOnWriteArrayList<>();
 
 	public ComponentManagerImpl() {
 		super(//
@@ -149,12 +155,22 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
-		return Collections.unmodifiableList(this.components);
+	public List<OpenemsComponent> getEnabledComponents() {
+		return Collections.unmodifiableList(this.enabledComponents);
+	}
+
+	@Override
+	public List<OpenemsComponent> getAllComponents() {
+		return Collections.unmodifiableList(this.allComponents);
 	}
 
 	protected StateChannel configNotActivatedChannel() {
 		return this.channel(ComponentManager.ChannelId.CONFIG_NOT_ACTIVATED);
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override
@@ -325,7 +341,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Configuration
 	 * @throws OpenemsNamedException on error
 	 */
-	private Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
+	protected Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
 		Configuration[] configs;
 		try {
 			configs = this.cm.listConfigurations("(id=" + componentId + ")");
@@ -405,7 +421,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 		// Add all remaining components, like singletons without ConfigurationAdmin
 		// configuration (=null)
-		for (OpenemsComponent component : this.components) {
+		for (OpenemsComponent component : this.allComponents) {
 			String componentId = component.id();
 			if (!componentsMap.containsKey(componentId)) {
 				componentsMap.put(component.id(), null);

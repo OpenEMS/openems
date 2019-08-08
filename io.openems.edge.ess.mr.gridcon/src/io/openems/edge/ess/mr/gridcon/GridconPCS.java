@@ -686,7 +686,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(32572).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.COMMAND_TIME_SYNC_TIME,
 								new UnsignedDoublewordElement(32574).wordOrder(WordOrder.LSWMSW)) //
-				).debug(),
+				),
 				/*
 				 * Commands Mirror
 				 */
@@ -760,7 +760,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32620).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE,
 								new FloatDoublewordElement(32622).wordOrder(WordOrder.LSWMSW)) //
-				).debug(),
+				),
 				/*
 				 * Control Parameters Mirror
 				 */
@@ -850,7 +850,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(32636).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE,
 									new FloatDoublewordElement(32638).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * IPU 1 Mirror Control
 					 */
@@ -933,7 +933,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(32668).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE,
 									new FloatDoublewordElement(32670).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * IPU 2 Mirror Control
 					 */
@@ -1015,7 +1015,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(32700).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE,
 									new FloatDoublewordElement(32702).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * IPU 3 Mirror Control
 					 */
@@ -1086,7 +1086,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 											.wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE,
 									new FloatDoublewordElement(startAddressIpuControl + 14).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * DCDC Control Mirror
 					 */

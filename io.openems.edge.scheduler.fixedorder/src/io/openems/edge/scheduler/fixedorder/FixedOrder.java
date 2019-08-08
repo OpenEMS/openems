@@ -72,7 +72,7 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 			if (id.equals("")) {
 				continue;
 			}
-			Controller controller = this.componentManager.getComponent(id);
+			Controller controller = this.componentManager.getPossiblyDisabledComponent(id);
 			result.add(controller);
 		}
 

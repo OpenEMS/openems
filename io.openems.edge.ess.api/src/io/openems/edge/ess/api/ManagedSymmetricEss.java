@@ -1,8 +1,6 @@
 package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -25,8 +23,6 @@ import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
 public interface ManagedSymmetricEss extends SymmetricEss {
-
-	public static final Logger log = LoggerFactory.getLogger(ManagedSymmetricEss.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
