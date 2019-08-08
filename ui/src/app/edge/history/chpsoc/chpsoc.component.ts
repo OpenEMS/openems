@@ -63,7 +63,7 @@ export class ChpSocComponent extends AbstractHistoryChart implements OnInit, OnC
                     if (value == null) {
                         return null
                     } else {
-                        return Math.floor(parseInt(value)); // convert to % [0,100]
+                        return Math.floor(parseInt(value)); //  Rounding up the mean values to integer value 
                     }
                 });
                 datasets.push({
@@ -109,7 +109,6 @@ export class ChpSocComponent extends AbstractHistoryChart implements OnInit, OnC
 
                 for (let componentId of config.getComponentsByFactory("Controller.CHP.SoC")) {
                     channeladdresses.push(ChannelAddress.fromString(componentId.properties.outputChannelAddress));
-                    //channeladdresses.push(ChannelAddress.fromString(componentId.properties.inputChannelAddress));
 
                 }
                 resolve(channeladdresses);

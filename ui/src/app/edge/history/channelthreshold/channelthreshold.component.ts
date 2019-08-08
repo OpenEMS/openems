@@ -54,7 +54,6 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      console.log("channel label : ", label, "value : ", value)
       return label + ": " + formatNumber(value, 'de', '1.0-2') + " %";
     }
     this.options = options;
