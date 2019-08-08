@@ -179,22 +179,21 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 						new DummyRegisterElement(30789, 30802), //
 						m(SiChannelId.FREQUENCY, new UnsignedDoublewordElement(30803),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-//						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(30805),
+						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(30805))), //
+//						new DummyRegisterElement(30805, 30806), //
+//						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(30807),
 //								ElementToChannelConverter.INVERT), //
-						new DummyRegisterElement(30805, 30806), //
-						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(30807),
-								ElementToChannelConverter.INVERT), //
-						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(30809),
-								ElementToChannelConverter.INVERT), //
-						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(30811),
-								ElementToChannelConverter.INVERT)), //
-				new FC3ReadRegistersTask(30825, Priority.LOW, //
-						m(SiChannelId.OPERATING_MODE_FOR_REACTIVE_POWER, new UnsignedDoublewordElement(30825))), //
+//						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(30809),
+//								ElementToChannelConverter.INVERT), //
+//						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(30811),
+//								ElementToChannelConverter.INVERT)), //
+//				new FC3ReadRegistersTask(30825, Priority.LOW, //
+//						m(SiChannelId.OPERATING_MODE_FOR_REACTIVE_POWER, new UnsignedDoublewordElement(30825))), //
 //				new FC3ReadRegistersTask(30831, Priority.LOW, //
 //						m(SiChannelId.COSPHI_SET_POINT_READ, new SignedDoublewordElement(30831)), //
-				new FC3ReadRegistersTask(30831, Priority.HIGH, //
-						m(SiChannelId.OPERATING_MODE_FOR_ACTIVE_POWER_LIMITATION,
-								new UnsignedDoublewordElement(30835))), //
+//				new FC3ReadRegistersTask(30831, Priority.HIGH, //
+//						m(SiChannelId.OPERATING_MODE_FOR_ACTIVE_POWER_LIMITATION,
+//								new UnsignedDoublewordElement(30835))), //
 				new FC3ReadRegistersTask(30843, Priority.HIGH, //
 						m(SiChannelId.BATTERY_CURRENT, new UnsignedDoublewordElement(30843),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
