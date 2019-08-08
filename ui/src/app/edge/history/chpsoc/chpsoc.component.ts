@@ -59,11 +59,11 @@ export class ChpSocComponent extends AbstractHistoryChart implements OnInit, OnC
 
                 let address = ChannelAddress.fromString(channel);
                 let data = result.data[channel].map(value => {
-                    console.log("value : ", value)
+
                     if (value == null) {
                         return null
                     } else {
-                        return value; // convert to % [0,100]
+                        return Math.floor(parseInt(value)); // convert to % [0,100]
                     }
                 });
                 datasets.push({
@@ -90,10 +90,12 @@ export class ChpSocComponent extends AbstractHistoryChart implements OnInit, OnC
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            console.log("label : ", label, "value : ", formatNumber(value, 'de', '1.0-2'))
-
-            return label + ": " + value//formatNumber(value, 'de', '1.0-2');
-
+            let parsedIntValue = Math.floor(parseInt(formatNumber(value, 'de', '1.0-2')))
+            if (parsedIntValue == 1) {
+                return label + ": " + "ON";
+            } else {
+                return label + ":" + "OFF"
+            }
         }
 
         this.options = options;
@@ -115,22 +117,6 @@ export class ChpSocComponent extends AbstractHistoryChart implements OnInit, OnC
         });
     }
 
-    /* protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
-         return new Promise((resolve, reject) => {
-           this.service.getConfig().then(config => {
-             let channeladdresses = [];
-             // find all ChannelThresholdControllers
-             for (let controllerId of
-               config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
-                 .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-               const outputChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)['outputChannelAddress']);
-               console.log("in channel threshold", outputChannel)
-               channeladdresses.push(outputChannel);
-             }
-             resolve(channeladdresses);
-           }).catch(reason => reject(reason));
-         });
-       }*/
 
     private initializeChart() {
         this.datasets = EMPTY_DATASET;
