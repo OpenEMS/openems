@@ -82,6 +82,7 @@
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
 	bnd.identity;id='io.openems.edge.meter.socomec',\
+	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
@@ -89,6 +90,7 @@
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
+	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
@@ -204,6 +206,8 @@
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
+	io.openems.edge.meter.sunspec;version=snapshot,\
+	io.openems.edge.solaredge;version=snapshot
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	javax.jmdns;version='[3.5.5,3.5.6)',\
 	io.openems.edge.controller.symmetric.peaklimiting;version=snapshot

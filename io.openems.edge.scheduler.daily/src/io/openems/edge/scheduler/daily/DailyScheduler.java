@@ -128,7 +128,7 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 		if (controllerId.equals("")) {
 			return;
 		}
-		Controller controller = this.componentManager.getComponent(controllerId);
+		Controller controller = this.componentManager.getPossiblyDisabledComponent(controllerId);
 		result.add(controller);
 	}
 
