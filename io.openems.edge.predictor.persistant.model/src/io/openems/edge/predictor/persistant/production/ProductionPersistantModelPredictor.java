@@ -1,8 +1,6 @@
 package io.openems.edge.predictor.persistant.production;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.osgi.service.component.ComponentContext;
@@ -20,7 +18,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 import io.openems.edge.predictor.persistant.model.AbstractPersistentModelPredictor;
 
@@ -44,22 +41,7 @@ public class ProductionPersistantModelPredictor extends AbstractPersistentModelP
 		// PRODUCTION_ACTIVE_ENERGY
 	}
 
-	@Override
-	public HourlyPrediction get24hPrediction() {
 
-		hourlyEnergyData = super.hourlyEnergyData;
-
-		ArrayList<Long> valueList = new ArrayList<Long>();
-
-		if (!hourlyEnergyData.isEmpty()) {
-			for (Entry<LocalDateTime, Long> entry : hourlyEnergyData.entrySet()) {
-				valueList.add(entry.getValue());
-			}
-		}
-		Integer[] val = valueList.toArray(new Integer[valueList.size()]);
-		HourlyPrediction hourlyPrediction = new HourlyPrediction(val, hourlyEnergyData.firstKey(), "1 hr");
-		return hourlyPrediction;
-	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {

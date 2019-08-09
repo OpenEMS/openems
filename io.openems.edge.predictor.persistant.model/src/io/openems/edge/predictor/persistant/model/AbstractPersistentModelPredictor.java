@@ -1,13 +1,16 @@
 package io.openems.edge.predictor.persistant.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.HourlyPredictor;
 
 public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsComponent implements HourlyPredictor {
@@ -63,6 +66,8 @@ public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsCo
 		}
 	}
 
+	
+	// Dummy for testing  - just to populate data for 24 minutes
 	public void calculateEnegryValue24min() throws OpenemsNamedException {
 
 		LocalDateTime now = LocalDateTime.now();
@@ -93,6 +98,21 @@ public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsCo
 
 	private Long parseLong(String asStringWithoutUnit) {
 		return Long.parseLong(asStringWithoutUnit);
+	}
+	
+	@Override
+	public HourlyPrediction get24hPrediction() {
+
+		ArrayList<Long> valueList = new ArrayList<Long>();
+
+		if (!hourlyEnergyData.isEmpty()) {
+			for (Entry<LocalDateTime, Long> entry : hourlyEnergyData.entrySet()) {
+				valueList.add(entry.getValue());
+			}
+		}
+		Integer[] val = valueList.toArray(new Integer[valueList.size()]);
+		HourlyPrediction hourlyPrediction = new HourlyPrediction(val, hourlyEnergyData.firstKey());
+		return hourlyPrediction;
 	}
 
 }
