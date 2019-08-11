@@ -160,6 +160,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 		private static final int DEFAULT_WAIT_TIME = 5000; // 5 seconds
 
+		private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
+
 		private com.ghgande.j2mod.modbus.slave.ModbusSlave slave = null;
 
 		@Override
@@ -173,12 +175,12 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 					slave.addProcessImage(UNIT_ID, ModbusTcpApi.this.processImage);
 					slave.open();
 
-					ModbusTcpApi.this.logInfo(ModbusTcpApi.this.log, "Modbus/TCP Api started on port [" + port
-							+ "] with UnitId [" + ModbusTcpApi.UNIT_ID + "].");
+					ModbusTcpApi.this.logInfo(this.log, "Modbus/TCP Api started on port [" + port + "] with UnitId ["
+							+ ModbusTcpApi.UNIT_ID + "].");
 					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(false);
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
-					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
+					ModbusTcpApi.this.logError(this.log,
 							"Unable to start Modbus/TCP Api on port [" + port + "]: " + e.getMessage());
 					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 				}
@@ -187,7 +189,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 				// regular check for errors
 				String error = slave.getError();
 				if (error != null) {
-					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
+					ModbusTcpApi.this.logError(this.log,
 							"Unable to start Modbus/TCP Api on port [" + port + "]: " + error);
 					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 					this.slave = null;
@@ -217,7 +219,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 			// find next component in order
 			ModbusSlave component = this._components.get(id);
 			if (component == null) {
-				log.warn("Required Component [" + id + "] is not available.");
+				this.logWarn(this.log, "Required Component [" + id + "] is not available.");
 				break;
 			}
 
@@ -305,7 +307,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 			r.onWriteValue((value) -> {
 				Channel<?> readChannel = component.channel(r.getChannelId());
 				if (!(readChannel instanceof WriteChannel)) {
-					this.log.warn("Unable to write to Read-Only-Channel [" + readChannel.address() + "]");
+					this.logWarn(this.log, "Unable to write to Read-Only-Channel [" + readChannel.address() + "]");
 					return;
 				}
 				WriteChannel<?> channel = (WriteChannel<?>) readChannel;

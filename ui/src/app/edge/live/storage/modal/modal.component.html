@@ -16,11 +16,23 @@
             <ng-container *ngFor="let component of essComponents">
                 <ng-container *ngIf="config.factories[component.factoryId] as factory">
                     <table class="full_width">
-                        <tr class="underline">
+                        <tr>
                             <td style="width:20%" translate>General.Soc</td>
                             <td style="width: 30%"></td>
                             <td style="width: 50%" class="align_right">
                                 {{ currentData[component.id + '/Soc'] | number:'1.0-0' }}&nbsp;%</td>
+                        </tr>
+                        <tr class="underline">
+                            <td style="width:20%" translate>General.Capacity</td>
+                            <td style="width: 30%"></td>
+                            <ng-container *ngIf="currentData[component.id + '/Capacity'] != null; else empty">
+                                <td style="width:50%" class="align_right">
+                                    {{ currentData[component.id + '/Capacity'] | number:'1.0-0' }}&nbsp;Wh
+                                </td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:50%" class="align_right">-&nbsp;</td>
+                            </ng-template>
                         </tr>
                         <!-- Symmetric ESS -->
                         <ng-container
@@ -59,8 +71,8 @@
                     <ng-container *ngFor="let component of chargerComponents">
                         <table class="full_width">
                             <tr>
-                                <td style="width:20%"><span translate>General.ChargePower</span> DC</td>
-                                <td style="width:30%"></td>
+                                <td style="width:30%"><span translate>General.ChargePower</span> DC</td>
+                                <td style="width:20%"></td>
                                 <ng-container *ngIf="currentData[component.id + '/ActualPower'] > 0; else empty">
                                     <td style="width:50%" class="align_right">
                                         {{ currentData[component.id + '/ActualPower'] | number:'1.0-0' }}&nbsp;W
@@ -71,8 +83,8 @@
                                 </ng-template>
                             </tr>
                             <tr>
-                                <td style="width:20%"><span translate>General.DischargePower</span> DC</td>
-                                <td style="width:30%"></td>
+                                <td style="width:30%"><span translate>General.DischargePower</span> DC</td>
+                                <td style="width:20%"></td>
                                 <ng-container *ngIf="currentData[component.id + '/ActualPower'] <= 0; else empty">
                                     <td style="width:50%" class="align_right">
                                         {{ (currentData[component.id + '/ActualPower']*-1) | number:'1.0-0' }}&nbsp;W
@@ -157,11 +169,24 @@
         <ion-card-content *ngIf="edge.currentData | async as currentData">
             <ng-container *ngIf="currentData.summary.storage as sum">
                 <table class="full_width">
-                    <tr class="underline">
+                    <tr>
                         <td style="width: 20%" translate>General.Soc</td>
                         <td style="width: 30%"></td>
                         <td style="width: 50%" class="align_right">{{ sum.soc | number:'1.0-0' }}&nbsp;%</td>
                     </tr>
+                    <tr class="underline">
+                        <td style="width:20%" translate>General.Capacity</td>
+                        <td style="width: 30%"></td>
+                        <ng-container *ngIf="sum.capacity != null; else empty">
+                            <td style="width:50%" class="align_right">
+                                {{ sum.capacity | number:'1.0-0' }}&nbsp;Wh
+                            </td>
+                        </ng-container>
+                        <ng-template #empty>
+                            <td style="width:50%" class="align_right">-&nbsp;</td>
+                        </ng-template>
+                    </tr>
+
                     <tr>
                         <td style="width:20%" translate>General.ChargePower</td>
                         <td style="width: 30%"></td>
@@ -218,11 +243,23 @@
                     </ion-row>
                     <ion-card-content>
                         <table class="full_width">
-                            <tr class="underline">
+                            <tr>
                                 <td translate style="width: 20%">General.Soc</td>
                                 <td style="width: 30%"></td>
                                 <td style="width: 50%" class="align_right">
                                     {{ currentData[component.id + '/Soc'] | number:'1.0-0' }} &nbsp;%</td>
+                            </tr>
+                            <tr class="underline">
+                                <td style="width:20%" translate>General.Capacity</td>
+                                <td style="width: 30%"></td>
+                                <ng-container *ngIf="currentData[component.id + '/Capacity'] != null; else empty">
+                                    <td style="width:50%" class="align_right">
+                                        {{ currentData[component.id + '/Capacity'] | number:'1.0-0' }}&nbsp;Wh
+                                    </td>
+                                </ng-container>
+                                <ng-template #empty>
+                                    <td style="width:50%" class="align_right">-&nbsp;</td>
+                                </ng-template>
                             </tr>
                         </table>
 
@@ -321,7 +358,7 @@
         </ng-container>
     </ng-container>
 
-    <!-- more than DC Charger -->
+    <!-- more than one DC Charger -->
     <ng-container *ngIf="chargerComponents != null && chargerComponents.length > 1">
         <ng-container *ngFor="let component of chargerComponents">
             <ion-row>
@@ -369,4 +406,16 @@
             </ion-card-content>
         </ng-container>
     </ng-container>
+    <!-- Info Text -->
+    <ion-grid *ngIf="isAsymmetric" padding-top>
+        <ion-row justify-content-center align-items-center>
+            <ion-col size="2" text-center>
+                <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+            </ion-col>
+            <ion-col size="10">
+                <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
+                </ion-note>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </ion-content>

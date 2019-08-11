@@ -19,30 +19,36 @@ import org.slf4j.Logger;
  */
 public class DummyComponentManager implements ComponentManager {
 
-    private final List<OpenemsComponent> components = new ArrayList<>();
+	private final List<OpenemsComponent> components = new ArrayList<>();
 
-    public DummyComponentManager() {
-    }
+	public DummyComponentManager() {
+	}
 
-    @Override
-    public List<OpenemsComponent> getComponents() {
-        return Collections.unmodifiableList(this.components);
-    }
+	@Override
+	public List<OpenemsComponent> getEnabledComponents() {
+		return Collections.unmodifiableList(this.components);
+	}
 
-    /**
-     * Specific for this Dummy implementation.
-     *
-     * @param component
-     */
-    public void addComponent(OpenemsComponent component) {
-        if (component != this) {
-            this.components.add(component);
-        }
-    }
+	@Override
+	public List<OpenemsComponent> getAllComponents() {
+		return Collections.unmodifiableList(this.components);
+	}
 
-    @Override
-    public EdgeConfig getEdgeConfig() {
-        return new EdgeConfig();
+	/**
+	 * Specific for this Dummy implementation.
+	 * 
+	 * @param component
+	 */
+	public DummyComponentManager addComponent(OpenemsComponent component) {
+		if (component != this) {
+			this.components.add(component);
+		}
+		return this;
+	}
+
+	@Override
+	public EdgeConfig getEdgeConfig() {
+		return new EdgeConfig();
 	}
 
 	@Override
@@ -73,27 +79,28 @@ public class DummyComponentManager implements ComponentManager {
 	@Override
 	public Collection<Channel<?>> channels() {
 		return new ArrayList<>();
-    }
+	}
 
-    @Override
-    public boolean isComponentActivated(String componentId, String pid) {
-        return false;
-        // TODO take care of this
-    }
+	@Override
+	public boolean isComponentActivated(String componentId, String pid) {
+		return false;
+		// FIXME take care of this
+	}
 
-    @Override
-    public void logWarn(Logger log, String s) {
-    // TODO take care of this
-    }
+	@Override
+	public void logWarn(Logger log, String s) {
+		// FIXME take care of this
+	}
 
-    @Override
-    public void logError(Logger log, String message) {
-    // TODO take care of this
-    }
+	@Override
+	public void logError(Logger log, String message) {
+		// FIXME take care of this
+	}
 
-    @Override
-    public List<String> checkForNotActivatedComponents() {
-        return null;
-    }
+	@Override
+	public List<String> checkForNotActivatedComponents() {
+		// FIXME
+		return null;
+	}
 
 }

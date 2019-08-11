@@ -1,16 +1,17 @@
 package io.openems.edge.ess.core.power;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
+import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
-public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements ManagedAsymmetricEss, MetaEss {
+public class EssClusterDummy extends DummyComponent<EssClusterDummy>
+		implements ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, MetaEss {
 
-	private final List<ManagedSymmetricEss> managedEsss = new ArrayList<>();
+	private final String[] essIds;
 
 	public EssClusterDummy(String id, SymmetricEss... esss) {
 		super(id);
@@ -18,16 +19,12 @@ public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements 
 		/*
 		 * Add all ManagedSymmetricEss devices to this.managedEsss
 		 */
-		for (SymmetricEss ess : esss) {
-			if (ess instanceof ManagedSymmetricEss) {
-				this.managedEsss.add((ManagedSymmetricEss) ess);
-			}
-		}
+		this.essIds = Arrays.stream(esss).map(e -> e.id()).toArray(String[]::new);
 	}
 
 	@Override
-	public List<ManagedSymmetricEss> getEsss() {
-		return this.managedEsss;
+	public String[] getEssIds() {
+		return this.essIds;
 	}
 
 	@Override

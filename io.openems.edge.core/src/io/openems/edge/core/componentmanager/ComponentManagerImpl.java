@@ -99,6 +99,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(ComponentManagerImpl.class);
 
 	private final OsgiValidateWorker osgiValidateWorker;
+	private final OutOfMemoryHeapDumpWorker outOfMemoryHeapDumpWorker;
 
 	private BundleContext bundleContext;
 
@@ -112,7 +113,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))")
-	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	private volatile List<OpenemsComponent> enabledComponents = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(!(service.factoryPid=Core.ComponentManager))")
+	private volatile List<OpenemsComponent> allComponents = new CopyOnWriteArrayList<>();
 
 	public ComponentManagerImpl() {
 		super(//
@@ -120,6 +127,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				ComponentManager.ChannelId.values() //
 		);
 		this.osgiValidateWorker = new OsgiValidateWorker(this);
+		this.outOfMemoryHeapDumpWorker = new OutOfMemoryHeapDumpWorker(this);
 	}
 
 	@Activate
@@ -130,6 +138,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Start OSGi Validate Worker
 		this.osgiValidateWorker.activate(this.id());
+
+		// Start the Out-Of-Memory Worker
+		this.outOfMemoryHeapDumpWorker.activate(this.id());
 	}
 
 	@Deactivate
@@ -138,11 +149,19 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Stop OSGi Validate Worker
 		this.osgiValidateWorker.deactivate();
+
+		// Stop the Out-Of-Memory Worker
+		this.outOfMemoryHeapDumpWorker.deactivate();
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
-		return Collections.unmodifiableList(this.components);
+	public List<OpenemsComponent> getEnabledComponents() {
+		return Collections.unmodifiableList(this.enabledComponents);
+	}
+
+	@Override
+	public List<OpenemsComponent> getAllComponents() {
+		return Collections.unmodifiableList(this.allComponents);
 	}
 
 	protected StateChannel configNotActivatedChannel() {
@@ -150,19 +169,24 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void logWarn(Logger log, String message) {
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}
 
 	@Override
-	public void logError(Logger log, String message) {
+	protected void logError(Logger log, String message) {
 		super.logError(log, message);
 	}
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest request)
 			throws OpenemsNamedException {
-		// TODO authorization
+		// FIXME authorization
 		// user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
 
 		switch (request.getMethod()) {
@@ -295,7 +319,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private void applyConfiguration(Configuration config, Dictionary<String, Object> properties)
 			throws IOException {
-		// TODO take the logged in user
+		// FIXME take the logged in user
 		// properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId() + ": " + user.getName());
 		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
 				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
@@ -310,7 +334,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Configuration
 	 * @throws OpenemsNamedException on error
 	 */
-	private Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
+	protected Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
 		Configuration[] configs;
 		try {
 			configs = this.cm.listConfigurations("(id=" + componentId + ")");
@@ -390,7 +414,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 		// Add all remaining components, like singletons without ConfigurationAdmin
 		// configuration (=null)
-		for (OpenemsComponent component : this.components) {
+		for (OpenemsComponent component : this.allComponents) {
 			String componentId = component.id();
 			if (!componentsMap.containsKey(componentId)) {
 				componentsMap.put(component.id(), null);
@@ -619,6 +643,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		return JsonUtils.getAsJsonElement(valueObj);
 	}
 
+	//FIXME
 	@Override
 	public List<String> checkForNotActivatedComponents() {
 		List<String> retVal = new ArrayList<>();
