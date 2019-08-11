@@ -1,7 +1,10 @@
 package io.openems.common.accesscontrol;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.types.ChannelAddress;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -11,22 +14,16 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.types.ChannelAddress;
 
+// FIXME I don't like the Component-Name too much - it's quite redundant
 @Designate(ocd = ConfigStatic.class, factory = true)
-@Component(name = "common.AccessControlProvider.AccessControlProviderStatic",
-	immediate = true,
-	configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "common.AccessControlProvider.AccessControlProviderStatic", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class AccessControlProviderStatic implements AccessControlProvider {
 
 	protected final Logger log = LoggerFactory.getLogger(AccessControlProviderJson.class);
@@ -49,15 +46,17 @@ public class AccessControlProviderStatic implements AccessControlProvider {
 	private RoleId roleIdGuest = new RoleId("guest");
 	private Role roleGuest;
 
-
 	@Activate
 	void activate(ComponentContext componentContext, BundleContext bundleContext, ConfigStatic config) {
 		this.priority = config.priority();
 
 		// TODO @s.feilmeier set the correct permissions
+		// FIXME are we not able to use e.g. regular expressions? It's impossible to
+		// define all possible Channel-Addresses.
 
 		// ADMIN
-		this.userAdmin = new User("admin", "admin", "default admin", null, config.adminPassword(), config.adminSalt(), this.roleIdAdmin);
+		this.userAdmin = new User("admin", "admin", "default admin", null, config.adminPassword(), config.adminSalt(),
+				this.roleIdAdmin);
 		this.roleAdmin = new Role(roleIdAdmin);
 		Map<ChannelAddress, AccessMode> adminChannelPermissions = new HashMap<>();
 		adminChannelPermissions.put(new ChannelAddress("_sum", "ProductionMaxActivePower"), AccessMode.READ_WRITE);
@@ -99,9 +98,9 @@ public class AccessControlProviderStatic implements AccessControlProvider {
 		this.roleAdmin.addJsonRpcPermission(edge0, adminJrpcPermissions);
 		this.userAdmin.setRoleId(this.roleIdAdmin);
 
-
 		// INSTALLER
-		this.userInstaller = new User("installer", "installer", "default installer", null, config.installerPassword(), config.installerSalt(), this.roleIdInstaller);
+		this.userInstaller = new User("installer", "installer", "default installer", null, config.installerPassword(),
+				config.installerSalt(), this.roleIdInstaller);
 		this.roleInstaller = new Role(roleIdInstaller);
 		Map<ChannelAddress, AccessMode> installerChannelPermissions = new HashMap<>();
 		installerChannelPermissions.put(new ChannelAddress("_sum", "ProductionMaxActivePower"), AccessMode.READ_WRITE);
@@ -141,7 +140,8 @@ public class AccessControlProviderStatic implements AccessControlProvider {
 		this.userInstaller.setRoleId(this.roleIdInstaller);
 
 		// OWNER
-		this.userOwner = new User("owner", "owner", "default owner", null, config.ownerPassword(), config.ownerSalt(), this.roleIdOwner);
+		this.userOwner = new User("owner", "owner", "default owner", null, config.ownerPassword(), config.ownerSalt(),
+				this.roleIdOwner);
 		this.roleOwner = new Role(roleIdOwner);
 		Map<ChannelAddress, AccessMode> ownerChannelPermissions = new HashMap<>();
 		ownerChannelPermissions.put(new ChannelAddress("_sum", "ProductionMaxActivePower"), AccessMode.READ_WRITE);
@@ -176,7 +176,8 @@ public class AccessControlProviderStatic implements AccessControlProvider {
 		this.userOwner.setRoleId(this.roleIdOwner);
 
 		// GUEST
-		this.userGuest = new User("guest", "guest", "default guest", null, config.guestPassword(), config.guestSalt(), this.roleIdGuest);
+		this.userGuest = new User("guest", "guest", "default guest", null, config.guestPassword(), config.guestSalt(),
+				this.roleIdGuest);
 		this.roleGuest = new Role(roleIdGuest);
 		Map<ChannelAddress, AccessMode> guestChannelPermissions = new HashMap<>();
 		guestChannelPermissions.put(new ChannelAddress("_sum", "ProductionMaxActivePower"), AccessMode.READ_WRITE);

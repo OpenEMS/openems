@@ -1,14 +1,20 @@
 package io.openems.edge.core.componentmanager;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import io.openems.edge.common.component.ComponentManager;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 
 /**
  * This Worker constantly validates if all configured OpenEMS-Components are
@@ -35,9 +41,9 @@ public class OsgiValidateWorker extends AbstractWorker {
 	private final Map<String, LocalDateTime> componentDefectiveSince = new HashMap<>();
 	private final ComponentManagerImpl parent;
 
-    public OsgiValidateWorker(ComponentManager parent) {
-        this.parent = parent;
-    }
+	public OsgiValidateWorker(ComponentManagerImpl parent) {
+		this.parent = parent;
+	}
 
 	@Override
 	protected void forever() {
@@ -97,13 +103,9 @@ public class OsgiValidateWorker extends AbstractWorker {
 	}
 
 	private boolean isComponentActivated(String componentId) {
-		for (OpenemsComponent component : this.parent.getEnabledComponents()) {
-			if (componentId.equals(component.id())) {
-				// Everything Ok
-				return true;
-			}
-		}
-		return false;
+		return this.parent.getEnabledComponents() //
+				.stream() //
+				.anyMatch(c -> componentId.equals(c.id()));
 	}
 
 	private int cycleCountDown = OsgiValidateWorker.INITIAL_CYCLES;

@@ -10,7 +10,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import org.slf4j.Logger;
 
 /**
  * A Service that provides access to OpenEMS-Components.
@@ -62,7 +61,7 @@ public interface ComponentManager extends OpenemsComponent {
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+	public default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
 		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
 			return (T) this;
 		}
@@ -122,19 +121,4 @@ public interface ComponentManager extends OpenemsComponent {
 	 */
 	public EdgeConfig getEdgeConfig();
 
-	/**
-	 * Checks whether the corresponding component to the given information is activated
-	 * @param componentId
-	 * @param pid
-	 * @return
-	 */
-	// FIXME
-	boolean isComponentActivated(String componentId, String pid);
-
-	void logWarn(Logger log, String s);
-
-	void logError(Logger log, String message);
-
-	// FIXME
-	List<String> checkForNotActivatedComponents();
 }

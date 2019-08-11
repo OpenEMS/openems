@@ -21,16 +21,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import io.openems.backend.metadata.api.Edge;
-import io.openems.common.accesscontrol.RoleId;
-import io.openems.common.types.ChannelAddress;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -39,6 +36,8 @@ import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.backend.common.jsonrpc.response.GetEdgesChannelsValuesResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
+import io.openems.backend.metadata.api.Edge;
+import io.openems.common.accesscontrol.RoleId;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -48,6 +47,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
 public class RestHandler extends AbstractHandler {
@@ -64,7 +64,6 @@ public class RestHandler extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		try {
-
 			RoleId roleId = this.authenticate(request);
 
 			// remove leading '/'
@@ -109,7 +108,7 @@ public class RestHandler extends AbstractHandler {
 					if (p != -1) {
 						String username = credentials.substring(0, p).trim();
 						String password = credentials.substring(p + 1).trim();
-						return this.parent.accessControl.login(username,password, false).getValue();
+						return this.parent.accessControl.login(username, password, false).getValue();
 					}
 				}
 			}
@@ -156,8 +155,8 @@ public class RestHandler extends AbstractHandler {
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	private void handleJsonRpc(Request baseRequest, HttpServletRequest httpRequest,
-							   HttpServletResponse httpResponse, RoleId roleId) throws OpenemsNamedException {
+	private void handleJsonRpc(Request baseRequest, HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+			RoleId roleId) throws OpenemsNamedException {
 		// call handler methods
 		if (!httpRequest.getMethod().equals("POST")) {
 			throw new OpenemsException(
@@ -213,23 +212,24 @@ public class RestHandler extends AbstractHandler {
 	 * Handles an JSON-RPC Request.
 	 * 
 	 * @param request the EdgeRpcRequest
-	 * @param roleId
+	 * @param roleId  the Role-ID
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsException on error
 	 */
-	private CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonRpcRequest(JsonrpcRequest request, RoleId roleId) throws OpenemsException, OpenemsNamedException {
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonRpcRequest(JsonrpcRequest request,
+			RoleId roleId) throws OpenemsException, OpenemsNamedException {
 		switch (request.getMethod()) {
 
 		case GetEdgesStatusRequest.METHOD:
-			return this.handleGetStatusOfEdgesRequest(request.getId(), GetEdgesStatusRequest.from(request), roleId);
+			return this.handleGetStatusOfEdgesRequest(roleId, request.getId(), GetEdgesStatusRequest.from(request));
 
 		case GetEdgesChannelsValuesRequest.METHOD:
-			return this.handleGetChannelsValuesRequest(request.getId(),
-					GetEdgesChannelsValuesRequest.from(request), roleId);
+			return this.handleGetChannelsValuesRequest(roleId, request.getId(),
+					GetEdgesChannelsValuesRequest.from(request));
 
 		case SetGridConnScheduleRequest.METHOD:
-			return this.handleSetGridConnScheduleRequest(request.getId(),
-					SetGridConnScheduleRequest.from(request), roleId);
+			return this.handleSetGridConnScheduleRequest(roleId, request.getId(),
+					SetGridConnScheduleRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -240,14 +240,14 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a GetStatusOfEdgesRequest.
 	 * 
+	 * @param roleId    the Role-ID
 	 * @param messageId the JSON-RPC Message-ID
 	 * @param request   the GetStatusOfEdgesRequest
-	 * @param roleId the role io
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GetEdgesStatusResponse> handleGetStatusOfEdgesRequest(UUID messageId,
-																					GetEdgesStatusRequest request, RoleId roleId) throws OpenemsNamedException {
+	private CompletableFuture<GetEdgesStatusResponse> handleGetStatusOfEdgesRequest(RoleId roleId, UUID messageId,
+			GetEdgesStatusRequest request) throws OpenemsNamedException {
 		Map<String, EdgeInfo> result = new HashMap<>();
 
 		for (String edgeId : this.parent.accessControl.getEdgeIds(roleId)) {
@@ -264,16 +264,18 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a GetChannelsValuesRequest.
 	 * 
+	 * @param roleId    the Role-ID
 	 * @param messageId the JSON-RPC Message-ID
 	 * @param request   the GetChannelsValuesRequest
-	 * @param roleId
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GetEdgesChannelsValuesResponse> handleGetChannelsValuesRequest(UUID messageId, GetEdgesChannelsValuesRequest request, RoleId roleId) throws OpenemsNamedException {
+	private CompletableFuture<GetEdgesChannelsValuesResponse> handleGetChannelsValuesRequest(RoleId roleId,
+			UUID messageId, GetEdgesChannelsValuesRequest request) throws OpenemsNamedException {
 		GetEdgesChannelsValuesResponse response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
-			Set<ChannelAddress> permittedChannels = this.parent.accessControl.intersectAccessPermission(roleId, edgeId, request.getChannels());
+			Set<ChannelAddress> permittedChannels = this.parent.accessControl.intersectAccessPermission(roleId, edgeId,
+					request.getChannels());
 			for (ChannelAddress channel : permittedChannels) {
 				Optional<JsonElement> value = this.parent.timeData.getChannelValue(edgeId, channel);
 				response.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
@@ -285,13 +287,14 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles a SetGridConnScheduleRequest.
 	 * 
+	 * @param roleId                     the Role-ID
 	 * @param messageId                  the JSON-RPC Message-ID
 	 * @param setGridConnScheduleRequest the SetGridConnScheduleRequest
-	 * @param roleId the role id
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSetGridConnScheduleRequest(UUID messageId, SetGridConnScheduleRequest setGridConnScheduleRequest, RoleId roleId) throws OpenemsNamedException {
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSetGridConnScheduleRequest(RoleId roleId,
+			UUID messageId, SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {
 		String edgeId = setGridConnScheduleRequest.getEdgeId();
 		this.parent.accessControl.assertExecutePermission(roleId, edgeId, SetGridConnScheduleRequest.METHOD);
 

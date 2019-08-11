@@ -9,6 +9,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
+// FIXME: Whats the sense of this Request if you drop the User completely?
 /**
  * Wraps a JSON-RPC Request from an authenticated User.
  * 

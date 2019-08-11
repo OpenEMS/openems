@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -215,7 +213,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(GetEdgeConfigRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(GetEdgeConfigRequest request)
+			throws OpenemsNamedException {
 		EdgeConfig config = this.getEdgeConfig();
 		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
@@ -228,7 +227,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(CreateComponentConfigRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(
+			CreateComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config;
 		try {
 			config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
@@ -262,7 +262,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(UpdateComponentConfigRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(
+			UpdateComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
 		// Create map with changed configuration attributes
@@ -296,7 +297,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(DeleteComponentConfigRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(
+			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
 		try {
@@ -317,10 +319,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @param properties the properties
 	 * @throws IOException on error
 	 */
-	private void applyConfiguration(Configuration config, Dictionary<String, Object> properties)
-			throws IOException {
+	private void applyConfiguration(Configuration config, Dictionary<String, Object> properties) throws IOException {
 		// FIXME take the logged in user
-		// properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId() + ": " + user.getName());
+		// properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId() + ": "
+		// + user.getName());
 		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
 				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
 		config.update(properties);
@@ -641,31 +643,5 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 		// falback to JsonUtils
 		return JsonUtils.getAsJsonElement(valueObj);
-	}
-
-	//FIXME
-	@Override
-	public List<String> checkForNotActivatedComponents() {
-		List<String> retVal = new ArrayList<>();
-		try {
-			Configuration[] configs = cm.listConfigurations("(enabled=true)");
-			if (configs != null) {
-				Arrays.stream(configs).forEach(config -> {
-					String componentId = (String) config.getProperties().get("id");
-					if (!this.isComponentActivated(componentId, config.getPid())) {
-						retVal.add(componentId);
-					}
-				});
-			}
-		} catch (IOException | InvalidSyntaxException e) {
-			this.logError(this.log, e.getMessage());
-		}
-		return retVal;
-	}
-
-	@Override
-	public boolean isComponentActivated(String componentId, String pid) {
-		return components.stream().anyMatch(
-			com -> (componentId.equals(com.id()) && pid.equals(com.servicePid())));
 	}
 }

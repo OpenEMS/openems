@@ -1,16 +1,16 @@
 package io.openems.common.jsonrpc.notification;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.utils.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
+
+import io.openems.common.jsonrpc.base.JsonrpcNotification;
+
+// FIXME: why do we need this? I don't see it being used anywhere.
 /**
  * This Notification wraps a list of {@link EdgeRpcNotification} and returns those as a JsonArray for sending it to the
  * UI

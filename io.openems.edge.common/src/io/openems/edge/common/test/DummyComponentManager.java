@@ -12,7 +12,6 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import org.slf4j.Logger;
 
 /**
  * Simulates a ComponentManager for the OpenEMS Component test framework.
@@ -79,28 +78,6 @@ public class DummyComponentManager implements ComponentManager {
 	@Override
 	public Collection<Channel<?>> channels() {
 		return new ArrayList<>();
-	}
-
-	@Override
-	public boolean isComponentActivated(String componentId, String pid) {
-		return false;
-		// FIXME take care of this
-	}
-
-	@Override
-	public void logWarn(Logger log, String s) {
-		// FIXME take care of this
-	}
-
-	@Override
-	public void logError(Logger log, String message) {
-		// FIXME take care of this
-	}
-
-	@Override
-	public List<String> checkForNotActivatedComponents() {
-		// FIXME
-		return null;
 	}
 
 }
