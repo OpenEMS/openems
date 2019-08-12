@@ -20,6 +20,10 @@ export module DefaultTypes {
     system: {
       // the balance sheet total power of all power that enters the the system (production, discharge, buy-from-grid), respectively leaves the system (consumption, charge, sell-to-grid)
       totalPower: number,
+      // autarchy in percent
+      autarchy: number,
+      // self consumption in percent
+      selfConsumption: number
     }, storage: {
       soc: number,
       chargeActivePower: number,

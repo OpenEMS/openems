@@ -9,31 +9,67 @@
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.production as sum">
                 <ion-grid no-padding>
-                    <table class="full_width">
-                        <!-- DC -->
-                        <tr *ngIf="sum.activePowerDC != null">
+                    <table class="full_width" *ngIf="sum.activePowerAC != null && sum.activePowerDC != null">
+                        <tr>
                             <td style="width:65%">
                                 <span translate>General.Production</span> DC</td>
-                            <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
-                            <td style="width:10%">&nbsp;W</td>
+                            <ng-container *ngIf="sum.activePowerDC != 0; else empty">
+                                <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
                         </tr>
-                        <!-- AC -->
-                        <ng-container *ngIf="sum.activePowerAC != null">
-                            <tr>
-                                <td style="width:65%" translate>General.Production
-                                    <span *ngIf="currentData.summary.storage.chargeActivePowerDC != null"> AC</span>
-                                </td>
-                                <ng-container *ngIf="sum.activePowerAC != 0; else empty">
-                                    <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}
-                                    </td>
-                                    <td style="width:10%">&nbsp;W</td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td style="width:25%" class="align_right">-</td>
-                                    <td style="width:10%"></td>
-                                </ng-template>
-                            </tr>
-                        </ng-container>
+                        <tr>
+                            <td style="width:65%" translate>General.Production
+                                <span> AC</span>
+                            </td>
+                            <ng-container *ngIf="sum.activePowerAC != 0; else empty">
+                                <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                    </table>
+
+                    <table class="full_width" *ngIf="sum.activePowerAC != null && sum.activePowerDC == null">
+                        <tr>
+                            <td style="width:65%"></td>
+                            <ng-container *ngIf="sum.activePowerAC != 0; else empty">
+                                <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                    </table>
+                    <table class="full_width" *ngIf="sum.activePowerAC == null && sum.activePowerDC != null">
+                        <tr>
+                            <td style="width:65%"></td>
+                            <ng-container *ngIf="sum.activePowerDC != 0; else empty">
+                                <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                    </table>
+
+                    <table class="full_width" *ngIf="sum.activePowerAC == null && sum.activePowerDC == null">
+                        <tr>
+                            <td style="width:65%"></td>
+                            <td style="width:25%" class="align_right">-</td>
+                            <td style="width:10%"></td>
+                        </tr>
                     </table>
                 </ion-grid>
             </ion-card-content>

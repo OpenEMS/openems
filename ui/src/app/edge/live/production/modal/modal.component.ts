@@ -29,14 +29,17 @@ export class ProductionModalComponent {
         this.service.getConfig().then(config => {
             this.config = config;
             let channels = [];
-            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
+            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => !component.isEnabled == false);
             for (let component of this.chargerComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'ActualPower'),
                 )
             }
             this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => {
-                if (component.properties['type'] == "PRODUCTION") {
+                if (component.isEnabled == false) {
+                    return false;
+                }
+                else if (component.properties['type'] == "PRODUCTION") {
                     return true;
                 } else {
                     // TODO make sure 'type' is provided for all Meters

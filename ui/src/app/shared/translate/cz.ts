@@ -67,6 +67,9 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
+                Channeltreshold: {
+                    Output: "Výstup"
+                },
                 Info: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 CHP: {
                     LowThreshold: "Nízký práh",

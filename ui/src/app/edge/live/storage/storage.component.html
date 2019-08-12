@@ -19,12 +19,34 @@
             </ion-item>
             <ion-card-content>
                 <ion-grid no-padding>
+
+                    <!-- <svg width="500" height="20">
+                        <rect stroke="black" fill="#2d8fab" fill-opacity="1" width="500" height="20"
+                            style="fill:grey" />
+                        <rect x="1" y="2" width="150" height="16" style="fill:#2d8fab" />
+                        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">{{sum.soc}}%</text>
+                    </svg> -->
+
                     <table class="full_width">
-                        <tr class="underline">
+                        <tr>
+                            <td style="width:100%">
+                                <svg width="100%" height="20">
+                                    <rect width="100%" height="20" style="fill:#f4f4f4" />
+                                    <rect x="1" y="2" attr.width="{{sum.soc}}%" height="16" style="fill:#2d8fab" />
+                                    <text x="50%" y="58%" dominant-baseline="middle"
+                                        text-anchor="middle">{{sum.soc}}%</text>
+                                </svg>
+                            </td>
+                            <!-- <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td> -->
+                            <!-- <td style="width:10%">&nbsp;%</td> -->
+                        </tr>
+                    </table>
+                    <table class="full_width">
+                        <!-- <tr class="underline">
                             <td style="width:65%" translate>General.Soc</td>
                             <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td>
                             <td style="width:10%">&nbsp;%</td>
-                        </tr>
+                        </tr> -->
                         <tr>
                             <td style="width:65%" translate>General.ChargePower</td>
                             <ng-container *ngIf="sum.effectiveChargePower != null; else empty">

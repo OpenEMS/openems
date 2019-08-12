@@ -69,6 +69,9 @@ export const TRANSLATION = {
                 ProductionDC: "Erzeugung DC"
             },
             Widgets: {
+                Channeltreshold: {
+                    Output: "Ausgang"
+                },
                 Info: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",

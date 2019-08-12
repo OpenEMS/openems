@@ -1,0 +1,25 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card>
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <img src="assets/img/selfconsumption.png">
+                </ion-avatar>
+                <ion-label>Eigenverbrauch</ion-label>
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary as sum">
+                <ion-grid no-padding>
+                    <ion-row>
+                        <svg width="100%" height="20">
+                            <rect width="100%" height="20" style="fill:#f4f4f4" />
+                            <rect x="1" y="2" attr.width="{{sum.system.selfConsumption}}%" height="16"
+                                style="fill:#2d8fab" />
+                            <text x="50%" y="58%" dominant-baseline="middle"
+                                text-anchor="middle">{{sum.system.selfConsumption | number:'1.0-0'}}%</text>
+                        </svg>
+                    </ion-row>
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

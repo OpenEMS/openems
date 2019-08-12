@@ -15,6 +15,8 @@ export class CurrentData {
         let result: DefaultTypes.Summary = {
             system: {
                 totalPower: null,
+                autarchy: null,
+                selfConsumption: null
             }, storage: {
                 soc: null,
                 chargeActivePower: null, // sum of chargeActivePowerAC and chargeActivePowerDC
@@ -170,6 +172,14 @@ export class CurrentData {
                 + result.storage.chargeActivePowerAC,
                 + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
             );
+            result.system.autarchy = (1 - (Utils.orElse(result.grid.buyActivePower, 0) / result.consumption.activePower)) * 100;
+            result.system.selfConsumption = (1 - (Utils.orElse(result.grid.sellActivePower, 0) / (Utils.orElse(result.production.activePower, 0) + Utils.orElse(result.storage.dischargeActivePower, 0)))) * 100;
+            if (result.system.autarchy < 0 || isNaN(result.system.autarchy)) {
+                result.system.autarchy = 0;
+            }
+            if (result.system.selfConsumption < 0 || isNaN(result.system.selfConsumption)) {
+                result.system.selfConsumption = 0;
+            }
         }
         return result;
     }

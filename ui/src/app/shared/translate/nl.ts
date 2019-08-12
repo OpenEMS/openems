@@ -65,6 +65,9 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
+                Channeltreshold: {
+                    Output: "uitgang"
+                },
                 Info: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",

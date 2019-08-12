@@ -17,6 +17,8 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { GridModalComponent } from './grid/modal/modal.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
+import { AutarchyComponent } from './autarchy/autarchy.component';
+import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 
 @NgModule({
   imports: [
@@ -41,7 +43,9 @@ import { ProductionModalComponent } from './production/modal/modal.component';
     GridModalComponent,
     ChpSocComponent,
     ConsumptionModalComponent,
-    ProductionModalComponent
+    ProductionModalComponent,
+    AutarchyComponent,
+    SelfConsumptionComponent
   ]
 })
 export class LiveModule { }

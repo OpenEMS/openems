@@ -1,12 +1,30 @@
 <ion-card *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
-  <ion-item *ngIf="(edge.currentData | async).channel as channel">
-    <ion-icon *ngIf="channel[outputChannel.toString()] == null" name="help"></ion-icon>
-    <ion-icon *ngIf="channel[outputChannel.toString()] == 1" name="radio-button-on"></ion-icon>
-    <ion-icon *ngIf="channel[outputChannel.toString()] == 0" name="radio-button-off"></ion-icon>
-    <!-- TODO Fix formatting -->
-    <ion-label>
-      <ion-card-title>Ausgang {{ outputChannel.channelId }}</ion-card-title>
-    </ion-label>
+  <ion-item lines="full" color="light">
+    <ion-avatar slot="start">
+      <img src="assets/img/relays.png">
+    </ion-avatar>
+    <ion-label translate>Edge.Index.Widgets.Channeltreshold.Output</ion-label>
   </ion-item>
+  <ion-card-content *ngIf="(edge.currentData | async).channel as channel">
+    <ion-grid no-padding>
+      <table class="full_width">
+        <tr>
+          <td style="width: 10%">
+            <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == null" name="help"></ion-icon>
+            <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == 1" name="radio-button-on"></ion-icon>
+            <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == 0" name="radio-button-off"></ion-icon>
+          </td>
+          <td style="width: 90%" *ngIf="component.id != component.alias" translate>
+            &nbsp;{{component.alias}}
+          </td>
+          <td style="width: 90%" *ngIf="component.id == component.alias" translate>
+            {{ outputChannel.channelId }}
+          </td>
+        </tr>
+      </table>
+    </ion-grid>
+  </ion-card-content>
 </ion-card>
+
+<!-- &nbsp;<span translate>Edge.Index.Widgets.Channeltreshold.Output</span>&nbsp; -->

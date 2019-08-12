@@ -2,10 +2,12 @@ import { EdgeConfig } from '../edge/edgeconfig';
 import { Edge } from '../edge/edge';
 
 export enum WidgetClass {
+    'Autarchy',
+    'Selfconsumption',
     'Storage',
     'Grid',
     'Production',
-    'Consumption'
+    'Consumption',
 }
 
 export enum WidgetNature {
@@ -44,6 +46,10 @@ export class Widgets {
                         return config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 0;
                     case 'Production':
                         return true; // TODO evaluate if there is a production unit
+                    case 'Autarchy':
+                        return true;
+                    case 'Selfconsumption':
+                        return true;
                 };
                 return false;
             }).map(clazz => clazz.toString());

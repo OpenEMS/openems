@@ -51,7 +51,6 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'MinimumPower'),
         new ChannelAddress(this.componentId, 'MaximumPower')
       ]);
-
     });
 
     // Gets the Controller for the given EVCS-Component.

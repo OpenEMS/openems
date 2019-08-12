@@ -173,6 +173,15 @@ export class EdgeConfig {
     }
 
     /**
+     * Get the Component.
+     * 
+     * @param componentId the Component-ID
+     */
+    public getComponent(componentId: string): EdgeConfig.Component {
+        return this.components[componentId];
+    }
+
+    /**
      * Get the Component properties.
      * 
      * @param componentId the Component-ID
