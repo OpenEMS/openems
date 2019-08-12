@@ -24,7 +24,12 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
+	public List<OpenemsComponent> getEnabledComponents() {
+		return Collections.unmodifiableList(this.components);
+	}
+
+	@Override
+	public List<OpenemsComponent> getAllComponents() {
 		return Collections.unmodifiableList(this.components);
 	}
 
@@ -33,10 +38,11 @@ public class DummyComponentManager implements ComponentManager {
 	 * 
 	 * @param component
 	 */
-	public void addComponent(OpenemsComponent component) {
+	public DummyComponentManager addComponent(OpenemsComponent component) {
 		if (component != this) {
 			this.components.add(component);
 		}
+		return this;
 	}
 
 	@Override
