@@ -1,0 +1,13 @@
+#
+# io.openems.edge.goodwe.et DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.goodwe.et.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

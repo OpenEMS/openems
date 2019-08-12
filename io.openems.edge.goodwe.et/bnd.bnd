@@ -1,0 +1,31 @@
+#
+# io.openems.edge.goodwe.et PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: 
+
+Export-Package:  \
+	io.openems.edge.ess.api,\
+	io.openems.edge.ess.power.api
+
+Private-Package:  \
+	io.openems.edge.goodwe.et,\
+	io.openems.edge.goodwe.et.gridmeter,\
+	io.openems.edge.goodwe.et.pvmeter
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.battery.api,\
+	io.openems.edge.common,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.controller.selltogridlimit
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
