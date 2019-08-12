@@ -2,6 +2,12 @@ package io.openems.common.accesscontrol;
 
 import java.util.Objects;
 
+/**
+ * This class represents a machine or another application which wants to communicate with 'us'. Since a application cannot login with a
+ * username and password (see {@link User}), it is holding an application key which gets used for the authentication
+ *
+ * @author Sebastian.Walbrun
+ */
 public class Machine {
 
 	private String id;
@@ -11,7 +17,7 @@ public class Machine {
 	private ApplicationType type;
 	private RoleId role;
 
-	public String getId() {
+	String getId() {
 		return id;
 	}
 
@@ -19,7 +25,7 @@ public class Machine {
 		this.id = id;
 	}
 
-	public String getName() {
+	String getName() {
 		return name;
 	}
 
@@ -27,7 +33,7 @@ public class Machine {
 		this.name = name;
 	}
 
-	public String getDescription() {
+	String getDescription() {
 		return description;
 	}
 
@@ -35,7 +41,7 @@ public class Machine {
 		this.description = description;
 	}
 
-	public String getApiKey() {
+	String getApiKey() {
 		return apiKey;
 	}
 
@@ -43,7 +49,7 @@ public class Machine {
 		this.apiKey = apiKey;
 	}
 
-	public ApplicationType getType() {
+	ApplicationType getType() {
 		return type;
 	}
 
@@ -51,7 +57,7 @@ public class Machine {
 		this.type = type;
 	}
 
-	public RoleId getRole() {
+	RoleId getRole() {
 		return role;
 	}
 

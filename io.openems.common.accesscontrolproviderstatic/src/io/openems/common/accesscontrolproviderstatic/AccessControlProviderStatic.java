@@ -23,7 +23,22 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.ChannelAddress;
 
-// FIXME I don't like the Component-Name too much - it's quite redundant
+/**
+ * This implementation of a {@link AccessControlProvider} can be configured via the Apache Felix Web interface for configuring
+ * four default users:
+ * <ul>
+ *     <li>Admin</li>
+ *     <li>Installer</li>
+ *     <li>Owner</li>
+ *     <li>Guest</li>
+ * </ul>
+ * Those users have a one to one relation to a role which has static permissions. Those permissions correlate to the 'default'
+ * respectively 'easiest' case of using the OpenEMS.<br />
+ * The priority of this provider should be quite low (high number) and the default passwords should be changed otherwise it is easy
+ * to 'hack' the system
+ *
+ * @author Sebastian.Walbrun
+ */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "AccessControlProviderStatic", //

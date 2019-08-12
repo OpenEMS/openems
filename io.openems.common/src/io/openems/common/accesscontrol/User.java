@@ -9,6 +9,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 
+/**
+ * This class represents a user which is in a normal context a human being with feelings and stuff.
+ * A user has among other things a username and password which allows him to log in. Every user is assigned to exactly one {@link Role}
+ * which is holding the {@link ExecutePermission} and {@link io.openems.common.channel.AccessMode}
+ *
+ * @author Sebastian.Walbrun
+ */
 public class User {
 
     /**
@@ -45,11 +52,11 @@ public class User {
         this.role = role;
     }
 
-    public String getId() {
+    String getId() {
         return id;
     }
 
-    public String getUsername() {
+    String getUsername() {
         return username;
     }
 
@@ -58,7 +65,7 @@ public class User {
      * @param password
      * @return
      */
-    public boolean validateHashedPassword(String password) {
+    boolean validateHashedPassword(String password) {
         if (this.password == null || this.salt == null) {
             // no password existing -> allow access
             return true;
@@ -71,7 +78,7 @@ public class User {
      * @param password
      * @return
      */
-    public boolean validatePlainPassword(String password) {
+    boolean validatePlainPassword(String password) {
         if (this.password == null || this.salt == null) {
             // no password existing -> allow access
             return true;
@@ -104,7 +111,7 @@ public class User {
         }
     }
 
-    public RoleId getRoleId() {
+    RoleId getRoleId() {
         return role;
     }
 

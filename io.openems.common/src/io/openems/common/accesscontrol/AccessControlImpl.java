@@ -59,6 +59,7 @@ public class AccessControlImpl implements AccessControl {
         UUID sessionId = null;
         if (createSession) {
             Optional<Map.Entry<UUID, RoleId>> entry = this.sessionTokens.entrySet().stream().filter((e) -> e.getValue().equals(roleId)).findAny();
+            // TODO replace with ifPresentOrElse with Java 9
             if (entry.isPresent()) {
                 this.log.info("Creating a new Session for role (" + entry.get().getValue() + ") did not work since a valid session is already up");
                 sessionId = entry.get().getKey();
@@ -99,13 +100,6 @@ public class AccessControlImpl implements AccessControl {
     }
 
     @Override
-    public String getUsernameForToken(UUID token) {
-        final String[] retVal = new String[1];
-        this.activeUsers.entrySet().stream().filter(e -> e.getKey().equals(token)).findAny().ifPresent(e -> retVal[0] = e.getValue().getUsername());
-        return retVal[0];
-    }
-
-    @Override
     public void assertExecutePermission(RoleId roleId, String edgeId, String method)
             throws AuthenticationException, AuthorizationException {
         initializeProviders();
@@ -134,6 +128,11 @@ public class AccessControlImpl implements AccessControl {
     @Override
     public Set<String> getEdgeIds(RoleId roleId) throws AuthenticationException {
         return this.getRole(roleId).getEdgeIds();
+    }
+
+    @Override
+    public Optional<String> getUsernameForToken(UUID token) {
+        return this.activeUsers.entrySet().stream().filter(e -> e.getKey().equals(token)).findAny().map(Map.Entry::getValue).map(User::getUsername);
     }
 
     /**

@@ -74,8 +74,6 @@ public class AccessControlTest {
             return this.accessControl.login(DUMMY_NAME, DUMMY_PASSWORD, DUMMY_ROLE_ID);
         } catch (AuthenticationException e) {
             fail("Valid login did not work");
-        } catch (ServiceNotAvailableException e) {
-            fail("AccessControlImpl was not initialized before");
         }
         return null;
     }
@@ -87,8 +85,6 @@ public class AccessControlTest {
            this.parent.accessControl.assertPermissionForChannel(roleId, this.createDummyChannel(DUMMY_COMPONENT, STATE), ExecutePermission.READ);
         } catch (AuthenticationException | AuthorizationException e) {
             fail("Valid role did not get roles");
-        } catch (ServiceNotAvailableException e) {
-            fail("AccessControlImpl was not initialized before");
         }
     }
 
@@ -108,8 +104,6 @@ public class AccessControlTest {
             assertNotEquals(dummyChannels, channelAddresses);
         } catch (AuthenticationException e) {
             fail("Valid role did not get roles");
-        } catch (ServiceNotAvailableException e) {
-            fail("AccessControlImpl was not initialized before");
         }
     }*/
 }
