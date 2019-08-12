@@ -1,10 +1,16 @@
-package io.openems.common.accesscontrol;
+package io.openems.common.accesscontrolproviderstatic;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import io.openems.common.accesscontrol.AccessControlDataManager;
+import io.openems.common.accesscontrol.AccessControlProvider;
+import io.openems.common.accesscontrol.ExecutePermission;
+import io.openems.common.accesscontrol.Role;
+import io.openems.common.accesscontrol.RoleId;
+import io.openems.common.accesscontrol.User;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,15 +24,15 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.types.ChannelAddress;
 
 // FIXME I don't like the Component-Name too much - it's quite redundant
-@Designate(ocd = ConfigStatic.class, factory = true)
+@Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "common.AccessControlProvider.AccessControlProviderStatic", //
+		name = "AccessControlProviderStatic", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class AccessControlProviderStatic implements AccessControlProvider {
 
-	protected final Logger log = LoggerFactory.getLogger(AccessControlProviderJson.class);
+	protected final Logger log = LoggerFactory.getLogger(AccessControlProviderStatic.class);
 
 	private int priority;
 
@@ -47,7 +53,7 @@ public class AccessControlProviderStatic implements AccessControlProvider {
 	private Role roleGuest;
 
 	@Activate
-	void activate(ComponentContext componentContext, BundleContext bundleContext, ConfigStatic config) {
+	void activate(ComponentContext componentContext, BundleContext bundleContext, Config config) {
 		this.priority = config.priority();
 
 		// TODO @s.feilmeier set the correct permissions

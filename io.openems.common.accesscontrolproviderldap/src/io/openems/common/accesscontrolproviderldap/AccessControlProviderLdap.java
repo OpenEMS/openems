@@ -25,7 +25,7 @@ import java.util.Hashtable;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Access Control Provider LDAP", //
+		name = "AccessControlProviderLap", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

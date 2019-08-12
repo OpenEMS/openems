@@ -1,4 +1,4 @@
-package io.openems.common.accesscontrol;
+package io.openems.common.accesscontrolproviderstatic;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition( //
 		name = "Access Control Provider Static", //
 		description = "This component handles static user authentication.")
-@interface ConfigStatic {
+@interface Config {
 	@AttributeDefinition(name = "Admin: password", description = "hashed password for User 'admin'", type = AttributeType.PASSWORD)
 	String adminPassword() default "txASlUVQkEI9Bxa/IZOJe8l3+R4lMzFTShz27vK44go=";
 

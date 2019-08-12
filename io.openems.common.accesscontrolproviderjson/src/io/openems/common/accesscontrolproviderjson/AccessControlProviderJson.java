@@ -43,7 +43,7 @@ import static io.openems.common.utils.JsonKeys.*;
  * @author Sebastian.Walbrun
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Access Control Provider JSON",
+@Component(name = "AccessControlProviderJson",
         immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class AccessControlProviderJson implements AccessControlProvider {

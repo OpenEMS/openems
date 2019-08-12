@@ -21,6 +21,7 @@
 	bnd.identity;id='io.openems.common',\
 	bnd.identity;id='io.openems.common.accesscontrolproviderldap',\
 	bnd.identity;id='io.openems.common.accesscontrolproviderjson',\
+	bnd.identity;id='io.openems.common.accesscontrolproviderstatic',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -104,6 +105,7 @@
 	io.openems.common;version=snapshot,\
 	io.openems.common.accesscontrolproviderldap;version=snapshot,\
 	io.openems.common.accesscontrolproviderjson;version=snapshot,\
+	io.openems.common.accesscontrolproviderstatic;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
