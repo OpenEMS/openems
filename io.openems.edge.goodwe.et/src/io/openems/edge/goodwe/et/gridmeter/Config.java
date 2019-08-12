@@ -28,5 +28,4 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	String webconsole_configurationFactory_nameHint() default "Goodwe ET Grid-Meter [{id}]";
 	
-	
 }

@@ -112,9 +112,7 @@ public class FeneconGoodweGridMeter extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(35140),
 								ElementToChannelConverter.INVERT), //
 						new DummyRegisterElement(35141),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedWordElement(35142)) //
-				)
-		);
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedWordElement(35142))));
 	}
 
 	@Override
