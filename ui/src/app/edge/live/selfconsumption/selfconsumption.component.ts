@@ -12,7 +12,6 @@ export class SelfConsumptionComponent {
     private static readonly SELECTOR = "selfconsumption";
 
     public edge: Edge = null;
-    public selfconsumptionPercentage: Number = null;
 
     constructor(
         public service: Service,

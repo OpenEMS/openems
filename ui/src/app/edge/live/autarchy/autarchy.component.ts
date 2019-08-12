@@ -12,7 +12,6 @@ export class AutarchyComponent {
     private static readonly SELECTOR = "autarchy";
 
     public edge: Edge = null;
-    public autarchyPercentage: Number = null;
 
     constructor(
         public service: Service,
