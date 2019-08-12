@@ -61,9 +61,10 @@ public class User {
     }
 
     /**
-     * TODO find out which way is the smarter one {@link User#validatePlainPassword(String)}
-     * @param password
-     * @return
+     * Validates the hashed password
+     *
+     * @param password the hashed password
+     * @return true if success false otherwise
      */
     boolean validateHashedPassword(String password) {
         if (this.password == null || this.salt == null) {
@@ -74,9 +75,10 @@ public class User {
     }
 
     /**
-     * TODO find out which way is the smarter one {@link User#validateHashedPassword(String)}
-     * @param password
-     * @return
+     * Validates the plain password
+     *
+     * @param password the plain password
+     * @return true if success false otherwise
      */
     boolean validatePlainPassword(String password) {
         if (this.password == null || this.salt == null) {

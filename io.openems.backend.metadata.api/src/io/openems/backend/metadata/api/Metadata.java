@@ -19,6 +19,10 @@ import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 
+/**
+ * This interface reads information from the source of the concrete implementation. Those information are used to handle the registration
+ * of edges on the backend. It also reads some meta information about the registering edges
+ */
 @ProviderType
 public interface Metadata {
 

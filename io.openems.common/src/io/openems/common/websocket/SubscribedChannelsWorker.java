@@ -34,8 +34,6 @@ public abstract class SubscribedChannelsWorker {
 
 	private int lastRequestCount = Integer.MIN_VALUE;
 
-	private String lastSetEdgeId;
-
 	public SubscribedChannelsWorker(WsData wsData) {
 		this.wsData = wsData;
 	}
@@ -46,11 +44,10 @@ public abstract class SubscribedChannelsWorker {
 	 * @param permittedChannels the permitted channels
 	 */
 	public synchronized void handleSubscribeChannelsRequest(int requestCount, Set<ChannelAddress> permittedChannels, String edgeId) {
-		// TODO comment in again
-		// if (this.lastRequestCount < requestCount) {
+		if (this.lastRequestCount < requestCount) {
 			this.setChannels(permittedChannels, edgeId);
 			this.lastRequestCount = requestCount;
-		//}
+		}
 	}
 
 	/**
@@ -78,7 +75,6 @@ public abstract class SubscribedChannelsWorker {
 		this.future = this.executor.scheduleWithFixedDelay(this::doCyclicWork, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 
 		// reset the edge id for making sure that a new assignment does not get mixed with an old one
-		lastSetEdgeId = null;
 	}
 
 	public abstract void clearAll();

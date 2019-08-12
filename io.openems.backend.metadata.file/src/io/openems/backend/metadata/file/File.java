@@ -27,7 +27,20 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * This implementation of MetadataService reads Edges configuration from a file.
- * TODO Fill the comment as soon as the logic works
+ * The path of the config is used to determine the location of the file which has to be JSON encoded with the following structure:
+ * <pre>
+ *  {
+ *    "edges" : [{
+ *    	"edgeId": string,
+ *    	"apiKey": string,
+ *    	"comment": string,
+ *    	"version": string,
+ *    	"productType": string,
+ *    	"ipv4": string,
+ *    	"soc": string,
+ *    }]
+ *  }
+ *  </pre>
  */
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Metadata.File", configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -98,11 +111,11 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 					JsonUtils.getAsString(jEdge, JsonKeys.API_KEY.value()),
 					JsonUtils.getAsString(jEdge, JsonKeys.COMMENT.value()),
 					State.ACTIVE,
-                    JsonUtils.getAsString(jEdge, JsonKeys.VERSION.value()),
-                    JsonUtils.getAsString(jEdge, JsonKeys.PRODUCT_TYPE.value()),
+					JsonUtils.getAsString(jEdge, JsonKeys.VERSION.value()),
+					JsonUtils.getAsString(jEdge, JsonKeys.PRODUCT_TYPE.value()),
 					new EdgeConfig(),
-                    JsonUtils.getAsInt(jEdge, JsonKeys.SOC.value()),
-                    JsonUtils.getAsString(jEdge, JsonKeys.IPV4.value()),
+					JsonUtils.getAsInt(jEdge, JsonKeys.SOC.value()),
+					JsonUtils.getAsString(jEdge, JsonKeys.IPV4.value()),
 					Level.OK
 				);
 				this.edges.put(edgeId, edge);

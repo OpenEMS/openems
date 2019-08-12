@@ -365,7 +365,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
         this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, SubscribeSystemLogRequest.METHOD);
 
-        // TODO @Stefan: Muss hier noch eine weitere Prüfung auf Channels durchgeführt werden? Der RPC hört sich so nach
+        // TODO @s.feilmeier: Muss hier noch eine weitere Prüfung auf Channels durchgeführt werden? Der RPC hört sich so nach
         // zyklischen Channel Informationen an
 
         this.parent.handleSubscribeSystemLogRequest(token, request);
