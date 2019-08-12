@@ -1,5 +1,7 @@
-package io.openems.common.accesscontrol;
+package io.openems.common.accesscontrolproviderldap;
 
+import io.openems.common.accesscontrol.AccessControlDataManager;
+import io.openems.common.accesscontrol.AccessControlProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -13,10 +15,17 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.util.Hashtable;
 
-// FIXME: this should be in a separate bundle. Also I don't like the Component-Name too much - it's quite redundant
-@Designate(ocd = ConfigLdap.class, factory = true)
+/**
+ * This implementation of a {@link AccessControlProvider} can be configured used for connecting to a LDAP server which is already holding
+ * the configuration of the roles, users and machines
+ *
+ * Does currently not work yet.
+ *
+ * @author Sebastian.Walbrun
+ */
+@Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "common.AccessControlProvider.AccessControlProviderLdap", //
+		name = "Access Control Provider LDAP", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -26,7 +35,7 @@ public class AccessControlProviderLdap implements AccessControlProvider {
 	private int priority;
 
 	@Activate
-	void activate(ComponentContext componentContext, BundleContext bundleContext, ConfigLdap config) {
+	void activate(ComponentContext componentContext, BundleContext bundleContext, Config config) {
 		this.path = path;
 		this.priority = config.priority();
 	}

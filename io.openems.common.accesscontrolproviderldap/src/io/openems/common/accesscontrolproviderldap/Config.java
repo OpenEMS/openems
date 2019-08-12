@@ -1,4 +1,4 @@
-package io.openems.common.accesscontrol;
+package io.openems.common.accesscontrolproviderldap;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
         name = "Access Control Data Source Ldap", //
         description = "Can be configured for activating the Access Control")
-@interface ConfigLdap {
+@interface Config {
 
     @AttributeDefinition(name = "Host", description = "The ldap server address")
     String host();

@@ -8,6 +8,7 @@ import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.FileUtils;
 import io.openems.common.utils.JsonKeys;
@@ -82,15 +83,11 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 			return;
 		}
 
-		StringBuilder sb = FileUtils.checkAndGetFileContent(this.path);
-		if (sb == null) {
-			// exception occurred. File could not be read
-			return;
-		}
-
 		// parse to JSON
 		try {
-			JsonElement config = JsonUtils.parse(sb.toString());
+			// throws exception in case the file could not be read
+			StringBuilder sb = FileUtils.checkAndGetFileContent(this.path);
+			JsonElement config = JsonUtils.parse(sb != null ? sb.toString() : null);
 			JsonArray jEdges = JsonUtils.getAsJsonArray(config, JsonKeys.EDGES.value());
 			for (JsonElement jEdge : jEdges) {
 				// handle the user

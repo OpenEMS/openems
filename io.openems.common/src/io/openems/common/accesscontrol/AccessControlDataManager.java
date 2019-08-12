@@ -8,7 +8,7 @@ import java.util.Set;
  *
  * @author Sebastian.Walbrun
  */
-interface AccessControlDataManager {
+public interface AccessControlDataManager {
 
     /**
      * This method adds the handed over roles to the existing ones.

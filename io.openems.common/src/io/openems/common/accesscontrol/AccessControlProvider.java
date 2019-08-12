@@ -1,5 +1,7 @@
 package io.openems.common.accesscontrol;
 
+import io.openems.common.exceptions.OpenemsException;
+
 /**
  * This interface can be used for initializing the {@link AccessControlDataManager}. The implementations of this class
  * provide a set of {@link User users} and {@link Role roles} which are stored in any way. The information will then
@@ -7,14 +9,14 @@ package io.openems.common.accesscontrol;
  *
  * @author Sebastian.Walbrun
  */
-interface AccessControlProvider extends Comparable<AccessControlProvider> {
+public interface AccessControlProvider extends Comparable<AccessControlProvider> {
 
     /**
      * This method gets called while the service is starting up. With the call of this method the provider can fetch its
      * information and set it into the handed over data manager
      * @param accessControlDataManager the data manager which needs to be initialized
      */
-    void initializeAccessControl(AccessControlDataManager accessControlDataManager);
+    void initializeAccessControl(AccessControlDataManager accessControlDataManager) throws OpenemsException;
 
     /**
      * This priority gets used by the {@link AccessControl} for sorting all configured providers. The providers which

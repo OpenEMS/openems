@@ -12,6 +12,7 @@ EnRoute-Application: io.openems.edge.application
 -buildpath: ${buildpath},\
     info.faljse:SDNotify;version=1.1,\
 	io.openems.common;version=latest,\
+	io.openems.common.accesscontrolproviderldap;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\

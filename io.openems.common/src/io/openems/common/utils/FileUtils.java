@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import io.openems.common.exceptions.OpenemsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ public class FileUtils {
 
     private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
-    public static StringBuilder checkAndGetFileContent(String path) {
+    public static StringBuilder checkAndGetFileContent(String path) throws OpenemsException {
         if (path == null || path.isEmpty()) {
             log.info("No path given - so no content can be loaded!");
             return null;
@@ -26,8 +27,7 @@ public class FileUtils {
             }
         } catch (IOException e) {
             log.warn("Unable to read file [" + path + "]: " + e.getMessage());
-            e.printStackTrace();
-            return null;
+            throw new OpenemsException(e);
         }
         return sb;
     }

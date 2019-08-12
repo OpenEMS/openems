@@ -157,8 +157,12 @@ public class AccessControlImpl implements AccessControl {
         providers.removeAll(initializedProviders);
         Collections.sort(providers);
         providers.forEach(p -> {
-            p.initializeAccessControl(accessControlDataManager);
-            initializedProviders.add(p);
+            try {
+                p.initializeAccessControl(accessControlDataManager);
+                initializedProviders.add(p);
+            } catch (OpenemsException e) {
+                this.log.warn("AccessControlProvider (" + p + ") could not initialize the access control", e);
+            }
         });
         providers.clear();
     }

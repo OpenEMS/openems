@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.FileUtils;
 import io.openems.common.utils.JsonKeys;
@@ -41,16 +42,13 @@ public class AccessControlProviderJson implements AccessControlProvider {
         this.priority = config.priority();
     }
 
-    public void initializeAccessControl(AccessControlDataManager accessControlDataManager) {
+    public void initializeAccessControl(AccessControlDataManager accessControlDataManager) throws OpenemsException {
+        // throws exception in case the file could not be read
         StringBuilder sb = FileUtils.checkAndGetFileContent(path);
-        if (sb == null) {
-            // exception occurred. File could not be read
-            return;
-        }
 
         JsonElement config;
         try {
-            config = JsonUtils.parse(sb.toString());
+            config = JsonUtils.parse(sb != null ? sb.toString() : null);
         } catch (OpenemsError.OpenemsNamedException e) {
             this.log.warn("Unable to parse JSON-file [" + path + "]: " + e.getMessage());
             return;
