@@ -80,7 +80,7 @@ public class AccessControlProviderStatic implements AccessControlProvider {
 		this.roleAdmin = new Role(roleIdAdmin);
 		Map<ChannelAddress, AccessMode> adminChannelPermissions = new HashMap<>();
 		adminChannelPermissions.put(new ChannelAddress(".*", ".*"), AccessMode.READ_WRITE);
-		adminChannelPermissions.put(new ChannelAddress("_sum", "InsertJavaRegExHere:)*"), AccessMode.READ_WRITE);
+		adminChannelPermissions.put(new ChannelAddress("_sum", "InsertJavaRegExHere.*"), AccessMode.READ_WRITE);
 
 		// constant
 		String edge0 = "edge0";

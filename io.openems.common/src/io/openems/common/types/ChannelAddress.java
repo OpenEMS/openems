@@ -4,6 +4,7 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 import java.util.Objects;
+import java.util.regex.PatternSyntaxException;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
 
@@ -59,7 +60,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		}
 	}
 
-	public boolean matches(ChannelAddress other) {
+	public boolean matches(ChannelAddress other) throws PatternSyntaxException {
 		return this.channelId.matches(other.channelId) && this.componentId.matches(other.componentId);
 	}
 
