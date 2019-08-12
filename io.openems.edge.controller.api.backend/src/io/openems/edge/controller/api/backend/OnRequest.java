@@ -2,6 +2,7 @@ package io.openems.edge.controller.api.backend;
 
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
@@ -21,7 +21,6 @@ import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 
@@ -35,69 +34,46 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
-			throws OpenemsException, OpenemsNamedException {
-		switch (request.getMethod()) {
-
-		case AuthenticatedRpcRequest.METHOD:
-			return this.handleAuthenticatedRpcRequest(AuthenticatedRpcRequest.from(request));
-
-		default:
-			this.parent.logWarn(this.log, "Unhandled Request: " + request);
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
-	}
-
-	/**
-	 * Handles a AuthenticatedRpcRequest.
-	 *
-	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<AuthenticatedRpcResponse> handleAuthenticatedRpcRequest(
-			AuthenticatedRpcRequest authenticatedRpcRequest) throws OpenemsNamedException {
-		JsonrpcRequest request = authenticatedRpcRequest.getPayload();
-
+	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+			throws OpenemsNamedException {
 		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 
-		case GetEdgeConfigRequest.METHOD:
-			resultFuture = this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(request));
-			break;
+			case GetEdgeConfigRequest.METHOD:
+				resultFuture = this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(request));
+				break;
 
-		case CreateComponentConfigRequest.METHOD:
-			resultFuture = this.handleCreateComponentConfigRequest(CreateComponentConfigRequest.from(request));
-			break;
+			case CreateComponentConfigRequest.METHOD:
+				resultFuture = this.handleCreateComponentConfigRequest(CreateComponentConfigRequest.from(request));
+				break;
 
-		case UpdateComponentConfigRequest.METHOD:
-			resultFuture = this.handleUpdateComponentConfigRequest(UpdateComponentConfigRequest.from(request));
-			break;
+			case UpdateComponentConfigRequest.METHOD:
+				resultFuture = this.handleUpdateComponentConfigRequest(UpdateComponentConfigRequest.from(request));
+				break;
 
-		case DeleteComponentConfigRequest.METHOD:
-			resultFuture = this.handleDeleteComponentConfigRequest(DeleteComponentConfigRequest.from(request));
-			break;
+			case DeleteComponentConfigRequest.METHOD:
+				resultFuture = this.handleDeleteComponentConfigRequest(DeleteComponentConfigRequest.from(request));
+				break;
 
-		case SetChannelValueRequest.METHOD:
-			resultFuture = this.handleSetChannelValueRequest(SetChannelValueRequest.from(request));
-			break;
+			case SetChannelValueRequest.METHOD:
+				resultFuture = this.handleSetChannelValueRequest(SetChannelValueRequest.from(request));
+				break;
 
-		case ComponentJsonApiRequest.METHOD:
-			resultFuture = this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
-			break;
+			case ComponentJsonApiRequest.METHOD:
+				resultFuture = this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
+				break;
 
-		case SubscribeSystemLogRequest.METHOD:
-			resultFuture = this.handleSubscribeSystemLogRequest(SubscribeSystemLogRequest.from(request));
-			break;
+			case SubscribeSystemLogRequest.METHOD:
+				resultFuture = this.handleSubscribeSystemLogRequest(SubscribeSystemLogRequest.from(request));
+				break;
 
-		default:
-			this.parent.logWarn(this.log, "Unhandled Request: " + request);
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+			default:
+				this.parent.logWarn(this.log, "Unhandled Request: " + request);
+				throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 
-		CompletableFuture<AuthenticatedRpcResponse> result = new CompletableFuture<AuthenticatedRpcResponse>();
-		resultFuture.thenAccept(r -> {
-			result.complete(new AuthenticatedRpcResponse(authenticatedRpcRequest.getId(), r));
-		});
+		CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<>();
+		resultFuture.thenAccept(result::complete);
 		return result;
 	}
 

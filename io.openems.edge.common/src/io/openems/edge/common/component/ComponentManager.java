@@ -16,8 +16,6 @@ import io.openems.edge.common.channel.Doc;
  */
 public interface ComponentManager extends OpenemsComponent {
 
-	// FIXME extend interface with roles and stuff
-
 	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
 				.text("A configured OpenEMS Component was not activated")), //

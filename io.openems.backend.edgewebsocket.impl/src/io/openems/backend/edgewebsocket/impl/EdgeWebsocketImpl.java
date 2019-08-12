@@ -28,9 +28,7 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
-import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
-import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -105,20 +103,11 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
 			// Wrap Request in AuthenticatedRpc
-			AuthenticatedRpcRequest authenticatedRpc = new AuthenticatedRpcRequest(request);
-			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(authenticatedRpc);
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(request);
 
 			// Unwrap Response
-			CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<JsonrpcResponseSuccess>();
-			responseFuture.thenAccept(r -> {
-				try {
-					AuthenticatedRpcResponse response = AuthenticatedRpcResponse.from(r);
-					result.complete(response.getPayload());
-				} catch (OpenemsNamedException e) {
-					this.logError(this.log, e.getMessage());
-					throw new RuntimeException(e.getMessage());
-				}
-			});
+			CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<>();
+			responseFuture.thenAccept(result::complete);
 			return result;
 		} else {
 			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(edgeId);
