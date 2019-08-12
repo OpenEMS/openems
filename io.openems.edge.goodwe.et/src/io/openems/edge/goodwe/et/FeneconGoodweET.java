@@ -97,32 +97,25 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.MODBUS_PROTOCOL_VERSION, new UnsignedWordElement(35000)), //
 						m(GoodweChannelIdET.RATED_POWER, new UnsignedWordElement(35001)), //
 						m(GoodweChannelIdET.AC_OUTPUT_TYPE, new UnsignedWordElement(35002))), //
-
 				new FC3ReadRegistersTask(35003, Priority.LOW,
 						m(GoodweChannelIdET.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
 						m(GoodweChannelIdET.DEVICE_TYPE, new StringWordElement(35011, 5))), //
-
 				new FC3ReadRegistersTask(35016, Priority.LOW,
 						m(GoodweChannelIdET.DSP1_SOFTWARE_VERSION, new UnsignedWordElement(35016)), //
 						m(GoodweChannelIdET.DSP2_SOFTWARE_VERSION, new UnsignedWordElement(35017)), //
 						m(GoodweChannelIdET.DSP_SPN_VERSION, new UnsignedWordElement(35018)), //
 						m(GoodweChannelIdET.ARM_SOFTWARE_VERSION, new UnsignedWordElement(35019)), //
 						m(GoodweChannelIdET.ARM_SVN_VERSION, new UnsignedWordElement(35020))), //
-
 				new FC3ReadRegistersTask(35021, Priority.LOW,
 						m(GoodweChannelIdET.DSP_INTERNAL_FIRMWARE_VERSION, new StringWordElement(35021, 6))), //
-
 				new FC3ReadRegistersTask(35027, Priority.LOW,
 						m(GoodweChannelIdET.ARM_INTERNAL_FIRMWARE_VERSION, new StringWordElement(35027, 6))), //
-
 				new FC3ReadRegistersTask(35050, Priority.LOW,
 						m(GoodweChannelIdET.SIMCCID, new StringWordElement(35050, 10))), //
-
 				new FC3ReadRegistersTask(35100, Priority.LOW,
 						m(GoodweChannelIdET.RTC_YEAR_MONTH, new UnsignedWordElement(35100)), //
 						m(GoodweChannelIdET.RTC_DATE_HOUR, new UnsignedWordElement(35101)), //
 						m(GoodweChannelIdET.RTC_MINUTE_SECOND, new UnsignedWordElement(35102))), //
-
 				new FC3ReadRegistersTask(35103, Priority.HIGH,
 						m(GoodweChannelIdET.V_PV1, new UnsignedWordElement(35103),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -130,43 +123,35 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.P_PV1, new UnsignedDoublewordElement(35105),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-
 						m(GoodweChannelIdET.V_PV2, new UnsignedWordElement(35107),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_PV2, new UnsignedWordElement(35108),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.P_PV2, new UnsignedDoublewordElement(35109),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-
 						m(GoodweChannelIdET.V_PV3, new UnsignedWordElement(35111),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_PV3, new UnsignedWordElement(35112),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.P_PV3, new UnsignedDoublewordElement(35113),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-
 						m(GoodweChannelIdET.V_PV4, new UnsignedWordElement(35115),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_PV4, new UnsignedWordElement(35116),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.P_PV4, new UnsignedDoublewordElement(35117),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-
 						m(GoodweChannelIdET.PV_MODE, new UnsignedDoublewordElement(35119)), //
 						new DummyRegisterElement(35121, 35122), //
-
 						m(GoodweChannelIdET.F_GRID_R, new UnsignedWordElement(35123),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35124, 35127), //
-
 						m(GoodweChannelIdET.F_GRID_S, new UnsignedWordElement(35128),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35129, 35132), //
-
 						m(GoodweChannelIdET.F_GRID_T, new UnsignedWordElement(35133),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35134, 35135), //
-
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136),
 								new ElementToChannelConverter((value) -> {
 									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
@@ -182,11 +167,9 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 									}
 									return GridMode.UNDEFINED;
 								})), //
-
 						new DummyRegisterElement(35137), //
 						m(GoodweChannelIdET.TOTAL_INV_POWER, new SignedWordElement(35138)), //
 						new DummyRegisterElement(35139, 35143), //
-
 						m(GoodweChannelIdET.AC_APPARENT_POWER, new SignedWordElement(35144)), //
 						m(GoodweChannelIdET.BACK_UP_V_LOAD_R, new UnsignedWordElement(35145), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -196,7 +179,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.LOAD_MODE_R, new UnsignedWordElement(35148)), //
 						new DummyRegisterElement(35149, 35149), //
-
 						m(GoodweChannelIdET.BACK_UP_P_LOAD_R, new SignedWordElement(35150)), //
 						m(GoodweChannelIdET.BACK_UP_V_LOAD_S, new UnsignedWordElement(35151),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -206,7 +188,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.LOAD_MODE_S, new UnsignedWordElement(35154)), //
 						new DummyRegisterElement(35155, 35155), //
-
 						m(GoodweChannelIdET.BACK_UP_P_LOAD_S, new SignedWordElement(35156)), //
 						m(GoodweChannelIdET.BACK_UP_V_LOAD_T, new UnsignedWordElement(35157),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -216,7 +197,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.LOAD_MODE_T, new UnsignedWordElement(35160)), //
 						new DummyRegisterElement(35161, 35161), //
-
 						m(GoodweChannelIdET.BACK_UP_P_LOAD_T, new SignedWordElement(35162)), //
 						new DummyRegisterElement(35163), //
 						m(GoodweChannelIdET.P_LOAD_R, new SignedWordElement(35164)), //
@@ -248,7 +228,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.I_BATTERY1, new SignedWordElement(35181),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(35182), //
-
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(35183)), //
 						m(GoodweChannelIdET.BATERY1_MODE, new UnsignedWordElement(35184)), //
 						m(GoodweChannelIdET.WARNING_CODE, new UnsignedWordElement(35185)), //
@@ -274,9 +253,7 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(13, GoodweChannelIdET.STATE_13) //
 								.bit(14, GoodweChannelIdET.STATE_14) //
 								.bit(15, GoodweChannelIdET.STATE_15) //
-						),
-
-						m(new BitsWordElement(35189, this) //
+						), m(new BitsWordElement(35189, this) //
 								.bit(0, GoodweChannelIdET.STATE_16) //
 								.bit(1, GoodweChannelIdET.STATE_17) //
 								.bit(2, GoodweChannelIdET.STATE_18) //
@@ -326,7 +303,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.W_CHARGER_CTRL_FLAG, new UnsignedWordElement(35214)), //
 						m(GoodweChannelIdET.DERATE_FLAG, new UnsignedWordElement(35215)), //
 						new DummyRegisterElement(35216), //
-
 						m(GoodweChannelIdET.DERATE_FROZEN_POWER, new SignedWordElement(35217)), //
 						m(GoodweChannelIdET.DIAG_STATUS_H, new UnsignedDoublewordElement(35218)), //
 						m(GoodweChannelIdET.DIAG_STATUS_L, new UnsignedDoublewordElement(35220))), //
@@ -338,7 +314,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
 						m(GoodweChannelIdET.METER_COMMUNICATE_STATUS, new UnsignedWordElement(36004)), //
 						new DummyRegisterElement(36005, 36009), //
-
 						m(GoodweChannelIdET.METER_PF_R, new UnsignedWordElement(36010),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.METER_PF_S, new UnsignedWordElement(36011),
@@ -416,7 +391,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(37011, Priority.LOW,
 						m(GoodweChannelIdET.BATTERY_PROTOCOL, new UnsignedWordElement(37011))), //
-
 				new FC3ReadRegistersTask(45000, Priority.LOW,
 						m(GoodweChannelIdET.USER_PASSWORD1, new StringWordElement(45000, 8)), //
 						m(GoodweChannelIdET.USER_PASSWORD2, new StringWordElement(45008, 8)),
@@ -425,7 +399,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.ROUTER_PASSWORD, new StringWordElement(45054, 20)),
 						m(GoodweChannelIdET.ROUTER_ENCRYPTION_METHOD, new StringWordElement(45074, 1)),
 						m(GoodweChannelIdET.DOMAIN1, new StringWordElement(45075, 25))),
-
 				new FC3ReadRegistersTask(45100, Priority.LOW,
 						m(GoodweChannelIdET.PORT_NUMBER1, new UnsignedWordElement(45100)),
 						m(GoodweChannelIdET.DOMAIN2, new StringWordElement(45101, 25)),
@@ -433,7 +406,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.MODBUS_ADDRESS, new UnsignedWordElement(45127)),
 						m(GoodweChannelIdET.MODBUS_MANUFACTURER, new StringWordElement(45128, 4)),
 						m(GoodweChannelIdET.MODBUS_BADRATE_485, new UnsignedDoublewordElement(45132))),
-
 				new FC3ReadRegistersTask(45200, Priority.LOW,
 						m(GoodweChannelIdET.RTC_YEAR_MONTH_2, new UnsignedWordElement(45200)),
 						m(GoodweChannelIdET.RTC_DAY_HOUR_2, new UnsignedWordElement(45201)),
@@ -442,7 +414,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.DEVICE_TYPE_2, new StringWordElement(45211, 5)),
 						m(GoodweChannelIdET.RESUME_FACTORY_SETTING, new UnsignedWordElement(45216)),
 						m(GoodweChannelIdET.CLEAR_DATA, new UnsignedWordElement(45217))),
-
 				new FC16WriteRegistersTask(45000, //
 						m(GoodweChannelIdET.USER_PASSWORD1, new StringWordElement(45000, 8)), //
 						m(GoodweChannelIdET.USER_PASSWORD2, new StringWordElement(45008, 8)),
@@ -451,7 +422,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.ROUTER_PASSWORD, new StringWordElement(45054, 20)),
 						m(GoodweChannelIdET.ROUTER_ENCRYPTION_METHOD, new StringWordElement(45074, 1)),
 						m(GoodweChannelIdET.DOMAIN1, new StringWordElement(45075, 25))),
-
 				new FC16WriteRegistersTask(45100, //
 						m(GoodweChannelIdET.PORT_NUMBER1, new UnsignedWordElement(45100)),
 						m(GoodweChannelIdET.DOMAIN2, new StringWordElement(45101, 25)),
@@ -459,7 +429,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.MODBUS_ADDRESS, new UnsignedWordElement(45127)),
 						m(GoodweChannelIdET.MODBUS_MANUFACTURER, new StringWordElement(45128, 4)),
 						m(GoodweChannelIdET.MODBUS_BADRATE_485, new UnsignedDoublewordElement(45132))),
-
 				new FC16WriteRegistersTask(45200, //
 						m(GoodweChannelIdET.RTC_YEAR_MONTH_2, new UnsignedWordElement(45200)),
 						m(GoodweChannelIdET.RTC_DAY_HOUR_2, new UnsignedWordElement(45201)),
@@ -472,7 +441,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.STOP, new UnsignedWordElement(45219)),
 						m(GoodweChannelIdET.RESET, new UnsignedWordElement(45220)),
 						m(GoodweChannelIdET.RESET_SPS, new UnsignedWordElement(45221))),
-
 				new FC16WriteRegistersTask(45222,
 						m(GoodweChannelIdET.PV_E_TOTAL_3, new UnsignedDoublewordElement(45222),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -499,14 +467,12 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.E_DISCHARGE_DAY_3, new UnsignedWordElement(45242),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-
 						m(GoodweChannelIdET.LANGUAGE, new UnsignedWordElement(45243)), //
 						m(GoodweChannelIdET.SAFETY_COUNTRY_CODE, new UnsignedWordElement(45244)), //
 						m(GoodweChannelIdET.ISO, new UnsignedWordElement(45245)), //
 						m(GoodweChannelIdET.LVRT, new UnsignedWordElement(45246)), //
 						m(GoodweChannelIdET.ISLANDING, new UnsignedWordElement(45247)), //
 						new DummyRegisterElement(45248), //
-
 						m(GoodweChannelIdET.BURN_IN_RESET_TIME, new UnsignedWordElement(45249)), //
 						m(GoodweChannelIdET.PV_START_VOLTAGE, new UnsignedWordElement(45250),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -522,7 +488,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BACKUP_OVERLOAD_DELAY, new UnsignedWordElement(45260)), //
 						m(GoodweChannelIdET.UPSPHASE_TYPE, new UnsignedWordElement(45261)), // .
 						new DummyRegisterElement(45262), //
-
 						m(GoodweChannelIdET.DERATE_RATE_VDE, new UnsignedWordElement(45263))), //
 
 				new FC16WriteRegistersTask(45350,
@@ -530,7 +495,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BATTERY_STRINGS, new UnsignedWordElement(45351)), //
 						m(GoodweChannelIdET.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-
 						m(GoodweChannelIdET.BATT_CHARGE_CURR_MAX, new UnsignedWordElement(45353),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.BATT_VOLT_UNDER_MIN, new UnsignedWordElement(45354),
@@ -542,7 +506,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.BATT_OFFLINE_SOC_UNDER_MIN, new UnsignedWordElement(45358)), //
 						new DummyRegisterElement(45359), //
-
 						m(GoodweChannelIdET.CLEAR_BATTERY_SETTING, new UnsignedWordElement(45360))), //
 
 				new FC3ReadRegistersTask(45222, Priority.LOW, //
@@ -577,7 +540,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.LVRT, new UnsignedWordElement(45246)), //
 						m(GoodweChannelIdET.ISLANDING, new UnsignedWordElement(45247)), //
 						new DummyRegisterElement(45248), //
-
 						m(GoodweChannelIdET.BURN_IN_RESET_TIME, new UnsignedWordElement(45249)), //
 						m(GoodweChannelIdET.PV_START_VOLTAGE, new UnsignedWordElement(45250),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -593,7 +555,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BACKUP_OVERLOAD_DELAY, new UnsignedWordElement(45260)), //
 						m(GoodweChannelIdET.UPSPHASE_TYPE, new UnsignedWordElement(45261)), // .
 						new DummyRegisterElement(45262), //
-
 						m(GoodweChannelIdET.DERATE_RATE_VDE, new UnsignedWordElement(45263))), //
 
 				new FC3ReadRegistersTask(45350, Priority.LOW,
@@ -601,7 +562,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BATTERY_STRINGS, new UnsignedWordElement(45351)), //
 						m(GoodweChannelIdET.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-
 						m(GoodweChannelIdET.BATT_CHARGE_CURR_MAX, new UnsignedWordElement(45353),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.BATT_VOLT_UNDER_MIN, new UnsignedWordElement(45354),
@@ -965,7 +925,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.START_TIME_1, new UnsignedWordElement(47515)), //
 						m(GoodweChannelIdET.END_TIME_1, new UnsignedWordElement(47516)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_1, new UnsignedWordElement(47517)), //
-
 						m(new BitsWordElement(47518, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -975,11 +934,9 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.START_TIME_2, new UnsignedWordElement(47519)), //
 						m(GoodweChannelIdET.END_TIME_2, new UnsignedWordElement(47520)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_2, new UnsignedWordElement(47521)), //
-
 						m(new BitsWordElement(47522, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -989,11 +946,9 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.START_TIME_3, new UnsignedWordElement(47523)), //
 						m(GoodweChannelIdET.END_TIME_3, new UnsignedWordElement(47524)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_3, new UnsignedWordElement(47525)), //
-
 						m(new BitsWordElement(47526, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -1003,11 +958,9 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.START_TIME_4, new UnsignedWordElement(47527)), //
 						m(GoodweChannelIdET.END_TIME_4, new UnsignedWordElement(47528)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_4, new UnsignedWordElement(47529)), //
-
 						m(new BitsWordElement(47530, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -1017,7 +970,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodweChannelIdET.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
 						m(GoodweChannelIdET.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533))), //
@@ -1045,7 +997,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.START_TIME_1, new UnsignedWordElement(47515)), //
 						m(GoodweChannelIdET.END_TIME_1, new UnsignedWordElement(47516)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_1, new UnsignedWordElement(47517)), //
-
 						m(new BitsWordElement(47518, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -1055,11 +1006,9 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.START_TIME_2, new UnsignedWordElement(47519)), //
 						m(GoodweChannelIdET.END_TIME_2, new UnsignedWordElement(47520)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_2, new UnsignedWordElement(47521)), //
-
 						m(new BitsWordElement(47522, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -1069,11 +1018,9 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.START_TIME_3, new UnsignedWordElement(47523)), //
 						m(GoodweChannelIdET.END_TIME_3, new UnsignedWordElement(47524)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_3, new UnsignedWordElement(47525)), //
-
 						m(new BitsWordElement(47526, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -1083,11 +1030,9 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.START_TIME_4, new UnsignedWordElement(47527)), //
 						m(GoodweChannelIdET.END_TIME_4, new UnsignedWordElement(47528)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_4, new UnsignedWordElement(47529)), //
-
 						m(new BitsWordElement(47530, this) //
 								.bit(0, GoodweChannelIdET.STATE_72) //
 								.bit(1, GoodweChannelIdET.STATE_73) //
@@ -1097,7 +1042,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(5, GoodweChannelIdET.STATE_77) //
 								.bit(6, GoodweChannelIdET.STATE_78) //
 						), //
-
 						m(GoodweChannelIdET.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodweChannelIdET.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
 						m(GoodweChannelIdET.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533))), //
@@ -1113,7 +1057,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
 						m(GoodweChannelIdET.WBMS_BAT_SOH, new UnsignedWordElement(47909)), //
 						m(GoodweChannelIdET.WBMS_BAT_TEMPERATURE, new UnsignedWordElement(47910)), //
-
 						m(new BitsWordElement(47911, this) //
 								.bit(0, GoodweChannelIdET.STATE_42) //
 								.bit(1, GoodweChannelIdET.STATE_43) //
@@ -1131,10 +1074,7 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(13, GoodweChannelIdET.STATE_55) //
 								.bit(14, GoodweChannelIdET.STATE_56) //
 								.bit(15, GoodweChannelIdET.STATE_57) //
-
-						),
-
-						m(new BitsWordElement(47912, this) //
+						), m(new BitsWordElement(47912, this) //
 								.bit(0, GoodweChannelIdET.STATE_58) //
 								.bit(1, GoodweChannelIdET.STATE_59) //
 								.bit(2, GoodweChannelIdET.STATE_60) //
@@ -1147,15 +1087,11 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(9, GoodweChannelIdET.STATE_67) //
 								.bit(10, GoodweChannelIdET.STATE_68) //
 								.bit(11, GoodweChannelIdET.STATE_69) //
-						),
-
-						m(new BitsWordElement(47913, this) //
+						), m(new BitsWordElement(47913, this) //
 								.bit(0, GoodweChannelIdET.STATE_79) //
 								.bit(1, GoodweChannelIdET.STATE_80) //
 								.bit(2, GoodweChannelIdET.STATE_81) //
-						)) //
-
-		);
+						))); //
 	}
 
 	@Override
