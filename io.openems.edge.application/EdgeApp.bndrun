@@ -20,6 +20,7 @@
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
 	bnd.identity;id='io.openems.common',\
 	bnd.identity;id='io.openems.common.accesscontrolproviderldap',\
+	bnd.identity;id='io.openems.common.accesscontrolproviderjson',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -102,6 +103,7 @@
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	io.openems.common;version=snapshot,\
 	io.openems.common.accesscontrolproviderldap;version=snapshot,\
+	io.openems.common.accesscontrolproviderjson;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\

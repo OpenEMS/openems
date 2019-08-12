@@ -47,6 +47,7 @@
 	io.openems.backend.uiwebsocket.impl;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.common.accesscontrolproviderldap;version=snapshot,\
+	io.openems.common.accesscontrolproviderjson;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.websocket;version=snapshot,\

@@ -10,6 +10,7 @@ Private-Package:  \
 -buildpath: ${buildpath},\
 	io.openems.backend.common;version=latest,\
 	io.openems.common.accesscontrolproviderldap;version=latest,\
+	io.openems.common.accesscontrolproviderjson;version=latest,\
 	io.openems.backend.edgewebsocket.api;version=latest,\
 	io.openems.backend.b2bwebsocket;version=latest,\
 	io.openems.backend.metadata.api;version=latest,\

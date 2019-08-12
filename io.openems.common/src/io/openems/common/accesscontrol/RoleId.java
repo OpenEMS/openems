@@ -6,7 +6,7 @@ public class RoleId {
 
     private final String id;
 
-    RoleId(String id) {
+    public RoleId(String id) {
         this.id = id;
     }
 
