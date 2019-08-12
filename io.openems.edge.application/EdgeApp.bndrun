@@ -93,6 +93,7 @@
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.simulator',\
+	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb'
 
 -runbundles: \
@@ -205,4 +206,5 @@
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
-	io.openems.edge.solaredge;version=snapshot
+	io.openems.edge.solaredge;version=snapshot,\
+	io.openems.edge.tesla.powerwall2;version=snapshot
