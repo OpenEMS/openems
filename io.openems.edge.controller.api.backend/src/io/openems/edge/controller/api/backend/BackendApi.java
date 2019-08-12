@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.openems.common.accesscontrol.AccessControl;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.service.cm.ConfigurationEvent;
@@ -74,6 +75,9 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	@Reference
+	protected AccessControl accessControl;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

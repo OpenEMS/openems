@@ -105,7 +105,8 @@ public class AccessControlImpl implements AccessControl {
         initializeProviders();
         Role role = getRole(roleId);
         final ExecutePermission[] executePermission = new ExecutePermission[1];
-        role.getJsonRpcPermissionsWithInheritance(edgeId).entrySet().stream().filter(e -> e.getKey().equals(method)).findFirst()
+        // filter all execute permission which fit the regex of the config
+        role.getJsonRpcPermissionsWithInheritance(edgeId).entrySet().stream().filter(e -> method.matches(e.getKey())).findFirst()
                 .ifPresent(entry -> executePermission[0] = entry.getValue());
         if (executePermission[0] == null || !ExecutePermission.ALLOW.equals(executePermission[0])) {
             throw new AuthorizationException();
@@ -120,9 +121,17 @@ public class AccessControlImpl implements AccessControl {
         Map<ChannelAddress, AccessMode> allowedChannels = role.getChannelPermissionsWithInheritance(edgeIdentifier);
         // remove all channels which are not even part of the configuration
         // requestedChannels.retainAll(allowedChannels.keySet());
-        return allowedChannels.entrySet().stream()
-                .filter(entry -> requestedChannels.contains(entry.getKey()) && Arrays.asList(accessModes).contains(entry.getValue()))
-                .map(Map.Entry::getKey).collect(Collectors.toCollection(TreeSet::new));
+        return requestedChannels.stream()
+                .filter(requestedChannel -> {
+                	// filter all channel addresses which match one of the configured regex
+					Set<AccessMode> allowedAccess = allowedChannels.entrySet().stream()
+						.filter(allowedChannel -> requestedChannel.matches(allowedChannel.getKey()))
+						.map(Map.Entry::getValue)
+						.collect(Collectors.toSet());
+
+					// check if at least one access can be granted
+					return !Collections.disjoint(allowedAccess, Arrays.asList(accessModes));
+				}).collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
