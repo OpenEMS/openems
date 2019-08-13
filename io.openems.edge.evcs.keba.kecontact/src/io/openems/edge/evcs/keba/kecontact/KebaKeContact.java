@@ -226,7 +226,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16)
 				.channel(87, KebaChannelId.ENERGY_SESSION, ModbusType.UINT16)
 				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16)
-				.channel(89, KebaChannelId.PHASES, ModbusType.UINT16).uint16Reserved(90)
+				.uint16Reserved(89).uint16Reserved(90)
 				.channel(91, KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, ModbusType.UINT16).build();
 	}
 }

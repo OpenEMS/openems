@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -19,20 +18,15 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.OpenemsType;
-import io.openems.common.channel.AccessMode;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,12 +47,14 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	private Integer maximalUsedHardwarePower;
 	private String[] evcsIds = new String[0];
 	private final List<Evcs> sortedEvcss = new ArrayList<>();
-	
 	private Map<String, Evcs> _evcss = new ConcurrentHashMap<>();
 
 	@Reference
 	protected ConfigurationAdmin cm;
-	
+
+	@Reference
+	protected Sum sum;
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
 		// Do not add myself
@@ -69,47 +65,25 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		this.updateSortedEvcss();
 	}
 
-	
 	protected void removeEvcs(Evcs evcs) {
 		if (evcs == this) {
 			return;
 		}
 		this._evcss.remove(evcs.id());
+		evcs.getMaximumPower().setNextValue(null);
+		if (evcs instanceof ManagedEvcs) {
+			((ManagedEvcs) evcs).setChargePowerRequest().setNextValue(null);
+			((ManagedEvcs) evcs).isClustered().setNextValue(false);
+		}
+		evcs.getMaximumPower().setNextValue(null);
 		this.updateSortedEvcss();
-	}
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-		// Maximum current valid by the Hardware.
-		HARDWARE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("The maximum current in Ampere that kann be used by the cable. ")),
-
-		// Maximum current valid by the user.
-		MANUAL_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text("The maximum current in Ampere that will be used for all charging Stations."));
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
 	}
 
 	public EvcsCluster() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				Evcs.ChannelId.values(), //
-				ChannelId.values() //
+				Evcs.ChannelId.values() //
 		);
 	}
 
@@ -120,23 +94,15 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// Depending on the user inputs, the minimum of the limits will be used;
-		int currentCurrLimit = config.manualCurrentLimit() == 0 ? config.hardwareCurrentLimit()
-				: Math.min(config.hardwareCurrentLimit(), config.manualCurrentLimit());
-		this.totalcurrentPowerLimit = currentCurrLimit * 230 * 3;
+		int currentHWLimit = config.hardwareCurrentLimit();
+		this.totalcurrentPowerLimit = currentHWLimit * 230 * 3;
 
-		// TODO: React on grid limit too (Minimum of cable and grid) => but where do we
-		// have to set it
-
-		this.getMaximumHardwarePower().setNextValue(config.hardwareCurrentLimit());
-		this.channel(ChannelId.MANUAL_CURRENT_LIMIT).setNextValue(config.manualCurrentLimit());
-
-		
 		// update filter for 'evcss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss", config.evcs_ids())) {
 			return;
 		}
 	}
-	
+
 	/**
 	 * Fills sortedEvcss using the order of evcs_ids property in the config
 	 */
@@ -154,6 +120,13 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 	@Deactivate
 	protected void deactivate() {
+		for (Evcs evcs : this.sortedEvcss) {
+			if (evcs instanceof ManagedEvcs) {
+				((ManagedEvcs) evcs).setChargePowerRequest().setNextValue(null);
+				((ManagedEvcs) evcs).isClustered().setNextValue(false);
+			}
+			evcs.getMaximumPower().setNextValue(null);
+		}
 		super.deactivate();
 	}
 
@@ -166,15 +139,12 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-			// If the maximum Power that can be reached by all Cars can't reach the limit
-			if (this.maximalUsedHardwarePower < totalcurrentPowerLimit) {
-				break;
-			}
+
+			this.logDebug(this.log, "Total current powerlimit: " + this.totalcurrentPowerLimit);
 			this.limitEvcss();
 
 			break;
 		}
-
 	}
 
 	/**
@@ -199,51 +169,57 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		}
 	}
 
+	/**
+	 * Depending on the excess power, the evcss will be charged
+	 */
 	private void limitEvcss() {
 
-		// Depending on the user inputs, the minimum of the limits will be used;
-
-		// Total Power that is left to reach the hardware, manual or maximumPower limit
-		double totalPowerLeft = totalcurrentPowerLimit;
+		/*
+		 * try { this.totalcurrentPowerLimit = pvMinusConsumtion(); } catch
+		 * (OpenemsNamedException e) { e.printStackTrace(); }
+		 */
 
 		// If a maximum power is present, e.g. from another cluster, then the limit will
-		// be the that value or lower
+		// be that value or lower
 		if (this.getMaximumPower().value().asOptional().isPresent()) {
-			if (totalPowerLeft > this.getMaximumPower().value().get()) {
-				totalPowerLeft = this.getMaximumPower().value().get();
+			if (this.totalcurrentPowerLimit > this.getMaximumPower().value().get()) {
+				this.totalcurrentPowerLimit = this.getMaximumPower().value().get();
 			}
 		}
 
-		this.logDebug(this.log, "Maximum Total Power of the whole system: " + totalPowerLeft);
+		double totalPowerLeft = this.totalcurrentPowerLimit;
+
+		this.logInfo(this.log, "Maximum Total Power of the whole system: " + totalPowerLeft);
 		for (Evcs evcs : this.sortedEvcss) {
 
 			if (evcs instanceof ManagedEvcs) {
-				int chargePowerValue;
+				((ManagedEvcs) evcs).isClustered().setNextValue(true);
+
+				int nextChargePower;
 				Optional<Integer> requestedPower = ((ManagedEvcs) evcs).setChargePowerRequest().getNextWriteValue();
 
 				if (requestedPower.isPresent()) {
-					this.logDebug(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
-					chargePowerValue = requestedPower.get();
+					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
+					nextChargePower = requestedPower.get();
 				} else {
-					chargePowerValue = evcs.getChargePower().value().orElse(0);
-					evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().orElse(22080));
-					this.logDebug(this.log, "Set a fix maximum Power of " + evcs.getMaximumPower().value().get()
-							+ ", if the charging station never requested a Power bevore");
+					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(22080);
 				}
+
 				try {
-					if (chargePowerValue < totalPowerLeft) {
-						((ManagedEvcs) evcs).setChargePower().setNextWriteValue(chargePowerValue);
-						this.logDebug(this.log, "Power Left: " + totalPowerLeft + " ; Charge power: " + chargePowerValue);
-						totalPowerLeft = totalPowerLeft - chargePowerValue;
+					if (nextChargePower < totalPowerLeft) {
+						((ManagedEvcs) evcs).setChargePower().setNextWriteValue(nextChargePower);
+						this.logInfo(this.log, "Power Left: " + totalPowerLeft + " ; Charge power: " + nextChargePower);
+						totalPowerLeft = totalPowerLeft - nextChargePower;
 					} else {
 						((ManagedEvcs) evcs).setChargePower().setNextWriteValue((int) totalPowerLeft);
 						evcs.getMaximumPower().setNextValue(totalPowerLeft);
-						this.logDebug(this.log, "Power Left: " + totalPowerLeft + " ; Charge power: " + totalPowerLeft);
+						this.logInfo(this.log, "Power Left: " + totalPowerLeft + " ; Charge power: " + totalPowerLeft);
 						totalPowerLeft = 0;
 					}
 				} catch (OpenemsNamedException e) {
 					e.printStackTrace();
 				}
+
 			} else {
 				// Not Managed EVCS
 				int evcsHardwarePower = evcs.getMaximumHardwarePower().value().orElse(22080);
@@ -255,6 +231,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 					totalPowerLeft = 0;
 				}
 			}
+
 		}
 	}
 }

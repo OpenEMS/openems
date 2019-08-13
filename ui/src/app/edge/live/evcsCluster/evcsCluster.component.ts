@@ -7,6 +7,7 @@ import { ModalController } from '@ionic/angular';
 import { filter, first } from 'rxjs/operators';
 import { ModalComponentEvcsCluster } from './modal/evcsCluster-modal.page';
 
+
 @Component({
   selector: EvcsClusterComponent.SELECTOR,
   templateUrl: './evcsCluster.component.html'
@@ -31,6 +32,7 @@ export class EvcsClusterComponent {
     protected translate: TranslateService,
     public modalController: ModalController
   ) { }
+
 
   ngOnInit() {
 
@@ -110,9 +112,10 @@ export class EvcsClusterComponent {
     const modal = await this.modalController.create({
       component: ModalComponentEvcsCluster,
       componentProps: {
-        controller: this.config,
+        config: this.config,
         edge: this.edge,
-        componentId: this.componentId
+        componentId: this.componentId,
+        evcsMap: this.evcsMap
       }
     });
     return await modal.present();

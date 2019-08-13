@@ -1,6 +1,4 @@
-<!--
 <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
-  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-item lines="full" color="light">
       <ion-avatar>
@@ -19,46 +17,16 @@
 
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
       <ion-card-content>
-
         <table class="full_width">
-          <ng-container *ngIf="isEvcsCluster">
-            <tr>
-              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.AmountOfChargingStations</td>
-              <td style="width:15%"></td>
-              <td style="width:45%" class="align_right">
-                {{ evcssInCluster.length }}
-              </td>
-            </tr>
-            <tr>
-              <td style="width:50%">
-                Maximaler Stromfluss (Netz):
-              </td>
-              <td style="width:15%"></td>
-              <td style="width:45%" class="align_right">
-                {{ controller.properties.hardwareCurrentLimit | number:'1.0-0' }} A
-              </td>
-            </tr>
-            <tr>
-              <td style="width:50%">
-                Maximaler Stromfluss (Manuell):
-              </td>
-              <td style="width:15%"></td>
-              <td style="width:45%" class="align_right">
-                {{ controller.properties.manualCurrentLimit | number:'1.0-0' }} A
-              </td>
-            </tr>
-          </ng-container>
           <tr>
             <td style="width:50%">
-              <ion-label *ngIf="evcssInCluster.length > 1" translate>
-                Edge.Index.Widgets.EVCS.TotalChargingPower
-              </ion-label>
-              <ion-label *ngIf="!isEvcsCluster" translate>Edge.Index.Widgets.EVCS.ChargingPower
+              <ion-label translate>
+                Edge.Index.Widgets.EVCS.Status
               </ion-label>
             </td>
             <td style="width:15%"></td>
             <td style="width:45%" class="align_right">
-              {{ currentData[componentId + '/ChargePower'] | number:'1.0-0' }} W
+              {{ getState(currentData[componentId + '/ChargePower'], currentData[evcs_id + "/Status"], currentData[evcs_id + "/Plug"])}}
             </td>
           </tr>
         </table>
@@ -76,4 +44,4 @@
       </ion-item>
     </ion-label>
   </ng-container>
-</ion-card>-->
+</ion-card>

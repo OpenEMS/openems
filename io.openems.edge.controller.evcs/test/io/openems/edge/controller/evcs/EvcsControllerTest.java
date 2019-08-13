@@ -75,6 +75,12 @@ public class EvcsControllerTest {
 			return this.priority;
 		}
 
+		@Override
+		public String ess_id() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	@Test

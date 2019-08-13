@@ -1,10 +1,9 @@
-import { Component, OnInit, HostListener, Input, OnChanges } from '@angular/core';
-import { environment } from 'src/environments/openems-backend-dev-local';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { ModalController, IonSlides, IonReorderGroup } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { filter, first } from 'rxjs/operators';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -15,20 +14,28 @@ type Priority = 'CAR' | 'STORAGE';
 })
 export class ModalComponentEvcsCluster implements OnInit {
 
-    @Input() edge: Edge;
-    @Input() controller: EdgeConfig.Component = null;
-    @Input() private componentId: string;
+    @Input() public edge: Edge;
+    @Input() public config: EdgeConfig.Component = null;
+    @Input() public componentId: string;
+    @Input() public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
-    public currChargingPower: number
+    @ViewChild(IonReorderGroup, { static: true })
+    public reorderGroup: IonReorderGroup;
+
     public chargeState: ChargeState;
     private chargePlug: ChargePlug;
-    public env = environment;
-    public channelAdresses = [];
     public evcsAmount: number;
-    public controllers: EdgeConfig.Component[] = null;
-    public evcsCollection: EdgeConfig.Component[] = null;
-    public chargingStations: EdgeConfig.Component[] = [];
-    public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
+    public swiperIndex: number = 0;
+    public slideOpts = {
+        noSwiping: true,
+        noSwipingClass: 'swiper-no-swiping',
+        //noSwipingSelector: 'ion-range, ion-toggle',
+        initialSlide: 0,
+        speed: 1000,
+    };
+    public firstEvcs: string;
+    public lastEvcs: string;
+    public prioritizedEvcsList: string[];
 
     constructor(
         protected service: Service,
@@ -37,78 +44,34 @@ export class ModalComponentEvcsCluster implements OnInit {
         private route: ActivatedRoute,
         protected translate: TranslateService,
         private modalCtrl: ModalController
-    ) { }
-
+    ) {
+    }
 
     ngOnInit() {
-        // Subscribe to CurrentData
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
+        this.prioritizedEvcsList = this.config.properties["evcs.ids"];
+        this.evcsAmount = this.prioritizedEvcsList.length;
+        this.lastEvcs = this.prioritizedEvcsList[this.evcsAmount - 1]
+        this.firstEvcs = this.prioritizedEvcsList[0];
+    }
 
-            this.getConfig().then(config => {
+    doReorder(ev: any) {
+        let oldListOrder = this.prioritizedEvcsList;
+        this.prioritizedEvcsList = ev.detail.complete(this.prioritizedEvcsList);
 
-                let nature = 'io.openems.edge.evcs.api.Evcs';
-                for (let component of config.getComponentsImplementingNature(nature)) {
-                    this.chargingStations.push(component);
-                    this.fillChannelAdresses(component.id);
-                }
-                this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
-                alert("Controller anschauen");
-                console.log(this.controller);
-                this.controllers = config.getComponentsByFactory("Controller.Evcs");
-                this.evcsCollection = config.getComponentsByFactory("Controller.EvcsCollection");
+        let newListOrder = this.prioritizedEvcsList;
 
-                //Initialise the Map with all evcss
-                this.chargingStations.forEach(evcs => {
-                    this.evcsMap[evcs.id] = null;
-                });
-
-                //Adds the controllers to the each charging stations 
-                this.controllers.forEach(controller => {
-                    this.evcsMap[controller.properties['evcs.id']] = controller;
-                });
+        if (this.edge != null) {
+            this.edge.updateComponentConfig(this.websocket, this.config.id, [
+                { name: 'evcs.ids', value: newListOrder }
+            ]).then(response => {
+                console.log("HIER", response);
+                this.config.properties.chargeMode = newListOrder;
+            }).catch(reason => {
+                this.config.properties.chargeMode = oldListOrder;
+                console.warn(reason);
             });
-        });
+        }
     }
-
-    /**
-    * Gets the EdgeConfig of the current Edge - or waits for Edge and Config if they are not available yet.
-    */
-    public getConfig(): Promise<EdgeConfig> {
-        return new Promise<EdgeConfig>((resolve, reject) => {
-            this.edge.getConfig(this.websocket).pipe(
-                filter(config => config.isValid()),
-                first()
-            ).toPromise()
-                .then(config => resolve(config))
-                .catch(reason => reject(reason));
-        });
-    }
-
-    private fillChannelAdresses(componentId: string) {
-        this.channelAdresses.push(
-            new ChannelAddress(componentId, 'ChargePower'),
-            new ChannelAddress(componentId, 'MaximumHardwarePower'),
-            new ChannelAddress(componentId, 'MinimumHardwarePower'),
-            new ChannelAddress(componentId, 'MaximumPower'),
-            new ChannelAddress(componentId, 'Phases'),
-            new ChannelAddress(componentId, 'Plug'),
-            new ChannelAddress(componentId, 'Status'),
-            new ChannelAddress(componentId, 'State'),
-            new ChannelAddress(componentId, 'EnergySession'),
-            new ChannelAddress(componentId, 'Alias')
-        )
-    }
-
-
-    // Todo: do something like this in html
-    //    this.evcsAmount = 0;
-    //   for (let evcs in this.evcsMap) {
-    //    this.evcsAmount++;
-    // }
-    //});
-    //      });
-    //}
 
     cancel() {
         this.modalCtrl.dismiss();
@@ -276,7 +239,10 @@ export class ModalComponentEvcsCluster implements OnInit {
      * @param state 
      * @param plug 
      */
-    outputPowerOrState(power: Number, state: number, plug: number) {
+    getState(power: Number, state: number, plug: number, currentController: EdgeConfig.Component) {
+        if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
+            return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+        }
 
         if (power == null || power == 0) {
 
@@ -284,7 +250,7 @@ export class ModalComponentEvcsCluster implements OnInit {
             this.chargePlug = plug;
 
             if (this.chargePlug == null) {
-                return "0 W";
+                return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
             } else if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
                 return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
             }
@@ -300,10 +266,10 @@ export class ModalComponentEvcsCluster implements OnInit {
                 case ChargeState.NOT_READY_FOR_CHARGING:
                     return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
                 case ChargeState.AUTHORIZATION_REJECTED:
-                    return power + " W";
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
             }
         }
-        return power + " W";
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
     }
 
     /**

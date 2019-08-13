@@ -12,7 +12,7 @@ type Priority = 'CAR' | 'STORAGE';
   selector: 'evcs-modal',
   templateUrl: './evcs-modal.page.html'
 })
-export class ModalComponentEvcs implements OnInit {
+export class EvcsModalComponent implements OnInit {
 
   @Input() edge: Edge;
   @Input() controller: EdgeConfig.Component = null;
@@ -200,8 +200,10 @@ export class ModalComponentEvcs implements OnInit {
    * @param state 
    * @param plug 
    */
-  outputPowerOrState(power: Number, state: number, plug: number) {
-
+  getState(power: Number, state: number, plug: number) {
+    if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
+      return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+    }
     if (power == null || power == 0) {
 
       this.chargeState = state;

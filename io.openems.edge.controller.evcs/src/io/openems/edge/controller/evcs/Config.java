@@ -17,7 +17,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Evcs-ID", description = "ID of Evcs device.", required = true)
+	@AttributeDefinition(name = "Evcs-ID", description = "ID of Evcs device (Has to be managed).", required = true)
 	String evcs_id() default "evcs0";
 
 	@AttributeDefinition(name = "Enabled charging", description = "Aktivates or deaktivates the Charging.")
@@ -34,6 +34,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Priority of charging", description = "Decide which Component should be preferred.")
 	Priority priority() default Priority.CAR;
+	
+	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
+	String ess_id();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Electric Vehicle Charging Station [{id}]";
 

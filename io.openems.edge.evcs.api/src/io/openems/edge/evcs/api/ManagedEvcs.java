@@ -20,7 +20,7 @@ public interface ManagedEvcs extends Evcs {
 		 * Status .
 		 * 
 		 * <ul>
-		 * <li>Interface: Evcs
+		 * <li>Interface: ManagedEvcs
 		 * <li>Readable
 		 * <li>Type: Status
 		 * </ul> 
@@ -28,29 +28,49 @@ public interface ManagedEvcs extends Evcs {
 		STATUS(Doc.of(Status.values())
 				.accessMode(AccessMode.READ_ONLY)),
 
-		/*
 		/**
-		 * Maximum Power valid by the Hardware.
+		 * Current charging target .
+		 * What is set and schould be charged by the Charging Station
 		 * 
 		 * <ul>
-		 * <li>Interface: Evcs
+		 * <li>Interface: ManagedEvcs
 		 * <li>Readable
 		 * <li>Type: Integer
-		 * <li>Unit: A
-		 * </ul>
-		 
-		HARDWARE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Highest possible charging power of the charging connection. "
-						+ "Contains device maximum, DIP-switch setting, cable coding and temperature reduction.")),
-		*/
-		 
+		 * <li>Unit: W
+		 */
+		CURR_CHARGING_TARGET(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)),
+		
+		/**
+		 * Count of ladders, the car is charging with .
+		 * Getting from the charging station
+		 * or calculated during the charging
+		 * 
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Readable
+		 * <li>Type: Integer
+		 * 
+		 */
+		PHASES(Doc.of(OpenemsType.INTEGER)
+				.accessMode(AccessMode.READ_ONLY)), //
+
+		/**
+		 * Is true if the evcs is clustered
+		 * 
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Readable
+		 * <li>Type: Boolean
+		 */
+		IS_CLUSTERED(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)), //
+		
 		/**
 		 * Set Charge Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Evcs
+		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
 		 * <li>Type: Integer
 		 * <li>Unit: W
@@ -64,7 +84,7 @@ public interface ManagedEvcs extends Evcs {
 		 * Requests someone to set the Charge Power if that amount is possible.
 		 * 
 		 * <ul>
-		 * <li>Interface: Evcs
+		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
 		 * <li>Type: Integer
 		 * <li>Unit: W
@@ -79,7 +99,7 @@ public interface ManagedEvcs extends Evcs {
 		 * Set Display Text.
 		 * 
 		 * <ul>
-		 * <li>Interface: Evcs
+		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
 		 * <li>Type: String
 		 * </ul>
@@ -159,8 +179,19 @@ public interface ManagedEvcs extends Evcs {
 		return this.channel(ChannelId.SET_DISPLAY_TEXT);
 	}
 	
-	public default Channel<Status> setStatus(){
+	public default Channel<Status> status(){
 		return this.channel(ChannelId.STATUS);
-	}
+	}	
 	
+	public default Channel<Integer> getCurrChargingTarget() {
+		return this.channel(ChannelId.CURR_CHARGING_TARGET);
+	}	
+	
+	public default Channel<Integer> getPhases() {
+		return this.channel(ChannelId.PHASES);
+	}	
+	
+	public default Channel<Integer> isClustered() {
+		return this.channel(ChannelId.IS_CLUSTERED);
+	}	
 }

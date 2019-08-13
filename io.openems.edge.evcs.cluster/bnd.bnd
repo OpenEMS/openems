@@ -17,7 +17,8 @@ Private-Package: io.openems.edge.evcs.cluster
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.evcs;version=latest,\
 	io.openems.edge.evcs.api;version=latest,\
-	io.openems.common
+	io.openems.common,\
+	io.openems.edge.core;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

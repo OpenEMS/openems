@@ -91,7 +91,6 @@ public class ReadHandler implements Consumer<String> {
 					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
 					setBoolean(KebaChannelId.ENABLE_USER, jMessage, "Enable user");
 					setInt(KebaChannelId.MAX_CURR_PERCENT, jMessage, "Max curr %");
-					setInt(KebaChannelId.CURR_USER, jMessage, "Curr user");
 					setInt(KebaChannelId.CURR_FAILSAFE, jMessage, "Curr FS");
 					setInt(KebaChannelId.TIMEOUT_FAILSAFE, jMessage, "Tmo FS");
 					setInt(KebaChannelId.CURR_TIMER, jMessage, "Curr timer");
@@ -99,7 +98,13 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.ENERGY_LIMIT, jMessage, "Setenergy");
 					setBoolean(KebaChannelId.OUTPUT, jMessage, "Output");
 					setBoolean(KebaChannelId.INPUT, jMessage, "Input");
+					setInt(KebaChannelId.CURR_USER, jMessage, "Curr user");
 					
+					Optional<Integer> curr_user =JsonUtils.getAsOptionalInt(jMessage, "Curr user"); // in [mA]
+					if(curr_user.isPresent()) {
+						int chargingTarget = (curr_user.get() / 1000) * 230 * this.parent.getPhases().value().orElse(3);
+						this.parent.getCurrChargingTarget().setNextValue(chargingTarget);
+					}
 					
 					// Set the maximum Power valid by the Hardware
 					// The default value will be 32 A, because an older Keba charging station sets the value to 0 if the car is unplugged
@@ -140,18 +145,18 @@ public class ReadHandler implements Consumer<String> {
 
 						if (currentL3.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
-							set(KebaChannelId.PHASES, 3);
+							this.parent.getPhases().setNextValue(3);
 							
 							
 						} else if (currentL2.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on two ladder"); 
-							set(KebaChannelId.PHASES, 2);
+							this.parent.getPhases().setNextValue(2);
 							
 						} else{
 							this.parent.logInfo(this.log, "KEBA is loading on one ladder"); 
-							set(KebaChannelId.PHASES, 1);
+							this.parent.getPhases().setNextValue(1);
 						}
-						Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
+						Channel<Integer> phases = this.parent.getPhases();
 						this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * phases.value().orElse(3));
 						this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * phases.value().orElse(3));
 					}else {

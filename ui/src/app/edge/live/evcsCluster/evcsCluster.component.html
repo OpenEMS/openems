@@ -1,5 +1,4 @@
-<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
-  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+<ion-card button style="cursor: pointer;" (click)="presentModal()" *ngIf=" edge">
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-item lines="full" color="light">
       <ion-avatar>
@@ -12,8 +11,6 @@
         Edge.Index.Widgets.EVCS.ChargingStationCluster
       </ion-label>
     </ion-item>
-    <!--
-
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
       <ion-card-content>
 
@@ -27,28 +24,7 @@
           </tr>
           <tr>
             <td style="width:50%">
-              Maximaler Stromfluss (Netz):
-            </td>
-            <td style="width:15%"></td>
-            <td style="width:45%" class="align_right">
-              {{ controller.properties.hardwareCurrentLimit | number:'1.0-0' }} A
-            </td>
-          </tr>
-          <tr>
-            <td style="width:50%">
-              Maximaler Stromfluss (Manuell):
-            </td>
-            <td style="width:15%"></td>
-            <td style="width:45%" class="align_right">
-              {{ controller.properties.manualCurrentLimit | number:'1.0-0' }} A
-            </td>
-          </tr>
-          <tr>
-            <td style="width:50%">
-              <ion-label *ngIf="evcssInCluster.length > 1" translate>
-                Edge.Index.Widgets.EVCS.TotalChargingPower
-              </ion-label>
-              <ion-label *ngIf="!isEvcsCluster" translate>Edge.Index.Widgets.EVCS.ChargingPower
+              <ion-label *ngIf="!isEvcsCluster" translate>Edge.Index.Widgets.EVCS.TotalChargingPower
               </ion-label>
             </td>
             <td style="width:15%"></td>
@@ -59,7 +35,6 @@
         </table>
       </ion-card-content>
     </ion-label>
-    -->
     <ion-label *ngIf="currentData[componentId + '/State'] == 3">
       <ion-item class="normalFontSize">
         <table>
