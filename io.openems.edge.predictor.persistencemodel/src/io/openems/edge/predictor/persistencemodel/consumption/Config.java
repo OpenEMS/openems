@@ -3,7 +3,7 @@ package io.openems.edge.predictor.persistencemodel.consumption;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Predictor Consumption Persistence-Model", //
 		description = "Predicts the Consumption using the 'same-as-last-day' approach.")
 @interface Config {

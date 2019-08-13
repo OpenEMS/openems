@@ -13,10 +13,11 @@ public interface HourlyPredictor extends OpenemsComponent {
 	/**
 	 * Gives a prediction for the next 24 h; one value per hour.
 	 * 
+	 * <p>
 	 * E.g. if called at 10:30, the first value stands for 10 to 11; second value
 	 * for 11 to 12.
 	 * 
-	 * @return
+	 * @return the {@link HourlyPrediction}
 	 */
 	HourlyPrediction get24hPrediction();
 

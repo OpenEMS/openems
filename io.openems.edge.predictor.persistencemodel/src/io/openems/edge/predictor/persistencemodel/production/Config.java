@@ -3,7 +3,7 @@ package io.openems.edge.predictor.persistencemodel.production;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Predictor Production Persistence-Model", //
 		description = "Predicts the Production using the 'same-as-last-day' approach.")
 @interface Config {

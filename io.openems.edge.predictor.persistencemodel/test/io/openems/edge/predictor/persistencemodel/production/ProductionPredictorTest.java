@@ -27,11 +27,11 @@ public class ProductionPredictorTest {
 	public void test() {
 		TimeLeapClock clock = new TimeLeapClock();
 		ProductionPredictor predictor = new ProductionPredictor(clock);
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, new HashMap<>());
 		DummyComponentManager componentManager = new DummyComponentManager();
 		predictor.componentManager = componentManager;
 		SimulatedSum sum = new SimulatedSum();
 		componentManager.addComponent(sum);
+		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, new HashMap<>());
 
 		sum.productionActiveEnergy.setNextValue(1000);
 		sum.productionActiveEnergy.nextProcessImage();

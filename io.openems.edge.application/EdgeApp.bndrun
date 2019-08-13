@@ -85,7 +85,7 @@
 	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
-	bnd.identity;id='io.openems.edge.predictor.persistant.model',\
+	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
@@ -207,4 +207,4 @@
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
-	io.openems.edge.predictor.persistant.model;version=snapshot
+	io.openems.edge.predictor.persistencemodel;version=snapshot
