@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
-@Component
+@Component(scope = ServiceScope.SINGLETON)
 public class AccessControlImpl implements AccessControl {
+
+	/**
+	 * Timespan in which a token is valid since the login.
+	 * Hour * Minute * Second * Millisecond
+	 */
+	private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 
 	@Reference
 	private AccessControlDataManager accessControlDataManager;
@@ -38,6 +45,12 @@ public class AccessControlImpl implements AccessControl {
 	private final Map<UUID, RoleId> sessionTokens = new ConcurrentHashMap<>();
 
 	private final Map<UUID, User> activeUsers = new HashMap<>();
+
+	/**
+	 * Holds the valid tokens and will deleted if the valid timespan has expired.
+	 * As long as the socket is active, the connection will be accepted nevertheless
+	 */
+	private final Map<UUID, Long> validTokens = new HashMap<>();
 
 	@Activate
 	void activate(ComponentContext componentContext, BundleContext bundleContext) {
@@ -70,6 +83,9 @@ public class AccessControlImpl implements AccessControl {
 
 				// remember the new logged in user
 				this.activeUsers.put(sessionId, matchingUser);
+
+				// remember the time of the login
+				this.validTokens.put(sessionId, System.currentTimeMillis());
 			}
 		}
 
@@ -103,7 +119,8 @@ public class AccessControlImpl implements AccessControl {
 	@Override
 	public void assertExecutePermission(RoleId roleId, String edgeId, String method)
 		throws AuthenticationException, AuthorizationException {
-		initializeProviders();
+		this.initializeProviders();
+		this.removeExpiredTokens();
 		Role role = getRole(roleId);
 		final ExecutePermission[] executePermission = new ExecutePermission[1];
 		// filter all execute permission which fit the regex of the config
@@ -124,7 +141,8 @@ public class AccessControlImpl implements AccessControl {
 	@Override
 	public Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, Set<ChannelAddress> requestedChannels, AccessMode... accessModes)
 		throws AuthenticationException {
-		initializeProviders();
+		this.initializeProviders();
+		this.removeExpiredTokens();
 		Role role = getRole(roleId);
 		Map<ChannelAddress, AccessMode> allowedChannels = role.getChannelPermissionsWithInheritance(edgeIdentifier);
 		// remove all channels which are not even part of the configuration
@@ -162,11 +180,11 @@ public class AccessControlImpl implements AccessControl {
 	}
 
 	/**
-	 * This method checks if there is a valid role for the given roleId and returns those role
+	 * This method checks if there is a valid role for the given roleId and returns those role.
 	 *
-	 * @param roleId
-	 * @return
-	 * @throws AuthenticationException
+	 * @param roleId the role id
+	 * @return the corresponding role
+	 * @throws AuthenticationException gets thrown in case the corresponding role does not exist
 	 */
 	private Role getRole(RoleId roleId) throws AuthenticationException {
 		return this.accessControlDataManager.getRoles().stream().filter(
@@ -190,5 +208,18 @@ public class AccessControlImpl implements AccessControl {
 			}
 		});
 		providers.clear();
+	}
+
+	/**
+	 * Removes all tokens which have expired.
+	 */
+	private void removeExpiredTokens() {
+		long now = System.currentTimeMillis();
+		Set<UUID> uuids = this.validTokens.entrySet().stream()
+			.filter(e -> e.getValue() + EXPIRATION_TIME < now)
+			.map(Map.Entry::getKey).collect(Collectors.toSet());
+		this.validTokens.keySet().removeAll(uuids);
+		this.activeUsers.keySet().removeAll(uuids);
+		this.sessionTokens.keySet().removeAll(uuids);
 	}
 }

@@ -3,6 +3,7 @@ package io.openems.common.accesscontrolproviderstatic;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import io.openems.common.accesscontrol.AccessControlDataManager;
@@ -149,5 +150,25 @@ public class AccessControlProviderStatic implements AccessControlProvider {
 	@Override
 	public int priority() {
 		return this.priority;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		AccessControlProviderStatic that = (AccessControlProviderStatic) o;
+		return Objects.equals(userAdmin, that.userAdmin) &&
+			Objects.equals(userInstaller, that.userInstaller) &&
+			Objects.equals(userOwner, that.userOwner) &&
+			Objects.equals(userGuest, that.userGuest);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(userAdmin, userInstaller, userOwner, userGuest);
 	}
 }

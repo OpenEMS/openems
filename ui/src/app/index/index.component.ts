@@ -1,14 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
-import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithUsernameAndPasswordRequest } from '../shared/jsonrpc/request/authenticateWithUsernameAndPasswordRequest';
-import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import {AuthenticateWithUsernameAndPasswordResponse} from '../shared/jsonrpc/response/authenticateWithUsernameAndPasswordResponse';
 
 @Component({
   selector: 'index',
@@ -84,7 +82,7 @@ export class IndexComponent {
   doLogin(password: string, username: string) {
     let request = new AuthenticateWithUsernameAndPasswordRequest({ password: password, username: username });
     this.websocket.sendRequest(request).then(response => {
-      this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
+      this.handleAuthenticateWithUsernameAndPasswordResponse(response as AuthenticateWithUsernameAndPasswordResponse);
     }).catch(reason => {
       console.error("Error on Login", reason);
     })
@@ -95,7 +93,7 @@ export class IndexComponent {
    * 
    * @param message 
    */
-  private handleAuthenticateWithPasswordResponse(message: AuthenticateWithPasswordResponse) {
+  private handleAuthenticateWithUsernameAndPasswordResponse(message: AuthenticateWithUsernameAndPasswordResponse) {
     this.service.handleAuthentication(message.result.token, message.result.edges);
   }
 

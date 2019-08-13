@@ -7,7 +7,7 @@ import { JsonrpcRequest } from "../base";
  * {
  *   "jsonrpc": "2.0",
  *   "id": UUID,
- *   "method": "authenticateWithPassword",
+ *   "method": "authenticateWithUserNameAndPassword",
  *   "params": {
  *     "password": string
  *   }

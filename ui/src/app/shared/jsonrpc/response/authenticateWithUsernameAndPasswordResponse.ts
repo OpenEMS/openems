@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 import { Edges } from "../shared";
 
 /**
- * Wraps a JSON-RPC Response for a AuthenticateWithPasswordRequest.
+ * Wraps a JSON-RPC Response for a AuthenticateWithUsernameAndPasswordRequest.
  * 
  * <pre>
  * {
@@ -15,7 +15,7 @@ import { Edges } from "../shared";
  * }
  * </pre>
  */
-export class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
+export class AuthenticateWithUsernameAndPasswordResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,

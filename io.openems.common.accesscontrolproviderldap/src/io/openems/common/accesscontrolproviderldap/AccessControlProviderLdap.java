@@ -14,20 +14,21 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.util.Hashtable;
+import java.util.Objects;
 
 /**
  * This implementation of a {@link AccessControlProvider} can be configured used for connecting to a LDAP server which is already holding
  * the configuration of the roles, users and machines
- *
+ * <p>
  * Does currently not work yet.
  *
  * @author Sebastian.Walbrun
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "AccessControlProviderLap", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+	name = "AccessControlProviderLap", //
+	immediate = true, //
+	configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class AccessControlProviderLdap implements AccessControlProvider {
 
@@ -59,5 +60,22 @@ public class AccessControlProviderLdap implements AccessControlProvider {
 	@Override
 	public int priority() {
 		return this.priority;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		AccessControlProviderLdap that = (AccessControlProviderLdap) o;
+		return Objects.equals(path, that.path);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(path);
 	}
 }
