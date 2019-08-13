@@ -1,12 +1,10 @@
 package io.openems.edge.bridge.mccomms;
 
 import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.mccomms.Element.MCCommsElement;
 
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class MCCommsPacket {
@@ -33,8 +31,9 @@ public class MCCommsPacket {
 	}
 	
 	public MCCommsPacket setBytes(byte[] bytes) {
-		for (MCCommsElement value : elements.asMapOfRanges().values()) {
-			
+		for (MCCommsElement element : elements.asMapOfRanges().values()) {
+			element.setBytes(Arrays.copyOfRange(bytes, element.getAddressRange().lowerEndpoint(), element.getAddressRange().upperEndpoint()));
 		}
+		return this;
 	}
 }

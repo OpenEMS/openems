@@ -18,7 +18,8 @@ Private-Package:  \
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.edge.common;version=latest,\
-	com.google.guava
+	com.google.guava,\
+	com.fazecast.jSerialComm;version=2.5.1,\
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

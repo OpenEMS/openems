@@ -18,7 +18,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true; 
 
 	@AttributeDefinition(name = "MCComms-ID", description = "MCComms ID of this bridge")
-	int mccomms_id(); 
+	int mcCommsID() default 1;
+	
+	@AttributeDefinition(name = "Serial port", description = "System serial port descriptor, eg. /dev/ttyUSB0, COM5")
+	String serialPortDescriptor() default "/dev/ttyUSB0";
+	
+	@AttributeDefinition(name = "Packet window (ms)", description = "Number of milliseconds a received MCComms frame has to be completely read before being discarded as incomplete")
+	int packetWindowMS() default 35;
 
 	String webconsole_configurationFactory_nameHint() default "MCComms Bridge [{id}]"; 
 }
