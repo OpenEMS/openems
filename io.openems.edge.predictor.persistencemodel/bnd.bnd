@@ -1,27 +1,27 @@
-Bundle-Name: OpenEMS Edge Predictor PersistantModel
+Bundle-Name: OpenEMS Edge Predictor Persistence Model
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This Bundle describes the persistant model for predicting values.
 	
-Export-Package:  \
-	io.openems.edge.predictor.api,\
-	io.openems.edge.predictor.persistant.model,\
-	io.openems.edge.predictor.persistant.consumption,\
-	io.openems.edge.predictor.persistant.production
-	
+Export-Package: \
+	io.openems.edge.predictor.api
 
 Private-Package:  \
+	io.openems.edge.predictor.persistencemodel,\
+	io.openems.edge.predictor.persistencemodel.consumption,\
+	io.openems.edge.predictor.persistencemodel.production
 	
-
 -includeresource: {readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.predictor.api;version=latest,\
-	io.openems.edge.common;version=latest
-
+	io.openems.edge.common;version=latest,\
+	com.google.gson,\
+	com.google.guava
 	
 -testpath: ${testpath}
 
