@@ -8,18 +8,21 @@ Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.power.api
 
-Private-Package: \
-	io.openems.edge.ess.byd.container
+Private-Package: io.openems.edge.ess.byd.container
 
 -includeresource: {readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	com.google.gson
 
 -testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8
+-privatepackage: io.openems.edge.ess.byd.container.watchdog
