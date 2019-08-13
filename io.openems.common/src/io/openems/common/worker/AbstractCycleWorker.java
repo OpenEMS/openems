@@ -30,5 +30,5 @@ public abstract class AbstractCycleWorker extends AbstractWorker {
 	}
 
 	@Override
-	protected abstract void forever();
+	protected abstract void forever() throws Throwable;
 }

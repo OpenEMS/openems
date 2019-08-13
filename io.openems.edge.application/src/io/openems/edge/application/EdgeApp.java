@@ -29,9 +29,9 @@ public class EdgeApp {
 	void activate() {
 		String message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
 		String line = Strings.repeat("=", message.length());
-		log.info(line);
-		log.info(message);
-		log.info(line);
+		this.log.info(line);
+		this.log.info(message);
+		this.log.info(line);
 
 		Configuration config;
 		try {
@@ -54,44 +54,14 @@ public class EdgeApp {
 		}
 
 		// Announce Operating System that OpenEMS Edge started
-		if(SDNotify.isAvailable()) {
+		if (SDNotify.isAvailable()) {
 			SDNotify.sendNotify();
 		}
-		// Example: Create new Scheduler
-		// new Thread(() -> {
-		// try {
-		// Thread.sleep(10000);
-		// System.out.println("Create config");
-		// Configuration config = cm.createFactoryConfiguration("Scheduler.FixedOrder",
-		// "?");
-		// Hashtable<String, Object> map = new Hashtable<>();
-		// map.put("id", "scheduler23");
-		// map.put("name", "HALLO WELT");
-		// config.update(map);
-		// System.out.println(config);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }).start();
-
-		// Example: Delete Scheduler
-		// new Thread(() -> {
-		// try {
-		// Thread.sleep(20000);
-		// System.out.println("Delete Config");
-		// Configuration[] cs = cm.listConfigurations("(id=scheduler23)");
-		// for (Configuration c : cs) {
-		// c.delete();
-		// }
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }).start();
 	}
 
 	@Deactivate
 	void deactivate() {
-		log.debug("Deactivate EdgeApp");
+		this.log.debug("Deactivate EdgeApp");
 	}
 
 }

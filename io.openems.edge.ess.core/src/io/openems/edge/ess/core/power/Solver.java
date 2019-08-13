@@ -997,6 +997,7 @@ public class Solver {
 			if (c.getValue().isPresent()) {
 				double[] cos = Solver.getEmptyCoefficients(data);
 				for (LinearCoefficient co : c.getCoefficients()) {
+					// TODO verify, that ESS is enabled
 					cos[co.getCoefficient().getIndex()] = co.getValue();
 				}
 				org.apache.commons.math3.optim.linear.Relationship relationship = null;

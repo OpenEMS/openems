@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { addDays, getDate, getMonth, getYear, format } from 'date-fns/esm';
+import { addDays, getDate, getMonth, getYear } from 'date-fns/esm';
 import { IMyDrpOptions, IMyDate, IMyDateRangeModel } from 'mydaterangepicker';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';

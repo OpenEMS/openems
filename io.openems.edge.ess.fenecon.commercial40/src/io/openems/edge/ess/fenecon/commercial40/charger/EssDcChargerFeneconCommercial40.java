@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -23,10 +24,14 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
@@ -59,7 +64,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		 * Merge PV_DCDC0_INPUT_POWER and PV_DCDC1_INPUT_POWER to ACTUAL_POWER
 		 */
 		final Channel<Integer> dc0Power = this.channel(ChannelId.PV_DCDC0_INPUT_POWER);
-		final Channel<Integer> dc1Power = this.channel(ChannelId.PV_DCDC0_INPUT_POWER);
+		final Channel<Integer> dc1Power = this.channel(ChannelId.PV_DCDC1_INPUT_POWER);
 		final Consumer<Value<Integer>> actualPowerSum = ignore -> {
 			this.getActualPower().setNextValue(TypeUtils.sum(dc0Power.value().get(), dc1Power.value().get()));
 		};
@@ -96,14 +101,24 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
+
+		this.ess.setCharger(this);
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.ess.setCharger(null);
 		super.deactivate();
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		DEBUG_SET_PV_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		SET_PV_POWER_LIMIT(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_SET_PV_POWER_LIMIT))), //
+
 		// LongReadChannel
 		BMS_DCDC0_OUTPUT_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)), //
@@ -234,6 +249,9 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
+				new FC16WriteRegistersTask(0x0503, //
+						m(ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xA130, Priority.LOW, //
 						m(ChannelId.BMS_DCDC0_OUTPUT_VOLTAGE, new SignedWordElement(0xA130),
 								ElementToChannelConverter.SCALE_FACTOR_2), //

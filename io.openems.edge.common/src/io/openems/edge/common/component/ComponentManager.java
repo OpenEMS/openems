@@ -18,7 +18,9 @@ public interface ComponentManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
-				.text("A configured OpenEMS Component was not activated"));
+				.text("A configured OpenEMS Component was not activated")), //
+		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
+				.text("OutOfMemory had happened. Found heap dump files."));
 
 		private final Doc doc;
 
@@ -37,10 +39,19 @@ public interface ComponentManager extends OpenemsComponent {
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
 	 */
-	public List<OpenemsComponent> getComponents();
+	public List<OpenemsComponent> getEnabledComponents();
 
 	/**
-	 * Gets a OpenEMS-Component by its Component-ID.
+	 * Gets all OpenEMS-Components.
+	 * 
+	 * @return a List of OpenEMS-Components
+	 * @throws IllegalArgumentException if the Component was not found
+	 */
+	public List<OpenemsComponent> getAllComponents();
+
+	/**
+	 * Gets a OpenEMS-Component by its Component-ID. The Component is guaranteed to
+	 * be enabled.
 	 * 
 	 * @param componentId the Component-ID (e.g. "_sum")
 	 * @param <T>         the typed Component
@@ -52,7 +63,32 @@ public interface ComponentManager extends OpenemsComponent {
 		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
 			return (T) this;
 		}
-		List<OpenemsComponent> components = this.getComponents();
+		List<OpenemsComponent> components = this.getEnabledComponents();
+		for (OpenemsComponent component : components) {
+			if (component.id().equals(componentId)) {
+				return (T) component;
+			}
+		}
+		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
+	}
+
+	/**
+	 * Gets a OpenEMS-Component by its Component-ID. Be careful, that the Component
+	 * might not be 'enabled'. If in doubt, use {@link #getComponent(String)}
+	 * instead.
+	 * 
+	 * @param componentId the Component-ID (e.g. "_sum")
+	 * @param <T>         the typed Component
+	 * @return the OpenEMS-Component
+	 * @throws OpenemsNamedException if the Component was not found
+	 */
+	@SuppressWarnings("unchecked")
+	public default <T extends OpenemsComponent> T getPossiblyDisabledComponent(String componentId)
+			throws OpenemsNamedException {
+		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
+			return (T) this;
+		}
+		List<OpenemsComponent> components = this.getAllComponents();
 		for (OpenemsComponent component : components) {
 			if (component.id().equals(componentId)) {
 				return (T) component;

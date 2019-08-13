@@ -31,7 +31,8 @@ export const TRANSLATION = {
             Saturday: "Saturday",
             Sunday: "Sunday"
         },
-        ReportValue: "Report corrupted data"
+        ReportValue: "Report corrupted data",
+        Capacity: "Capacity"
     },
     Menu: {
         Index: "Index",
@@ -68,6 +69,7 @@ export const TRANSLATION = {
                 ProductionDC: "Production DC"
             },
             Widgets: {
+                Info: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 CHP: {
                     LowThreshold: "Low Threshold",
                     HighThreshold: "High Threshold"
@@ -128,6 +130,7 @@ export const TRANSLATION = {
             SelectedPeriod: "Selected period: ",
             OtherPeriod: "Other period",
             Period: "Period",
+            SelectedDay: "{{value}}",
             Today: "Today",
             Yesterday: "Yesterday",
             LastWeek: "Last week",

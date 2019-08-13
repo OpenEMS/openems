@@ -41,6 +41,20 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
+		
+		/**
+		 * Ess: Capacity.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: Ess)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * <li>Range: should be only positive
+		 * </ul>
+		 */
+		ESS_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)), //
+		
 		/**
 		 * Grid: Active Power.
 		 * 
@@ -348,6 +362,10 @@ public interface Sum extends OpenemsComponent {
 
 	public default Channel<Integer> getEssMaxApparentPower() {
 		return this.channel(ChannelId.ESS_MAX_APPARENT_POWER);
+	}
+	
+	public default Channel<Integer> getEssCapacity() {
+		return this.channel(ChannelId.ESS_CAPACITY);
 	}
 
 	public default Channel<Integer> getGridActivePower() {

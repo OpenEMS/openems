@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns/esm';
-import { IMyDate, IMyDateRange, IMyDateRangeModel } from 'mydaterangepicker';
+import { addDays, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns/esm';
+import { IMyDate, IMyDateRange } from 'mydaterangepicker';
 import { Service } from '../shared';
 import { PickDatePopoverComponent } from './popover/popover.component';
 import { DefaultTypes } from '../service/defaulttypes';

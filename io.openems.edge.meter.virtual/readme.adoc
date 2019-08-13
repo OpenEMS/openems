@@ -1,6 +1,32 @@
 = Virtual Symmetric Add
 
+This is a virtual meter which is used to sum up the values from multiple symmetric meters. The use case for this feature is, Usually when there are multiple meters reading values from different systems, The average values from the systems make more sense for calculation and statistics. 
+
 Implemented Natures::
 - SymmetricMeter
+
+
+== Configuration
+
+
+- `Component-ID` Unique ID of this Component (id), e.g. "ctrlIoAlarm0", "ctrlIoAlarm1"
+- `Alias` Human-readable name of this Component; defaults to Component-ID (alias)
+-  `Is enabled`  Is this Component enabled?
+- `Meter-Type` Type of the Meters (Grid meter or Production meter)
+- `Meter IDs` Ids of the meters to be summed up,  
+
+
+
+== Example Configuration
+
+- `Component-ID` : meter0
+- `Alias` : virtualMeter
+- `Meter-Type` : PRODUCTION
+- `Meter IDs` : [meter1, meter2, meter3]
+
+NOTE: Meter IDs is a list of the meters which needs summing of the values. 
+
+The above example configuration describes, The values from the three meters configured (meter1, meter2, meter3) are summed up and average values is set to the corresponding channel address.
+
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.virtual[Source Code icon:github[]]

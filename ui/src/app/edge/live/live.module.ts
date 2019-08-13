@@ -14,13 +14,16 @@ import { ModalComponent as FixDigitalOutputModalComponent } from './fixdigitalou
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
+import { GridModalComponent } from './grid/modal/modal.component';
+import { ConsumptionModalComponent } from './consumption/modal/modal.component';
+import { ProductionModalComponent } from './production/modal/modal.component';
 
 @NgModule({
   imports: [
     SharedModule,
     EnergymonitorModule,
   ],
-  entryComponents: [StorageModalComponent],
+  entryComponents: [StorageModalComponent, GridModalComponent, ConsumptionModalComponent, ProductionModalComponent],
   declarations: [
     LiveComponent,
     FixDigitalOutputModalComponent,
@@ -35,7 +38,10 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
     StorageModalComponent,
-    ChpSocComponent
+    GridModalComponent,
+    ChpSocComponent,
+    ConsumptionModalComponent,
+    ProductionModalComponent
   ]
 })
 export class LiveModule { }

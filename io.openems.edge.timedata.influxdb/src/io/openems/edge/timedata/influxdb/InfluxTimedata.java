@@ -1,11 +1,9 @@
 package io.openems.edge.timedata.influxdb;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -19,9 +17,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -37,6 +32,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.timedata.api.Timedata;
@@ -78,11 +74,8 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 		);
 	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.AT_LEAST_ONE, //
-			target = "(&(enabled=true)(!(service.factoryPid=Timedata.InfluxDB)))")
-	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
@@ -122,7 +115,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 		final Builder point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.SECONDS);
 		final AtomicBoolean addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
-		this.components.stream().filter(c -> c.isEnabled()).forEach(component -> {
+		this.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
 			component.channels().forEach(channel -> {
 				Optional<?> valueOpt = channel.value().asOptional();
 				if (!valueOpt.isPresent()) {

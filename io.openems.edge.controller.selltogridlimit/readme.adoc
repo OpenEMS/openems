@@ -1,0 +1,5 @@
+= Sell-To-Grid limit
+
+Dynamically limits the Sell-To-Grid power to a defined maximum power.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.selltogridlimit[Source Code icon:github[]]

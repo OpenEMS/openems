@@ -68,6 +68,7 @@ export const TRANSLATION = {
                 ProductionDC: "Generación DC"
             },
             Widgets: {
+                Info: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 CHP: {
                     LowThreshold: "Umbral bajo",
                     HighThreshold: "Umbral alto"
@@ -124,6 +125,7 @@ export const TRANSLATION = {
             SelectedPeriod: "Período seleccionado: ",
             OtherPeriod: "Otro período",
             Period: "Período",
+            SelectedDay: "{{value}}",
             Today: "Hoy",
             Yesterday: "Ayer",
             LastWeek: "La semana pasada",

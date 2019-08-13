@@ -1,5 +1,3 @@
-import { Service } from '../service/service';
-
 export const TRANSLATION = {
     General: {
         Cumulative: "Kumulierte Werte",
@@ -33,7 +31,8 @@ export const TRANSLATION = {
             Saturday: "Samstag",
             Sunday: "Sonntag"
         },
-        ReportValue: "Fehlerhafte Daten melden"
+        ReportValue: "Fehlerhafte Daten melden",
+        Capacity: "Kapazität"
     },
     Menu: {
         Index: "Übersicht",
@@ -70,6 +69,7 @@ export const TRANSLATION = {
                 ProductionDC: "Erzeugung DC"
             },
             Widgets: {
+                Info: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",
                     HighThreshold: "Oberer Schwellenwert"
@@ -130,6 +130,7 @@ export const TRANSLATION = {
             SelectedPeriod: "Gewählter Zeitraum: ",
             OtherPeriod: "Anderer Zeitraum",
             Period: "Zeitraum",
+            SelectedDay: "{{value}}",
             Today: "Heute",
             Yesterday: "Gestern",
             LastWeek: "Letzte Woche",

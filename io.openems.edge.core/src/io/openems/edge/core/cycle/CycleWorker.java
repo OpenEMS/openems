@@ -3,6 +3,7 @@ package io.openems.edge.core.cycle;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.Scheduler;
 
 public class CycleWorker extends AbstractWorker {
@@ -52,11 +54,12 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Before Controllers start: switch to next process image for each channel
 			 */
-			this.parent.components.stream().filter(c -> c.isEnabled()).forEach(component -> {
-				component.channels().forEach(channel -> {
-					channel.nextProcessImage();
-				});
-			});
+			this.parent.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled())
+					.forEach(component -> {
+						component.channels().forEach(channel -> {
+							channel.nextProcessImage();
+						});
+					});
 			this.parent.channels().forEach(channel -> {
 				channel.nextProcessImage();
 			});
@@ -73,46 +76,69 @@ public class CycleWorker extends AbstractWorker {
 			this.parent.eventAdmin
 					.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>()));
 
+			boolean hasDisabledController = false;
+
 			/*
 			 * Execute Schedulers and their Controllers
 			 */
 			if (this.parent.schedulers.isEmpty()) {
 				this.parent.logWarn(this.log, "There are no Schedulers configured!");
 			} else {
+				for (Entry<Scheduler, Integer> entry : this.parent.schedulers.entrySet()) {
+					boolean schedulerHasError = false;
 
-				this.parent.schedulers.entrySet().forEach(entry -> {
 					Scheduler scheduler = entry.getKey();
 					if (this.parent.cycle % entry.getValue() != 0) {
 						// abort if relativeCycleTime is not matching this cycle
 						return;
 					}
-					scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEachOrdered(controller -> {
-						try {
-							controller.run();
-
-							// announce running was ok
-							controller.getRunFailed().setNextValue(false);
-
-						} catch (OpenemsNamedException e) {
-							this.parent.logWarn(this.log,
-									"Error in Controller [" + controller.id() + "]: " + e.getMessage());
-
-							// announce running failed
-							controller.getRunFailed().setNextValue(true);
-
-						} catch (Exception e) {
-							this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
-									+ e.getClass().getSimpleName() + ": " + e.getMessage());
-							if (e instanceof ClassCastException || e instanceof NullPointerException
-									|| e instanceof IllegalArgumentException) {
-								e.printStackTrace();
+					try {
+						for (Controller controller : scheduler.getControllers()) {
+							if (!controller.isEnabled()) {
+								hasDisabledController = true;
+								continue;
 							}
-							// announce running failed
-							controller.getRunFailed().setNextValue(true);
+
+							try {
+								// Execute Controller logic
+								controller.run();
+
+								// announce running was ok
+								controller.getRunFailed().setNextValue(false);
+
+							} catch (OpenemsNamedException e) {
+								this.parent.logWarn(this.log,
+										"Error in Controller [" + controller.id() + "]: " + e.getMessage());
+
+								// announce running failed
+								controller.getRunFailed().setNextValue(true);
+
+							} catch (Exception e) {
+								this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
+										+ e.getClass().getSimpleName() + ": " + e.getMessage());
+								if (e instanceof ClassCastException || e instanceof NullPointerException
+										|| e instanceof IllegalArgumentException) {
+									e.printStackTrace();
+								}
+								// announce running failed
+								controller.getRunFailed().setNextValue(true);
+							}
 						}
-					});
-				});
+
+						// announce running was ok or not ok.
+						scheduler.getRunFailed().setNextValue(schedulerHasError);
+
+					} catch (Exception e) {
+						this.parent.logWarn(this.log, "Error in Scheduler [" + scheduler.id() + "]: " + e.getMessage());
+
+						// announce running failed
+						scheduler.getRunFailed().setNextValue(true);
+					}
+				}
 			}
+
+			// announce ignoring disabled Controllers.
+			this.parent.channel(Cycle.ChannelId.IGNORE_DISABLED_CONTROLLER).setNextValue(hasDisabledController);
 
 			/*
 			 * Trigger AFTER_CONTROLLERS event
