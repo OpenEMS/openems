@@ -207,7 +207,8 @@
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
-	io.openems.edge.solaredge;version=snapshot
+	io.openems.edge.solaredge;version=snapshot,\
+	io.openems.edge.controller.symmetric.peaklimiting;version=snapshot,\
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	javax.jmdns;version='[3.5.5,3.5.6)',\
 	io.openems.edge.controller.symmetric.peaklimiting;version=snapshot
