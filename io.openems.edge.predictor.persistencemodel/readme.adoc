@@ -1,0 +1,3 @@
+= Persistence Model Predictor
+
+Predicts values using the 'same-as-last-day' approach.

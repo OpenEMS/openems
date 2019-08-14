@@ -64,7 +64,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		 * Merge PV_DCDC0_INPUT_POWER and PV_DCDC1_INPUT_POWER to ACTUAL_POWER
 		 */
 		final Channel<Integer> dc0Power = this.channel(ChannelId.PV_DCDC0_INPUT_POWER);
-		final Channel<Integer> dc1Power = this.channel(ChannelId.PV_DCDC0_INPUT_POWER);
+		final Channel<Integer> dc1Power = this.channel(ChannelId.PV_DCDC1_INPUT_POWER);
 		final Consumer<Value<Integer>> actualPowerSum = ignore -> {
 			this.getActualPower().setNextValue(TypeUtils.sum(dc0Power.value().get(), dc1Power.value().get()));
 		};
