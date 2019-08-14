@@ -3,17 +3,13 @@ package io.openems.edge.bridge.mccomms;
 import com.fazecast.jSerialComm.SerialPort;
 import com.google.common.primitives.UnsignedBytes;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.ChannelId;
-import org.osgi.service.cm.ConfigurationAdmin;
+import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
+import io.openems.edge.bridge.mccomms.task.ListenTask;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -24,7 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.AbstractMap;
-import java.util.Optional;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -36,12 +32,14 @@ import java.util.concurrent.TimeUnit;
 		immediate=true,
 		configurationPolicy=ConfigurationPolicy.REQUIRE)
 public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsComponent{
+	private int bridgeDeviceAddress;
 	private SerialPort serialPort;
 	private SerialByteHandler serialByteHandler;
 	private PacketBuilder packetBuilder;
 	private LinkedBlockingQueue<AbstractMap.SimpleEntry<Long, Byte>> RXTimedByteQueue; //TODO init in constructor
 	private ConcurrentLinkedQueue<MCCommsPacket> TXPacketQueue; //TODO init in constructor
 	private LinkedBlockingQueue<ByteBuffer> RXBufferQueue; //TODO init in constructor
+	private HashSet<ListenTask> listenTasks; //TODO init in constructor
 	private long packetWindowNs;
 	
 	
@@ -49,9 +47,22 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		super(firstInitialChannelIds, furtherInitialChannelIds); //TODO replace this constructor
 	}
 	
+	public int getBridgeDeviceAddress() {
+		return bridgeDeviceAddress;
+	}
+	
+	public void addListenTask(ListenTask listenTask) {
+		listenTasks.add(listenTask);
+	}
+	
+	public void removeListenTask(ListenTask listenTask) {
+		listenTasks.remove(listenTask);
+	}
+	
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		bridgeDeviceAddress = config.mcCommsID();
 		packetWindowNs = config.packetWindowMS() * 1000000L;
 		serialPort = SerialPort.getCommPort(config.serialPortDescriptor());
 		serialPort.setComPortParameters(9600, 8, 1, SerialPort.NO_PARITY);
@@ -133,22 +144,22 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 							//calculate time remaining in packet window
 							long remainingPacketWindowPeriod = packetWindowNs - (polledTimedByte.getKey() - packetStartTime);
 							//get next timed-byte
-							// ...and time out polling operation if window closes
+							// ...or time out polling operation if window closes
 							polledTimedByte = RXTimedByteQueue.poll(remainingPacketWindowPeriod, TimeUnit.NANOSECONDS);
 							if (polledTimedByte != null) {
 								if (UnsignedBytes.toInt(polledTimedByte.getValue()) == 69) {
 									endByteReceived = true; //test if packet has truly ended on next byte consumer loop
 								}
 							} else {
-								//if packet window closes, discard packet buffer and break out of inner while loop
-								break;
+								break; //if packet window closes, discard packet buffer and break out of inner while loop
 							}
 						}
-						if (packetBuffer.position() == 25 && endByteReceived) {//if the packet has reached position 25 and the end byte has been received
+						if (packetBuffer.position() == 25 //if the packet has reached position 25
+								&& endByteReceived //...the end byte has been received
+								&& MCCommsPacket.checkCRC(packetBuffer)) { //...and the CRC passes TODO check if bad CRC packets must be rejected (Nelius)
 							RXBufferQueue.add(packetBuffer); //add the buffer to the rx buffer queue for picking
 						}
-						//reset buffer
-						packetBuffer = ByteBuffer.allocate(25);
+						packetBuffer = ByteBuffer.allocate(25); //reset buffer
 					}
 				} catch (InterruptedException e) {
 					this.interrupt();
@@ -158,6 +169,24 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	}
 	
 	private class PacketPicker extends Thread {
+		private ByteBuffer byteBuffer;
+		
+		@Override
+		public void run() {
+			try {
+				byteBuffer = RXBufferQueue.take();
+			} catch (InterruptedException e) {
+				interrupt();
+			}
+			for (ListenTask listenTask : listenTasks) {
+				try {
+					listenTask.acceptBuffer(byteBuffer);
+				} catch (OpenemsException e) {
+					e.printStackTrace(); //TODO proper exception handling
+				}
+			}
+		}
+		
 		
 	}
 
