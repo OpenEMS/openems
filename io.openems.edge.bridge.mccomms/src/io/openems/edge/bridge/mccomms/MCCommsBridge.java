@@ -5,6 +5,7 @@ import com.google.common.primitives.UnsignedBytes;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
 import io.openems.edge.bridge.mccomms.task.ListenTask;
+import io.openems.edge.common.channel.Doc;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -32,23 +33,37 @@ import java.util.concurrent.TimeUnit;
 		immediate=true,
 		configurationPolicy=ConfigurationPolicy.REQUIRE)
 public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsComponent{
-	private int bridgeDeviceAddress;
 	private SerialPort serialPort;
 	private SerialByteHandler serialByteHandler;
 	private PacketBuilder packetBuilder;
-	private LinkedBlockingQueue<AbstractMap.SimpleEntry<Long, Byte>> RXTimedByteQueue; //TODO init in constructor
-	private ConcurrentLinkedQueue<MCCommsPacket> TXPacketQueue; //TODO init in constructor
-	private LinkedBlockingQueue<ByteBuffer> RXBufferQueue; //TODO init in constructor
-	private HashSet<ListenTask> listenTasks; //TODO init in constructor
+	private PacketPicker packetPicker;
+	private LinkedBlockingQueue<AbstractMap.SimpleEntry<Long, Byte>> RXTimedByteQueue;
+	private ConcurrentLinkedQueue<MCCommsPacket> TXPacketQueue;
+	private LinkedBlockingQueue<ByteBuffer> RXBufferQueue;
+	private HashSet<ListenTask> listenTasks;
 	private long packetWindowNs;
 	
-	
-	protected MCCommsBridge(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
-		super(firstInitialChannelIds, furtherInitialChannelIds); //TODO replace this constructor
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		
+		private final Doc doc;
+		
+		ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+		
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
 	}
 	
-	public int getBridgeDeviceAddress() {
-		return bridgeDeviceAddress;
+	protected MCCommsBridge() {
+		super(OpenemsComponent.ChannelId.values(), ChannelId.values());
+		RXTimedByteQueue = new LinkedBlockingQueue<>();
+		TXPacketQueue = new ConcurrentLinkedQueue<>();
+		RXBufferQueue = new LinkedBlockingQueue<>();
+		listenTasks = new HashSet<>();
 	}
 	
 	public void addListenTask(ListenTask listenTask) {
@@ -62,7 +77,6 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		bridgeDeviceAddress = config.mcCommsID();
 		packetWindowNs = config.packetWindowMS() * 1000000L;
 		serialPort = SerialPort.getCommPort(config.serialPortDescriptor());
 		serialPort.setComPortParameters(9600, 8, 1, SerialPort.NO_PARITY);
@@ -70,7 +84,8 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		if (!serialPort.openPort() && !serialPort.isOpen()) {
 			throw new OpenemsException("Unable to open serial port: " + config.serialPortDescriptor()); //TODO check if exception can be thrown here
 		}
-		//TODO maybe init queues here?
+		packetPicker = new PacketPicker();
+		packetPicker.start();
 		packetBuilder = new PacketBuilder();
 		packetBuilder.start();
 		serialByteHandler = new SerialByteHandler();
@@ -79,6 +94,8 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 
 	@Deactivate
 	protected void deactivate() {
+		packetPicker.interrupt();
+		packetBuilder.interrupt();
 		serialByteHandler.interrupt();
 		super.deactivate();
 	}
@@ -97,7 +114,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 						outputStream.write(TXPacketQueue.poll().getBytes());
 					}
 				} catch (IOException e) {
-					//TODO check if exception can be rethrown
+					//TODO proper exception handling
 				} catch (InterruptedException e) {
 					interrupt();
 				}

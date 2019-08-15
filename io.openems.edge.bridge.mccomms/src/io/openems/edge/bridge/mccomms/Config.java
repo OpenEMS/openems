@@ -16,9 +16,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true; 
-
-	@AttributeDefinition(name = "MCComms-ID", description = "MCComms ID of this bridge")
-	int mcCommsID() default 1;
 	
 	@AttributeDefinition(name = "Serial port", description = "System serial port descriptor, eg. /dev/ttyUSB0, COM5")
 	String serialPortDescriptor() default "/dev/ttyUSB0";

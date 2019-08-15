@@ -1,13 +1,12 @@
 package io.openems.edge.bridge.mccomms.api;
 
 import io.openems.edge.bridge.mccomms.MCCommsBridge;
-import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Deactivate;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,17 +36,17 @@ public class AbstractMCCommsComponent extends AbstractOpenemsComponent {
 	 * @param mcCommsAddress  Unit-ID of the Modbus target
 	 * @param cm              An instance of ConfigurationAdmin. Receive it
 	 *                        using @Reference
-	 * @param mcCommsOSGIid   The component ID of the Modbus brige. Typically
+	 * @param mcCommsBridgeComponentID   The component ID of the MCComms bridge. Typically
 	 *                        'config.mcCommsBridgeComponentID()'
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
 	@Activate
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int mcCommsAddress,
-	                           ConfigurationAdmin cm, String mcCommsOSGIid) {
+	                           ConfigurationAdmin cm, String mcCommsBridgeComponentID) {
 		super.activate(context, id, alias, enabled);
 		// update filter for 'MCCommsBridge'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "MCCommsBridge", mcCommsOSGIid)) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "MCCommsBridge", mcCommsBridgeComponentID)) {
 			return true;
 		}
 		this.mcCommsAddress = mcCommsAddress;
@@ -56,7 +55,7 @@ public class AbstractMCCommsComponent extends AbstractOpenemsComponent {
 	
 	@Override
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
-		throw new IllegalArgumentException("Use the other activate() for MCComms compoenents!");
+		throw new IllegalArgumentException("Use the other activate() for MCComms components");
 	}
 	
 	public void setMCCommsBridge(MCCommsBridge bridge) {

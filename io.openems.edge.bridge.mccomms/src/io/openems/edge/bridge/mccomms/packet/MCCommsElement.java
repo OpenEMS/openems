@@ -2,6 +2,7 @@ package io.openems.edge.bridge.mccomms.packet;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Optional;
 
 import com.google.common.collect.Range;
 
@@ -23,6 +24,12 @@ public class MCCommsElement {
 		this.isUnsigned = isUnsigned;
 		this.scaleFactor = scaleFactor;
 		this.channel = channel;
+	}
+	
+	public static MCCommsElement newNumberInstance(int startAddress, int numBytes) {
+		//TODO
+		
+		return null;
 	}
 	
 	public static MCCommsElement newInstanceFromChannel(int startAddress, int numBytes, Channel channel) {
@@ -92,26 +99,28 @@ public class MCCommsElement {
 	}
 	
 	public void assignValueToChannel() throws OpenemsException {
-		switch (channel.getType()) {
-			case BOOLEAN:
-				channel.setNextValue(getBufferScaledValue().intValue() != 0);
-				break;
-			case SHORT:
-				channel.setNextValue(getBufferScaledValue().shortValue());
-				break;
-			case INTEGER:
-				channel.setNextValue(getBufferScaledValue().intValue());
-				break;
-			case LONG:
-				channel.setNextValue(getBufferScaledValue().longValue());
-				break;
-			case FLOAT:
-				channel.setNextValue(getBufferScaledValue().floatValue());
-				break;
-			case DOUBLE:
-				channel.setNextValue(getBufferScaledValue().doubleValue());
-			default:
-				throw new OpenemsException("Type not supported: " + channel.getType().name());
+		if (Optional.ofNullable(channel).isPresent()) {
+			switch (channel.getType()) {
+				case BOOLEAN:
+					channel.setNextValue(getBufferScaledValue().intValue() != 0);
+					break;
+				case SHORT:
+					channel.setNextValue(getBufferScaledValue().shortValue());
+					break;
+				case INTEGER:
+					channel.setNextValue(getBufferScaledValue().intValue());
+					break;
+				case LONG:
+					channel.setNextValue(getBufferScaledValue().longValue());
+					break;
+				case FLOAT:
+					channel.setNextValue(getBufferScaledValue().floatValue());
+					break;
+				case DOUBLE:
+					channel.setNextValue(getBufferScaledValue().doubleValue());
+				default:
+					throw new OpenemsException("Type not supported: " + channel.getType().name());
+			}
 		}
 	}
 	
@@ -146,35 +155,37 @@ public class MCCommsElement {
 	
 	//no consideration given to cardinality of channel value TODO put this in JavaDoc
 	public void getValueFromChannel() throws OpenemsException {
-		switch (channel.getType()) {
-			case INTEGER:
-			case SHORT:
-			case LONG:
-				long channelValue = (long) (((long) channel.value().getOrError()) * scaleFactor);
-				switch (valueBuffer.capacity()) {
-					case 0:
-						throw new OpenemsException("Zero length buffer");
-					case 1:
-						valueBuffer.put(0, (byte) channelValue);
-						break;
-					case 2:
-						valueBuffer.putShort(0, (short) channelValue);
-						break;
-					case 4:
-						valueBuffer.putInt(0, (int) channelValue);
-						break;
-					case 8:
-						valueBuffer.putLong(0, channelValue);
-						break;
-					default:
-						throw new OpenemsException("Abnormal buffer length (not a power of 2, or longer than 8 bytes)");
-				}
-				break;
-			case BOOLEAN:
-				Arrays.fill(valueBuffer.array(), ((boolean) channel.value().getOrError()) ? ((byte) 1) : ((byte) 0));
-				break;
-			default:
-				throw new OpenemsException("Type not supported: " + channel.getType().name());
+		if (Optional.ofNullable(channel).isPresent()) {
+			switch (channel.getType()) {
+				case INTEGER:
+				case SHORT:
+				case LONG:
+					long channelValue = (long) (((long) channel.value().getOrError()) * scaleFactor);
+					switch (valueBuffer.capacity()) {
+						case 0:
+							throw new OpenemsException("Zero length buffer");
+						case 1:
+							valueBuffer.put(0, (byte) channelValue);
+							break;
+						case 2:
+							valueBuffer.putShort(0, (short) channelValue);
+							break;
+						case 4:
+							valueBuffer.putInt(0, (int) channelValue);
+							break;
+						case 8:
+							valueBuffer.putLong(0, channelValue);
+							break;
+						default:
+							throw new OpenemsException("Abnormal buffer length (not a power of 2, or longer than 8 bytes)");
+					}
+					break;
+				case BOOLEAN:
+					Arrays.fill(valueBuffer.array(), ((boolean) channel.value().getOrError()) ? ((byte) 1) : ((byte) 0));
+					break;
+				default:
+					throw new OpenemsException("Type not supported: " + channel.getType().name());
+			}
 		}
 	}
 }
