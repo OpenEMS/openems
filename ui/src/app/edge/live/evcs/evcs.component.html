@@ -1,47 +1,47 @@
 <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
-  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-item lines="full" color="light">
-      <ion-avatar slot="start">
-        <img src="assets/img/evcs.png">
+      <ion-avatar>
+        <ion-img src="assets/img/evcs.png"></ion-img>
       </ion-avatar>
-      <!-- TODO Fix formatting -->
-      <ion-label translate>
+      <ion-label *ngIf="currentData[componentId + '/Alias'] as alias" style="padding-left: 20px;">
+        {{ alias }}
+      </ion-label>
+      <ion-label *ngIf="!currentData[componentId + '/Alias']" style="padding-left: 20px;" translate>
         Edge.Index.Widgets.EVCS.ChargingStation
+        <ion-text>
+          {{ componentId }}
+        </ion-text>
       </ion-label>
     </ion-item>
+
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
       <ion-card-content>
         <table class="full_width">
           <tr>
-            <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingPower</td>
-            <td style="width:15%"></td>
-            <td style="width:45%" class="align_right">
-              {{ outputPowerOrState(currentData[componentId + "/ChargePower"] | number:'1.0-0',
-                   currentData[componentId + "/Status"], 
-                   currentData[componentId + "/Plug"]) }}
+            <td style="width:50%">
+              <ion-label translate>
+                Edge.Index.Widgets.EVCS.Status
+              </ion-label>
             </td>
-          </tr>
-          <tr>
-            <td style="width: 50%" translate>Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
             <td style="width:15%"></td>
             <td style="width:45%" class="align_right">
-              {{ (currentData[componentId + "/EnergySession"] * 0.1) | number:'1.0-0' }} Wh
+              {{ getState(currentData[componentId + '/ChargePower'], currentData[evcs_id + "/Status"], currentData[evcs_id + "/Plug"])}}
             </td>
           </tr>
         </table>
       </ion-card-content>
     </ion-label>
-    <ion-card-content *ngIf="currentData[componentId + '/State'] == 3">
-      <ion-label translate>
-        Edge.Index.Widgets.EVCS.NoConnection.Description
-        <ul>
-          <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
-          <ul>
-            <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1</li>
-          </ul>
-        </ul>
-      </ion-label>
-    </ion-card-content>
+    <ion-label *ngIf="currentData[componentId + '/State'] == 3">
+      <ion-item class="normalFontSize">
+        <table>
+          <tr>
+            <td translate>
+              Edge.Index.Widgets.EVCS.NoConnection.Description
+            </td>
+          </tr>
+        </table>
+      </ion-item>
+    </ion-label>
   </ng-container>
 </ion-card>

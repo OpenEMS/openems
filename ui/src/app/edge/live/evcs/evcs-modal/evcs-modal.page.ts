@@ -1,40 +1,37 @@
-import { Component, OnInit, HostListener, Input } from '@angular/core';
+import { Component, OnInit, HostListener, Input, OnChanges } from '@angular/core';
 import { environment } from 'src/environments/openems-backend-dev-local';
 import { PopoverController, ModalController } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Websocket, ChannelAddress, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
+import { Router } from '@angular/router';
+import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { EvcsComponent } from '../evcs.component';
-import { InfoPopoverComponent } from './info-popover/info-popover.component';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
 
 @Component({
-  selector: 'app-evcs-modal',
-  templateUrl: './evcs-modal.page.html',
-  styleUrls: ['./evcs-modal.page.scss'],
+  selector: 'evcs-modal',
+  templateUrl: './evcs-modal.page.html'
 })
-export class EvcsModalPage implements OnInit {
+export class EvcsModalComponent implements OnInit {
 
-  @Input() controller: EdgeConfig.Component;
   @Input() edge: Edge;
-  @Input() componentId: number;
+  @Input() controller: EdgeConfig.Component = null;
+  @Input() private componentId: string;
+
+  public currChargingPower: number
   public chargeState: ChargeState;
   private chargePlug: ChargePlug;
-  public screenWidth: number = 0;
   public env = environment;
 
   constructor(
+    protected service: Service,
     public websocket: Websocket,
     public router: Router,
     protected translate: TranslateService,
-    private modalCtrl: ModalController,
-    private popoverController: PopoverController
+    private modalCtrl: ModalController
   ) { }
 
   ngOnInit() {
-    this.getScreenSize();
   }
 
   cancel() {
@@ -46,8 +43,8 @@ export class EvcsModalPage implements OnInit {
   * 
   * @param event 
   */
-  updateChargeMode(event: CustomEvent) {
-    let oldChargeMode = this.controller.properties.chargeMode;
+  updateChargeMode(event: CustomEvent, currentController: EdgeConfig.Component) {
+    let oldChargeMode = currentController.properties.chargeMode;
     let newChargeMode: ChargeMode;
 
     switch (event.detail.value) {
@@ -60,12 +57,12 @@ export class EvcsModalPage implements OnInit {
     }
 
     if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'chargeMode', value: newChargeMode }
       ]).then(response => {
-        this.controller.properties.chargeMode = newChargeMode;
+        currentController.properties.chargeMode = newChargeMode;
       }).catch(reason => {
-        this.controller.properties.chargeMode = oldChargeMode;
+        currentController.properties.chargeMode = oldChargeMode;
         console.warn(reason);
       });
     }
@@ -73,8 +70,8 @@ export class EvcsModalPage implements OnInit {
   /**
    * Changed the Priority between the components of the charging session
    */
-  priorityChanged(event: CustomEvent) {
-    let oldPriority = this.controller.properties.priority;
+  priorityChanged(event: CustomEvent, currentController: EdgeConfig.Component) {
+    let oldPriority = currentController.properties.priority;
     let newPriority: Priority;
 
     switch (event.detail.value) {
@@ -87,12 +84,12 @@ export class EvcsModalPage implements OnInit {
     }
 
     if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'priority', value: newPriority }
       ]).then(response => {
-        this.controller.properties.priority = newPriority;
+        currentController.properties.priority = newPriority;
       }).catch(reason => {
-        this.controller.properties.priority = oldPriority;
+        currentController.properties.priority = oldPriority;
         console.warn(reason);
       });
     }
@@ -103,17 +100,17 @@ export class EvcsModalPage implements OnInit {
    *
    * @param event
    */
-  updateForceMinPower(event: CustomEvent) {
-    let oldMinChargePower = this.controller.properties.forceChargeMinPower;
+  updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component) {
+    let oldMinChargePower = currentController.properties.forceChargeMinPower;
     let newMinChargePower = event.detail.value;
 
     if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'forceChargeMinPower', value: newMinChargePower }
       ]).then(response => {
-        this.controller.properties.forceChargeMinPower = newMinChargePower;
+        currentController.properties.forceChargeMinPower = newMinChargePower;
       }).catch(reason => {
-        this.controller.properties.forceChargeMinPower = oldMinChargePower;
+        currentController.properties.forceChargeMinPower = oldMinChargePower;
         console.warn(reason);
       });
     }
@@ -124,20 +121,24 @@ export class EvcsModalPage implements OnInit {
    *
    * @param event
    */
-  updateDefaultMinPower(event: CustomEvent) {
-    let oldMinChargePower = this.controller.properties.defaultChargeMinPower;
+  updateDefaultMinPower(event: CustomEvent, currentController: EdgeConfig.Component) {
+    let oldMinChargePower = currentController.properties.defaultChargeMinPower;
     let newMinChargePower = event.detail.value;
 
     if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(response => {
-        this.controller.properties.defaultChargeMinPower = newMinChargePower;
+        currentController.properties.defaultChargeMinPower = newMinChargePower;
       }).catch(reason => {
-        this.controller.properties.defaultChargeMinPower = oldMinChargePower;
+        currentController.properties.defaultChargeMinPower = oldMinChargePower;
         console.warn(reason);
       });
     }
+  }
+
+  currentLimitChanged(event: CustomEvent, property: String) {
+
   }
 
   /**
@@ -146,21 +147,21 @@ export class EvcsModalPage implements OnInit {
    * @param event 
    * @param phases 
    */
-  allowMinimumChargePower(event: CustomEvent, phases: number) {
+  allowMinimumChargePower(event: CustomEvent, phases: number, currentController: EdgeConfig.Component) {
 
-    let oldMinChargePower = this.controller.properties.defaultChargeMinPower;
+    let oldMinChargePower = currentController.properties.defaultChargeMinPower;
 
     let newMinChargePower = 0;
     if (oldMinChargePower == null || oldMinChargePower == 0) {
-      newMinChargePower = phases != undefined ? 4000 * phases : 4000;
+      newMinChargePower = phases != undefined ? 1400 * phases : 4200;
     }
     if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(response => {
-        this.controller.properties.defaultChargeMinPower = newMinChargePower;
+        currentController.properties.defaultChargeMinPower = newMinChargePower;
       }).catch(reason => {
-        this.controller.properties.defaultChargeMinPower = oldMinChargePower;
+        currentController.properties.defaultChargeMinPower = oldMinChargePower;
         console.warn(reason);
       });
     }
@@ -171,17 +172,17 @@ export class EvcsModalPage implements OnInit {
   * 
   * @param event 
   */
-  enableOrDisableCharging(event: CustomEvent) {
+  enableOrDisableCharging(event: CustomEvent, currentController: EdgeConfig.Component) {
 
-    let oldChargingState = this.controller.properties.enabledCharging;
+    let oldChargingState = currentController.properties.enabledCharging;
     let newChargingState = !oldChargingState;
     if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'enabledCharging', value: newChargingState }
       ]).then(response => {
-        this.controller.properties.enabledCharging = newChargingState;
+        currentController.properties.enabledCharging = newChargingState;
       }).catch(reason => {
-        this.controller.properties.enabledCharging = oldChargingState;
+        currentController.properties.enabledCharging = oldChargingState;
         console.warn(reason);
       });
     }
@@ -193,14 +194,18 @@ export class EvcsModalPage implements OnInit {
    * @param state 
    * @param plug 
    */
-  outputPowerOrState(power: Number, state: number, plug: number) {
-
+  getState(power: Number, state: number, plug: number) {
+    if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
+      return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+    }
     if (power == null || power == 0) {
 
       this.chargeState = state;
       this.chargePlug = plug;
 
-      if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+      if (this.chargePlug == null) {
+        return "0 W";
+      } else if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
         return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
       }
 
@@ -219,22 +224,6 @@ export class EvcsModalPage implements OnInit {
       }
     }
     return power + " W";
-
-  }
-
-  async presentPopover(ev: any, mode: ChargeMode) {
-    const popover = await this.popoverController.create({
-      component: InfoPopoverComponent,
-      event: ev,
-      componentProps: {
-        chargeMode: mode
-      }
-    });
-    return await popover.present();
-  }
-
-  dismissPopover(ev: any) {
-    this.popoverController.dismiss();
   }
 
   /**
@@ -261,11 +250,25 @@ export class EvcsModalPage implements OnInit {
     }
   }
 
-  @HostListener('window:resize', ['$event'])
-  getScreenSize(event?) {
-    this.screenWidth = window.innerWidth;
+  //TODO: Do it in the edge component
+  currentChargingPower(): number {
+    return this.sumOfChannel("ChargePower");
+  }
+
+  private sumOfChannel(channel: String): number {
+
+    let sum = 0;/*
+    this.evcsMap.forEach(station => {
+      let channelValue = this.edge.currentData.value.channel[station.id + "/" + channel];
+      if (channelValue != null) {
+        sum += channelValue;
+      };
+    });
+    */
+    return sum;
   }
 }
+
 enum ChargeState {
   UNDEFINED = -1,           //Undefined
   STARTING,                 //Starting
