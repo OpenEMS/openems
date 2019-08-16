@@ -73,6 +73,8 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 
 	private Config config;
 
+	private ZonedDateTime t0 = null;
+
 	private ZonedDateTime t1 = null;
 
 	private ZonedDateTime t2 = null;
@@ -123,30 +125,29 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 				.getChannel(ChannelAddress.fromString("_sum/ProductionActivePower"));
 		int production = productionChannel.getNextValue().orElse(0);
 
-		if (production > 0) {
-			IntegerReadChannel consumptionChannel = this.componentManager
-					.getChannel(ChannelAddress.fromString("_sum/ConsumptionActivePower"));
-			int consumption = consumptionChannel.value().orElse(0);
+		IntegerReadChannel consumptionChannel = this.componentManager
+				.getChannel(ChannelAddress.fromString("_sum/ConsumptionActivePower"));
+		int consumption = consumptionChannel.value().orElse(0);
 
-			int surplus = production - consumption;
+		int surplus = production - consumption;
 
-			if ((surplus <= maxP) && soc == this.config.maxSOC()) { // don't charge
+		if ((surplus <= maxP) && soc >= this.config.maxSOC()) { // don't charge
 
-				ess.getSetActivePowerEquals().setNextWriteValue(0);
-				ess.getSetReactivePowerEquals().setNextWriteValue(0);
-				this.logInfo(log, "Simple Mode: Dont't Charge");
-				return true;
-			}
-
-			if ((surplus > maxP) && soc > this.config.maxSOC()) { // feed in maxP
-
-				this.calcAndSet(ess, gridmeter, this.config.maxPower() * -1);
-
-				this.logInfo(log, "Simple Mode: Feed in Limit");
-				return true;
-			}
-
+			this.calcAndSet(ess, gridmeter, surplus * -1);
+			this.logInfo(log, "Simple Mode: Dont't Charge");
+			return true;
 		}
+
+		if ((surplus > maxP) && soc > this.config.maxSOC()) { // feed in maxP
+
+			this.calcAndSet(ess, gridmeter, this.config.maxPower() * -1);
+
+			this.logInfo(log, "Simple Mode: Feed in Limit");
+			return true;
+		}
+
+		this.logInfo(log, "Simple Mode: Balance");
+		this.calcAndSet(ess, gridmeter, 0);
 
 		return false;
 
@@ -170,11 +171,18 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 		Integer productionNow = sum.getProductionActivePower().value().getOrError();
 
 		if (this.now.isBefore(t1today)) {
-			if (soc >= this.config.maxSOC() && productionNow > consumptionNow) {
-				this.logInfo(log, "Don't Charge");
-				int setPoint = (productionNow - consumptionNow) * -1;
-				this.calcAndSet(ess, gridmeter, setPoint);
+			if (soc >= this.config.maxSOC()) {
 
+				int setPoint = 0;
+
+				if (productionNow <= this.config.maxPower()) {
+					setPoint = productionNow * -1;
+				} else {
+					setPoint = this.config.maxPower() * -1;
+				}
+
+				this.logInfo(log, "Don't Charge , Setpoint: " + setPoint);
+				this.calcAndSet(ess, gridmeter, setPoint);
 				return true;
 
 			} else {
@@ -188,8 +196,22 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 
 			if (soc >= this.config.maxSOC()) {
 
-				int remainCapacity = ess.getCapacity().value().orElse(0) * (1 - (soc / 100));
-				int charge = remainCapacity / (t3today.getHour() - this.now.getHour());
+				if (productionNow <= this.config.maxPower()) {
+					this.logInfo(log, "Surplus < maxP, Don't Charge");
+					int setPoint = productionNow * -1;
+					this.calcAndSet(ess, gridmeter, setPoint);
+					return true;
+				}
+
+				int remainCapacity = (ess.getCapacity().value().orElse(0) * (1 - (soc / 100)))
+						* (this.config.SOCTarget() / 100);
+
+				int deltaT = t3today.getHour() - this.now.getHour();
+				if (deltaT == 0) {
+					deltaT = 1;
+				}
+
+				int charge = remainCapacity / deltaT;
 
 				if ((productionNow - consumptionNow) < charge) {
 					this.logInfo(log, "Surplus < charge, Balance");
@@ -203,8 +225,11 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 					if (setPoint > this.config.maxPower()) {
 						setPoint = this.config.maxPower();
 						this.logInfo(log, "Feed In maxP");
+						this.calcAndSet(ess, gridmeter, setPoint * -1);
+						return true;
 					}
-					this.calcAndSet(ess, gridmeter, setPoint);
+					this.logInfo(log, "trying to charge with " + charge + "W| Setpoint: " + setPoint * -1);
+					this.calcAndSet(ess, gridmeter, setPoint * -1);
 
 					return true;
 				}
@@ -212,25 +237,35 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 			}
 		}
 
-		if (this.now.isEqual(t3today) || this.now.isAfter(t3)) {
+		if (this.now.isEqual(t3today) || this.now.isAfter(t3today)) {
 			this.logInfo(log, "no peak limiting");
 			this.calcAndSet(ess, gridmeter, 0);
 
 			return true;
 		}
 
-		return false;
+		this.logInfo(log, "no peak limiting needed, balance");
+		this.calcAndSet(ess, gridmeter, 0);
+
+		return true;
 	}
 
 	private void calcAndSet(ManagedSymmetricEss ess, SymmetricMeter gridmeter, int setPoint)
 			throws OpenemsNamedException {
-		int calcP = this.calculateRequiredPower(ess, gridmeter, 0);
+		int calcP = this.calculateRequiredPower(ess, gridmeter, setPoint);
 		calcP = ess.getPower().fitValueIntoMinMaxPower(this.config.id(), ess, Phase.ALL, Pwr.ACTIVE, calcP);
+		this.logInfo(log, "CalcP: " + calcP);
 		ess.getSetActivePowerEquals().setNextWriteValue(calcP);
 		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 
 	private boolean setTimeDeltas() {
+
+		this.t0 = null;
+		this.t1 = null;
+		this.t2 = null;
+		this.t3 = null;
+
 		int maxP = this.config.maxPower();
 
 		ChannelAddress consumptionChannel;
@@ -307,6 +342,10 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 
 			// System.out.println("T: " + t.toString() + ", Production: " + pvvalue + ",
 			// Consumption: " + consvalue);
+
+			if (this.t0 == null && pvvalue > 0) {
+				this.t0 = t;
+			}
 
 			if (pvvalue > maxPV) {
 				maxPV = pvvalue;

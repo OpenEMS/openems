@@ -29,10 +29,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String grid_meter_id();
 
 	@AttributeDefinition(name = "Maximum SOC Load", description = "The maxmim SOC value (%) to hold before compensating the peaks. ")
-	int maxSOC() default 80;
+	int maxSOC() default 50;
+	
+	@AttributeDefinition(name = "Target SOC", description = "The target SOC (%) to reach for compensating nightly consumption.")
+	int SOCTarget() default 95;
 
 	@AttributeDefinition(name = "Max Grid Sell Power", description = "The maximum Power to sell to grid when compensating the peaks. 0 = No maximum.")
 	int maxPower() default 0;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Peak Limiting Symmetric [{id}]";
+
+	
 }
