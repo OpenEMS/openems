@@ -74,7 +74,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
           let result = response.result;
-
+          console.log("RESULT", result)
           // convert labels
           let labels: Date[] = [];
           for (let timestamp of result.timestamps) {
@@ -91,6 +91,21 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           if (!edge.isVersionAtLeast('2018.8')) {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
           }
+
+          if ('_sum/GridActivePower' in result.data) {
+            /*
+             * Buy From Grid
+             */
+            let buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 0) {
+                return value / 1000; // convert to kW
+              } else {
+                return 0;
+              }
+            })
+          };
 
           if ('_sum/EssSoc' in result.data) {
             /*
@@ -136,11 +151,34 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  // result.system.autarchy = (1 - (Utils.orElse(result.grid.buyActivePower, 0) / result.consumption.activePower)) * 100;
+
+
+  protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       if (edge.isVersionAtLeast('2018.8')) {
-        resolve([new ChannelAddress('_sum', 'EssSoc')]);
-
+        let result: ChannelAddress[] = [];
+        config.widgets.classes.forEach(clazz => {
+          switch (clazz.toString()) {
+            case 'Grid':
+              result.push(new ChannelAddress('_sum', 'GridActivePower'));
+              break;
+            case 'Consumption':
+              result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
+              break;
+            case 'Storage':
+              result.push(new ChannelAddress('_sum', 'EssSoc'));
+              result.push(new ChannelAddress('_sum', 'EssActivePower'));
+              break;
+            case 'Production':
+              result.push(
+                new ChannelAddress('_sum', 'ProductionActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'));
+              break;
+          };
+          return false;
+        });
+        resolve(result);
       } else {
         // TODO: remove after full migration
         this.service.getConfig().then(config => {
@@ -150,6 +188,9 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
 
           // get 'Soc'-Channel of all 'EssNatures'
           result.push.apply(result, this.getSoc(config.getComponentIdsImplementingNature("EssNature"), ignoreIds));
+
+
+
 
           resolve(result);
         }).catch(reason => reject(reason));

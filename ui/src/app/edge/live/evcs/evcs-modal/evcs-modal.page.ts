@@ -60,7 +60,6 @@ export class EvcsModalComponent implements OnInit {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'chargeMode', value: newChargeMode }
       ]).then(response => {
-        console.log("HIER", response);
         currentController.properties.chargeMode = newChargeMode;
       }).catch(reason => {
         currentController.properties.chargeMode = oldChargeMode;
@@ -88,7 +87,6 @@ export class EvcsModalComponent implements OnInit {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'priority', value: newPriority }
       ]).then(response => {
-        console.log("HIER", response);
         currentController.properties.priority = newPriority;
       }).catch(reason => {
         currentController.properties.priority = oldPriority;
@@ -110,7 +108,6 @@ export class EvcsModalComponent implements OnInit {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'forceChargeMinPower', value: newMinChargePower }
       ]).then(response => {
-        console.log("HIER", response);
         currentController.properties.forceChargeMinPower = newMinChargePower;
       }).catch(reason => {
         currentController.properties.forceChargeMinPower = oldMinChargePower;
@@ -132,7 +129,6 @@ export class EvcsModalComponent implements OnInit {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(response => {
-        console.log("HIER", response);
         currentController.properties.defaultChargeMinPower = newMinChargePower;
       }).catch(reason => {
         currentController.properties.defaultChargeMinPower = oldMinChargePower;
@@ -163,7 +159,6 @@ export class EvcsModalComponent implements OnInit {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(response => {
-        console.log("HIER", response);
         currentController.properties.defaultChargeMinPower = newMinChargePower;
       }).catch(reason => {
         currentController.properties.defaultChargeMinPower = oldMinChargePower;
@@ -185,7 +180,6 @@ export class EvcsModalComponent implements OnInit {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'enabledCharging', value: newChargingState }
       ]).then(response => {
-        console.log("HIER", response);
         currentController.properties.enabledCharging = newChargingState;
       }).catch(reason => {
         currentController.properties.enabledCharging = oldChargingState;
