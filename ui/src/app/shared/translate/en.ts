@@ -69,17 +69,23 @@ export const TRANSLATION = {
                 ProductionDC: "Production DC"
             },
             Widgets: {
+                Info: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 CHP: {
                     LowThreshold: "Low Threshold",
                     HighThreshold: "High Threshold"
                 },
                 EVCS: {
                     ChargingStation: "Charging Station",
+                    ChargingStationCluster: "Charging station cluster",
+                    OverviewChargingStations: "Overview charging stations",
+                    ChargingStationDeactivated: "Charging station deactivated",
+                    Prioritization: "Prioritization",
                     Status: "Status",
                     Starting: "Starting",
                     NotReadyForCharging: "Not ready for charging",
                     ReadyForCharging: "Ready for charging",
                     Charging: "Is charing",
+                    NotCharging: "Not charging",
                     Error: "Error",
                     NotAuthorized: "Not authorized",
                     Unplugged: "Unplugged",
@@ -89,15 +95,18 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Charing Station + E-Vehicel plugged in + locked",
                     ChargingLimit: "Charging limit",
                     ChargingPower: "Charing power",
+                    AmountOfChargingStations: "Amount of charging stations",
+                    TotalChargingPower: "Total charging power",
                     CurrentCharge: "Current charge",
                     TotalCharge: "Total charge",
                     EnforceCharging: "Enforce charging",
                     Cable: "Cable",
                     CableNotConnected: "Cable is not connected",
                     CarFull: "Car is full",
-                    EnergieSinceBeginning: "Energy since the begin of charge",
+                    EnergieSinceBeginning: "Energy since the last charge start",
                     ChargeMode: "Charge Mode",
                     ActivateCharging: "Activate the charging station",
+                    ClusterConfigError: "An error has occurred in the configuration of the Evcs cluster",
                     NoConnection: {
                         Description: "No connection to the charging station.",
                         Help1: "Check if the charging station is switched on and can be reached via the network.",

@@ -52,7 +52,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 			} catch (ModbusException e2) {
 				for (ModbusElement<?> elem : this.getElements()) {
 					if (!elem.isIgnored()) {
-						elem.invalidate();
+						elem.invalidate(bridge);
 					}
 				}
 				throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);

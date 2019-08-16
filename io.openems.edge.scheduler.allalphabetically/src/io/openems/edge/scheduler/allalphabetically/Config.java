@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.scheduler.api.Scheduler;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Scheduler All Alphabetically", //
 		description = "This Scheduler takes an ordered list of Component IDs. All remaining Controllers are afterwards ordered alphabetically by their ID.")
 @interface Config {

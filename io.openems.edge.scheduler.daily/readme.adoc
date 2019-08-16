@@ -1,0 +1,24 @@
+= Daily
+
+This scheduler can execute different Controllers at different times of the day according to the "Daily Schedule" configuration. 
+Controllers that need to run regardless of the time of the day like 'ctrlBackend0' and 'ctrlDebugLog0' etc., 
+can be specified in the configuration using "Always Run Before" and "Always Run After'.
+
+== Configuration
+
+- `Component-ID` Unique ID of this Component (id), e.g. "scheduler0".
+- `Alias` Human-readable name of this Component; defaults to Component-ID (alias)
+- `Always Run Before` IDs of Controllers that should be executed _before_ other Controllers in the order of the IDs.
+- `Daily Schedule` Execution order of Controllers per time of day.
+	[{
+		"time": "08:00:00",
+		"controllers": [
+			"ctrlFixActivePower0"
+		]
+	}, {
+		"time": "13:45:00"
+		"controllers": [""]"
+	}]
+- `Always Run After` IDs of Controllers that should be executed _after_ other Controllers in the order of the IDs.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.scheduler.daily[Source Code icon:github[]]
