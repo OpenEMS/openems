@@ -1556,4 +1556,5 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
+
 }

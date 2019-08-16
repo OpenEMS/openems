@@ -102,11 +102,10 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private Map<Integer, Double> lastMaxCellVoltages = new HashMap<>();
 
 	private ResetState resetState = ResetState.NONE;
-	
+
 	private LocalDateTime handleOneCellDriftHandlingStarted = null;
 	private int handleOneCellDriftHandlingCounter = 0;
 	private static final int SECONDS_TOLERANCE_CELL_DRIFT = 15 * 60;
-	
 
 	public Cluster() {
 		super(//
@@ -310,18 +309,18 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleOneCellDrifting() {
-		if (this.handleOneCellDriftHandlingStarted == null) {	
-			this.handleOneCellDriftHandlingStarted = LocalDateTime.now();			
+		if (this.handleOneCellDriftHandlingStarted == null) {
+			this.handleOneCellDriftHandlingStarted = LocalDateTime.now();
 		}
-		
+
 		if (this.resetState == ResetState.NONE) {
 			handleOneCellDriftHandlingCounter++; // only increase one time per reset cycle
 		}
-		
+
 		this.handleCellDrift();
-		
-		
-		if (this.handleOneCellDriftHandlingCounter > 5 && this.handleOneCellDriftHandlingStarted.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isAfter(LocalDateTime.now())) {
+
+		if (this.handleOneCellDriftHandlingCounter > 5 && this.handleOneCellDriftHandlingStarted
+				.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isAfter(LocalDateTime.now())) {
 			this.setStateMachineState(State.ERROR);
 		}
 	}
@@ -398,8 +397,10 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
 		boolean b = true;
 		for (SingleRack r : this.racks.values()) {
-			b = b && cctrl == this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value()
-					.asEnum();
+			ContactorControl currentContactorControl = this
+					.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value().asEnum();
+			boolean rackHasDesiredState = (cctrl == currentContactorControl);
+			b = (b && rackHasDesiredState);
 		}
 		return b;
 	}
