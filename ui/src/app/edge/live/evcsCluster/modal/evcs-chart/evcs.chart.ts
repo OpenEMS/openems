@@ -26,6 +26,7 @@ export class EvcsChart implements OnInit, OnChanges {
   public datasets: ChartDataSets[];
   chart: Chart; // This will hold our chart info
 
+
   constructor(
     private service: Service,
     private websocket: Websocket,
