@@ -46,14 +46,10 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'MinimumPower'),
         new ChannelAddress(this.componentId, 'MaximumPower')
       ]);
-<<<<<<< HEAD
-    });
-=======
 
       // Gets the Controller for the given EVCS-Component.
       this.service.getConfig().then(config => {
         let controllers = config.getComponentsByFactory("Controller.Evcs");
->>>>>>> develop
 
         for (let controller of controllers) {
           let properties = controller.properties;
