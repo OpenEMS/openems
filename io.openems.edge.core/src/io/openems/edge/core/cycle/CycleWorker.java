@@ -54,11 +54,12 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Before Controllers start: switch to next process image for each channel
 			 */
-			this.parent.componentManager.getComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
-				component.channels().forEach(channel -> {
-					channel.nextProcessImage();
-				});
-			});
+			this.parent.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled())
+					.forEach(component -> {
+						component.channels().forEach(channel -> {
+							channel.nextProcessImage();
+						});
+					});
 			this.parent.channels().forEach(channel -> {
 				channel.nextProcessImage();
 			});
@@ -74,6 +75,8 @@ public class CycleWorker extends AbstractWorker {
 			 */
 			this.parent.eventAdmin
 					.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>()));
+
+			boolean hasDisabledController = false;
 
 			/*
 			 * Execute Schedulers and their Controllers
@@ -91,6 +94,11 @@ public class CycleWorker extends AbstractWorker {
 					}
 					try {
 						for (Controller controller : scheduler.getControllers()) {
+							if (!controller.isEnabled()) {
+								hasDisabledController = true;
+								continue;
+							}
+
 							try {
 								// Execute Controller logic
 								controller.run();
@@ -128,6 +136,9 @@ public class CycleWorker extends AbstractWorker {
 					}
 				}
 			}
+
+			// announce ignoring disabled Controllers.
+			this.parent.channel(Cycle.ChannelId.IGNORE_DISABLED_CONTROLLER).setNextValue(hasDisabledController);
 
 			/*
 			 * Trigger AFTER_CONTROLLERS event

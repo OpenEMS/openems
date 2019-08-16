@@ -114,7 +114,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		// cabling errors, etc.
 		final CalculateLongSum productionAcActiveEnergyNegative = new CalculateLongSum();
 
-		for (OpenemsComponent component : this.componentManager.getComponents()) {
+		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
 			if (component instanceof SymmetricEss) {
 				/*
 				 * Ess
@@ -207,7 +207,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.getEssActiveChargeEnergy().setNextValue(essActiveChargeEnergySum);
 		Long essActiveDischargeEnergySum = essActiveDischargeEnergy.calculate();
 		this.getEssActiveDischargeEnergy().setNextValue(essActiveDischargeEnergySum);
-		
+
 		Integer essCapacitySum = essCapacity.calculate();
 		this.getEssCapacity().setNextValue(essCapacitySum);
 
@@ -264,7 +264,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	 */
 	private void calculateState() {
 		Level highestLevel = Level.OK;
-		for (OpenemsComponent component : this.componentManager.getComponents()) {
+		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
+			if (component == this) {
+				// ignore myself
+				continue;
+			}
 			Level level = component.getState().getNextValue().asEnum();
 			if (level.getValue() > highestLevel.getValue()) {
 				highestLevel = level;
@@ -305,7 +309,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		if (productionAc.isDefined() || productionDc.isDefined()) {
 			result.append("Production ");
 			if (productionAc.isDefined() && productionDc.isDefined()) {
-				result.append(" Total:" + production.asString() //
+				result.append("Total:" + production.asString() //
 						+ ",AC:" + productionAc.asString() //
 						+ ",DC:" + productionDc.asString()); //
 			} else if (productionAc.isDefined()) {
