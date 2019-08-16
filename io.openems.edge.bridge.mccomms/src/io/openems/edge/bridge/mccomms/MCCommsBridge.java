@@ -22,9 +22,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.AbstractMap;
 import java.util.HashSet;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 @Designate( ocd=Config.class, factory=true)
@@ -33,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 		immediate=true,
 		configurationPolicy=ConfigurationPolicy.REQUIRE)
 public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsComponent{
+	private ScheduledExecutorService scheduledExecutorService;
 	private SerialPort serialPort;
 	private SerialByteHandler serialByteHandler;
 	private PacketBuilder packetBuilder;
@@ -60,6 +59,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	
 	protected MCCommsBridge() {
 		super(OpenemsComponent.ChannelId.values(), ChannelId.values());
+		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		RXTimedByteQueue = new LinkedBlockingQueue<>();
 		TXPacketQueue = new ConcurrentLinkedQueue<>();
 		RXBufferQueue = new LinkedBlockingQueue<>();
@@ -72,6 +72,14 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	
 	public void removeListenTask(ListenTask listenTask) {
 		listenTasks.remove(listenTask);
+	}
+	
+	public void addTXPacket(MCCommsPacket packet) {
+		TXPacketQueue.add(packet);
+	}
+	
+	public ScheduledExecutorService getScheduledExecutorService() {
+		return scheduledExecutorService;
 	}
 	
 	@Activate
@@ -173,7 +181,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 						}
 						if (packetBuffer.position() == 25 //if the packet has reached position 25
 								&& endByteReceived //...the end byte has been received
-								&& MCCommsPacket.checkCRC(packetBuffer)) { //...and the CRC passes TODO check if bad CRC packets must be rejected (Nelius)
+								&& MCCommsPacket.checkCRC(packetBuffer)) { //...and the CRC passes
 							RXBufferQueue.add(packetBuffer); //add the buffer to the rx buffer queue for picking
 						}
 						packetBuffer = ByteBuffer.allocate(25); //reset buffer

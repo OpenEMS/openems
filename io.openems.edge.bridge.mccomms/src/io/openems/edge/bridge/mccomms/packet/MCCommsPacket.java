@@ -7,6 +7,7 @@ import io.openems.common.exceptions.OpenemsException;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class MCCommsPacket {
 	private final RangeMap<Integer, MCCommsElement> elements;
@@ -33,13 +34,20 @@ public class MCCommsPacket {
 	
 	public byte[] getBytes() {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(25);
-			byteBuffer.put(0, (byte) 83);
-			for (MCCommsElement element : elements.asMapOfRanges().values()) {
-				byteBuffer.position(element.getAddressRange().lowerEndpoint());
-				byteBuffer.put(element.getBytes());
+		byteBuffer.put(0, (byte) 83); //start char
+		for (int i = 1; i < 25; i++) {
+			if (!Optional.ofNullable(elements.get(i)).isPresent()) {
+				byteBuffer.put(i, (byte) 170); //0xAA for non-present elements
+			} else {
+				//put bytes from present elements
+				byteBuffer.position(elements.get(i).getAddressRange().lowerEndpoint());
+				byteBuffer.put(elements.get(i).getBytes());
+				i = elements.get(i).getAddressRange().upperEndpoint() + 1; //shift i to byte address after end of current element
 			}
-			byteBuffer.putShort(22, (short) calculateCRC(byteBuffer));
-		byteBuffer.put(24, (byte) 83);
+		}
+		byteBuffer.put(6, (byte) 15); //length
+		byteBuffer.putShort(22, (short) calculateCRC(byteBuffer)); //crc
+		byteBuffer.put(24, (byte) 83); //end char
 		return byteBuffer.array();
 	}
 	

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.google.common.collect.Range;
 
+import com.google.common.primitives.Shorts;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInts;
 import io.openems.common.exceptions.OpenemsException;
@@ -26,10 +27,26 @@ public class MCCommsElement {
 		this.channel = channel;
 	}
 	
-	public static MCCommsElement newNumberInstance(int startAddress, int numBytes) {
-		//TODO
-		
-		return null;
+	public static MCCommsElement newUnscaledNumberInstance(int startAddress, int numBytes, Number value, boolean isUnsigned) throws OpenemsException {
+		MCCommsElement element = new MCCommsElement(Range.closed(startAddress, (startAddress + numBytes -1)), isUnsigned, 1.0, null);
+		switch (numBytes) {
+			case 0:
+				throw new OpenemsException("Zero length buffer");
+			case 1:
+				element.valueBuffer.put(0, value.byteValue());
+				return element;
+			case 2:
+				element.valueBuffer.putShort(0, value.shortValue());
+				return element;
+			case 4:
+				element.valueBuffer.putInt(0, value.intValue());
+				return element;
+			case 8:
+				element.valueBuffer.putLong(0, value.longValue());
+				return element;
+			default:
+				throw new OpenemsException("Abnormal buffer length (not a power of 2, or longer than 8 bytes)");
+		}
 	}
 	
 	public static MCCommsElement newInstanceFromChannel(int startAddress, int numBytes, Channel channel) {
@@ -121,6 +138,8 @@ public class MCCommsElement {
 				default:
 					throw new OpenemsException("Type not supported: " + channel.getType().name());
 			}
+		} else {
+			throw new OpenemsException("No channel mapping for the current element");
 		}
 	}
 	
@@ -145,7 +164,7 @@ public class MCCommsElement {
 				return valueBuffer.getInt(0)  * scaleFactor;
 			case 8:
 				if (isUnsigned) {
-					throw new OpenemsException("Absolute values not supported for 64-bit buffers");
+					throw new OpenemsException("Unsigned values not supported for 64-bit buffers");
 				}
 				return valueBuffer.getLong(0)  * scaleFactor;
 			default:
@@ -186,6 +205,8 @@ public class MCCommsElement {
 				default:
 					throw new OpenemsException("Type not supported: " + channel.getType().name());
 			}
+		} else {
+			throw new OpenemsException("No channel mapping for the current element");
 		}
 	}
 }
