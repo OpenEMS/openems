@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.common.accesscontrol.AccessControl;
+import io.openems.common.accesscontrol.AuthenticationException;
+import io.openems.common.accesscontrol.RoleId;
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,7 +22,6 @@ import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.uiwebsocket.api.UiWebsocket;
@@ -28,7 +30,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.Role;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Ui.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -46,6 +47,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 
 	@Reference
 	protected volatile Timedata timeData;
+
+	@Reference
+	protected AccessControl accessControl;
 
 	public UiWebsocketImpl() {
 		super("Ui.Websocket");
@@ -138,26 +142,18 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 * @param edgeId the Edge-ID
 	 * @return the WsDatas; empty list if there are none
 	 */
-	private List<WsData> getWsDatasForEdgeId(String edgeId) {
+	private List<WsData> getWsDatasForEdgeId(String edgeId) throws AuthenticationException {
 		List<WsData> result = new ArrayList<>();
 		Collection<WebSocket> connections = this.server.getConnections();
 		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
 			WebSocket websocket = iter.next();
 			WsData wsData = websocket.getAttachment();
 			// get attachment User-ID
-			Optional<String> userIdOpt = wsData.getUserId();
-			if (userIdOpt.isPresent()) {
-				String userId = userIdOpt.get();
-				// get BackendUser for User-ID
-				Optional<BackendUser> userOpt = this.metadata.getUser(userId);
-				if (userOpt.isPresent()) {
-					BackendUser user = userOpt.get();
-					Optional<Role> edgeRoleOpt = user.getEdgeRole(edgeId);
-					if (edgeRoleOpt.isPresent()) {
-						// User has access to this Edge-ID
-						result.add(wsData);
-					}
-				}
+			RoleId roleId = wsData.getRoleId();
+			// TODO test gets called from edge
+			if (!this.accessControl.getEdgeIds(roleId).isEmpty()) {
+				// User has access to this Edge-ID
+				result.add(wsData);
 			}
 		}
 		return result;

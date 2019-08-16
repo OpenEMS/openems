@@ -12,6 +12,7 @@ Private-Package: \
 -buildpath: \
 	${buildpath},\
 	io.openems.common;version=latest,\
+	info.faljse:SDNotify,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.ess.api;version=latest,\

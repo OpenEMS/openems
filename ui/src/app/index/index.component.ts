@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments';
-import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
-import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
+import { AuthenticateWithUsernameAndPasswordRequest } from '../shared/jsonrpc/request/authenticateWithUsernameAndPasswordRequest';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import {AuthenticateWithUsernameAndPasswordResponse} from '../shared/jsonrpc/response/authenticateWithUsernameAndPasswordResponse';
 
 @Component({
   selector: 'index',
@@ -32,17 +31,17 @@ export class IndexComponent {
     private service: Service,
     private route: ActivatedRoute) {
 
-    //Forwarding to device index if there is only 1 edge
+    // Forwarding to device index if there is only 1 edge
     service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
-      let edgeIds = Object.keys(edges);
-      if (edgeIds.length == 1) {
-        let edge = edges[edgeIds[0]];
+      const edgeIds = Object.keys(edges);
+      if (edgeIds.length === 1) {
+        const edge = edges[edgeIds[0]];
         if (edge.isOnline) {
           this.router.navigate(['/device', edge.id]);
         }
       }
       this.updateFilteredEdges();
-    })
+    });
   }
 
   ngOnInit() {
@@ -74,16 +73,16 @@ export class IndexComponent {
             }
           }
         }
-        // second: apply 'natural sort' 
+        // second: apply 'natural sort'
         return edge1.localeCompare(edge2);
       })
       .map(edgeId => allEdges[edgeId]);
   }
 
-  doLogin(password: string) {
-    let request = new AuthenticateWithPasswordRequest({ password: password });
+  doLogin(password: string, username: string) {
+    let request = new AuthenticateWithUsernameAndPasswordRequest({ password: password, username: username });
     this.websocket.sendRequest(request).then(response => {
-      this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
+      this.handleAuthenticateWithUsernameAndPasswordResponse(response as AuthenticateWithUsernameAndPasswordResponse);
     }).catch(reason => {
       console.error("Error on Login", reason);
     })
@@ -94,7 +93,7 @@ export class IndexComponent {
    * 
    * @param message 
    */
-  private handleAuthenticateWithPasswordResponse(message: AuthenticateWithPasswordResponse) {
+  private handleAuthenticateWithUsernameAndPasswordResponse(message: AuthenticateWithUsernameAndPasswordResponse) {
     this.service.handleAuthentication(message.result.token, message.result.edges);
   }
 

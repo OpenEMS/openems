@@ -13,10 +13,12 @@ Private-Package: io.openems.backend.uiwebsocket.impl
 	io.openems.backend.metadata.api;version=latest,\
 	io.openems.backend.uiwebsocket.api;version=latest,\
 	io.openems.backend.timedata.api;version=latest,\
+	io.openems.backend.common;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.wrapper.websocket;version=latest,\
 	com.google.guava,\
 	com.google.gson,\
+	org.java-websocket:Java-WebSocket;version=1.3,\
 	slf4j.api
 
 -testpath: ${testpath}

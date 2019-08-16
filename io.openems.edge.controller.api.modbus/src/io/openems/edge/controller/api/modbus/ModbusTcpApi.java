@@ -27,7 +27,6 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.User;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -341,7 +340,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest message)
 			throws OpenemsNamedException {
 		switch (message.getMethod()) {
 		case GetModbusProtocolRequest.METHOD:

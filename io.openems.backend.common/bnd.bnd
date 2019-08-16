@@ -6,7 +6,8 @@ Export-Package: \
 	io.openems.backend.common.session,\
 	io.openems.backend.common.component,\
 	io.openems.backend.common.jsonrpc.request,\
-	io.openems.backend.common.jsonrpc.response
+	io.openems.backend.common.jsonrpc.response,\
+	io.openems.backend.common.jsonrpc.notification
 
 -includeresource: {readme.md}
 

@@ -49,8 +49,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		WsData wsData = new WsData();
-		return wsData;
+		return new WsData();
 	}
 
 	public boolean isOnline(String edgeId) {

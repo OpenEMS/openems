@@ -19,7 +19,6 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
-import io.openems.common.session.User;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
@@ -42,8 +41,9 @@ public class SystemLogHandler {
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId,
+																					 UUID token,
+																					 SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		if (request.getSubscribe()) {
 			/*
 			 * Start subscription
@@ -62,7 +62,7 @@ public class SystemLogHandler {
 				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 			} else {
 				// send subscribe to Edge
-				return this.sendSubscribe(edgeId, user, request, true);
+				return this.sendSubscribe(edgeId, request, true);
 				// return this.parent.send(edgeId, request);
 			}
 
@@ -83,7 +83,7 @@ public class SystemLogHandler {
 
 			} else {
 				// send unsubscribe to Edge
-				return this.sendSubscribe(edgeId, user, request, false);
+				return this.sendSubscribe(edgeId, request, false);
 				// return this.parent.send(edgeId, request);
 			}
 		}
@@ -92,12 +92,10 @@ public class SystemLogHandler {
 	/**
 	 * Handles a {@link SystemLogNotification}, i.e. the replies to
 	 * {@link SubscribeSystemLogRequest}.
-	 * 
-	 * @param edgeId       the Edge-ID
-	 * @param user         the User
+	 *  @param edgeId       the Edge-ID
 	 * @param notification the SystemLogNotification
 	 */
-	public void handleSystemLogNotification(String edgeId, User user, SystemLogNotification notification) {
+	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
 		Collection<UUID> tokens;
 		synchronized (this.subscriptions) {
 			tokens = this.subscriptions.get(edgeId);
@@ -108,19 +106,17 @@ public class SystemLogHandler {
 				this.parent.uiWebsocket.send(token, new EdgeRpcNotification(edgeId, notification));
 			} catch (OpenemsNamedException e) {
 				this.log.warn("Unable to handle SystemLogNotification from [" + edgeId + "]: " + e.getMessage());
-				this.unsubscribe(edgeId, user, token);
+				this.unsubscribe(edgeId, token);
 			}
 		}
 	}
 
 	/**
 	 * Unsubscribe from System-Log.
-	 * 
-	 * @param edgeId the Edge-ID#
-	 * @param user   the User; possibly null
+	 *  @param edgeId the Edge-ID#
 	 * @param token  the UI token
 	 */
-	private void unsubscribe(String edgeId, User user, UUID token) {
+	private void unsubscribe(String edgeId, UUID token) {
 		boolean isAnySubscriptionForThisEdgeLeft;
 		synchronized (this.subscriptions) {
 			this.subscriptions.remove(edgeId, token);
@@ -134,7 +130,7 @@ public class SystemLogHandler {
 		} else {
 			// send unsubscribe to Edge
 			try {
-				this.parent.send(edgeId, user, SubscribeSystemLogRequest.unsubscribe());
+				this.parent.send(edgeId, SubscribeSystemLogRequest.unsubscribe());
 			} catch (OpenemsNamedException e) {
 				this.log.error("Unable to Unsubscribe from Edge [" + edgeId + "]");
 				e.printStackTrace();
@@ -143,8 +139,8 @@ public class SystemLogHandler {
 	}
 
 	@Deprecated
-	private CompletableFuture<JsonrpcResponseSuccess> sendSubscribe(String edgeId, User user,
-			SubscribeSystemLogRequest request, boolean subscribe) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> sendSubscribe(String edgeId,
+																	SubscribeSystemLogRequest request, boolean subscribe) throws OpenemsNamedException {
 		// handling deprecated: remove after full migration
 		Optional<Edge> edge = this.parent.metadata.getEdge(edgeId);
 		if (edge.isPresent()) {
@@ -161,6 +157,6 @@ public class SystemLogHandler {
 			}
 		}
 		// current version
-		return this.parent.send(edgeId, user, request);
+		return this.parent.send(edgeId, request);
 	}
 }

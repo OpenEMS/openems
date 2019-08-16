@@ -1,5 +1,7 @@
 package io.openems.backend.b2bwebsocket;
 
+import io.openems.common.accesscontrol.AccessControl;
+import io.openems.common.accesscontrol.RoleId;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -35,6 +37,9 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Timedata timeData;
+
+	@Reference
+	protected volatile AccessControl accessControl;
 
 	public B2bWebsocket() {
 		super("Backend2Backend.Websocket");

@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 
 /**
  * This Worker constantly validates if all configured OpenEMS-Components are
  * actually activated. If not it prints a warning message ("Component [ID] is
  * configured but not active!") and sets the
- * {@link ComponentManagerImpl.ChannelId#CONFIG_NOT_ACTIVATED} StateChannel.
+ * {@link ComponentManager.ChannelId#CONFIG_NOT_ACTIVATED} StateChannel.
  */
 public class OsgiValidateWorker extends AbstractWorker {
 
@@ -103,13 +103,9 @@ public class OsgiValidateWorker extends AbstractWorker {
 	}
 
 	private boolean isComponentActivated(String componentId) {
-		for (OpenemsComponent component : this.parent.getEnabledComponents()) {
-			if (componentId.equals(component.id())) {
-				// Everything Ok
-				return true;
-			}
-		}
-		return false;
+		return this.parent.getEnabledComponents() //
+				.stream() //
+				.anyMatch(c -> componentId.equals(c.id()));
 	}
 
 	private int cycleCountDown = OsgiValidateWorker.INITIAL_CYCLES;

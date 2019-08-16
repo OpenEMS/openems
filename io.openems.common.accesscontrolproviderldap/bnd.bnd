@@ -1,0 +1,21 @@
+Bundle-Name: OpenEMS Common
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: \
+	io.openems.common.accesscontrolproviderldap
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.wrapper.websocket;version=latest,\
+	org.apache.felix.configadmin;version=1.8,\
+	org.ops4j.pax.logging.pax-logging-api,\
+	org.java-websocket:Java-WebSocket;version=latest
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

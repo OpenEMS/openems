@@ -8,7 +8,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Configures the Metadata File provider")
 @interface Config {
 
-	@AttributeDefinition(name = "Path", description = "The path to the JSON file.")
+	@AttributeDefinition(name = "Path", description = "The path to the JSON file with the configuration.")
 	String path();
 
 	String webconsole_configurationFactory_nameHint() default "Metadata.File";

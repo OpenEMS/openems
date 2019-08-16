@@ -1,8 +1,5 @@
 package io.openems.backend.metadata.odoo;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -19,18 +16,11 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.GsonBuilder;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
-import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
-import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
-import io.openems.backend.metadata.odoo.jsonrpc.EmptyRequest;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
@@ -51,10 +41,6 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private OdooCredentials odooCredentials;
 
-	/**
-	 * Maps User-ID to User.
-	 */
-	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
 	/**
 	 * Caches Edges.
 	 */
@@ -278,44 +264,6 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 	}
 
-	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-		AuthenticateWithUsernameAndPasswordRequest request = new AuthenticateWithUsernameAndPasswordRequest(
-				this.odooCredentials.getDatabase(), username, password);
-		JsonrpcResponseSuccess origResponse = OdooUtils
-				.sendJsonrpcRequest(this.odooCredentials.getUrl() + "/web/session/authenticate", request);
-		AuthenticateWithUsernameAndPasswordResponse response = AuthenticateWithUsernameAndPasswordResponse
-				.from(origResponse);
-		return this.authenticate(response.getSessionId());
-	}
-
-	/**
-	 * Tries to authenticate at the Odoo server using a sessionId from a cookie.
-	 *
-	 * @param sessionId the Session-ID
-	 * @return the BackendUser
-	 * @throws OpenemsException on error
-	 */
-	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsNamedException {
-		EmptyRequest request = new EmptyRequest();
-		String charset = "US-ASCII";
-		String query;
-		try {
-			query = String.format("session_id=%s", URLEncoder.encode(sessionId, charset));
-		} catch (UnsupportedEncodingException e) {
-			throw OpenemsError.GENERIC.exception(e.getMessage());
-		}
-		JsonrpcResponseSuccess origResponse = OdooUtils
-				.sendJsonrpcRequest(this.odooCredentials.getUrl() + "/openems_backend/info?" + query, request);
-
-		AuthenticateWithSessionIdResponse response = AuthenticateWithSessionIdResponse.from(origResponse, sessionId,
-				this.edges);
-		MyUser user = response.getUser();
-		this.users.put(user.getId(), user);
-		return user;
-	}
-
 	/**
 	 * Writes one field to Odoo.
 	 * 
@@ -344,16 +292,6 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	@Override
 	public Optional<Edge> getEdge(String edgeId) {
 		return Optional.ofNullable(this.edges.getEdgeFromEdgeId(edgeId));
-	}
-
-	@Override
-	public Optional<BackendUser> getUser(String userId) {
-		return Optional.ofNullable(this.users.get(userId));
-	}
-
-	@Override
-	public Collection<Edge> getAllEdges() {
-		return this.edges.getAllEdges();
 	}
 
 }

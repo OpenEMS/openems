@@ -16,7 +16,7 @@ import io.openems.edge.common.channel.Doc;
  */
 public interface ComponentManager extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
 				.text("A configured OpenEMS Component was not activated")), //
 		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
@@ -35,7 +35,7 @@ public interface ComponentManager extends OpenemsComponent {
 
 	/**
 	 * Gets all enabled OpenEMS-Components.
-	 * 
+	 *
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
 	 */
@@ -99,7 +99,7 @@ public interface ComponentManager extends OpenemsComponent {
 
 	/**
 	 * Gets a Channel by its Channel-Address.
-	 * 
+	 *
 	 * @param channelAddress the Channel-Address
 	 * @param <T>            the typed Channel
 	 * @return the Channel
@@ -114,7 +114,7 @@ public interface ComponentManager extends OpenemsComponent {
 
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
-	 * 
+	 *
 	 * @return the EdgeConfig object
 	 */
 	public EdgeConfig getEdgeConfig();

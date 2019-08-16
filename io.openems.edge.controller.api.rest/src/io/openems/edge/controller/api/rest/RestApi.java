@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.rest;
 
+import io.openems.common.accesscontrol.AccessControl;
 import org.eclipse.jetty.server.Server;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,7 +18,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
 
@@ -41,7 +41,7 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 	protected ComponentManager componentManager;
 
 	@Reference
-	protected UserService userService;
+	protected volatile AccessControl accessControl;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

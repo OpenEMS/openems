@@ -31,7 +31,6 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
-import io.openems.common.session.User;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -164,7 +163,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest message)
 			throws OpenemsNamedException {
 		SetGridConnScheduleRequest request = SetGridConnScheduleRequest.from(message);
 		this.schedule = request.getSchedule();

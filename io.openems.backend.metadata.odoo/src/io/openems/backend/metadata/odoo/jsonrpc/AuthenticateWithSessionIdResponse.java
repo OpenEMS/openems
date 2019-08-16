@@ -16,7 +16,6 @@ import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -60,7 +59,8 @@ public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 			if (edge == null) {
 				notAvailableEdges.add(String.valueOf(odooId));
 			} else {
-				user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
+				// TODO @s.feilmeier I don't know what this is for
+				// user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 			}
 		}
 		if (!notAvailableEdges.isEmpty()) {

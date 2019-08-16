@@ -1,28 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.java_websocket.WebSocket;
-import org.ops4j.pax.logging.spi.PaxAppender;
-import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-
+import io.openems.common.accesscontrol.AccessControl;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -34,11 +12,22 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.EdgeUser;
-import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
+import org.java_websocket.WebSocket;
+import org.ops4j.pax.logging.spi.PaxAppender;
+import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.UUID;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -61,16 +50,13 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	protected WebsocketServer server = null;
 
-	/**
-	 * Stores valid session tokens for authentication via Cookie.
-	 */
-	protected final Map<UUID, EdgeUser> sessionTokens = new ConcurrentHashMap<>();
+	String edgeIdentifier;
 
 	@Reference
 	protected ComponentManager componentManager;
 
 	@Reference
-	protected UserService userService;
+	protected AccessControl accessControl;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -79,7 +65,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 		;
 		private final Doc doc;
 
-		private ChannelId(Doc doc) {
+		ChannelId(Doc doc) {
 			this.doc = doc;
 		}
 
@@ -105,6 +91,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			// abort if disabled
 			return;
 		}
+		this.edgeIdentifier = config.edgeIdentfier();
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 		this.startServer(config.port());
 	}

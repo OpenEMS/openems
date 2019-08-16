@@ -3,19 +3,28 @@ package io.openems.backend.uiwebsocket.impl;
 import java.util.Optional;
 import java.util.UUID;
 
-import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.common.accesscontrol.RoleId;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.websocket.SubscribedChannelsWorker;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
 	private final SubscribedChannelsWorker subscribedChannelsWorker;
 	private Optional<String> userId = Optional.empty();
 	private Optional<UUID> token = Optional.empty();
+	private RoleId roleId;
 
 	public WsData(UiWebsocketImpl parent) {
-		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
+		this.subscribedChannelsWorker = new SubscribedChannelsWorkerMultipleEdges(parent, this);
+	}
+
+	public RoleId getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(RoleId roleId) {
+		this.roleId = roleId;
 	}
 
 	@Override
@@ -34,22 +43,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public synchronized Optional<String> getUserId() {
 		return userId;
-	}
-
-	/**
-	 * Gets the authenticated User.
-	 * 
-	 * @param metadata the Metadata service
-	 * @return the User or Optional.Empty if the User was not authenticated or it is
-	 *         not available from Metadata service
-	 */
-	public synchronized Optional<BackendUser> getUser(Metadata metadata) {
-		Optional<String> userId = this.getUserId();
-		if (userId.isPresent()) {
-			Optional<BackendUser> user = metadata.getUser(userId.get());
-			return user;
-		}
-		return Optional.empty();
 	}
 
 	public void setToken(UUID token) {

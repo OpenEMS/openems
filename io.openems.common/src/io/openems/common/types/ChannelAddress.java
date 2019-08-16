@@ -3,7 +3,12 @@ package io.openems.common.types;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
+import java.util.Objects;
+import java.util.regex.PatternSyntaxException;
+
 public class ChannelAddress implements Comparable<ChannelAddress> {
+
+	public static final String DELIMITER = "/";
 
 	private final String componentId;
 	private final String channelId;
@@ -16,7 +21,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	/**
 	 * Gets the Component-ID.
-	 * 
+	 *
 	 * @return the Component-ID
 	 */
 	public String getComponentId() {
@@ -25,7 +30,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	/**
 	 * Gets the Channel-Id.
-	 * 
+	 *
 	 * @return the Channel-Id
 	 */
 	public String getChannelId() {
@@ -34,19 +39,19 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	@Override
 	public String toString() {
-		return componentId + "/" + channelId;
+		return componentId + DELIMITER + channelId;
 	}
 
 	/**
 	 * Parses a string "Component-ID/Channel-ID" to a ChannelAddress.
-	 * 
+	 *
 	 * @param address the address as a String
 	 * @return the ChannelAddress
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static ChannelAddress fromString(String address) throws OpenemsNamedException {
 		try {
-			String[] addressArray = address.split("/");
+			String[] addressArray = address.split(DELIMITER);
 			String componentId = addressArray[0];
 			String channelId = addressArray[1];
 			return new ChannelAddress(componentId, channelId);
@@ -55,28 +60,31 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		}
 	}
 
+	public boolean matches(ChannelAddress other) throws PatternSyntaxException {
+		return this.channelId.matches(other.channelId) && this.componentId.matches(other.componentId);
+	}
+
+
 	@Override
 	public int compareTo(ChannelAddress other) {
 		return this.toString().compareTo(other.toString());
 	}
 
 	@Override
-	public int hashCode() {
-		return this.toString().hashCode();
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		ChannelAddress that = (ChannelAddress) o;
+		return Objects.equals(componentId, that.componentId)
+			&& Objects.equals(channelId, that.channelId);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		ChannelAddress other = (ChannelAddress) obj;
-		return this.toString().equals(other.toString());
+	public int hashCode() {
+		return Objects.hash(componentId, channelId);
 	}
 }

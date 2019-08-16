@@ -17,7 +17,7 @@ public enum AccessMode {
 
 	private final String abbreviation;
 
-	private AccessMode(String abbreviation) {
+	AccessMode(String abbreviation) {
 		this.abbreviation = abbreviation;
 	}
 

@@ -1,11 +1,8 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.Optional;
-import java.util.UUID;
+import io.openems.common.accesscontrol.RoleId;
 
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.user.EdgeUser;
+import java.util.UUID;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
@@ -17,7 +14,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	private UUID sessionToken = null;
 
-	private Optional<EdgeUser> user = Optional.empty();
+	private RoleId roleId;
 
 	public WsData(WebsocketApi parent) {
 		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
@@ -31,32 +28,12 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return sessionToken;
 	}
 
-	public void setUser(EdgeUser user) {
-		this.user = Optional.ofNullable(user);
+	public void setRoleId(RoleId roleId) {
+		this.roleId = roleId;
 	}
 
-	public void unsetUser() {
-		this.user = Optional.empty();
-	}
-
-	public Optional<EdgeUser> getUser() {
-		return user;
-	}
-
-	/**
-	 * Throws an exception if the User is not authenticated.
-	 * 
-	 * @param resource a resource identifier; used for the exception
-	 * @return the current Role
-	 * @throws OpenemsNamedException if the current Role privileges are less
-	 */
-	public EdgeUser assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
-		if (this.getUser().isPresent()) {
-			return this.getUser().get();
-		} else {
-			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
-					.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
-		}
+	public RoleId getRoleId() {
+		return roleId;
 	}
 
 	/**
@@ -76,7 +53,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		} else {
 			tokenString = "UNKNOWN";
 		}
-		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + user + "]";
+		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", role=" + roleId + "]";
 	}
 
 }

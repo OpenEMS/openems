@@ -1,5 +1,6 @@
 package io.openems.backend.b2brest;
 
+import io.openems.common.accesscontrol.AccessControl;
 import org.eclipse.jetty.server.Server;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -40,6 +41,9 @@ public class B2bRest extends AbstractOpenemsBackendComponent {
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Timedata timeData;
+
+	@Reference
+	protected volatile AccessControl accessControl;
 
 	public B2bRest() {
 		super("Backend2Backend.Rest");
