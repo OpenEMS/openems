@@ -2,7 +2,7 @@
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
             <ion-title *ngIf="currentData[componentId + '/Alias'] as alias">{{alias}}</ion-title>
-            <ion-title *ngIf="!currentData[componentId + '/Alias'] as alias">
+            <ion-title *ngIf="!currentData[componentId + '/Alias'] as alias" translate>
                 Edge.Index.Widgets.EVCS.ChargingStation
                 <ion-text>
                     {{ componentId }}
@@ -129,16 +129,16 @@
                                             style="z-index: 10000; page-break-inside: auto"
                                             *ngIf="controller.properties.defaultChargeMinPower != 0"
                                             (ionChange)="updateDefaultMinPower($event, controller)"
-                                            min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
-                                            max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
+                                            min="{{ formatNumber(currentData[componentId + '/MinimumPower']) }}"
+                                            max="{{ formatNumber(currentData[componentId + '/MaximumPower']) }}"
                                             color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
                                             value="{{controller.properties.defaultChargeMinPower}}">
                                             <ion-label slot="start">
-                                                {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | number:'1.0-0'}}
+                                                {{ formatNumber(currentData[componentId + '/MinimumPower']) | number:'1.0-0'}}
                                                 &nbsp;W
                                             </ion-label>
                                             <ion-label slot="end">
-                                                {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                                {{ formatNumber(currentData[componentId + '/MaximumPower']) | number:'1.0-0'}}&nbsp;W
                                             </ion-label>
                                         </ion-range>
 

@@ -212,17 +212,17 @@
                                                                 style="z-index: 10000; page-break-inside: auto"
                                                                 *ngIf="evcsCtrl.properties.defaultChargeMinPower != 0"
                                                                 (ionChange)="updateDefaultMinPower($event, evcsCtrl)"
-                                                                min="{{ formatNumber(currentData[evcs_id + '/MinimumHardwarePower']) }}"
-                                                                max="{{ formatNumber(currentData[evcs_id + '/MaximumHardwarePower']) }}"
+                                                                min="{{ formatNumber(currentData[evcs_id + '/MinimumPower']) }}"
+                                                                max="{{ formatNumber(currentData[evcs_id + '/MaximumPower']) }}"
                                                                 color="dark" pin="true" style="padding-top: 8px;"
                                                                 step="100" debounce="1000"
                                                                 value="{{evcsCtrl.properties.defaultChargeMinPower}}">
                                                                 <ion-label slot="start">
-                                                                    {{ formatNumber(currentData[evcs_id + '/MinimumHardwarePower']) | number:'1.0-0'}}
+                                                                    {{ formatNumber(currentData[evcs_id + '/MinimumPower']) | number:'1.0-0'}}
                                                                     &nbsp;W
                                                                 </ion-label>
                                                                 <ion-label slot="end">
-                                                                    {{ formatNumber(currentData[evcs_id + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                                                    {{ formatNumber(currentData[evcs_id + '/MaximumPower']) | number:'1.0-0'}}&nbsp;W
                                                                 </ion-label>
                                                             </ion-range>
 
