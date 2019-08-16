@@ -1,4 +1,3 @@
-import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
