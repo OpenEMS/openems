@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,18 +19,18 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -83,7 +84,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	public EvcsCluster() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Controller.ChannelId.values(), //
 				Evcs.ChannelId.values() //
 		);
 	}
@@ -206,13 +206,13 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 						nextChargePower = evcs.getMaximumHardwarePower().value().orElse(22080);
 					}
 
-					if(nextChargePower > 0) {
-							int powerTillMaximum = evcs.getMaximumHardwarePower().value().orElse(22080) - nextChargePower;
-							if(powerTillMaximum < this.totalPowerLeftInACycle) {
-								extraPower = powerTillMaximum;
-								this.totalPowerLeftInACycle -= extraPower;
-							}
-							nextChargePower = nextChargePower + extraPower;
+					if (nextChargePower > 0) {
+						int powerTillMaximum = evcs.getMaximumHardwarePower().value().orElse(22080) - nextChargePower;
+						if (powerTillMaximum < this.totalPowerLeftInACycle) {
+							extraPower = powerTillMaximum;
+							this.totalPowerLeftInACycle -= extraPower;
+						}
+						nextChargePower = nextChargePower + extraPower;
 					}
 					if (nextChargePower < totalPowerLeft) {
 						((ManagedEvcs) evcs).setChargePower().setNextWriteValue(nextChargePower);
