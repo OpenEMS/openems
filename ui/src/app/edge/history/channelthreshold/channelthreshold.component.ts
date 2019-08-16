@@ -82,7 +82,7 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
           if (value == null) {
             return null
           } else {
-            return value * 100; // convert to % [0,100]]
+            return value * 100; // convert to % [0,100]
           }
         });
         datasets.push({
