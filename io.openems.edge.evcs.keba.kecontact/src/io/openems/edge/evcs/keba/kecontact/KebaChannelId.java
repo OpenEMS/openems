@@ -4,8 +4,11 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.evcs.api.Status;
 
 public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
+	
+	ALIAS(Doc.of(OpenemsType.STRING).text("A human-readable name of this Component")),
 	/*
 	 * Report 1
 	 */
@@ -16,7 +19,7 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	/*
 	 * Report 2
 	 */
-	STATUS(Doc.of(Status.values()).text("Current state of the charging station")),
+	STATUS_KEBA(Doc.of(Status.values()).text("Current state of the charging station")),
 	ERROR_1(Doc.of(OpenemsType.INTEGER).text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 	ERROR_2(Doc.of(OpenemsType.INTEGER).text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 	PLUG(Doc.of(Plug.values())),
@@ -57,12 +60,11 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text(
 			"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //
 
-	PHASES(Doc.of(OpenemsType.INTEGER).text("Count of ladders, the car is louding with")), //
-
 	/*
 	 * Fail State Channels
 	 */
-	ChargingStation_COMMUNICATION_FAILED(Doc.of(Level.FAULT));
+	CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT)),
+	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING));
 
 	private final Doc doc;
 

@@ -1,18 +1,12 @@
 package io.openems.edge.evcs.api;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusType;
 
-@ProviderType
 public interface Evcs extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -30,10 +24,10 @@ public interface Evcs extends OpenemsComponent {
 		CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		
-		
+
 		/**
-		 * Minimum Power .
+		 * Minimum Power valid by the hardware.
+		 * In the cases that the EVCS can't be controlled, the Minimum will be the maximum too.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -42,13 +36,12 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		 MINIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
+		MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)),
-		
-		
+
 		/**
-		 * Maximum Power .
+		 * Maximum Power valid by the hardware.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -57,56 +50,24 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		 MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
-					.unit(Unit.WATT) //
-					.accessMode(AccessMode.READ_WRITE)),
-		
-		/**
-		 * Maximum Power valid by the Hardware.
-		 * 
-		 * <ul>
-		 * <li>Interface: Evcs
-		 * <li>Readable
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * </ul>
-		 */
-		HARDWARE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Highest possible charging power of the charging connection. "
-						+ "Contains device maximum, DIP-switch setting, cable coding and temperature reduction.")),
-		/**
-		 * Set Charge Power.
-		 * 
-		 * <ul>
-		 * <li>Interface: Evcs
-		 * <li>Writable
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * </ul>
-		 */
-		SET_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+		MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)),
+
 		/**
-		 * Set Display Text.
+		 * Maximum Power that should be charged by the controller
+		 * valid by a cluster 
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Writable
-		 * <li>Type: String
+		 * <li>Type: Integer
+		 * <li>Unit: W
 		 * </ul>
 		 */
-		SET_DISPLAY_TEXT(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_WRITE)),
-		
-		SET_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.unit(Unit.ON_OFF)
-				.text("Disabled is indicated with a blue flashing LED. "
-						+ "ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements "
-						+ "and disabling can lead to an error in the charging station.")); //
+		MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE));
 
 		private final Doc doc;
 
@@ -119,20 +80,6 @@ public interface Evcs extends OpenemsComponent {
 			return this.doc;
 		}
 	}
-	
-	
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(Evcs.class, accessMode, 100) //
-				.channel(0, ChannelId.CHARGE_POWER, ModbusType.UINT16) //
-				.channel(1, ChannelId.HARDWARE_POWER_LIMIT, ModbusType.UINT16) //
-				.channel(2, ChannelId.SET_CHARGE_POWER, ModbusType.UINT16)
-				.channel(3, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16)
-				.channel(19,ChannelId.MINIMUM_POWER, ModbusType.UINT16)
-				.channel(20, ChannelId.MAXIMUM_POWER, ModbusType.UINT16)
-				.channel(21, ChannelId.SET_ENABLED, ModbusType.UINT16)
-				.build();
-	}
-
 
 	/**
 	 * Gets the Charge Power in [W].
@@ -144,42 +91,30 @@ public interface Evcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Sets the allowed maximum charge power of the EVCS in [W].
+	 * Gets the maximum Charge Power in [W] valid by the Hardware.
 	 * 
-	 * <p>
-	 * Actual charge power depends on
-	 * <ul>
-	 * <li>whether the electric vehicle is connected at all and ready for charging
-	 * <li>limitation of electric vehicle
-	 * <li>limitation of power line
-	 * <li>...
-	 * </ul>
-	 * 
-	 * @return the WriteChannel
+	 * @return the Channel
 	 */
-	public default WriteChannel<Integer> setChargePower() {
-		return this.channel(ChannelId.SET_CHARGE_POWER);
+	public default Channel<Integer> getMaximumHardwarePower() {
+		return this.channel(ChannelId.MAXIMUM_HARDWARE_POWER);
 	}
 
 	/**
-	 * Sets a Text that is shown at the display of the EVCS. Be aware that the EVCS
-	 * might not have a display or the text might be restricted.
+	 * Gets the minimum Charge Power in [W] valid by the Hardware.
+	 * In the cases that the EVCS can't be controlled, the Minimum will be the maximum too.
 	 * 
-	 * @return the WriteChannel
+	 * @return the Channel
 	 */
-	public default WriteChannel<String> setDisplayText() {
-		return this.channel(ChannelId.SET_DISPLAY_TEXT);
+	public default Channel<Integer> getMinimumHardwarePower() {
+		return this.channel(ChannelId.MINIMUM_HARDWARE_POWER);
 	}
 	
 	/**
-	 * Aktivates or deaktivates the Charging Station.
-	 * ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements 
-	 * and disabling can lead to an error in the charging station.
+	 * Gets the maximum Charge Power that will be used by the charging station.
 	 * 
-	 * @return the WriteChannel
+	 * @return the Channel
 	 */
-	public default WriteChannel<Boolean> setEnabled() {
-		return this.channel(ChannelId.SET_ENABLED);
+	public default Channel<Integer> getMaximumPower() {
+		return this.channel(ChannelId.MAXIMUM_POWER);
 	}
-	
 }

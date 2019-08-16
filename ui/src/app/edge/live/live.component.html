@@ -35,7 +35,13 @@
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
             <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
-              <evcs [componentId]="widget.componentId"></evcs>
+              <evcs *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'"
+                [componentId]="widget.componentId">
+              </evcs>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12">
+              <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
             <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12">
