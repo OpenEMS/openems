@@ -43,8 +43,7 @@ export class StorageModalComponent implements OnInit {
                 let factory = config.factories[factoryID];
                 channels.push(
                     new ChannelAddress(component.id, 'Soc'),
-                    new ChannelAddress(component.id, 'ActivePower'),
-                    new ChannelAddress(component.id, 'Capacity'),
+                    new ChannelAddress(component.id, 'ActivePower')
                 );
                 if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                     this.isAsymmetric = true;

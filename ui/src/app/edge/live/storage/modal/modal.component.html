@@ -16,23 +16,11 @@
             <ng-container *ngFor="let component of essComponents">
                 <ng-container *ngIf="config.factories[component.factoryId] as factory">
                     <table class="full_width">
-                        <tr>
+                        <tr class="underline">
                             <td style="width:20%" translate>General.Soc</td>
                             <td style="width: 30%"></td>
                             <td style="width: 50%" class="align_right">
                                 {{ currentData[component.id + '/Soc'] | number:'1.0-0' }}&nbsp;%</td>
-                        </tr>
-                        <tr class="underline">
-                            <td style="width:20%" translate>General.Capacity</td>
-                            <td style="width: 30%"></td>
-                            <ng-container *ngIf="currentData[component.id + '/Capacity'] != null; else empty">
-                                <td style="width:50%" class="align_right">
-                                    {{ currentData[component.id + '/Capacity'] | number:'1.0-0' }}&nbsp;Wh
-                                </td>
-                            </ng-container>
-                            <ng-template #empty>
-                                <td style="width:50%" class="align_right">-&nbsp;</td>
-                            </ng-template>
                         </tr>
                         <!-- Symmetric ESS -->
                         <ng-container
