@@ -36,6 +36,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	protected static final int DEFAULT_RETRIES = 1;
 
 	private LogVerbosity logVerbosity = LogVerbosity.NONE;
+	private int invalidateElementsAfterReadErrors = 1;
 
 	// private final Logger log =
 	// LoggerFactory.getLogger(AbstractModbusBridge.class);
@@ -47,9 +48,10 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
-			LogVerbosity logVerbosity) {
+			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
 		super.activate(context, id, alias, enabled);
 		this.logVerbosity = logVerbosity;
+		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
 		if (this.isEnabled()) {
 			this.worker.activate(id);
 		}
@@ -131,5 +133,14 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	@Override
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
+	}
+
+	/**
+	 * After how many errors should a element be invalidated?.
+	 * 
+	 * @return value
+	 */
+	public int invalidateElementsAfterReadErrors() {
+		return this.invalidateElementsAfterReadErrors;
 	}
 }

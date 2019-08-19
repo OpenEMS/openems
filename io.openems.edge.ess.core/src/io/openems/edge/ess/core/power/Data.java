@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Streams;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -60,7 +61,7 @@ public class Data {
 		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
 	}
 
-	public synchronized void addEss(ManagedSymmetricEss ess) {
+	protected synchronized void addEss(ManagedSymmetricEss ess) {
 		// add to Ess map
 		this.essIds.add(ess.id());
 		// create inverters and add them to list
@@ -74,7 +75,7 @@ public class Data {
 		this.coefficients.initialize(this.essIds);
 	}
 
-	public synchronized void removeEss(String essId) {
+	protected synchronized void removeEss(String essId) {
 		// remove from Ess set
 		this.essIds.remove(essId);
 		// remove from Inverters list
@@ -252,7 +253,7 @@ public class Data {
 				for (Constraint c : ess.getStaticConstraints()) {
 					result.add(c);
 				}
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				this.parent.logError(this.log,
 						"Setting static contraints for Ess [" + essId + "] failed: " + e.getMessage());
 				isFailed = true;
@@ -280,12 +281,8 @@ public class Data {
 						// 1*sumL1 - 1*ess1_L1 - 1*ess2_L1 = 0
 						List<LinearCoefficient> cos = new ArrayList<>();
 						cos.add(new LinearCoefficient(this.coefficients.of(essId, phase, pwr), 1));
-						for (ManagedSymmetricEss subEss : e.getEsss()) {
-							if (!subEss.isEnabled()) {
-								// ignore disabled Sub-ESS
-								continue;
-							}
-							cos.add(new LinearCoefficient(this.coefficients.of(subEss.id(), phase, pwr), -1));
+						for (String subEssId : e.getEssIds()) {
+							cos.add(new LinearCoefficient(this.coefficients.of(subEssId, phase, pwr), -1));
 						}
 						Constraint c = new Constraint(ess.id() + ": Sum of " + pwr.getSymbol() + phase.getSymbol(), cos,
 								Relationship.EQUALS, 0);

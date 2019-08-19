@@ -1,9 +1,6 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -24,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -46,6 +44,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -68,8 +67,9 @@ import io.openems.edge.ess.power.api.Relationship;
 		name = "Ess.Fenecon.Commercial40", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
-)
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		})
 public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent implements EssFeneconCommercial40,
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -82,8 +82,9 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	private final static int MIN_REACTIVE_POWER = -10000;
 	private final static int MAX_REACTIVE_POWER = 10000;
 
+	protected EssDcChargerFeneconCommercial40 charger = null;
+
 	private Config config;
-	private EssDcChargerFeneconCommercial40 charger = null;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -160,9 +161,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_PV_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		// IntegerReadChannels
 		ORIGINAL_ALLOWED_CHARGE_POWER(new IntegerDoc() //
@@ -192,6 +190,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
 					channel.onChange(originalValueChannel -> {
+
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
 						Optional<Integer> originalValue = originalValueChannel.asOptional();
@@ -745,8 +744,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.unit(Unit.MILLIVOLT)), //
 		CELL_224_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
-		SURPLUS_FEED_IN_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
 
 		// StateChannels
 		STATE_0(Doc.of(Level.WARNING) //
@@ -960,6 +957,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		STATE_104(Doc.of(Level.WARNING) //
 				.text("BatteryCurrentOverLimit")), //
 		STATE_105(Doc.of(Level.WARNING) //
+				.debounce(5 * 60 /* 5 minutes with a cycle time of 1 sec */,
+						Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)
 				.text("PowerDecreaseCausedByOvertemperature")), //
 		STATE_106(Doc.of(Level.WARNING) //
 				.text("InverterGeneralOvertemperature")), //
@@ -1060,6 +1059,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		public Doc doc() {
 			return this.doc;
 		}
+
 	}
 
 	@Override
@@ -1303,8 +1303,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40Impl.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40Impl.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40Impl.ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xA000, Priority.LOW, //
 						m(EssFeneconCommercial40Impl.ChannelId.BMS_DCDC_WORK_STATE, new UnsignedWordElement(0xA000)), //
@@ -1634,6 +1632,9 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.applyPowerLimitOnPowerDecreaseCausedByOvertemperatureError();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.defineWorkState();
 			break;
@@ -1671,7 +1672,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsException {
+	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		// Read-Only-Mode
 		if (this.config.readOnlyMode()) {
 			return new Constraint[] { //
@@ -1681,67 +1682,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		}
 
 		// Reactive Power constraints
-		List<Constraint> result = new ArrayList<>();
-		result.add(this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
-				Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER));
-		result.add(this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
-				Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER));
-
-		// Activate Surplus-Feed-In?
-		result.addAll(this.getSurplusFeedInConstraints());
-
-		return result.toArray(new Constraint[result.size()]);
+		return new Constraint[] { //
+				this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
+						Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER), //
+				this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
+						Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
 	}
-
-	/**
-	 * Gets Constraints for Surplus-Feed-In; empty list if no Constraints are added.
-	 * 
-	 * @return list of Constraints
-	 * @throws OpenemsException
-	 */
-	private List<Constraint> getSurplusFeedInConstraints() throws OpenemsException {
-		if (this.lastSurplusFeedInActivated == null
-				|| this.lastSurplusFeedInActivated.isBefore(LocalDateTime.now().minusMinutes(30))) {
-			if (
-			// Is a Charger set? (i.e. is this a Commercial 40-40 DC)
-			this.charger == null
-					// Is Surplus Feed-In not activated?
-					|| !this.config.activateSurplusFeedIn()
-					// Is battery not full?
-					|| this.getAllowedCharge().value().orElse(0) < this.config.surplusAllowedChargePowerLimit()
-					// Is time before 'Surplus Off Time'?
-					|| LocalTime.now().isAfter(LocalTime.parse(this.config.surplusOffTime()))
-					// Is PV producing?
-					|| Math.max(//
-							// InputVoltage 0
-							((IntegerReadChannel) this.charger
-									.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC0_INPUT_VOLTAGE)).value()
-											.orElse(0), //
-							// InputVoltage 1
-							((IntegerReadChannel) this.charger
-									.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC1_INPUT_VOLTAGE)).value()
-											.orElse(0) //
-					) < 250_000) {
-				this.lastSurplusFeedInActivated = null;
-				this.channel(ChannelId.SURPLUS_FEED_IN_POWER).setNextValue(0);
-				return new ArrayList<>();
-			}
-		}
-		// Active Surplus feed-in
-		int surplusFeedInPower = this.charger.getActualPower().value().orElse(0);
-
-		List<Constraint> result = new ArrayList<>();
-		result.add(this.createPowerConstraint("Enforce Surplus Feed-In", Phase.ALL, Pwr.ACTIVE,
-				Relationship.GREATER_OR_EQUALS, surplusFeedInPower));
-		this.channel(ChannelId.SURPLUS_FEED_IN_POWER).setNextValue(surplusFeedInPower);
-
-		if (this.lastSurplusFeedInActivated == null) {
-			this.lastSurplusFeedInActivated = LocalDateTime.now();
-		}
-		return result;
-	}
-
-	private LocalDateTime lastSurplusFeedInActivated = null;
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -1755,6 +1701,49 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	@Override
 	public void setCharger(EssDcChargerFeneconCommercial40 charger) {
 		this.charger = charger;
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	private void applyPowerLimitOnPowerDecreaseCausedByOvertemperatureError() {
+		if (this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() != 0) {
+			StateChannel powerDecreaseCausedByOvertemperatureChannel = this
+					.channel(EssFeneconCommercial40Impl.ChannelId.STATE_105);
+			if (powerDecreaseCausedByOvertemperatureChannel.value().orElse(false)) {
+				/*
+				 * Apply limit on ESS charge/discharge power
+				 */
+				try {
+					this.power.addConstraintAndValidate(
+							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
+									Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
+									config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
+					this.power.addConstraintAndValidate(
+							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
+									Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+									config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
+				} catch (OpenemsException e) {
+					this.logError(this.log, e.getMessage());
+				}
+				/*
+				 * Apply limit on Charger
+				 */
+				if (this.charger != null) {
+					IntegerWriteChannel setPvPowerLimit = charger
+							.channel(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT);
+					try {
+						setPvPowerLimit.setNextWriteValue(
+								this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel());
+					} catch (OpenemsNamedException e) {
+						this.logError(this.log, e.getMessage());
+					}
+				}
+
+			}
+		}
 	}
 
 }

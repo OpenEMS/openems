@@ -71,7 +71,8 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	@Activate
 	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors());
 		this.setIpAddress(InetAddress.getByName(config.ip()));
 	}
 

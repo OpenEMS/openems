@@ -200,7 +200,7 @@ class ModbusWorker extends AbstractImmediateWorker {
 
 			// invalidate elements of this task
 			for (ModbusElement<?> element : task.getElements()) {
-				element.invalidate();
+				element.invalidate(this.parent);
 			}
 		}
 	}
@@ -260,7 +260,7 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 * result. The idea is to not execute tasks that are known to fail.
 	 * 
 	 * @param <T>   the Task type
-	 * @param tasks Tasks by Componen-ID
+	 * @param tasks Tasks by Component-ID
 	 * @return a list of filtered tasks
 	 */
 	private <T extends Task> List<T> filterDefectiveComponents(Multimap<String, T> tasks) {
