@@ -11,7 +11,10 @@ Bundle-Description: \
 Export-Package: io.openems.edge.bridge.mccomms
 
 Private-Package:  \
-	io.openems.edge.bridge.mccomms
+	io.openems.edge.bridge.mccomms,\
+	io.openems.edge.bridge.mccomms.packet,\
+	io.openems.edge.bridge.mccomms.api,\
+	io.openems.edge.bridge.mccomms.task
 
 -includeresource: {readme.md}
 

@@ -57,7 +57,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		}
 	}
 	
-	protected MCCommsBridge() {
+	public MCCommsBridge() {
 		super(OpenemsComponent.ChannelId.values(), ChannelId.values());
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		RXTimedByteQueue = new LinkedBlockingQueue<>();
