@@ -15,21 +15,25 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.*;
 
 
 @Designate( ocd=Config.class, factory=true)
 @Component(
-		name="io.openems.edge.bridge.mccomms",
+		name="Bridge.MCComms",
 		immediate=true,
-		configurationPolicy=ConfigurationPolicy.REQUIRE)
+		configurationPolicy=ConfigurationPolicy.REQUIRE
+)
 public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsComponent{
 	private ScheduledExecutorService scheduledExecutorService;
 	private SerialPort serialPort;
@@ -41,6 +45,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	private LinkedBlockingQueue<ByteBuffer> RXBufferQueue;
 	private HashSet<ListenTask> listenTasks;
 	private long packetWindowNs;
+	private Logger logger;
 	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -59,6 +64,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	
 	public MCCommsBridge() {
 		super(OpenemsComponent.ChannelId.values(), ChannelId.values());
+		logger = LoggerFactory.getLogger(getClass());
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		RXTimedByteQueue = new LinkedBlockingQueue<>();
 		TXPacketQueue = new ConcurrentLinkedQueue<>();
@@ -90,7 +96,8 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		serialPort.setComPortParameters(9600, 8, 1, SerialPort.NO_PARITY);
 		serialPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
 		if (!serialPort.openPort() && !serialPort.isOpen()) {
-			throw new OpenemsException("Unable to open serial port: " + config.serialPortDescriptor()); //TODO check if exception can be thrown here
+			logger.error("Unable to open serial port: " + config.serialPortDescriptor());
+			throw new OpenemsException("Unable to open serial port: " + config.serialPortDescriptor()); //TODO test if exception can be thrown here
 		}
 		packetPicker = new PacketPicker();
 		packetPicker.start();
@@ -122,7 +129,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 						outputStream.write(TXPacketQueue.poll().getBytes());
 					}
 				} catch (IOException e) {
-					//TODO proper exception handling
+					logger.error("IOException: ", e);
 				} catch (InterruptedException e) {
 					interrupt();
 				}
@@ -150,15 +157,14 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 						packetStartTime = polledTimedByte.getKey();
 						previousByteTime = polledTimedByte.getKey();
 						//byte consumer loop
-						while ((polledTimedByte.getKey() - packetStartTime) < packetWindowNs && packetBuffer.position() < 25) {
-							//while packet window period (35ms) has not closed and packet is not full
+						while ((polledTimedByte.getKey() - packetStartTime) < packetWindowNs && packetBuffer.position() < 25) { //while packet window period has not closed and packet is not full
 							//getUnsignedByte time difference between current and last byte
 							byteTimeDelta = polledTimedByte.getKey() - previousByteTime;
 							//put byte in buffer, record byte rx time
 							previousByteTime = polledTimedByte.getKey();
 							packetBuffer.put(polledTimedByte.getValue());
 							if (packetBuffer.position() == 25) {
-								continue;
+								continue; //escape inner while loop if buffer full
 							}
 							if (endByteReceived && (byteTimeDelta > 10000000L)){
 								//if endByte has been received and a pause of more than 10ms has elapsed, discard packet
@@ -184,7 +190,9 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 								&& MCCommsPacket.checkCRC(packetBuffer)) { //...and the CRC passes
 							RXBufferQueue.add(packetBuffer); //add the buffer to the rx buffer queue for picking
 						}
-						packetBuffer = ByteBuffer.allocate(25); //reset buffer
+						//reset buffer
+						Arrays.fill(packetBuffer.array(), (byte) 0);
+						packetBuffer.position(0);
 					}
 				} catch (InterruptedException e) {
 					this.interrupt();
@@ -207,12 +215,9 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 				try {
 					listenTask.acceptBuffer(byteBuffer);
 				} catch (OpenemsException e) {
-					e.printStackTrace(); //TODO proper exception handling
+					logger.error(null, e);
 				}
 			}
 		}
-		
-		
 	}
-
 }

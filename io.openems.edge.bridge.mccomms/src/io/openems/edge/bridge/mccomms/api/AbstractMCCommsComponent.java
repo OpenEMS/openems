@@ -7,15 +7,19 @@ import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class AbstractMCCommsComponent extends AbstractOpenemsComponent {
+public abstract class AbstractMCCommsComponent extends AbstractOpenemsComponent {
 	private int mcCommsAddress;
 	private AtomicReference<MCCommsBridge> mcCommsBridgeAtomicReference;
+	protected final Logger logger;
 	
 	protected AbstractMCCommsComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+		logger = LoggerFactory.getLogger(getClass());
 		mcCommsBridgeAtomicReference = new AtomicReference<>();
 	}
 	
@@ -33,29 +37,32 @@ public class AbstractMCCommsComponent extends AbstractOpenemsComponent {
 	 *                        'config.alias()'. Defaults to 'id' if empty
 	 * @param enabled         Whether the component should be enabled. Typically
 	 *                        'config.enabled()'
-	 * @param mcCommsAddress  Unit-ID of the Modbus target
+	 * @param mcCommsAddress  MCComms address of the target device
 	 * @param cm              An instance of ConfigurationAdmin. Receive it
 	 *                        using @Reference
-	 * @param mcCommsBridgeComponentID   The component ID of the MCComms bridge. Typically
-	 *                        'config.mcCommsBridgeComponentID()'
-	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
+	 * @param mcCommsBridgeID   The component ID of the MCComms bridge. Typically
+	 *                        'config.mcCommsBridge_id()'
 	 */
-	@Activate
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int mcCommsAddress,
-	                           ConfigurationAdmin cm, String mcCommsBridgeComponentID) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int mcCommsAddress,
+	                           ConfigurationAdmin cm, String mcCommsBridgeID) {
 		super.activate(context, id, alias, enabled);
-		// update filter for 'MCCommsBridge'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "MCCommsBridge", mcCommsBridgeComponentID)) {
-			return true;
-		}
+		System.out.println("Super activate called"); //TODO remove debug
+		logInfo(logger, "super activate called");
 		this.mcCommsAddress = mcCommsAddress;
-		return false;
+		// update filter for 'MCCommsBridge'
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "mcCommsBridge", mcCommsBridgeID)) {
+			logInfo(logger, "reference filter updated");
+		}
 	}
 	
 	@Override
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		throw new IllegalArgumentException("Use the other activate() for MCComms components");
+	}
+	
+	@Override
+	protected void deactivate() {
+		super.deactivate();
 	}
 	
 	public void setMCCommsBridge(MCCommsBridge bridge) {

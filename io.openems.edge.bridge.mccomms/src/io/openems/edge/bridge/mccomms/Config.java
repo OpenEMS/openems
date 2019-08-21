@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( 
-		name = "MCComms Bridge", //
+		name = "Bridge MC-Comms", //
 		description = "Implements a generic bridge for the MCComms protocol.")
 @interface Config {
 
