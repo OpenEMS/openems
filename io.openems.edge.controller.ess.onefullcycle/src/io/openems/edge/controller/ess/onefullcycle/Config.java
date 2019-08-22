@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.onefullcycle;
 
+import java.time.DayOfWeek;
+
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
@@ -19,6 +21,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
+
+	@AttributeDefinition(name = "CycleOrder [Charge/Discharge]", description = "Charge/discharge CycleOrder for Operation")
+	CycleOrder cycleorder() default CycleOrder.START_WITH_DISCHARGE;
+
+	@AttributeDefinition(name = " Start Time in Hour", description = "Start Charge/Discharge Hour (Just Integer in time).")
+	int hour() default 8;
+
+	@AttributeDefinition(name = "Choosen First Day In Month ", description = "Choosen First Day In Month [ Ex. Firs Monday of each Month]")
+	DayOfWeek day() default DayOfWeek.MONDAY;
 
 	@AttributeDefinition(name = "Power [W]", description = "Charge/discharge power")
 	int power();

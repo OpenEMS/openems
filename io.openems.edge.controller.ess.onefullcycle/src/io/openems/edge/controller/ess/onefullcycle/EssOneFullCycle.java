@@ -1,9 +1,13 @@
 package io.openems.edge.controller.ess.onefullcycle;
 
+import static java.time.temporal.TemporalAdjusters.firstInMonth;
+
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
+import java.util.Calendar;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -36,7 +40,9 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 
 	private final Logger log = LoggerFactory.getLogger(EssOneFullCycle.class);
 	private final Clock clock;
-	private final TemporalAmount hysteresis = Duration.ofMinutes(30);
+	private final TemporalAmount hysteresis = Duration.ofMinutes(1);
+	private Config config;
+	private boolean activated = false;
 
 	private int power;
 	private String essId;
@@ -88,7 +94,9 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.power = Math.abs(config.power());
+		this.config = config;
 		this.essId = config.ess_id();
+		this.cycleOrder = config.cycleorder();
 	}
 
 	@Deactivate
@@ -98,12 +106,19 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 
 	@Override
 	public void run() throws OpenemsNamedException {
+
+		this.getAFirstDayOfTheMonth();
+		if (!this.activated) {
+			return;
+		}
+
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 
 		ManagedSymmetricEss ess = this.componentManager.getComponent(essId);
 
 		if (this.state == State.FINISHED) {
+			this.log.info("State == FINISHED");
 			return;
 		}
 
@@ -119,6 +134,19 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 		int maxChargePower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 
 		this.applyPower(ess, maxChargePower, maxDischargePower);
+	}
+
+	private void getAFirstDayOfTheMonth() {
+		Calendar rightNow = Calendar.getInstance();
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, this.config.hour());
+		LocalDate now = LocalDate.now();
+		LocalDate firstDay = now.with(firstInMonth(this.config.day()));
+		if ((now == firstDay) && (rightNow.after(calendar))) {
+			this.activated = true;
+			return;
+		}
+		this.activated = false;
 	}
 
 	private void initializeEnums(ManagedSymmetricEss ess) throws InvalidValueException {
