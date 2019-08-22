@@ -67,6 +67,7 @@
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
+	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -200,7 +201,6 @@
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
-	com.github.scribejava.core;version='[6.7.0,6.7.1)',\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
@@ -209,4 +209,6 @@
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
-	io.openems.edge.tesla.powerwall2;version=snapshot
+	io.openems.edge.tesla.powerwall2;version=snapshot,\
+	com.github.scribejava.core;version='[6.8.0,6.8.1)',\
+	io.openems.edge.evcs.cluster;version=snapshot

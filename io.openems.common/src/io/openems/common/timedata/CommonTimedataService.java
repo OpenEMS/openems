@@ -54,16 +54,38 @@ public interface CommonTimedataService {
 		return this.queryHistoricData(edgeId, fromDate, toDate, channels, resolution);
 	}
 
+	/**
+	 * Calculates the time resolution for the period in seconds.
+	 * 
+	 * @param fromDate the From-Date
+	 * @param toDate   the To-Date
+	 * @return the resolution in seconds
+	 */
 	public default int calculateResolution(ZonedDateTime fromDate, ZonedDateTime toDate) {
-
 		int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
-		int resolution = 10 * 60; // default: 10 Minutes
-		if (days > 25) {
+		int resolution;
+		if (days <= 1) {
+			resolution = 5 * 60; // 5 Minutes
+		} else if (days == 2) {
+			resolution = 10 * 60; // 10 Minutes
+		} else if (days == 3) {
+			resolution = 15 * 60; // 15 Minutes
+		} else if (days == 4) {
+			resolution = 20 * 60; // 20 Minutes
+		} else if (days <= 6) {
+			resolution = 30 * 60; // 30 Minutes
+		} else if (days <= 12) {
+			resolution = 1 * 60 * 60; // 1 Hour
+		} else if (days <= 24) {
+			resolution = 2 * 60 * 60; // 2 Hours
+		} else if (days <= 48) {
+			resolution = 4 * 60 * 60; // 4 Hours
+		} else if (days <= 96) {
+			resolution = 8 * 60 * 60; // 8 Hours
+		} else if (days <= 144) {
+			resolution = 12 * 60 * 60; // 12 Hours
+		} else {
 			resolution = 24 * 60 * 60; // 1 Day
-		} else if (days > 6) {
-			resolution = 3 * 60 * 60; // 3 Hours
-		} else if (days > 2) {
-			resolution = 60 * 60; // 60 Minutes
 		}
 		return resolution;
 	}

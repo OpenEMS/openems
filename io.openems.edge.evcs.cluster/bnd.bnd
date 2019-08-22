@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Edge EVCS Cluster
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: io.openems.edge.evcs.api
+Private-Package: io.openems.edge.evcs.cluster
+
+-includeresource: {readme.adoc}
+
+-buildpath: ${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.evcs.api;version=latest
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

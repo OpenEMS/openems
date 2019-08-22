@@ -17,7 +17,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Evcs.FixActivePower", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -79,7 +79,7 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 			return;
 		}
 
-		Evcs evcs = this.componentManager.getComponent(this.config.evcs_id());
+		ManagedEvcs evcs = this.componentManager.getComponent(this.config.evcs_id());
 
 		// set charge power
 		evcs.setChargePower().setNextWriteValue(this.config.power());
