@@ -11,8 +11,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -53,11 +51,11 @@ import io.openems.edge.ess.power.api.Relationship;
 public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
+	//private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
 
 	private static final int MAX_APPARENT_POWER = 100_000;
 	private static final int UNIT_ID = 100;
-	private boolean readonly = false;
+	private boolean readonly = false;	
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -87,7 +85,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BridgeModbus modbus2;
 
-	@Activate
+	@Activate	
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id0());

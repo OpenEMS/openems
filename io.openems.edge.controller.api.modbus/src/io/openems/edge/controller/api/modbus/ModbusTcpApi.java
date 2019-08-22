@@ -221,7 +221,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 			ModbusSlave component = this._components.get(id);
 			if (component == null) {
 				this.logWarn(this.log, "Required Component [" + id + "] is not available.");
-				break;
+				continue;
 			}
 
 			// add component to process image

@@ -1,7 +1,5 @@
 package io.openems.edge.ess.byd.container.watchdog;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -15,13 +13,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonPrimitive;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -33,6 +27,9 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.byd.container.EssFeneconBydContainer;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -45,12 +42,12 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(BydContainerWatchdog.class);
 
 	@Reference
-	protected ComponentManager componentManager;
-	
+	public ComponentManager componentManager;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private Config config;
+	public Config config;
 
 	public BydContainerWatchdog() {
 		super(//
@@ -62,7 +59,8 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		WATCHDOG(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.WRITE_ONLY));
+				.accessMode(AccessMode.WRITE_ONLY)),
+		IS_TIMEOUT(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.WRITE_ONLY));
 
 		private final Doc doc;
 
@@ -91,33 +89,37 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		// Get ESS
 		EssFeneconBydContainer ess = this.componentManager.getComponent(this.config.ess_id());
-		boolean isReadonly = (boolean) ess.getComponentContext().getProperties().get("readonly");
+
+		boolean isReadonly = (boolean) ess.getComponentContext().getProperties().get("readonly"); // ess.config.readonly();//
 
 		// Check if Watchdog has been triggered in time. Timeout is configured in
 		// Modbus-TCP-Api Controller.
 		IntegerWriteChannel channel = this.channel(ChannelId.WATCHDOG);
 		Optional<Integer> value = channel.getNextWriteValueAndReset();
 
+		this.logInfo(this.log, "Value [" + (value) + "].");
 		if (value.isPresent()) {
-			/*
-			 * No Timeout
-			 */
+			// No Timeout
+
 			if (isReadonly) {
-				// Everything ok
+				// if readonly is already set to true --> do nothing
+				//
 			} else {
 				// Set to read-only mode
-//				List<UpdateComponentConfigRequest.Property> properties = new ArrayList<>();
-//				properties.add(new UpdateComponentConfigRequest.Property("readonly", new JsonPrimitive(true)));
-//				UpdateComponentConfigRequest request = new UpdateComponentConfigRequest(this.config.ess_id(),
-//						properties);
-//				this.componentManager.handleJsonrpcRequest(, request)
-
-//				OpenemsComponent.updateConfigurationProperty(this.cm, ess.get, property, value);
+				setConfig(true, ess.servicePid());
 			}
-
 		} else {
-			// Timeout happened
+			if (isReadonly) {
+				// Timeout happened, Set readonly flag to false once and set the active power to
+				// zero
+				setConfig(false, ess.servicePid());
 
+			} else {
+				// We have control
+				// setting the active and reactive power to zero
+				ess.addPowerConstraintAndValidate("BydContainerWatchdog", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
+				ess.addPowerConstraintAndValidate("BydContainerWatchdog", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+			}
 		}
 	}
 
@@ -129,4 +131,16 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 						.channel(0, ChannelId.WATCHDOG, ModbusType.UINT16) //
 						.build());
 	}
+
+	/**
+	 * Helper function to set the configuration based on the watchdog value.
+	 *
+	 * @param value true to set readonly flag on, false to set the readonly flag off;
+	 * @param pid pid of the Ess             
+	 * @throws OpenemsNamedException on error
+	 * 
+	 */
+	private void setConfig(Boolean value, String pid) throws OpenemsNamedException {
+		OpenemsComponent.updateConfigurationProperty(this.cm, pid, "readonly", value);
+	}	
 }

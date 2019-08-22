@@ -8,7 +8,8 @@ Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.power.api
 
-Private-Package: io.openems.edge.ess.byd.container
+Private-Package: io.openems.edge.ess.byd.container,\
+io.openems.edge.ess.byd.container.watchdog
 
 -includeresource: {readme.adoc}
 
@@ -25,4 +26,3 @@ Private-Package: io.openems.edge.ess.byd.container
 
 javac.source: 1.8
 javac.target: 1.8
--privatepackage: io.openems.edge.ess.byd.container.watchdog
