@@ -44,37 +44,31 @@ public class BydContainerWatchdogTest3 {
 
 		@Override
 		public String modbus_id0() {
-			// TODO Auto-generated method stub
 			return "modbus1";
 		}
 
 		@Override
 		public String modbus_id1() {
-			// TODO Auto-generated method stub
 			return "modbus1";
 		}
 
 		@Override
 		public String modbus_id2() {
-			// TODO Auto-generated method stub
 			return "modbus1";
 		}
 
 		@Override
 		public String Modbus_target() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String modbus1_target() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String modbus2_target() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -95,7 +89,6 @@ public class BydContainerWatchdogTest3 {
 
 		@Override
 		public String ess_id() {
-			// TODO Auto-generated method stub
 			return this.ess_id;
 		}
 
@@ -120,31 +113,26 @@ public class BydContainerWatchdogTest3 {
 
 		@Override
 		public String alias() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public boolean isEnabled() {
-			// TODO Auto-generated method stub
 			return true;
 		}
 
 		@Override
 		public ComponentContext getComponentContext() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public Channel<?> _channel(String channelName) {
-			// TODO Auto-generated method stub
 			return this.getWatchDog();
 		}
 
 		@Override
 		public Collection<Channel<?>> channels() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -154,8 +142,6 @@ public class BydContainerWatchdogTest3 {
 	public void test() throws Exception {
 
 		// SimulatedComp , MyCtrlConfig, MyEssConfig
-		// -------------------------------------------------------------
-
 		// initialize the controller
 		BydContainerWatchdog ctrl = new BydContainerWatchdog();
 
@@ -172,14 +158,15 @@ public class BydContainerWatchdogTest3 {
 		wd.watchDog.setNextValue(1);
 
 		EssFeneconBydContainer ess = new EssFeneconBydContainer();
-		//DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
-		//ess.cm = cm;
+		// TODO : Set the ESS configure to test this unit test case
+		// DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		// ess.cm = cm;
 		// Ess config
-//		MyEssConfig myEssConfig = new MyEssConfig("ess0", false);
-//		ess.config = myEssConfig;
-//		ess.activate(null, myEssConfig);
-//		ess.activate(null, myEssConfig);
-//		componentManager.addComponent(ess);
+		// MyEssConfig myEssConfig = new MyEssConfig("ess0", false);
+		// ess.config = myEssConfig;
+		// ess.activate(null, myEssConfig);
+		// ess.activate(null, myEssConfig);
+		// componentManager.addComponent(ess);
 
 		// Set the conrtoller config
 		ctrl.config = (myCtrlconfig);
@@ -187,30 +174,28 @@ public class BydContainerWatchdogTest3 {
 		ChannelAddress isTimeout = new ChannelAddress("ctrlBydContainerWatchdog0", "istimeout");
 
 		new ControllerTest(ctrl, componentManager, wd, ess).next(new TestCase()//
-				
-		        .output(isTimeout, 0))
+				.output(isTimeout, 0))//
 		.next(new TestCase() //
-				.input(watchDog, 0)
+				.input(watchDog, 0)//
+				.output(isTimeout, 1))//
+		.next(new TestCase() //
+				.input(watchDog, 0).//
+				output(isTimeout, 1))//
+		.next(new TestCase() //
+				.input(watchDog, 0)//
+				.output(isTimeout, 1))//
+		.next(new TestCase() //
+				.input(watchDog, 0)//
 				.output(isTimeout, 1))
 		.next(new TestCase() //
-				.input(watchDog, 0)
-				.output(isTimeout, 1))
+				.input(watchDog, 1)//
+				.output(isTimeout, 0))//
 		.next(new TestCase() //
-				.input(watchDog, 0)
-				.output(isTimeout, 1))
-		.next(new TestCase() //
-				.input(watchDog, 0)
-				.output(isTimeout, 1))
-		.next(new TestCase() //
-				.input(watchDog, 1)
 				.output(isTimeout, 0))
 		.next(new TestCase() //
-				.output(isTimeout, 0))
-		.next(new TestCase() //
-				.input(watchDog, 0)
-				.output(isTimeout, 1))
-				.run();
-
+				.input(watchDog, 0)//
+				.output(isTimeout, 1))//
+		.run();
 	}
 
 }

@@ -10,8 +10,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -39,10 +37,8 @@ import io.openems.edge.ess.power.api.Relationship;
 public class BydContainerWatchdog extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(BydContainerWatchdog.class);
-
 	@Reference
-	public ComponentManager componentManager;
+	protected ComponentManager componentManager;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -89,33 +85,27 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		// Get ESS
 		EssFeneconBydContainer ess = this.componentManager.getComponent(this.config.ess_id());
-
-		boolean isReadonly = (boolean) ess.getComponentContext().getProperties().get("readonly"); // ess.config.readonly();//
-
-		// Check if Watchdog has been triggered in time. Timeout is configured in
-		// Modbus-TCP-Api Controller.
+		boolean isReadonly = (boolean) ess.getComponentContext().getProperties().get("readonly");
 		IntegerWriteChannel channel = this.channel(ChannelId.WATCHDOG);
 		Optional<Integer> value = channel.getNextWriteValueAndReset();
 
-		this.logInfo(this.log, "Value [" + (value) + "].");
+		// Check if Watchdog has been triggered in time. 
+		// Timeout is configured in Modbus-TCP-Api Controller.		
 		if (value.isPresent()) {
 			// No Timeout
 
 			if (isReadonly) {
 				// if readonly is already set to true --> do nothing
-				//
 			} else {
 				// Set to read-only mode
 				setConfig(true, ess.servicePid());
 			}
 		} else {
 			if (isReadonly) {
-				// Timeout happened, Set readonly flag to false once and set the active power to
-				// zero
+				// Timeout happened, Set readonly flag to false once.
 				setConfig(false, ess.servicePid());
 
 			} else {
-				// We have control
 				// setting the active and reactive power to zero
 				ess.addPowerConstraintAndValidate("BydContainerWatchdog", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
 				ess.addPowerConstraintAndValidate("BydContainerWatchdog", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);

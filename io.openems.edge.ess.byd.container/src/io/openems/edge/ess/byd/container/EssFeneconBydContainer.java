@@ -944,16 +944,11 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						m(EssFeneconBydContainer.ChannelId.SET_SYSTEM_WORKSTATE, new UnsignedWordElement(0x0500)),
 						m(EssFeneconBydContainer.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501)),
 						m(EssFeneconBydContainer.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502))));
-		// new FC16WriteRegistersTask(0x0601, //
-		// m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new
-		// UnsignedWordElement(0x0601))));
 	}
 
 	@Override
 	public String debugLog() {
-		return "State:" + this.channel(EssFeneconBydContainer.ChannelId.SYSTEM_WORKSTATE).value().asOptionString()
-				+ "|Mode:" + this.channel(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE).value().asOptionString()
-				+ "|SoC:" + this.getSoc().value().asString() //
+		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
