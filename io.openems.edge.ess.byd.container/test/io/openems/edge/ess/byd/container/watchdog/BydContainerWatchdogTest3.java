@@ -12,7 +12,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.byd.container.EssFeneconBydContainer;
 
@@ -173,8 +172,8 @@ public class BydContainerWatchdogTest3 {
 		wd.watchDog.setNextValue(1);
 
 		EssFeneconBydContainer ess = new EssFeneconBydContainer();
-		DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
-		ess.cm = cm;
+		//DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		//ess.cm = cm;
 		// Ess config
 //		MyEssConfig myEssConfig = new MyEssConfig("ess0", false);
 //		ess.config = myEssConfig;
