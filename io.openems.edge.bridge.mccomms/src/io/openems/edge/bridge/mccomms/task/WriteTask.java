@@ -5,13 +5,14 @@ import io.openems.edge.bridge.mccomms.MCCommsBridge;
 import io.openems.edge.bridge.mccomms.packet.MCCommsElement;
 import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
 
+import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class WriteTask {
 	private MCCommsPacket packet;
 	
-	private WriteTask( MCCommsPacket packet) {
+	private WriteTask(MCCommsPacket packet) {
 		this.packet = packet;
 	}
 	
@@ -24,11 +25,15 @@ public class WriteTask {
 		);
 	}
 	
+	public byte[] getBytes() {
+		return packet.getBytes();
+	}
+	
 	public ScheduledFuture sendRepeatedly(MCCommsBridge bridge, long timePeriod, TimeUnit timeUnit) {
-		return bridge.getScheduledExecutorService().scheduleAtFixedRate(() -> bridge.addTXPacket(packet), 0, timePeriod, timeUnit);
+		return bridge.getScheduledExecutorService().scheduleAtFixedRate(() -> bridge.addWriteTask(this), 0, timePeriod, timeUnit);
 	}
 	
 	public void sendOnce(MCCommsBridge bridge) {
-		bridge.addTXPacket(packet);
+		bridge.addWriteTask(this);
 	}
 }

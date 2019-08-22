@@ -5,6 +5,8 @@ import com.google.common.primitives.UnsignedBytes;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
 import io.openems.edge.bridge.mccomms.task.ListenTask;
+import io.openems.edge.bridge.mccomms.task.QueryTask;
+import io.openems.edge.bridge.mccomms.task.WriteTask;
 import io.openems.edge.common.channel.Doc;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -26,6 +28,11 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 
 
 @Designate( ocd=Config.class, factory=true)
@@ -41,7 +48,8 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	private PacketBuilder packetBuilder;
 	private PacketPicker packetPicker;
 	private LinkedBlockingQueue<AbstractMap.SimpleEntry<Long, Byte>> RXTimedByteQueue;
-	private ConcurrentLinkedQueue<MCCommsPacket> TXPacketQueue;
+	private ConcurrentLinkedQueue<WriteTask> writeTaskQueue;
+	private ConcurrentLinkedQueue<QueryTask> queryTaskQueue;
 	private LinkedBlockingQueue<ByteBuffer> RXBufferQueue;
 	private HashSet<ListenTask> listenTasks;
 	private long packetWindowNs;
@@ -67,7 +75,8 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		logger = LoggerFactory.getLogger(getClass());
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		RXTimedByteQueue = new LinkedBlockingQueue<>();
-		TXPacketQueue = new ConcurrentLinkedQueue<>();
+		writeTaskQueue = new ConcurrentLinkedQueue<>();
+		queryTaskQueue = new ConcurrentLinkedQueue<>();
 		RXBufferQueue = new LinkedBlockingQueue<>();
 		listenTasks = new HashSet<>();
 	}
@@ -80,8 +89,16 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		listenTasks.remove(listenTask);
 	}
 	
-	public void addTXPacket(MCCommsPacket packet) {
-		TXPacketQueue.add(packet);
+	public void addWriteTask(WriteTask writeTask) {
+		writeTaskQueue.add(writeTask);
+	}
+	
+	public void addQueryTask(QueryTask queryTask) {
+		queryTaskQueue.add(queryTask);
+	}
+	
+	private MCCommsBridge getThisBridge() {
+		return this;
 	}
 	
 	public ScheduledExecutorService getScheduledExecutorService() {
@@ -120,13 +137,21 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		public void run() {
 			InputStream inputStream = serialPort.getInputStream();
 			OutputStream outputStream = serialPort.getOutputStream();
+			AtomicBoolean readReplyBlocking = new AtomicBoolean(false);
 			while (!isInterrupted()) {
 				try {
 					while (inputStream.available() > 0) {
 						RXTimedByteQueue.put(new AbstractMap.SimpleEntry<>(System.nanoTime(), ((byte) inputStream.read())));
 					}
-					while (!TXPacketQueue.isEmpty()) {
-						outputStream.write(TXPacketQueue.poll().getBytes());
+					while (!writeTaskQueue.isEmpty() && !readReplyBlocking.get()) {
+						outputStream.write(writeTaskQueue.poll().getBytes());
+					}
+					while (!queryTaskQueue.isEmpty() && !readReplyBlocking.get()) {
+						readReplyBlocking.set(true);
+						QueryTask queryTask = queryTaskQueue.poll();
+						queryTask.addAllListenTasks(getThisBridge());
+						queryTask.doReceiveCallback(getThisBridge(), () -> readReplyBlocking.set(false));
+						outputStream.write(queryTask.getBytes());
 					}
 				} catch (IOException e) {
 					logger.error("IOException: ", e);

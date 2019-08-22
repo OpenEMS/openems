@@ -51,9 +51,16 @@ public class MCCommsPacket {
 		return byteBuffer.array();
 	}
 	
-	public MCCommsPacket setBytesAndUpdateChannels(byte[] bytes) throws OpenemsException {
+	public MCCommsPacket setBytes(byte[] bytes) throws OpenemsException {
 		for (MCCommsElement element : elements.asMapOfRanges().values()) {
-			element.setBytes(Arrays.copyOfRange(bytes, element.getAddressRange().lowerEndpoint(), element.getAddressRange().upperEndpoint())).assignValueToChannel();
+			element.setBytes(Arrays.copyOfRange(bytes, element.getAddressRange().lowerEndpoint(), element.getAddressRange().upperEndpoint()));
+		}
+		return this;
+	}
+	
+	public MCCommsPacket updateElementChannels() throws OpenemsException {
+		for (MCCommsElement element : elements.asMapOfRanges().values()) {
+			element.assignValueToChannel();
 		}
 		return this;
 	}

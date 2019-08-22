@@ -69,7 +69,7 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.UBMUmcCommsAddress(), cm, config.mcCommsBridge_id());
 		try {
 			queryTasks.add(
-					new QueryTask(
+					new QueryTask( //TODO put timeouts in config
 							getMCCommsBridge(),
 							WriteTask.newCommandOnlyWriteTask(
 								config.openemsMCCommsAddress(),
