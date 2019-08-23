@@ -1,12 +1,10 @@
 package io.openems.edge.bridge.mccomms.api;
 
-import io.openems.edge.bridge.mccomms.MCCommsBridge;
-import io.openems.edge.common.channel.Doc;
+import io.openems.edge.bridge.mccomms.IMCCommsBridge;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractMCCommsComponent extends AbstractOpenemsComponent {
 	private int mcCommsAddress;
-	private AtomicReference<MCCommsBridge> mcCommsBridgeAtomicReference;
+	private AtomicReference<IMCCommsBridge> mcCommsBridgeAtomicReference;
 	protected final Logger logger;
 	
 	protected AbstractMCCommsComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -65,7 +63,7 @@ public abstract class AbstractMCCommsComponent extends AbstractOpenemsComponent 
 		super.deactivate();
 	}
 	
-	public void setMCCommsBridge(MCCommsBridge bridge) {
+	public void setMCCommsBridge(IMCCommsBridge bridge) {
 		this.mcCommsBridgeAtomicReference.set(bridge);
 	}
 	
@@ -73,7 +71,7 @@ public abstract class AbstractMCCommsComponent extends AbstractOpenemsComponent 
 		return mcCommsAddress;
 	}
 	
-	public MCCommsBridge getMCCommsBridge() {
+	protected IMCCommsBridge getMCCommsBridge() {
 		return this.mcCommsBridgeAtomicReference.get();
 	}
 }

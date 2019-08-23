@@ -3,13 +3,12 @@ package io.openems.edge.battery.microcare.ubmu;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.bridge.mccomms.MCCommsBridge;
+import io.openems.edge.bridge.mccomms.IMCCommsBridge;
 import io.openems.edge.bridge.mccomms.api.AbstractMCCommsComponent;
 import io.openems.edge.bridge.mccomms.packet.MCCommsElement;
 import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
 import io.openems.edge.bridge.mccomms.task.ListenTask;
 import io.openems.edge.bridge.mccomms.task.QueryTask;
-import io.openems.edge.bridge.mccomms.task.WriteTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -21,7 +20,7 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 
-@SuppressWarnings("PackageAccessibility")
+@SuppressWarnings("PackageAccessibility") //IntelliJ inspection warning suppression
 @Designate( ocd=Config.class, factory=true)
 @Component(
 		name="Battery.MCUBMU",
@@ -57,7 +56,7 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 	}
 	
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	public void setMCCommsBridge(MCCommsBridge bridge){
+	public void setMCCommsBridge(IMCCommsBridge bridge){
 		super.setMCCommsBridge(bridge);
 	}
 	
@@ -69,13 +68,13 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.UBMUmcCommsAddress(), cm, config.mcCommsBridge_id());
 		try {
 			queryTasks.add(
-					new QueryTask( //TODO put timeouts in config
+					QueryTask.newCommandOnlyQuery(
 							getMCCommsBridge(),
-							WriteTask.newCommandOnlyWriteTask(
-								config.openemsMCCommsAddress(),
-								config.UBMUmcCommsAddress(),
-								180
-							),
+							config.openemsMCCommsAddress(),
+							config.UBMUmcCommsAddress(),
+							180,
+							config.queryTimeoutMS(),
+							TimeUnit.MILLISECONDS,
 							new ListenTask(
 									config.UBMUmcCommsAddress(),
 									config.openemsMCCommsAddress(),
@@ -88,18 +87,18 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 											MCCommsElement.newInstanceFromChannel(14, 1, channel(Battery.ChannelId.SOH)),
 											MCCommsElement.newInstanceFromChannel(15, 2, channel(Battery.ChannelId.CURRENT)),
 											MCCommsElement.newInstanceFromChannel(17, 2, channel(Battery.ChannelId.VOLTAGE), 0.001)
-										)
+									)
 							)
 					).queryRepeatedly(config.RTDrefreshMS(), TimeUnit.MILLISECONDS)
 			);
 			queryTasks.add(
-					new QueryTask(
+					QueryTask.newCommandOnlyQuery(
 							getMCCommsBridge(),
-							WriteTask.newCommandOnlyWriteTask(
-									config.openemsMCCommsAddress(),
-									config.UBMUmcCommsAddress(),
-									182
-							),
+							config.openemsMCCommsAddress(),
+							config.UBMUmcCommsAddress(),
+							180,
+							config.queryTimeoutMS(),
+							TimeUnit.MILLISECONDS,
 							new ListenTask(
 									config.UBMUmcCommsAddress(),
 									config.openemsMCCommsAddress(),
@@ -112,7 +111,7 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 											MCCommsElement.newInstanceFromChannel(15, 2, channel(Battery.ChannelId.MAX_CELL_VOLTAGE)),
 											MCCommsElement.newInstanceFromChannel(17, 2, channel(Battery.ChannelId.MIN_CELL_VOLTAGE)),
 											MCCommsElement.newInstanceFromChannel(19,1, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE)),
-											MCCommsElement.newInstanceFromChannel(20, 1, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE))
+											MCCommsElement.newInstanceFromChannel(20, 1, channel(Battery.ChannelId.MIN_CELL_TEMPERATURE))
 									)
 							)
 					).queryRepeatedly(config.statusRefreshMS(), TimeUnit.MILLISECONDS)

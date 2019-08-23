@@ -13,7 +13,7 @@ Export-Package: \
     io.openems.edge.battery.microcare.ubmu,\
     io.openems.edge.battery.api
 
--includeresource: {readme.md}
+-includeresource:
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\

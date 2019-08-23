@@ -1,13 +1,16 @@
 package io.openems.edge.bridge.mccomms.task;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.mccomms.IMCCommsBridge;
 import io.openems.edge.bridge.mccomms.MCCommsBridge;
 import io.openems.edge.bridge.mccomms.packet.MCCommsElement;
 import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
 
+import java.io.OutputStream;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WriteTask {
 	private MCCommsPacket packet;
@@ -29,11 +32,11 @@ public class WriteTask {
 		return packet.getBytes();
 	}
 	
-	public ScheduledFuture sendRepeatedly(MCCommsBridge bridge, long timePeriod, TimeUnit timeUnit) {
+	public ScheduledFuture sendRepeatedly(IMCCommsBridge bridge, long timePeriod, TimeUnit timeUnit) {
 		return bridge.getScheduledExecutorService().scheduleAtFixedRate(() -> bridge.addWriteTask(this), 0, timePeriod, timeUnit);
 	}
 	
-	public void sendOnce(MCCommsBridge bridge) {
+	public void sendOnce(IMCCommsBridge bridge) {
 		bridge.addWriteTask(this);
 	}
 }

@@ -29,10 +29,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.StampedLock;
 
 
 @Designate( ocd=Config.class, factory=true)
@@ -41,8 +37,9 @@ import java.util.concurrent.locks.StampedLock;
 		immediate=true,
 		configurationPolicy=ConfigurationPolicy.REQUIRE
 )
-public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsComponent{
+public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsBridge, OpenemsComponent{
 	private ScheduledExecutorService scheduledExecutorService;
+	private ExecutorService singleThreadExecutor;
 	private SerialPort serialPort;
 	private SerialByteHandler serialByteHandler;
 	private PacketBuilder packetBuilder;
@@ -71,9 +68,10 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 	}
 	
 	public MCCommsBridge() {
-		super(OpenemsComponent.ChannelId.values(), ChannelId.values());
+		super(OpenemsComponent.ChannelId.values(), IMCCommsBridge.ChannelId.values(), ChannelId.values());
 		logger = LoggerFactory.getLogger(getClass());
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+		singleThreadExecutor = Executors.newSingleThreadExecutor();
 		RXTimedByteQueue = new LinkedBlockingQueue<>();
 		writeTaskQueue = new ConcurrentLinkedQueue<>();
 		queryTaskQueue = new ConcurrentLinkedQueue<>();
@@ -81,18 +79,22 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		listenTasks = new HashSet<>();
 	}
 	
+	@Override
 	public void addListenTask(ListenTask listenTask) {
 		listenTasks.add(listenTask);
 	}
 	
+	@Override
 	public void removeListenTask(ListenTask listenTask) {
 		listenTasks.remove(listenTask);
 	}
 	
+	@Override
 	public void addWriteTask(WriteTask writeTask) {
 		writeTaskQueue.add(writeTask);
 	}
 	
+	@Override
 	public void addQueryTask(QueryTask queryTask) {
 		queryTaskQueue.add(queryTask);
 	}
@@ -101,8 +103,19 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		return this;
 	}
 	
+	@Override
 	public ScheduledExecutorService getScheduledExecutorService() {
 		return scheduledExecutorService;
+	}
+	
+	@Override
+	public ExecutorService getSingleThreadExecutor() {
+		return singleThreadExecutor;
+	}
+	
+	@Override
+	public void logError(Throwable cause) {
+		logError(logger, cause.getMessage());
 	}
 	
 	@Activate
@@ -137,24 +150,34 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements OpenemsCo
 		public void run() {
 			InputStream inputStream = serialPort.getInputStream();
 			OutputStream outputStream = serialPort.getOutputStream();
-			AtomicBoolean readReplyBlocking = new AtomicBoolean(false);
+			AtomicBoolean writeLockBool = new AtomicBoolean(false);
 			while (!isInterrupted()) {
 				try {
 					while (inputStream.available() > 0) {
 						RXTimedByteQueue.put(new AbstractMap.SimpleEntry<>(System.nanoTime(), ((byte) inputStream.read())));
 					}
-					while (!writeTaskQueue.isEmpty() && !readReplyBlocking.get()) {
-						outputStream.write(writeTaskQueue.poll().getBytes());
+					while (!writeTaskQueue.isEmpty() && !writeLockBool.get()) {
+						singleThreadExecutor.execute(() -> {
+							writeLockBool.set(true);
+							try {
+								outputStream.write(writeTaskQueue.poll().getBytes());
+								Thread.sleep(10);
+							} catch (IOException e) {
+								logError(e);
+							} catch (InterruptedException ignored) {}
+							writeLockBool.set(false);
+						});
 					}
-					while (!queryTaskQueue.isEmpty() && !readReplyBlocking.get()) {
-						readReplyBlocking.set(true);
-						QueryTask queryTask = queryTaskQueue.poll();
-						queryTask.addAllListenTasks(getThisBridge());
-						queryTask.doReceiveCallback(getThisBridge(), () -> readReplyBlocking.set(false));
-						outputStream.write(queryTask.getBytes());
+					while (!queryTaskQueue.isEmpty() && !writeLockBool.get()) {
+						queryTaskQueue.poll().doWriteWithReplyWriteLock(outputStream, writeLockBool);
 					}
 				} catch (IOException e) {
 					logger.error("IOException: ", e);
+				} catch (InterruptedException e) {
+					interrupt();
+				}
+				try {
+					sleep(5); //prevent CPU maxout
 				} catch (InterruptedException e) {
 					interrupt();
 				}

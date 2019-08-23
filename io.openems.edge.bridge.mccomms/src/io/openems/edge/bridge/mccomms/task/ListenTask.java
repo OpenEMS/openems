@@ -6,7 +6,6 @@ import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
