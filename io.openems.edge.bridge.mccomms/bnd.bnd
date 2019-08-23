@@ -8,24 +8,25 @@ Bundle-Description: \
 	\
 	${warning;Please update this Bundle-Description in io.openems.edge.bridge.mccomms/api.bnd}
 
-Export-Package: io.openems.edge.bridge.mccomms
+Export-Package: \
+	io.openems.edge.bridge.mccomms,\
+	io.openems.edge.bridge.mccomms.api,\
+	io.openems.edge.bridge.mccomms.packet,\
+	io.openems.edge.bridge.mccomms.task
 
 Private-Package:  \
-	io.openems.edge.bridge.mccomms,\
-	io.openems.edge.bridge.mccomms.packet,\
-	io.openems.edge.bridge.mccomms.api,\
-	io.openems.edge.bridge.mccomms.task
+	io.openems.edge.bridge.mccomms
 
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.common;version=latest,\
 	com.google.guava,\
 	com.fazecast.jSerialComm;version=2.5.1,\
 	io.openems.common;version=latest,\
-	slf4j.api
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
 
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

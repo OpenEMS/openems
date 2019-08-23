@@ -19,9 +19,10 @@
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
 	bnd.identity;id='io.openems.common',\
 	bnd.identity;id='io.openems.edge.application',\
+	bnd.identity;id='io.openems.edge.battery.microcare.ubmu',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
-	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.mccomms',\
+	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.common',\
 	bnd.identity;id='io.openems.edge.controller.api.backend',\
 	bnd.identity;id='io.openems.edge.controller.api.core',\
@@ -68,7 +69,7 @@
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
-	bnd.identity;id='io.openems.edge.evcs.cluster,\
+	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -106,7 +107,6 @@
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
-	io.openems.edge.bridge.mccomms;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.core;version=snapshot,\
@@ -149,7 +149,6 @@
 	io.openems.edge.ess.sinexcel;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
-	io.openems.edge.evcs.cluster,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
@@ -204,7 +203,6 @@
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
-	com.github.scribejava.core;version='[6.7.0,6.8.0]',\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
@@ -213,4 +211,8 @@
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
-	io.openems.edge.tesla.powerwall2;version=snapshot
+	io.openems.edge.tesla.powerwall2;version=snapshot,\
+	com.github.scribejava.core;version='[6.8.0,6.8.1)',\
+	io.openems.edge.evcs.cluster;version=snapshot,\
+	io.openems.edge.battery.microcare.ubmu;version=snapshot,\
+	io.openems.edge.bridge.mccomms;version=snapshot
