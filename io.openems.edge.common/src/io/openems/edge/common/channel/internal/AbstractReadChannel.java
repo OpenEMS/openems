@@ -3,6 +3,7 @@ package io.openems.edge.common.channel.internal;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final D channelDoc;
 	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
-	private final List<Consumer<Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
+	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
 
 	private volatile Value<T> nextValue = null;
 	private volatile Value<T> activeValue = null;
@@ -95,11 +96,12 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public void nextProcessImage() {
-		boolean valueHasChanged = !Objects.equals(this.activeValue, this.nextValue);
+		Value<T> oldValue = this.activeValue;
+		boolean valueHasChanged = !Objects.equals(oldValue, this.nextValue);
 		this.activeValue = this.nextValue;
 		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
 		if (valueHasChanged) {
-			this.onChangeCallbacks.forEach(callback -> callback.accept(this.activeValue));
+			this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
 		}
 	}
 
@@ -153,7 +155,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	}
 
 	@Override
-	public void onChange(Consumer<Value<T>> callback) {
+	public void onChange(BiConsumer<Value<T>, Value<T>> callback) {
 		this.onChangeCallbacks.add(callback);
 	}
 
