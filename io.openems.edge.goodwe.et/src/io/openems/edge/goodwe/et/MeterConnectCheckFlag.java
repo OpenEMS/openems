@@ -8,8 +8,8 @@ enum MeterConnectCheckFlag implements OptionsEnum {
 	CHECKING(1, "Checking"), //
 	WAIT(2, "Wait for check"); //
 	
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private MeterConnectCheckFlag(int value, String option) {
 		this.value = value;
@@ -18,12 +18,12 @@ enum MeterConnectCheckFlag implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

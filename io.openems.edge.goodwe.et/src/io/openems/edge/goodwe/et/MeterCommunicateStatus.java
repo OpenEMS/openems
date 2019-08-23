@@ -7,8 +7,8 @@ enum MeterCommunicateStatus implements OptionsEnum {
 	NG(0, "NG"), //
 	OK(1, "OK"); //
 
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private MeterCommunicateStatus(int value, String option) {
 		this.value = value;
@@ -17,12 +17,12 @@ enum MeterCommunicateStatus implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

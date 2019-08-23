@@ -40,7 +40,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40;
 
 /**
- * Implements the FENECON Commercial 40 Charger
+ * Implements the Fenecon Commercial40 DcCharger
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "EssDcCharger.Fenecon.Commercial40", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)

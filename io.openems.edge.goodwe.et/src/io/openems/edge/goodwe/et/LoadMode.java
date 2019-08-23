@@ -7,8 +7,8 @@ enum LoadMode implements OptionsEnum {
 	ON(0, "ON,inverter connects to Load"), //
 	OFF(1, "OFF, inverter disconnects to Load"); //
 	
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private LoadMode(int value, String option) {
 		this.value = value;
@@ -17,12 +17,12 @@ enum LoadMode implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

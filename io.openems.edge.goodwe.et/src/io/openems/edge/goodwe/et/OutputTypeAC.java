@@ -8,8 +8,8 @@ enum OutputTypeAC implements OptionsEnum {
 	THREE_PHASE_FOUR_WIRE(1, "three phase four wire system"), //
 	THREE_PHASE_THREE_WIRE(2, "three phase three wire system");
 
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private OutputTypeAC(int value, String option) {
 		this.value = value;
@@ -18,12 +18,12 @@ enum OutputTypeAC implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

@@ -11,8 +11,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -34,27 +32,24 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.goodwe.et.charger.GoodweETCharger;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Goodwe.ET.Battery.Inverter", //
+		name = "GoodweET.Battery-Inverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 
-public class FeneconGoodweET extends AbstractOpenemsModbusComponent
-		implements AsymmetricEss, SymmetricEss, EssDcCharger, OpenemsComponent {
+public class GoodweETImpl extends AbstractOpenemsModbusComponent
+		implements GoodweET,AsymmetricEss, SymmetricEss, OpenemsComponent {
+	
+	protected GoodweETCharger charger = null;
 
-	@SuppressWarnings("unused")
-	private final Logger log = LoggerFactory.getLogger(FeneconGoodweET.class);
-	@SuppressWarnings("unused")
-	private boolean readonly = false;
-
-	public static final int DEFAULT_UNIT_ID = 5;
-	protected final static int MAX_APPARENT_POWER = 100_00;
-
-	// private Battery battery;
+	protected final static int MAX_APPARENT_POWER = 10_000;
+	
+	private Config config;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -71,8 +66,7 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
-
-		this.readonly = config.readonly();
+		this.config = config;
 	}
 
 	@Deactivate
@@ -80,14 +74,18 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public FeneconGoodweET() {
+	public GoodweETImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				GoodweChannelIdET.values() // //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(FeneconGoodweET.MAX_APPARENT_POWER);
+		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(GoodweETImpl.MAX_APPARENT_POWER);
+	}
+	
+	public String getModbusBridgeId() {
+		return this.config.modbus_id();
 	}
 
 	@Override
@@ -116,7 +114,7 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.RTC_YEAR_MONTH, new UnsignedWordElement(35100)), //
 						m(GoodweChannelIdET.RTC_DATE_HOUR, new UnsignedWordElement(35101)), //
 						m(GoodweChannelIdET.RTC_MINUTE_SECOND, new UnsignedWordElement(35102))), //
-				new FC3ReadRegistersTask(35103, Priority.HIGH,
+				new FC3ReadRegistersTask(35103, Priority.LOW,
 						m(GoodweChannelIdET.V_PV1, new UnsignedWordElement(35103),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_PV1, new UnsignedWordElement(35104),
@@ -150,24 +148,24 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35129, 35132), //
 						m(GoodweChannelIdET.F_GRID_T, new UnsignedWordElement(35133),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						new DummyRegisterElement(35134, 35135), //
-						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136),
-								new ElementToChannelConverter((value) -> {
-									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-									if (intValue != null) {
-										switch (intValue) {
-										case 0:
-											return GridMode.OFF_GRID;
-										case 1:
-											return GridMode.ON_GRID;
-										case 2:
-											return GridMode.UNDEFINED;
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
+						new FC3ReadRegistersTask(35136, Priority.HIGH, //
+						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
+									new ElementToChannelConverter((value) -> {
+										Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+										if (intValue != null) {
+											switch (intValue) {
+											case 0:
+												return GridMode.OFF_GRID;
+											case 1:
+												return GridMode.ON_GRID;
+											case 2:
+												return GridMode.UNDEFINED;
+											}
 										}
-									}
-									return GridMode.UNDEFINED;
-								})), //
-						new DummyRegisterElement(35137), //
+										return GridMode.UNDEFINED;
+									}))), //
+				new FC3ReadRegistersTask(35138, Priority.LOW,
 						m(GoodweChannelIdET.TOTAL_INV_POWER, new SignedWordElement(35138)), //
 						new DummyRegisterElement(35139, 35143), //
 						m(GoodweChannelIdET.AC_APPARENT_POWER, new SignedWordElement(35144)), //
@@ -211,7 +209,7 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.UPS_LOAD_PERCENT, new UnsignedWordElement(35173),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 
-				new FC3ReadRegistersTask(35174, Priority.HIGH,
+				new FC3ReadRegistersTask(35174, Priority.LOW,
 						m(GoodweChannelIdET.AIR_TEMPERATURE, new SignedWordElement(35174),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.MODULE_TEMPERATURE, new SignedWordElement(35175),
@@ -227,52 +225,56 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_BATTERY1, new SignedWordElement(35181),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(35182), //
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(35183)), //
+						new DummyRegisterElement(35182, 35183), //
+						//m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(35183)), //
 						m(GoodweChannelIdET.BATERY1_MODE, new UnsignedWordElement(35184)), //
 						m(GoodweChannelIdET.WARNING_CODE, new UnsignedWordElement(35185)), //
 						m(GoodweChannelIdET.SAFETY_COUNTRY, new UnsignedWordElement(35186)), //
 						m(GoodweChannelIdET.WORK_MODE, new UnsignedWordElement(35187)), //
 						m(GoodweChannelIdET.OPERATION_MODE, new UnsignedDoublewordElement(35188))), //
+				
+				new FC3ReadRegistersTask(36008, Priority.LOW,
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(36008))), //
 
-				new FC3ReadRegistersTask(35189, Priority.HIGH, //
-						m(new BitsWordElement(35189, this) //
-								.bit(0, GoodweChannelIdET.STATE_0) //
-								.bit(1, GoodweChannelIdET.STATE_1) //
-								.bit(2, GoodweChannelIdET.STATE_2) //
-								.bit(3, GoodweChannelIdET.STATE_3) //
-								.bit(4, GoodweChannelIdET.STATE_4) //
-								.bit(5, GoodweChannelIdET.STATE_5) //
-								.bit(6, GoodweChannelIdET.STATE_6) //
-								.bit(7, GoodweChannelIdET.STATE_7) //
-								.bit(8, GoodweChannelIdET.STATE_8) //
-								.bit(9, GoodweChannelIdET.STATE_9) //
-								.bit(10, GoodweChannelIdET.STATE_10) //
-								.bit(11, GoodweChannelIdET.STATE_11) //
-								.bit(12, GoodweChannelIdET.STATE_12) //
-								.bit(13, GoodweChannelIdET.STATE_13) //
-								.bit(14, GoodweChannelIdET.STATE_14) //
-								.bit(15, GoodweChannelIdET.STATE_15) //
-						), m(new BitsWordElement(35189, this) //
-								.bit(0, GoodweChannelIdET.STATE_16) //
-								.bit(1, GoodweChannelIdET.STATE_17) //
-								.bit(2, GoodweChannelIdET.STATE_18) //
-								.bit(3, GoodweChannelIdET.STATE_19) //
-								.bit(4, GoodweChannelIdET.STATE_20) //
-								.bit(5, GoodweChannelIdET.STATE_21) //
-								.bit(6, GoodweChannelIdET.STATE_22) //
-								.bit(7, GoodweChannelIdET.STATE_23) //
-								.bit(8, GoodweChannelIdET.STATE_24) //
-								.bit(9, GoodweChannelIdET.STATE_25) //
-								.bit(10, GoodweChannelIdET.STATE_26) //
-								.bit(11, GoodweChannelIdET.STATE_27) //
-								.bit(12, GoodweChannelIdET.STATE_28) //
-								.bit(13, GoodweChannelIdET.STATE_29) //
-								.bit(14, GoodweChannelIdET.STATE_30) //
-								.bit(15, GoodweChannelIdET.STATE_31) //
-						)),
+//				new FC3ReadRegistersTask(35189, Priority.LOW, //
+//						m(new BitsWordElement(35189, this) //
+//								.bit(0, GoodweChannelIdET.STATE_0) //
+//								.bit(1, GoodweChannelIdET.STATE_1) //
+//								.bit(2, GoodweChannelIdET.STATE_2) //
+//								.bit(3, GoodweChannelIdET.STATE_3) //
+//								.bit(4, GoodweChannelIdET.STATE_4) //
+//								.bit(5, GoodweChannelIdET.STATE_5) //
+//								.bit(6, GoodweChannelIdET.STATE_6) //
+//								.bit(7, GoodweChannelIdET.STATE_7) //
+//								.bit(8, GoodweChannelIdET.STATE_8) //
+//								.bit(9, GoodweChannelIdET.STATE_9) //
+//								.bit(10, GoodweChannelIdET.STATE_10) //
+//								.bit(11, GoodweChannelIdET.STATE_11) //
+//								.bit(12, GoodweChannelIdET.STATE_12) //
+//								.bit(13, GoodweChannelIdET.STATE_13) //
+//								.bit(14, GoodweChannelIdET.STATE_14) //
+//								.bit(15, GoodweChannelIdET.STATE_15) //
+//						), //
+//						m(new BitsWordElement(35189, this) //
+//								.bit(0, GoodweChannelIdET.STATE_16) //
+//								.bit(1, GoodweChannelIdET.STATE_17) //
+//								.bit(2, GoodweChannelIdET.STATE_18) //
+//								.bit(3, GoodweChannelIdET.STATE_19) //
+//								.bit(4, GoodweChannelIdET.STATE_20) //
+//								.bit(5, GoodweChannelIdET.STATE_21) //
+//								.bit(6, GoodweChannelIdET.STATE_22) //
+//								.bit(7, GoodweChannelIdET.STATE_23) //
+//								.bit(8, GoodweChannelIdET.STATE_24) //
+//								.bit(9, GoodweChannelIdET.STATE_25) //
+//								.bit(10, GoodweChannelIdET.STATE_26) //
+//								.bit(11, GoodweChannelIdET.STATE_27) //
+//								.bit(12, GoodweChannelIdET.STATE_28) //
+//								.bit(13, GoodweChannelIdET.STATE_29) //
+//								.bit(14, GoodweChannelIdET.STATE_30) //
+//								.bit(15, GoodweChannelIdET.STATE_31) //
+//						)),
 
-				new FC3ReadRegistersTask(35191, Priority.HIGH,
+				new FC3ReadRegistersTask(35191, Priority.LOW,
 						m(GoodweChannelIdET.PV_E_TOTAL, new UnsignedDoublewordElement(35191),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.PV_E_DAY, new UnsignedDoublewordElement(35193),
@@ -572,121 +574,6 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BATT_OFF_LINE_VOLT_UNDER_MIN, new UnsignedWordElement(45357),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.BATT_OFFLINE_SOC_UNDER_MIN, new UnsignedWordElement(45358))), //
-
-				// Safety
-				new FC16WriteRegistersTask(45400,
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1, new UnsignedWordElement(45400),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1_TIME, new UnsignedWordElement(45401)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1, new UnsignedWordElement(45402),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1_TIME, new UnsignedWordElement(45403)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2, new UnsignedWordElement(45404),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2_TIME, new UnsignedWordElement(45405)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2, new UnsignedWordElement(45406),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2_TIME, new UnsignedWordElement(45407)), //
-						m(GoodweChannelIdET.GRID_VOLT_QUALITY, new UnsignedWordElement(45408),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1, new UnsignedWordElement(45409),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1_TIME, new UnsignedWordElement(45410)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1, new UnsignedWordElement(45411),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1_TIME, new UnsignedWordElement(45412)), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2, new UnsignedWordElement(45413),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2_TIME, new UnsignedWordElement(45414)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2, new UnsignedWordElement(45415),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2_TIME, new UnsignedWordElement(45416)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH, new UnsignedWordElement(45417),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW, new UnsignedWordElement(45418),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH, new UnsignedWordElement(45419),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW, new UnsignedWordElement(45420),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_RECOVER_TIME, new UnsignedWordElement(45421))), //
-
-				new FC3ReadRegistersTask(45400, Priority.LOW,
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1, new UnsignedWordElement(45400),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1_TIME, new UnsignedWordElement(45401)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1, new UnsignedWordElement(45402),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1_TIME, new UnsignedWordElement(45403)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2, new UnsignedWordElement(45404),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2_TIME, new UnsignedWordElement(45405)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2, new UnsignedWordElement(45406),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2_TIME, new UnsignedWordElement(45407)), //
-						m(GoodweChannelIdET.GRID_VOLT_QUALITY, new UnsignedWordElement(45408),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1, new UnsignedWordElement(45409),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1_TIME, new UnsignedWordElement(45410)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1, new UnsignedWordElement(45411),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1_TIME, new UnsignedWordElement(45412)), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2, new UnsignedWordElement(45413),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2_TIME, new UnsignedWordElement(45414)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2, new UnsignedWordElement(45415),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2_TIME, new UnsignedWordElement(45416)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH, new UnsignedWordElement(45417),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW, new UnsignedWordElement(45418),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH, new UnsignedWordElement(45419),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW, new UnsignedWordElement(45420),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_RECOVER_TIME, new UnsignedWordElement(45421))), //
-
-				new FC16WriteRegistersTask(45422,
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_HIGH, new UnsignedWordElement(45422),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_LOW, new UnsignedWordElement(45423),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_HIGH, new UnsignedWordElement(45424),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_LOW, new UnsignedWordElement(45425),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_TIME, new UnsignedWordElement(45426)), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_TIME, new UnsignedWordElement(45427)), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_GENERATE, new UnsignedWordElement(45428),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_RECONNECT, new UnsignedWordElement(45429),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_REDUCTION, new UnsignedWordElement(45430),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_PROTECT, new UnsignedWordElement(45431)), //
-						m(GoodweChannelIdET.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432))), //
-
-				new FC3ReadRegistersTask(45422, Priority.LOW,
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_HIGH, new UnsignedWordElement(45422),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_LOW, new UnsignedWordElement(45423),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_HIGH, new UnsignedWordElement(45424),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_LOW, new UnsignedWordElement(45425),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_TIME, new UnsignedWordElement(45426)), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_TIME, new UnsignedWordElement(45427)), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_GENERATE, new UnsignedWordElement(45428),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_RECONNECT, new UnsignedWordElement(45429),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_REDUCTION, new UnsignedWordElement(45430),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_PROTECT, new UnsignedWordElement(45431)), //
-						m(GoodweChannelIdET.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432))), //
 
 				// Cos-Phi Curve
 				new FC16WriteRegistersTask(45433, m(GoodweChannelIdET.ENABLE_CURVE, new UnsignedWordElement(45433)), //
@@ -1092,6 +979,11 @@ public class FeneconGoodweET extends AbstractOpenemsModbusComponent
 								.bit(1, GoodweChannelIdET.STATE_80) //
 								.bit(2, GoodweChannelIdET.STATE_81) //
 						))); //
+	}
+	
+	@Override
+	public void setCharger(GoodweETCharger charger) {
+		this.charger = charger;
 	}
 
 	@Override

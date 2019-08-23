@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.et.pvmeter;
+package io.openems.edge.goodwe.et.charger;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -23,19 +23,21 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.goodwe.et.GoodweChannelIdET;
+import io.openems.edge.goodwe.et.GoodweET;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Goodwe.ET.PV-Meter", //
+		name = "GoodweET.Charger", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class FeneconGoodwePvMeter extends AbstractOpenemsModbusComponent
-		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
+public class GoodweETCharger extends AbstractOpenemsModbusComponent
+		implements EssDcCharger, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -59,22 +61,36 @@ public class FeneconGoodwePvMeter extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	public FeneconGoodwePvMeter() {
+	public GoodweETCharger() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				EssDcCharger.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), ChannelId.values() //
+				SymmetricMeter.ChannelId.values(), //
+				GoodweChannelIdET.values(), //
+				ChannelId.values() //
 		);
 	}
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private GoodweET ess;
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm, "Modbus",
+				this.ess.getModbusBridgeId());
+
+		// update filter for 'Ess'
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
+
+		this.ess.setCharger(this);
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.ess.setCharger(null);
 		super.deactivate();
 	}
 
@@ -85,19 +101,15 @@ public class FeneconGoodwePvMeter extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005)), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006)), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007)), //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(36008)), //
+						m(EssDcCharger.ChannelId.ACTUAL_POWER, new SignedWordElement(36008)), //
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new UnsignedWordElement(36009))) //
 		);
 	}
 
 	@Override
-	public MeterType getMeterType() {
-		return MeterType.PRODUCTION;
+	public String debugLog() {
+		return "L:" + this.getActualPower().value().asString();
 	}
 
-	@Override
-	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
-	}
 
 }

@@ -11,8 +11,8 @@ enum BatteryMode implements OptionsEnum {
 	WAITING_FOR_CHARGE(4, "Waiting for charge"), //
 	WAITING_FOR_DISCHARGE(5, "Waiting for discharge");
 
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private BatteryMode(int value, String option) {
 		this.value = value;
@@ -21,12 +21,12 @@ enum BatteryMode implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

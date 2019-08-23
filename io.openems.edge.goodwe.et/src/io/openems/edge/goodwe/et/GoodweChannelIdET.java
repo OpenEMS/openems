@@ -36,11 +36,11 @@ public enum GoodweChannelIdET implements ChannelId {
 	
 	//Running Data
 	RTC_YEAR_MONTH(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.MONTH_YEAR).accessMode(AccessMode.READ_ONLY)),
+			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	RTC_DATE_HOUR(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.HOUR_DATE).accessMode(AccessMode.READ_ONLY)),
+			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	RTC_MINUTE_SECOND(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.MINUTE_SECOND).accessMode(AccessMode.READ_ONLY)),
+			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	V_PV1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
 	I_PV1(Doc.of(OpenemsType.INTEGER) //
@@ -90,7 +90,6 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.HERTZ).accessMode(AccessMode.READ_ONLY)),
 	P_GRID_T(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
-	GOODWE_GRID_MODE(Doc.of(GridMode.values())), //
 	TOTAL_INV_POWER(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
 	AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -362,11 +361,11 @@ public enum GoodweChannelIdET implements ChannelId {
 	MODBUS_BADRATE_485(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	RTC_YEAR_MONTH_2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.MONTH_YEAR).accessMode(AccessMode.READ_WRITE)), //
+			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	RTC_DAY_HOUR_2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.HOUR_DATE).accessMode(AccessMode.READ_WRITE)), //
+			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	RTC_MINUTE_SECOND_2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.MINUTE_SECOND).accessMode(AccessMode.READ_WRITE)), //
+			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	SERIAL_NUMBER_2(Doc.of(OpenemsType.STRING) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	DEVICE_TYPE_2(Doc.of(OpenemsType.STRING) //

@@ -18,8 +18,8 @@ enum PowerModeEMS implements OptionsEnum {
 	CHARGE_BAT(0x000B, "Charge Mode"), //
 	DISCHARGE_BAT(0x000C, "DisCharging Mode"); //
 
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private PowerModeEMS(int value, String option) {
 		this.value = value;
@@ -28,12 +28,12 @@ enum PowerModeEMS implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

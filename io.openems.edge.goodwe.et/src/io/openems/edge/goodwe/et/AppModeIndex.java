@@ -9,8 +9,8 @@ enum AppModeIndex implements OptionsEnum {
 	BACKUP(2, "backup mode"), //
 	ECONOMIC(3, "economic mode"); //
 
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private AppModeIndex(int value, String option) {
 		this.value = value;
@@ -19,12 +19,12 @@ enum AppModeIndex implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

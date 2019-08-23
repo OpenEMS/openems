@@ -54,8 +54,8 @@ enum SafetyCountry implements OptionsEnum {
 	DEFAULT_60_HZ_LV(0x30, "60Hz LV Default"), //
 	DEFAULT_50_HZ_LV(0x31, "50Hz LV Default"); //
 	
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private SafetyCountry(int value, String option) {
 		this.value = value;
@@ -64,12 +64,12 @@ enum SafetyCountry implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

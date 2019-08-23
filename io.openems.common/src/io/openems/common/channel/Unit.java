@@ -200,22 +200,6 @@ public enum Unit {
 	 * Unit of Time
 	 */
 	HOUR("h"),
-	
-	/**
-	 * Unit of Time [mm/yy]
-	 */
-	MONTH_YEAR("mm/yy"),	
-	
-	/**
-	 * Unit of Time[hh-dd]
-	 */
-	HOUR_DATE("hh/dd"),
-	
-	
-	/**
-	 * Unit of Time[mm/ss]
-	 */
-	MINUTE_SECOND("mm/ss"),
 
 	// ##########
 	// Resistance
@@ -308,10 +292,7 @@ public enum Unit {
 			return value + " " + this.symbol;
 		case ON_OFF:
 			boolean booleanValue = (Boolean) value;
-			return booleanValue ? "ON" : "OFF";
-		case HOUR_DATE:
-		case MINUTE_SECOND:
-		case MONTH_YEAR:	
+			return booleanValue ? "ON" : "OFF";	
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}

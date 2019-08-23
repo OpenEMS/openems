@@ -9,8 +9,8 @@ enum OperationMode implements OptionsEnum {
 	BATTERY(0x04, "PV inputs to Inverter(First),Battery inputs to Inverter(Second),Inverter work as AC source"), //
 	FAULT(0x10, "Fault,fault mode,something is in fault mode"); //
 	
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private OperationMode(int value, String option) {
 		this.value = value;
@@ -19,12 +19,12 @@ enum OperationMode implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override

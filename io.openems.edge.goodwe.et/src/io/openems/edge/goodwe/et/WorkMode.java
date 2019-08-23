@@ -10,8 +10,8 @@ enum WorkMode implements OptionsEnum {
 	FAULT(3, "Fault,fault mode,something is in fault mode"), //
 ;
 
-	private int value;
-	private String option;
+	private final int value;
+	private final String option;
 
 	private WorkMode(int value, String option) {
 		this.value = value;
@@ -20,12 +20,12 @@ enum WorkMode implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return option;
+		return this.option;
 	}
 	
 	@Override
