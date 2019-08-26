@@ -24,9 +24,8 @@
                 Edge.Index.Widgets.EVCS.Status
               </ion-label>
             </td>
-            <td style="width:15%"></td>
-            <td style="width:45%" class="align_right">
-              {{ getState(currentData[componentId + '/ChargePower'], currentData[evcs_id + "/Status"], currentData[evcs_id + "/Plug"])}}
+            <td style="width:50%" class="align_right">
+              {{ getState(currentData[componentId + '/ChargePower'], currentData[componentId + "/Status"], currentData[componentId + "/Plug"])}}
             </td>
           </tr>
         </table>

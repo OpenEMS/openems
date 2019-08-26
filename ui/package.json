@@ -21,7 +21,6 @@
     "@angular/core": "^8.1.2",
     "@angular/flex-layout": "7.0.0-beta.24",
     "@angular/forms": "^8.1.2",
-    "@angular/material": "^8.1.2",
     "@angular/platform-browser": "^8.1.2",
     "@angular/platform-browser-dynamic": "^8.1.2",
     "@angular/pwa": "^0.802.1",

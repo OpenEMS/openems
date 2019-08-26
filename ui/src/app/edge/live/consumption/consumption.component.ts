@@ -44,6 +44,7 @@ export class ConsumptionComponent {
         });
     }
 
+
     ngOnDestroy() {
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, ConsumptionComponent.SELECTOR);
@@ -61,7 +62,10 @@ export class ConsumptionComponent {
         return await modal.present();
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
     currentTotalChargingPower(): number {
         return this.sumOfChannel("ChargePower");
     }
@@ -76,5 +80,9 @@ export class ConsumptionComponent {
         });
         return sum;
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
 }
 
