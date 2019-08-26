@@ -44,10 +44,6 @@
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
             <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6">
               <evcs *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'"
                 [componentId]="widget.componentId">
