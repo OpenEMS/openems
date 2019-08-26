@@ -26,6 +26,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
@@ -48,6 +49,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 	protected GoodweETCharger charger = null;
 
 	protected final static int MAX_APPARENT_POWER = 10_000;
+
 	
 	private Config config;
 
@@ -94,8 +96,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(35000, Priority.LOW,
 						m(GoodweChannelIdET.MODBUS_PROTOCOL_VERSION, new UnsignedWordElement(35000)), //
 						m(GoodweChannelIdET.RATED_POWER, new UnsignedWordElement(35001)), //
-						m(GoodweChannelIdET.AC_OUTPUT_TYPE, new UnsignedWordElement(35002))), //
-				new FC3ReadRegistersTask(35003, Priority.LOW,
+						m(GoodweChannelIdET.AC_OUTPUT_TYPE, new UnsignedWordElement(35002)), //
 						m(GoodweChannelIdET.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
 						m(GoodweChannelIdET.DEVICE_TYPE, new StringWordElement(35011, 5))), //
 				new FC3ReadRegistersTask(35016, Priority.LOW,
@@ -103,8 +104,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.DSP2_SOFTWARE_VERSION, new UnsignedWordElement(35017)), //
 						m(GoodweChannelIdET.DSP_SPN_VERSION, new UnsignedWordElement(35018)), //
 						m(GoodweChannelIdET.ARM_SOFTWARE_VERSION, new UnsignedWordElement(35019)), //
-						m(GoodweChannelIdET.ARM_SVN_VERSION, new UnsignedWordElement(35020))), //
-				new FC3ReadRegistersTask(35021, Priority.LOW,
+						m(GoodweChannelIdET.ARM_SVN_VERSION, new UnsignedWordElement(35020)), //
 						m(GoodweChannelIdET.DSP_INTERNAL_FIRMWARE_VERSION, new StringWordElement(35021, 6))), //
 				new FC3ReadRegistersTask(35027, Priority.LOW,
 						m(GoodweChannelIdET.ARM_INTERNAL_FIRMWARE_VERSION, new StringWordElement(35027, 6))), //
@@ -227,7 +227,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(35182, 35183), //
 						//m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(35183)), //
-						m(GoodweChannelIdET.BATERY1_MODE, new UnsignedWordElement(35184)), //
+						m(GoodweChannelIdET.BATTERY_MODE, new UnsignedWordElement(35184)), //
 						m(GoodweChannelIdET.WARNING_CODE, new UnsignedWordElement(35185)), //
 						m(GoodweChannelIdET.SAFETY_COUNTRY, new UnsignedWordElement(35186)), //
 						m(GoodweChannelIdET.WORK_MODE, new UnsignedWordElement(35187)), //
@@ -236,43 +236,43 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(36008, Priority.LOW,
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(36008))), //
 
-//				new FC3ReadRegistersTask(35189, Priority.LOW, //
-//						m(new BitsWordElement(35189, this) //
-//								.bit(0, GoodweChannelIdET.STATE_0) //
-//								.bit(1, GoodweChannelIdET.STATE_1) //
-//								.bit(2, GoodweChannelIdET.STATE_2) //
-//								.bit(3, GoodweChannelIdET.STATE_3) //
-//								.bit(4, GoodweChannelIdET.STATE_4) //
-//								.bit(5, GoodweChannelIdET.STATE_5) //
-//								.bit(6, GoodweChannelIdET.STATE_6) //
-//								.bit(7, GoodweChannelIdET.STATE_7) //
-//								.bit(8, GoodweChannelIdET.STATE_8) //
-//								.bit(9, GoodweChannelIdET.STATE_9) //
-//								.bit(10, GoodweChannelIdET.STATE_10) //
-//								.bit(11, GoodweChannelIdET.STATE_11) //
-//								.bit(12, GoodweChannelIdET.STATE_12) //
-//								.bit(13, GoodweChannelIdET.STATE_13) //
-//								.bit(14, GoodweChannelIdET.STATE_14) //
-//								.bit(15, GoodweChannelIdET.STATE_15) //
-//						), //
-//						m(new BitsWordElement(35189, this) //
-//								.bit(0, GoodweChannelIdET.STATE_16) //
-//								.bit(1, GoodweChannelIdET.STATE_17) //
-//								.bit(2, GoodweChannelIdET.STATE_18) //
-//								.bit(3, GoodweChannelIdET.STATE_19) //
-//								.bit(4, GoodweChannelIdET.STATE_20) //
-//								.bit(5, GoodweChannelIdET.STATE_21) //
-//								.bit(6, GoodweChannelIdET.STATE_22) //
-//								.bit(7, GoodweChannelIdET.STATE_23) //
-//								.bit(8, GoodweChannelIdET.STATE_24) //
-//								.bit(9, GoodweChannelIdET.STATE_25) //
-//								.bit(10, GoodweChannelIdET.STATE_26) //
-//								.bit(11, GoodweChannelIdET.STATE_27) //
-//								.bit(12, GoodweChannelIdET.STATE_28) //
-//								.bit(13, GoodweChannelIdET.STATE_29) //
-//								.bit(14, GoodweChannelIdET.STATE_30) //
-//								.bit(15, GoodweChannelIdET.STATE_31) //
-//						)),
+				new FC3ReadRegistersTask(35189, Priority.LOW, //
+						m(new BitsWordElement(35189, this) //
+								.bit(0, GoodweChannelIdET.STATE_0) //
+								.bit(1, GoodweChannelIdET.STATE_1) //
+								.bit(2, GoodweChannelIdET.STATE_2) //
+								.bit(3, GoodweChannelIdET.STATE_3) //
+								.bit(4, GoodweChannelIdET.STATE_4) //
+								.bit(5, GoodweChannelIdET.STATE_5) //
+								.bit(6, GoodweChannelIdET.STATE_6) //
+								.bit(7, GoodweChannelIdET.STATE_7) //
+								.bit(8, GoodweChannelIdET.STATE_8) //
+								.bit(9, GoodweChannelIdET.STATE_9) //
+								.bit(10, GoodweChannelIdET.STATE_10) //
+								.bit(11, GoodweChannelIdET.STATE_11) //
+								.bit(12, GoodweChannelIdET.STATE_12) //
+								.bit(13, GoodweChannelIdET.STATE_13) //
+								.bit(14, GoodweChannelIdET.STATE_14) //
+								.bit(15, GoodweChannelIdET.STATE_15) //
+						), //
+						m(new BitsWordElement(35190, this) //
+								.bit(0, GoodweChannelIdET.STATE_16) //
+								.bit(1, GoodweChannelIdET.STATE_17) //
+								.bit(2, GoodweChannelIdET.STATE_18) //
+								.bit(3, GoodweChannelIdET.STATE_19) //
+								.bit(4, GoodweChannelIdET.STATE_20) //
+								.bit(5, GoodweChannelIdET.STATE_21) //
+								.bit(6, GoodweChannelIdET.STATE_22) //
+								.bit(7, GoodweChannelIdET.STATE_23) //
+								.bit(8, GoodweChannelIdET.STATE_24) //
+								.bit(9, GoodweChannelIdET.STATE_25) //
+								.bit(10, GoodweChannelIdET.STATE_26) //
+								.bit(11, GoodweChannelIdET.STATE_27) //
+								.bit(12, GoodweChannelIdET.STATE_28) //
+								.bit(13, GoodweChannelIdET.STATE_29) //
+								.bit(14, GoodweChannelIdET.STATE_30) //
+								.bit(15, GoodweChannelIdET.STATE_31) //
+						)),
 
 				new FC3ReadRegistersTask(35191, Priority.LOW,
 						m(GoodweChannelIdET.PV_E_TOTAL, new UnsignedDoublewordElement(35191),
@@ -372,7 +372,23 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 				)),
 
 				new FC3ReadRegistersTask(37007, Priority.HIGH,
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(37007)), //
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(37007), new ElementToChannelConverter(
+								// element -> channel
+								value -> {
+									
+									// Set SoC to undefined if there is No Battery
+									EnumReadChannel batteryModeChannel = this.channel(GoodweChannelIdET.BATTERY_MODE);
+									BatteryMode batteryMode = batteryModeChannel.value().asEnum();
+									if(batteryMode == BatteryMode.NO_BATTERY || batteryMode == BatteryMode.UNDEFINED)  
+									{
+										return null;
+									}
+									else {
+										return value;
+									}
+								}, //
+								// channel -> element
+								value -> value)), //
 						m(GoodweChannelIdET.BMS_SOH, new UnsignedWordElement(37008)), //
 						m(GoodweChannelIdET.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
 

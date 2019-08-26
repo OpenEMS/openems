@@ -155,7 +155,7 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)), //
 	P_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
-	BATERY1_MODE(Doc.of(BatteryMode.values())), //
+	BATTERY_MODE(Doc.of(BatteryMode.values())), //
 	WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), //.

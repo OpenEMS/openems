@@ -27,7 +27,6 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.goodwe.et.GoodweChannelIdET;
-import io.openems.edge.goodwe.et.GoodweET;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -36,8 +35,7 @@ import io.openems.edge.goodwe.et.GoodweET;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class GoodweETCharger extends AbstractOpenemsModbusComponent
-		implements EssDcCharger, OpenemsComponent {
+public class GoodweETCharger extends AbstractOpenemsModbusComponent implements EssDcCharger, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -72,25 +70,14 @@ public class GoodweETCharger extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private GoodweET ess;
-
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm, "Modbus",
-				this.ess.getModbusBridgeId());
-
-		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-
-		this.ess.setCharger(this);
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		this.ess.setCharger(null);
 		super.deactivate();
 	}
 
@@ -110,6 +97,5 @@ public class GoodweETCharger extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "L:" + this.getActualPower().value().asString();
 	}
-
 
 }
