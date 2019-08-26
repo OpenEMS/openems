@@ -9,7 +9,7 @@ public interface Field {
 
 	public enum EdgeDevice implements Field {
 		ID("id", true), //
-		APIKEY("apikey", false), //
+		APIKEY("apikey", true), //
 		NAME("name", true), //
 		COMMENT("comment", true), //
 		STATE("state", true), //
