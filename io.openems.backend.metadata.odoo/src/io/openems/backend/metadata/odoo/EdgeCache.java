@@ -42,6 +42,11 @@ public class EdgeCache {
 	 */
 	private Map<Integer, String> odooIdToEdgeId = new HashMap<>();
 
+	/**
+	 * Map Apikey (String) to Edge-ID (String).
+	 */
+	private Map<String, String> apikeyToEdgeId = new HashMap<>();
+
 	public EdgeCache(MetadataOdoo parent) {
 		this.parent = parent;
 	}
@@ -58,6 +63,7 @@ public class EdgeCache {
 		// simple fields
 		String edgeId = PgUtils.getAsString(rs, EdgeDevice.NAME);
 		int odooId = PgUtils.getAsInt(rs, EdgeDevice.ID);
+		String apikey = PgUtils.getAsString(rs, EdgeDevice.APIKEY);
 
 		// Config
 		EdgeConfig config;
@@ -97,10 +103,11 @@ public class EdgeCache {
 		MyEdge edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge and register listeners
-			edge = new MyEdge(odooId, edgeId, comment, state, version, productType, config, soc, ipv4, null);
+			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, config, soc, ipv4, null);
 			this.addListeners(edge);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
+			this.apikeyToEdgeId.put(apikey, edgeId);
 		} else {
 			// Edge exists -> update information
 			edge.setComment(comment);
@@ -133,6 +140,20 @@ public class EdgeCache {
 	 */
 	public synchronized MyEdge getEdgeFromOdooId(int odooId) {
 		String edgeId = this.odooIdToEdgeId.get(odooId);
+		if (edgeId == null) {
+			return null;
+		}
+		return this.getEdgeFromEdgeId(edgeId);
+	}
+
+	/**
+	 * Gets an Edge from its Apikey.
+	 * 
+	 * @param apikey the Apikey
+	 * @return the Edge, or null
+	 */
+	public synchronized MyEdge getEdgeForApikey(String apikey) {
+		String edgeId = this.apikeyToEdgeId.get(apikey);
 		if (edgeId == null) {
 			return null;
 		}
