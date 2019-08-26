@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo;
+package io.openems.backend.metadata.odoo.odoo;
 
 public class Domain {
 	protected final String field;
