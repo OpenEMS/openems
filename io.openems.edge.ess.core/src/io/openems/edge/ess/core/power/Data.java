@@ -61,7 +61,7 @@ public class Data {
 		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
 	}
 
-	public synchronized void addEss(ManagedSymmetricEss ess) {
+	protected synchronized void addEss(ManagedSymmetricEss ess) {
 		// add to Ess map
 		this.essIds.add(ess.id());
 		// create inverters and add them to list
@@ -75,7 +75,7 @@ public class Data {
 		this.coefficients.initialize(this.essIds);
 	}
 
-	public synchronized void removeEss(String essId) {
+	protected synchronized void removeEss(String essId) {
 		// remove from Ess set
 		this.essIds.remove(essId);
 		// remove from Inverters list
@@ -281,12 +281,8 @@ public class Data {
 						// 1*sumL1 - 1*ess1_L1 - 1*ess2_L1 = 0
 						List<LinearCoefficient> cos = new ArrayList<>();
 						cos.add(new LinearCoefficient(this.coefficients.of(essId, phase, pwr), 1));
-						for (ManagedSymmetricEss subEss : e.getEsss()) {
-							if (!subEss.isEnabled()) {
-								// ignore disabled Sub-ESS
-								continue;
-							}
-							cos.add(new LinearCoefficient(this.coefficients.of(subEss.id(), phase, pwr), -1));
+						for (String subEssId : e.getEssIds()) {
+							cos.add(new LinearCoefficient(this.coefficients.of(subEssId, phase, pwr), -1));
 						}
 						Constraint c = new Constraint(ess.id() + ": Sum of " + pwr.getSymbol() + phase.getSymbol(), cos,
 								Relationship.EQUALS, 0);

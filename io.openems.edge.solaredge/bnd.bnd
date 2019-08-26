@@ -1,0 +1,25 @@
+Bundle-Name: OpenEMS Edge SolarEdge
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+Private-Package: \
+	io.openems.edge.solaredge.pvinverter,\
+	io.openems.edge.solaredge.gridmeter
+
+-includeresource: {readme.adoc}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	slf4j.api,\
+	io.openems.edge.pvinverter.sunspec;version=latest,\
+	io.openems.edge.meter.sunspec;version=latest
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

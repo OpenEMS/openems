@@ -51,6 +51,12 @@
                 </ion-col>
               </ion-row>
 
+              <ion-row *ngSwitchCase="'Controller.CHP.SoC'" style.height="150px">
+                <ion-col size="12">
+                  <chpsoc [period]="service.historyPeriod"></chpsoc>
+                </ion-col>
+              </ion-row>
+
             </ng-container>
           </ion-grid>
 

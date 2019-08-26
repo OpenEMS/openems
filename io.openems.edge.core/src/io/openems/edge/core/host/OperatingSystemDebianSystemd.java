@@ -11,12 +11,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -69,7 +68,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			throw new OpenemsException("Base-Path [" + path + "] does not exist.");
 		}
 
-		Map<String, NetworkInterface<?>> interfaces = new HashMap<>();
+		TreeMap<String, NetworkInterface<?>> interfaces = new TreeMap<>();
 
 		for (final File file : path.listFiles()) {
 			/*
@@ -97,6 +96,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 				List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
 				for (String line : lines) {
+					line = line.trim();
 					/*
 					 * Find current configuration block
 					 */

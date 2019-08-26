@@ -65,17 +65,23 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
+                Info: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",
                     HighThreshold: "hoge drempel"
                 },
                 EVCS: {
                     ChargingStation: "Laadstation",
+                    ChargingStationCluster: "Laadstation cluster",
+                    OverviewChargingStations: "Overzicht laadstations",
+                    ChargingStationDeactivated: "Laadstation gedeactiveerd",
+                    Prioritization: "Prioritering",
                     Status: "Staat",
                     Starting: "Beginnend",
                     NotReadyForCharging: "Niet klaar voor opladen",
                     ReadyForCharging: "Klaar om op te laden",
                     Charging: "Is aan het laden",
+                    NotCharging: "Niet opladen",
                     Error: "Fout",
                     NotAuthorized: "Geen bevoegdheid",
                     Unplugged: "Unplugged",
@@ -85,15 +91,18 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Laadstation + E-Auto aangesloten + op slot",
                     ChargingLimit: "Laadlimiet",
                     ChargingPower: "Oplaadvermogen",
+                    AmountOfChargingStations: "Aantal laadstations",
+                    TotalChargingPower: "Totaal laadvermogen",
                     CurrentCharge: "Huidige lading",
                     TotalCharge: "Totale lading",
                     EnforceCharging: "Handhaaf het laden",
                     Cable: "Kabel",
                     CableNotConnected: "Kabel is niet aangesloten",
                     CarFull: "Auto is vol",
-                    EnergieSinceBeginning: "Energie sinds het begin van de lading",
+                    EnergieSinceBeginning: "Energie sinds de laatste lading start",
                     ChargeMode: "laadmodus",
                     ActivateCharging: "Activeer het laadstation",
+                    ClusterConfigError: "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
                         Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
