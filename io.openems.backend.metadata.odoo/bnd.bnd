@@ -5,11 +5,14 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.backend.metadata.api;-provide=true
 Private-Package: \
 	io.openems.backend.metadata.odoo,\
-	io.openems.backend.metadata.odoo.jsonrpc
+	io.openems.backend.metadata.odoo.odoo,\
+	io.openems.backend.metadata.odoo.postgres,\
+	io.openems.backend.metadata.odoo.odoo.jsonrpc
 
 -includeresource: {readme.md}
 
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.backend.common;version=latest,\
 	io.openems.backend.edgewebsocket.api;version=latest,\
 	io.openems.backend.metadata.api;version=latest,\
@@ -17,7 +20,8 @@ Private-Package: \
 	com.google.gson,\
 	com.google.guava,\
 	slf4j.api,\
-	org.apache.servicemix.bundles.xmlrpc-client
+	org.apache.servicemix.bundles.xmlrpc-client,\
+	org.postgresql.jdbc42
 
 -testpath: ${testpath}
 
