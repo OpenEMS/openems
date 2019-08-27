@@ -85,7 +85,7 @@ public class ListenTask implements Future<MCCommsPacket> {
 				this.hasReturned = false;
 				return packet;
 			} else {
-				throw new TimeoutException();
+				throw new TimeoutException("Reply window timed out");
 			}
 		}
 	}

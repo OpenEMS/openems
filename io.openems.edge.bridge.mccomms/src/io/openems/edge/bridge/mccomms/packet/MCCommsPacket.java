@@ -22,7 +22,7 @@ public class MCCommsPacket {
 	
 	private static int calculateCRC(ByteBuffer buffer) {
 		int CRC = 0;
-		for (int i = 0; i < 22; i++) {
+		for (int i = 1; i < 22; i++) {
 			CRC += UnsignedBytes.toInt(buffer.get(i));
 		}
 		return CRC;
@@ -42,12 +42,12 @@ public class MCCommsPacket {
 				//put bytes from present elements
 				byteBuffer.position(elements.get(i).getAddressRange().lowerEndpoint());
 				byteBuffer.put(elements.get(i).getBytes());
-				i = elements.get(i).getAddressRange().upperEndpoint() + 1; //shift i to byte address after end of current element
+				i = elements.get(i).getAddressRange().upperEndpoint(); //shift i to byte address at the end of current element
 			}
 		}
 		byteBuffer.put(6, (byte) 15); //length
 		byteBuffer.putShort(22, (short) calculateCRC(byteBuffer)); //crc
-		byteBuffer.put(24, (byte) 83); //end char
+		byteBuffer.put(24, (byte) 69); //end char
 		return byteBuffer.array();
 	}
 	

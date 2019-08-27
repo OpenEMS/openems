@@ -96,7 +96,7 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 							getMCCommsBridge(),
 							config.openemsMCCommsAddress(),
 							config.UBMUmcCommsAddress(),
-							180,
+							182,
 							config.queryTimeoutMS(),
 							TimeUnit.MILLISECONDS,
 							new ListenTask(
