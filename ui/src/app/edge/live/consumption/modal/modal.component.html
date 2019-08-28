@@ -105,4 +105,23 @@
             </ion-card-content>
         </ng-container>
     </ng-container>
+
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ng-container *ngIf="currentData.summary.consumption as sum">
+                <ion-grid *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
+                    padding-top>
+                    <ion-row justify-content-center align-items-center>
+                        <ion-col size="2" text-center>
+                            <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+                        </ion-col>
+                        <ion-col size="10">
+                            <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
+                            </ion-note>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ng-container>
+        </ng-container>
+    </ng-container>
 </ion-content>
