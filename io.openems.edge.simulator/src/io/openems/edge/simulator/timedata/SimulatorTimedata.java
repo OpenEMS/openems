@@ -1,5 +1,6 @@
 package io.openems.edge.simulator.timedata;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -37,8 +38,6 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class SimulatorTimedata extends AbstractOpenemsComponent implements Timedata, OpenemsComponent {
-
-	private static final String FILENAME = "timedata.csv";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -83,8 +82,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
 		try {
-			DataContainer data = CsvUtils.readCsvFileFromRessource(SimulatorTimedata.class, FILENAME,
-					this.config.format(), 1);
+			DataContainer data = CsvUtils.readCsvFile(this.getPath(), this.config.format(), 1);
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
 			ZonedDateTime time = fromDate;
 			while (time.isBefore(toDate)) {
@@ -112,8 +110,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		try {
-			DataContainer data = CsvUtils.readCsvFileFromRessource(SimulatorTimedata.class, FILENAME,
-					this.config.format(), 1);
+			DataContainer data = CsvUtils.readCsvFile(this.getPath(), this.config.format(), 1);
 			SortedMap<ChannelAddress, JsonElement> result = new TreeMap<>();
 			for (ChannelAddress channel : channels) {
 				result.put(channel, this.getValueAsJson(data, channel));
@@ -138,6 +135,15 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 		} else {
 			return JsonNull.INSTANCE;
 		}
+	}
+
+	/**
+	 * Gets the path to the timedata CSV file.
+	 * 
+	 * @return the absolute path
+	 */
+	private File getPath() {
+		return new File(System.getProperty("user.home"), config.filename());
 	}
 
 }

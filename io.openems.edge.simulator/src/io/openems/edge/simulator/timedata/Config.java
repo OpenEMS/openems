@@ -22,6 +22,9 @@ import io.openems.edge.simulator.CsvFormat;
 	@AttributeDefinition(name = "CSV Format", description = "The format of the CSV file")
 	CsvFormat format() default CsvFormat.GERMAN_EXCEL;
 
+	@AttributeDefinition(name = "Filename", description = "The name of the file. The file is expected to be in the user home directory, e.g. 'C:\\Users\\username\\'.")
+	String filename() default "timedata.csv";
+
 	String webconsole_configurationFactory_nameHint() default "Simulator Timedata [{id}]";
 
 }
