@@ -28,7 +28,8 @@
                                 <td style="width:35%" class="align_right">-</td>
                             </ng-template>
                         </tr>
-                        <tr [class.underline]="sum.buyActivePowerL1 != null || sum.sellActivePowerL1 != null">
+                        <tr
+                            [class.underline]="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
                             <td style="width:65%" translate>General.GridSell</td>
                             <ng-container *ngIf="sum.sellActivePower != 0; else empty">
                                 <td style="width:35%" class="align_right">
