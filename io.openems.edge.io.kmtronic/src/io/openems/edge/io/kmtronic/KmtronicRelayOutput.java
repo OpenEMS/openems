@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -23,12 +24,16 @@ import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "IO.KMtronic", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implements DigitalOutput, OpenemsComponent {
+public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implements DigitalOutput, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -124,6 +129,23 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 			}
 		}
 		return b.toString();
+	}
+	
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(KmtronicRelayOutput.class, accessMode, 100)//
+						.channel(0, ThisChannelId.RELAY_1, ModbusType.UINT16) //
+						.channel(1, ThisChannelId.RELAY_2, ModbusType.UINT16) //
+						.channel(2, ThisChannelId.RELAY_3, ModbusType.UINT16) //
+						.channel(3, ThisChannelId.RELAY_4, ModbusType.UINT16) //
+						.channel(4, ThisChannelId.RELAY_5, ModbusType.UINT16) //
+						.channel(5, ThisChannelId.RELAY_6, ModbusType.UINT16) //
+						.channel(6, ThisChannelId.RELAY_7, ModbusType.UINT16) //
+						.channel(7, ThisChannelId.RELAY_8, ModbusType.UINT16) //
+						.build()//
+		);
 	}
 
 }

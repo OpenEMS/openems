@@ -195,7 +195,6 @@
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
-	com.github.scribejava.core;version='[6.8.0,6.8.1)',\
 	com.google.guava;version='[28.0.0,28.0.1)',\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
@@ -209,6 +208,8 @@
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.tesla.powerwall2;version=snapshot,\
+	io.openems.edge.evcs.cluster;version=snapshot,\
+	com.github.scribejava.core;version='[6.8.1,6.8.2)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\

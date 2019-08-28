@@ -27,7 +27,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 @Component(name = "Metadata.Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Metadata {
 
-	public static final String ODOO_MODEL = "fems.device";
+	public final static String ODOO_MODEL = "fems.device";
 	public static final String ODOO_DEVICE_TABLE = ODOO_MODEL.replace(".", "_");
 
 	private final Logger log = LoggerFactory.getLogger(MetadataOdoo.class);
