@@ -26,6 +26,9 @@ export module DefaultTypes {
       selfConsumption: number
     }, storage: {
       soc: number,
+      activePowerL1: number,
+      activePowerL2: number,
+      activePowerL3: number,
       chargeActivePower: number,
       chargeActivePowerAC: number,
       chargeActivePowerDC: number,
@@ -44,18 +47,30 @@ export module DefaultTypes {
       hasDC: boolean,
       activePower: number, // sum of activePowerAC and activePowerDC
       activePowerAC: number,
+      activePowerACL1: number,
+      activePowerACL2: number,
+      activePowerACL3: number,
       activePowerDC: number,
       maxActivePower: number
     }, grid: {
       powerRatio: number,
+      activePowerL1: number,
+      activePowerL2: number,
+      activePowerL3: number,
       buyActivePower: number,
       maxBuyActivePower: number,
       sellActivePower: number,
+      sellActivePowerL1: number,
+      sellActivePowerL2: number,
+      sellActivePowerL3: number,
       maxSellActivePower: number,
       gridMode: number
     }, consumption: {
       powerRatio: number,
-      activePower: number
+      activePower: number,
+      activePowerL1: number,
+      activePowerL2: number,
+      activePowerL3: number
     }
   }
 

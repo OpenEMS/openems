@@ -50,6 +50,19 @@
                                     <td style="width:10%"></td>
                                 </ng-template>
                             </tr>
+                            <tr *ngIf="evcsComponents.length != 0">
+                                <td style="width: 65%">sonstiger Verbrauch</td>
+                                <ng-container
+                                    *ngIf="sum.activePower != (sum.activePower - currentTotalChargingPower()); else empty">
+                                    <td style="width: 25%" class="align_right">
+                                        {{sum.activePower - currentTotalChargingPower() | number:'1.0-0'}}</td>
+                                    <td style="width: 10%">&nbsp;W</td>
+                                </ng-container>
+                                <ng-template #empty>
+                                    <td style="width:25%" class="align_right">-</td>
+                                    <td style="width:10%"></td>
+                                </ng-template>
+                            </tr>
                         </ng-container>
                     </table>
                 </ion-grid>

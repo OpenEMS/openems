@@ -158,6 +158,40 @@ export class EdgeConfig {
     }
 
     /**
+     * Determines if Edge has a producing device
+     * 
+     */
+    public hasProducer(): boolean {
+        if (this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => {
+            if (component.isEnabled == false) {
+                return false;
+            }
+            else if (component.properties['type'] == "PRODUCTION") {
+                return true;
+            } else {
+                // TODO make sure 'type' is provided for all Meters
+                switch (component.factoryId) {
+                    case 'Fenecon.Mini.PvMeter':
+                    case 'Fenecon.Dess.PvMeter':
+                    case 'Fenecon.Pro.PvMeter':
+                    case 'Kostal.Piko.Charger':
+                    case 'Kaco.BlueplanetHybrid10.PvInverter':
+                    case 'PV-Inverter.Solarlog':
+                    case 'PV-Inverter.KACO.blueplanet':
+                    case 'PV-Inverter.SunSpec':
+                    case 'SolarEdge.PV-Inverter':
+                        return true;
+                }
+            }
+        }).length > 0 || this.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Get the implemented Natures by Component-ID.
      * 
      * @param componentId the Component-ID

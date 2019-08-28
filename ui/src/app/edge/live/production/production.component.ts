@@ -30,6 +30,10 @@ export class ProductionComponent {
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'ProductionAcActivePower'),
                 new ChannelAddress('_sum', 'ProductionMaxActivePower'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
+
             ]);
         });
     }

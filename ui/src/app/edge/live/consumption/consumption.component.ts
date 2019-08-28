@@ -38,7 +38,10 @@ export class ConsumptionComponent {
             this.edge = edge;
             channels.push(
                 new ChannelAddress('_sum', 'ConsumptionActivePower'),
-                new ChannelAddress('_sum', 'ConsumptionMaxActivePower'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
+                new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
             )
             this.edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, channels);
         });
@@ -56,16 +59,14 @@ export class ConsumptionComponent {
             component: ConsumptionModalComponent,
             componentProps: {
                 edge: this.edge,
-                evcsComponents: this.evcsComponents
+                evcsComponents: this.evcsComponents,
+                currentTotalChargingPower: this.currentTotalChargingPower,
+                sumOfChannel: this.sumOfChannel
             }
         });
         return await modal.present();
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
     currentTotalChargingPower(): number {
         return this.sumOfChannel("ChargePower");
     }
@@ -80,9 +81,5 @@ export class ConsumptionComponent {
         });
         return sum;
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> develop
 }
 

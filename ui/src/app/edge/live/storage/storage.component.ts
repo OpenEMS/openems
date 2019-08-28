@@ -28,6 +28,9 @@ export class StorageComponent {
                 // Ess
                 new ChannelAddress('_sum', 'EssSoc'),
                 new ChannelAddress('_sum', 'EssActivePower'),
+                new ChannelAddress('_sum', 'EssActivePowerL1'),
+                new ChannelAddress('_sum', 'EssActivePowerL2'),
+                new ChannelAddress('_sum', 'EssActivePowerL3'),
                 new ChannelAddress('_sum', 'EssCapacity'),
             ]);
         });

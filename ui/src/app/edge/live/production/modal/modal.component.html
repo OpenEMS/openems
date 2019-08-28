@@ -12,56 +12,62 @@
 <ion-content>
     <ion-card-content>
         <!-- One Production Meter -->
-        <ng-container
-            *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && (edge.currentData | async)['channel'] as currentData">
+        <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1">
             <ng-container *ngFor="let component of productionMeterComponents">
                 <ng-container *ngIf="config.factories[component.factoryId] as factory">
                     <!-- SYMMETRIC -->
-                    <table class="full_width">
-                        <ng-container
-                            *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter') && currentData[component.id + '/ActivePower'] != null">
-                            <tr
-                                [class.underline]="factory.natureIds.includes('io.openems.edge.meter.api.AsymmetricMeter')">
-                                <td style="width:65%">
-                                    <span translate>General.Production</span> AC</td>
-                                <td style="width:35%" class="align_right">
-                                    {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W</td>
-                            </tr>
+                    <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+                        <table class="full_width">
+                            <ng-container
+                                *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter') && currentData[component.id + '/ActivePower'] != null">
+                                <tr
+                                    [class.underline]="factory.natureIds.includes('io.openems.edge.meter.api.AsymmetricMeter')">
+                                    <td style="width:65%">
+                                        <span translate>General.Production</span> AC</td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W</td>
+                                </tr>
+                            </ng-container>
+                        </table>
+                    </ng-container>
+                    <!-- 3 Phases -->
+                    <ng-container *ngIf="service.currentEdge | async as edge">
+                        <ng-container *ngIf="edge.currentData | async as currentData">
+                            <ng-container *ngIf="currentData.summary.production as sum">
+                                <table class="full_width"
+                                    *ngIf="sum.activePowerACL1 != null && sum.activePowerACL2 != null && sum.activePowerACL3 != null">
+                                    <tr>
+                                        <td style="width:2%"></td>
+                                        <td style="width:23%"><span translate>General.Production</span>&nbsp;L1</td>
+                                        <td style="width:40%"></td>
+                                        <td style="width:35%" class="align_right">
+                                            {{ sum.activePowerACL1 | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:2%"></td>
+                                        <td style="width:23%"><span translate>General.Production</span>&nbsp;L2</td>
+                                        <td style="width:40%"></td>
+                                        <td style="width:35%" class="align_right">
+                                            {{ sum.activePowerACL2 | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:2%"></td>
+                                        <td style="width:23%"><span translate>General.Production</span>&nbsp;L3</td>
+                                        <td style="width:40%"></td>
+                                        <td style="width:35%" class="align_right">
+                                            {{ sum.activePowerACL3 | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </tr>
+                                </table>
+                            </ng-container>
                         </ng-container>
-                        <!-- ASYMMETRIC -->
-                        <ng-container
-                            *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.AsymmetricMeter') && currentData[component.id + '/ActivePowerL1'] != null">
-                            <table class="full_width">
-                                <tr>
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.Production</td>
-                                    <td style="width:30%">L1</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePowerL1'] | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.Production</td>
-                                    <td style="width:30%">L2</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePowerL2'] | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.Production</td>
-                                    <td style="width:30%">L3</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePowerL3'] | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </tr>
-                            </table>
-                        </ng-container>
-                    </table>
+                    </ng-container>
                 </ng-container>
             </ng-container>
         </ng-container>
+
         <!-- more than one Production Meter -->
         <ng-container
             *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1 && (edge.currentData | async)['channel'] as currentData">
@@ -173,15 +179,23 @@
         </ng-container>
     </ng-container>
     <!-- Info Text -->
-    <ion-grid *ngIf="isAsymmetric" padding-top>
-        <ion-row justify-content-center align-items-center>
-            <ion-col size="2" text-center>
-                <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
-            </ion-col>
-            <ion-col size="10">
-                <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
-                </ion-note>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ng-container *ngIf="currentData.summary.production as sum">
+                <ion-grid
+                    *ngIf="sum.activePowerACL1 != null && sum.activePowerACL2 != null && sum.activePowerACL3 != null"
+                    padding-top>
+                    <ion-row justify-content-center align-items-center>
+                        <ion-col size="2" text-center>
+                            <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+                        </ion-col>
+                        <ion-col size="10">
+                            <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
+                            </ion-note>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ng-container>
+        </ng-container>
+    </ng-container>
 </ion-content>

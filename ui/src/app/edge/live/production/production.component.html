@@ -41,7 +41,8 @@
                         <tr>
                             <td style="width:65%"></td>
                             <ng-container *ngIf="sum.activePowerAC != 0; else empty">
-                                <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}</td>
+                                <td style="width:25%" class="align_right">
+                                    {{ sum.activePowerAC | number:'1.0-0' }}</td>
                                 <td style="width:10%">&nbsp;W</td>
                             </ng-container>
                             <ng-template #empty>

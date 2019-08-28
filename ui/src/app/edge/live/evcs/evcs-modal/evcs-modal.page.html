@@ -112,10 +112,14 @@
                                     <td>
                                         <table class="full_width">
                                             <tr>
-                                                <td width="50%" translate>
-                                                    Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
+                                                <td width="70%">
+                                                    <span
+                                                        translate>Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging</span>
+                                                    <ion-text *ngIf="controller.properties.defaultChargeMinPower != 0">
+                                                        {{controller.properties.defaultChargeMinPower}}&nbsp;W
+                                                    </ion-text>
                                                 </td>
-                                                <td width="50%" style="text-align: right;">
+                                                <td width="30%" style="text-align: right;">
                                                     <ion-toggle class="swiper-no-swiping" style="margin: 2px;"
                                                         slot="end"
                                                         (ionChange)="allowMinimumChargePower($event, currentData[componentId + '/Phases'], controller)"
@@ -174,8 +178,11 @@
                                     <td>
                                         <table>
                                             <tr>
-                                                <td width="50%" translate>
-                                                    Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging
+                                                <td width="100%">
+                                                    <span
+                                                        translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</span>:
+                                                    <ion-text>{{controller.properties.forceChargeMinPower}}&nbsp;W
+                                                    </ion-text>
                                                 </td>
                                             </tr>
                                         </table>

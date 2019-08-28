@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        Autarchy: "Autosuficiencia",
+        SelfConsumption: "Autoconsumo",
         Cumulative: "Valores Acumulativos",
         Grid: "Red",
         GridBuy: "Relación",
@@ -119,7 +121,7 @@ export const TRANSLATION = {
                         ShortName: "Optimizado",
                         Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
                         MinInfo: "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
-                        MinCharging: "Garantía de carga mínima?",
+                        MinCharging: "Garantía de carga mínima",
                         ChargingPriority: "Dependiendo de la priorización, el componente seleccionado se cargará primero"
                     },
                     ForceChargeMode: {

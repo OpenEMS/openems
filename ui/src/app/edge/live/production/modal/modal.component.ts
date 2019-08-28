@@ -45,21 +45,18 @@ export class ProductionModalComponent {
                     // TODO make sure 'type' is provided for all Meters
                     switch (component.factoryId) {
                         case 'Fenecon.Mini.PvMeter':
-                            return true;
                         case 'Fenecon.Dess.PvMeter':
-                            return true;
                         case 'Fenecon.Pro.PvMeter':
-                            return true;
                         case 'Kostal.Piko.Charger':
-                            return true;
                         case 'Kaco.BlueplanetHybrid10.PvInverter':
-                            return true;
                         case 'PV-Inverter.Solarlog':
-                            return true;
                         case 'PV-Inverter.KACO.blueplanet':
+                        case 'SolarEdge.PV-Inverter':
+                        case 'Simulator.ProductionMeter.Acting':
                             return true;
                     }
                 }
+                return false;
             })
             for (let component of this.productionMeterComponents) {
                 let factoryID = component.factoryId;

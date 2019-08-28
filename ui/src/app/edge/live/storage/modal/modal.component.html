@@ -66,6 +66,72 @@
                     </table>
                 </ng-container>
 
+                <!-- Asymmetric ESS -->
+                <ng-container *ngIf="service.currentEdge | async as edge">
+                    <ng-container *ngIf="edge.currentData | async as currentData">
+                        <ng-container *ngIf="currentData.summary.storage as sum">
+                            <table class="full_width"
+                                *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
+                                <tr *ngIf="sum.activePowerL1 > 0">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L1
+                                    </td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ sum.activePowerL1 | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                                <tr *ngIf="sum.activePowerL1 <= 0">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L1
+                                    </td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ (sum.activePowerL1 * -1) | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                                <tr *ngIf="sum.activePowerL2 > 0">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L2
+                                    </td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ sum.activePowerL2 | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                                <tr *ngIf="sum.activePowerL2 <= 0">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L2
+                                    </td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ (sum.activePowerL2 * -1) | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                                <tr *ngIf="sum.activePowerL3 > 0" [class.underline]="chargerComponents.length == 1">
+                                    <td style="width:2%">
+                                    </td>
+                                    <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L3
+                                    </td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ sum.activePowerL3 | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                                <tr *ngIf="sum.activePowerL3 <= 0" [class.underline]="chargerComponents.length == 1">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L3
+                                    </td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ (sum.activePowerL3 * -1) | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                            </table>
+                        </ng-container>
+                    </ng-container>
+                </ng-container>
+
                 <!-- one DC Charger -->
                 <ng-container *ngIf="chargerComponents != null && chargerComponents.length == 1">
                     <ng-container *ngFor="let component of chargerComponents">
@@ -93,69 +159,6 @@
                                 <ng-template #empty>
                                     <td style="width:50%" class="align_right">-&nbsp;</td>
                                 </ng-template>
-                            </tr>
-                        </table>
-                    </ng-container>
-                </ng-container>
-
-                <!-- Asymmetric ESS -->
-                <ng-container *ngIf="config.factories[component.factoryId] as factory">
-                    <ng-container
-                        *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.AsymmetricEss') && currentData[component.id + '/ActivePowerL1'] != null">
-                        <table>
-                            <tr *ngIf="currentData[component.id + '/ActivePowerL1'] != null">
-                                <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] > 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.DischargePower</td>
-                                    <td style="width:30%">L1</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePowerL1'] | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
-                                <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] <= 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.ChargePower</td>
-                                    <td style="width:50%">L1</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ (currentData[component.id + '/ActivePowerL1'] *-1) | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
-                            </tr>
-                            <tr *ngIf="currentData[component.id + '/ActivePowerL2'] != null">
-                                <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] > 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.DischargePower</td>
-                                    <td style="width:30%">L2</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePowerL2'] | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
-                                <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] <= 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.ChargePower</td>
-                                    <td style="width:30%">L2</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ (currentData[component.id + '/ActivePowerL2'] *-1) | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
-                            </tr>
-                            <tr *ngIf="currentData[component.id + '/ActivePowerL3'] != null">
-                                <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] > 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.DischargePower</td>
-                                    <td style="width:30%">L3</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePowerL3'] | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
-                                <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] <= 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.ChargePower</td>
-                                    <td style="width:30%">L3</td>
-                                    <td style="width:45%" class="align_right">
-                                        {{ (currentData[component.id + '/ActivePowerL3'] *-1) | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
                             </tr>
                         </table>
                     </ng-container>
@@ -210,6 +213,67 @@
                         </ng-template>
                     </tr>
                 </table>
+
+                <!-- 3 Phases -->
+                <ng-container
+                    *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
+                    <table class="full_width">
+                        <tr *ngIf="sum.activePowerL1 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L1
+                            </td>
+                            <td style="width:40%"></td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.activePowerL1 | number:'1.0-0' }}&nbsp;W
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL1 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L1
+                            </td>
+                            <td style="width:40%"></td>
+                            <td style="width:35%" class="align_right">
+                                poco{{ (sum.activePowerL1 * -1) | number:'1.0-0' }}&nbsp;W
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL2 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L2
+                            </td>
+                            <td style="width:40%"></td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.activePowerL2 | number:'1.0-0' }}&nbsp;W
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL2 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L2
+                            </td>
+                            <td style="width:40%"></td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.activePowerL2 * -1) | number:'1.0-0' }}&nbsp;W
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL3 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L3
+                            </td>
+                            <td style="width:40%"></td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.activePowerL3 | number:'1.0-0' }}&nbsp;W
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL3 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L3
+                            </td>
+                            <td style="width:40%"></td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.activePowerL3 * -1) | number:'1.0-0' }}&nbsp;W
+                            </td>
+                        </tr>
+                    </table>
+                </ng-container>
             </ng-container>
         </ion-card-content>
 
@@ -299,54 +363,54 @@
                             class="full_width">
                             <tr *ngIf="currentData[component.id + '/ActivePowerL1'] != null">
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] > 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.DischargePower</td>
-                                    <td style="width:30%">L1</td>
-                                    <td style="width:45%" class="align_right">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L1</td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL1'] | number:'1.0-0' }}&nbsp;W
                                     </td>
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] <= 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.ChargePower</td>
-                                    <td style="width:50%">L1</td>
-                                    <td style="width:45%" class="align_right">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L1</td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL1'] *-1) | number:'1.0-0' }}&nbsp;W
                                     </td>
                                 </ng-container>
                             </tr>
                             <tr *ngIf="currentData[component.id + '/ActivePowerL2'] != null">
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] > 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.DischargePower</td>
-                                    <td style="width:30%">L2</td>
-                                    <td style="width:45%" class="align_right">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.DischargePower</span></td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL2'] | number:'1.0-0' }}&nbsp;W
                                     </td>
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] <= 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.ChargePower</td>
-                                    <td style="width:30%">L2</td>
-                                    <td style="width:45%" class="align_right">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L2</td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL2'] *-1) | number:'1.0-0' }}&nbsp;W
                                     </td>
                                 </ng-container>
                             </tr>
                             <tr *ngIf="currentData[component.id + '/ActivePowerL3'] != null">
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] > 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.DischargePower</td>
-                                    <td style="width:30%">L3</td>
-                                    <td style="width:45%" class="align_right">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.DischargePower</span>&nbsp;L3</td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL3'] | number:'1.0-0' }}&nbsp;W
                                     </td>
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] <= 0">
-                                    <td style="width:5%"></td>
-                                    <td style="width:20%" translate>General.ChargePower</td>
-                                    <td style="width:30%">L3</td>
-                                    <td style="width:45%" class="align_right">
+                                    <td style="width:2%"></td>
+                                    <td style="width:23%"><span translate>General.ChargePower</span>&nbsp;L3</td>
+                                    <td style="width:40%"></td>
+                                    <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL3'] *-1) | number:'1.0-0' }}&nbsp;W
                                     </td>
                                 </ng-container>
@@ -406,16 +470,24 @@
             </ion-card-content>
         </ng-container>
     </ng-container>
+
     <!-- Info Text -->
-    <ion-grid *ngIf="isAsymmetric" padding-top>
-        <ion-row justify-content-center align-items-center>
-            <ion-col size="2" text-center>
-                <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
-            </ion-col>
-            <ion-col size="10">
-                <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
-                </ion-note>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
+    <ng-container *ngIf="service.currentEdge | async as edge">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ng-container *ngIf="currentData.summary.storage as sum">
+                <ion-grid *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
+                    padding-top>
+                    <ion-row justify-content-center align-items-center>
+                        <ion-col size="2" text-center>
+                            <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+                        </ion-col>
+                        <ion-col size="10">
+                            <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
+                            </ion-note>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ng-container>
+        </ng-container>
+    </ng-container>
 </ion-content>

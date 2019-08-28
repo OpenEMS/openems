@@ -33,17 +33,17 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
   protected datasets: Dataset[] = EMPTY_DATASET;
   protected options: ChartOptions;
   protected colors = [{
-    backgroundColor: 'rgba(0,152,70,0.05)',
-    borderColor: 'rgba(0,152,70,1)',
+    // State Of Charge
+    backgroundColor: 'rgba(0,223,0,0.05)',
+    borderColor: 'rgba(0,223,0,1)',
   }, {
+    // Autarchy
     backgroundColor: 'rgba(0,152,204,0.05)',
     borderColor: 'rgba(0,152,204,1)'
   }, {
-    backgroundColor: 'rgba(107,207,0,0.05)',
-    borderColor: 'rgba(107,207,0,1)'
-  }, {
-    backgroundColor: 'rgba(224,232,17,0.05)',
-    borderColor: 'rgba(224,232,17,1)'
+    // Self Consumption
+    backgroundColor: 'rgba(253,197,7,0.05)',
+    borderColor: 'rgba(253,197,7,1)'
   }];
 
   ngOnInit() {
@@ -74,7 +74,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
           let result = response.result;
-          console.log("RESULT", result)
           // convert labels
           let labels: Date[] = [];
           for (let timestamp of result.timestamps) {
@@ -88,34 +87,158 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           // convert datasets
           let datasets = [];
 
+          // required data for autarchy and self consumption
+          let buyFromGridData: number[];
+          let sellToGridData: number[];
+          let consumptionData: number[];
+          let dischargeData: number[];
+          let productionData: number[];
+
+
           if (!edge.isVersionAtLeast('2018.8')) {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
+          }
+
+          if ('_sum/ConsumptionActivePower' in result.data) {
+            /*
+             * Consumption
+             */
+            consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value; // convert to kW
+              }
+            });
+          }
+
+          if ('_sum/EssActivePower' in result.data) {
+            /*
+             * Storage Discharge
+             */
+            let effectivePower;
+
+            if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
+              effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+              });
+            } else {
+              effectivePower = result.data['_sum/EssActivePower'];
+            }
+
+            dischargeData = effectivePower.map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 0) {
+                return value;
+              } else {
+                return 0;
+              }
+            });
+
+
           }
 
           if ('_sum/GridActivePower' in result.data) {
             /*
              * Buy From Grid
              */
-            let buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
+            buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
               if (value == null) {
                 return null
               } else if (value > 0) {
-                return value / 1000; // convert to kW
+                return value;
               } else {
                 return 0;
               }
             })
+
+            /*
+             * Sell To Grid
+             */
+            sellToGridData = result.data['_sum/GridActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value < 0) {
+                return value * -1; // convert to kW and invert value
+              } else {
+                return 0;
+              }
+            });
           };
+
+          if ('_sum/ProductionActivePower' in result.data) {
+            /*
+             * Production
+             */
+            productionData = result.data['_sum/ProductionActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value;
+              }
+            });
+          }
 
           if ('_sum/EssSoc' in result.data) {
             /*
-            * State-of-charge
-            */
+             * State-of-charge
+             */
             datasets.push({
               label: this.translate.instant('General.Soc'),
               data: result.data['_sum/EssSoc'],
               hidden: false
             });
+          };
+
+          /*
+           * Autarchy
+           */
+          let autarchy = consumptionData.map((value, index) => {
+            return (1 - (Utils.orElse(buyFromGridData[index], 0) / Utils.orElse(value, 0))) * 100;
+          }).map(value => {
+            if (value == null || isNaN(value)) {
+              return null;
+            }
+            else if (value >= 0) {
+              return value;
+            }
+            else {
+              return 0;
+            }
+          });
+
+          if (config.hasProducer()) {
+            datasets.push({
+              label: this.translate.instant('General.Autarchy'),
+              data: autarchy,
+              hidden: false
+            })
+          }
+
+          /*
+           * Self Consumption
+           */
+          let selfConsumption = productionData.map((value, index) => {
+            return (1 - (Utils.orElse(sellToGridData[index], 0) / (Utils.addSafely(Utils.orElse(value, 0), Utils.orElse(dischargeData[index], 0))))) * 100;
+          }).map((value, index) => {
+            if (value >= 0) {
+              return value;
+            }
+            else if (autarchy[index] == null) {
+              return null;
+            }
+            else {
+              return 0;
+            }
+          })
+
+          if (config.hasProducer()) {
+            datasets.push({
+              label: this.translate.instant('General.SelfConsumption'),
+              data: selfConsumption,
+              hidden: false
+            })
           }
 
           for (let channel in result.data) {
@@ -150,9 +273,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
       return;
     });
   }
-
-  // result.system.autarchy = (1 - (Utils.orElse(result.grid.buyActivePower, 0) / result.consumption.activePower)) * 100;
-
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
@@ -224,6 +344,11 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
  */
   private convertDeprecatedData(config: EdgeConfig, data: { [channelAddress: string]: any[] }) {
     let sumEssSoc = [];
+    let sumEssActivePower = [];
+    let sumGridActivePower = [];
+    let sumProductionActivePower = [];
+    let sumProductionAcActivePower = [];
+    let sumProductionDcActualPower = [];
 
     for (let channel of Object.keys(data)) {
       let channelAddress = ChannelAddress.fromString(channel)
@@ -240,10 +365,70 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           });
         }
       }
+
+      if (natureIds.includes('EssNature') && channelId.startsWith('ActivePower')) {
+        if (sumEssActivePower.length == 0) {
+          sumEssActivePower = data[channel];
+        } else {
+          sumEssActivePower = data[channel].map((value, index) => {
+            return Utils.addSafely(sumEssActivePower[index], value);
+          });
+        }
+      }
+
+      if (natureIds.includes('MeterNature') && channelId.startsWith('ActivePower')) {
+        if (componentId === 'meter0') {
+          if (sumGridActivePower.length == 0) {
+            sumGridActivePower = data[channel];
+          } else {
+            sumGridActivePower = data[channel].map((value, index) => {
+              return Utils.addSafely(sumGridActivePower[index], value);
+            });
+          }
+        } else {
+          if (sumProductionActivePower.length == 0) {
+            sumProductionActivePower = data[channel];
+          } else {
+            sumProductionActivePower = data[channel].map((value, index) => {
+              return Utils.addSafely(sumProductionActivePower[index], value);
+            });
+          }
+          if (sumProductionAcActivePower.length == 0) {
+            sumProductionAcActivePower = data[channel];
+          } else {
+            sumProductionAcActivePower = data[channel].map((value, index) => {
+              return Utils.addSafely(sumProductionAcActivePower[index], value);
+            });
+          }
+        }
+      }
+      if (natureIds.includes('ChargerNature') && channelId === 'ActualPower') {
+        if (sumProductionActivePower.length == 0) {
+          sumProductionActivePower = data[channel];
+        } else {
+          sumProductionActivePower = data[channel].map((value, index) => {
+            return Utils.addSafely(sumProductionActivePower[index], value);
+          });
+        }
+        if (sumProductionDcActualPower.length == 0) {
+          sumProductionDcActualPower = data[channel];
+        } else {
+          sumProductionDcActualPower = data[channel].map((value, index) => {
+            return Utils.addSafely(sumProductionDcActualPower[index], value);
+          });
+        }
+      }
     }
     data['_sum/EssSoc'] = sumEssSoc.map((value, index) => {
       return Utils.divideSafely(sumEssSoc[index], Object.keys(data).length);
     });
-
+    data['_sum/EssActivePower'] = sumEssActivePower;
+    data['_sum/GridActivePower'] = sumGridActivePower;
+    data['_sum/ProductionActivePower'] = sumProductionActivePower;
+    data['_sum/ProductionDcActualPower'] = sumProductionDcActualPower;
+    data['_sum/ConsumptionActivePower'] = sumEssActivePower.map((ess, index) => {
+      return Utils.addSafely(ess, Utils.addSafely(sumProductionAcActivePower[index], sumGridActivePower[index]));
+    });
   }
+
 }

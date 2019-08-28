@@ -35,27 +35,27 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   protected options: ChartOptions;
   protected colors = [{
     // Production
-    backgroundColor: 'rgba(45,143,171,0.1)',
+    backgroundColor: 'rgba(45,143,171,0.05)',
     borderColor: 'rgba(45,143,171,1)',
   }, {
     // Grid Buy
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.05)',
     borderColor: 'rgba(0,0,0,1)',
   }, {
     // Grid Sell
-    backgroundColor: 'rgba(0,0,200,0.1)',
+    backgroundColor: 'rgba(0,0,200,0.05)',
     borderColor: 'rgba(0,0,200,1)',
   }, {
     // Consumption
-    backgroundColor: 'rgba(221,223,1,0.1)',
-    borderColor: 'rgba(221,223,1,1)',
+    backgroundColor: 'rgba(253,197,7,0.05)',
+    borderColor: 'rgba(253,197,7,1)',
   }, {
     // Storage Charge
-    backgroundColor: 'rgba(0,223,0,0.1)',
+    backgroundColor: 'rgba(0,223,0,0.05)',
     borderColor: 'rgba(0,223,0,1)',
   }, {
     // Storage Discharge
-    backgroundColor: 'rgba(200,0,0,0.1)',
+    backgroundColor: 'rgba(200,0,0,0.05)',
     borderColor: 'rgba(200,0,0,1)',
   }];
 
@@ -112,6 +112,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 return value / 1000; // convert to kW
               }
             });
+
             datasets.push({
               label: this.translate.instant('General.Production'),
               data: productionData,
@@ -132,6 +133,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 return 0;
               }
             });
+
             datasets.push({
               label: this.translate.instant('General.GridBuy'),
               data: buyFromGridData,
@@ -219,6 +221,18 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               hidden: false
             });
           }
+          /*
+           * Autarchy
+           */
+          let gridBuy = result.data['_sum/GridActivePower'].map(value => {
+            if (value == null) {
+              return null
+            } else if (value > 0) {
+              return value / 1000; // convert to kW
+            } else {
+              return 0;
+            }
+          })
 
           this.datasets = datasets;
 

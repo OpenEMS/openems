@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        Autarchy: "Autarkie",
+        SelfConsumption: "Eigen consumptie",
         Cumulative: "Cumulatieve Waarden",
         Grid: "Net",
         GridBuy: "Netafname",
@@ -116,7 +118,7 @@ export const TRANSLATION = {
                         ShortName: "geoptimaliseerde",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
                         MinInfo: "Als u wilt voorkomen dat de auto 's nachts niet oplaadt, kunt u een minimale lading instellen.",
-                        MinCharging: "Minimale vergoeding betalen?",
+                        MinCharging: "Minimale vergoeding betalen",
                         ChargingPriority: "Afhankelijk van de prioriteit, wordt het geselecteerde onderdeel eerst geladen"
                     },
                     ForceChargeMode: {

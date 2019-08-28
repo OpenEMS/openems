@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        Autarchy: "Autarkie",
+        SelfConsumption: "Eigenverbrauch",
         Cumulative: "Kumulierte Werte",
         Grid: "Netz",
         GridBuy: "Netzbezug",
@@ -120,7 +122,7 @@ export const TRANSLATION = {
                         ShortName: "Optimiert",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
                         MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Aufladung garantieren?",
+                        MinCharging: "Minimale Aufladung garantieren",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
                             Car: "Auto",

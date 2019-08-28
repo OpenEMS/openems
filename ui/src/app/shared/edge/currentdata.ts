@@ -19,6 +19,9 @@ export class CurrentData {
                 selfConsumption: null
             }, storage: {
                 soc: null,
+                activePowerL1: null,
+                activePowerL2: null,
+                activePowerL3: null,
                 chargeActivePower: null, // sum of chargeActivePowerAC and chargeActivePowerDC
                 chargeActivePowerAC: null,
                 chargeActivePowerDC: null,
@@ -37,18 +40,30 @@ export class CurrentData {
                 powerRatio: null,
                 activePower: null, // sum of activePowerAC and activePowerDC
                 activePowerAC: null,
+                activePowerACL1: null,
+                activePowerACL2: null,
+                activePowerACL3: null,
                 activePowerDC: null,
                 maxActivePower: null
             }, grid: {
                 gridMode: null,
                 powerRatio: null,
+                activePowerL1: null,
+                activePowerL2: null,
+                activePowerL3: null,
                 buyActivePower: null,
                 maxBuyActivePower: null,
                 sellActivePower: null,
+                sellActivePowerL1: null,
+                sellActivePowerL2: null,
+                sellActivePowerL3: null,
                 maxSellActivePower: null
             }, consumption: {
                 powerRatio: null,
-                activePower: null
+                activePower: null,
+                activePowerL1: null,
+                activePowerL2: null,
+                activePowerL3: null
             }
         };
 
@@ -59,6 +74,9 @@ export class CurrentData {
              * < 0 => Sell to grid
              */
             const gridActivePower: number = c['_sum/GridActivePower'];
+            result.grid.activePowerL1 = c['_sum/GridActivePowerL1'];
+            result.grid.activePowerL2 = c['_sum/GridActivePowerL2'];
+            result.grid.activePowerL3 = c['_sum/GridActivePowerL3'];
             result.grid.maxBuyActivePower = c['_sum/GridMaxActivePower'];
             if (!result.grid.maxBuyActivePower) {
                 result.grid.maxBuyActivePower = 5000;
@@ -84,6 +102,9 @@ export class CurrentData {
              * Production
              */
             result.production.activePowerAC = c['_sum/ProductionAcActivePower'];
+            result.production.activePowerACL1 = c['_sum/ProductionAcActivePowerL1'];
+            result.production.activePowerACL2 = c['_sum/ProductionAcActivePowerL2'];
+            result.production.activePowerACL3 = c['_sum/ProductionAcActivePowerL3'];
             result.production.activePower = c['_sum/ProductionActivePower'];
             result.production.maxActivePower = c['_sum/ProductionMaxActivePower'];
             if (!result.production.maxActivePower) {
@@ -100,9 +121,12 @@ export class CurrentData {
              * < 0 => Charge
              */
             result.storage.soc = c['_sum/EssSoc'];
-            const essActivePower: number = c['_sum/EssActivePower'];
+            result.storage.activePowerL1 = c['_sum/EssActivePowerL1'];
+            result.storage.activePowerL2 = c['_sum/EssActivePowerL2'];
+            result.storage.activePowerL3 = c['_sum/EssActivePowerL3'];
             result.storage.maxApparentPower = c['_sum/EssMaxApparentPower'];
             result.storage.capacity = c['_sum/EssCapacity'];
+            const essActivePower: number = c['_sum/EssActivePower'];
 
             if (!result.storage.maxApparentPower) {
                 result.storage.maxApparentPower = 5000;
@@ -146,6 +170,9 @@ export class CurrentData {
              * Consumption
              */
             result.consumption.activePower = c['_sum/ConsumptionActivePower'];
+            result.consumption.activePowerL1 = c['_sum/ConsumptionActivePowerL1'];
+            result.consumption.activePowerL2 = c['_sum/ConsumptionActivePowerL2'];
+            result.consumption.activePowerL3 = c['_sum/ConsumptionActivePowerL3'];
             let consumptionMaxActivePower = c['_sum/ConsumptionMaxActivePower'];
             if (!consumptionMaxActivePower) {
                 consumptionMaxActivePower = 10000;

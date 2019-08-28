@@ -1,9 +1,5 @@
 import { Component, Input } from '@angular/core';
-<<<<<<< HEAD
-import { Edge, Service, Websocket, EdgeConfig, ChannelAddress } from '../../../../shared/shared';
-=======
 import { Edge, Service, Websocket, EdgeConfig } from '../../../../shared/shared';
->>>>>>> develop
 import { ModalController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,6 +13,8 @@ export class ConsumptionModalComponent {
 
     @Input() edge: Edge;
     @Input() evcsComponents;
+    @Input() currentTotalChargingPower;
+    @Input() sumOfChannel;
 
     public config: EdgeConfig = null;
 
