@@ -107,7 +107,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
               if (value == null) {
                 return null
               } else {
-                return value; // convert to kW
+                return value;
               }
             });
           }
@@ -160,7 +160,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
               if (value == null) {
                 return null
               } else if (value < 0) {
-                return value * -1; // convert to kW and invert value
+                return value * -1; // invert value
               } else {
                 return 0;
               }

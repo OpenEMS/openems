@@ -14,12 +14,11 @@
                             <td style="width:65%">
                                 <span translate>General.Production</span> DC</td>
                             <ng-container *ngIf="sum.activePowerDC != 0; else empty">
-                                <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
-                                <td style="width:10%">&nbsp;W</td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerDC | number:'1.0-0' }}&nbsp;W</td>
                             </ng-container>
                             <ng-template #empty>
-                                <td style="width:25%" class="align_right">-</td>
-                                <td style="width:10%"></td>
+                                <td style="width:35%" class="align_right">-</td>
                             </ng-template>
                         </tr>
                         <tr>
@@ -27,12 +26,11 @@
                                 <span> AC</span>
                             </td>
                             <ng-container *ngIf="sum.activePowerAC != 0; else empty">
-                                <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}</td>
-                                <td style="width:10%">&nbsp;W</td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerAC | number:'1.0-0' }}&nbsp;W</td>
                             </ng-container>
                             <ng-template #empty>
-                                <td style="width:25%" class="align_right">-</td>
-                                <td style="width:10%"></td>
+                                <td style="width:35%" class="align_right">-</td>
                             </ng-template>
                         </tr>
                     </table>
@@ -41,26 +39,24 @@
                         <tr>
                             <td style="width:65%"></td>
                             <ng-container *ngIf="sum.activePowerAC != 0; else empty">
-                                <td style="width:25%" class="align_right">
-                                    {{ sum.activePowerAC | number:'1.0-0' }}</td>
-                                <td style="width:10%">&nbsp;W</td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerAC | number:'1.0-0' }}&nbsp;W</td>
                             </ng-container>
                             <ng-template #empty>
-                                <td style="width:25%" class="align_right">-</td>
-                                <td style="width:10%"></td>
+                                <td style="width:35%" class="align_right">-</td>
                             </ng-template>
                         </tr>
                     </table>
+
                     <table class="full_width" *ngIf="sum.activePowerAC == null && sum.activePowerDC != null">
                         <tr>
                             <td style="width:65%"></td>
                             <ng-container *ngIf="sum.activePowerDC != 0; else empty">
-                                <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
-                                <td style="width:10%">&nbsp;W</td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerDC | number:'1.0-0' }}&nbsp;W</td>
                             </ng-container>
                             <ng-template #empty>
-                                <td style="width:25%" class="align_right">-</td>
-                                <td style="width:10%"></td>
+                                <td style="width:35%" class="align_right">-</td>
                             </ng-template>
                         </tr>
                     </table>
@@ -68,8 +64,7 @@
                     <table class="full_width" *ngIf="sum.activePowerAC == null && sum.activePowerDC == null">
                         <tr>
                             <td style="width:65%"></td>
-                            <td style="width:25%" class="align_right">-</td>
-                            <td style="width:10%"></td>
+                            <td style="width:35%" class="align_right">-</td>
                         </tr>
                     </table>
                 </ion-grid>
