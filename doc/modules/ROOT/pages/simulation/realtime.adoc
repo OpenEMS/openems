@@ -1,5 +1,5 @@
-= Simulation
-:imagesdir: ../assets/images
+= Real-Time Simulation
+:imagesdir: ../../assets/images
 :sectnumlevels: 0
 :toc:
 :toclevels: 0

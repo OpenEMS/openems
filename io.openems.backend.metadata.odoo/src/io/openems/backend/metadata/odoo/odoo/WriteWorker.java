@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo;
+package io.openems.backend.metadata.odoo.odoo;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -13,21 +13,23 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.metadata.odoo.Field;
+import io.openems.backend.metadata.odoo.MetadataOdoo;
+import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.common.exceptions.OpenemsException;
 
 /**
  * This worker combines writes to lastMessage and lastUpdate fields, to avoid
  * DDOSing Odoo by writing too often.
- * 
- * @author stefan.feilmeier
  *
  */
-public class OdooWriteWorker {
+public class WriteWorker {
 
 	private static final int UPDATE_INTERVAL_IN_SECONDS = 60;
 
-	private final Logger log = LoggerFactory.getLogger(OdooWriteWorker.class);
-	private final Odoo parent;
+	private final Logger log = LoggerFactory.getLogger(WriteWorker.class);
+	private final OdooHandler parent;
+	private final Credentials credentials;
 
 	/**
 	 * Holds the scheduled task.
@@ -39,13 +41,14 @@ public class OdooWriteWorker {
 	 */
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-	public OdooWriteWorker(Odoo parent) {
+	public WriteWorker(OdooHandler parent, Credentials credentials) {
 		this.parent = parent;
+		this.credentials = credentials;
 	}
 
-	public synchronized void start(OdooCredentials odooCredentials) {
+	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
-				() -> task.accept(odooCredentials), //
+				() -> task.accept(this.credentials), //
 				0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 
@@ -60,17 +63,17 @@ public class OdooWriteWorker {
 				executor.shutdown();
 				executor.awaitTermination(5, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
-				this.parent.logWarn(this.log, "tasks interrupted");
+				this.parent.parent.logWarn(this.log, "tasks interrupted");
 			} finally {
 				if (!executor.isTerminated()) {
-					this.parent.logWarn(this.log, "cancel non-finished tasks");
+					this.parent.parent.logWarn(this.log, "cancel non-finished tasks");
 				}
 				executor.shutdownNow();
 			}
 		}
 	}
 
-	private Consumer<OdooCredentials> task = (odooCredentials) -> {
+	private Consumer<Credentials> task = (credentials) -> {
 		/*
 		 * This task is executed regularly. Sends data to websocket.
 		 */
@@ -83,7 +86,7 @@ public class OdooWriteWorker {
 			}
 			if (ids.length > 0) {
 				try {
-					OdooUtils.write(odooCredentials, Odoo.ODOO_MODEL, ids,
+					OdooUtils.write(credentials, MetadataOdoo.ODOO_MODEL, ids,
 							new FieldValue<String>(Field.EdgeDevice.LAST_MESSAGE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastMessage: " + e.getMessage());
@@ -98,7 +101,7 @@ public class OdooWriteWorker {
 			}
 			if (ids.length > 0) {
 				try {
-					OdooUtils.write(odooCredentials, Odoo.ODOO_MODEL, ids,
+					OdooUtils.write(credentials, MetadataOdoo.ODOO_MODEL, ids,
 							new FieldValue<String>(Field.EdgeDevice.LAST_UPDATE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastUpdate: " + e.getMessage());

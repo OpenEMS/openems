@@ -1,0 +1,31 @@
+= UI History Simulation
+:imagesdir: ../../assets/images
+:sectnumlevels: 0
+:toc:
+:toclevels: 0
+
+Sometimes it can be useful to mock historic data in OpenEMS UI in order to take consistent screenshots or to visualize how a certain Controller would have behaved during a day.
+
+Prepare the mock for the historic view:
+
+. first copy the example https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.simulator/src/io/openems/edge/simulator/timedata/timedata.csv[CSV file icon:github[]] to your home directory, e.g. `C:\Users\username\` on windows.
+
+. adjust the file to mock all required channel values.
++
+NOTE: The CSV file is read on every data query by the UI. So in order to update the values, just save the CSV file and click again on 'Today' or 'Yesterday' in the history view to refresh.
++
+NOTE: To provide data for one day, that file should have 288 lines with values.
++
+.The mocked data in the CSV file
+image::ui-mock-csv.png[The mocked data in the CSV file]
+
+OpenEMS UI creates charts dynamically according to which OpenEMS Components are enabled. To mock the historic view, it is required to activate OpenEMS Component via Apache Felix (see xref:gettingstarted.adoc[Getting Started]) or directly in the UI OpenEMS Settings screen.
+
+. configure the OpenEMS Components that should be simulated, e.g. a meter, PV inverter,...
+
+. configure the `Simulator Timedata` service.
+
+. open the OpenEMS UI (see xref:gettingstarted.adoc[Getting Started]), login and open the 'History' view. You should be presented the mocked data.
+
+.The mocked data in the UI 'History' view
+image::ui-mock-history.png[The mocked data in the UI 'History' view]
