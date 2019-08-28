@@ -28,6 +28,9 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.Evcs;
@@ -133,7 +136,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		ManagedEvcs evcs = this.componentManager.getComponent(this.config.evcs_id());
 
 		Boolean isClusterd = Boolean.valueOf((evcs.isClustered().value().toString()));
@@ -177,7 +180,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				break;
 
 			case STORAGE:
-				int maxEssCharge = ess.getAllowedCharge().value().orElse(0);
+				int maxEssCharge;
+				if (ess instanceof ManagedSymmetricEss) {
+					ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
+					maxEssCharge = e.getPower().getMinPower(e, Phase.ALL, Pwr.ACTIVE);
+				} else {
+					maxEssCharge = ess.getMaxApparentPower().value().orElse(0) * -1;
+				}
 				int storageSoc = this.sum.getEssSoc().value().orElse(0);
 				long essActivePower = this.sum.getEssActivePower().value().orElse(0);
 
