@@ -210,5 +210,5 @@
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.tesla.powerwall2;version=snapshot,\
-	com.github.scribejava.core;version='[6.8.0,6.8.1)',\
-	io.openems.edge.evcs.cluster;version=snapshot
+	io.openems.edge.evcs.cluster;version=snapshot,\
+	com.github.scribejava.core;version='[6.8.1,6.8.2)'
