@@ -221,21 +221,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               hidden: false
             });
           }
-          /*
-           * Autarchy
-           */
-          let gridBuy = result.data['_sum/GridActivePower'].map(value => {
-            if (value == null) {
-              return null
-            } else if (value > 0) {
-              return value / 1000; // convert to kW
-            } else {
-              return 0;
-            }
-          })
 
           this.datasets = datasets;
-
           this.loading = false;
 
         }).catch(reason => {

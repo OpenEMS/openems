@@ -63,6 +63,10 @@
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="6">
+              <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+            </ion-col>
+
             <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6">
               <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
             </ion-col>

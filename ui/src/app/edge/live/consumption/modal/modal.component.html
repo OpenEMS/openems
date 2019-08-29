@@ -16,7 +16,7 @@
                 <ng-container *ngIf="currentData.summary.consumption as sum">
                     <table class="full_width">
                         <tr [class.underline]="sum.activePowerL1 != null">
-                            <td style="width:65%">Gesamtverbrauch</td>
+                            <td style="width:65%" translate>General.totalConsumption</td>
                             <ng-container *ngIf="sum.activePower != null; else empty">
                                 <td style="width:35%" class="align_right">{{ sum.activePower | number:'1.0-0' }}&nbsp;W
                                 </td>
@@ -56,7 +56,7 @@
                     </table>
                     <table class="full_width" *ngIf="evcsComponents.length != 0">
                         <tr>
-                            <td style="width: 65%">sonstiger Verbrauch</td>
+                            <td style="width: 65%" translate>General.otherConsumption</td>
                             <ng-container
                                 *ngIf="sum.activePower != (sum.activePower - currentTotalChargingPower()); else empty">
                                 <td style="width: 35%" class="align_right">
@@ -116,7 +116,7 @@
                             <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
                         </ion-col>
                         <ion-col size="10">
-                            <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
+                            <ion-note text-wrap><small translate>Edge.Index.Widgets.phasesInfo</small>
                             </ion-note>
                         </ion-col>
                     </ion-row>

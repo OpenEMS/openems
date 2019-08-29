@@ -192,48 +192,42 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           };
 
           /*
-           * Autarchy
-           */
-          let autarchy = consumptionData.map((value, index) => {
-            return (1 - (Utils.orElse(buyFromGridData[index], 0) / Utils.orElse(value, 0))) * 100;
-          }).map(value => {
-            if (value == null || isNaN(value)) {
-              return null;
-            }
-            else if (value >= 0) {
-              return value;
-            }
-            else {
-              return 0;
-            }
-          });
-
+          * Autarchy
+          */
           if (config.hasProducer()) {
+            let autarchy = consumptionData.map((value, index) => {
+              return (1 - (Utils.orElse(buyFromGridData[index], 0) / Utils.orElse(value, 0))) * 100;
+            }).map(value => {
+              if (value == null || isNaN(value)) {
+                return null;
+              } else if (value >= 0) {
+                return value;
+              } else {
+                return 0;
+              }
+            });
+
             datasets.push({
               label: this.translate.instant('General.Autarchy'),
               data: autarchy,
               hidden: false
             })
-          }
 
-          /*
-           * Self Consumption
-           */
-          let selfConsumption = productionData.map((value, index) => {
-            return (1 - (Utils.orElse(sellToGridData[index], 0) / (Utils.addSafely(Utils.orElse(value, 0), Utils.orElse(dischargeData[index], 0))))) * 100;
-          }).map((value, index) => {
-            if (value >= 0) {
-              return value;
-            }
-            else if (autarchy[index] == null) {
-              return null;
-            }
-            else {
-              return 0;
-            }
-          })
+            /*
+            * Self Consumption
+            */
+            let selfConsumption = productionData.map((value, index) => {
+              return (1 - (Utils.orElse(sellToGridData[index], 0) / (Utils.addSafely(Utils.orElse(value, 0), Utils.orElse(dischargeData[index], 0))))) * 100;
+            }).map((value, index) => {
+              if (value >= 0) {
+                return value;
+              } else if (autarchy[index] == null) {
+                return null;
+              } else {
+                return 0;
+              }
+            })
 
-          if (config.hasProducer()) {
             datasets.push({
               label: this.translate.instant('General.SelfConsumption'),
               data: selfConsumption,
@@ -278,27 +272,33 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     return new Promise((resolve, reject) => {
       if (edge.isVersionAtLeast('2018.8')) {
         let result: ChannelAddress[] = [];
-        config.widgets.classes.forEach(clazz => {
-          switch (clazz.toString()) {
-            case 'Grid':
-              result.push(new ChannelAddress('_sum', 'GridActivePower'));
-              break;
-            case 'Consumption':
-              result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
-              break;
-            case 'Storage':
-              result.push(new ChannelAddress('_sum', 'EssSoc'));
-              result.push(new ChannelAddress('_sum', 'EssActivePower'));
-              break;
-            case 'Production':
-              result.push(
-                new ChannelAddress('_sum', 'ProductionActivePower'),
-                new ChannelAddress('_sum', 'ProductionDcActualPower'));
-              break;
-          };
-          return false;
-        });
-        resolve(result);
+        if (config.hasProducer()) {
+          config.widgets.classes.forEach(clazz => {
+            switch (clazz.toString()) {
+              case 'Grid':
+                result.push(new ChannelAddress('_sum', 'GridActivePower'));
+                break;
+              case 'Consumption':
+                result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
+                break;
+              case 'Storage':
+                result.push(
+                  new ChannelAddress('_sum', 'EssSoc'),
+                  new ChannelAddress('_sum', 'EssActivePower'));
+                break;
+              case 'Production':
+                result.push(
+                  new ChannelAddress('_sum', 'ProductionActivePower'),
+                  new ChannelAddress('_sum', 'ProductionDcActualPower'));
+                break;
+            };
+            return false;
+          })
+          resolve(result);
+        }
+        else {
+          resolve([new ChannelAddress('_sum', 'EssSoc')]);
+        };
       } else {
         // TODO: remove after full migration
         this.service.getConfig().then(config => {
@@ -308,9 +308,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
 
           // get 'Soc'-Channel of all 'EssNatures'
           result.push.apply(result, this.getSoc(config.getComponentIdsImplementingNature("EssNature"), ignoreIds));
-
-
-
 
           resolve(result);
         }).catch(reason => reject(reason));
@@ -344,11 +341,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
  */
   private convertDeprecatedData(config: EdgeConfig, data: { [channelAddress: string]: any[] }) {
     let sumEssSoc = [];
-    let sumEssActivePower = [];
-    let sumGridActivePower = [];
-    let sumProductionActivePower = [];
-    let sumProductionAcActivePower = [];
-    let sumProductionDcActualPower = [];
 
     for (let channel of Object.keys(data)) {
       let channelAddress = ChannelAddress.fromString(channel)
@@ -365,70 +357,11 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           });
         }
       }
-
-      if (natureIds.includes('EssNature') && channelId.startsWith('ActivePower')) {
-        if (sumEssActivePower.length == 0) {
-          sumEssActivePower = data[channel];
-        } else {
-          sumEssActivePower = data[channel].map((value, index) => {
-            return Utils.addSafely(sumEssActivePower[index], value);
-          });
-        }
-      }
-
-      if (natureIds.includes('MeterNature') && channelId.startsWith('ActivePower')) {
-        if (componentId === 'meter0') {
-          if (sumGridActivePower.length == 0) {
-            sumGridActivePower = data[channel];
-          } else {
-            sumGridActivePower = data[channel].map((value, index) => {
-              return Utils.addSafely(sumGridActivePower[index], value);
-            });
-          }
-        } else {
-          if (sumProductionActivePower.length == 0) {
-            sumProductionActivePower = data[channel];
-          } else {
-            sumProductionActivePower = data[channel].map((value, index) => {
-              return Utils.addSafely(sumProductionActivePower[index], value);
-            });
-          }
-          if (sumProductionAcActivePower.length == 0) {
-            sumProductionAcActivePower = data[channel];
-          } else {
-            sumProductionAcActivePower = data[channel].map((value, index) => {
-              return Utils.addSafely(sumProductionAcActivePower[index], value);
-            });
-          }
-        }
-      }
-      if (natureIds.includes('ChargerNature') && channelId === 'ActualPower') {
-        if (sumProductionActivePower.length == 0) {
-          sumProductionActivePower = data[channel];
-        } else {
-          sumProductionActivePower = data[channel].map((value, index) => {
-            return Utils.addSafely(sumProductionActivePower[index], value);
-          });
-        }
-        if (sumProductionDcActualPower.length == 0) {
-          sumProductionDcActualPower = data[channel];
-        } else {
-          sumProductionDcActualPower = data[channel].map((value, index) => {
-            return Utils.addSafely(sumProductionDcActualPower[index], value);
-          });
-        }
-      }
     }
     data['_sum/EssSoc'] = sumEssSoc.map((value, index) => {
       return Utils.divideSafely(sumEssSoc[index], Object.keys(data).length);
     });
-    data['_sum/EssActivePower'] = sumEssActivePower;
-    data['_sum/GridActivePower'] = sumGridActivePower;
-    data['_sum/ProductionActivePower'] = sumProductionActivePower;
-    data['_sum/ProductionDcActualPower'] = sumProductionDcActualPower;
-    data['_sum/ConsumptionActivePower'] = sumEssActivePower.map((ess, index) => {
-      return Utils.addSafely(ess, Utils.addSafely(sumProductionAcActivePower[index], sumGridActivePower[index]));
-    });
+
   }
 
 }

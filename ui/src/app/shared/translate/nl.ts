@@ -9,6 +9,8 @@ export const TRANSLATION = {
         OffGrid: "Geen Netaansluiting!",
         Production: "Opwekking",
         Consumption: "Verbruik",
+        otherConsumption: "andere consumptie",
+        totalConsumption: "totale verbruik",
         Load: "Laden",
         Power: "Vermogen",
         StorageSystem: "Batterij",
@@ -70,7 +72,7 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "uitgang"
                 },
-                Info: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
+                phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",
                     HighThreshold: "hoge drempel"

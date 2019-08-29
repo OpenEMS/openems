@@ -9,6 +9,8 @@ export const TRANSLATION = {
         OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
+        otherConsumption: "jiná spotřeba",
+        totalConsumption: "celková spotřeba",
         Load: "nálož",
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
@@ -72,7 +74,7 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "Výstup"
                 },
-                Info: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
+                phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 CHP: {
                     LowThreshold: "Nízký práh",
                     HighThreshold: "vysoký práh"

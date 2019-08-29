@@ -29,35 +29,14 @@ export class ProductionModalComponent {
         this.service.getConfig().then(config => {
             this.config = config;
             let channels = [];
-            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => !component.isEnabled == false);
+            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
             for (let component of this.chargerComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'ActualPower'),
                 )
             }
-            this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => {
-                if (component.isEnabled == false) {
-                    return false;
-                }
-                else if (component.properties['type'] == "PRODUCTION") {
-                    return true;
-                } else {
-                    // TODO make sure 'type' is provided for all Meters
-                    switch (component.factoryId) {
-                        case 'Fenecon.Mini.PvMeter':
-                        case 'Fenecon.Dess.PvMeter':
-                        case 'Fenecon.Pro.PvMeter':
-                        case 'Kostal.Piko.Charger':
-                        case 'Kaco.BlueplanetHybrid10.PvInverter':
-                        case 'PV-Inverter.Solarlog':
-                        case 'PV-Inverter.KACO.blueplanet':
-                        case 'SolarEdge.PV-Inverter':
-                        case 'Simulator.ProductionMeter.Acting':
-                            return true;
-                    }
-                }
-                return false;
-            })
+            this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
+            console.log("PRODUCTIONMETERS", this.productionMeterComponents);
             for (let component of this.productionMeterComponents) {
                 let factoryID = component.factoryId;
                 let factory = config.factories[factoryID];

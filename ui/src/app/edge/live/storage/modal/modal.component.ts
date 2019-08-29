@@ -31,13 +31,13 @@ export class StorageModalComponent implements OnInit {
         this.service.getConfig().then(config => {
             this.config = config;
             let channels = [];
-            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => !component.isEnabled == false);
+            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
             for (let component of this.chargerComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'ActualPower'),
                 )
             }
-            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && !component.isEnabled == false);
+            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
             for (let component of this.essComponents) {
                 let factoryID = component.factoryId;
                 let factory = config.factories[factoryID];

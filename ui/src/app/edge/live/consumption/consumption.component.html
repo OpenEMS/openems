@@ -25,7 +25,7 @@
                         </ng-container>
                         <ng-container *ngIf="evcsComponents.length > 0">
                             <tr>
-                                <td style="width:65%">Gesamtverbrauch</td>
+                                <td style="width:65%" translate>General.totalConsumption</td>
                                 <ng-container *ngIf="sum.activePower != 0; else empty">
                                     <td style="width:35%" class="align_right">
                                         {{ sum.activePower | number:'1.0-0' }}&nbsp;W
@@ -47,7 +47,7 @@
                                 </ng-template>
                             </tr>
                             <tr *ngIf="evcsComponents.length != 0">
-                                <td style="width: 65%">sonstiger Verbrauch</td>
+                                <td style="width: 65%" translate>General.otherConsumption</td>
                                 <ng-container
                                     *ngIf="sum.activePower != (sum.activePower - currentTotalChargingPower()); else empty">
                                     <td style="width:35%" class="align_right">

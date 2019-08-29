@@ -9,6 +9,8 @@ export const TRANSLATION = {
         OffGrid: "No hay conexión de red",
         Production: "Producción",
         Consumption: "Consumo",
+        otherConsumption: "otro Consumo",
+        totalConsumption: "consumo total",
         Load: "la cantidad",
         Power: "Rendimiento",
         StorageSystem: "Almacenamiento",
@@ -73,7 +75,7 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "Salida"
                 },
-                Info: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
+                phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 CHP: {
                     LowThreshold: "Umbral bajo",
                     HighThreshold: "Umbral alto"

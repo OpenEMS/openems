@@ -25,7 +25,7 @@ export class AutarchyComponent {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, AutarchyComponent.SELECTOR, [
                 // Grid
-                new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'),
+                new ChannelAddress('_sum', 'GridActivePower'),
                 // Consumption
                 new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
             ]);

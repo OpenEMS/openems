@@ -46,9 +46,7 @@ export class Widgets {
                     case 'Storage':
                         return config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 0;
                     case 'Production':
-                        return config.hasProducer();
                     case 'Autarchy':
-                        return config.hasProducer();
                     case 'Selfconsumption':
                         return config.hasProducer();
                 };

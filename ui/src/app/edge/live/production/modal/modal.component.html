@@ -35,13 +35,13 @@
                         <ng-container *ngIf="edge.currentData | async as currentData">
                             <ng-container *ngIf="currentData.summary.production as sum">
                                 <table class="full_width"
-                                    *ngIf="sum.activePowerACL1 != null && sum.activePowerACL2 != null && sum.activePowerACL3 != null">
+                                    *ngIf="sum.activePowerAcL1 != null && sum.activePowerAcL2 != null && sum.activePowerAcL3 != null">
                                     <tr>
                                         <td style="width:2%"></td>
                                         <td style="width:23%"><span translate>General.Production</span>&nbsp;L1</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
-                                            {{ sum.activePowerACL1 | number:'1.0-0' }}&nbsp;W
+                                            {{ sum.activePowerAcL1 | number:'1.0-0' }}&nbsp;W
                                         </td>
                                     </tr>
                                     <tr>
@@ -49,7 +49,7 @@
                                         <td style="width:23%"><span translate>General.Production</span>&nbsp;L2</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
-                                            {{ sum.activePowerACL2 | number:'1.0-0' }}&nbsp;W
+                                            {{ sum.activePowerAcL2 | number:'1.0-0' }}&nbsp;W
                                         </td>
                                     </tr>
                                     <tr>
@@ -57,7 +57,7 @@
                                         <td style="width:23%"><span translate>General.Production</span>&nbsp;L3</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
-                                            {{ sum.activePowerACL3 | number:'1.0-0' }}&nbsp;W
+                                            {{ sum.activePowerAcL3 | number:'1.0-0' }}&nbsp;W
                                         </td>
                                     </tr>
                                 </table>
@@ -183,14 +183,14 @@
         <ng-container *ngIf="edge.currentData | async as currentData">
             <ng-container *ngIf="currentData.summary.production as sum">
                 <ion-grid
-                    *ngIf="sum.activePowerACL1 != null && sum.activePowerACL2 != null && sum.activePowerACL3 != null"
+                    *ngIf="sum.activePowerAcL1 != null && sum.activePowerAcL2 != null && sum.activePowerAcL3 != null"
                     padding-top>
                     <ion-row justify-content-center align-items-center>
                         <ion-col size="2" text-center>
                             <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
                         </ion-col>
                         <ion-col size="10">
-                            <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
+                            <ion-note text-wrap><small translate>Edge.Index.Widgets.phasesInfo</small>
                             </ion-note>
                         </ion-col>
                     </ion-row>
