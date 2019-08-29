@@ -1,7 +1,7 @@
-= OpenEMS - Open Energy Management System
+= FEMS - FENECON Energy Management System
 ifndef::toc[]
-(c) 2019 OpenEMS Association e.V.
-Version 2019.9.1
+(c) 2019 FENECON GmbH
+Version 2019.10.1
 :sectnums:
 :sectnumlevels: 4
 :toc:
