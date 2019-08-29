@@ -4,6 +4,8 @@ language: java
 
 jdk:
   - openjdk8
+node_js:
+  - 10
 
 install: ./gradlew --version
 
