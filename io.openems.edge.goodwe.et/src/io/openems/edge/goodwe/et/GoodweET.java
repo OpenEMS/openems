@@ -2,7 +2,7 @@ package io.openems.edge.goodwe.et;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.goodwe.et.charger.GoodweETCharger;
+import io.openems.edge.goodwe.et.charger.GoodweETChargerPV1;
 
 public interface GoodweET extends SymmetricEss, OpenemsComponent{
 	
@@ -10,6 +10,6 @@ public interface GoodweET extends SymmetricEss, OpenemsComponent{
 
 	public String getModbusBridgeId();
 
-	public void setCharger(GoodweETCharger charger);
+	public void setCharger(GoodweETChargerPV1 charger);
 
 }

@@ -7,8 +7,7 @@ enum WorkMode implements OptionsEnum {
 	WAIT(0, "cut off all the connection to Inverter"), //
 	ON_GRID(1, "PV intputs to Inverter,Inverter outputs to Grid"), //
 	OFF_GRID(2, "PV inputs to Inverter(First),Battery inputs to Inverter(Second),Inverter work as AC source"), //
-	FAULT(3, "Fault,fault mode,something is in fault mode"), //
-;
+	FAULT(3, "Fault,fault mode,something is in fault mode");
 
 	private final int value;
 	private final String option;

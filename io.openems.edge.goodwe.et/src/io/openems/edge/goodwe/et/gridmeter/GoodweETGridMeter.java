@@ -87,7 +87,16 @@ public class GoodweETGridMeter extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-
+				
+				new FC3ReadRegistersTask(35123, Priority.LOW, //
+					m(GoodweChannelIdET.F_GRID_R, new UnsignedWordElement(35123),
+							ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+					new DummyRegisterElement(35124, 35127), //
+					m(GoodweChannelIdET.F_GRID_S, new UnsignedWordElement(35128),
+							ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+					new DummyRegisterElement(35129, 35132), //
+					m(GoodweChannelIdET.F_GRID_T, new UnsignedWordElement(35133),
+							ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
 				// Safety
 				new FC16WriteRegistersTask(45400,
 						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1, new UnsignedWordElement(45400),
@@ -222,8 +231,9 @@ public class GoodweETGridMeter extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(35133, 35134), m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
-								new SignedWordElement(35135), ElementToChannelConverter.INVERT) //
+						new DummyRegisterElement(35133, 35134), 
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(35135), //
+								ElementToChannelConverter.INVERT) //
 				), //
 				new FC3ReadRegistersTask(35140, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(35140),

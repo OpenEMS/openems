@@ -12,8 +12,8 @@ Export-Package:  \
 Private-Package:  \
 	io.openems.edge.goodwe.et,\
 	io.openems.edge.goodwe.et.charger,\
-	io.openems.edge.goodwe.et.gridmeter,\
-	io.openems.edge.goodwe.et.pvmeter
+	io.openems.edge.goodwe.et.gridmeter
+	
 
 -includeresource: {readme.md}
 

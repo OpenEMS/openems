@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.et;
 
+import java.util.function.Consumer;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -26,16 +28,18 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.goodwe.et.charger.GoodweETCharger;
-
+import io.openems.edge.goodwe.et.charger.GoodweETChargerPV1;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -44,13 +48,12 @@ import io.openems.edge.goodwe.et.charger.GoodweETCharger;
 		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 
 public class GoodweETImpl extends AbstractOpenemsModbusComponent
-		implements GoodweET,AsymmetricEss, SymmetricEss, OpenemsComponent {
-	
-	protected GoodweETCharger charger = null;
+		implements GoodweET, AsymmetricEss, SymmetricEss, OpenemsComponent, EssDcCharger {
+
+	protected GoodweETChargerPV1 charger = null;
 
 	protected final static int MAX_APPARENT_POWER = 10_000;
 
-	
 	private Config config;
 
 	@Reference
@@ -58,6 +61,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 
 	@Reference
 	private Power power;
+
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -81,91 +85,83 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
-				GoodweChannelIdET.values() // //
+				GoodweChannelIdET.values() // 
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(GoodweETImpl.MAX_APPARENT_POWER);
+		
+		final Channel<Integer> essPower = this.channel(GoodweChannelIdET.P_BATTERY1);
+		final Channel<Integer> pvPower1 = this.channel(GoodweChannelIdET.P_PV1);
+		final Channel<Integer> pvPower2 = this.channel(GoodweChannelIdET.P_PV2);
+		final Channel<Integer> pvPower3 = this.channel(GoodweChannelIdET.P_PV3);
+		final Channel<Integer> pvPower4 = this.channel(GoodweChannelIdET.P_PV4);
+		final Consumer<Value<Integer>> actualPowerSum = ignore -> {
+			this.getActivePower().setNextValue(TypeUtils.sum(pvPower1.value().get(), pvPower2.value().get(), pvPower3.value().get(), pvPower4.value().get(), essPower.value().get()));
+		};
+		pvPower1.onSetNextValue(actualPowerSum);
+		pvPower2.onSetNextValue(actualPowerSum);
+		pvPower3.onSetNextValue(actualPowerSum);
+		pvPower4.onSetNextValue(actualPowerSum);
+		essPower.onSetNextValue(actualPowerSum);
 	}
-	
+
 	public String getModbusBridgeId() {
 		return this.config.modbus_id();
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this,
-				new FC3ReadRegistersTask(35000, Priority.LOW,
+		return new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(35000, Priority.LOW, //
 						m(GoodweChannelIdET.MODBUS_PROTOCOL_VERSION, new UnsignedWordElement(35000)), //
 						m(GoodweChannelIdET.RATED_POWER, new UnsignedWordElement(35001)), //
 						m(GoodweChannelIdET.AC_OUTPUT_TYPE, new UnsignedWordElement(35002)), //
 						m(GoodweChannelIdET.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
 						m(GoodweChannelIdET.DEVICE_TYPE, new StringWordElement(35011, 5))), //
-				new FC3ReadRegistersTask(35016, Priority.LOW,
+				new FC3ReadRegistersTask(35016, Priority.LOW, //
 						m(GoodweChannelIdET.DSP1_SOFTWARE_VERSION, new UnsignedWordElement(35016)), //
 						m(GoodweChannelIdET.DSP2_SOFTWARE_VERSION, new UnsignedWordElement(35017)), //
 						m(GoodweChannelIdET.DSP_SPN_VERSION, new UnsignedWordElement(35018)), //
 						m(GoodweChannelIdET.ARM_SOFTWARE_VERSION, new UnsignedWordElement(35019)), //
 						m(GoodweChannelIdET.ARM_SVN_VERSION, new UnsignedWordElement(35020)), //
-						m(GoodweChannelIdET.DSP_INTERNAL_FIRMWARE_VERSION, new StringWordElement(35021, 6))), //
-				new FC3ReadRegistersTask(35027, Priority.LOW,
+						m(GoodweChannelIdET.DSP_INTERNAL_FIRMWARE_VERSION, new StringWordElement(35021, 6)), //
 						m(GoodweChannelIdET.ARM_INTERNAL_FIRMWARE_VERSION, new StringWordElement(35027, 6))), //
-				new FC3ReadRegistersTask(35050, Priority.LOW,
+				new FC3ReadRegistersTask(35050, Priority.LOW, //
 						m(GoodweChannelIdET.SIMCCID, new StringWordElement(35050, 10))), //
-				new FC3ReadRegistersTask(35100, Priority.LOW,
+				new FC3ReadRegistersTask(35100, Priority.LOW, //
 						m(GoodweChannelIdET.RTC_YEAR_MONTH, new UnsignedWordElement(35100)), //
 						m(GoodweChannelIdET.RTC_DATE_HOUR, new UnsignedWordElement(35101)), //
 						m(GoodweChannelIdET.RTC_MINUTE_SECOND, new UnsignedWordElement(35102))), //
-				new FC3ReadRegistersTask(35103, Priority.LOW,
-						m(GoodweChannelIdET.V_PV1, new UnsignedWordElement(35103),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.I_PV1, new UnsignedWordElement(35104),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.P_PV1, new UnsignedDoublewordElement(35105),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.V_PV2, new UnsignedWordElement(35107),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.I_PV2, new UnsignedWordElement(35108),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.P_PV2, new UnsignedDoublewordElement(35109),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+				
+				new FC3ReadRegistersTask(35111, Priority.LOW, //
 						m(GoodweChannelIdET.V_PV3, new UnsignedWordElement(35111),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_PV3, new UnsignedWordElement(35112),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.P_PV3, new UnsignedDoublewordElement(35113),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(35113, 35114), //
 						m(GoodweChannelIdET.V_PV4, new UnsignedWordElement(35115),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_PV4, new UnsignedWordElement(35116),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.P_PV4, new UnsignedDoublewordElement(35117),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.PV_MODE, new UnsignedDoublewordElement(35119)), //
-						new DummyRegisterElement(35121, 35122), //
-						m(GoodweChannelIdET.F_GRID_R, new UnsignedWordElement(35123),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						new DummyRegisterElement(35124, 35127), //
-						m(GoodweChannelIdET.F_GRID_S, new UnsignedWordElement(35128),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						new DummyRegisterElement(35129, 35132), //
-						m(GoodweChannelIdET.F_GRID_T, new UnsignedWordElement(35133),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
-						new FC3ReadRegistersTask(35136, Priority.HIGH, //
+						new DummyRegisterElement(35117, 35118), //
+						m(GoodweChannelIdET.PV_MODE, new UnsignedDoublewordElement(35119))), //
+//						
+				new FC3ReadRegistersTask(35136, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
-									new ElementToChannelConverter((value) -> {
-										Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-										if (intValue != null) {
-											switch (intValue) {
-											case 0:
-												return GridMode.OFF_GRID;
-											case 1:
-												return GridMode.ON_GRID;
-											case 2:
-												return GridMode.UNDEFINED;
-											}
+								new ElementToChannelConverter((value) -> {
+									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+									if (intValue != null) {
+										switch (intValue) {
+										case 0:
+											return GridMode.OFF_GRID;
+										case 1:
+											return GridMode.ON_GRID;
+										case 2:
+											return GridMode.UNDEFINED;
 										}
-										return GridMode.UNDEFINED;
-									}))), //
-				new FC3ReadRegistersTask(35138, Priority.LOW,
+									}
+									return GridMode.UNDEFINED;
+								}))), //
+				new FC3ReadRegistersTask(35138, Priority.LOW, //
 						m(GoodweChannelIdET.TOTAL_INV_POWER, new SignedWordElement(35138)), //
 						new DummyRegisterElement(35139, 35143), //
 						m(GoodweChannelIdET.AC_APPARENT_POWER, new SignedWordElement(35144)), //
@@ -176,7 +172,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BACK_UP_F_LOAD_R, new UnsignedWordElement(35147),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.LOAD_MODE_R, new UnsignedWordElement(35148)), //
-						new DummyRegisterElement(35149, 35149), //
+						new DummyRegisterElement(35149), //
 						m(GoodweChannelIdET.BACK_UP_P_LOAD_R, new SignedWordElement(35150)), //
 						m(GoodweChannelIdET.BACK_UP_V_LOAD_S, new UnsignedWordElement(35151),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -185,7 +181,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BACK_UP_F_LOAD_S, new UnsignedWordElement(35153),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.LOAD_MODE_S, new UnsignedWordElement(35154)), //
-						new DummyRegisterElement(35155, 35155), //
+						new DummyRegisterElement(35155), //
 						m(GoodweChannelIdET.BACK_UP_P_LOAD_S, new SignedWordElement(35156)), //
 						m(GoodweChannelIdET.BACK_UP_V_LOAD_T, new UnsignedWordElement(35157),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -194,7 +190,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BACK_UP_F_LOAD_T, new UnsignedWordElement(35159),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.LOAD_MODE_T, new UnsignedWordElement(35160)), //
-						new DummyRegisterElement(35161, 35161), //
+						new DummyRegisterElement(35161), //
 						m(GoodweChannelIdET.BACK_UP_P_LOAD_T, new SignedWordElement(35162)), //
 						new DummyRegisterElement(35163), //
 						m(GoodweChannelIdET.P_LOAD_R, new SignedWordElement(35164)), //
@@ -209,7 +205,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.UPS_LOAD_PERCENT, new UnsignedWordElement(35173),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 
-				new FC3ReadRegistersTask(35174, Priority.LOW,
+				new FC3ReadRegistersTask(35174, Priority.LOW, //
 						m(GoodweChannelIdET.AIR_TEMPERATURE, new SignedWordElement(35174),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.MODULE_TEMPERATURE, new SignedWordElement(35175),
@@ -225,16 +221,22 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.I_BATTERY1, new SignedWordElement(35181),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(35182, 35183), //
-						//m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(35183)), //
+						new DummyRegisterElement(35182), //
+						m(GoodweChannelIdET.P_BATTERY1, new SignedWordElement(35183)), //
 						m(GoodweChannelIdET.BATTERY_MODE, new UnsignedWordElement(35184)), //
 						m(GoodweChannelIdET.WARNING_CODE, new UnsignedWordElement(35185)), //
 						m(GoodweChannelIdET.SAFETY_COUNTRY, new UnsignedWordElement(35186)), //
 						m(GoodweChannelIdET.WORK_MODE, new UnsignedWordElement(35187)), //
 						m(GoodweChannelIdET.OPERATION_MODE, new UnsignedDoublewordElement(35188))), //
-				
-				new FC3ReadRegistersTask(36008, Priority.LOW,
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(36008))), //
+
+				new FC3ReadRegistersTask(35105, Priority.LOW, //
+						m(GoodweChannelIdET.P_PV1, new UnsignedDoublewordElement(35105)), //
+						new DummyRegisterElement(35107, 35108), //
+						m(GoodweChannelIdET.P_PV2, new UnsignedDoublewordElement(35109)), //
+						new DummyRegisterElement(35111, 35112), //
+						m(GoodweChannelIdET.P_PV3, new UnsignedDoublewordElement(35113)), //
+						new DummyRegisterElement(35115, 35116), //
+						m(GoodweChannelIdET.P_PV4, new UnsignedDoublewordElement(35117))), //
 
 				new FC3ReadRegistersTask(35189, Priority.LOW, //
 						m(new BitsWordElement(35189, this) //
@@ -271,10 +273,9 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(12, GoodweChannelIdET.STATE_28) //
 								.bit(13, GoodweChannelIdET.STATE_29) //
 								.bit(14, GoodweChannelIdET.STATE_30) //
-								.bit(15, GoodweChannelIdET.STATE_31) //
-						)),
+								.bit(15, GoodweChannelIdET.STATE_31))),
 
-				new FC3ReadRegistersTask(35191, Priority.LOW,
+				new FC3ReadRegistersTask(35191, Priority.LOW, //
 						m(GoodweChannelIdET.PV_E_TOTAL, new UnsignedDoublewordElement(35191),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.PV_E_DAY, new UnsignedDoublewordElement(35193),
@@ -309,7 +310,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.DIAG_STATUS_H, new UnsignedDoublewordElement(35218)), //
 						m(GoodweChannelIdET.DIAG_STATUS_L, new UnsignedDoublewordElement(35220))), //
 
-				new FC3ReadRegistersTask(36000, Priority.LOW,
+				new FC3ReadRegistersTask(36000, Priority.LOW, //
 						m(GoodweChannelIdET.COM_MODE, new UnsignedWordElement(36000)), //
 						m(GoodweChannelIdET.RSSI, new UnsignedWordElement(36001)), //
 						m(GoodweChannelIdET.MANIFACTURE_CODE, new UnsignedWordElement(36002)), //
@@ -331,18 +332,18 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.E_TOTAL_BUY2, new UnsignedWordElement(36017),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 
-				new FC3ReadRegistersTask(37000, Priority.LOW, m(new BitsWordElement(37000, this) //
-						.bit(0, GoodweChannelIdET.STATE_32) //
-						.bit(1, GoodweChannelIdET.STATE_33) //
-						.bit(2, GoodweChannelIdET.STATE_34) //
-						.bit(3, GoodweChannelIdET.STATE_35) //
-						.bit(4, GoodweChannelIdET.STATE_36) //
-						.bit(5, GoodweChannelIdET.STATE_37) //
-						.bit(6, GoodweChannelIdET.STATE_38) //
-						.bit(7, GoodweChannelIdET.STATE_39) //
-						.bit(8, GoodweChannelIdET.STATE_40) //
-						.bit(15, GoodweChannelIdET.STATE_41) //
-				)),
+				new FC3ReadRegistersTask(37000, Priority.LOW, //
+						m(new BitsWordElement(37000, this) //
+								.bit(0, GoodweChannelIdET.STATE_32) //
+								.bit(1, GoodweChannelIdET.STATE_33) //
+								.bit(2, GoodweChannelIdET.STATE_34) //
+								.bit(3, GoodweChannelIdET.STATE_35) //
+								.bit(4, GoodweChannelIdET.STATE_36) //
+								.bit(5, GoodweChannelIdET.STATE_37) //
+								.bit(6, GoodweChannelIdET.STATE_38) //
+								.bit(7, GoodweChannelIdET.STATE_39) //
+								.bit(8, GoodweChannelIdET.STATE_40) //
+								.bit(15, GoodweChannelIdET.STATE_41))),
 
 				new FC3ReadRegistersTask(37001, Priority.LOW,
 						m(GoodweChannelIdET.BATTERY_TYPE_INDEX, new UnsignedWordElement(37001)), //
@@ -352,60 +353,57 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BMS_CHARGE_IMAX, new UnsignedWordElement(37004)), //
 						m(GoodweChannelIdET.BMS_DISCHARGE_IMAX, new UnsignedWordElement(37005))), //
 
-				new FC3ReadRegistersTask(37006, Priority.LOW, m(new BitsWordElement(37006, this) //
-						.bit(0, GoodweChannelIdET.STATE_42) //
-						.bit(1, GoodweChannelIdET.STATE_43) //
-						.bit(2, GoodweChannelIdET.STATE_44) //
-						.bit(3, GoodweChannelIdET.STATE_45) //
-						.bit(4, GoodweChannelIdET.STATE_46) //
-						.bit(5, GoodweChannelIdET.STATE_47) //
-						.bit(6, GoodweChannelIdET.STATE_48) //
-						.bit(7, GoodweChannelIdET.STATE_49) //
-						.bit(8, GoodweChannelIdET.STATE_50) //
-						.bit(9, GoodweChannelIdET.STATE_51) //
-						.bit(10, GoodweChannelIdET.STATE_52) //
-						.bit(11, GoodweChannelIdET.STATE_53) //
-						.bit(12, GoodweChannelIdET.STATE_54) //
-						.bit(13, GoodweChannelIdET.STATE_55) //
-						.bit(14, GoodweChannelIdET.STATE_56) //
-						.bit(15, GoodweChannelIdET.STATE_57) //
-				)),
+				new FC3ReadRegistersTask(37006, Priority.LOW, //
+						m(new BitsWordElement(37006, this) //
+								.bit(0, GoodweChannelIdET.STATE_42) //
+								.bit(1, GoodweChannelIdET.STATE_43) //
+								.bit(2, GoodweChannelIdET.STATE_44) //
+								.bit(3, GoodweChannelIdET.STATE_45) //
+								.bit(4, GoodweChannelIdET.STATE_46) //
+								.bit(5, GoodweChannelIdET.STATE_47) //
+								.bit(6, GoodweChannelIdET.STATE_48) //
+								.bit(7, GoodweChannelIdET.STATE_49) //
+								.bit(8, GoodweChannelIdET.STATE_50) //
+								.bit(9, GoodweChannelIdET.STATE_51) //
+								.bit(10, GoodweChannelIdET.STATE_52) //
+								.bit(11, GoodweChannelIdET.STATE_53) //
+								.bit(12, GoodweChannelIdET.STATE_54) //
+								.bit(13, GoodweChannelIdET.STATE_55) //
+								.bit(14, GoodweChannelIdET.STATE_56) //
+								.bit(15, GoodweChannelIdET.STATE_57))),
 
-				new FC3ReadRegistersTask(37007, Priority.HIGH,
+				new FC3ReadRegistersTask(37007, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(37007), new ElementToChannelConverter(
 								// element -> channel
 								value -> {
-									
 									// Set SoC to undefined if there is No Battery
 									EnumReadChannel batteryModeChannel = this.channel(GoodweChannelIdET.BATTERY_MODE);
 									BatteryMode batteryMode = batteryModeChannel.value().asEnum();
-									if(batteryMode == BatteryMode.NO_BATTERY || batteryMode == BatteryMode.UNDEFINED)  
-									{
+									if (batteryMode == BatteryMode.NO_BATTERY || batteryMode == BatteryMode.UNDEFINED) {
 										return null;
-									}
-									else {
+									} else {
 										return value;
 									}
-								}, //
+								},
 								// channel -> element
 								value -> value)), //
 						m(GoodweChannelIdET.BMS_SOH, new UnsignedWordElement(37008)), //
 						m(GoodweChannelIdET.BMS_BATTERY_STRINGS, new UnsignedWordElement(37009))), //
 
-				new FC3ReadRegistersTask(37010, Priority.LOW, m(new BitsWordElement(37010, this) //
-						.bit(0, GoodweChannelIdET.STATE_58) //
-						.bit(1, GoodweChannelIdET.STATE_59) //
-						.bit(2, GoodweChannelIdET.STATE_60) //
-						.bit(3, GoodweChannelIdET.STATE_61) //
-						.bit(4, GoodweChannelIdET.STATE_62) //
-						.bit(5, GoodweChannelIdET.STATE_63) //
-						.bit(6, GoodweChannelIdET.STATE_64) //
-						.bit(7, GoodweChannelIdET.STATE_65) //
-						.bit(8, GoodweChannelIdET.STATE_66) //
-						.bit(9, GoodweChannelIdET.STATE_67) //
-						.bit(10, GoodweChannelIdET.STATE_68) //
-						.bit(11, GoodweChannelIdET.STATE_69) //
-				)),
+				new FC3ReadRegistersTask(37010, Priority.LOW, //
+						m(new BitsWordElement(37010, this) //
+								.bit(0, GoodweChannelIdET.STATE_58) //
+								.bit(1, GoodweChannelIdET.STATE_59) //
+								.bit(2, GoodweChannelIdET.STATE_60) //
+								.bit(3, GoodweChannelIdET.STATE_61) //
+								.bit(4, GoodweChannelIdET.STATE_62) //
+								.bit(5, GoodweChannelIdET.STATE_63) //
+								.bit(6, GoodweChannelIdET.STATE_64) //
+								.bit(7, GoodweChannelIdET.STATE_65) //
+								.bit(8, GoodweChannelIdET.STATE_66) //
+								.bit(9, GoodweChannelIdET.STATE_67) //
+								.bit(10, GoodweChannelIdET.STATE_68) //
+								.bit(11, GoodweChannelIdET.STATE_69))),
 
 				new FC3ReadRegistersTask(37011, Priority.LOW,
 						m(GoodweChannelIdET.BATTERY_PROTOCOL, new UnsignedWordElement(37011))), //
@@ -508,7 +506,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(45262), //
 						m(GoodweChannelIdET.DERATE_RATE_VDE, new UnsignedWordElement(45263))), //
 
-				new FC16WriteRegistersTask(45350,
+				new FC16WriteRegistersTask(45350, //
 						m(GoodweChannelIdET.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350)), //
 						m(GoodweChannelIdET.BATTERY_STRINGS, new UnsignedWordElement(45351)), //
 						m(GoodweChannelIdET.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
@@ -575,7 +573,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(45262), //
 						m(GoodweChannelIdET.DERATE_RATE_VDE, new UnsignedWordElement(45263))), //
 
-				new FC3ReadRegistersTask(45350, Priority.LOW,
+				new FC3ReadRegistersTask(45350, Priority.LOW, //
 						m(GoodweChannelIdET.LEAD_BAT_CAPACITY, new UnsignedWordElement(45350)), //
 						m(GoodweChannelIdET.BATTERY_STRINGS, new UnsignedWordElement(45351)), //
 						m(GoodweChannelIdET.BATT_CHARGE_VOLT_MAX, new UnsignedWordElement(45352),
@@ -592,7 +590,8 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.BATT_OFFLINE_SOC_UNDER_MIN, new UnsignedWordElement(45358))), //
 
 				// Cos-Phi Curve
-				new FC16WriteRegistersTask(45433, m(GoodweChannelIdET.ENABLE_CURVE, new UnsignedWordElement(45433)), //
+				new FC16WriteRegistersTask(45433, //
+						m(GoodweChannelIdET.ENABLE_CURVE, new UnsignedWordElement(45433)), //
 						m(GoodweChannelIdET.POINT_A_VALUE, new UnsignedWordElement(45434)), //
 						m(GoodweChannelIdET.POINT_A_PF, new UnsignedWordElement(45435),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
@@ -608,7 +607,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.LOCK_OUT_POWER, new UnsignedWordElement(45442))), //
 
-				new FC3ReadRegistersTask(45433, Priority.LOW,
+				new FC3ReadRegistersTask(45433, Priority.LOW, //
 						m(GoodweChannelIdET.ENABLE_CURVE, new UnsignedWordElement(45433)), //
 						m(GoodweChannelIdET.POINT_A_VALUE, new UnsignedWordElement(45434)), //
 						m(GoodweChannelIdET.POINT_A_PF, new UnsignedWordElement(45435),
@@ -626,10 +625,10 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.LOCK_OUT_POWER, new UnsignedWordElement(45442))), //
 
 				// Power and Frequency curve
-				new FC16WriteRegistersTask(45443, m(new BitsWordElement(45443, this) //
-						.bit(0, GoodweChannelIdET.STATE_70) //
-						.bit(1, GoodweChannelIdET.STATE_71) //
-				), //
+				new FC16WriteRegistersTask(45443, //
+						m(new BitsWordElement(45443, this) //
+								.bit(0, GoodweChannelIdET.STATE_70) //
+								.bit(1, GoodweChannelIdET.STATE_71)), //
 						m(GoodweChannelIdET.FFROZEN_DCH, new UnsignedWordElement(45444),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.FFROZEN_CH, new UnsignedWordElement(45445),
@@ -651,10 +650,10 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.DOWN_SLOPE_POWER_REFERENCE, new UnsignedWordElement(45454)), //
 						m(GoodweChannelIdET.DOWN_SLOP, new UnsignedWordElement(45455))), //
 
-				new FC3ReadRegistersTask(45443, Priority.LOW, m(new BitsWordElement(45443, this) //
-						.bit(0, GoodweChannelIdET.STATE_70) //
-						.bit(1, GoodweChannelIdET.STATE_71) //
-				), //
+				new FC3ReadRegistersTask(45443, Priority.LOW, //
+						m(new BitsWordElement(45443, this) //
+								.bit(0, GoodweChannelIdET.STATE_70) //
+								.bit(1, GoodweChannelIdET.STATE_71)), //
 						m(GoodweChannelIdET.FFROZEN_DCH, new UnsignedWordElement(45444),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodweChannelIdET.FFROZEN_CH, new UnsignedWordElement(45445),
@@ -677,7 +676,8 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.DOWN_SLOP, new UnsignedWordElement(45455))), //
 
 				// QU Curve
-				new FC16WriteRegistersTask(45456, m(GoodweChannelIdET.ENABLE_CURVE_QU, new UnsignedWordElement(45456)), //
+				new FC16WriteRegistersTask(45456, //
+						m(GoodweChannelIdET.ENABLE_CURVE_QU, new UnsignedWordElement(45456)), //
 						m(GoodweChannelIdET.LOCK_IN_POWER_QU, new UnsignedWordElement(45457)), //
 						m(GoodweChannelIdET.LOCK_OUT_POWER_QU, new UnsignedWordElement(45458)), //
 						m(GoodweChannelIdET.V1_VOLTAGE, new UnsignedWordElement(45459),
@@ -721,7 +721,8 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.RESPONSE_TIME, new UnsignedWordElement(45471))), //
 
 				// PU Curve
-				new FC16WriteRegistersTask(45472, m(GoodweChannelIdET.PU_CURVE, new UnsignedWordElement(45472)), //
+				new FC16WriteRegistersTask(45472, //
+						m(GoodweChannelIdET.PU_CURVE, new UnsignedWordElement(45472)), //
 						m(GoodweChannelIdET.POWER_CHANGE_RATE, new UnsignedWordElement(45473)), //
 						m(GoodweChannelIdET.V1_VOLTAGE_PU, new UnsignedWordElement(45474),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -789,15 +790,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(45487, 45489), //
 						m(GoodweChannelIdET.UW_ITALY_FREQ_MODE, new UnsignedWordElement(45490))), //
 
-				new FC16WriteRegistersTask(47000, m(GoodweChannelIdET.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
-						m(GoodweChannelIdET.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
-						m(GoodweChannelIdET.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002)), //
-						m(GoodweChannelIdET.SIMULATE_METER_POWER, new UnsignedWordElement(47003)), //
-						m(GoodweChannelIdET.BREEZE_ON_OFF, new UnsignedWordElement(47004)), //
-						m(GoodweChannelIdET.LOG_DATA_ENABLE, new UnsignedWordElement(47005)), //
-						m(GoodweChannelIdET.DATA_SEND_INTERVAL, new UnsignedWordElement(47006))), //
-
-				new FC3ReadRegistersTask(47000, Priority.LOW,
+				new FC16WriteRegistersTask(47000, //
 						m(GoodweChannelIdET.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
 						m(GoodweChannelIdET.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
 						m(GoodweChannelIdET.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002)), //
@@ -806,8 +799,18 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 						m(GoodweChannelIdET.LOG_DATA_ENABLE, new UnsignedWordElement(47005)), //
 						m(GoodweChannelIdET.DATA_SEND_INTERVAL, new UnsignedWordElement(47006))), //
 
-				new FC16WriteRegistersTask(47500, m(GoodweChannelIdET.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
-						m(GoodweChannelIdET.BATTERY_FLOAT_VOLT, new UnsignedWordElement(47501),
+				new FC3ReadRegistersTask(47000, Priority.LOW, //
+						m(GoodweChannelIdET.APP_MODE_INDEX, new UnsignedWordElement(47000)), //
+						m(GoodweChannelIdET.METER_CHECK_VALUE, new UnsignedWordElement(47001)), //
+						m(GoodweChannelIdET.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002)), //
+						m(GoodweChannelIdET.SIMULATE_METER_POWER, new UnsignedWordElement(47003)), //
+						m(GoodweChannelIdET.BREEZE_ON_OFF, new UnsignedWordElement(47004)), //
+						m(GoodweChannelIdET.LOG_DATA_ENABLE, new UnsignedWordElement(47005)), //
+						m(GoodweChannelIdET.DATA_SEND_INTERVAL, new UnsignedWordElement(47006))), //
+
+				new FC16WriteRegistersTask(47500, //
+						m(GoodweChannelIdET.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
+						m(GoodweChannelIdET.BATTERY_FLOAT_VOLT, new UnsignedWordElement(47501), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodweChannelIdET.BATTERY_FLOAT_CURRENT, new UnsignedWordElement(47502),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -835,8 +838,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.START_TIME_2, new UnsignedWordElement(47519)), //
 						m(GoodweChannelIdET.END_TIME_2, new UnsignedWordElement(47520)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_2, new UnsignedWordElement(47521)), //
@@ -847,8 +849,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.START_TIME_3, new UnsignedWordElement(47523)), //
 						m(GoodweChannelIdET.END_TIME_3, new UnsignedWordElement(47524)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_3, new UnsignedWordElement(47525)), //
@@ -859,8 +860,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.START_TIME_4, new UnsignedWordElement(47527)), //
 						m(GoodweChannelIdET.END_TIME_4, new UnsignedWordElement(47528)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_4, new UnsignedWordElement(47529)), //
@@ -871,8 +871,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodweChannelIdET.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
 						m(GoodweChannelIdET.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533))), //
@@ -907,8 +906,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.START_TIME_2, new UnsignedWordElement(47519)), //
 						m(GoodweChannelIdET.END_TIME_2, new UnsignedWordElement(47520)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_2, new UnsignedWordElement(47521)), //
@@ -919,8 +917,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.START_TIME_3, new UnsignedWordElement(47523)), //
 						m(GoodweChannelIdET.END_TIME_3, new UnsignedWordElement(47524)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_3, new UnsignedWordElement(47525)), //
@@ -931,8 +928,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.START_TIME_4, new UnsignedWordElement(47527)), //
 						m(GoodweChannelIdET.END_TIME_4, new UnsignedWordElement(47528)), //
 						m(GoodweChannelIdET.BAT_POWER_PERCENT_4, new UnsignedWordElement(47529)), //
@@ -943,13 +939,13 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(3, GoodweChannelIdET.STATE_75) //
 								.bit(4, GoodweChannelIdET.STATE_76) //
 								.bit(5, GoodweChannelIdET.STATE_77) //
-								.bit(6, GoodweChannelIdET.STATE_78) //
-						), //
+								.bit(6, GoodweChannelIdET.STATE_78)), //
 						m(GoodweChannelIdET.SOC_START_TO_FORCE_CHARGE, new UnsignedWordElement(47531)), //
 						m(GoodweChannelIdET.SOC_STOP_TO_FORCE_CHARGE, new UnsignedWordElement(47532)), //
 						m(GoodweChannelIdET.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533))), //
 
-				new FC16WriteRegistersTask(47900, m(GoodweChannelIdET.BMS_VERSION, new UnsignedWordElement(47900)), //
+				new FC16WriteRegistersTask(47900, //
+						m(GoodweChannelIdET.BMS_VERSION, new UnsignedWordElement(47900)), //
 						m(GoodweChannelIdET.BATT_STRINGS_RS485, new UnsignedWordElement(47901)), //
 						m(GoodweChannelIdET.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902)), //
 						m(GoodweChannelIdET.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903)), //
@@ -976,8 +972,8 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(12, GoodweChannelIdET.STATE_54) //
 								.bit(13, GoodweChannelIdET.STATE_55) //
 								.bit(14, GoodweChannelIdET.STATE_56) //
-								.bit(15, GoodweChannelIdET.STATE_57) //
-						), m(new BitsWordElement(47912, this) //
+								.bit(15, GoodweChannelIdET.STATE_57)), //
+						m(new BitsWordElement(47912, this) //
 								.bit(0, GoodweChannelIdET.STATE_58) //
 								.bit(1, GoodweChannelIdET.STATE_59) //
 								.bit(2, GoodweChannelIdET.STATE_60) //
@@ -989,16 +985,15 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 								.bit(8, GoodweChannelIdET.STATE_66) //
 								.bit(9, GoodweChannelIdET.STATE_67) //
 								.bit(10, GoodweChannelIdET.STATE_68) //
-								.bit(11, GoodweChannelIdET.STATE_69) //
-						), m(new BitsWordElement(47913, this) //
+								.bit(11, GoodweChannelIdET.STATE_69)), //
+						m(new BitsWordElement(47913, this) //
 								.bit(0, GoodweChannelIdET.STATE_79) //
 								.bit(1, GoodweChannelIdET.STATE_80) //
-								.bit(2, GoodweChannelIdET.STATE_81) //
-						))); //
+								.bit(2, GoodweChannelIdET.STATE_81)))); //
 	}
-	
+
 	@Override
-	public void setCharger(GoodweETCharger charger) {
+	public void setCharger(GoodweETChargerPV1 charger) {
 		this.charger = charger;
 	}
 
