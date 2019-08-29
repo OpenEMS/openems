@@ -56,6 +56,7 @@ public interface Battery extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
+		 * <li>Unit: Volt
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
@@ -77,6 +78,7 @@ public interface Battery extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
+		 * <li>Unit: Watt-hours
 		 * </ul>
 		 */
 		CAPACITY(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
@@ -155,6 +157,7 @@ public interface Battery extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
+		 * <li>Unit: Millivolt
 		 * </ul>
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
@@ -165,6 +168,7 @@ public interface Battery extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
+		 * <li>Unit: Millivolt
 		 * </ul>
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));

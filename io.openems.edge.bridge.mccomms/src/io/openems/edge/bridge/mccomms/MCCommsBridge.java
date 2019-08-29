@@ -160,8 +160,9 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 						singleThreadExecutor.execute(() -> {
 							writeLockBool.set(true);
 							try {
+								//noinspection ConstantConditions
 								outputStream.write(writeTaskQueue.poll().getBytes());
-								Thread.sleep(10);
+								Thread.sleep(10); //ensure 10ms gap between packets on the bus
 							} catch (IOException e) {
 								logError(e);
 							} catch (InterruptedException ignored) {}
@@ -169,6 +170,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 						});
 					}
 					while (!queryTaskQueue.isEmpty() && !writeLockBool.get()) {
+						//noinspection ConstantConditions
 						queryTaskQueue.poll().doWriteWithReplyWriteLock(outputStream, writeLockBool);
 					}
 				} catch (IOException e) {
@@ -239,8 +241,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 							RXBufferQueue.add(packetBuffer); //add the buffer to the rx buffer queue for picking
 						}
 						//reset buffer
-						Arrays.fill(packetBuffer.array(), (byte) 0);
-						packetBuffer.position(0);
+						packetBuffer = ByteBuffer.allocate(25);
 					}
 				} catch (InterruptedException e) {
 					this.interrupt();
@@ -254,16 +255,18 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		
 		@Override
 		public void run() {
-			try {
-				byteBuffer = RXBufferQueue.take();
-			} catch (InterruptedException e) {
-				interrupt();
-			}
-			for (ListenTask listenTask : listenTasks) {
+			while (!interrupted()) { //forever
 				try {
-					listenTask.acceptBuffer(byteBuffer);
-				} catch (OpenemsException e) {
-					logger.error(null, e);
+					byteBuffer = RXBufferQueue.take(); //blocks until element available
+				} catch (InterruptedException e) {
+					interrupt();
+				}
+				for (ListenTask listenTask : listenTasks) {
+					try {
+						listenTask.acceptBuffer(byteBuffer); //feed buffer to all available listen tasks
+					} catch (OpenemsException e) {
+						logError(e);
+					}
 				}
 			}
 		}

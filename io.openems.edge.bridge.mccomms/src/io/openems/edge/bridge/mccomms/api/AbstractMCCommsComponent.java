@@ -44,8 +44,6 @@ public abstract class AbstractMCCommsComponent extends AbstractOpenemsComponent 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int mcCommsAddress,
 	                           ConfigurationAdmin cm, String mcCommsBridgeID) {
 		super.activate(context, id, alias, enabled);
-		System.out.println("Super activate called"); //TODO remove debug
-		logInfo(logger, "super activate called");
 		this.mcCommsAddress = mcCommsAddress;
 		// update filter for 'MCCommsBridge'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "mcCommsBridge", mcCommsBridgeID)) {

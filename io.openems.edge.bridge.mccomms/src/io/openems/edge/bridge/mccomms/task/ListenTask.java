@@ -30,7 +30,10 @@ public class ListenTask implements Future<MCCommsPacket> {
 	}
 	
 	private boolean checkOtherConditions(ByteBuffer buffer) {
-		return Arrays.stream(otherConditions).allMatch(predicate -> predicate.test(buffer));
+		if (otherConditions.length > 0) {
+			return Arrays.stream(otherConditions).allMatch(predicate -> predicate.test(buffer));
+		}
+		return true;
 	}
 	
 	public void acceptBuffer(ByteBuffer buffer) throws OpenemsException {
@@ -74,12 +77,9 @@ public class ListenTask implements Future<MCCommsPacket> {
 	
 	@Override
 	public MCCommsPacket get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		synchronized (this) {
-			if (!hasReturned) {
-				this.wait(unit.toMillis(timeout));
-			} else {
-				this.hasReturned = false;
-				return packet;
+		if (!hasReturned) {
+			synchronized (this) {
+				unit.timedWait(this, timeout);
 			}
 			if (hasReturned) {
 				this.hasReturned = false;
@@ -87,6 +87,9 @@ public class ListenTask implements Future<MCCommsPacket> {
 			} else {
 				throw new TimeoutException("Reply window timed out");
 			}
+		} else {
+			this.hasReturned = false;
+			return packet;
 		}
 	}
 }

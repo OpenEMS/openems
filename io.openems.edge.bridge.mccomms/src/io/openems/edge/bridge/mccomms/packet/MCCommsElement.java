@@ -9,6 +9,7 @@ import com.google.common.collect.Range;
 import com.google.common.primitives.Shorts;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInts;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
 
@@ -19,7 +20,7 @@ public class MCCommsElement {
 	private double scaleFactor;
 	private Channel channel;
 	
-	private MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, double scaleFactor, Channel channel) {
+	protected MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, double scaleFactor, Channel channel) {
 		this.addressRange = addressRange;
 		this.valueBuffer = ByteBuffer.allocate(addressRange.upperEndpoint() - addressRange.lowerEndpoint() + 1);
 		this.isUnsigned = isUnsigned;
@@ -106,11 +107,11 @@ public class MCCommsElement {
 		return this;
 	}
 	
-	public Channel getChannel() {
+	public Channel getChannel() throws NotImplementedException {
 		return channel;
 	}
 	
-	public MCCommsElement setChannel(Channel channel) {
+	public MCCommsElement setChannel(Channel channel) throws NotImplementedException {
 		this.channel = channel;
 		return this;
 	}
