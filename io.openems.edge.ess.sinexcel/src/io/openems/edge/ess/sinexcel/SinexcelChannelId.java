@@ -250,8 +250,8 @@ public enum SinexcelChannelId implements ChannelId {
 			.onInit(c -> { //
 				StateChannel channel = (StateChannel) c;
 				EssSinexcel self = (EssSinexcel) channel.getComponent();
-				((StateChannel) channel).onChange(v -> {
-					Optional<Boolean> value = v.asOptional();
+				((StateChannel) channel).onChange((oldValue, newValue) -> {
+					Optional<Boolean> value = newValue.asOptional();
 					if (!value.isPresent()) {
 						self.getGridMode().setNextValue(GridMode.UNDEFINED);
 					} else {

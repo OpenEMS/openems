@@ -138,14 +138,14 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.battery.getSoc().onChange(value -> {
-			this.getSoc().setNextValue(value.get());
-			this.channel(SinexcelChannelId.BAT_SOC).setNextValue(value.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(value.get());
+		this.battery.getSoc().onChange((oldValue, newValue) -> {
+			this.getSoc().setNextValue(newValue.get());
+			this.channel(SinexcelChannelId.BAT_SOC).setNextValue(newValue.get());
+			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
-		this.battery.getVoltage().onChange(value -> {
-			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(value.get());
+		this.battery.getVoltage().onChange((oldValue, newValue) -> {
+			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
 	}
 
