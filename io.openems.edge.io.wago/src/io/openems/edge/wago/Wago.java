@@ -60,7 +60,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 
 	private final Logger log = LoggerFactory.getLogger(Wago.class);
 
-	private final static int UNIT_ID = 1;
+	private static final int UNIT_ID = 1;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -125,13 +125,13 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	/**
 	 * Downloads the ea-config.xml file from WAGO fieldbus coupler
 	 * 
-	 * @param ip
-	 * @param username
-	 * @param password
-	 * @return
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
+	 * @param ip       the IP address
+	 * @param username the login username
+	 * @param password the login password
+	 * @return the XML document
+	 * @throws SAXException                 on error
+	 * @throws IOException                  on error
+	 * @throws ParserConfigurationException on error
 	 */
 	private static Document downloadEaConfigXml(InetAddress ip, String username, String password)
 			throws SAXException, IOException, ParserConfigurationException {
@@ -155,7 +155,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	/**
 	 * Parses the ea-config.xml file
 	 * 
-	 * @param doc
+	 * @param doc the XML document
 	 * @return a list of FieldbusModules
 	 */
 	private List<FieldbusModule> parseXml(Document doc) {
@@ -179,7 +179,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 			Element moduleElement = (Element) moduleNode;
 			// parse all "Kanal" XML elements inside the "Module" element
 			NodeList kanalNodes = moduleElement.getElementsByTagName("Kanal");
-			FieldbusModuleKanal kanals[] = new FieldbusModuleKanal[kanalNodes.getLength()];
+			FieldbusModuleKanal[] kanals = new FieldbusModuleKanal[kanalNodes.getLength()];
 			for (int j = 0; j < kanalNodes.getLength(); j++) {
 				Node kanalNode = kanalNodes.item(j);
 				if (kanalNode.getNodeType() != Node.ELEMENT_NODE) {
@@ -200,9 +200,9 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	/**
-	 * Takes a list of FieldbusModules and adds Modbus tasks to the protocol
+	 * Takes a list of FieldbusModules and adds Modbus tasks to the protocol.
 	 * 
-	 * @param modules
+	 * @param modules lit of {@link FieldbusModule}s
 	 */
 	private void createProtocolFromModules(List<FieldbusModule> modules) {
 		List<AbstractModbusElement<?>> readElements0 = new ArrayList<>();
@@ -221,12 +221,12 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 			}
 		}
 		if (!readElements0.isEmpty()) {
-			this.protocol.addTask( //
+			this.protocol.addTask(//
 					new FC1ReadCoilsTask(0, Priority.LOW,
 							readElements0.toArray(new AbstractModbusElement<?>[readElements0.size()])));
 		}
 		if (!readElements512.isEmpty()) {
-			this.protocol.addTask( //
+			this.protocol.addTask(//
 					new FC1ReadCoilsTask(512, Priority.LOW,
 							readElements512.toArray(new AbstractModbusElement<?>[readElements512.size()])));
 		}
@@ -248,21 +248,20 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		super.deactivate();
 
 		// Shutdown executor
-		if (this.configExecutor != null) {
+		if (this.configFuture != null) {
 			this.configFuture.cancel(true);
 		}
 		try {
-			configExecutor.shutdown();
-			configExecutor.awaitTermination(5, TimeUnit.SECONDS);
+			this.configExecutor.shutdown();
+			this.configExecutor.awaitTermination(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			this.logWarn(this.log, "tasks interrupted");
 		} finally {
-			if (!configExecutor.isTerminated()) {
+			if (!this.configExecutor.isTerminated()) {
 				this.logWarn(this.log, "cancel non-finished tasks");
 			}
-			configExecutor.shutdownNow();
+			this.configExecutor.shutdownNow();
 		}
-
 	}
 
 	@Override
