@@ -37,7 +37,6 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.et.charger.GoodweETChargerPV1;
 
@@ -48,7 +47,7 @@ import io.openems.edge.goodwe.et.charger.GoodweETChargerPV1;
 		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 
 public class GoodweETImpl extends AbstractOpenemsModbusComponent
-		implements GoodweET, AsymmetricEss, SymmetricEss, OpenemsComponent, EssDcCharger {
+		implements GoodweET, AsymmetricEss, SymmetricEss, OpenemsComponent {
 
 	protected GoodweETChargerPV1 charger = null;
 

@@ -68,8 +68,7 @@ public class GoodweETGridMeter extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				GoodweChannelIdET.values(), //
-				ChannelId.values() //
+				GoodweChannelIdET.values() //
 		);
 	}
 
