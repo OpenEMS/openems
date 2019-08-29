@@ -36,8 +36,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	Priority priority() default Priority.CAR;
 	
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
-	String ess_id();
-
+	String ess_id() default "ess0";
+	
+	@AttributeDefinition(name = "Energy limit in this session in [Wh]", description = "Set the Energylimit in this Session in Wh. The charging station will only charge till this limit")
+	int energySessionLimit() default 0;
+	
 	String webconsole_configurationFactory_nameHint() default "Controller Electric Vehicle Charging Station [{id}]";
 
 }

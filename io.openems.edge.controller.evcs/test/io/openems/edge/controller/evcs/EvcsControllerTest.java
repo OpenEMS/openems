@@ -81,6 +81,12 @@ public class EvcsControllerTest {
 			return null;
 		}
 
+		@Override
+		public int energySessionLimit() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
 	}
 
 	@Test

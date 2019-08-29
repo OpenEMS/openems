@@ -95,7 +95,6 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.TIMEOUT_FAILSAFE, jMessage, "Tmo FS");
 					setInt(KebaChannelId.CURR_TIMER, jMessage, "Curr timer");
 					setInt(KebaChannelId.TIMEOUT_CT, jMessage, "Tmo CT");
-					setInt(KebaChannelId.ENERGY_LIMIT, jMessage, "Setenergy");
 					setBoolean(KebaChannelId.OUTPUT, jMessage, "Output");
 					setBoolean(KebaChannelId.INPUT, jMessage, "Input");
 					setInt(KebaChannelId.CURR_USER, jMessage, "Curr user");
@@ -120,6 +119,9 @@ public class ReadHandler implements Consumer<String> {
 					
 					this.parent.channel(KebaChannelId.MAX_CURR).setNextValue(hwPower);
 					
+					// Set the EnergyLimit
+					this.parent.channel(ManagedEvcs.ChannelId.ENERGY_LIMIT).setNextValue((JsonUtils.getAsOptionalInt(jMessage, "Setenergy").orElse(null)) * 0.1);
+					
 				} else if (id.equals("3")) {
 					/*
 					 * Reply to report 3
@@ -133,8 +135,8 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.CURRENT_L3, jMessage, "I3");
 					setInt(KebaChannelId.ACTUAL_POWER, jMessage, "P");
 					setInt(KebaChannelId.COS_PHI, jMessage, "PF");
-					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
 					setInt(KebaChannelId.ENERGY_TOTAL, jMessage, "E total");
+					
 
 					// Set the count of the Phases that are currently used
 					Channel<Integer> currentL1 = parent.channel(KebaChannelId.CURRENT_L1);
@@ -146,8 +148,7 @@ public class ReadHandler implements Consumer<String> {
 						if (currentL3.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
 							this.parent.getPhases().setNextValue(3);
-							
-							
+						
 						} else if (currentL2.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on two ladder"); 
 							this.parent.getPhases().setNextValue(2);
@@ -179,6 +180,8 @@ public class ReadHandler implements Consumer<String> {
 					}
 					this.parent.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power);
 					
+					// Set ENERGY_SESSION
+					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION).setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null)) * 0.1);
 				}
 
 			} else {
@@ -198,7 +201,7 @@ public class ReadHandler implements Consumer<String> {
 					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
 				}
 				if (jMessage.has("E pres")) {
-					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
+					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION).setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null)) * 0.1);
 				}
 			}
 		}

@@ -105,7 +105,37 @@ public interface ManagedEvcs extends Evcs {
 		 * </ul>
 		 */
 		SET_DISPLAY_TEXT(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_WRITE));
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		/**
+		 * Sets the energy Limit.
+		 * 
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		SET_ENERGY_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		
+		/**
+		 * Current energy limit.
+		 * 
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ENERGY_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.accessMode(AccessMode.READ_ONLY));
+		
 		
 		private final Doc doc;
 
@@ -193,5 +223,18 @@ public interface ManagedEvcs extends Evcs {
 	
 	public default Channel<Integer> isClustered() {
 		return this.channel(ChannelId.IS_CLUSTERED);
-	}	
+	}
+	
+	/**
+	 * Set the energy limit for the charging station in Wh.
+	 * 
+	 * @return the WriteChannel
+	 */
+	public default WriteChannel<Integer> setEnergyLimit(){
+		return this.channel(ChannelId.SET_ENERGY_LIMIT);
+	}
+	
+	public default Channel<Integer> getEnergyLimit(){
+		return this.channel(ChannelId.ENERGY_LIMIT);
+	}
 }

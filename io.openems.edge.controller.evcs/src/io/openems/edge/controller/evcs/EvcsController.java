@@ -44,18 +44,12 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final Clock clock;
-
-	private boolean enabledCharging;
-	private int forceChargeMinPower = 0;
-	private int defaultChargeMinPower = 0;
-	private ChargeMode chargeMode;
-	private Priority priority;
+	private Config config;
 	private LocalDateTime lastRun = LocalDateTime.MIN;
 	private int outOfRangeCounter = 0;
 	private ManagedSymmetricEss ess;
 	private ManagedEvcs evcs;
-
-	private final static int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 10; // sec
+	private final static int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 30; // sec
 	private final static int CHARGING_TARGET_MAX_DIFFERENCE = 500; // W
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 	private int closestPowerToTarget = 0;
@@ -110,25 +104,15 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.enabledCharging = config.enabledCharging();
-		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
-		this.defaultChargeMinPower = Math.max(0, config.defaultChargeMinPower());
-		this.chargeMode = config.chargeMode();
-		this.priority = config.priority();
+		this.config = config;
 		this.ess = this.componentManager.getComponent(config.ess_id());
 		this.evcs = this.componentManager.getComponent(config.evcs_id());
 
-		switch (chargeMode) {
-		case EXCESS_POWER:
-			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(defaultChargeMinPower);
-			break;
-		case FORCE_CHARGE:
-			this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(forceChargeMinPower);
-			break;
-		}
-		this.channel(ChannelId.CHARGE_MODE).setNextValue(chargeMode);
-		this.channel(ChannelId.PRIORITY).setNextValue(priority);
-		this.channel(ChannelId.ENABLED_CHARGING).setNextValue(enabledCharging);
+		this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
+		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
+		this.channel(ChannelId.CHARGE_MODE).setNextValue(config.chargeMode());
+		this.channel(ChannelId.PRIORITY).setNextValue(config.priority());
+		this.channel(ChannelId.ENABLED_CHARGING).setNextValue(config.enabledCharging());
 	}
 
 	@Deactivate
@@ -138,30 +122,42 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		
+
 		Boolean isClusterd = Boolean.valueOf((this.evcs.isClustered().value().toString()));
 		if (isClusterd != null && isClusterd) {
-			
+
+			if(evcs.status().value().isDefined()) {
 			Status status = evcs.status().value().asEnum();
 			switch (status) {
 			case ERROR:
 			case STARTING:
 			case UNDEFINED:
 			case NOT_READY_FOR_CHARGING:
-			case AUTHORIZATION_REJECTED:
 				evcs.setChargePowerRequest().setNextWriteValue(0);
+				this.evcs.getMinimumPower().setNextValue(0);
 				return;
+			case AUTHORIZATION_REJECTED:
 			case READY_FOR_CHARGING:
 			case CHARGING:
 				break;
 			}
+			}
 		}
-
+		
+		this.evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
+		int limit = this.evcs.getEnergyLimit().value().orElse(0);
+		if(this.evcs.getEnergySession().value().orElse(0) >= limit && limit != 0) {
+			this.evcs.setDisplayText().setNextWriteValue("Limit of "+this.evcs.getEnergyLimit().value().orElse(0)+" reached"
+					+ "");
+			this.evcs.setChargePowerRequest().setNextWriteValue(0);
+			return;
+		}
+		
 		int nextChargePower = 0;
 		int nextMinPower = 0;
 
 		// Executes only if charging is enabled
-		if (!this.enabledCharging) {
+		if (!config.enabledCharging()) {
 			evcs.setChargePower().setNextWriteValue(0);
 			return;
 		}
@@ -171,9 +167,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			return;
 		}
 
-		switch (this.chargeMode) {
+		switch (config.chargeMode()) {
 		case EXCESS_POWER:
-			switch (priority) {
+			switch (config.priority()) {
 
 			case CAR:
 				nextChargePower = nextChargePower_PvMinusConsumtion();
@@ -181,8 +177,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 			case STORAGE:
 				int maxEssCharge = ess.getAllowedCharge().value().orElse(0);
-				int storageSoc = this.sum.getEssSoc().value().orElse(0);
 				long essActivePower = this.sum.getEssActivePower().value().orElse(0);
+				int storageSoc = this.sum.getEssSoc().value().orElse(0);
 
 				if (storageSoc > 97) {
 					nextChargePower = nextChargePower_PvMinusConsumtion();
@@ -193,45 +189,45 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				}
 				break;
 			}
-			nextMinPower = defaultChargeMinPower;
+			this.evcs.getMinimumPower().setNextValue(config.defaultChargeMinPower());
+			nextMinPower = config.defaultChargeMinPower();
 			break;
 
 		case FORCE_CHARGE:
-			nextChargePower = nextMinPower = forceChargeMinPower;
+			this.evcs.getMinimumPower().setNextValue(0);
+			nextChargePower = config.forceChargeMinPower();
 			break;
 		}
 
 		if (nextChargePower < nextMinPower) {
 			nextChargePower = nextMinPower;
 		}
-		
+
 		if (isClusterd != null && isClusterd) {
-			
-			// check difference of the current charging and charging target
-			this.outOfRangeCounter = chargingLowerThanTarget() ? this.outOfRangeCounter + 1 : 0;
+			int chargingPower = evcs.getChargePower().value().orElse(0);
+			if (chargingPower != 0) {
+				// check difference of the current charging and charging target
+				this.outOfRangeCounter = chargingLowerThanTarget() ? this.outOfRangeCounter + 1 : 0;
 
-			if (this.outOfRangeCounter >= 3) {
-				nextChargePower = (this.closestPowerToTarget + 100) / this.evcs.getPhases().value().orElse(3);
-				this.evcs.getMaximumPower().setNextValue(nextChargePower);
-				this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
-				if (!chargingLowerThanTarget()) {
-					this.outOfRangeCounter = 0;
-					this.closestPowerToTarget = 0;
+				if (this.outOfRangeCounter >= 3) {
+					nextChargePower = (this.closestPowerToTarget + 100) / this.evcs.getPhases().value().orElse(3);
+					this.evcs.getMaximumPower().setNextValue(nextChargePower);
+					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
+					if (!chargingLowerThanTarget()) {
+						this.outOfRangeCounter = 0;
+						this.closestPowerToTarget = 0;
+					}
 				}
-			} 
-			
-			// If a maximum charge power is defined.
-			// The calculated charge power must be lower then this
-			Optional<Integer> maxChargePower = evcs.getMaximumPower().value().asOptional();
 
-			if (maxChargePower.isPresent()) {
-				if (maxChargePower.get() < 1380) {
-					return;
+				// If a maximum charge power is defined.
+				// The calculated charge power must be lower then this
+				Optional<Integer> maxChargePower = evcs.getMaximumPower().value().asOptional();
+
+				if (maxChargePower.isPresent()) {
+					nextChargePower = maxChargePower.get() < nextChargePower ? maxChargePower.get() : nextChargePower;
 				}
-				nextChargePower = maxChargePower.get() < nextChargePower ? maxChargePower.get() : nextChargePower;
 			}
-			
-			this.logInfo(this.log, "Requested Power for " + this.evcs.id() + " (" + evcs.alias() + "): " + nextChargePower);
+
 			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
 
 		} else {
@@ -248,22 +244,22 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 * @return true if the difference is to high
 	 */
 	private boolean chargingLowerThanTarget() {
-
+		
 		int chargingPower = evcs.getChargePower().value().orElse(0);
-			if (LocalDateTime.now().isAfter(lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME))) { 
+		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME).isBefore(LocalDateTime.now(this.clock))) {
+			this.logInfo(this.log, "Charging Check for " + evcs.alias());
+			int chargingPowerTarget = ((ManagedEvcs) evcs).getCurrChargingTarget().value().orElse(22080);
+			this.logInfo(this.log, "Charging power: " + chargingPower);
+			this.logInfo(this.log, "Charging target: " + chargingPowerTarget);
+			if (chargingPowerTarget - chargingPower > CHARGING_TARGET_MAX_DIFFERENCE) {
 
-				this.logInfo(this.log, "Charging Check for " + evcs.alias());
-				int chargingPowerTarget = ((ManagedEvcs) evcs).getCurrChargingTarget().value().orElse(22080);
-				this.logInfo(this.log, "Charging power: " + chargingPower);
-				this.logInfo(this.log, "Charging target: " + chargingPowerTarget);
-				if (chargingPowerTarget - chargingPower > CHARGING_TARGET_MAX_DIFFERENCE) {
-
-					this.closestPowerToTarget = this.closestPowerToTarget > chargingPower ? this.closestPowerToTarget
-							: chargingPower;
-					return true;
-				}
+				this.closestPowerToTarget = this.closestPowerToTarget > chargingPower ? this.closestPowerToTarget
+						: chargingPower;
 				lastChargingCheck = LocalDateTime.now();
+				return true;
 			}
+			lastChargingCheck = LocalDateTime.now();
+		}
 		return false;
 	}
 

@@ -55,8 +55,7 @@ public interface Evcs extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)),
 
 		/**
-		 * Maximum Power that should be charged by the controller
-		 * valid by a cluster 
+		 * Maximum Power that should be charged calculated by the controller
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -67,7 +66,36 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE));
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		/**
+		 * Variable minimum power that should be charged, configured in a controller
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		MINIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		/**
+		 * Energy that was charged during this Session 
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ENERGY_SESSION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.accessMode(AccessMode.READ_ONLY));
+		
 
 		private final Doc doc;
 
@@ -116,5 +144,24 @@ public interface Evcs extends OpenemsComponent {
 	 */
 	public default Channel<Integer> getMaximumPower() {
 		return this.channel(ChannelId.MAXIMUM_POWER);
+	}
+	
+	/**
+	 * Gets the minimum Charge Power that will mostly used by the charging station.
+	 * Exceptions when a minimum is not guaranteed could be the excess of the grid.
+	 * 
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getMinimumPower() {
+		return this.channel(ChannelId.MINIMUM_POWER);
+	}
+	
+	/**
+	 * Gets the current energy in [Wh], charged in this session.
+	 * 
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getEnergySession() {
+		return this.channel(ChannelId.ENERGY_SESSION);
 	}
 }

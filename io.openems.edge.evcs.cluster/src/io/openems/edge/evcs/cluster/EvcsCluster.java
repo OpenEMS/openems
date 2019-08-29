@@ -46,9 +46,10 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	private int totalcurrentPowerLimit;
 	private Integer maximalUsedHardwarePower;
 	private String[] evcsIds = new String[0];
-	private final List<Evcs> sortedEvcss = new ArrayList<>();
-	private Map<String, Evcs> _evcss = new ConcurrentHashMap<>();
+	private final List<ManagedEvcs> sortedEvcss = new ArrayList<>();
+	private Map<String, ManagedEvcs> _evcss = new ConcurrentHashMap<>();
 	private double totalPowerLeftInACycle = 0;
+	private final int MINIMUM_EVCS_CHARGING_POWER = 4500;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -57,7 +58,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	protected Sum sum;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	protected void addEvcs(Evcs evcs) {
+	protected void addEvcs(ManagedEvcs evcs) {
 		// Do not add myself
 		if (evcs == this) {
 			return;
@@ -66,16 +67,14 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		this.updateSortedEvcss();
 	}
 
-	protected void removeEvcs(Evcs evcs) {
+	protected void removeEvcs(ManagedEvcs evcs) {
 		if (evcs == this) {
 			return;
 		}
 		this._evcss.remove(evcs.id());
 		evcs.getMaximumPower().setNextValue(null);
-		if (evcs instanceof ManagedEvcs) {
-			((ManagedEvcs) evcs).setChargePowerRequest().setNextValue(null);
-			((ManagedEvcs) evcs).isClustered().setNextValue(false);
-		}
+		evcs.setChargePowerRequest().setNextValue(null);
+		evcs.isClustered().setNextValue(false);
 		evcs.getMaximumPower().setNextValue(null);
 		this.updateSortedEvcss();
 	}
@@ -102,6 +101,11 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss", config.evcs_ids())) {
 			return;
 		}
+		for (Evcs evcs : sortedEvcss) {
+			if (evcs instanceof ManagedEvcs) {
+				((ManagedEvcs) evcs).isClustered().setNextValue(true);
+			}
+		}
 	}
 
 	/**
@@ -110,7 +114,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	private synchronized void updateSortedEvcss() {
 		this.sortedEvcss.clear();
 		for (String id : this.evcsIds) {
-			Evcs evcs = this._evcss.get(id);
+			ManagedEvcs evcs = this._evcss.get(id);
 			if (evcs == null) {
 				this.logWarn(this.log, "Required Evcs [" + id + "] is not available.");
 			} else {
@@ -121,11 +125,10 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 	@Deactivate
 	protected void deactivate() {
-		for (Evcs evcs : this.sortedEvcss) {
-			if (evcs instanceof ManagedEvcs) {
-				((ManagedEvcs) evcs).setChargePowerRequest().setNextValue(null);
-				((ManagedEvcs) evcs).isClustered().setNextValue(false);
-			}
+		for (ManagedEvcs evcs : this.sortedEvcss) {
+			evcs.setChargePowerRequest().setNextValue(null);
+			evcs.isClustered().setNextValue(false);
+
 			evcs.getMaximumPower().setNextValue(null);
 		}
 		super.deactivate();
@@ -141,9 +144,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 
-			this.logDebug(this.log, "Total current powerlimit: " + this.totalcurrentPowerLimit);
 			this.limitEvcss();
-
 			break;
 		}
 	}
@@ -156,11 +157,13 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		final CalculateIntegerSum chargePower = new CalculateIntegerSum();
 		final CalculateIntegerSum minHardwarePower = new CalculateIntegerSum();
 		final CalculateIntegerSum maxHardwarePowerOfAll = new CalculateIntegerSum();
+		final CalculateIntegerSum minPower = new CalculateIntegerSum();
 
 		for (Evcs evcs : this.sortedEvcss) {
 			chargePower.addValue(evcs.getChargePower());
 			minHardwarePower.addValue(evcs.getMinimumHardwarePower());
 			maxHardwarePowerOfAll.addValue(evcs.getMaximumHardwarePower());
+			minPower.addValue(evcs.getMinimumPower());
 		}
 		this.getChargePower().setNextValue(chargePower.calculate());
 		this.getMinimumHardwarePower().setNextValue(minHardwarePower.calculate());
@@ -168,6 +171,9 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		if (this.maximalUsedHardwarePower == null) {
 			this.maximalUsedHardwarePower = this.totalcurrentPowerLimit;
 		}
+		this.getMaximumHardwarePower().setNextValue(this.maximalUsedHardwarePower);
+		;
+		this.getMinimumPower().setNextValue(minPower.calculate());
 	}
 
 	/**
@@ -186,57 +192,56 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 				}
 			}
 
-			double totalPowerLeft = this.totalcurrentPowerLimit;
+			this.logInfo(this.log, "Maximum Total Power of the whole system: " + this.totalcurrentPowerLimit);
 
-			this.logInfo(this.log, "Maximum Total Power of the whole system: " + totalPowerLeft);
+			int evcssCanBeCharged = this.totalcurrentPowerLimit / MINIMUM_EVCS_CHARGING_POWER;
 
-			for (Evcs evcs : this.sortedEvcss) {
+			if (evcssCanBeCharged < 1) {
+				this.logInfo(this.log, "Not enough excess power for charging");
+				return;
+			}
 
-				if (evcs instanceof ManagedEvcs) {
-					int extraPower = 0;
-					((ManagedEvcs) evcs).isClustered().setNextValue(true);
-
-					int nextChargePower;
-					Optional<Integer> requestedPower = ((ManagedEvcs) evcs).setChargePowerRequest().getNextWriteValue();
-
-					if (requestedPower.isPresent()) {
-						this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
-						nextChargePower = requestedPower.get();
-					} else {
-						nextChargePower = evcs.getMaximumHardwarePower().value().orElse(22080);
-					}
-
-					if(nextChargePower > 0) {
-							int powerTillMaximum = evcs.getMaximumHardwarePower().value().orElse(22080) - nextChargePower;
-							if(powerTillMaximum < this.totalPowerLeftInACycle) {
-								extraPower = powerTillMaximum;
-								this.totalPowerLeftInACycle -= extraPower;
-							}
-							nextChargePower = nextChargePower + extraPower;
-					}
-					if (nextChargePower < totalPowerLeft) {
-						((ManagedEvcs) evcs).setChargePower().setNextWriteValue(nextChargePower);
-						this.logInfo(this.log, "Power Left: " + totalPowerLeft + " ; Charge power: " + nextChargePower);
-						totalPowerLeft = totalPowerLeft - nextChargePower;
-					} else {
-						((ManagedEvcs) evcs).setChargePower().setNextWriteValue((int) totalPowerLeft);
-						this.logInfo(this.log, "Power Left: " + totalPowerLeft + " ; Charge power: " + totalPowerLeft);
-						totalPowerLeft = 0;
-					}
+			// Defines the active charging stations that are charging
+			List<ManagedEvcs> activeEvcss = new ArrayList<>();
+			for (ManagedEvcs evcs : this.sortedEvcss) {
+				int requestedPower = evcs.setChargePowerRequest().getNextWriteValue().orElse(0);
+				if (requestedPower > 0) {
+					activeEvcss.add(evcs);
 				} else {
-					// Not Managed EVCS
-					int evcsHardwarePower = evcs.getMaximumHardwarePower().value().orElse(22080);
-					if (evcsHardwarePower < totalPowerLeft) {
-						evcs.getMaximumPower().setNextValue(evcsHardwarePower);
-						totalPowerLeft = totalPowerLeft - evcsHardwarePower;
-					} else {
-						evcs.getMaximumPower().setNextValue(totalPowerLeft);
-						totalPowerLeft = 0;
-					}
+					evcs.setChargePower().setNextWriteValue(0);
 				}
 			}
-			if (totalPowerLeft > 0) {
-				this.totalPowerLeftInACycle = totalPowerLeft;
+
+			int totalPowerLeftMinusGuarantee = this.totalcurrentPowerLimit - (activeEvcss.size() * MINIMUM_EVCS_CHARGING_POWER);
+
+			for (ManagedEvcs evcs : activeEvcss) {
+				int powerLeft = totalPowerLeftMinusGuarantee + MINIMUM_EVCS_CHARGING_POWER;
+				
+				int nextChargePower;
+				Optional<Integer> requestedPower = evcs.setChargePowerRequest().getNextWriteValue();
+
+				if (requestedPower.isPresent()) {
+					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
+					nextChargePower = requestedPower.get();
+				} else {
+					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(22080);
+				}
+
+				int extraPower = (int) (this.totalPowerLeftInACycle / activeEvcss.size());
+				nextChargePower = nextChargePower + extraPower;
+
+				if (nextChargePower < powerLeft) {
+					evcs.setChargePower().setNextWriteValue(nextChargePower);
+					this.logInfo(this.log, "Power Left: " + totalPowerLeftMinusGuarantee + " ; Charge power: " + nextChargePower);
+					totalPowerLeftMinusGuarantee = totalPowerLeftMinusGuarantee - (nextChargePower-MINIMUM_EVCS_CHARGING_POWER);
+				} else {
+					evcs.setChargePower().setNextWriteValue(powerLeft);
+					this.logInfo(this.log, "Power Left: " + powerLeft + " ; Charge power: "+ powerLeft);
+					totalPowerLeftMinusGuarantee = 0;
+				}
+			}
+			if (totalPowerLeftMinusGuarantee > 0) {
+				this.totalPowerLeftInACycle = totalPowerLeftMinusGuarantee;
 			}
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
