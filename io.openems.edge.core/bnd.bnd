@@ -19,11 +19,9 @@ Private-Package: \
 	io.openems.edge.scheduler.api;version=latest,\
 	com.google.gson,\
 	slf4j.api,\
-	io.openems.wrapper.sdnotify;version=latest,\
-	io.openems.edge.evcs.api;version=latest
+	io.openems.wrapper.sdnotify;version=latest
 
 -testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8
-Import-Package: *
