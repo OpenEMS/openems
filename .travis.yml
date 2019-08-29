@@ -9,6 +9,7 @@ install: ./gradlew --version
 
 script:
   - ./gradlew build -x test
+  - ./gradlew buildUiForEdge --continue
   - ./gradlew buildAggregatedJavadocs --continue
   - ./gradlew buildAntoraDocs --continue
 
