@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo.jsonrpc;
+package io.openems.backend.metadata.odoo.odoo;
 
 import com.google.gson.JsonObject;
 

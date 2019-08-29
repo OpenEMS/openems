@@ -31,7 +31,7 @@
 			<!-- https://mvnrepository.com/artifact/com.github.scribejava/scribejava-core -->
 			<groupId>com.github.scribejava</groupId>
 			<artifactId>scribejava-core</artifactId>
-			<version>6.8.0</version>
+			<version>6.8.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>28.0-jre</version>
+			<version>28.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -146,6 +146,12 @@
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-service</artifactId>
 			<version>1.11.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.backend.metadata.odoo -->
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

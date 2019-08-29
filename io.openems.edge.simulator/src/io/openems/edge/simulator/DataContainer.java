@@ -1,8 +1,9 @@
-package io.openems.edge.simulator.datasource.csv;
+package io.openems.edge.simulator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class DataContainer {
@@ -55,8 +56,17 @@ public class DataContainer {
 	 * @param key the Channel-Id
 	 * @return the record value
 	 */
-	public float getValue(String key) {
-		return this.getCurrentRecord()[this.keys.get(key)];
+	public Optional<Float> getValue(String key) {
+		Integer index = this.keys.get(key);
+		if (index == null) {
+			return Optional.empty();
+		}
+		float[] record = this.getCurrentRecord();
+		if (index < record.length) {
+			return Optional.of(record[index]);
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	/**
@@ -67,5 +77,12 @@ public class DataContainer {
 		if (this.currentIndex >= this.records.size()) {
 			this.currentIndex = 0;
 		}
+	}
+
+	/**
+	 * Rewinds the data to start again at the first record.
+	 */
+	public void rewind() {
+		this.currentIndex = 0;
 	}
 }

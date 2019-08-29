@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo;
+package io.openems.backend.metadata.odoo.odoo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +15,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import io.openems.backend.metadata.odoo.Field;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -109,8 +110,7 @@ public class OdooUtils {
 	 * @return Odoo object ids
 	 * @throws OpenemsException on error
 	 */
-	protected static int[] search(OdooCredentials credentials, String model, Domain... domains)
-			throws OpenemsException {
+	protected static int[] search(Credentials credentials, String model, Domain... domains) throws OpenemsException {
 		// Add domain filter
 		Object[] domain = new Object[domains.length];
 		for (int i = 0; i < domains.length; i++) {
@@ -147,7 +147,7 @@ public class OdooUtils {
 	 * @return the record as a Map
 	 * @throws OpenemsException on error
 	 */
-	protected static Map<String, Object> readOne(OdooCredentials credentials, String model, int id, Field... fields)
+	protected static Map<String, Object> readOne(Credentials credentials, String model, int id, Field... fields)
 			throws OpenemsException {
 		// Create request params
 		// Add ids
@@ -156,7 +156,7 @@ public class OdooUtils {
 		// Add fields
 		String[] fieldStrings = new String[fields.length];
 		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].n();
+			fieldStrings[i] = fields[i].id();
 		}
 		Map<String, String[]> paramsFields = new HashMap<>();
 		paramsFields.put("fields", fieldStrings);
@@ -193,7 +193,7 @@ public class OdooUtils {
 	 * @throws OpenemsException on error
 	 */
 	// TODO this method is not yet functional
-	protected static Map<String, Object>[] searchAndRead(OdooCredentials credentials, String model, Domain[] domains,
+	protected static Map<String, Object>[] searchAndRead(Credentials credentials, String model, Domain[] domains,
 			Field[] fields) throws OpenemsException {
 		// Add domain filter
 		Object[] domain = new Object[domains.length];
@@ -205,7 +205,7 @@ public class OdooUtils {
 		// Add fields
 		String[] fieldStrings = new String[fields.length];
 		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].n();
+			fieldStrings[i] = fields[i].id();
 		}
 		Map<String, String[]> paramsFields = new HashMap<>();
 		paramsFields.put("fields", fieldStrings);
@@ -238,7 +238,7 @@ public class OdooUtils {
 	 * @return the records as a Map array
 	 * @throws OpenemsException on error
 	 */
-	protected static Map<String, Object>[] readMany(OdooCredentials credentials, String model, Integer[] ids,
+	protected static Map<String, Object>[] readMany(Credentials credentials, String model, Integer[] ids,
 			Field... fields) throws OpenemsException {
 		// Create request params
 		String action = "read";
@@ -251,7 +251,7 @@ public class OdooUtils {
 		// Add fields
 		String[] fieldStrings = new String[fields.length];
 		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].n();
+			fieldStrings[i] = fields[i].id();
 		}
 		// Map<String, String[]> paramsFields = new HashMap<>();
 		// paramsFields.put("fields", fieldStrings);
@@ -285,7 +285,7 @@ public class OdooUtils {
 	 * @return the records as a Map array
 	 * @throws OpenemsException on error
 	 */
-	protected static Map<String, Object>[] searchRead(OdooCredentials credentials, String model, Field[] fields,
+	protected static Map<String, Object>[] searchRead(Credentials credentials, String model, Field[] fields,
 			Domain... domains) throws OpenemsException {
 		// Create request params
 		// Add domain filter
@@ -331,7 +331,7 @@ public class OdooUtils {
 	 * @param message     the message
 	 * @throws OpenemsException on error
 	 */
-	protected static void addChatterMessage(OdooCredentials credentials, String model, int id, String message)
+	protected static void addChatterMessage(Credentials credentials, String model, int id, String message)
 			throws OpenemsException {
 		// Create request params
 		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
@@ -356,7 +356,7 @@ public class OdooUtils {
 	 * @param fieldValues fields and values that should be written
 	 * @throws OpenemsException on error
 	 */
-	protected static void write(OdooCredentials credentials, String model, Integer[] ids, FieldValue<?>... fieldValues)
+	public static void write(Credentials credentials, String model, Integer[] ids, FieldValue<?>... fieldValues)
 			throws OpenemsException {
 		// // for debugging:
 		// StringBuilder b = new StringBuilder("Odoo Write: " + model + "; ");
@@ -374,7 +374,7 @@ public class OdooUtils {
 		// Add fieldValues
 		Map<String, Object> paramsFieldValues = new HashMap<>();
 		for (FieldValue<?> fieldValue : fieldValues) {
-			paramsFieldValues.put(fieldValue.getField().n(), fieldValue.getValue());
+			paramsFieldValues.put(fieldValue.getField().id(), fieldValue.getValue());
 		}
 		// Create request params
 		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
