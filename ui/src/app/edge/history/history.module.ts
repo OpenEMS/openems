@@ -6,6 +6,7 @@ import { KwhComponent } from './kwh/kwh.component';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 import { EvcsComponent } from './evcs/evcs.component';
 import { ExportComponent } from './export/export.component';
+import { ChpSocComponent } from './chpsoc/chpsoc.component';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { ExportComponent } from './export/export.component';
     KwhComponent,
     ChannelthresholdComponent,
     EvcsComponent,
-    ExportComponent
+    ExportComponent,
+    ChpSocComponent
   ]
 })
 export class HistoryModule { }

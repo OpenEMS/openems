@@ -1,5 +1,6 @@
 package io.openems.edge.simulator.datasource.csv;
 
+import java.io.IOException;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
@@ -16,6 +17,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.simulator.CsvUtils;
+import io.openems.edge.simulator.DataContainer;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
@@ -41,14 +44,15 @@ public class CsvDatasource extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws NumberFormatException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.timeDelta = config.timeDelta();
 		this.realtime = config.realtime();
 		this.lastIteration = System.currentTimeMillis();
 		// read csv-data
-		this.data = Utils.getValues(config.source(), config.factor());
+		this.data = CsvUtils.readCsvFileFromRessource(CsvDatasource.class, config.source().filename, config.format(),
+				config.factor());
 	}
 
 	@Override

@@ -65,7 +65,7 @@ public class OutOfMemoryHeapDumpWorker extends AbstractWorker {
 	}
 
 	private void delete(File file) {
-		this.log.info("Deleting file [" + file.getAbsolutePath() + "/" + file.getName());
+		this.log.info("Deleting file [" + file.getAbsolutePath() + "]");
 		file.delete();
 	}
 
