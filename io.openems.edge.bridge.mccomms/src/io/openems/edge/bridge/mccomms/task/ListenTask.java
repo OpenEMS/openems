@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 public class ListenTask implements Future<MCCommsPacket> {
@@ -18,7 +19,7 @@ public class ListenTask implements Future<MCCommsPacket> {
 	private int command;
 	private MCCommsPacket packet;
 	private Predicate<ByteBuffer>[] otherConditions;
-	private boolean hasReturned;
+	private AtomicBoolean hasReturned;
 	
 	public ListenTask(int sourceAddress, int destinationAddress, int command, MCCommsPacket packet, Predicate<ByteBuffer>...otherConditions) {
 		this.sourceAddress = sourceAddress;
@@ -26,7 +27,7 @@ public class ListenTask implements Future<MCCommsPacket> {
 		this.command = command;
 		this.packet = packet;
 		this.otherConditions = otherConditions;
-		this.hasReturned = false;
+		this.hasReturned = new AtomicBoolean(false);
 	}
 	
 	private boolean checkOtherConditions(ByteBuffer buffer) {
@@ -43,7 +44,7 @@ public class ListenTask implements Future<MCCommsPacket> {
 				&& checkOtherConditions(buffer)
 		) {
 			packet.setBytes(buffer.array());
-			this.hasReturned = true;
+			this.hasReturned.set(true);
 			synchronized (this) {
 				notifyAll();
 			}
@@ -68,27 +69,27 @@ public class ListenTask implements Future<MCCommsPacket> {
 	@Override
 	public MCCommsPacket get() throws InterruptedException, ExecutionException {
 		synchronized (this) {
-			while (!this.hasReturned)
+			while (!this.hasReturned.get())
 			this.wait();
 		}
-		this.hasReturned = false;
+		this.hasReturned.set(false);
 		return packet;
 	}
 	
 	@Override
 	public MCCommsPacket get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		if (!hasReturned) {
+		if (!hasReturned.get()) {
 			synchronized (this) {
 				unit.timedWait(this, timeout);
 			}
-			if (hasReturned) {
-				this.hasReturned = false;
+			if (hasReturned.get()) {
+				this.hasReturned.set(false);
 				return packet;
 			} else {
-				throw new TimeoutException("Reply window timed out");
+				throw new TimeoutException("Listen window timed out [" + command + "]");
 			}
 		} else {
-			this.hasReturned = false;
+			this.hasReturned.set(false);
 			return packet;
 		}
 	}

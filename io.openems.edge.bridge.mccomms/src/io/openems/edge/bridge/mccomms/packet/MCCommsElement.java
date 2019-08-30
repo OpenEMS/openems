@@ -155,7 +155,7 @@ public class MCCommsElement {
 				return valueBuffer.get(0)  * scaleFactor;
 			case 2:
 				if (isUnsigned) {
-					return Short.toUnsignedInt(valueBuffer.getShort())  * scaleFactor;
+					return Short.toUnsignedInt(valueBuffer.getShort(0))  * scaleFactor;
 				}
 				return valueBuffer.getShort(0);
 			case 4:

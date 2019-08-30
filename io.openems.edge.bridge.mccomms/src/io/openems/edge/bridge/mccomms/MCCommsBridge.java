@@ -80,6 +80,11 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	}
 	
 	@Override
+	public void logInfo(String message) {
+		logInfo(logger, message);
+	}
+	
+	@Override
 	public void addListenTask(ListenTask listenTask) {
 		listenTasks.add(listenTask);
 	}
@@ -162,7 +167,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 							try {
 								//noinspection ConstantConditions
 								outputStream.write(writeTaskQueue.poll().getBytes());
-								Thread.sleep(10); //ensure 10ms gap between packets on the bus
+								Thread.sleep(25); //ensure 10ms gap between packets on the bus
 							} catch (IOException e) {
 								logError(e);
 							} catch (InterruptedException ignored) {}

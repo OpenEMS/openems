@@ -51,10 +51,10 @@ public class QueryTask {
 			for (ListenTask listenTask : listenTasks) {
 				bridge.addListenTask(listenTask);
 			}
-			long end = System.nanoTime() + replyTimeOutUnit.toNanos(replyTimeOut);
 			for (ListenTask listenTask: listenTasks) {
 				try {
-					listenTask.get(end - System.nanoTime(), TimeUnit.NANOSECONDS).updateElementChannels();
+					listenTask.get(replyTimeOut, replyTimeOutUnit).updateElementChannels();
+					bridge.logInfo("GOTCHA!");
 				} catch (InterruptedException | ExecutionException | TimeoutException | OpenemsException e) {
 					bridge.logError(e);
 				}
@@ -63,7 +63,7 @@ public class QueryTask {
 				bridge.removeListenTask(listenTask);
 			}
 			try {
-				Thread.sleep(10);
+				Thread.sleep(25);
 			} catch (InterruptedException ignored) {}
 			lockingBool.set(false);
 		});

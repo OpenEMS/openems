@@ -53,7 +53,7 @@ public class MCCommsPacket {
 	
 	public MCCommsPacket setBytes(byte[] bytes) throws OpenemsException {
 		for (MCCommsElement element : elements.asMapOfRanges().values()) {
-			element.setBytes(Arrays.copyOfRange(bytes, element.getAddressRange().lowerEndpoint(), element.getAddressRange().upperEndpoint()));
+			element.setBytes(Arrays.copyOfRange(bytes, element.getAddressRange().lowerEndpoint(), element.getAddressRange().upperEndpoint() + 1));
 		}
 		return this;
 	}

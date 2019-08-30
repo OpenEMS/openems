@@ -13,18 +13,17 @@ import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
 import io.openems.edge.bridge.mccomms.task.ListenTask;
 import io.openems.edge.bridge.mccomms.task.QueryTask;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 
-@SuppressWarnings("PackageAccessibility") //IntelliJ inspection warning suppression
 @Designate( ocd=Config.class, factory=true)
 @Component(
 		name="Battery.MCUBMU",
@@ -36,6 +35,8 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 	private HashSet<QueryTask> queryTasks;
+	private Config config;
+	private NetCurrentChannelUpdater netCurrentChannelUpdater;
 	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		BATTERY_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
@@ -58,6 +59,9 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 				ChannelId.values()
 		);
 		this.queryTasks = new HashSet<>();
+		this.netCurrentChannelUpdater = new NetCurrentChannelUpdater();
+		channel(ChannelId.BATTERY_DISCHARGE_CURRENT).onSetNextValue(value -> netCurrentChannelUpdater.dischargeCurrentChannelUpdated());
+		channel(ChannelId.BATTERY_CHARGE_CURRENT).onSetNextValue(value -> netCurrentChannelUpdater.chargeCurrentChannelUpdated());
 	}
 	
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -69,97 +73,81 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 	@Activate
 	public void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.UBMUmcCommsAddress(), cm, config.mcCommsBridge_id());
+		this.config = config;
 		try {
 			//noinspection unchecked
 			queryTasks.add(
-					QueryTask.newCommandOnlyQuery(
-							getMCCommsBridge(),
-							config.openemsMCCommsAddress(),
-							config.UBMUmcCommsAddress(),
+					constructQueryTask(
 							56,
-							config.queryTimeoutMS(),
-							TimeUnit.MILLISECONDS,
-							new ListenTask(
-									config.UBMUmcCommsAddress(),
-									config.openemsMCCommsAddress(),
-									57,
-									new MCCommsPacket(
-											MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.SOC), 100),
-											MCCommsElement.newInstanceFromChannel(9, 2, channel(Battery.ChannelId.SOH), 100),
-											MCCommsElement.newInstanceFromChannel(12, 2, channel(Battery.ChannelId.VOLTAGE), 0.001),
-											MCCommsElement.newInstanceFromChannel(13, 2, channel(ChannelId.BATTERY_CHARGE_CURRENT), 0.01),
-											MCCommsElement.newInstanceFromChannel(15, 2, channel(ChannelId.BATTERY_DISCHARGE_CURRENT), 0.01),
-											MCCommsBitSetElement.newInstanceFromChannels(18, 2, channel(Battery.ChannelId.READY_FOR_WORKING))
-									)
-							)
+							57,
+							MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.SOC))
+									.setScaleFactor(0.01),
+							MCCommsElement.newInstanceFromChannel(9, 2, channel(Battery.ChannelId.SOH))
+									.setScaleFactor(0.01),
+							MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.VOLTAGE))
+									.setScaleFactor(0.001),
+							MCCommsElement.newInstanceFromChannel(13, 2, channel(ChannelId.BATTERY_CHARGE_CURRENT))
+									.setScaleFactor(100),
+							MCCommsElement.newInstanceFromChannel(15, 2, channel(ChannelId.BATTERY_DISCHARGE_CURRENT))
+									.setScaleFactor(100),
+							MCCommsBitSetElement.newInstanceFromChannels(18, 2, channel(Battery.ChannelId.READY_FOR_WORKING))
 					).queryRepeatedly(config.RTDrefreshMS(), TimeUnit.MILLISECONDS)
 			);
-			//noinspection unchecked
 			queryTasks.add(
-					QueryTask.newCommandOnlyQuery(
-							getMCCommsBridge(),
-							config.openemsMCCommsAddress(),
-							config.UBMUmcCommsAddress(),
+					constructQueryTask(
 							58,
-							config.queryTimeoutMS(),
-							TimeUnit.MILLISECONDS,
-							new ListenTask(
-									config.UBMUmcCommsAddress(),
-									config.openemsMCCommsAddress(),
-									59,
-									new MCCommsPacket(
-											MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE), 0.001),
-											MCCommsElement.newInstanceFromChannel(9, 2, channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE), 0.001),
-											MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.CHARGE_MAX_CURRENT), 0.1),
-											MCCommsElement.newInstanceFromChannel(13, 2, channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT), 0.1)
-									)
-							)
+							59,
+							MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE))
+									.setScaleFactor(0.001),
+							MCCommsElement.newInstanceFromChannel(9, 2, channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE))
+									.setScaleFactor(0.001),
+							MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.CHARGE_MAX_CURRENT))
+									.setScaleFactor(0.1),
+							MCCommsElement.newInstanceFromChannel(13, 2, channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT))
+									.setScaleFactor(0.1)
 					).queryRepeatedly(config.RTDrefreshMS(), TimeUnit.MILLISECONDS)
 			);
-			//noinspection unchecked
 			queryTasks.add(
-					QueryTask.newCommandOnlyQuery(
-							getMCCommsBridge(),
-							config.openemsMCCommsAddress(),
-							config.UBMUmcCommsAddress(),
+					constructQueryTask(
 							60,
-							config.queryTimeoutMS(),
-							TimeUnit.MILLISECONDS,
-							new ListenTask(
-									config.UBMUmcCommsAddress(),
-									config.openemsMCCommsAddress(),
-									61,
-									new MCCommsPacket(
-											MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.MAX_CELL_VOLTAGE)),
-											MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.MIN_CELL_VOLTAGE)),
-											MCCommsElement.newInstanceFromChannel(17, 1, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE), 1.0, false),
-											MCCommsElement.newInstanceFromChannel(17, 1, channel(Battery.ChannelId.MIN_CELL_TEMPERATURE), 1.0, false)
-									)
-							)
+							61,
+							MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.MAX_CELL_VOLTAGE)),
+							MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.MIN_CELL_VOLTAGE)),
+							MCCommsElement.newInstanceFromChannel(17, 1, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE))
+									.setUnsigned(false),
+							MCCommsElement.newInstanceFromChannel(19, 1, channel(Battery.ChannelId.MIN_CELL_TEMPERATURE))
+									.setUnsigned(false)
 					).queryRepeatedly(config.statusRefreshMS(), TimeUnit.MILLISECONDS)
 			);
-			//noinspection unchecked
 			queryTasks.add(
-					QueryTask.newCommandOnlyQuery(
-							getMCCommsBridge(),
-							config.openemsMCCommsAddress(),
-							config.UBMUmcCommsAddress(),
+					constructQueryTask(
 							64,
-							config.queryTimeoutMS(),
-							TimeUnit.MILLISECONDS,
-							new ListenTask(
-									config.UBMUmcCommsAddress(),
-									config.openemsMCCommsAddress(),
-									65,
-									new MCCommsPacket(
-											MCCommsElement.newInstanceFromChannel(19, 2, channel(Battery.ChannelId.CAPACITY), 100)
-									)
-							)
+							65,
+							MCCommsElement.newInstanceFromChannel(19, 2, channel(Battery.ChannelId.CAPACITY))
+									.setScaleFactor(100)
 					).queryRepeatedly(config.statusRefreshMS(), TimeUnit.MILLISECONDS)
 			);
 		} catch (OpenemsException e) {
 			logError(logger, e.getMessage());
 		}
+	}
+	
+	private QueryTask constructQueryTask(int queryCommand, int responseCommand, MCCommsElement...responsePacketElements) throws OpenemsException {
+		//noinspection unchecked
+		return QueryTask.newCommandOnlyQuery(
+				getMCCommsBridge(),
+				config.openemsMCCommsAddress(),
+				config.UBMUmcCommsAddress(),
+				queryCommand,
+				config.queryTimeoutMS(),
+				TimeUnit.MILLISECONDS,
+				new ListenTask(
+						config.UBMUmcCommsAddress(),
+						config.openemsMCCommsAddress(),
+						responseCommand,
+						new MCCommsPacket(responsePacketElements)
+				)
+		);
 	}
 
 	@Deactivate
@@ -168,5 +156,36 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 			queryTask.cancel();
 		}
 		super.deactivate();
+	}
+	
+	private class NetCurrentChannelUpdater {
+		private boolean chargeCurrentChannelUpdated;
+		private boolean dischargeCurrentChannelUpdated;
+		
+		NetCurrentChannelUpdater() {
+			chargeCurrentChannelUpdated = false;
+			dischargeCurrentChannelUpdated = false;
+		}
+		
+		void dischargeCurrentChannelUpdated() {
+			dischargeCurrentChannelUpdated = true;
+			tryUpdateNetCurrentChannelValue();
+		}
+		
+		void chargeCurrentChannelUpdated() {
+			chargeCurrentChannelUpdated = true;
+			tryUpdateNetCurrentChannelValue();
+		}
+		
+		private void tryUpdateNetCurrentChannelValue() {
+			if (chargeCurrentChannelUpdated && dischargeCurrentChannelUpdated) {
+				chargeCurrentChannelUpdated = false;
+				dischargeCurrentChannelUpdated = false;
+				CalculateIntegerSum sum = new CalculateIntegerSum();
+				sum.addValue(channel(ChannelId.BATTERY_DISCHARGE_CURRENT));
+				sum.addValue(channel(ChannelId.BATTERY_CHARGE_CURRENT));
+				channel(Battery.ChannelId.CURRENT).setNextValue(sum.calculate());
+			}
+		}
 	}
 }

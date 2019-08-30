@@ -12,6 +12,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public interface IMCCommsBridge extends OpenemsComponent {
 	
+	void logInfo(String message);
+	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		

@@ -14,7 +14,7 @@ public class MCCommsBitSetElement extends MCCommsElement {
 	
 	protected MCCommsBitSetElement(Range<Integer> addressRange, Channel<Boolean>...channels) throws OpenemsException {
 		super(addressRange, true, 1.0, null);
-		if ((addressRange.upperEndpoint() - addressRange.lowerEndpoint() * 8) < channels.length) {
+		if (((addressRange.upperEndpoint() - addressRange.lowerEndpoint()) * 8) < channels.length) {
 			throw new OpenemsException("Number of channels exceeds number of bits");
 		}
 		this.channels = channels;
