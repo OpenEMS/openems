@@ -106,7 +106,9 @@
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
+	io.openems.edge.battery.microcare.ubmu;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
+	io.openems.edge.bridge.mccomms;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.core;version=snapshot,\
