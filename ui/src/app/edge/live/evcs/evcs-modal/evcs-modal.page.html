@@ -2,7 +2,7 @@
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
             <ion-title *ngIf="currentData[componentId + '/Alias'] as alias">{{alias}}</ion-title>
-            <ion-title *ngIf="!currentData[componentId + '/Alias'] as alias">
+            <ion-title *ngIf="!currentData[componentId + '/Alias'] as alias" translate>
                 Edge.Index.Widgets.EVCS.ChargingStation
                 <ion-text>
                     {{ componentId }}
@@ -58,7 +58,7 @@
                         <ion-item class="normalFontSize" lines="none">
                             <table class="full_width" text-wrap>
                                 <tr>
-                                    <td colspan="3" style="width: 90%">
+                                    <td colspan="3" style="width: 95%">
                                         <ion-segment (ionChange)="updateChargeMode($event, controller)"
                                             value={{controller.properties.chargeMode}}>
 
@@ -72,7 +72,6 @@
                                                     </ion-label>
                                                 </ion-item>
                                             </ion-segment-button>
-
                                             <ion-segment-button value="FORCE_CHARGE">
                                                 <ion-item lines="none">
                                                     <ion-img style="width:30px" src="assets/img/gridStorage.png">
@@ -84,23 +83,23 @@
                                             </ion-segment-button>
                                         </ion-segment>
                                     </td>
-                                    <td style="width: 10%">
+                                    <td style="width: 5%">
                                         <ion-icon style="text-align: right; font-size: 20px" style="cursor: pointer"
                                             name="information-circle-outline" (click)="displayInfo = !displayInfo">
                                         </ion-icon>
                                     </td>
                                 </tr>
-                                <tr *ngIf="displayInfo" style="margin-top: 10px;">
+                                <tr *ngIf="displayInfo">
                                     <td style="width: 45%">
-                                        <ion-label translate text-wrap>
+                                        <ion-note padding-top translate text-wrap>
                                             Edge.Index.Widgets.EVCS.OptimizedChargeMode.Info
-                                        </ion-label>
+                                        </ion-note>
                                     </td>
-                                    <td style="width: 5%"></td>
-                                    <td style="width: 50%" colspan="2">
-                                        <ion-label translate text-wrap>
+                                    <td style="width: 2.5%"></td>
+                                    <td style="width: 52.5%" padding-top colspan="2">
+                                        <ion-note translate text-wrap>
                                             Edge.Index.Widgets.EVCS.ForceChargeMode.Info
-                                        </ion-label>
+                                        </ion-note>
                                     </td>
                                 </tr>
                             </table>

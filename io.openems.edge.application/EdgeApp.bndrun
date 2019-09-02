@@ -193,7 +193,6 @@
 	io.openems.edge.meter.pqplus.umd97;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
-	com.google.guava;version='[28.0.0,28.0.1)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
@@ -212,7 +211,6 @@
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.tesla.powerwall2;version=snapshot,\
-	com.github.scribejava.core;version='[6.8.0,6.8.1)',\
 	io.openems.edge.evcs.cluster;version=snapshot,\
-	io.openems.edge.battery.microcare.ubmu;version=snapshot,\
-	io.openems.edge.bridge.mccomms;version=snapshot
+	com.github.scribejava.core;version='[6.8.1,6.8.2)',\
+	com.google.guava;version='[28.1.0,28.1.1)'
