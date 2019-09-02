@@ -6,7 +6,7 @@
 
 -runproperties: \
 	org.osgi.service.http.port=8080,\
-	felix.cm.dir=c:/openems-config
+	felix.cm.dir=/etc/hy-control-config/
 
 -runee: JavaSE-1.8
 
@@ -67,7 +67,6 @@
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
-	bnd.identity;id='io.openems.edge.evcs.cluster,\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -150,7 +149,6 @@
 	io.openems.edge.ess.sinexcel;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
-	io.openems.edge.evcs.cluster,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
@@ -205,7 +203,6 @@
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
-	com.github.scribejava.core;version='[6.7.0,6.7.1)',\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
@@ -218,5 +215,5 @@
 	javax.jmdns;version='[3.5.5,3.5.6)',\
 	io.openems.edge.controller.symmetric.peaklimiting;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
-	io.openems.edge.tesla.powerwall2;version=snapshot
+	com.github.scribejava.core;version='[6.8.0,6.8.1)'
 -resolve: auto
