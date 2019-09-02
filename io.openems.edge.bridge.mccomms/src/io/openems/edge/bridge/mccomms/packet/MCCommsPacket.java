@@ -9,9 +9,22 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * Class for representing a valid MCComms frame and its internal elements
+ * @see MCCommsElement
+ */
+@SuppressWarnings("UnstableApiUsage")
 public class MCCommsPacket {
+	/**
+	 * {@link RangeMap} for mapping which byte pertains to which {@link MCCommsElement}
+	 */
 	private final RangeMap<Integer, MCCommsElement> elements;
 	
+	/**
+	 * Constructor
+	 * @param elements {@link MCCommsElement}s that must cull their values from the packet buffer.
+	 *                                       Does not need to be in order.
+	 */
 	public MCCommsPacket(MCCommsElement ... elements) {
 		ImmutableRangeMap.Builder<Integer, MCCommsElement> builder = ImmutableRangeMap.builder();
 		for (MCCommsElement element : elements) {
@@ -20,18 +33,33 @@ public class MCCommsPacket {
 		this.elements = builder.build();
 	}
 	
+	/**
+	 * Static method for calculating a CRC for a given buffer.
+	 * The buffer is assumed to be 25 bytes long.
+	 * @param buffer the buffer from which to calculate
+	 * @return the actual CRC for a given packet buffer
+	 */
 	private static int calculateCRC(ByteBuffer buffer) {
 		int CRC = 0;
-		for (int i = 1; i < 22; i++) {
+		for (int i = 1; i < 22; i++) { //1st byte is excluded
 			CRC += UnsignedBytes.toInt(buffer.get(i));
 		}
 		return CRC;
 	}
 	
+	/**
+	 * Public static method for checking the actual CRC value of a packet buffer against its reported CRC value
+	 * @param buffer the packet buffer for which to check the CRC value
+	 * @return true if the CRC is valid, false otherwise
+	 */
 	public static boolean checkCRC(ByteBuffer buffer) {
 		return MCCommsPacket.calculateCRC(buffer) == Short.toUnsignedInt(buffer.getShort(22));
 	}
 	
+	/**
+	 * @return the raw byte array for this packet
+	 */
+	@SuppressWarnings("ConstantConditions")
 	public byte[] getBytes() {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(25);
 		byteBuffer.put(0, (byte) 83); //start char
@@ -51,6 +79,12 @@ public class MCCommsPacket {
 		return byteBuffer.array();
 	}
 	
+	/**
+	 * Consumes a raw byte array buffer and assigns values from the buffer to the {@link MCCommsElement}s within this packet
+	 * @param bytes the buffer to be consumed. Assumed to be 25 bytes long.
+	 * @return this instance
+	 * @throws OpenemsException if an element cannot be assigned a value from the supplied buffer
+	 */
 	public MCCommsPacket setBytes(byte[] bytes) throws OpenemsException {
 		for (MCCommsElement element : elements.asMapOfRanges().values()) {
 			element.setBytes(Arrays.copyOfRange(bytes, element.getAddressRange().lowerEndpoint(), element.getAddressRange().upperEndpoint() + 1));
@@ -58,6 +92,11 @@ public class MCCommsPacket {
 		return this;
 	}
 	
+	/**
+	 *
+	 * @return
+	 * @throws OpenemsException
+	 */
 	public MCCommsPacket updateElementChannels() throws OpenemsException {
 		for (MCCommsElement element : elements.asMapOfRanges().values()) {
 			element.assignValueToChannel();
