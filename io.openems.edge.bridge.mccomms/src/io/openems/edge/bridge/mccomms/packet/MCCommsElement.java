@@ -13,9 +13,6 @@ import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
 
-/**
- * Class for translating a serial of bytes within an {@link MCCommsPacket} buffer into a value and mapping it to a {@link Channel}, and vice versa
- */
 public class MCCommsElement {
 	private Range<Integer> addressRange;
 	private ByteBuffer valueBuffer;

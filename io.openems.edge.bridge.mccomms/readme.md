@@ -1,6 +1,8 @@
-# MC Comms Bridge
+# io.openems.edge.bridge.mccomms Provider
 
-A generic bridge for communication with devices using the MC Comms protocol.
+${Bundle-Description}
 
-Also includes classes for implementing OpenEMS components that interface with an MC Comms Bridge
+## Example
+
+## References
 

@@ -2,6 +2,7 @@ package io.openems.edge.bridge.mccomms.task;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.mccomms.IMCCommsBridge;
+import io.openems.edge.bridge.mccomms.MCCommsBridge;
 
 import java.io.IOException;
 import java.io.OutputStream;
