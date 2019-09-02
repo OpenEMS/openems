@@ -25,12 +25,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
+/**
+ * Component factory class to create a comms bridge between devices using MC Comms (a proprietary protocol used by Microcare devices) and OpenEMS
+ */
 @Designate( ocd=Config.class, factory=true)
 @Component(
 		name="Bridge.MCComms",
@@ -38,20 +39,63 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		configurationPolicy=ConfigurationPolicy.REQUIRE
 )
 public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsBridge, OpenemsComponent{
+	/**
+	 * {@link ScheduledExecutorService} used to repeat task execution
+	 */
 	private ScheduledExecutorService scheduledExecutorService;
+	/**
+	 * {@link ExecutorService} used for asynchronous IO blocking on the serial bus
+	 */
 	private ExecutorService singleThreadExecutor;
+	/**
+	 * {@link SerialPort} used for comms
+	 */
 	private SerialPort serialPort;
+	/**
+	 * Thread to handle raw serial port IO
+	 */
 	private SerialByteHandler serialByteHandler;
+	/**
+	 * Thread to construct packets from incoming serial bytes
+	 */
 	private PacketBuilder packetBuilder;
+	/**
+	 * Thread to distribute packets to awaiting {@link ListenTask}s
+	 */
 	private PacketPicker packetPicker;
+	/**
+	 * Queue for passing incoming bytes to the {@link PacketBuilder}
+	 */
 	private LinkedBlockingQueue<AbstractMap.SimpleEntry<Long, Byte>> RXTimedByteQueue;
+	/**
+	 * Queue for outgoing packet buffers waiting to be written to the bus
+	 * @see WriteTask
+	 */
 	private ConcurrentLinkedQueue<WriteTask> writeTaskQueue;
+	/**
+	 * Queue for {@link QueryTask}s awaiting execution
+	 */
 	private ConcurrentLinkedQueue<QueryTask> queryTaskQueue;
+	/**
+	 * Queue for constructed packets awaiting distribution by the {@link PacketPicker} to {@link ListenTask}s
+	 */
 	private LinkedBlockingQueue<ByteBuffer> RXBufferQueue;
+	/**
+	 * Set of {@link ListenTask}s that are currently being served incoming packet by this bridge instance
+	 */
 	private HashSet<ListenTask> listenTasks;
+	/**
+	 * Nanoseconds a packet has to complete its frame as per the {@link Config#packetWindowMS()} multiplied by 1 000 000
+	 */
 	private long packetWindowNs;
+	/**
+	 * Logger, the beer that built America {@see https://gta.fandom.com/wiki/Logger_Beer}
+	 */
 	private Logger logger;
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		
@@ -67,6 +111,9 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		}
 	}
 	
+	/**
+	 * Constructor. Instantiates all necessary members.
+	 */
 	public MCCommsBridge() {
 		super(OpenemsComponent.ChannelId.values(), IMCCommsBridge.ChannelId.values(), ChannelId.values());
 		logger = LoggerFactory.getLogger(getClass());
@@ -102,10 +149,6 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	@Override
 	public void addQueryTask(QueryTask queryTask) {
 		queryTaskQueue.add(queryTask);
-	}
-	
-	private MCCommsBridge getThisBridge() {
-		return this;
 	}
 	
 	@Override
@@ -150,6 +193,10 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		super.deactivate();
 	}
 	
+	/**
+	 * Thread that handles raw serial IO.
+	 * Runs perpetually until interrupted; see {@link MCCommsBridge#deactivate()}
+	 */
 	private class SerialByteHandler extends Thread {
 		@Override
 		public void run() {
@@ -192,6 +239,10 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		}
 	}
 	
+	/**
+	 * Thread that dequeues incoming bytes (see {@link SerialByteHandler} and {@link MCCommsBridge#RXTimedByteQueue}) and attempts to construct packets according to various timing and length rules; see embedded comments for more details
+	 * Runs perpetually until interrupted; see {@link MCCommsBridge#deactivate()}
+	 */
 	private class PacketBuilder extends Thread {
 		@Override
 		public void run() {
@@ -255,6 +306,11 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		}
 	}
 	
+	/**
+	 * Thread that dequeues constructed packet buffers from {@link MCCommsBridge#RXBufferQueue} and distributes them to listen tasks
+	 * @see MCCommsBridge#listenTasks
+	 * @see PacketBuilder
+	 */
 	private class PacketPicker extends Thread {
 		private ByteBuffer byteBuffer;
 		

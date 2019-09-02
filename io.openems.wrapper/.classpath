@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
@@ -8,5 +7,17 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:info.faljse:SDNotify:1.3.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.squareup.moshi:moshi:1.5.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:org.influxdb:influxdb-java:2.15.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:org.java-websocket:Java-WebSocket:1.4.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:org.msgpack:msgpack-core:0.8.16"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.squareup.okhttp3:okhttp:3.13.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.squareup.okio:okio:1.17.2"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.squareup.okhttp3:logging-interceptor:3.13.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.squareup.retrofit2:converter-moshi:2.5.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.squareup.retrofit2:retrofit:2.5.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:org.dhatim:fastexcel:0.10.9"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bnd:com.github.rzymek:opczip:1.0.2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
