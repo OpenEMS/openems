@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo.jsonrpc;
+package io.openems.backend.metadata.odoo.odoo.jsonrpc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 	private static final Logger log = LoggerFactory.getLogger(AuthenticateWithSessionIdResponse.class);
 
 	public static AuthenticateWithSessionIdResponse from(JsonrpcResponseSuccess response, String sessionId,
-			EdgeCache edges) throws OpenemsNamedException {
+			EdgeCache edgeCache) throws OpenemsNamedException {
 		JsonObject r = response.getResult();
 		JsonObject jUser = JsonUtils.getAsJsonObject(r, "user");
 		MyUser user = new MyUser(//
@@ -56,7 +56,7 @@ public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 		List<String> notAvailableEdges = new ArrayList<>();
 		for (JsonElement jDevice : jDevices) {
 			int odooId = JsonUtils.getAsInt(jDevice, "id");
-			MyEdge edge = edges.getEdgeFromOdooId(odooId);
+			MyEdge edge = edgeCache.getEdgeFromOdooId(odooId);
 			if (edge == null) {
 				notAvailableEdges.add(String.valueOf(odooId));
 			} else {

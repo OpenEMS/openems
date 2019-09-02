@@ -42,14 +42,13 @@ export class EvcsClusterComponent {
       edge.subscribeChannels(this.websocket, EvcsClusterComponent.SELECTOR + this.componentId, [
         // Evcs
         new ChannelAddress(this.componentId, 'ChargePower'),
-        new ChannelAddress(this.componentId, 'HardwarePowerLimit'),
         new ChannelAddress(this.componentId, 'Phases'),
         new ChannelAddress(this.componentId, 'Plug'),
         new ChannelAddress(this.componentId, 'Status'),
         new ChannelAddress(this.componentId, 'State'),
         new ChannelAddress(this.componentId, 'EnergySession'),
-        new ChannelAddress(this.componentId, 'MinimumPower'),
-        new ChannelAddress(this.componentId, 'MaximumPower')
+        new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
+        new ChannelAddress(this.componentId, 'MaximumHardwarePower')
       ]);
 
       this.service.getConfig().then(config => {

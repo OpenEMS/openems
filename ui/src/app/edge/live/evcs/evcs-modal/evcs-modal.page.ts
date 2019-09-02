@@ -28,7 +28,7 @@ export class EvcsModalComponent implements OnInit {
     public websocket: Websocket,
     public router: Router,
     protected translate: TranslateService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
   ) { }
 
   ngOnInit() {
