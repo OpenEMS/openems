@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.mccomms.api;
 
 import io.openems.edge.bridge.mccomms.IMCCommsBridge;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -28,7 +29,7 @@ public abstract class AbstractMCCommsComponent extends AbstractOpenemsComponent 
 	protected final Logger logger;
 	
 	/**
-	 * {@inheritDoc}
+	 * @see AbstractOpenemsComponent#AbstractOpenemsComponent(io.openems.edge.common.channel.ChannelId[], io.openems.edge.common.channel.ChannelId[]...)
 	 */
 	protected AbstractMCCommsComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
