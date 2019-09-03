@@ -10,11 +10,12 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.jsonapi.JsonApi;
 
 /**
  * A Service that provides access to OpenEMS-Components.
  */
-public interface ComponentManager extends OpenemsComponent {
+public interface ComponentManager extends OpenemsComponent, JsonApi {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //

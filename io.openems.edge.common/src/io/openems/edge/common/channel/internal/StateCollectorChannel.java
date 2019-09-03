@@ -80,8 +80,8 @@ public class StateCollectorChannel extends EnumReadChannel {
 	public void addChannel(StateChannel channel) {
 		this.channels.put(channel.channelId(), channel);
 
-		channel.onChange(value -> {
-			this.onChangeFunction.accept(channel, value);
+		channel.onChange((oldValue, newValue) -> {
+			this.onChangeFunction.accept(channel, newValue);
 		});
 	}
 

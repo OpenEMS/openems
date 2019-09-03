@@ -41,7 +41,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
 	private final Map<String, BackendUser> users = new HashMap<>();
-	private final Map<String, Edge> edges = new HashMap<>();
+	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	public Dummy() {
 		super("Metadata.Dummy");
@@ -81,7 +81,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
-		Optional<Edge> edgeOpt = this.edges.values().stream() //
+		Optional<MyEdge> edgeOpt = this.edges.values().stream() //
 				.filter(edge -> apikey.equals(edge.getApikey())) //
 				.findFirst();
 		if (edgeOpt.isPresent()) {
@@ -99,8 +99,8 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			id = this.nextEdgeId.incrementAndGet();
 			edgeId = "edge" + id;
 		}
-		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null, null,
-				null);
+		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null,
+				null, null);
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
 					+ StringUtils.toShortString(EdgeConfigDiff.diff(config, edge.getConfig()).getAsHtml(), 100));
@@ -119,8 +119,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 				sumStateString = "";
 			}
 			String states = Metadata.activeStateChannelsToString(activeStateChannels);
-			this.logInfo(this.log,
-					"Edge [" + edgeId + "]. Set State \"" + sumStateString + "\". Long-Text: " + states);
+			this.logInfo(this.log, "Edge [" + edgeId + "]. Set State \"" + sumStateString + "\". Long-Text: " + states);
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
