@@ -199,16 +199,17 @@ export class CurrentData {
                 + result.storage.chargeActivePowerAc,
                 + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
             );
-            result.system.autarchy = (1 - (Utils.orElse(result.grid.buyActivePower, 0) / result.consumption.activePower)) * 100;
-            result.system.selfConsumption = (1 - (Utils.orElse(result.grid.sellActivePower, 0) / (Utils.orElse(result.production.activePower, 0) + Utils.orElse(result.storage.dischargeActivePower, 0)))) * 100;
-            if (result.system.autarchy < 0 || isNaN(result.system.autarchy)) {
-                result.system.autarchy = 0;
-            }
-            if (result.system.selfConsumption < 0 || isNaN(result.system.selfConsumption)) {
-                result.system.selfConsumption = 0;
-            }
+            result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
+            result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.dischargeActivePower);
         }
         return result;
+    }
+    public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number {
+        return Math.max(Utils.orElse((1 - (Utils.divideSafely(Utils.orElse(buyFromGrid, 0), (Utils.orElse(consumptionActivePower, 0))))) * 100, 0), 0)
+    }
+
+    public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number, storageDischargeActivePower: number): number {
+        return Math.max(Utils.orElse((1 - (Utils.divideSafely(Utils.orElse(sellToGrid, 0), (Utils.addSafely(Utils.orElse(productionActivePower, 0), Utils.orElse(storageDischargeActivePower, 0)))))) * 100, 0), 0)
     }
 
 }

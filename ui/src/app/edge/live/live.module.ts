@@ -23,13 +23,24 @@ import { EvcsModalComponent } from './evcs/evcs-modal/evcs-modal.page';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { AutarchyComponent } from './autarchy/autarchy.component';
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
+import { AutarchyModalComponent } from './autarchy/modal/modal.component';
+import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
 
 @NgModule({
   imports: [
     SharedModule,
     EnergymonitorModule,
   ],
-  entryComponents: [StorageModalComponent, GridModalComponent, ConsumptionModalComponent, ProductionModalComponent, EvcsModalComponent, ModalComponentEvcsCluster],
+  entryComponents: [
+    StorageModalComponent,
+    GridModalComponent,
+    ConsumptionModalComponent,
+    ProductionModalComponent,
+    EvcsModalComponent,
+    ModalComponentEvcsCluster,
+    AutarchyModalComponent,
+    SelfconsumptionModalComponent
+  ],
   declarations: [
     LiveComponent,
     FixDigitalOutputModalComponent,
@@ -53,7 +64,9 @@ import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.comp
     EvcsModalComponent,
     EvcsChart,
     AutarchyComponent,
-    SelfConsumptionComponent
+    AutarchyModalComponent,
+    SelfConsumptionComponent,
+    SelfconsumptionModalComponent
   ]
 })
 export class LiveModule { }

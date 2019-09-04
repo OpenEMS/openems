@@ -186,6 +186,8 @@ export class EdgeConfig {
                     case 'PV-Inverter.KACO.blueplanet':
                     case 'PV-Inverter.SunSpec':
                     case 'SolarEdge.PV-Inverter':
+                    case 'Simulator.PvInverter':
+                    case 'Simulator.ProductionMeter.Acting':
                         return true;
                 }
             }
@@ -194,10 +196,10 @@ export class EdgeConfig {
     }
 
     public isProducer(component: EdgeConfig.Component) {
+        // TODO make sure 'type' is provided for all Meters
         if (component.properties['type'] == "PRODUCTION") {
             return true;
         } else {
-            // TODO make sure 'type' is provided for all Meters
             switch (component.factoryId) {
                 case 'Fenecon.Mini.PvMeter':
                 case 'Fenecon.Dess.PvMeter':
@@ -208,6 +210,8 @@ export class EdgeConfig {
                 case 'PV-Inverter.KACO.blueplanet':
                 case 'PV-Inverter.SunSpec':
                 case 'SolarEdge.PV-Inverter':
+                case 'Simulator.PvInverter':
+                case 'Simulator.ProductionMeter.Acting':
                     return true;
             }
         }

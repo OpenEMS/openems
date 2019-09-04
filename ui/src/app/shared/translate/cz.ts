@@ -1,16 +1,21 @@
 export const TRANSLATION = {
     General: {
+        On: "zapnutý",
+        Off: "Pryč",
+        Phase: "Fáze",
         Autarchy: "Soběstačnost",
         SelfConsumption: "Vlastní spotřeba",
         Cumulative: "Kumulativní Hodnoty",
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
         otherConsumption: "jiná spotřeba",
-        totalConsumption: "celková spotřeba",
+        Total: "celková spotřeba",
         Load: "nálož",
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
@@ -75,6 +80,8 @@ export const TRANSLATION = {
                     Output: "Výstup"
                 },
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
+                autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
+                selfconsumptionInfo: "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
                 CHP: {
                     LowThreshold: "Nízký práh",
                     HighThreshold: "vysoký práh"

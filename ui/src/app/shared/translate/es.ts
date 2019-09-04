@@ -1,16 +1,21 @@
 export const TRANSLATION = {
     General: {
+        On: "conmutada",
+        Off: "apagado",
+        Phase: "Fase",
         Autarchy: "Autosuficiencia",
         SelfConsumption: "Autoconsumo",
         Cumulative: "Valores Acumulativos",
         Grid: "Red",
         GridBuy: "Relación",
         GridSell: "Fuente de alimentación",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "No hay conexión de red",
         Production: "Producción",
         Consumption: "Consumo",
         otherConsumption: "otro Consumo",
-        totalConsumption: "consumo total",
+        Total: "consumo total",
         Load: "la cantidad",
         Power: "Rendimiento",
         StorageSystem: "Almacenamiento",
@@ -76,6 +81,8 @@ export const TRANSLATION = {
                     Output: "Salida"
                 },
                 phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
+                autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
+                selfconsumptionInfo: "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
                 CHP: {
                     LowThreshold: "Umbral bajo",
                     HighThreshold: "Umbral alto"

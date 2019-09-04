@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
+import { SelfconsumptionModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'selfconsumption',
@@ -25,13 +26,11 @@ export class SelfConsumptionComponent {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, SelfConsumptionComponent.SELECTOR, [
                 // Ess
-                new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'), new ChannelAddress('_sum', 'EssMaxApparentPower'),
+                new ChannelAddress('_sum', 'EssActivePower'),
                 // Grid
-                new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'),
+                new ChannelAddress('_sum', 'GridActivePower'),
                 // Production
-                new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
-                // Consumption
-                new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
+                new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower')
             ]);
         });
     }
@@ -40,5 +39,15 @@ export class SelfConsumptionComponent {
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, SelfConsumptionComponent.SELECTOR);
         }
+    }
+
+    async presentModal() {
+        const modal = await this.modalCtrl.create({
+            component: SelfconsumptionModalComponent,
+            componentProps: {
+                edge: this.edge
+            }
+        });
+        return await modal.present();
     }
 }

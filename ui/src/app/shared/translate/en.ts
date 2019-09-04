@@ -1,11 +1,16 @@
 export const TRANSLATION = {
     General: {
+        On: "On",
+        Off: "Off",
+        Phase: "Phase",
         Autarchy: "Autarchy",
         SelfConsumption: "Self Consumption",
         Cumulative: "Cumulative Values",
         Grid: "Grid",
         GridBuy: "Buy from grid",
         GridSell: "Sell to grid",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "No Grid Connection!",
         Production: "Production",
         Consumption: "Consumption",
@@ -76,6 +81,8 @@ export const TRANSLATION = {
                     Output: "Output"
                 },
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
+                autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
+                selfconsumptionInfo: "Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.",
                 CHP: {
                     LowThreshold: "Low Threshold",
                     HighThreshold: "High Threshold"

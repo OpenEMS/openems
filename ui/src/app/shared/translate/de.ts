@@ -1,16 +1,21 @@
 export const TRANSLATION = {
     General: {
+        On: "An",
+        Off: "Aus",
+        Phase: "Phase",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigenverbrauch",
         Cumulative: "Kumulierte Werte",
         Grid: "Netz",
         GridBuy: "Netzbezug",
         GridSell: "Netzeinspeisung",
+        GridBuyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "Keine Netzverbindung!",
         Production: "Erzeugung",
         Consumption: "Verbrauch",
-        otherConsumption: "sonstiger Verbrauch",
-        totalConsumption: "Gesamtverbrauch",
+        otherConsumption: "Sonstiger",
+        Total: "Gesamt",
         Load: "Last",
         Power: "Leistung",
         StorageSystem: "Speichersystem",
@@ -77,6 +82,8 @@ export const TRANSLATION = {
                     Output: "Ausgang"
                 },
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
+                autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt werden kann.",
+                selfconsumptionInfo: "Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt werden kann.",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",
                     HighThreshold: "Oberer Schwellenwert"
@@ -102,7 +109,7 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
                     ChargingLimit: "Lade-Begrenzung",
                     AmountOfChargingStations: "Anzahl der Ladestationen",
-                    ChargingPower: "Lade-Leistung",
+                    ChargingPower: "E-Auto Ladeleistung",
                     TotalChargingPower: "Gesamte Lade-Leistung",
                     CurrentCharge: "Aktuelle Beladung",
                     TotalCharge: "Gesamte Beladung",

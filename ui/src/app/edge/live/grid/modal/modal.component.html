@@ -15,11 +15,11 @@
             <ion-card-content *ngIf="currentData.summary.grid as sum">
                 <ion-grid no-padding>
                     <table class="full_width">
-                        <tr class="underline" *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
+                        <tr *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
                             <td colspan="4" translate>General.OffGrid</td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.GridBuy</td>
+                            <td style="width:65%" translate>General.GridBuyAdvanced</td>
                             <ng-container *ngIf="sum.buyActivePower != 0; else empty">
                                 <td style="width:35%" class="align_right">
                                     {{ sum.buyActivePower | number:'1.0-0' }}&nbsp;W</td>
@@ -28,9 +28,8 @@
                                 <td style="width:35%" class="align_right">-</td>
                             </ng-template>
                         </tr>
-                        <tr
-                            [class.underline]="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
-                            <td style="width:65%" translate>General.GridSell</td>
+                        <tr>
+                            <td style="width:65%" translate>General.GridSellAdvanced</td>
                             <ng-container *ngIf="sum.sellActivePower != 0; else empty">
                                 <td style="width:35%" class="align_right">
                                     {{ sum.sellActivePower | number:'1.0-0'}}&nbsp;W
@@ -41,51 +40,83 @@
                             </ng-template>
                         </tr>
                     </table>
-
+                    <!-- for spacing between Phases and GridBuy/Sell -->
+                    <div *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
+                        style="padding-top: 5px;"></div>
                     <!-- 3 Phases -->
                     <table class="full_width"
                         *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
                         <tr *ngIf="sum.activePowerL1 > 0">
                             <td style="width:2%"></td>
-                            <td style="width:23%"><span translate>General.GridBuy</span>&nbsp;L1</td>
-                            <td style="width:40%"></td>
-                            <td style="width:35%" class="align_right">
-                                {{ sum.activePowerL1 | number:'1.0-0' }}&nbsp;W</td>
+                            <td style="width:63%"><span translate>Phase</span> L1 <span
+                                    translate>General.GridBuyAdvanced</span></td>
+                            <ng-container *ngIf="sum.activePowerL1 != 0; else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerL1 | number:'1.0-0' }}&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">-</td>
+                            </ng-template>
                         </tr>
                         <tr *ngIf="sum.activePowerL1 <= 0">
                             <td style="width:2%"></td>
-                            <td style="width:23%"><span translate>General.GridSell</span>&nbsp;L1</td>
-                            <td style="width:40%"></td>
-                            <td style="width:35%" class="align_right">
-                                {{ (sum.activePowerL1 * -1) | number:'1.0-0'}}&nbsp;W</td>
+                            <td style="width:63%"><span translate>Phase</span> L1 <span
+                                    translate>General.GridSellAdvanced</span></td>
+                            <ng-container *ngIf="sum.activePowerL1 != 0; else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.activePowerL1 * -1) | number:'1.0-0'}}&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">-</td>
+                            </ng-template>
                         </tr>
                         <tr *ngIf="sum.activePowerL2 > 0">
                             <td style="width:2%"></td>
-                            <td style="width:23%"><span translate>General.GridBuy</span>&nbsp;L2</td>
-                            <td style="width:40%"></td>
-                            <td style="width:35%" class="align_right">
-                                {{sum.activePowerL2 | number:'1.0-0'}}&nbsp;W</td>
+                            <td style="width:63%"><span translate>Phase</span> L2 <span
+                                    translate>General.GridBuyAdvanced</span></td>
+                            <ng-container *ngIf="sum.activePowerL2 != 0; else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerL2 | number:'1.0-0' }}&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">-</td>
+                            </ng-template>
                         </tr>
                         <tr *ngIf="sum.activePowerL2 <= 0">
                             <td style="width:2%"></td>
-                            <td style="width:23%"><span translate>General.GridSell</span>&nbsp;L2</td>
-                            <td style="width:40%"></td>
-                            <td style="width:35%" class="align_right">
-                                {{ (sum.activePowerL2 * -1) | number:'1.0-0' }}&nbsp;W</td>
+                            <td style="width:63%"><span translate>Phase</span> L2 <span
+                                    translate>General.GridSellAdvanced</span></td>
+                            <ng-container *ngIf="sum.activePowerL2 != 0; else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.activePowerL2 * -1) | number:'1.0-0'}}&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">-</td>
+                            </ng-template>
                         </tr>
                         <tr *ngIf="sum.activePowerL3 > 0">
                             <td style="width:2%"></td>
-                            <td style="width:23%"><span translate>General.GridBuy</span>&nbsp;L3</td>
-                            <td style="width:40%"></td>
-                            <td style="width:35%" class="align_right">
-                                {{sum.activePowerL3 | number:'1.0-0'}}&nbsp;W</td>
+                            <td style="width:63%"><span translate>Phase</span> L3 <span
+                                    translate>General.GridBuyAdvanced</span></td>
+                            <ng-container *ngIf="sum.activePowerL3 != 0; else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerL3 | number:'1.0-0' }}&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">-</td>
+                            </ng-template>
                         </tr>
                         <tr *ngIf="sum.activePowerL3 <= 0">
                             <td style="width:2%"></td>
-                            <td style="width:23%"><span translate>General.GridSell</span>&nbsp;L3</td>
-                            <td style="width:40%"></td>
-                            <td style="width:35%" class="align_right">
-                                {{ (sum.activePowerL3 * -1) | number:'1.0-0'}}&nbsp;W</td>
+                            <td style="width:63%"><span translate>Phase</span> L3 <span
+                                    translate>General.GridSellAdvanced</span></td>
+                            <ng-container *ngIf="sum.activePowerL3 != 0; else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.activePowerL3 * -1) | number:'1.0-0'}}&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">-</td>
+                            </ng-template>
                         </tr>
                     </table>
                 </ion-grid>

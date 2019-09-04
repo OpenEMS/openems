@@ -6,6 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, Service, Utils, EdgeConfig } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
 
 @Component({
   selector: 'soc',
@@ -135,8 +136,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
                 return 0;
               }
             });
-
-
           }
 
           if ('_sum/GridActivePower' in result.data) {
@@ -196,16 +195,12 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           */
           if (config.hasProducer()) {
             let autarchy = consumptionData.map((value, index) => {
-              return (1 - (Utils.orElse(buyFromGridData[index], 0) / Utils.orElse(value, 0))) * 100;
-            }).map(value => {
-              if (value == null || isNaN(value)) {
-                return null;
-              } else if (value >= 0) {
-                return value;
+              if (value == null) {
+                return null
               } else {
-                return 0;
+                return CurrentData.calculateAutarchy(buyFromGridData[index], value);
               }
-            });
+            })
 
             datasets.push({
               label: this.translate.instant('General.Autarchy'),
@@ -217,14 +212,10 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
             * Self Consumption
             */
             let selfConsumption = productionData.map((value, index) => {
-              return (1 - (Utils.orElse(sellToGridData[index], 0) / (Utils.addSafely(Utils.orElse(value, 0), Utils.orElse(dischargeData[index], 0))))) * 100;
-            }).map((value, index) => {
-              if (value >= 0) {
-                return value;
-              } else if (autarchy[index] == null) {
-                return null;
+              if (value == null) {
+                return null
               } else {
-                return 0;
+                return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
               }
             })
 
