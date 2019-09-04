@@ -9,13 +9,7 @@
             </ion-item>
             <ion-card-content *ngIf="currentData.summary as sum">
                 <ion-row>
-                    <svg width="100%" height="20">
-                        <rect fill-opacity="1" rx="5" ry="5" width="100%" height="20" style="fill:#f4f4f4" />
-                        <rect x="1" y="2" rx="5" ry="5" attr.width="{{sum.system.autarchy}}%" height="16"
-                            style="fill:#31b2d6" />
-                        <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle"
-                            style="font-weight: 500">{{sum.system.autarchy | number:'1.0-0'}}%</text>
-                    </svg>
+                    <percentagebar [percentageValue]="sum.system.autarchy"></percentagebar>
                 </ion-row>
             </ion-card-content>
         </ion-card>
