@@ -115,7 +115,23 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+				.unit(Unit.WATT_HOURS)),
+		
+		/**
+		 * Min Cell Voltage.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: mV
+		 * <li>Range: > 0
+		 * </ul>
+		 */
+		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+		),
+		
+		;
 
 		private final Doc doc;
 
@@ -209,5 +225,14 @@ public interface SymmetricEss extends OpenemsComponent {
 	 */
 	default Channel<Long> getActiveDischargeEnergy() {
 		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	}
+	
+	/**
+	 * Gets the minimum cell voltage in [mV].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMinCellVoltage() {
+		return this.channel(ChannelId.MIN_CELL_VOLTAGE);
 	}
 }
