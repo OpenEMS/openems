@@ -20,10 +20,12 @@ public class ChpSocTest {
 		private final String outputChannelAddress;
 		private final int lowThreshold;
 		private final int highThreshold;
+		private final Mode mode;
 
-		public MyConfig(String id, String inputChannelAddress, String outputChannelAddress, int lowThreshold,
+		public MyConfig(String id, Mode mode, String inputChannelAddress, String outputChannelAddress, int lowThreshold,
 				int highThreshold) {
 			super(Config.class, id);
+			this.mode = mode;
 			this.inputChannelAddress = inputChannelAddress;
 			this.outputChannelAddress = outputChannelAddress;
 			this.lowThreshold = lowThreshold;
@@ -49,6 +51,11 @@ public class ChpSocTest {
 		public int highThreshold() {
 			return this.highThreshold;
 		}
+
+		@Override
+		public Mode mode() {			
+			return this.mode;
+		}
 	}
 
 	@Test
@@ -62,7 +69,7 @@ public class ChpSocTest {
 		ChannelAddress ess0 = new ChannelAddress("ess0", "Soc");
 		ChannelAddress output0 = new ChannelAddress("io0", "InputOutput0");
 
-		MyConfig myconfig = new MyConfig("ctrl1", ess0.toString(), output0.toString(), 15, 85);
+		MyConfig myconfig = new MyConfig("ctrl1", Mode.AUTOMATIC, ess0.toString(), output0.toString(), 15, 85);
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);
 

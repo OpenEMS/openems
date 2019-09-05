@@ -1,0 +1,26 @@
+export class EvcsModalComponent implements OnInit {
+
+@Input() edge: Edge;
+@Input() controller: EdgeConfig.Component = null;
+@Input() private componentId: string;
+
+public currChargingPower: number
+public chargeState: ChargeState;
+private chargePlug: ChargePlug;
+public env = environment;
+
+constructor(
+protected service: Service,
+public websocket: Websocket,
+public router: Router,
+protected translate: TranslateService,
+private modalCtrl: ModalController,
+) { }
+
+ngOnInit() {
+}
+
+cancel() {
+this.modalCtrl.dismiss();
+}
+}
