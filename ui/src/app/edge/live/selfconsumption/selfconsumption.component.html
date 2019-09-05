@@ -8,10 +8,14 @@
                 <ion-label translate>General.SelfConsumption</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary as sum">
-                <ion-grid no-padding>
-                    <ion-row>
-                        <percentagebar [percentageValue]="sum.system.selfConsumption"></percentagebar>
-                    </ion-row>
+                <ion-grid>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width: 100%">
+                                <percentagebar [percentageValue]="sum.system.selfConsumption"></percentagebar>
+                            </td>
+                        </tr>
+                    </table>
                 </ion-grid>
             </ion-card-content>
         </ion-card>

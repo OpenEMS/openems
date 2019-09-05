@@ -32,6 +32,7 @@ export class CurrentData {
                 maxDischargeActivePower: null,
                 powerRatio: null,
                 maxApparentPower: null,
+                effectivePower: null,
                 effectiveChargePower: null,
                 effectiveDischargePower: null,
                 capacity: null,
@@ -149,17 +150,21 @@ export class CurrentData {
 
             let effectivePower;
             if (result.storage.chargeActivePowerAc == null && result.storage.dischargeActivePowerAc == null && result.production.activePowerDc == null) {
+                result.storage.effectivePower = null;
                 effectivePower = null;
             } else {
                 effectivePower = Utils.subtractSafely(
                     Utils.subtractSafely(
                         Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc
                     ), result.production.activePowerDc);
+                result.storage.effectivePower = effectivePower;
             }
             if (effectivePower != null) {
                 if (effectivePower > 0) {
+                    result.storage.effectivePower = effectivePower;
                     result.storage.effectiveDischargePower = effectivePower;
                 } else {
+                    result.storage.effectivePower = effectivePower;
                     result.storage.effectiveChargePower = effectivePower * -1;
                 }
             }

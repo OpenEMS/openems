@@ -12,10 +12,11 @@ export class StorageModalComponent implements OnInit {
     private static readonly SELECTOR = "storage-modal";
 
     @Input() edge: Edge;
+    @Input() config: EdgeConfig;
+    @Input() essComponents: EdgeConfig.Component[];
+    @Input() chargerComponents: EdgeConfig.Component[];
 
-    public config: EdgeConfig = null;
-    public essComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+
     public outputChannel: ChannelAddress[] = null;
 
     constructor(
@@ -25,36 +26,7 @@ export class StorageModalComponent implements OnInit {
         public websocket: Websocket,
     ) { }
 
-    ngOnInit() {
-        this.service.getConfig().then(config => {
-            this.config = config;
-            let channels = [];
-            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
-            for (let component of this.chargerComponents) {
-                channels.push(
-                    new ChannelAddress(component.id, 'ActualPower'),
-                )
-            }
-            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
-            for (let component of this.essComponents) {
-                let factoryID = component.factoryId;
-                let factory = config.factories[factoryID];
-                channels.push(
-                    new ChannelAddress(component.id, 'Soc'),
-                    new ChannelAddress(component.id, 'ActivePower'),
-                    new ChannelAddress(component.id, 'Capacity'),
-                );
-                if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
-                    channels.push(
-                        new ChannelAddress(component.id, 'ActivePowerL1'),
-                        new ChannelAddress(component.id, 'ActivePowerL2'),
-                        new ChannelAddress(component.id, 'ActivePowerL3')
-                    );
-                }
-            }
-            this.edge.subscribeChannels(this.websocket, StorageModalComponent.SELECTOR, channels);
-        })
-    }
+    ngOnInit() { }
 
     ngOnDestroy() {
         if (this.edge != null) {

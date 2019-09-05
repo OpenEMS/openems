@@ -39,6 +39,7 @@ export module DefaultTypes {
       maxDischargeActivePower?: number,
       powerRatio: number,
       maxApparentPower: number,
+      effectivePower: number,
       effectiveChargePower: number,
       effectiveDischargePower: number,
       capacity: number,
