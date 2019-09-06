@@ -81,7 +81,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
-	private final TemporalAmount hysteresis = Duration.ofMinutes(1);
+	private final TemporalAmount hysteresis = Duration.ofMinutes(5);
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	private ChannelAddress inputChannelAddress;
