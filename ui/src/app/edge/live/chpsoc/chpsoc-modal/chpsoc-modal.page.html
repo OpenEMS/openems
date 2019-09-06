@@ -1,26 +1,69 @@
-export class EvcsModalComponent implements OnInit {
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title text-start padding-left translate>CHP Controller</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
 
-@Input() edge: Edge;
-@Input() controller: EdgeConfig.Component = null;
-@Input() private componentId: string;
+<ion-content>
+    <ion-label style="width: 100%">
+        <ng-container *ngIf="componentId">
+            <ng-container *ngIf="edge.currentData | async as currentData">
+                <ion-label class="normalFontSize" *ngIf="currentData[componentId + '/Mode'] != 3">
+                    <!--Controllable Evcs-->
+                    <ng-container *ngIf="controller">
+                        <ion-item class="normalFontSize" lines="none">
+                            <table class="full_width" text-wrap>
+                                <tr>
+                                    <td colspan="3" style="width: 95%">
+                                        <ion-segment (ionChange)="updateMode($event, controller)"
+                                            value={{controller.properties.mode}}>
 
-public currChargingPower: number
-public chargeState: ChargeState;
-private chargePlug: ChargePlug;
-public env = environment;
+                                            <ion-segment-button value="MANUAL_ON">
+                                                <ion-item lines="none">
+                                                    <ion-img style="width:30px"
+                                                        src="assets/img/power-button-outline.png">
+                                                    </ion-img>
 
-constructor(
-protected service: Service,
-public websocket: Websocket,
-public router: Router,
-protected translate: TranslateService,
-private modalCtrl: ModalController,
-) { }
+                                                    <ion-label translate>
+                                                        Switch ON
+                                                    </ion-label>
+                                                </ion-item>
+                                            </ion-segment-button>
+                                            <ion-segment-button value="MANUAL_OFF">
+                                                <ion-item lines="none">
+                                                    <ion-img style="width:30px"
+                                                        src="assets/img/power-button-outline.png">
+                                                    </ion-img>
+                                                    <ion-label translate>
+                                                        Switch OFF
+                                                    </ion-label>
+                                                </ion-item>
+                                            </ion-segment-button>
+                                            <ion-segment-button value="AUTOMATIC">
+                                                <ion-item lines="none">
+                                                    <ion-img style="width:30px" src="assets/img/auto-flash.png">
+                                                    </ion-img>
+                                                    <ion-label translate>
+                                                        Atomatic
+                                                    </ion-label>
+                                                </ion-item>
+                                            </ion-segment-button>
+                                        </ion-segment>
+                                    </td>
 
-ngOnInit() {
-}
+                                </tr>
 
-cancel() {
-this.modalCtrl.dismiss();
-}
-}
+                            </table>
+                        </ion-item>
+                    </ng-container>
+                </ion-label>
+            </ng-container>
+        </ng-container>
+    </ion-label>
+
+</ion-content>

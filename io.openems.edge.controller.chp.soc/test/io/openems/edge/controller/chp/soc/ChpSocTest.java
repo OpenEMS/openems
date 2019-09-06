@@ -53,7 +53,7 @@ public class ChpSocTest {
 		}
 
 		@Override
-		public Mode mode() {			
+		public Mode mode() {
 			return this.mode;
 		}
 	}
@@ -74,14 +74,15 @@ public class ChpSocTest {
 		controller.activate(null, myconfig);
 
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
-		DummyInputOutput io = new DummyInputOutput("io0");
+		DummyInputOutput io = new DummyInputOutput("io0");	 
+
 		// Build and run test
 		new ControllerTest(controller, componentManager, ess, io).next(new TestCase() //
 				.input(ess0, 14) //
-				.output(output0, true)) //
+				.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 50) //
-						.output(output0, true)) //
+						.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 90) //
 						.output(output0, false)) //
@@ -90,7 +91,7 @@ public class ChpSocTest {
 						.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 15) //
-						.output(output0, true)) //
+						.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 85) //
 						.output(output0, false)) //
@@ -99,10 +100,10 @@ public class ChpSocTest {
 						.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 14) //
-						.output(output0, true)) //
+						.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 45) //
-						.output(output0, true)) //
+						.output(output0, false)) //
 				.run();
 	}
 

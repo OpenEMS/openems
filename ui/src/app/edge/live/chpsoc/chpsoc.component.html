@@ -1,6 +1,7 @@
 <ng-container *ngIf="controller && service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card>
+        <ion-card button (click)="presentModal()">
+
             <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="primary" name="flame"></ion-icon>
                 <ion-label>{{ controller.alias }}</ion-label>

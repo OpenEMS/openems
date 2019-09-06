@@ -1,6 +1,10 @@
 import { Component, Input, Output } from '@angular/core';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
+import { ChpsocModalComponent } from './chpsoc-modal/chpsoc-modal.page';
+import { ModalController } from '@ionic/angular';
+
+type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
 @Component({
     selector: ChpSocComponent.SELECTOR,
@@ -23,7 +27,8 @@ export class ChpSocComponent {
     constructor(
         public service: Service,
         private websocket: Websocket,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        public modalController: ModalController
     ) { }
 
     ngOnInit() {
@@ -49,5 +54,19 @@ export class ChpSocComponent {
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId);
         }
+    }
+
+
+    async presentModal() {
+        console.log("in presentmodel")
+        const modal = await this.modalController.create({
+            component: ChpsocModalComponent,
+            componentProps: {
+                controller: this.controller,
+                edge: this.edge,
+                componentId: this.componentId
+            }
+        });
+        return await modal.present();
     }
 }

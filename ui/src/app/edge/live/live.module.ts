@@ -21,13 +21,21 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { EvcsModalComponent } from './evcs/evcs-modal/evcs-modal.page';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
+import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/chpsoc-modal.page';
 
 @NgModule({
   imports: [
     SharedModule,
     EnergymonitorModule,
   ],
-  entryComponents: [StorageModalComponent, GridModalComponent, ConsumptionModalComponent, ProductionModalComponent, EvcsModalComponent, ModalComponentEvcsCluster],
+  entryComponents: [
+    StorageModalComponent,
+    GridModalComponent,
+    ConsumptionModalComponent,
+    ProductionModalComponent,
+    EvcsModalComponent,
+    ModalComponentEvcsCluster,
+    ChpsocModalComponent],
   declarations: [
     LiveComponent,
     FixDigitalOutputModalComponent,
@@ -49,7 +57,8 @@ import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
     EvcsClusterComponent,
     ModalComponentEvcsCluster,
     EvcsModalComponent,
-    EvcsChart
+    EvcsChart,
+    ChpsocModalComponent
   ]
 })
 export class LiveModule { }
