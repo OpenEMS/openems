@@ -65,6 +65,6 @@ public class Normal implements IState {
 
 	@Override
 	public void act() {
-		// In normal state there is nothing to do
+		log.info("act() --> nothing to do");
 	}
 }

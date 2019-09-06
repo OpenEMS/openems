@@ -31,12 +31,11 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 	private ManagedSymmetricEss createEss() {
-		
-		return  new DummyEss(OpenemsComponent.ChannelId.values(), //
+
+		return new DummyEss(OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
-				ManagedSymmetricEss.ChannelId.values() //;
-				);
-		
+				ManagedSymmetricEss.ChannelId.values() // ;
+		);
 	}
 
 	@Override
@@ -93,6 +92,4 @@ public class DummyComponentManager implements ComponentManager {
 	public void destroyEss() {
 		this.ess = null;
 	}
-
-	
 }

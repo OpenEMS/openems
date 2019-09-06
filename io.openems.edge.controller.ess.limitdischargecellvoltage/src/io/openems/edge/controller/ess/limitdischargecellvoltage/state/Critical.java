@@ -14,7 +14,7 @@ public class Critical implements IState {
 
 	private ComponentManager componentManager;
 	private Config config;
-	
+
 	public Critical(ComponentManager componentManager, Config config) {
 		this.componentManager = componentManager;
 		this.config = config;
@@ -27,13 +27,13 @@ public class Critical implements IState {
 
 	@Override
 	public IState getNextStateObject() {
-//		//According to the state machine the next state is always charge
+		// According to the state machine the next state is always charge
 		log.info("Critical.getNextStateObject() --> Charge");
 		return new Charge(this.componentManager, this.config);
 	}
-	
+
 	@Override
 	public void act() {
-		log.info("Critical.act() --> nothing to do");
+		log.info("act() --> nothing to do");
 	}
 }

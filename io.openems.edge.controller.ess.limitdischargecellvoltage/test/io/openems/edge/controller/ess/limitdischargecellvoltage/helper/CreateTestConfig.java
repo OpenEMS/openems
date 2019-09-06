@@ -13,6 +13,7 @@ public class CreateTestConfig {
 	public static final boolean ENABLED = true;
 	public static final int WARNING_CELL_VOLTAGE = 2900;
 	public static final int WARNING_CELL_VOLTAGE_TIME = 4;
+	public static final String ID = "ctrl0";
 
 	public static Config create() {
 
@@ -40,7 +41,7 @@ public class CreateTestConfig {
 
 			@Override
 			public String id() {
-				return null;
+				return ID;
 			}
 
 			@Override

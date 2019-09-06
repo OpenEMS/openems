@@ -47,7 +47,7 @@ public class Undefined implements IState {
 		int minCellVoltage = minCellVoltageOpt.get();
 
 		if (minCellVoltage < this.config.criticalCellVoltage()) {
-			return new Critical(this.componentManager, this.config);			
+			return new Critical(this.componentManager, this.config);
 		}
 
 		if (minCellVoltage < this.config.warningCellVoltage()) {
@@ -59,6 +59,6 @@ public class Undefined implements IState {
 
 	@Override
 	public void act() {
-		log.info("Undefined.act() --> nothing to do");
+		log.info("act() --> nothing to do");
 	}
 }

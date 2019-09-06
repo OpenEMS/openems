@@ -1,6 +1,8 @@
 package io.openems.edge.controller.ess.limitdischargecellvoltage;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,7 +22,6 @@ public class TestNormal {
 	private IState sut;
 	private DummyComponentManager componentManager;
 	private static Config config;
-	
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -39,7 +40,7 @@ public class TestNormal {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public final void testGetState() {
 		assertEquals(sut.getState(), State.NORMAL);
@@ -51,7 +52,7 @@ public class TestNormal {
 		assertTrue(next instanceof Normal);
 		assertEquals(next.getState(), State.NORMAL);
 	}
-	
+
 	@Test
 	public final void testGetNextStateObjectUndefinedNoVoltage() {
 		// set min cell voltage to null
@@ -63,17 +64,17 @@ public class TestNormal {
 		}
 		IState next = sut.getNextStateObject();
 		assertTrue(next instanceof Undefined);
-		assertEquals(next.getState(), State.UNDEFINED);	
+		assertEquals(next.getState(), State.UNDEFINED);
 	}
-	
+
 	@Test
 	public final void testGetNextStateObjectUndefinedNoEss() {
 		componentManager.destroyEss();
 		IState next = sut.getNextStateObject();
 		assertTrue(next instanceof Undefined);
-		assertEquals(next.getState(), State.UNDEFINED);	
+		assertEquals(next.getState(), State.UNDEFINED);
 	}
-	
+
 	@Test
 	public final void testGetNextStateObjectWarning() {
 		try {
@@ -84,9 +85,9 @@ public class TestNormal {
 		}
 		IState next = sut.getNextStateObject();
 		assertTrue(next instanceof Warning);
-		assertEquals(next.getState(), State.WARNING);	
+		assertEquals(next.getState(), State.WARNING);
 	}
-	
+
 	@Test
 	public final void testGetNextStateObjectCritical() {
 		try {
@@ -97,9 +98,8 @@ public class TestNormal {
 		}
 		IState next = sut.getNextStateObject();
 		assertTrue(next instanceof Critical);
-		assertEquals(next.getState(), State.CRITICAL);	
+		assertEquals(next.getState(), State.CRITICAL);
 	}
-	
 
 	@Test
 	public final void testAct() {

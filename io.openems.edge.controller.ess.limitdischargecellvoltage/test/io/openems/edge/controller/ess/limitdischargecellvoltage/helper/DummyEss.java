@@ -12,10 +12,9 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 
+public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetricEss {
 
-public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetricEss{
-
-	public int MAX_POWER = 10000;
+	public static int MAXIMUM_POWER = 10000;
 
 	protected DummyEss(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -26,7 +25,7 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 		this.getMinCellVoltage().setNextValue(minimalCellVoltage);
 		this.getMinCellVoltage().nextProcessImage();
 	}
-	
+
 	public void setMinimalCellVoltageToUndefined() {
 		this.getMinCellVoltage().setNextValue(null);
 		this.getMinCellVoltage().nextProcessImage();
@@ -34,52 +33,44 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 
 	@Override
 	public Power getPower() {
-		
+
 		return new Power() {
-			
+
 			@Override
 			public void removeConstraint(Constraint constraint) {
-				// TODO Auto-generated method stub
-				
 			}
-			
+
 			@Override
 			public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-				// TODO Auto-generated method stub
-				return -MAX_POWER;
+				return (-1) * MAXIMUM_POWER;
 			}
-			
+
 			@Override
 			public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-				// TODO Auto-generated method stub
-				return MAX_POWER;
+				return MAXIMUM_POWER;
 			}
-			
+
 			@Override
 			public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) throws OpenemsException {
-				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			@Override
 			public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
 					Relationship relationship, double value) throws OpenemsException {
 				Coefficient coefficient = new Coefficient(0, ess.id(), phase, pwr);
-				LinearCoefficient lc = new LinearCoefficient(coefficient , value);
+				LinearCoefficient lc = new LinearCoefficient(coefficient, value);
 				LinearCoefficient[] coefficients = { lc };
-				// TODO Auto-generated method stub
 				return new Constraint(description, coefficients, relationship, value);
 			}
-			
+
 			@Override
 			public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException {
-				// TODO Auto-generated method stub
 				return constraint;
 			}
-			
+
 			@Override
 			public Constraint addConstraint(Constraint constraint) {
-				// TODO Auto-generated method stub
 				return constraint;
 			}
 		};
@@ -93,6 +84,4 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 	public int getPowerPrecision() {
 		return 1;
 	}
-	
-	
 }

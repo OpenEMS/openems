@@ -1,6 +1,8 @@
 package io.openems.edge.controller.ess.limitdischargecellvoltage;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -21,7 +23,6 @@ public class TestUndefinedState {
 	private IState sut;
 	private ComponentManager componentManager;
 	private static Config config;
-	
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -42,7 +43,7 @@ public class TestUndefinedState {
 	@Test
 	public final void testGetNextStateObjectUndefined() {
 		Object actual = sut.getNextStateObject();
-		assertTrue(actual instanceof Undefined);		
+		assertTrue(actual instanceof Undefined);
 		assertEquals(sut, actual);
 	}
 
@@ -58,7 +59,7 @@ public class TestUndefinedState {
 		assertTrue(next instanceof Critical);
 		assertEquals(State.CRITICAL, next.getState());
 	}
-	
+
 	@Test
 	public final void testGetNextStateObjectWarning() {
 		try {
@@ -71,7 +72,7 @@ public class TestUndefinedState {
 		assertEquals(State.WARNING, next.getState());
 		assertTrue(next instanceof Warning);
 	}
-	
+
 	@Test
 	public final void testGetNextStateObjectNormal() {
 		try {
@@ -84,7 +85,7 @@ public class TestUndefinedState {
 		assertTrue(next instanceof Normal);
 		assertEquals(State.NORMAL, next.getState());
 	}
-	
+
 	@Test
 	public final void testAct() {
 		try {

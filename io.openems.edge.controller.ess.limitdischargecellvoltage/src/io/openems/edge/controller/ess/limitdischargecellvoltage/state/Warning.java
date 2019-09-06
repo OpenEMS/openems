@@ -16,18 +16,18 @@ import io.openems.edge.ess.api.SymmetricEss;
 public class Warning implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(Warning.class);
-	
+
 	private ComponentManager componentManager;
 	private Config config;
 	private LocalDateTime startTime = null;
-	
+
 	public Warning(ComponentManager componentManager, Config config) {
 		this.componentManager = componentManager;
 		this.config = config;
 	}
 
 	@Override
-	public State getState() {		
+	public State getState() {
 		return State.WARNING;
 	}
 
@@ -45,11 +45,11 @@ public class Warning implements IState {
 			return new Undefined(this.componentManager, this.config);
 		}
 
-		if (ess == null) {		
+		if (ess == null) {
 			this.resetStartTime();
 			return new Undefined(this.componentManager, this.config);
 		}
-		
+
 		Optional<Integer> minCellVoltageOpt = ess.getMinCellVoltage().value().asOptional();
 		if (!minCellVoltageOpt.isPresent()) {
 			this.resetStartTime();
@@ -58,8 +58,8 @@ public class Warning implements IState {
 
 		if (this.startTime == null) {
 			this.startTime = LocalDateTime.now();
-		}		
-		
+		}
+
 		int minCellVoltage = minCellVoltageOpt.get();
 
 		if (minCellVoltage < this.config.criticalCellVoltage()) {
@@ -76,16 +76,14 @@ public class Warning implements IState {
 		}
 
 		return this;
-		
 	}
 
 	@Override
 	public void act() {
-		// There is nothing to do
+		log.info("act() --> nothing to do");
 	}
-	
+
 	private void resetStartTime() {
 		this.startTime = null;
-
 	}
 }

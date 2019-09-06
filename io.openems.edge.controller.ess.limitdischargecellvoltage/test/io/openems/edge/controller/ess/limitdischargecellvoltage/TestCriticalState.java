@@ -1,6 +1,8 @@
 package io.openems.edge.controller.ess.limitdischargecellvoltage;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -19,7 +21,6 @@ public class TestCriticalState {
 	private IState sut;
 	private ComponentManager componentManager;
 	private static Config config;
-	
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -39,7 +40,8 @@ public class TestCriticalState {
 
 	@Test
 	public final void testGetNextStateObjectWithoutChanges() {
-		// It is not important what happened, the next state after "Critical" is always "Charge"
+		// It is not important what happened, the next state after "Critical" is always
+		// "Charge"
 		IState next = sut.getNextStateObject();
 		assertTrue(next instanceof Charge);
 		assertEquals(State.CHARGE, next.getState());
@@ -47,7 +49,8 @@ public class TestCriticalState {
 
 	@Test
 	public final void testGetNextStateObjectCharge() {
-		// It is not important what happened, the next state after "Critical" is always "Charge"
+		// It is not important what happened, the next state after "Critical" is always
+		// "Charge"
 		try {
 			DummyEss ess = componentManager.getComponent(CreateTestConfig.ESS_ID);
 			ess.setMinimalCellVoltage(CreateTestConfig.WARNING_CELL_VOLTAGE + 1);
@@ -56,9 +59,9 @@ public class TestCriticalState {
 		}
 		IState next = sut.getNextStateObject();
 		assertTrue(next instanceof Charge);
-		assertEquals(State.CHARGE, next.getState());		
+		assertEquals(State.CHARGE, next.getState());
 	}
-	
+
 	@Test
 	public final void testAct() {
 		try {
