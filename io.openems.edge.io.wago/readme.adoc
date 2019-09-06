@@ -4,4 +4,40 @@ Implemented Natures::
 - DigitalOutput
 - DigitalInput
 
+This component reads the current WAGO fieldbus coupler configuration and dynamically creates its Input and Output Channels accordingly. 
+
+NOTE: Make sure to update the WAGO fieldbus coupler configuration before activating this component. 
+Open the WAGO fieldbus web interface, click *"IO config"* and *"create ea-config.xml"* to update the configuration. Default username is `admin`, default password is `wago`.
+
+The following examples assume the Component-ID is `io0` and the addresses are valid for the first WAGO extension.
+For extensions 2, 3,... just increase the number behind `M`.
+Channel names follow this logic:
+
+== WAGO 750-523 "1-channel relay output"
+
+https://www.wago.com/global/i-o-systems/1-channel-relay-output/p/750-523[wago.com icon:external-link[]]
+
+|=======
+|`io0/RelayM1` |Input/Output |the relay
+|`io0/RelayM1Hand` |Input |state of the manual switch
+|=======
+
+== WAGO 750-501 "2-channel digital output"
+
+https://www.wago.com/global/i-o-systems/2-channel-digital-output/p/750-501[wago.com icon:external-link[]]
+
+|=======
+|`io0/DigitalOutputM1C1` |Input/Output |the first digital output
+|`io0/DigitalOutputM1C2` |Input/Output |the first digital output
+|=======
+
+== WAGO 750-400 "2-channel digital input"
+
+https://www.wago.com/global/i-o-systems/2-channel-digital-input/p/750-400[wago.com icon:external-link[]]
+
+|=======
+|`io0/DigitalInputM1C1` |Input |the first digital input
+|`io0/DigitalInputM1C2` |Input |the second digital input
+|=======
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.wago[Source Code icon:github[]]

@@ -162,6 +162,16 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 				ElementToChannelConverter.SCALE_FACTOR_3, //
 				SunSpecModel.S204.PH_VPH_C, SunSpecModel.S203.PH_VPH_C, SunSpecModel.S202.PH_VPH_C,
 				SunSpecModel.S201.PH_VPH_C);
+		this.mapFirstPointToChannel(//
+				SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				SunSpecModel.S204.TOT_WH_EXP, SunSpecModel.S203.TOT_WH_EXP, SunSpecModel.S202.TOT_WH_EXP,
+				SunSpecModel.S201.TOT_WH_EXP);
+		this.mapFirstPointToChannel(//
+				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				SunSpecModel.S204.TOT_WH_IMP, SunSpecModel.S203.TOT_WH_IMP, SunSpecModel.S202.TOT_WH_IMP,
+				SunSpecModel.S201.TOT_WH_IMP);
 	}
 
 	@Override

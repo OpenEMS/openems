@@ -134,22 +134,22 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void initializePower() {
 		this.isActivePowerAllowed = true;
 
-		this.channel(ChannelId.W_MAX).onChange(value -> {
+		this.channel(ChannelId.W_MAX).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> valueOpt = (Optional<Integer>) newValue.asOptional();
 			if (!valueOpt.isPresent()) {
 				return;
 			}
-			maxApparentPowerUnscaled = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+			maxApparentPowerUnscaled = TypeUtils.getAsType(OpenemsType.INTEGER, newValue);
 			refreshPower();
 		});
-		this.channel(ChannelId.W_MAX_SF).onChange(value -> {
+		this.channel(ChannelId.W_MAX_SF).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> valueOpt = (Optional<Integer>) newValue.asOptional();
 			if (!valueOpt.isPresent()) {
 				return;
 			}
-			Integer i = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+			Integer i = TypeUtils.getAsType(OpenemsType.INTEGER, newValue);
 			maxApparentPowerScaleFactor = (int) Math.pow(10, i);
 			refreshPower();
 		});
@@ -447,18 +447,18 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	 * from interfaces
 	 */
 	private void doChannelMapping() {
-		this.battery.getSoc().onChange(value -> {
-			this.getSoc().setNextValue(value.get());
-			this.channel(ChannelId.BAT_SOC).setNextValue(value.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(value.get());
+		this.battery.getSoc().onChange((oldValue, newValue) -> {
+			this.getSoc().setNextValue(newValue.get());
+			this.channel(ChannelId.BAT_SOC).setNextValue(newValue.get());
+			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
-		this.battery.getSoh().onChange(value -> {
-			this.channel(ChannelId.BAT_SOH).setNextValue(value.get());
+		this.battery.getSoh().onChange((oldValue, newValue) -> {
+			this.channel(ChannelId.BAT_SOH).setNextValue(newValue.get());
 		});
 
-		this.battery.getMaxCellTemperature().onChange(value -> {
-			this.channel(ChannelId.BAT_TEMP).setNextValue(value.get());
+		this.battery.getMaxCellTemperature().onChange((oldValue, newValue) -> {
+			this.channel(ChannelId.BAT_TEMP).setNextValue(newValue.get());
 		});
 	}
 
