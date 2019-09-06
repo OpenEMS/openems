@@ -1,5 +1,5 @@
 #
-# io.openems.edge.controller.heizstab PROVIDER BUNDLE
+# io.openems.edge.controller.HeatingElementController PROVIDER BUNDLE
 #
 Bundle-Name: OpenEMS Edge Controller Heating Element
 Bundle-Vendor: FENECON GmbH
@@ -8,13 +8,13 @@ Bundle-Version:	1.0.0.${tstamp}
 Bundle-Description: \
 	The provider bundle for io.openems.edge.controller.heatingElement. \
 	\The integration of an electric heating element (power-to-heat). \
-	The control algorithm switches coils depending on the state of charge of the memory dynamically.
+	The control algorithm switches coils depending on the state-of-charge  of the memory and configured power of the single phase dynamically.
 	
 
 Export-Package: io.openems.edge.controller.api
 
 Private-Package:  \
-	io.openems.edge.controller.heizstab
+	io.openems.edge.controller.HeatingElementController
 
 -includeresource: {readme.md}
 
