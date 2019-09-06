@@ -8,9 +8,10 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.CreateComponentManager;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.CreateTestConfig;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyComponentManager;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyEss;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Charge;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Critical;
 
 public class TestCriticalState {
@@ -27,7 +28,7 @@ public class TestCriticalState {
 
 	@Before
 	public void setUp() throws Exception {
-		componentManager = CreateComponentManager.create();
+		componentManager = new DummyComponentManager();
 		sut = new Critical(componentManager, config);
 	}
 
@@ -38,12 +39,15 @@ public class TestCriticalState {
 
 	@Test
 	public final void testGetNextStateObjectWithoutChanges() {
+		// It is not important what happened, the next state after "Critical" is always "Charge"
 		IState next = sut.getNextStateObject();
+		assertTrue(next instanceof Charge);
 		assertEquals(State.CHARGE, next.getState());
 	}
 
 	@Test
 	public final void testGetNextStateObjectCharge() {
+		// It is not important what happened, the next state after "Critical" is always "Charge"
 		try {
 			DummyEss ess = componentManager.getComponent(CreateTestConfig.ESS_ID);
 			ess.setMinimalCellVoltage(CreateTestConfig.WARNING_CELL_VOLTAGE + 1);
@@ -51,7 +55,8 @@ public class TestCriticalState {
 			fail();
 		}
 		IState next = sut.getNextStateObject();
-		assertEquals(State.CHARGE, next.getState());
+		assertTrue(next instanceof Charge);
+		assertEquals(State.CHARGE, next.getState());		
 	}
 	
 	@Test

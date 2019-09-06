@@ -20,7 +20,7 @@ import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Undefined;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Ess.LimitDischargeCellVoltage", //
+		name = "Controller.Ess.LimitDischargeCellVoltage", //TODO discuss naming
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -46,8 +46,8 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// Check if configuration is ok
-		if (config.chargePower() <= 0) {
-			throw new OpenemsException("Charge power must be > 0");
+		if (config.chargePowerPercent() <= 0 || config.chargePowerPercent() > 100) {
+			throw new OpenemsException("Charge power percentage must be > 0 and < 100");
 		}
 		if (config.criticalCellVoltage() > config.warningCellVoltage()) {
 			throw new OpenemsException("Critical cell voltage must be lower than warning cell voltage");

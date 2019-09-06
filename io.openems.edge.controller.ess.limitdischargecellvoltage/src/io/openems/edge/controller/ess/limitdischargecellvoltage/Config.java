@@ -30,8 +30,8 @@ public
 	@AttributeDefinition(name = "Critical Cell Voltage [mV]", description = "Charging is forced when minimal cell voltage is below this value.")
 	int criticalCellVoltage() default 2800;
 	
-	@AttributeDefinition(name = "Charge Power [W]", description = "The charge power during force-charging. Default is 1000 W", required = false)
-	int chargePower() default 1000;
+	@AttributeDefinition(name = "Charge Power Percent [%]", description = "The charge power in percent from the maximum output of the ess", required = false)
+	int chargePowerPercent() default 20;
 	
 	@AttributeDefinition(name = "Charge Power Time [s]", description = "Defines how long force charging is executed in seconds")
 	int chargingTime() default 600;

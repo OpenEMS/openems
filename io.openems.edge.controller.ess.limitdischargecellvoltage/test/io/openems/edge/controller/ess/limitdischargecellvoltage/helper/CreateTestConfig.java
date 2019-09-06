@@ -6,7 +6,7 @@ import io.openems.edge.controller.ess.limitdischargecellvoltage.Config;
 
 public class CreateTestConfig {
 
-	public static final int CHARGE_POWER = 2000;
+	public static final int CHARGE_POWER_PERCENT = 20;
 	public static final int CHARGING_TIME = 3;
 	public static final int CRITICAL_CELL_VOLTAGE = 2800;
 	public static final String ESS_ID = "ess0";
@@ -64,8 +64,8 @@ public class CreateTestConfig {
 			}
 
 			@Override
-			public int chargePower() {
-				return CHARGE_POWER;
+			public int chargePowerPercent() {
+				return CHARGE_POWER_PERCENT;
 			}
 
 			@Override

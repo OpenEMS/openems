@@ -12,53 +12,59 @@ import io.openems.edge.controller.ess.limitdischargecellvoltage.IState;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.State;
 import io.openems.edge.ess.api.SymmetricEss;
 
-public class Undefined implements IState {
+public class Normal implements IState {
 
-	private final Logger log = LoggerFactory.getLogger(Undefined.class);
+	private final Logger log = LoggerFactory.getLogger(Normal.class);
 	private ComponentManager componentManager;
 	private Config config;
 
-	public Undefined(ComponentManager componentManager, Config config) {
+	public Normal(ComponentManager componentManager, Config config) {
 		this.componentManager = componentManager;
 		this.config = config;
 	}
 
 	@Override
 	public State getState() {
-		return State.UNDEFINED;
+		return State.NORMAL;
 	}
 
 	@Override
 	public IState getNextStateObject() {
 		// According to the state machine the next states can be normal, critical,
 		// warning or undefined
-		SymmetricEss ess;
+		SymmetricEss ess = null;
+
 		try {
 			ess = this.componentManager.getComponent(this.config.ess_id());
 		} catch (OpenemsNamedException e) {
 			log.error(e.getMessage());
-			return this;
+			return new Undefined(this.componentManager, this.config);
 		}
+
+		if (ess == null) {
+			return new Undefined(this.componentManager, this.config);
+		}
+
 		Optional<Integer> minCellVoltageOpt = ess.getMinCellVoltage().value().asOptional();
 		if (!minCellVoltageOpt.isPresent()) {
-			return this;
+			return new Undefined(this.componentManager, this.config);
 		}
 
 		int minCellVoltage = minCellVoltageOpt.get();
 
 		if (minCellVoltage < this.config.criticalCellVoltage()) {
-			return new Critical(this.componentManager, this.config);			
+			return new Critical(this.componentManager, this.config);
 		}
 
 		if (minCellVoltage < this.config.warningCellVoltage()) {
 			return new Warning(this.componentManager, this.config);
 		}
 
-		return new Normal(this.componentManager, this.config);
+		return this;
 	}
 
 	@Override
 	public void act() {
-		log.info("Undefined.act() --> nothing to do");
+		// In normal state there is nothing to do
 	}
 }

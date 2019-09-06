@@ -2,13 +2,13 @@ package io.openems.edge.controller.ess.limitdischargecellvoltage;
 
 import io.openems.common.types.OptionsEnum;
 
+//TODO discuss whether a state for waiting after charge where discharging is block is necessary
 public enum State implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NORMAL(0, "Normal"), //
 	WARNING(1, "Warning"), //
 	CRITICAL(2, "Critical"), //
 	CHARGE(3, "Charge");
-	
 
 	private final int value;
 	private final String name;
