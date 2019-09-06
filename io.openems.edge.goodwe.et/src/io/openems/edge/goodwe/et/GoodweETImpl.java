@@ -51,7 +51,7 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 
 	protected GoodweETChargerPV1 charger = null;
 
-	protected final static int MAX_APPARENT_POWER = 10_000;
+	protected final static int MAX_APPARENT_POWER = 5_000;
 
 	private Config config;
 
