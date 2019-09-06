@@ -36,7 +36,7 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 	private IState stateObject = null;
 	private Config config;
 
-	protected LimitDischargeCellVoltageController() {
+	public LimitDischargeCellVoltageController() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
