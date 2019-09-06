@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
-import { ModalController } from '@ionic/angular';
 import { ConsumptionModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'consumption',

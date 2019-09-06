@@ -16,20 +16,20 @@
             <ion-card-content *ngIf="currentData.summary.storage as sum"
                 [class.underline]="essComponents.length != 1 || !isLastElement(component, essComponents)">
                 <table class="full_width">
-                    <tr>
+                    <!-- <tr>
                         <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}</td>
                         <td style="width: 100%" *ngIf="component.id != component.alias">{{component.alias}}
                         </td>
-                    </tr>
+                    </tr> -->
                     <div style="padding-top: 5px;"></div>
                     <tr>
                         <td style="width: 65%" translate>General.Soc</td>
                         <td style="width: 35%" class="align_right">
                             {{ sum.soc | number:'1.0-0' }}&nbsp;%</td>
                     </tr>
-                </table>
+                    <!-- </table> -->
 
-                <!-- <tr class="underline">
+                    <!-- <tr class="underline">
                                     <td style="width:20%" translate>General.Capacity</td>
                                     <td style="width: 30%"></td>
                                     <ng-container *ngIf="currentData[component.id + '/Capacity'] != null; else empty">
@@ -42,30 +42,28 @@
                                     </ng-template>
                                 </tr> -->
 
-                <!-- Charge/Discharge -->
-                <table class="full_width">
+                    <!-- Charge/Discharge -->
+                    <!-- <table class="full_width"> -->
                     <tr>
-                        <td style="width:20%" translate>General.ChargePower</td>
-                        <td style="width: 30%"></td>
+                        <td style="width:65%" translate>General.ChargePower</td>
                         <ng-container *ngIf="sum.effectivePower <= 0; else empty">
-                            <td style="width:50%" class="align_right">
+                            <td style="width:35%" class="align_right">
                                 {{ (sum.effectivePower * -1) | number:'1.0-0' }}&nbsp;W
                             </td>
                         </ng-container>
                         <ng-template #empty>
-                            <td style="width:50%" class="align_right">-</td>
+                            <td style="width:35%" class="align_right">-</td>
                         </ng-template>
                     </tr>
                     <tr>
-                        <td style="width:20%" translate>General.DischargePower</td>
-                        <td style="width: 30%"></td>
+                        <td style="width:65%" translate>General.DischargePower</td>
                         <ng-container *ngIf="sum.effectivePower > 0; else empty">
-                            <td style="width:50%" class="align_right">
+                            <td style="width:35%" class="align_right">
                                 {{ sum.effectivePower | number:'1.0-0' }}&nbsp;W
                             </td>
                         </ng-container>
                         <ng-template #empty>
-                            <td style="width:50%" class="align_right">-</td>
+                            <td style="width:35%" class="align_right">-</td>
                         </ng-template>
                     </tr>
                 </table>

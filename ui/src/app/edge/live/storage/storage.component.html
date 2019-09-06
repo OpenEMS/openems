@@ -75,14 +75,14 @@
                                     {{component.alias}}
                                 </td>
                             </tr>
-                            <tr>
+                            <tr *ngIf="currentData[component.id + '/Soc'] != null">
                                 <td style="width:100%">
                                     <percentagebar [percentageValue]="currentData[component.id + '/Soc']">
                                     </percentagebar>
                                 </td>
                             </tr>
                         </table>
-                        <table class="full_width">
+                        <table class="full_width" *ngIf="currentData[component.id + '/ActivePower'] != null">
                             <tr>
                                 <td style="width:65%" translate>General.ChargePower</td>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePower'] <= 0; else empty">
