@@ -143,7 +143,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
 				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
 		this.channel(Battery.ChannelId.CAPACITY).setNextValue(this.config.racks().length * this.config.numberOfSlaves()
-				* ModuleParameters.CAPACITY_WH.getValue() / 1000);
+				* ModuleParameters.CAPACITY_WH.getValue());
 	}
 
 	@Override
