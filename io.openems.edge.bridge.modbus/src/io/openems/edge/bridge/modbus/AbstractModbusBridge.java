@@ -112,7 +112,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * 
 	 * @return the Channel instance
 	 */
-	protected Channel<Boolean> getSlaveCommunicationFailedChannel() {
+	public Channel<Boolean> getSlaveCommunicationFailedChannel() {
 		return this.channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED);
 	}
 

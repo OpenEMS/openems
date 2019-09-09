@@ -81,6 +81,8 @@ public class ErrorHandler {
 				this.setNextState(State.READ_ERRORS);
 			} else if (this.parent.isLinkVoltageTooLow()) {
 				this.setNextState(State.LINK_VOLTAGE_TOO_LOW);
+			} else if (this.parent.isCommunicationBroken()) {
+				this.setNextState(State.HARD_RESET);
 			} else {
 				this.setNextState(State.READ_ERRORS);
 			}

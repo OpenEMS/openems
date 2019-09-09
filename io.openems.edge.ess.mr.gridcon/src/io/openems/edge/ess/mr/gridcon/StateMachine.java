@@ -8,8 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
@@ -139,10 +142,12 @@ public class StateMachine {
 		}
 		this.lastCcuState = ccuState;
 
-		// Link Voltage is too low
-		// TODO check Link-Voltage here?
-
 		if (ccuState == CCUState.RUN && this.isLinkVoltageTooLow()) {
+			result = true;
+		}
+		
+		// Is communication broken?
+		if (this.isCommunicationBroken()) {
 			result = true;
 		}
 
@@ -169,6 +174,31 @@ public class StateMachine {
 		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
 
 		return (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
+	}
+	
+	// Checks the modbus bridge if communication is available or not
+	protected boolean isCommunicationBroken() {
+		String modbusId = this.parent.config.modbus_id();
+		ComponentManager manager = this.parent.componentManager;
+		AbstractModbusBridge modbusBridge = null;
+		try {
+			modbusBridge = manager.getComponent(modbusId);
+		} catch (OpenemsNamedException e) {			
+			log.debug("Cannot get modbus component");
+		}
+		if (modbusBridge == null) {
+			return true;	
+		}
+		
+		 Channel<Boolean> slaveCommunicationFailedChannel = modbusBridge.getSlaveCommunicationFailedChannel();		 
+		 Optional<Boolean> communicationFailedOpt = slaveCommunicationFailedChannel.value().asOptional();
+		 
+		 // If the channel value is present and it is set then the communication is broken
+		 if (communicationFailedOpt.isPresent() && communicationFailedOpt.get()) {
+			 return true;
+		 }
+		  
+		 return false;
 	}
 
 	/**
