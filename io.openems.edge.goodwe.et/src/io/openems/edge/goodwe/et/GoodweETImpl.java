@@ -91,15 +91,11 @@ public class GoodweETImpl extends AbstractOpenemsModbusComponent
 		final Channel<Integer> essPower = this.channel(GoodweChannelIdET.P_BATTERY1);
 		final Channel<Integer> pvPower1 = this.channel(GoodweChannelIdET.P_PV1);
 		final Channel<Integer> pvPower2 = this.channel(GoodweChannelIdET.P_PV2);
-		final Channel<Integer> pvPower3 = this.channel(GoodweChannelIdET.P_PV3);
-		final Channel<Integer> pvPower4 = this.channel(GoodweChannelIdET.P_PV4);
 		final Consumer<Value<Integer>> actualPowerSum = ignore -> {
-			this.getActivePower().setNextValue(TypeUtils.sum(pvPower1.value().get(), pvPower2.value().get(), pvPower3.value().get(), pvPower4.value().get(), essPower.value().get()));
+			this.getActivePower().setNextValue(TypeUtils.sum(pvPower1.value().get(), pvPower2.value().get(), essPower.value().get()));
 		};
 		pvPower1.onSetNextValue(actualPowerSum);
 		pvPower2.onSetNextValue(actualPowerSum);
-		pvPower3.onSetNextValue(actualPowerSum);
-		pvPower4.onSetNextValue(actualPowerSum);
 		essPower.onSetNextValue(actualPowerSum);
 	}
 
