@@ -130,6 +130,7 @@ export const TRANSLATION = {
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
                         MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
                         MinCharging: "Garance minimálního poplatku",
+                        MinChargePower: "Minimale Ladeleistung",
                         ChargingPriority: {
                             Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
                             Car: "Car",

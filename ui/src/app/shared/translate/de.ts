@@ -131,7 +131,8 @@ export const TRANSLATION = {
                         ShortName: "Optimiert",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
                         MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Aufladung garantieren",
+                        MinCharging: "Minimale Ladeleistung garantieren",
+                        MinChargePower: "Minimale Ladeleistung",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
                             Car: "Auto",
@@ -142,7 +143,7 @@ export const TRANSLATION = {
                         Name: "Erzwungene Beladung",
                         ShortName: "Erzwungen",
                         Info: "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
-                        MaxCharging: "Maximale Ladestärke",
+                        MaxCharging: "Maximale Ladeleistung",
                         MaxChargingDetails: "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt."
                     }
                 }

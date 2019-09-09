@@ -4,6 +4,7 @@ import { PopoverController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { EvcsPopoverComponent } from './evcs-popover.page';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -29,6 +30,7 @@ export class EvcsModalComponent implements OnInit {
     public router: Router,
     protected translate: TranslateService,
     private modalCtrl: ModalController,
+    public popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -266,6 +268,15 @@ export class EvcsModalComponent implements OnInit {
     });
     */
     return sum;
+  }
+
+  async presentPopover(ev: any) {
+    const popover = await this.popoverController.create({
+      component: EvcsPopoverComponent,
+      event: ev,
+      translucent: true
+    });
+    return await popover.present();
   }
 }
 
