@@ -1,5 +1,5 @@
 <ion-grid *ngIf="config">
-  <ion-row justify-content-center>
+  <ion-row class="ion-justify-content-center">
 
     <ion-col size="12" size-md="6" *ngIf="edge">
       <ion-card>
@@ -36,7 +36,7 @@
     </ion-col>
 
   </ion-row>
-  <ion-row justify-content-center>
+  <ion-row class="ion-justify-content-center">
 
     <ion-col size="12" size-md="6" *ngIf="config">
       <ion-card>
@@ -53,7 +53,8 @@
                 {{ category.title }}
               </ion-item-group>
               <ion-item *ngFor="let item of category.components">
-                <ion-label (click)="item.showProperties = !item.showProperties" style="cursor: pointer" text-wrap>
+                <ion-label (click)="item.showProperties = !item.showProperties" style="cursor: pointer"
+                  class="ion-text-wrap">
                   <ion-text color="primary">
                     <h3>{{ item.alias }}
                       <span *ngIf="item.id != item.alias"> ({{ item.id }})</span>
