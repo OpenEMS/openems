@@ -1,6 +1,7 @@
 package io.openems.edge.simulator.datasource.csv;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
@@ -53,6 +54,12 @@ public class CsvDatasource extends AbstractOpenemsComponent
 		// read csv-data
 		this.data = CsvUtils.readCsvFileFromRessource(CsvDatasource.class, config.source().filename, config.format(),
 				config.factor());
+		if(this.realtime) {
+			ZonedDateTime now = ZonedDateTime.now();
+			int minutes = (now.getHour() * 60) + now.getMinute();
+			this.data.setIndex(minutes + 1);
+		}
+		
 	}
 
 	@Override

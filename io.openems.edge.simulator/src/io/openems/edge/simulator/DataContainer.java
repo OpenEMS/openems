@@ -79,6 +79,13 @@ public class DataContainer {
 		}
 	}
 
+	public void setIndex(int i) {
+		this.currentIndex = i;
+		if (i > this.records.size()) {
+			this.currentIndex = 0;
+		}
+	}
+
 	/**
 	 * Rewinds the data to start again at the first record.
 	 */
