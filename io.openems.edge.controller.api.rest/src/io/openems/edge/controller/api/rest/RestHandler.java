@@ -485,7 +485,7 @@ public class RestHandler extends AbstractHandler {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
+		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
 				request.getPayload());
 
 		// handle null response
