@@ -49,7 +49,7 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.ess.sinexcel.enums.FalseTrue;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

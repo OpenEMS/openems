@@ -1,4 +1,4 @@
-package io.openems.edge.ess.sinexcel.enums;
+package io.openems.edge.ess.sinexcel;
 
 import io.openems.common.types.OptionsEnum;
 

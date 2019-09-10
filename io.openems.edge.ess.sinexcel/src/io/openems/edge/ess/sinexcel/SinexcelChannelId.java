@@ -12,7 +12,6 @@ import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.sinexcel.enums.FalseTrue;
 
 public enum SinexcelChannelId implements ChannelId {
 
