@@ -6,14 +6,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 
-/**
- * Provides a simple, simulated ManagedSymmetricEss component that can be used
- * together with the OpenEMS Component test framework.
- */
-/**
- * Provides a simple, simulated ManagedSymmetricEss component that can be used
- * together with the OpenEMS Component test framework.
- */
 public class DummyKebaKeContact extends AbstractOpenemsComponent
 		implements Evcs, ManagedEvcs, OpenemsComponent{
 

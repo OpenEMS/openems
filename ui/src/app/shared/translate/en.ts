@@ -159,7 +159,8 @@ export const TRANSLATION = {
                 AddComponents: "Install components",
                 AdjustComponents: "Configure components",
                 ManualControl: "Manual control",
-                DataStorage: "Data Storage"
+                DataStorage: "Data Storage",
+                SystemExecute: "Execute system command"
             },
             More: {
                 ManualCommand: "Manual command",

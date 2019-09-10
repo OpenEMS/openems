@@ -6,7 +6,7 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 
 public class Fieldbus400DI extends FieldbusModule {
 
-	private final static String ID_TEMPLATE = "DIGITAL_INPUT_M";
+	private static final String ID_TEMPLATE = "DIGITAL_INPUT_M";
 
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
