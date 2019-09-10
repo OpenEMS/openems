@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -104,12 +105,31 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
+		if (config.forceChargeMinPower() < 0) {
+			throw new OpenemsException("Force-Charge Min-Power [" + config.forceChargeMinPower() + "] must be >= 0");
+		}
+
+		if (config.defaultChargeMinPower() < 0) {
+			throw new OpenemsException(
+					"Default-Charge Min-Power [" + config.defaultChargeMinPower() + "] must be >= 0");
+		}
+
 		this.config = config;
-		this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
-		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
+
+		switch (config.chargeMode()) {
+		case EXCESS_POWER:
+			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
+			break;
+		case FORCE_CHARGE:
+			this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
+			break;
+		}
+
 		this.channel(ChannelId.CHARGE_MODE).setNextValue(config.chargeMode());
 		this.channel(ChannelId.PRIORITY).setNextValue(config.priority());
 		this.channel(ChannelId.ENABLED_CHARGING).setNextValue(config.enabledCharging());
+		this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
+		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
 	}
 
 	@Deactivate

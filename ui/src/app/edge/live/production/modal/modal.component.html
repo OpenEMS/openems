@@ -137,7 +137,7 @@
             *ngIf="chargerComponents != null && chargerComponents.length > 1 && (edge.currentData | async)['channel'] as currentData">
             <ng-container *ngFor="let component of chargerComponents">
                 <ion-row>
-                    <ion-col no-padding>
+                    <ion-col class="ion-no-padding">
                         <ion-item color="light" lines="none">
                             <ion-avatar padding-left slot="start">
                                 <img src="assets/img/production.png">
@@ -171,12 +171,12 @@
         </ng-container>
         <!-- Info Text -->
         <ion-grid *ngIf="isAsymmetric" padding-top>
-            <ion-row justify-content-center align-items-center>
+            <ion-row class="ion-justify-content-center" align-items-center>
                 <ion-col size="2" text-center>
                     <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
                 </ion-col>
                 <ion-col size="10">
-                    <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
+                    <ion-note class="ion-text-wrap"><small translate>Edge.Index.Widgets.Info</small>
                     </ion-note>
                 </ion-col>
             </ion-row>
