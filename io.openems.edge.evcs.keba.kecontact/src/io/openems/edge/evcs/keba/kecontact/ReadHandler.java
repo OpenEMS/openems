@@ -76,7 +76,15 @@ public class ReadHandler implements Consumer<String> {
 					
 					// Set STATUS and Warning STATE Channel
 					Channel<Status> stateChannel = this.parent.channel(KebaChannelId.STATUS_KEBA);
+					Channel<Status> plugChannel = this.parent.channel(KebaChannelId.PLUG);
+					
+					Plug plug = plugChannel.value().asEnum();
 					Status status = stateChannel.value().asEnum();
+					if(status == Status.NOT_READY_FOR_CHARGING) {
+						if(plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
+							status = Status.AUTHORIZATION_REJECTED;
+						}
+					}
 					this.parent.channel(ManagedEvcs.ChannelId.STATUS).setNextValue(status);
 					
 					if(status == Status.ERROR) {

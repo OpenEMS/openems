@@ -72,7 +72,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			return;
 		}
 		this._evcss.remove(evcs.id());
-		evcs.getMaximumPower().setNextValue(null);
 		evcs.setChargePowerRequest().setNextValue(null);
 		evcs.isClustered().setNextValue(false);
 		evcs.getMaximumPower().setNextValue(null);
@@ -143,7 +142,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-
 			this.limitEvcss();
 			break;
 		}
@@ -172,7 +170,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			this.maximalUsedHardwarePower = this.totalcurrentPowerLimit;
 		}
 		this.getMaximumHardwarePower().setNextValue(this.maximalUsedHardwarePower);
-		;
 		this.getMinimumPower().setNextValue(minPower.calculate());
 	}
 
@@ -211,15 +208,19 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 					evcs.setChargePower().setNextWriteValue(0);
 				}
 			}
-
+			
 			int totalPowerLeftMinusGuarantee = this.totalcurrentPowerLimit - (activeEvcss.size() * MINIMUM_EVCS_CHARGING_POWER);
 
+			// Distributes the available Power to the active Evcss
 			for (ManagedEvcs evcs : activeEvcss) {
+				
+				// Power left for the single evcs including their guarantee
 				int powerLeft = totalPowerLeftMinusGuarantee + MINIMUM_EVCS_CHARGING_POWER;
 				
 				int nextChargePower;
 				Optional<Integer> requestedPower = evcs.setChargePowerRequest().getNextWriteValue();
 
+				// Power requested by the controller
 				if (requestedPower.isPresent()) {
 					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
 					nextChargePower = requestedPower.get();
@@ -227,9 +228,11 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(22080);
 				}
 
+				// Adds extra power that is calculated by the unused power in the cycle before 
 				int extraPower = (int) (this.totalPowerLeftInACycle / activeEvcss.size());
 				nextChargePower = nextChargePower + extraPower;
 
+				// Checks if there is enough power left and sets the charge power
 				if (nextChargePower < powerLeft) {
 					evcs.setChargePower().setNextWriteValue(nextChargePower);
 					this.logInfo(this.log, "Power Left: " + totalPowerLeftMinusGuarantee + " ; Charge power: " + nextChargePower);

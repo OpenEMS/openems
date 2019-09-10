@@ -105,9 +105,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		this.ess = this.componentManager.getComponent(config.ess_id());
-		this.evcs = this.componentManager.getComponent(config.evcs_id());
-
 		this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
 		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
 		this.channel(ChannelId.CHARGE_MODE).setNextValue(config.chargeMode());
@@ -120,72 +117,80 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		super.deactivate();
 	}
 
+	/**
+	 *  If the evcs is clustered the method will set the charge power request.
+	 *	Otherwise it will set directly the charge power.
+	 */
 	@Override
 	public void run() throws OpenemsNamedException {
+		this.evcs = this.componentManager.getComponent(config.evcs_id());
+		this.ess = this.componentManager.getComponent(config.ess_id());
 
 		Boolean isClusterd = Boolean.valueOf((this.evcs.isClustered().value().toString()));
 		if (isClusterd != null && isClusterd) {
 
-			if(evcs.status().value().isDefined()) {
-			Status status = evcs.status().value().asEnum();
-			switch (status) {
-			case ERROR:
-			case STARTING:
-			case UNDEFINED:
-			case NOT_READY_FOR_CHARGING:
-				evcs.setChargePowerRequest().setNextWriteValue(0);
-				this.evcs.getMinimumPower().setNextValue(0);
-				return;
-			case AUTHORIZATION_REJECTED:
-			case READY_FOR_CHARGING:
-			case CHARGING:
-				break;
-			}
+			// Sets a fixed request of 0 if the Charger can't charge
+			if (evcs.status().value().isDefined()) {
+				Status status = evcs.status().value().asEnum();
+				switch (status) {
+				case ERROR:
+				case STARTING:
+				case UNDEFINED:
+				case NOT_READY_FOR_CHARGING:
+					evcs.setChargePowerRequest().setNextWriteValue(0);
+					this.evcs.getMinimumPower().setNextValue(0);
+					return;
+				case AUTHORIZATION_REJECTED:
+				case READY_FOR_CHARGING:
+				case CHARGING:
+					break;
+				}
 			}
 		}
-		
+
+		// Check if the maximum energy limit is reached, informs the user and sets the power request to 0 
 		this.evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
 		int limit = this.evcs.getEnergyLimit().value().orElse(0);
-		if(this.evcs.getEnergySession().value().orElse(0) >= limit && limit != 0) {
-			this.evcs.setDisplayText().setNextWriteValue("Limit of "+this.evcs.getEnergyLimit().value().orElse(0)+" reached"
-					+ "");
+		if (this.evcs.getEnergySession().value().orElse(0) >= limit && limit != 0) {
+			this.evcs.setDisplayText().setNextWriteValue("Limit of " + this.evcs.getEnergyLimit().value().orElse(0) + " reached");
 			this.evcs.setChargePowerRequest().setNextWriteValue(0);
 			return;
 		}
-		
+
 		int nextChargePower = 0;
 		int nextMinPower = 0;
 
-		// Executes only if charging is enabled
+		// Executes the following only if charging is enabled
 		if (!config.enabledCharging()) {
 			evcs.setChargePower().setNextWriteValue(0);
 			return;
 		}
 
-		// Execute only every ... minutes
+		// Execute only every ... seconds
 		if (this.lastRun.plusSeconds(RUN_EVERY_SECONDS).isAfter(LocalDateTime.now(this.clock))) {
 			return;
 		}
 
+		// Calculates the next charging power depending on the charge mode
 		switch (config.chargeMode()) {
 		case EXCESS_POWER:
 			switch (config.priority()) {
-
 			case CAR:
 				nextChargePower = nextChargePower_PvMinusConsumtion();
 				break;
 
 			case STORAGE:
-				int maxEssCharge = ess.getAllowedCharge().value().orElse(0);
-				long essActivePower = this.sum.getEssActivePower().value().orElse(0);
 				int storageSoc = this.sum.getEssSoc().value().orElse(0);
 
 				if (storageSoc > 97) {
 					nextChargePower = nextChargePower_PvMinusConsumtion();
-				} else if (maxEssCharge > essActivePower) {
-					nextChargePower = (int) (essActivePower - maxEssCharge);
 				} else {
-					nextChargePower = 0;
+					int maxEssCharge = ess.getAllowedCharge().value().orElse(0);
+					int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
+					int essActivePower = this.sum.getEssActivePower().value().orElse(0);
+					int evcsCharge = evcs.getChargePower().value().orElse(0);
+					nextChargePower = -buyFromGrid + evcsCharge - (maxEssCharge + essActivePower);
+					nextChargePower = nextChargePower > 0 ? nextChargePower : 0;
 				}
 				break;
 			}
@@ -206,7 +211,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (isClusterd != null && isClusterd) {
 			int chargingPower = evcs.getChargePower().value().orElse(0);
 			if (chargingPower != 0) {
-				// check difference of the current charging and charging target
+				// Check difference of the current charging and the previous charging target
 				this.outOfRangeCounter = chargingLowerThanTarget() ? this.outOfRangeCounter + 1 : 0;
 
 				if (this.outOfRangeCounter >= 3) {
@@ -222,7 +227,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				// If a maximum charge power is defined.
 				// The calculated charge power must be lower then this
 				Optional<Integer> maxChargePower = evcs.getMaximumPower().value().asOptional();
-
 				if (maxChargePower.isPresent()) {
 					nextChargePower = maxChargePower.get() < nextChargePower ? maxChargePower.get() : nextChargePower;
 				}
@@ -231,7 +235,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
 
 		} else {
-			this.logInfo(this.log, "Not clustered Evcs");
 			evcs.setChargePower().setNextWriteValue(nextChargePower);
 		}
 		lastRun = LocalDateTime.now();
@@ -244,9 +247,10 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 * @return true if the difference is to high
 	 */
 	private boolean chargingLowerThanTarget() {
-		
+
 		int chargingPower = evcs.getChargePower().value().orElse(0);
-		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME).isBefore(LocalDateTime.now(this.clock))) {
+		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
+				.isBefore(LocalDateTime.now(this.clock))) {
 			this.logInfo(this.log, "Charging Check for " + evcs.alias());
 			int chargingPowerTarget = ((ManagedEvcs) evcs).getCurrChargingTarget().value().orElse(22080);
 			this.logInfo(this.log, "Charging power: " + chargingPower);
