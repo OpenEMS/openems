@@ -177,7 +177,8 @@ export const TRANSLATION = {
                 AddComponents: "Komponenten installieren",
                 AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuální ovládání",
-                DataStorage: "Ukládání dat"
+                DataStorage: "Ukládání dat",
+                SystemExecute: "Spusťte příkaz systému"
             },
             More: {
                 ManualCommand: "Manuální příkaz ",

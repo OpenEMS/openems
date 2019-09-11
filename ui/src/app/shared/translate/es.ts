@@ -174,7 +174,8 @@ export const TRANSLATION = {
                 AddComponents: "Instalar componentes",
                 AdjustComponents: "Configurar componentes",
                 ManualControl: "Control manual",
-                DataStorage: "Almacenamiento de datos"
+                DataStorage: "Almacenamiento de datos",
+                SystemExecute: "Ejecutar comando del sistema"
             },
             More: {
                 ManualCommand: "Comando manual",

@@ -8,7 +8,7 @@
                 <ion-label translate>General.Consumption</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.consumption as sum">
-                <ion-grid no-padding>
+                <ion-grid class="ion-no-padding">
                     <table class="full_width" *ngIf="evcsComponents">
                         <ng-container *ngIf="evcsComponents.length == 0">
                             <tr>
@@ -44,7 +44,7 @@
                                             {{component.alias}}
                                         </td>
                                         <ng-container
-                                            *ngIf="currentData[component.id + '/ChargePower'] != null; else empty">
+                                            *ngIf="currentData[component.id + '/ChargePower'] != 0; else empty">
                                             <td class="align_right" style="width: 35%">
                                                 {{ currentData[component.id + '/ChargePower'] | number:'1.0-0' }}&nbsp;W
                                             </td>

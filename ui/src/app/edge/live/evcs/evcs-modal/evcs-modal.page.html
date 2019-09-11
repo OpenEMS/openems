@@ -245,9 +245,7 @@
                                 Edge.Index.Widgets.EVCS.ChargingPower
                             </td>
                             <td style="width:50%" class="align_right">
-                                {{ getState(currentData[componentId + "/ChargePower"] | number:'1.0-0',
-                                            currentData[componentId + "/Status"], 
-                                            currentData[componentId + "/Plug"]) }}
+                                {{ getState(currentData[componentId + "/ChargePower"] | number:'1.0-0',currentData[componentId + "/Status"], currentData[componentId + "/Plug"]) }}
                             </td>
                         </tr>
                     </table>

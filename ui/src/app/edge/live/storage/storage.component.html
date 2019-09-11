@@ -20,39 +20,42 @@
                 </ion-item>
             </ng-container>
         </ng-container>
+
     </ng-container>
-    <ng-container *ngIf="essComponents.length == 1">
+    <ng-container *ngIf="!edge.isVersionAtLeast('2018.8'); else newVersion">
         <ng-container *ngIf="service.currentEdge | async as edge">
             <ng-container *ngIf="edge.currentData | async as currentData">
                 <ng-container *ngIf="currentData.summary.storage as sum">
                     <ion-card-content>
-                        <ion-grid no-padding>
+                        <ion-grid class="ion-no-padding">
                             <table class="full_width">
-                                <tr>
-                                    <td style="width:100%">
-                                        <percentagebar [percentageValue]="sum.soc"></percentagebar>
-                                    </td>
+                                <tr class="underline">
+                                    <td style="width:65%" translate>General.Soc</td>
+                                    <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td>
+                                    <td style="width:10%">&nbsp;%</td>
                                 </tr>
-                            </table>
-                            <table class="full_width">
                                 <tr>
                                     <td style="width:65%" translate>General.ChargePower</td>
                                     <ng-container *ngIf="sum.effectiveChargePower != null; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ sum.effectiveChargePower | number:'1.0-0' }}&nbsp;W</td>
+                                        <td style="width:25%" class="align_right">
+                                            {{ sum.effectiveChargePower | number:'1.0-0' }}</td>
+                                        <td style="width:10%">&nbsp;W</td>
                                     </ng-container>
                                     <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-</td>
+                                        <td style="width:25%" class="align_right">-</td>
+                                        <td style="width:10%"></td>
                                     </ng-template>
                                 </tr>
                                 <tr>
                                     <td style="width:65%" translate>General.DischargePower</td>
                                     <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ sum.effectiveDischargePower | number:'1.0-0' }}&nbsp;W</td>
+                                        <td style="width:25%" class="align_right">
+                                            {{ sum.effectiveDischargePower | number:'1.0-0' }}</td>
+                                        <td style="width:10%">&nbsp;W</td>
                                     </ng-container>
                                     <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-</td>
+                                        <td style="width:25%" class="align_right">-</td>
+                                        <td style="width:10%"></td>
                                     </ng-template>
                                 </tr>
                             </table>
@@ -62,53 +65,96 @@
             </ng-container>
         </ng-container>
     </ng-container>
-    <ng-container *ngIf="essComponents.length > 1">
-        <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-            <ion-card-content>
-                <ng-container *ngFor="let component of essComponents">
-                    <ion-grid>
-                        <table class="full_width">
-                            <tr>
-                                <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}
-                                </td>
-                                <td style="width: 100%" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
-                                </td>
-                            </tr>
-                            <tr *ngIf="currentData[component.id + '/Soc'] != null">
-                                <td style="width:100%">
-                                    <percentagebar [percentageValue]="currentData[component.id + '/Soc']">
-                                    </percentagebar>
-                                </td>
-                            </tr>
-                        </table>
-                        <table class="full_width" *ngIf="currentData[component.id + '/ActivePower'] != null">
-                            <tr>
-                                <td style="width:65%" translate>General.ChargePower</td>
-                                <ng-container *ngIf="currentData[component.id + '/ActivePower'] <= 0; else empty">
-                                    <td style="width:35%" class="align_right">
-                                        {{ (currentData[component.id + '/ActivePower'] * -1) | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td style="width:35%" class="align_right">-</td>
-                                </ng-template>
-                            </tr>
-                            <tr>
-                                <td style="width:65%" translate>General.DischargePower</td>
-                                <ng-container *ngIf="currentData[component.id + '/ActivePower'] > 0; else empty">
-                                    <td style="width:35%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
-                                    </td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td style="width:35%" class="align_right">-</td>
-                                </ng-template>
-                            </tr>
-                        </table>
-                    </ion-grid>
+    <ng-template #newVersion>
+        <ng-container *ngIf="essComponents.length == 1">
+            <ng-container *ngIf="service.currentEdge | async as edge">
+                <ng-container *ngIf="edge.currentData | async as currentData">
+                    <ng-container *ngIf="currentData.summary.storage as sum">
+                        <ion-card-content>
+                            <ion-grid no-padding>
+                                <table class="full_width">
+                                    <tr>
+                                        <td style="width:100%">
+                                            <percentagebar [percentageValue]="sum.soc"></percentagebar>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table class="full_width">
+                                    <tr>
+                                        <td style="width:65%" translate>General.ChargePower</td>
+                                        <ng-container *ngIf="sum.effectiveChargePower != null; else empty">
+                                            <td style="width:35%" class="align_right">
+                                                {{ sum.effectiveChargePower | number:'1.0-0' }}&nbsp;W</td>
+                                        </ng-container>
+                                        <ng-template #empty>
+                                            <td style="width:35%" class="align_right">-</td>
+                                        </ng-template>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:65%" translate>General.DischargePower</td>
+                                        <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
+                                            <td style="width:35%" class="align_right">
+                                                {{ sum.effectiveDischargePower | number:'1.0-0' }}&nbsp;W</td>
+                                        </ng-container>
+                                        <ng-template #empty>
+                                            <td style="width:35%" class="align_right">-</td>
+                                        </ng-template>
+                                    </tr>
+                                </table>
+                            </ion-grid>
+                        </ion-card-content>
+                    </ng-container>
                 </ng-container>
-            </ion-card-content>
+            </ng-container>
         </ng-container>
-    </ng-container>
+        <ng-container *ngIf="essComponents.length > 1">
+            <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+                <ion-card-content>
+                    <ng-container *ngFor="let component of essComponents">
+                        <ion-grid>
+                            <table class="full_width">
+                                <tr>
+                                    <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}
+                                    </td>
+                                    <td style="width: 100%" *ngIf="component.id != component.alias">
+                                        {{component.alias}}
+                                    </td>
+                                </tr>
+                                <tr *ngIf="currentData[component.id + '/Soc'] != null">
+                                    <td style="width:100%">
+                                        <percentagebar [percentageValue]="currentData[component.id + '/Soc']">
+                                        </percentagebar>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table class="full_width" *ngIf="currentData[component.id + '/ActivePower'] != null">
+                                <tr>
+                                    <td style="width:65%" translate>General.ChargePower</td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePower'] <= 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ (currentData[component.id + '/ActivePower'] * -1) | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-</td>
+                                    </ng-template>
+                                </tr>
+                                <tr>
+                                    <td style="width:65%" translate>General.DischargePower</td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePower'] > 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-</td>
+                                    </ng-template>
+                                </tr>
+                            </table>
+                        </ion-grid>
+                    </ng-container>
+                </ion-card-content>
+            </ng-container>
+        </ng-container>
+    </ng-template>
 </ion-card>

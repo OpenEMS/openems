@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { NgModule, ViewChild } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { IonicModule, IonInfiniteScroll } from '@ionic/angular';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { IonicModule } from '@ionic/angular';
+import { FormlyModule } from '@ngx-formly/core';
+import { FormlyIonicModule } from '@ngx-formly/ionic';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
 import 'hammerjs';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
@@ -13,9 +14,7 @@ import { ChartsModule } from 'ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
 import { SocComponent } from '../edge/history/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
-import { FormlyModule } from '@ngx-formly/core';
-import { FormlyIonicModule } from '@ngx-formly/ionic';
-
+import { PickDateComponent } from './pickdate/pickdate.component';
 /*
  * Components
  */
@@ -33,9 +32,9 @@ import { SignPipe } from './pipe/sign/sign.pipe';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
-import { PickDateComponent } from './pickdate/pickdate.component';
 import { Language } from './translate/language';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
+
 
 @NgModule({
   imports: [
@@ -44,7 +43,6 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
-    FlexLayoutModule,
     RouterModule,
     ChartsModule,
     NgxLoadingModule,
@@ -79,7 +77,6 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     CommonModule,
     FormsModule,
     IonicModule,
-    FlexLayoutModule,
     RouterModule,
     ReactiveFormsModule,
     TranslateModule,
