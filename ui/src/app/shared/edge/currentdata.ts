@@ -224,21 +224,25 @@ export class CurrentData {
     }
 
     public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number, storageDischargeActivePower: number): number {
-        return Math.max(
-            Utils.orElse(
-                (
-                    1 - (
-                        Utils.divideSafely(
-                            Utils.orElse(sellToGrid, 0), (
+        if (productionActivePower == 0) {
+            return null;
+        }
+        else {
+            return Math.max(
+                Utils.orElse(
+                    (
+                        1 - (
+                            Utils.divideSafely(
+                                Utils.orElse(sellToGrid, 0), (
                                 Utils.addSafely(
                                     Math.max(Utils.orElse(productionActivePower, 0), 0),
                                     Utils.orElse(storageDischargeActivePower, 0)
                                 )
                             )
+                            )
                         )
-                    )
-                ) * 100, 0
-            ), 0)
+                    ) * 100, 0
+                ), 0)
+        }
     }
-
 }
