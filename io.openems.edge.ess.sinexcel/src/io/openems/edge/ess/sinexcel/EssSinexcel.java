@@ -38,6 +38,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -69,10 +70,15 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	private InverterState inverterState;
 	private Battery battery;
 	public LocalDateTime timeForSystemInitialization = null;
-
+	
 	// Slow and Float Charge Voltage must be the same for the Lithium Ionbattery.
-	private static final int SLOW_CHARGE_VOLTAGE = 4370;
-	private static final int FLOAT_CHARGE_VOLTAGE = 4370;
+	// Slow charge voltage = Float Charge Voltage = MAX_CELL_VOLT * NO_OF_CELLS * num of memories
+    protected int SLOW_CHARGE_VOLTAGE = 4370; // default for 10 cells
+    protected int FLOAT_CHARGE_VOLTAGE = 4370; // default for 10 cells
+	
+	private static final double MAX_CELL_VOLT = 36.5; // Max voltage of the cell
+	protected static final int NO_OF_CELLS = 12; // Each memory contains 12 cells
+	protected int numberOfSlaves = 10; // default 10 memories
 
 	public int a = 0;
 	public int counterOn = 0;
@@ -80,6 +86,11 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	
 	// State-Machines
 	private final StateMachine stateMachine;
+	
+	@Reference
+	protected ComponentManager componentManager;
+	
+	protected Config config;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -101,7 +112,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
-
+		this.config = config;
 		this.inverterState = config.InverterState();
 
 		// initialize the connection to the battery
@@ -109,6 +120,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 		try {
 			//this.softStart();
+			this.getNoOfCells();
 			this.resetDcAcEnergy();
 			this.inverterOn();
 		} catch (OpenemsNamedException e) {
@@ -129,8 +141,14 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 				SinexcelChannelId.values() //
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(EssSinexcel.MAX_APPARENT_POWER);
-		this.stateMachine = new StateMachine(this);
+		this.stateMachine = new StateMachine(this);		
 		
+	}
+	
+	
+	private void getNoOfCells() throws OpenemsNamedException {
+		Battery bms = this.componentManager.getComponent(this.config.battery_id());
+		this.numberOfSlaves = (int) bms.getComponentContext().getProperties().get("numberOfSlaves");
 	}
 
 	/**
@@ -279,7 +297,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		setdataGridOnCmd.setNextWriteValue(1); // Start
 	}
 
-	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {
+	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {		
+		
+		this.SLOW_CHARGE_VOLTAGE =  this.FLOAT_CHARGE_VOLTAGE = (int) (numberOfSlaves * MAX_CELL_VOLT * NO_OF_CELLS);		
+		
 		IntegerWriteChannel setSlowChargeVoltage = this.channel(SinexcelChannelId.SET_SLOW_CHARGE_VOLTAGE);
 		setSlowChargeVoltage.setNextWriteValue(SLOW_CHARGE_VOLTAGE);
 		IntegerWriteChannel setFloatChargeVoltage = this.channel(SinexcelChannelId.SET_FLOAT_CHARGE_VOLTAGE);
