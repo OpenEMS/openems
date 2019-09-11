@@ -44,7 +44,7 @@
                                             {{component.alias}}
                                         </td>
                                         <ng-container
-                                            *ngIf="currentData[component.id + '/ChargePower'] != null; else empty">
+                                            *ngIf="currentData[component.id + '/ChargePower'] != 0; else empty">
                                             <td class="align_right" style="width: 35%">
                                                 {{ currentData[component.id + '/ChargePower'] | number:'1.0-0' }}&nbsp;W
                                             </td>
