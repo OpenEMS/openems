@@ -5,8 +5,8 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -145,9 +145,9 @@ public interface ManagedEvcs extends Evcs {
 	/**
 	 * Is true if the EVCS is in a EVCS-Cluster.
 	 * 
-	 * @return the IntegerReadChannel
+	 * @return the BooleanReadChannel
 	 */
-	public default IntegerReadChannel isClustered() {
+	public default BooleanReadChannel isClustered() {
 		return this.channel(ChannelId.IS_CLUSTERED);
 	}
 
