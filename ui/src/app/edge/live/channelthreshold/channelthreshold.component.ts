@@ -13,8 +13,8 @@ export class ChannelthresholdComponent {
   @Input() private componentId: string;
 
   public edge: Edge = null;
-  public controller: EdgeConfig.Component = null;
   public outputChannel: ChannelAddress = null;
+  public component: EdgeConfig.Component = null;
 
   constructor(
     private service: Service,
@@ -27,6 +27,7 @@ export class ChannelthresholdComponent {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
+        this.component = config.getComponent(this.componentId);
         this.outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
         edge.subscribeChannels(this.websocket, ChannelthresholdComponent.SELECTOR + this.componentId, [
           this.outputChannel

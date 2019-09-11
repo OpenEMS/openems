@@ -1,7 +1,8 @@
 package io.openems.edge.core.host;
 
+import java.util.concurrent.CompletableFuture;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 
 public interface OperatingSystem {
 
@@ -26,15 +27,9 @@ public interface OperatingSystem {
 	/**
 	 * Executes a command.
 	 * 
-	 * @param password       the system user password
-	 * @param command        the command
-	 * @param background     run the command in background (true) or in foreground
-	 *                       (false)
-	 * @param timeoutSeconds interrupt the command after ... seconds
-	 * @return the output of the command
-	 * @throws OpenemsException on error
+	 * @param request the ExecuteCommandRequest
+	 * @return a ExecuteCommandResponse
 	 */
-	public String executeCommand(String password, String command, boolean background, int timeoutSeconds)
-			throws OpenemsException;
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(ExecuteSystemCommandRequest request);
 
 }

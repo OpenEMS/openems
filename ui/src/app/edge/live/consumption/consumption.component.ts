@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
-import { ModalController } from '@ionic/angular';
 import { ConsumptionModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'consumption',
@@ -38,7 +38,10 @@ export class ConsumptionComponent {
             this.edge = edge;
             channels.push(
                 new ChannelAddress('_sum', 'ConsumptionActivePower'),
-                new ChannelAddress('_sum', 'ConsumptionMaxActivePower'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
+                new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
             )
             this.edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, channels);
         });
@@ -56,7 +59,9 @@ export class ConsumptionComponent {
             component: ConsumptionModalComponent,
             componentProps: {
                 edge: this.edge,
-                evcsComponents: this.evcsComponents
+                evcsComponents: this.evcsComponents,
+                currentTotalChargingPower: this.currentTotalChargingPower,
+                sumOfChannel: this.sumOfChannel
             }
         });
         return await modal.present();
@@ -76,5 +81,5 @@ export class ConsumptionComponent {
         });
         return sum;
     }
-
 }
+

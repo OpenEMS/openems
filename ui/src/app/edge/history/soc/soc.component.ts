@@ -6,6 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, Service, Utils, EdgeConfig } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
 
 @Component({
   selector: 'soc',
@@ -33,17 +34,17 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
   protected datasets: Dataset[] = EMPTY_DATASET;
   protected options: ChartOptions;
   protected colors = [{
-    backgroundColor: 'rgba(0,152,70,0.05)',
-    borderColor: 'rgba(0,152,70,1)',
+    // State Of Charge
+    backgroundColor: 'rgba(0,223,0,0.05)',
+    borderColor: 'rgba(0,223,0,1)',
   }, {
+    // Autarchy
     backgroundColor: 'rgba(0,152,204,0.05)',
     borderColor: 'rgba(0,152,204,1)'
   }, {
-    backgroundColor: 'rgba(107,207,0,0.05)',
-    borderColor: 'rgba(107,207,0,1)'
-  }, {
-    backgroundColor: 'rgba(224,232,17,0.05)',
-    borderColor: 'rgba(224,232,17,1)'
+    // Self Consumption
+    backgroundColor: 'rgba(253,197,7,0.05)',
+    borderColor: 'rgba(253,197,7,1)'
   }];
 
   ngOnInit() {
@@ -74,7 +75,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
           let result = response.result;
-
           // convert labels
           let labels: Date[] = [];
           for (let timestamp of result.timestamps) {
@@ -88,19 +88,142 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           // convert datasets
           let datasets = [];
 
+          // required data for autarchy and self consumption
+          let buyFromGridData: number[];
+          let sellToGridData: number[];
+          let consumptionData: number[];
+          let dischargeData: number[];
+          let productionData: number[];
+
+
           if (!edge.isVersionAtLeast('2018.8')) {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
           }
 
+          if ('_sum/ConsumptionActivePower' in result.data) {
+            /*
+             * Consumption
+             */
+            consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value;
+              }
+            });
+          }
+
+          if ('_sum/EssActivePower' in result.data) {
+            /*
+             * Storage Discharge
+             */
+            let effectivePower;
+
+            if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
+              effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+              });
+            } else {
+              effectivePower = result.data['_sum/EssActivePower'];
+            }
+
+            dischargeData = effectivePower.map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 0) {
+                return value;
+              } else {
+                return 0;
+              }
+            });
+          }
+
+          if ('_sum/GridActivePower' in result.data) {
+            /*
+             * Buy From Grid
+             */
+            buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 0) {
+                return value;
+              } else {
+                return 0;
+              }
+            })
+
+            /*
+             * Sell To Grid
+             */
+            sellToGridData = result.data['_sum/GridActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value < 0) {
+                return value * -1; // invert value
+              } else {
+                return 0;
+              }
+            });
+          };
+
+          if ('_sum/ProductionActivePower' in result.data) {
+            /*
+             * Production
+             */
+            productionData = result.data['_sum/ProductionActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value;
+              }
+            });
+          }
+
           if ('_sum/EssSoc' in result.data) {
             /*
-            * State-of-charge
-            */
+             * State-of-charge
+             */
             datasets.push({
               label: this.translate.instant('General.Soc'),
               data: result.data['_sum/EssSoc'],
               hidden: false
             });
+          };
+
+          /*
+          * Autarchy
+          */
+          if (config.hasProducer()) {
+            let autarchy = consumptionData.map((value, index) => {
+              if (value == null) {
+                return null
+              } else {
+                return CurrentData.calculateAutarchy(buyFromGridData[index], value);
+              }
+            })
+
+            datasets.push({
+              label: this.translate.instant('General.Autarchy'),
+              data: autarchy,
+              hidden: false
+            })
+
+            /*
+            * Self Consumption
+            */
+            let selfConsumption = productionData.map((value, index) => {
+              if (value == null) {
+                return null
+              } else {
+                return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+              }
+            })
+
+            datasets.push({
+              label: this.translate.instant('General.SelfConsumption'),
+              data: selfConsumption,
+              hidden: false
+            })
           }
 
           for (let channel in result.data) {
@@ -136,11 +259,37 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       if (edge.isVersionAtLeast('2018.8')) {
-        resolve([new ChannelAddress('_sum', 'EssSoc')]);
-
+        let result: ChannelAddress[] = [];
+        if (config.hasProducer()) {
+          config.widgets.classes.forEach(clazz => {
+            switch (clazz.toString()) {
+              case 'Grid':
+                result.push(new ChannelAddress('_sum', 'GridActivePower'));
+                break;
+              case 'Consumption':
+                result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
+                break;
+              case 'Storage':
+                result.push(
+                  new ChannelAddress('_sum', 'EssSoc'),
+                  new ChannelAddress('_sum', 'EssActivePower'));
+                break;
+              case 'Production':
+                result.push(
+                  new ChannelAddress('_sum', 'ProductionActivePower'),
+                  new ChannelAddress('_sum', 'ProductionDcActualPower'));
+                break;
+            };
+            return false;
+          })
+          resolve(result);
+        }
+        else {
+          resolve([new ChannelAddress('_sum', 'EssSoc')]);
+        };
       } else {
         // TODO: remove after full migration
         this.service.getConfig().then(config => {
@@ -205,4 +354,5 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     });
 
   }
+
 }

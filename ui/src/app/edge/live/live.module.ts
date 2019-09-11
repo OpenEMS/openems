@@ -22,6 +22,10 @@ import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal
 import { EvcsModalComponent } from './evcs/evcs-modal/evcs-modal.page';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/chpsoc-modal.page';
+import { AutarchyComponent } from './autarchy/autarchy.component';
+import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
+import { AutarchyModalComponent } from './autarchy/modal/modal.component';
+import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -35,7 +39,10 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/chpsoc-modal.page';
     ProductionModalComponent,
     EvcsModalComponent,
     ModalComponentEvcsCluster,
-    ChpsocModalComponent],
+    AutarchyModalComponent,
+    SelfconsumptionModalComponent,
+    ChpsocModalComponent
+  ],
   declarations: [
     LiveComponent,
     FixDigitalOutputModalComponent,
@@ -58,7 +65,11 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/chpsoc-modal.page';
     ModalComponentEvcsCluster,
     EvcsModalComponent,
     EvcsChart,
-    ChpsocModalComponent
+    ChpsocModalComponent,
+    AutarchyComponent,
+    AutarchyModalComponent,
+    SelfConsumptionComponent,
+    SelfconsumptionModalComponent
   ]
 })
 export class LiveModule { }
