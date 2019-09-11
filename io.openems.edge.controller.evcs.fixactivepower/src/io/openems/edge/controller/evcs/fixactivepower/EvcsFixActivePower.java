@@ -82,7 +82,7 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 		ManagedEvcs evcs = this.componentManager.getComponent(this.config.evcs_id());
 
 		// set charge power
-		evcs.setChargePower().setNextWriteValue(this.config.power());
+		evcs.setChargePowerLimit().setNextWriteValue(this.config.power());
 
 	}
 

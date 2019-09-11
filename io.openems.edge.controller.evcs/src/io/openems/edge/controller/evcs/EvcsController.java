@@ -141,8 +141,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	/**
-	 *  If the evcs is clustered the method will set the charge power request.
-	 *	Otherwise it will set directly the charge power.
+	 * If the evcs is clustered the method will set the charge power request.
+	 * Otherwise it will set directly the charge power.
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
@@ -171,11 +171,12 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			}
 		}
 
-		// Check if the maximum energy limit is reached, informs the user and sets the power request to 0 
+		// Check if the maximum energy limit is reached, informs the user and sets the
+		// power request to 0
 		this.evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
-		int limit = this.evcs.getEnergyLimit().value().orElse(0);
+		int limit = this.evcs.setEnergyLimit().value().orElse(0);
 		if (this.evcs.getEnergySession().value().orElse(0) >= limit && limit != 0) {
-			this.evcs.setDisplayText().setNextWriteValue("Limit of " + this.evcs.getEnergyLimit().value().orElse(0) + " reached");
+			this.evcs.setDisplayText().setNextWriteValue("Limit of " + limit + " reached");
 			this.evcs.setChargePowerRequest().setNextWriteValue(0);
 			return;
 		}
@@ -185,7 +186,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		// Executes the following only if charging is enabled
 		if (!config.enabledCharging()) {
-			evcs.setChargePower().setNextWriteValue(0);
+			evcs.setChargePowerLimit().setNextWriteValue(0);
 			return;
 		}
 
@@ -258,7 +259,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
 
 		} else {
-			evcs.setChargePower().setNextWriteValue(nextChargePower);
+			evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
 		}
 		lastRun = LocalDateTime.now();
 	}
@@ -275,7 +276,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
 				.isBefore(LocalDateTime.now(this.clock))) {
 			this.logInfo(this.log, "Charging Check for " + evcs.alias());
-			int chargingPowerTarget = ((ManagedEvcs) evcs).getCurrChargingTarget().value().orElse(STANDARD_HARDWARE_LIMIT);
+			int chargingPowerTarget = ((ManagedEvcs) evcs).setChargePowerLimit().value()
+					.orElse(STANDARD_HARDWARE_LIMIT);
 			this.logInfo(this.log, "Charging power: " + chargingPower);
 			this.logInfo(this.log, "Charging target: " + chargingPowerTarget);
 			if (chargingPowerTarget - chargingPower > CHARGING_TARGET_MAX_DIFFERENCE) {

@@ -88,7 +88,7 @@ public class WriteHandler implements Runnable {
 	 */
 	private void setPower() {
 
-		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER);
+		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 

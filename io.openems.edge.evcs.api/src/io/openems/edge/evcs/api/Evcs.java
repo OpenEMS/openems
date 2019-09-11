@@ -3,13 +3,32 @@ package io.openems.edge.evcs.api;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 public interface Evcs extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		/**
+		 * The Status of the EVCS charging station.
+		 * 
+		 * <p>
+		 * Undefined, Starting, Not ready for Charging, Ready for Charging, Charging,
+		 * Error, Authorization rejected.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Type: Status
+		 * </ul>
+		 */
+		STATUS(Doc.of(Status.values()) //
+				.accessMode(AccessMode.READ_ONLY)),
 
 		/**
 		 * Charge Power.
@@ -26,68 +45,87 @@ public interface Evcs extends OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		/**
+		 * Count of phases, the EV is charging with.
+		 * 
+		 * <p>
+		 * This value is derived from the charging station or calculated during the
+		 * charging.
+		 * 
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Readable
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		PHASES(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+
+		/**
 		 * Minimum Power valid by the hardware.
-		 * In the cases that the EVCS can't be controlled, the Minimum will be the maximum too.
+		 * 
+		 * <p>
+		 * In the cases that the EVCS can't be controlled, the Minimum will be the
+		 * maximum too.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
-		 * <li>Writable
+		 * <li>Readable
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * </ul>
 		 */
 		MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)),
+				.accessMode(AccessMode.READ_ONLY)),
 
 		/**
 		 * Maximum Power valid by the hardware.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
-		 * <li>Writable
+		 * <li>Readable
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * </ul>
 		 */
 		MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)),
+				.accessMode(AccessMode.READ_ONLY)),
 
 		/**
-		 * Maximum Power that should be charged calculated by the controller
+		 * Maximum Power defined by software.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
-		 * <li>Writable
+		 * <li>Readable
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * </ul>
 		 */
 		MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)),
-		
+				.accessMode(AccessMode.READ_ONLY)),
+
 		/**
-		 * Variable minimum power that should be charged, configured in a controller
+		 * Minimum Power defined by software.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
-		 * <li>Writable
+		 * <li>Readable
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * </ul>
 		 */
 		MINIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)),
-		
+				.accessMode(AccessMode.READ_ONLY)),
+
 		/**
-		 * Energy that was charged during this Session 
+		 * Energy that was charged during the current or last Session.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
-		 * <li>Writable
+		 * <li>Readable
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
@@ -95,7 +133,6 @@ public interface Evcs extends OpenemsComponent {
 		ENERGY_SESSION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS) //
 				.accessMode(AccessMode.READ_ONLY));
-		
 
 		private final Doc doc;
 
@@ -110,58 +147,81 @@ public interface Evcs extends OpenemsComponent {
 	}
 
 	/**
+	 * The Status of the EVCS charging station.
+	 * 
+	 * @return the EnumReadChannel
+	 */
+	public default EnumReadChannel status() {
+		return this.channel(ChannelId.STATUS);
+	}
+
+	/**
 	 * Gets the Charge Power in [W].
 	 * 
-	 * @return the Channel
+	 * @return the IntegerReadChannel
 	 */
-	public default Channel<Integer> getChargePower() {
+	public default IntegerReadChannel getChargePower() {
 		return this.channel(ChannelId.CHARGE_POWER);
 	}
 
 	/**
-	 * Gets the maximum Charge Power in [W] valid by the Hardware.
+	 * Count of phases, the EV is charging with.
 	 * 
-	 * @return the Channel
+	 * @return the IntegerReadChannel
 	 */
-	public default Channel<Integer> getMaximumHardwarePower() {
+	public default IntegerReadChannel getPhases() {
+		return this.channel(ChannelId.PHASES);
+	}
+
+	/**
+	 * Maximum Power valid by the hardware.
+	 * 
+	 * @return the IntegerReadChannel
+	 */
+	public default IntegerReadChannel getMaximumHardwarePower() {
 		return this.channel(ChannelId.MAXIMUM_HARDWARE_POWER);
 	}
 
 	/**
-	 * Gets the minimum Charge Power in [W] valid by the Hardware.
-	 * In the cases that the EVCS can't be controlled, the Minimum will be the maximum too.
+	 * Minimum Power valid by the hardware.
 	 * 
-	 * @return the Channel
+	 * @return the IntegerReadChannel
 	 */
-	public default Channel<Integer> getMinimumHardwarePower() {
+	public default IntegerReadChannel getMinimumHardwarePower() {
 		return this.channel(ChannelId.MINIMUM_HARDWARE_POWER);
 	}
-	
+
 	/**
-	 * Gets the maximum Charge Power that will be used by the charging station.
+	 * Maximum Power defined by software.
 	 * 
-	 * @return the Channel
+	 * @return the IntegerReadChannel
 	 */
-	public default Channel<Integer> getMaximumPower() {
+	public default IntegerReadChannel getMaximumPower() {
 		return this.channel(ChannelId.MAXIMUM_POWER);
 	}
-	
+
 	/**
-	 * Gets the minimum Charge Power that will mostly used by the charging station.
-	 * Exceptions when a minimum is not guaranteed could be the excess of the grid.
+	 * Minimum Power defined by software.
 	 * 
-	 * @return the Channel
+	 * @return the IntegerReadChannel
 	 */
-	public default Channel<Integer> getMinimumPower() {
+	public default IntegerReadChannel getMinimumPower() {
 		return this.channel(ChannelId.MINIMUM_POWER);
 	}
-	
+
 	/**
-	 * Gets the current energy in [Wh], charged in this session.
+	 * Energy that was charged during the current or last Session.
 	 * 
-	 * @return the Channel
+	 * @return the IntegerReadChannel
 	 */
-	public default Channel<Integer> getEnergySession() {
+	public default IntegerReadChannel getEnergySession() {
 		return this.channel(ChannelId.ENERGY_SESSION);
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		// TODO add remaining channels
+		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //
+				.channel(0, ChannelId.STATUS, ModbusType.UINT16) //
+				.build();
 	}
 }
