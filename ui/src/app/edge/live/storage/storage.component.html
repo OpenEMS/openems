@@ -75,7 +75,7 @@
                                 <table class="full_width">
                                     <tr>
                                         <td style="width:100%">
-                                            <percentagebar [percentageValue]="sum.soc"></percentagebar>
+                                            <percentagebar [value]="sum.soc"></percentagebar>
                                         </td>
                                     </tr>
                                 </table>
@@ -122,7 +122,7 @@
                                 </tr>
                                 <tr *ngIf="currentData[component.id + '/Soc'] != null">
                                     <td style="width:100%">
-                                        <percentagebar [percentageValue]="currentData[component.id + '/Soc']">
+                                        <percentagebar [value]="currentData[component.id + '/Soc']">
                                         </percentagebar>
                                     </td>
                                 </tr>

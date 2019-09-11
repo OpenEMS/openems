@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        active: "actief",
+        inactive: "inactief",
         On: "Naar",
         Off: "Van",
         Phase: "Fase",
@@ -85,6 +87,7 @@ export const TRANSLATION = {
                     HighThreshold: "hoge drempel"
                 },
                 EVCS: {
+                    OffInfoText: "Het laadstation is uitgeschakeld, selecteer een andere laadstrategie voor meer informatie.",
                     ChargingStation: "Laadstation",
                     ChargingStationCluster: "Laadstation cluster",
                     OverviewChargingStations: "Overzicht laadstations",
@@ -123,11 +126,14 @@ export const TRANSLATION = {
                         Help1_1: "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen"
                     },
                     OptimizedChargeMode: {
+                        AutoName: "Automatisch Laden",
+                        AutoShortName: "automatisch",
                         Name: "Geoptimaliseerd laden",
                         ShortName: "geoptimaliseerde",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
                         MinInfo: "Als u wilt voorkomen dat de auto 's nachts niet oplaadt, kunt u een minimale lading instellen.",
                         MinCharging: "Minimale vergoeding betalen",
+                        MinChargePower: "Minimale Ladeleistung",
                         ChargingPriority: "Afhankelijk van de prioriteit, wordt het geselecteerde onderdeel eerst geladen"
                     },
                     ForceChargeMode: {

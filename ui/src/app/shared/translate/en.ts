@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        active: "active",
+        inactive: "inactive",
         On: "On",
         Off: "Off",
         Phase: "Phase",
@@ -88,6 +90,7 @@ export const TRANSLATION = {
                     HighThreshold: "High Threshold"
                 },
                 EVCS: {
+                    OffInfoText: "The charging station is disabled, please select a different loading strategy to find out more.",
                     ChargingStation: "Charging Station",
                     ChargingStationCluster: "Charging station cluster",
                     OverviewChargingStations: "Overview charging stations",
@@ -126,11 +129,14 @@ export const TRANSLATION = {
                         Help1_1: "The IP of the charging station appears when switching on again"
                     },
                     OptimizedChargeMode: {
+                        AutoName: "automatic loading",
+                        AutoShortName: "automatically",
                         Name: "Optimized charging",
                         ShortName: "Optimized",
                         Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
                         MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
                         MinCharging: "Guarantee minimum charge",
+                        MinChargePower: "Minimale Ladeleistung",
                         ChargingPriority: {
                             Info: "Depending on the prioritization, the selected component will be loaded first",
                             Car: "Car",

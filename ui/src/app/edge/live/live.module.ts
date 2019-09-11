@@ -26,6 +26,7 @@ import { AutarchyComponent } from './autarchy/autarchy.component';
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { AutarchyModalComponent } from './autarchy/modal/modal.component';
 import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
+import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/evcs-popover.page';
 
 @NgModule({
   imports: [
@@ -41,7 +42,8 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
-    ChpsocModalComponent
+    ChpsocModalComponent,
+    EvcsPopoverComponent
   ],
   declarations: [
     LiveComponent,
@@ -69,7 +71,8 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
     AutarchyComponent,
     AutarchyModalComponent,
     SelfConsumptionComponent,
-    SelfconsumptionModalComponent
+    SelfconsumptionModalComponent,
+    EvcsPopoverComponent
   ]
 })
 export class LiveModule { }
