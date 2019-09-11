@@ -1,32 +1,31 @@
 import { Component, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, Websocket } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, Service, Websocket } from '../../../../shared/shared';
 
 @Component({
-    selector: 'grid-modal',
-    templateUrl: './modal.component.html'
+  selector: GridModalComponent.SELECTOR,
+  templateUrl: './modal.component.html'
 })
 export class GridModalComponent {
 
-    private static readonly SELECTOR = "grid-modal";
+  private static readonly SELECTOR = "grid-modal";
 
-    @Input() edge: Edge;
+  @Input() edge: Edge;
 
-    constructor(
-        public service: Service,
-        private websocket: Websocket,
-        public modalCtrl: ModalController,
-        public translate: TranslateService,
-    ) { }
+  constructor(
+    public service: Service,
+    private websocket: Websocket,
+    public modalCtrl: ModalController,
+    public translate: TranslateService,
+  ) { }
 
-    ngOnInit() {
+  ngOnInit() {
+  }
+
+  ngOnDestroy() {
+    if (this.edge != null) {
+      this.edge.unsubscribeChannels(this.websocket, GridModalComponent.SELECTOR);
     }
-
-    ngOnDestroy() {
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, GridModalComponent.SELECTOR);
-        }
-    }
+  }
 }

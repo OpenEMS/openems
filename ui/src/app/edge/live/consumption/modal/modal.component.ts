@@ -4,7 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-    selector: 'consumption-modal',
+    selector: ConsumptionModalComponent.SELECTOR,
     templateUrl: './modal.component.html'
 })
 export class ConsumptionModalComponent {
@@ -13,16 +13,15 @@ export class ConsumptionModalComponent {
 
     @Input() edge: Edge;
     @Input() evcsComponents: EdgeConfig.Component[];
-    @Input() currentTotalChargingPower: Function;
-    @Input() sumOfChannel: Function;
+    // FIXME: just a note: 'Function' is not what you think it is... https://stackoverflow.com/questions/14638990/are-strongly-typed-functions-as-parameters-possible-in-typescript
+    @Input() currentTotalChargingPower: () => number;
 
     public config: EdgeConfig = null;
 
     constructor(
         public service: Service,
         private websocket: Websocket,
-        public modalCtrl: ModalController,
-        private route: ActivatedRoute,
+        public modalCtrl: ModalController
     ) { }
 
     ngOnInit() {

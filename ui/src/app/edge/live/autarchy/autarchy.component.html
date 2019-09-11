@@ -1,23 +1,24 @@
 <ng-container *ngIf="service.currentEdge | async as edge">
-    <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card button (click)="presentModal()">
-            <ion-item lines="full" color="light">
-                <ion-avatar slot="start">
-                    <img src="assets/img/autarchy.png">
-                </ion-avatar>
-                <ion-label translate>General.Autarchy</ion-label>
-            </ion-item>
-            <ion-card-content *ngIf="currentData.summary as sum">
-                <ion-grid>
-                    <table class="full_width">
-                        <tr>
-                            <td style="width: 100%">
-                                <percentagebar [value]="sum.system.autarchy"></percentagebar>
-                            </td>
-                        </tr>
-                    </table>
-                </ion-grid>
-            </ion-card-content>
-        </ion-card>
-    </ng-container>
+  <ng-container *ngIf="edge.currentData | async as currentData">
+    <ion-card button (click)="presentModal()">
+      <ion-item lines="full" color="light">
+        <ion-avatar slot="start">
+          <img src="assets/img/autarchy.png">
+        </ion-avatar>
+        <ion-label translate>General.Autarchy</ion-label>
+      </ion-item>
+      <ion-card-content *ngIf="currentData.summary as sum">
+        <!-- FIXME das kann so nicht stimmen... zu ion-grid gehört immer ion-row und ion-col; warum brauchst du eine table? warum brauchst du class full_width und dann noch style 100 %? -->
+        <ion-grid>
+          <table class="full_width">
+            <tr>
+              <td style="width: 100%">
+                <percentagebar [value]="sum.system.autarchy"></percentagebar>
+              </td>
+            </tr>
+          </table>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
 </ng-container>

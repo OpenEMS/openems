@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
 @Component({
-  selector: 'channelthreshold',
+  selector: ChannelthresholdComponent.SELECTOR,
   templateUrl: './channelthreshold.component.html'
 })
 export class ChannelthresholdComponent {
