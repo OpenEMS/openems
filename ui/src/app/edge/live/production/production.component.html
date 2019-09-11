@@ -8,77 +8,97 @@
                 <ion-label translate>General.Production</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.production as sum">
-                <ion-grid *ngIf="productionMeterComponents != null">
-                    <ng-container
-                        *ngIf="(productionMeterComponents.length == 1 && chargerComponents.length == 0) || (productionMeterComponents.length == 0 && chargerComponents.length == 1); else moreThanOne">
+                <ng-container *ngIf="!edge.isVersionAtLeast('2018.8'); else newVersion">
+                    <ion-grid class="ion-no-padding">
                         <table class="full_width">
-                            <tr *ngIf="sum.activePowerDc != null">
-                                <td style="width:65%">DC</td>
-                                <ng-container *ngIf="sum.activePowerDc != 0; else empty">
-                                    <td style="width:35%" class="align_right">
-                                        {{ sum.activePowerDc | number:'1.0-0' }}&nbsp;W</td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td style="width:35%" class="align_right">-</td>
-                                </ng-template>
-                            </tr>
-                            <tr *ngIf="sum.activePowerAc != null">
-                                <td style="width:65%">AC</td>
-                                <ng-container *ngIf="sum.activePowerAc != 0; else empty">
-                                    <td style="width:35%" class="align_right">
-                                        {{ sum.activePowerAc | number:'1.0-0' }}&nbsp;W</td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td style="width:35%" class="align_right">-</td>
-                                </ng-template>
+                            <tr>
+                                <td style="width:65%" translate>General.Production
+                                </td>
+                                <td style="width:25%" class="align_right">
+                                    {{ sum.activePower | number:'1.0-0' }}
+                                </td>
+                                <td style="width:10%">&nbsp;W</td>
                             </tr>
                         </table>
-                    </ng-container>
-                    <ng-template #moreThanOne>
-                        <ng-container *ngFor="let component of productionMeterComponents">
-                            <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                                <table class="full_width">
-                                    <tr>
-                                        <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
-                                        </td>
-                                        <td style="width:65%" *ngIf="component.id != component.alias">
-                                            {{component.alias}}</td>
-                                        <ng-container
-                                            *ngIf="currentData[component.id + '/ActivePower'] != 0; else empty">
-                                            <td style="width:35%" class="align_right">
-                                                {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
-                                            </td>
-                                        </ng-container>
-                                        <ng-template #empty>
-                                            <td style="width:35%" class="align_right">-</td>
-                                        </ng-template>
-                                    </tr>
-                                </table>
-                            </ng-container>
+                    </ion-grid>
+                </ng-container>
+
+                <ng-template #newVersion>
+                    <ion-grid *ngIf="productionMeterComponents != null">
+                        <ng-container
+                            *ngIf="(productionMeterComponents.length == 1 && chargerComponents.length == 0) || (productionMeterComponents.length == 0 && chargerComponents.length == 1); else moreThanOne">
+                            <table class="full_width">
+                                <tr *ngIf="sum.activePowerDc != null">
+                                    <td style="width:65%">DC</td>
+                                    <ng-container *ngIf="sum.activePowerDc != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ sum.activePowerDc | number:'1.0-0' }}&nbsp;W</td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-</td>
+                                    </ng-template>
+                                </tr>
+                                <tr *ngIf="sum.activePowerAc != null">
+                                    <td style="width:65%">AC</td>
+                                    <ng-container *ngIf="sum.activePowerAc != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ sum.activePowerAc | number:'1.0-0' }}&nbsp;W</td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-</td>
+                                    </ng-template>
+                                </tr>
+                            </table>
                         </ng-container>
-                        <ng-container *ngFor="let component of chargerComponents">
-                            <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                                <table class="full_width">
-                                    <tr>
-                                        <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
-                                        </td>
-                                        <td style="width:65%" *ngIf="component.id != component.alias">
-                                            {{component.alias}}</td>
-                                        <ng-container
-                                            *ngIf="currentData[component.id + '/ActualPower'] != 0; else empty">
-                                            <td style="width:35%" class="align_right">
-                                                {{ currentData[component.id + '/ActualPower'] | number:'1.0-0' }}&nbsp;W
+                        <ng-template #moreThanOne>
+                            <ng-container *ngFor="let component of productionMeterComponents">
+                                <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+                                    <table class="full_width">
+                                        <tr>
+                                            <td style="width:65%" *ngIf="component.id == component.alias">
+                                                {{component.id}}
                                             </td>
-                                        </ng-container>
-                                        <ng-template #empty>
-                                            <td style="width:35%" class="align_right">-</td>
-                                        </ng-template>
-                                    </tr>
-                                </table>
+                                            <td style="width:65%" *ngIf="component.id != component.alias">
+                                                {{component.alias}}</td>
+                                            <ng-container
+                                                *ngIf="currentData[component.id + '/ActivePower'] != 0; else empty">
+                                                <td style="width:35%" class="align_right">
+                                                    {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
+                                                </td>
+                                            </ng-container>
+                                            <ng-template #empty>
+                                                <td style="width:35%" class="align_right">-</td>
+                                            </ng-template>
+                                        </tr>
+                                    </table>
+                                </ng-container>
                             </ng-container>
-                        </ng-container>
-                    </ng-template>
-                </ion-grid>
+                            <ng-container *ngFor="let component of chargerComponents">
+                                <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+                                    <table class="full_width">
+                                        <tr>
+                                            <td style="width:65%" *ngIf="component.id == component.alias">
+                                                {{component.id}}
+                                            </td>
+                                            <td style="width:65%" *ngIf="component.id != component.alias">
+                                                {{component.alias}}</td>
+                                            <ng-container
+                                                *ngIf="currentData[component.id + '/ActualPower'] != 0; else empty">
+                                                <td style="width:35%" class="align_right">
+                                                    {{ currentData[component.id + '/ActualPower'] | number:'1.0-0' }}&nbsp;W
+                                                </td>
+                                            </ng-container>
+                                            <ng-template #empty>
+                                                <td style="width:35%" class="align_right">-</td>
+                                            </ng-template>
+                                        </tr>
+                                    </table>
+                                </ng-container>
+                            </ng-container>
+                        </ng-template>
+                    </ion-grid>
+                </ng-template>
+
             </ion-card-content>
         </ion-card>
     </ng-container>
