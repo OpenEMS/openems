@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        active: "aktivně",
+        inactive: "neaktivní",
         On: "zapnutý",
         Off: "Pryč",
         Phase: "Fáze",
@@ -87,6 +89,7 @@ export const TRANSLATION = {
                     HighThreshold: "vysoký práh"
                 },
                 EVCS: {
+                    OffInfoText: "Nabíjecí stanice je deaktivována. Chcete-li zjistit více, vyberte jinou strategii načítání.",
                     ChargingStation: "Nabíjecí stanice",
                     ChargingStationCluster: "Klastr nabíjecí stanice",
                     OverviewChargingStations: "Přehled nabíjecích stanic",
@@ -125,6 +128,8 @@ export const TRANSLATION = {
                         Help1_1: "Při opětovném zapnutí se objeví IP nabíjecí stanice"
                     },
                     OptimizedChargeMode: {
+                        AutoName: "automatické načítání",
+                        AutoShortName: "automaticky",
                         Name: "Optimalizované zatížení",
                         ShortName: "optimalizované",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",

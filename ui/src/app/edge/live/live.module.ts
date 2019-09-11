@@ -25,7 +25,7 @@ import { AutarchyComponent } from './autarchy/autarchy.component';
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { AutarchyModalComponent } from './autarchy/modal/modal.component';
 import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
-import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover.page';
+import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/evcs-popover.page';
 
 @NgModule({
   imports: [

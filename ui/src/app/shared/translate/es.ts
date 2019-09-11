@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        active: "activamente",
+        inactive: "inactivo",
         On: "conmutada",
         Off: "apagado",
         Phase: "Fase",
@@ -88,6 +90,7 @@ export const TRANSLATION = {
                     HighThreshold: "Umbral alto"
                 },
                 EVCS: {
+                    OffInfoText: "La estación de carga está desactivada, seleccione una estrategia de carga diferente para obtener más información.",
                     ChargingStation: "Carga",
                     ChargingStationCluster: "Grupo de estaciones de carga",
                     OverviewChargingStations: "Resumen de estaciones de carga",
@@ -126,6 +129,8 @@ export const TRANSLATION = {
                         Help1_1: "La IP de la estación de carga aparece cuando se enciende nuevamente"
                     },
                     OptimizedChargeMode: {
+                        AutoName: "carga automática",
+                        AutoShortName: "automáticamente",
                         Name: "Carga optimizada",
                         ShortName: "Optimizado",
                         Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",

@@ -1,6 +1,8 @@
 export const TRANSLATION = {
     General: {
-        On: "An",
+        Active: "aktiv",
+        Inactive: "inaktiv",
+        On: "Ein",
         Off: "Aus",
         Phase: "Phase",
         Autarchy: "Autarkie",
@@ -89,6 +91,7 @@ export const TRANSLATION = {
                     HighThreshold: "Oberer Schwellenwert"
                 },
                 EVCS: {
+                    OffInfoText: "Die Ladestation ist deaktiviert, bitte wählen Sie eine andere Beladestrategie um mehr darüber zu erfahren.",
                     ChargingStation: "Ladestation",
                     ChargingStationCluster: "Ladestation Cluster",
                     OverviewChargingStations: "Übersicht Ladestationen",
@@ -117,8 +120,8 @@ export const TRANSLATION = {
                     Cable: "Kabel",
                     CableNotConnected: "Kabel ist nicht angeschlossen",
                     CarFull: "Auto ist voll",
-                    EnergieSinceBeginning: "Energie seit letztem Ladebeginn",
-                    ChargeMode: "Belademodus",
+                    EnergieSinceBeginning: "Energie seit Ladebeginn",
+                    ChargeMode: "Beladestrategie",
                     ActivateCharging: "Aktivieren der Ladesäule",
                     ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
                     NoConnection: {
@@ -127,14 +130,16 @@ export const TRANSLATION = {
                         Help1_1: "Die IP der Ladesäule erscheint beim erneuten einschalten"
                     },
                     OptimizedChargeMode: {
+                        AutoName: "Automatische Beladung",
+                        AutoShortName: "Automatisch",
                         Name: "Optimierte Beladung",
                         ShortName: "Optimiert",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
                         MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Ladeleistung garantieren",
-                        MinChargePower: "Minimale Ladeleistung",
+                        MinCharging: "Minimale Beladeleistung",
+                        MinChargePower: "Ladeleistung",
                         ChargingPriority: {
-                            Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
+                            Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen.",
                             Car: "Auto",
                             Storage: "Speicher"
                         }

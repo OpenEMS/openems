@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { Edge, Service, Websocket, EdgeConfig } from '../../../../shared/shared';
+import { Edge, Service, Websocket, EdgeConfig } from '../../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'evcs-popover',
@@ -9,13 +10,13 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class EvcsPopoverComponent {
 
+    @Input() isChargingStrategy: boolean;
+    @Input() controller: EdgeConfig.Component;
+
     private static readonly SELECTOR = "evcs-popover";
 
     constructor(
-        public service: Service,
-        private websocket: Websocket,
-        public modalCtrl: ModalController,
-        private route: ActivatedRoute,
+        protected translate: TranslateService,
     ) { }
 
     ngOnInit() {
