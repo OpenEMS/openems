@@ -8,7 +8,7 @@
                 <ion-label translate>General.Grid</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.grid as sum">
-                <ion-grid no-padding>
+                <ion-grid class="ion-no-padding">
                     <table class="full_width">
                         <tr class="underline" *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
                             <td colspan="4" translate>General.OffGrid</td>

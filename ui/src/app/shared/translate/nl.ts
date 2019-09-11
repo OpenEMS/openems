@@ -165,7 +165,8 @@ export const TRANSLATION = {
                 AddComponents: "Componenten installeren",
                 AdjustComponents: "Componenten configureren",
                 ManualControl: "Handmatige bediening",
-                DataStorage: "Gegevensopslag"
+                DataStorage: "Gegevensopslag",
+                SystemExecute: "Voer systeemopdracht uit"
             },
             More: {
                 ManualCommand: "Handmatig commando",

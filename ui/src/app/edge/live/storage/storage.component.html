@@ -20,6 +20,7 @@
                 </ion-item>
             </ng-container>
         </ng-container>
+
     </ng-container>
     <ng-container *ngIf="!edge.isVersionAtLeast('2018.8'); else newVersion">
         <ng-container *ngIf="service.currentEdge | async as edge">
