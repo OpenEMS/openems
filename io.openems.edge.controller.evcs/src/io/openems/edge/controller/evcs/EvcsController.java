@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -40,6 +39,10 @@ import io.openems.edge.evcs.api.Evcs;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
+
+	private static final int STANDARD_HARDWARE_LIMIT = 22080;
+
+	private static final int MAXIMUM_OUT_OF_RANGE_TRIES = 3;
 
 	private static final int RUN_EVERY_SECONDS = 5;
 
@@ -234,7 +237,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				// Check difference of the current charging and the previous charging target
 				this.outOfRangeCounter = chargingLowerThanTarget() ? this.outOfRangeCounter + 1 : 0;
 
-				if (this.outOfRangeCounter >= 3) {
+				if (this.outOfRangeCounter >= MAXIMUM_OUT_OF_RANGE_TRIES) {
 					nextChargePower = (this.closestPowerToTarget + 100) / this.evcs.getPhases().value().orElse(3);
 					this.evcs.getMaximumPower().setNextValue(nextChargePower);
 					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
@@ -272,7 +275,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
 				.isBefore(LocalDateTime.now(this.clock))) {
 			this.logInfo(this.log, "Charging Check for " + evcs.alias());
-			int chargingPowerTarget = ((ManagedEvcs) evcs).getCurrChargingTarget().value().orElse(22080);
+			int chargingPowerTarget = ((ManagedEvcs) evcs).getCurrChargingTarget().value().orElse(STANDARD_HARDWARE_LIMIT);
 			this.logInfo(this.log, "Charging power: " + chargingPower);
 			this.logInfo(this.log, "Charging target: " + chargingPowerTarget);
 			if (chargingPowerTarget - chargingPower > CHARGING_TARGET_MAX_DIFFERENCE) {

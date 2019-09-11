@@ -42,6 +42,9 @@ import org.slf4j.LoggerFactory;
 		})
 public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Evcs {
 
+	private static final int STANDARD_PHASES = 3;
+	private static final int STANDARD_VOLTAGE = 230;
+	private static final int STANDARD_HARDWARE_LIMIT = 22080;
 	private final Logger log = LoggerFactory.getLogger(EvcsCluster.class);
 	private int totalcurrentPowerLimit;
 	private Integer maximalUsedHardwarePower;
@@ -94,7 +97,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 		// Depending on the user inputs, the minimum of the limits will be used;
 		int currentHWLimit = config.hardwareCurrentLimit();
-		this.totalcurrentPowerLimit = currentHWLimit * 230 * 3;
+		this.totalcurrentPowerLimit = currentHWLimit * STANDARD_VOLTAGE * STANDARD_PHASES;
 
 		// update filter for 'evcss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss", config.evcs_ids())) {
@@ -225,7 +228,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
 					nextChargePower = requestedPower.get();
 				} else {
-					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(22080);
+					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(STANDARD_HARDWARE_LIMIT);
 				}
 
 				// Adds extra power that is calculated by the unused power in the cycle before 
