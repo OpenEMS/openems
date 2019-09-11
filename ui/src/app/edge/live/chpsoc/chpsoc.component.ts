@@ -23,6 +23,7 @@ export class ChpSocComponent {
     public outputChannel: ChannelAddress = null;
     public lowThreshold: number;
     public highThresold: number;
+    public thresholdEnd: number;
 
     constructor(
         public service: Service,
@@ -42,6 +43,7 @@ export class ChpSocComponent {
                     this.controller.properties['inputChannelAddress']);
                 this.lowThreshold = this.controller.properties['lowThreshold'];
                 this.highThresold = this.controller.properties['highThreshold'];
+                this.thresholdEnd = this.highThresold - this.lowThreshold;
                 edge.subscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId, [
                     this.outputChannel,
                     this.inputChannel
@@ -58,7 +60,6 @@ export class ChpSocComponent {
 
 
     async presentModal() {
-        console.log("in presentmodel")
         const modal = await this.modalController.create({
             component: ChpsocModalComponent,
             componentProps: {

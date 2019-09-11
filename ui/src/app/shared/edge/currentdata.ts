@@ -226,8 +226,7 @@ export class CurrentData {
     public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number, storageDischargeActivePower: number): number {
         if (productionActivePower == 0) {
             return null;
-        }
-        else {
+        } else {
             return Math.max(
                 Utils.orElse(
                     (
