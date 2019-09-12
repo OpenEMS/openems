@@ -42,12 +42,15 @@ import org.slf4j.LoggerFactory;
 		})
 public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Evcs {
 
-	private static final int STANDARD_PHASES = 3;
-	private static final int STANDARD_VOLTAGE = 230;
-	private static final int STANDARD_HARDWARE_LIMIT = 22080;
 	private final Logger log = LoggerFactory.getLogger(EvcsCluster.class);
-	private int totalcurrentPowerLimit;
-	private Integer maximalUsedHardwarePower;
+	
+	// Default value for the hardware limit
+	private static final int DEFAULT_HARDWARE_LIMIT = 22080;
+	
+	// Total power limit for the whole cluster
+	private int totalPowerLimit;
+	
+	
 	private String[] evcsIds = new String[0];
 	private final List<ManagedEvcs> sortedEvcss = new ArrayList<>();
 	private Map<String, ManagedEvcs> _evcss = new ConcurrentHashMap<>();
@@ -98,7 +101,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 		// Depending on the user inputs, the minimum of the limits will be used;
 		int currentHWLimit = config.hardwareCurrentLimit();
-		this.totalcurrentPowerLimit = currentHWLimit * STANDARD_VOLTAGE * STANDARD_PHASES;
+		this.totalPowerLimit = currentHWLimit * 230 * 3;
 
 		// update filter for 'evcss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss", config.evcs_ids())) {
@@ -164,11 +167,11 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		}
 		this.getChargePower().setNextValue(chargePower.calculate());
 		this.getMinimumHardwarePower().setNextValue(minHardwarePower.calculate());
-		this.maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
-		if (this.maximalUsedHardwarePower == null) {
-			this.maximalUsedHardwarePower = this.totalcurrentPowerLimit;
+		Integer maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
+		if (maximalUsedHardwarePower == null) {
+			maximalUsedHardwarePower = this.totalPowerLimit;
 		}
-		this.getMaximumHardwarePower().setNextValue(this.maximalUsedHardwarePower);
+		this.getMaximumHardwarePower().setNextValue(maximalUsedHardwarePower);
 		this.getMinimumPower().setNextValue(minPower.calculate());
 	}
 
@@ -183,14 +186,14 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			// If a maximum power is present, e.g. from another cluster, then the limit will
 			// be that value or lower
 			if (this.getMaximumPower().value().isDefined()) {
-				if (this.totalcurrentPowerLimit > this.getMaximumPower().value().get()) {
-					this.totalcurrentPowerLimit = this.getMaximumPower().value().get();
+				if (this.totalPowerLimit > this.getMaximumPower().value().get()) {
+					this.totalPowerLimit = this.getMaximumPower().value().get();
 				}
 			}
 
-			this.logInfo(this.log, "Maximum Total Power of the whole system: " + this.totalcurrentPowerLimit);
+			this.logInfo(this.log, "Maximum Total Power of the whole system: " + this.totalPowerLimit);
 
-			int evcssCanBeCharged = this.totalcurrentPowerLimit / MINIMUM_EVCS_CHARGING_POWER;
+			int evcssCanBeCharged = this.totalPowerLimit / MINIMUM_EVCS_CHARGING_POWER;
 
 			if (evcssCanBeCharged < 1) {
 				this.logInfo(this.log, "Not enough excess power for charging");
@@ -208,7 +211,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 				}
 			}
 
-			int totalPowerLeftMinusGuarantee = this.totalcurrentPowerLimit
+			int totalPowerLeftMinusGuarantee = this.totalPowerLimit
 					- (activeEvcss.size() * MINIMUM_EVCS_CHARGING_POWER);
 
 			// Distributes the available Power to the active Evcss
@@ -225,7 +228,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
 					nextChargePower = requestedPower.get();
 				} else {
-					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(STANDARD_HARDWARE_LIMIT);
+					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT);
 				}
 
 				// Adds extra power that is calculated by the unused power in the cycle before
