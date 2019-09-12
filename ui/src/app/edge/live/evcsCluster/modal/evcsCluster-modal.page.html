@@ -135,7 +135,7 @@
                                                 </table>
                                             </ion-item>
                                             <ion-item class="normalFontSize" lines="none">
-                                                <table class="full_width" text-wrap>
+                                                <table class="full_width" class="ion-text-wrap">
                                                     <tr>
                                                         <td colspan="3" style="width: 90%">
                                                             <ion-segment
@@ -175,13 +175,13 @@
                                                     </tr>
                                                     <tr *ngIf="displayInfo" style="margin-top: 10px;">
                                                         <td style="width: 45%">
-                                                            <ion-label translate text-wrap>
+                                                            <ion-label translate class="ion-text-wrap">
                                                                 Edge.Index.Widgets.EVCS.OptimizedChargeMode.Info
                                                             </ion-label>
                                                         </td>
                                                         <td style="width: 5%"></td>
                                                         <td style="width: 50%" colspan="2">
-                                                            <ion-label translate text-wrap>
+                                                            <ion-label translate class="ion-text-wrap">
                                                                 Edge.Index.Widgets.EVCS.ForceChargeMode.Info
                                                             </ion-label>
                                                         </td>
@@ -189,7 +189,7 @@
                                                 </table>
                                             </ion-item>
                                             <ion-item>
-                                                <table class="full_width" text-wrap>
+                                                <table class="full_width" class="ion-text-wrap">
                                                     <!--Excess Power settings-->
                                                     <tr *ngIf="evcsCtrl.properties.chargeMode == 'EXCESS_POWER'"
                                                         style="margin-top: 20px;">
@@ -277,7 +277,7 @@
                                                                     {{ formatNumber(currentData[evcs_id + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
                                                                 </ion-label>
                                                             </ion-range>
-                                                            <ion-label translate text-wrap>
+                                                            <ion-label translate class="ion-text-wrap">
                                                                 Edge.Index.Widgets.EVCS.ForceChargeMode.MaxChargingDetails
                                                             </ion-label>
                                                         </td>

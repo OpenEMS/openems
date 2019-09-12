@@ -329,8 +329,15 @@ public class RestHandler extends AbstractHandler {
 
 		// Wrap reply in GenericJsonrpcResponseSuccess
 		CompletableFuture<GenericJsonrpcResponseSuccess> result = new CompletableFuture<GenericJsonrpcResponseSuccess>();
-		resultFuture.thenAccept(r -> {
-			result.complete(new GenericJsonrpcResponseSuccess(messageId, r.toJsonObject()));
+		resultFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				result.completeExceptionally(ex);
+			} else if (r != null) {
+				result.complete(new GenericJsonrpcResponseSuccess(messageId, r.toJsonObject()));
+			} else {
+				result.completeExceptionally(new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD,
+						SetGridConnScheduleRequest.METHOD));
+			}
 		});
 		return result;
 	}

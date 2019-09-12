@@ -58,10 +58,10 @@
 	io.openems.backend.b2brest;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
+	com.google.guava;version='[28.1.0,28.1.1)',\
+	org.postgresql.jdbc42;version='[42.2.7,42.2.8)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	io.openems.backend.metadata.wordpress;version=snapshot,\
 	io.openems.backend.uiwebsocket.energydepot;version=snapshot,\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
-	com.google.guava;version='[28.1.0,28.1.1)',\
 	org.mariadb.jdbc;version='[1.1.7,1.1.8)'
--resolve: auto
