@@ -9,6 +9,7 @@ Export-Package:  \
 	io.openems.edge.ess.power.api
 	
 Private-Package:  \
+	io.openems.edge.goodwe.et,\
 	io.openems.edge.goodwe.et.charger,\
 	io.openems.edge.goodwe.et.ess,\
 	io.openems.edge.goodwe.et.gridmeter

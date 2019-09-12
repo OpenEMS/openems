@@ -26,7 +26,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.goodwe.et.ess.GoodweChannelIdET;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -68,7 +67,7 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				GoodweChannelIdET.values() //
+				GridMeterChannelId.values() //
 		);
 	}
 
@@ -86,130 +85,130 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				
+
 				new FC3ReadRegistersTask(35123, Priority.LOW, //
-					m(GoodweChannelIdET.F_GRID_R, new UnsignedWordElement(35123),
-							ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-					new DummyRegisterElement(35124, 35127), //
-					m(GoodweChannelIdET.F_GRID_S, new UnsignedWordElement(35128),
-							ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-					new DummyRegisterElement(35129, 35132), //
-					m(GoodweChannelIdET.F_GRID_T, new UnsignedWordElement(35133),
-							ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
+						m(GridMeterChannelId.F_GRID_R, new UnsignedWordElement(35123),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35124, 35127), //
+						m(GridMeterChannelId.F_GRID_S, new UnsignedWordElement(35128),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35129, 35132), //
+						m(GridMeterChannelId.F_GRID_T, new UnsignedWordElement(35133),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
 				// Safety
 				new FC16WriteRegistersTask(45400,
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1, new UnsignedWordElement(45400),
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S1, new UnsignedWordElement(45400),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1_TIME, new UnsignedWordElement(45401)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1, new UnsignedWordElement(45402),
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S1_TIME, new UnsignedWordElement(45401)), //
+						m(GridMeterChannelId.GRID_VOLT_LOW_S1, new UnsignedWordElement(45402),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1_TIME, new UnsignedWordElement(45403)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2, new UnsignedWordElement(45404),
+						m(GridMeterChannelId.GRID_VOLT_LOW_S1_TIME, new UnsignedWordElement(45403)), //
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S2, new UnsignedWordElement(45404),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2_TIME, new UnsignedWordElement(45405)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2, new UnsignedWordElement(45406),
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S2_TIME, new UnsignedWordElement(45405)), //
+						m(GridMeterChannelId.GRID_VOLT_LOW_S2, new UnsignedWordElement(45406),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2_TIME, new UnsignedWordElement(45407)), //
-						m(GoodweChannelIdET.GRID_VOLT_QUALITY, new UnsignedWordElement(45408),
+						m(GridMeterChannelId.GRID_VOLT_LOW_S2_TIME, new UnsignedWordElement(45407)), //
+						m(GridMeterChannelId.GRID_VOLT_QUALITY, new UnsignedWordElement(45408),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1, new UnsignedWordElement(45409),
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S1, new UnsignedWordElement(45409),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1_TIME, new UnsignedWordElement(45410)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1, new UnsignedWordElement(45411),
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S1_TIME, new UnsignedWordElement(45410)), //
+						m(GridMeterChannelId.GRID_FREQ_LOW_S1, new UnsignedWordElement(45411),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1_TIME, new UnsignedWordElement(45412)), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2, new UnsignedWordElement(45413),
+						m(GridMeterChannelId.GRID_FREQ_LOW_S1_TIME, new UnsignedWordElement(45412)), //
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S2, new UnsignedWordElement(45413),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2_TIME, new UnsignedWordElement(45414)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2, new UnsignedWordElement(45415),
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S2_TIME, new UnsignedWordElement(45414)), //
+						m(GridMeterChannelId.GRID_FREQ_LOW_S2, new UnsignedWordElement(45415),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2_TIME, new UnsignedWordElement(45416)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH, new UnsignedWordElement(45417),
+						m(GridMeterChannelId.GRID_FREQ_LOW_S2_TIME, new UnsignedWordElement(45416)), //
+						m(GridMeterChannelId.GRID_VOLT_HIGH, new UnsignedWordElement(45417),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW, new UnsignedWordElement(45418),
+						m(GridMeterChannelId.GRID_VOLT_LOW, new UnsignedWordElement(45418),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH, new UnsignedWordElement(45419),
+						m(GridMeterChannelId.GRID_FREQ_HIGH, new UnsignedWordElement(45419),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW, new UnsignedWordElement(45420),
+						m(GridMeterChannelId.GRID_FREQ_LOW, new UnsignedWordElement(45420),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_RECOVER_TIME, new UnsignedWordElement(45421))), //
+						m(GridMeterChannelId.GRID_RECOVER_TIME, new UnsignedWordElement(45421))), //
 
 				new FC3ReadRegistersTask(45400, Priority.LOW,
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1, new UnsignedWordElement(45400),
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S1, new UnsignedWordElement(45400),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S1_TIME, new UnsignedWordElement(45401)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1, new UnsignedWordElement(45402),
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S1_TIME, new UnsignedWordElement(45401)), //
+						m(GridMeterChannelId.GRID_VOLT_LOW_S1, new UnsignedWordElement(45402),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S1_TIME, new UnsignedWordElement(45403)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2, new UnsignedWordElement(45404),
+						m(GridMeterChannelId.GRID_VOLT_LOW_S1_TIME, new UnsignedWordElement(45403)), //
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S2, new UnsignedWordElement(45404),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH_S2_TIME, new UnsignedWordElement(45405)), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2, new UnsignedWordElement(45406),
+						m(GridMeterChannelId.GRID_VOLT_HIGH_S2_TIME, new UnsignedWordElement(45405)), //
+						m(GridMeterChannelId.GRID_VOLT_LOW_S2, new UnsignedWordElement(45406),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW_S2_TIME, new UnsignedWordElement(45407)), //
-						m(GoodweChannelIdET.GRID_VOLT_QUALITY, new UnsignedWordElement(45408),
+						m(GridMeterChannelId.GRID_VOLT_LOW_S2_TIME, new UnsignedWordElement(45407)), //
+						m(GridMeterChannelId.GRID_VOLT_QUALITY, new UnsignedWordElement(45408),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1, new UnsignedWordElement(45409),
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S1, new UnsignedWordElement(45409),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S1_TIME, new UnsignedWordElement(45410)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1, new UnsignedWordElement(45411),
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S1_TIME, new UnsignedWordElement(45410)), //
+						m(GridMeterChannelId.GRID_FREQ_LOW_S1, new UnsignedWordElement(45411),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S1_TIME, new UnsignedWordElement(45412)), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2, new UnsignedWordElement(45413),
+						m(GridMeterChannelId.GRID_FREQ_LOW_S1_TIME, new UnsignedWordElement(45412)), //
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S2, new UnsignedWordElement(45413),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH_S2_TIME, new UnsignedWordElement(45414)), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2, new UnsignedWordElement(45415),
+						m(GridMeterChannelId.GRID_FREQ_HIGH_S2_TIME, new UnsignedWordElement(45414)), //
+						m(GridMeterChannelId.GRID_FREQ_LOW_S2, new UnsignedWordElement(45415),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW_S2_TIME, new UnsignedWordElement(45416)), //
-						m(GoodweChannelIdET.GRID_VOLT_HIGH, new UnsignedWordElement(45417),
+						m(GridMeterChannelId.GRID_FREQ_LOW_S2_TIME, new UnsignedWordElement(45416)), //
+						m(GridMeterChannelId.GRID_VOLT_HIGH, new UnsignedWordElement(45417),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_LOW, new UnsignedWordElement(45418),
+						m(GridMeterChannelId.GRID_VOLT_LOW, new UnsignedWordElement(45418),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_HIGH, new UnsignedWordElement(45419),
+						m(GridMeterChannelId.GRID_FREQ_HIGH, new UnsignedWordElement(45419),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_LOW, new UnsignedWordElement(45420),
+						m(GridMeterChannelId.GRID_FREQ_LOW, new UnsignedWordElement(45420),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_RECOVER_TIME, new UnsignedWordElement(45421))), //
+						m(GridMeterChannelId.GRID_RECOVER_TIME, new UnsignedWordElement(45421))), //
 
 				new FC16WriteRegistersTask(45422,
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_HIGH, new UnsignedWordElement(45422),
+						m(GridMeterChannelId.GRID_VOLT_RECOVER_HIGH, new UnsignedWordElement(45422),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_LOW, new UnsignedWordElement(45423),
+						m(GridMeterChannelId.GRID_VOLT_RECOVER_LOW, new UnsignedWordElement(45423),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_HIGH, new UnsignedWordElement(45424),
+						m(GridMeterChannelId.GRID_FREQ_RECOVER_HIGH, new UnsignedWordElement(45424),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_LOW, new UnsignedWordElement(45425),
+						m(GridMeterChannelId.GRID_FREQ_RECOVER_LOW, new UnsignedWordElement(45425),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_TIME, new UnsignedWordElement(45426)), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_TIME, new UnsignedWordElement(45427)), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_GENERATE, new UnsignedWordElement(45428),
+						m(GridMeterChannelId.GRID_VOLT_RECOVER_TIME, new UnsignedWordElement(45426)), //
+						m(GridMeterChannelId.GRID_FREQ_RECOVER_TIME, new UnsignedWordElement(45427)), //
+						m(GridMeterChannelId.POWER_RATE_LIMIT_GENERATE, new UnsignedWordElement(45428),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_RECONNECT, new UnsignedWordElement(45429),
+						m(GridMeterChannelId.POWER_RATE_LIMIT_RECONNECT, new UnsignedWordElement(45429),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_REDUCTION, new UnsignedWordElement(45430),
+						m(GridMeterChannelId.POWER_RATE_LIMIT_REDUCTION, new UnsignedWordElement(45430),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_PROTECT, new UnsignedWordElement(45431)), //
-						m(GoodweChannelIdET.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432))), //
+						m(GridMeterChannelId.GRID_PROTECT, new UnsignedWordElement(45431)), //
+						m(GridMeterChannelId.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432))), //
 
 				new FC3ReadRegistersTask(45422, Priority.LOW,
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_HIGH, new UnsignedWordElement(45422),
+						m(GridMeterChannelId.GRID_VOLT_RECOVER_HIGH, new UnsignedWordElement(45422),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_LOW, new UnsignedWordElement(45423),
+						m(GridMeterChannelId.GRID_VOLT_RECOVER_LOW, new UnsignedWordElement(45423),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_HIGH, new UnsignedWordElement(45424),
+						m(GridMeterChannelId.GRID_FREQ_RECOVER_HIGH, new UnsignedWordElement(45424),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_LOW, new UnsignedWordElement(45425),
+						m(GridMeterChannelId.GRID_FREQ_RECOVER_LOW, new UnsignedWordElement(45425),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_VOLT_RECOVER_TIME, new UnsignedWordElement(45426)), //
-						m(GoodweChannelIdET.GRID_FREQ_RECOVER_TIME, new UnsignedWordElement(45427)), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_GENERATE, new UnsignedWordElement(45428),
+						m(GridMeterChannelId.GRID_VOLT_RECOVER_TIME, new UnsignedWordElement(45426)), //
+						m(GridMeterChannelId.GRID_FREQ_RECOVER_TIME, new UnsignedWordElement(45427)), //
+						m(GridMeterChannelId.POWER_RATE_LIMIT_GENERATE, new UnsignedWordElement(45428),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_RECONNECT, new UnsignedWordElement(45429),
+						m(GridMeterChannelId.POWER_RATE_LIMIT_RECONNECT, new UnsignedWordElement(45429),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.POWER_RATE_LIMIT_REDUCTION, new UnsignedWordElement(45430),
+						m(GridMeterChannelId.POWER_RATE_LIMIT_REDUCTION, new UnsignedWordElement(45430),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodweChannelIdET.GRID_PROTECT, new UnsignedWordElement(45431)), //
-						m(GoodweChannelIdET.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432))), //
+						m(GridMeterChannelId.GRID_PROTECT, new UnsignedWordElement(45431)), //
+						m(GridMeterChannelId.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432))), //
 
 				new FC3ReadRegistersTask(35121, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35121),
@@ -230,7 +229,7 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(35133, 35134), 
+						new DummyRegisterElement(35133, 35134),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(35135), //
 								ElementToChannelConverter.INVERT) //
 				), //

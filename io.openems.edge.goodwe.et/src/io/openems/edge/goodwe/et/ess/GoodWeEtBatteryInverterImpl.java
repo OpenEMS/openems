@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.et.ess;
 
-import java.util.function.Consumer;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -12,6 +13,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.OpenemsType;
@@ -30,26 +34,25 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.goodwe.et.charger.GoodWeEtChargerPv1;
+import io.openems.edge.goodwe.et.charger.AbstractGoodWeEtCharger;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "GoodWe.ET.Battery-Inverter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE) //
-
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+) //
 public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
-		implements GoodWeEtBatteryInverter, AsymmetricEss, SymmetricEss, OpenemsComponent {
-
-	protected GoodWeEtChargerPv1 charger = null;
+		implements GoodWeEtBatteryInverter, AsymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
 	protected final static int MAX_APPARENT_POWER = 5_000;
 
@@ -60,6 +63,8 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 	@Reference
 	private Power power;
+
+	private final Set<AbstractGoodWeEtCharger> chargers = new HashSet<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -87,17 +92,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
 				.setNextValue(GoodWeEtBatteryInverterImpl.MAX_APPARENT_POWER);
-
-		final Channel<Integer> essPower = this.channel(EssChannelId.P_BATTERY1);
-		final Channel<Integer> pvPower1 = this.channel(EssChannelId.P_PV1);
-		final Channel<Integer> pvPower2 = this.channel(EssChannelId.P_PV2);
-		final Consumer<Value<Integer>> actualPowerSum = ignore -> {
-			this.getActivePower().setNextValue(
-					TypeUtils.sum(pvPower1.value().get(), pvPower2.value().get(), essPower.value().get()));
-		};
-		pvPower1.onSetNextValue(actualPowerSum);
-		pvPower2.onSetNextValue(actualPowerSum);
-		essPower.onSetNextValue(actualPowerSum);
 	}
 
 	public String getModbusBridgeId() {
@@ -224,15 +218,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 						m(EssChannelId.SAFETY_COUNTRY, new UnsignedWordElement(35186)), //
 						m(EssChannelId.WORK_MODE, new UnsignedWordElement(35187)), //
 						m(EssChannelId.OPERATION_MODE, new UnsignedDoublewordElement(35188))), //
-
-				new FC3ReadRegistersTask(35105, Priority.LOW, //
-						m(EssChannelId.P_PV1, new UnsignedDoublewordElement(35105)), //
-						new DummyRegisterElement(35107, 35108), //
-						m(EssChannelId.P_PV2, new UnsignedDoublewordElement(35109)), //
-						new DummyRegisterElement(35111, 35112), //
-						m(EssChannelId.P_PV3, new UnsignedDoublewordElement(35113)), //
-						new DummyRegisterElement(35115, 35116), //
-						m(EssChannelId.P_PV4, new UnsignedDoublewordElement(35117))), //
 
 				new FC3ReadRegistersTask(35189, Priority.LOW, //
 						m(new BitsWordElement(35189, this) //
@@ -988,15 +973,40 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void setCharger(GoodWeEtChargerPv1 charger) {
-		this.charger = charger;
-	}
-
-	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|" + this.getGridMode().value().asOptionString();
+	}
+
+	@Override
+	public void addCharger(AbstractGoodWeEtCharger charger) {
+		this.chargers.add(charger);
+	}
+
+	@Override
+	public void removeCharger(AbstractGoodWeEtCharger charger) {
+		this.chargers.remove(charger);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			/*
+			 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
+			 */
+			final Channel<Integer> batteryPower = this.channel(EssChannelId.P_BATTERY1);
+			Integer activePower = batteryPower.getNextValue().get();
+			for (AbstractGoodWeEtCharger charger : this.chargers) {
+				activePower = TypeUtils.sum(activePower, charger.getActualPower().getNextValue().get());
+			}
+			this.getActivePower().setNextValue(activePower);
+			break;
+		}
 	}
 
 }
