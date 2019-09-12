@@ -381,7 +381,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 						+ ",AC:" + productionAc.asString() //
 						+ ",DC:" + productionDc.asString()); //
 			} else {
-				result.append(": ");
+				result.append(":");
 				result.append(production.asString());
 			}
 			result.append(" ");

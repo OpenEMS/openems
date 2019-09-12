@@ -1,12 +1,21 @@
 export const TRANSLATION = {
     General: {
+        On: "Naar",
+        Off: "Van",
+        Phase: "Fase",
+        Autarchy: "Autarkie",
+        SelfConsumption: "Eigen consumptie",
         Cumulative: "Cumulatieve Waarden",
         Grid: "Net",
         GridBuy: "Netafname",
         GridSell: "Netteruglevering",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "Geen Netaansluiting!",
         Production: "Opwekking",
         Consumption: "Verbruik",
+        otherConsumption: "andere consumptie",
+        Total: "totale verbruik",
         Load: "Laden",
         Power: "Vermogen",
         StorageSystem: "Batterij",
@@ -65,7 +74,12 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
-                Info: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
+                Channeltreshold: {
+                    Output: "uitgang"
+                },
+                phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
+                autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
+                selfconsumptionInfo: "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",
                     HighThreshold: "hoge drempel"
@@ -113,7 +127,7 @@ export const TRANSLATION = {
                         ShortName: "geoptimaliseerde",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
                         MinInfo: "Als u wilt voorkomen dat de auto 's nachts niet oplaadt, kunt u een minimale lading instellen.",
-                        MinCharging: "Minimale vergoeding betalen?",
+                        MinCharging: "Minimale vergoeding betalen",
                         ChargingPriority: "Afhankelijk van de prioriteit, wordt het geselecteerde onderdeel eerst geladen"
                     },
                     ForceChargeMode: {
@@ -151,7 +165,8 @@ export const TRANSLATION = {
                 AddComponents: "Componenten installeren",
                 AdjustComponents: "Componenten configureren",
                 ManualControl: "Handmatige bediening",
-                DataStorage: "Gegevensopslag"
+                DataStorage: "Gegevensopslag",
+                SystemExecute: "Voer systeemopdracht uit"
             },
             More: {
                 ManualCommand: "Handmatig commando",

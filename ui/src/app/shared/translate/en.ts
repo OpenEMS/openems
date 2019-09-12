@@ -1,12 +1,20 @@
 export const TRANSLATION = {
     General: {
+        On: "On",
+        Off: "Off",
+        Phase: "Phase",
+        Autarchy: "Autarchy",
+        SelfConsumption: "Self Consumption",
         Cumulative: "Cumulative Values",
         Grid: "Grid",
         GridBuy: "Buy from grid",
         GridSell: "Sell to grid",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "No Grid Connection!",
         Production: "Production",
         Consumption: "Consumption",
+        otherConsumption: "other Consumption",
         Load: "Load",
         Power: "Power",
         StorageSystem: "Storage System",
@@ -69,7 +77,12 @@ export const TRANSLATION = {
                 ProductionDC: "Production DC"
             },
             Widgets: {
-                Info: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
+                Channeltreshold: {
+                    Output: "Output"
+                },
+                phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
+                autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
+                selfconsumptionInfo: "Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.",
                 CHP: {
                     LowThreshold: "Low Threshold",
                     HighThreshold: "High Threshold"
@@ -117,7 +130,7 @@ export const TRANSLATION = {
                         ShortName: "Optimized",
                         Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
                         MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
-                        MinCharging: "Guarantee minimum charge?",
+                        MinCharging: "Guarantee minimum charge",
                         ChargingPriority: {
                             Info: "Depending on the prioritization, the selected component will be loaded first",
                             Car: "Car",
@@ -159,7 +172,8 @@ export const TRANSLATION = {
                 AddComponents: "Install components",
                 AdjustComponents: "Configure components",
                 ManualControl: "Manual control",
-                DataStorage: "Data Storage"
+                DataStorage: "Data Storage",
+                SystemExecute: "Execute system command"
             },
             More: {
                 ManualCommand: "Manual command",

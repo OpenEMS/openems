@@ -47,13 +47,13 @@
 
   <ion-content>
     <ion-grid>
-      <ion-row justify-content-center>
+      <ion-row class="ion-justify-content-center">
 
         <ion-col *ngIf="websocket.status == 'connecting'" size="12" size-md="6">
           <ion-card>
             <ion-item>
               <ion-icon slot="start" name="wifi"></ion-icon>
-              <ion-label text-wrap>
+              <ion-label class="ion-text-wrap">
                 <h2>Verbindung wird aufgebaut...</h2>
                 <!-- TODO translate -->
               </ion-label>
