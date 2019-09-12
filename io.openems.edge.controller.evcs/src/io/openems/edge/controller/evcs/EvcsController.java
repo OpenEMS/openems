@@ -28,6 +28,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
@@ -124,13 +125,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	/**
-	 * If the evcs is clustered the method will set the charge power request.
+	 * If the EVCS is clustered the method will set the charge power request.
 	 * Otherwise it will set directly the charge power limit.
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
-		ManagedSymmetricEss ess = this.componentManager.getComponent(config.ess_id());
+		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
 
 		/*
 		 * Sets a fixed request of 0 if the Charger is not ready
@@ -272,8 +273,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 * @param ess  the ManagedSymmetricEss
 	 * @return the available excess power for charging
 	 */
-	private int calculateExcessPowerAfterEss(ManagedEvcs evcs, ManagedSymmetricEss ess) {
-		int maxEssCharge = ess.getAllowedCharge().value().orElse(0);
+	private int calculateExcessPowerAfterEss(ManagedEvcs evcs, SymmetricEss ess) {
+		int maxEssCharge;
+		if(ess instanceof ManagedEvcs) {
+			maxEssCharge = ((ManagedSymmetricEss) ess).getAllowedCharge().value().orElse(0);
+		}else {
+			maxEssCharge = ess.getMaxApparentPower().value().orElse(0);
+		}
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
 		int essActivePower = this.sum.getEssActivePower().value().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
