@@ -33,7 +33,7 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Goodwe.ET.Grid-Meter", //
+		name = "GoodweET.Grid-Meter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //

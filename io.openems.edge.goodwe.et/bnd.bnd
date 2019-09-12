@@ -13,9 +13,6 @@ Private-Package:  \
 	io.openems.edge.goodwe.et,\
 	io.openems.edge.goodwe.et.charger,\
 	io.openems.edge.goodwe.et.gridmeter
-	
-
--includeresource: {readme.md}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
