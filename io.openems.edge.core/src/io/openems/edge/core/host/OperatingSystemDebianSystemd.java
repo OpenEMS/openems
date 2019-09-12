@@ -16,21 +16,21 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ConfigurationProperty;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 
@@ -54,6 +54,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
 	private static final Pattern NETWORK_DNS = Pattern
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+
+	private final Host parent;
+
+	protected OperatingSystemDebianSystemd(Host parent) {
+		this.parent = parent;
+	}
 
 	/**
 	 * Gets the current network configuration for systemd-networkd.
@@ -213,7 +219,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 
 		// apply the configuration by restarting the systemd-networkd service
-		this.executeCommand("", "systemctl restart systemd-networkd  --no-block", false, 10);
+		this.handleExecuteCommandRequest(ExecuteSystemCommandRequest
+				.runInBackgroundWithoutAuthentication("systemctl restart systemd-networkd --no-block"));
 	}
 
 	/**
@@ -284,83 +291,100 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		return result;
 	}
 
-	/**
-	 * Executes a command.
-	 * 
-	 * @param password       the system user password
-	 * @param command        the command
-	 * @param background     run the command in background (true) or in foreground
-	 *                       (false)
-	 * @param timeoutSeconds interrupt the command after ... seconds
-	 * @return the output of the command
-	 * @throws OpenemsException on error
-	 */
-	public String executeCommand(String password, String command, boolean background, int timeoutSeconds)
-			throws OpenemsException {
+	@Override
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
+			ExecuteSystemCommandRequest request) {
+		CompletableFuture<ExecuteSystemCommandResponse> result = new CompletableFuture<>();
+
 		try {
-			StringBuilder builder = new StringBuilder();
-			Process proc = Runtime.getRuntime().exec(new String[] { "/bin/bash", "-c",
-					"echo " + password + " | /usr/bin/sudo -Sk -p '' -- /bin/bash -c -- '" + command + "' 2>&1" });
-			// TODO improve enforcement of password when already running as root
-			// this complex argument tries to enforce the sudo password and to avoid
-			// security vulnerabilites.
+			Process proc;
+			if (request.getUsername().isPresent() && request.getPassword().isPresent()) {
+				proc = Runtime.getRuntime().exec(new String[] { //
+						"/bin/bash", "-c", "--", //
+						"echo " + request.getPassword().get() + " | " //
+								+ " /usr/bin/sudo -Sk -p '' -u \"" + request.getUsername().get() + "\" " //
+								+ "-- " + request.getCommand() });
+			} else {
+				proc = Runtime.getRuntime().exec(new String[] { //
+						"/bin/bash", "-c", "--", request.getCommand() });
+			}
 
 			// get stdout and stderr
-			ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(2);
-			Future<String> stdout = newFixedThreadPool.submit(new InputStreamToString(proc.getInputStream()));
-			Future<String> stderr = newFixedThreadPool.submit(new InputStreamToString(proc.getErrorStream()));
-			newFixedThreadPool.shutdown();
+			CompletableFuture<List<String>> stdoutFuture = CompletableFuture
+					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getInputStream()));
+			CompletableFuture<List<String>> stderrFuture = CompletableFuture
+					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getErrorStream()));
 
-			if (background) {
-				builder.append("Command [" + command + "] executed in background...\n");
-				builder.append("Check system logs for more information.\n");
+			if (request.isRunInBackground()) {
+				/*
+				 * run in background
+				 */
+				String[] stdout = new String[] { //
+						"Command [" + request.getCommand() + "] executed in background...", //
+						"Check system logs for more information." };
+				result.complete(new ExecuteSystemCommandResponse(request.getId(), stdout, new String[0]));
 
 			} else {
-				// apply command timeout
-				if (!proc.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
-					String error = "Command [" + command + "] timed out.";
-					builder.append(error);
-					builder.append("\n");
-					builder.append("\n");
-					proc.destroy();
-				}
+				/*
+				 * run in foreground with timeout
+				 */
+				CompletableFuture.runAsync(() -> {
+					List<String> stderr = new ArrayList<>();
+					try {
+						// apply command timeout
+						if (!proc.waitFor(request.getTimeoutSeconds(), TimeUnit.SECONDS)) {
+							stderr.add("Command [" + request.getCommand() + "] timed out.");
+							proc.destroy();
+						}
 
-				builder.append("output:\n");
-				builder.append("-------\n");
-				builder.append(stdout.get(timeoutSeconds, TimeUnit.SECONDS));
-				builder.append("\n");
-				builder.append("error:\n");
-				builder.append("------\n");
-				builder.append(stderr.get(timeoutSeconds, TimeUnit.SECONDS));
+						List<String> stdout = stdoutFuture.get(0, TimeUnit.SECONDS);
+						stderr.addAll(stderrFuture.get(request.getTimeoutSeconds(), TimeUnit.SECONDS));
+
+						result.complete(new ExecuteSystemCommandResponse(request.getId(), //
+								stdout.toArray(new String[stdout.size()]), //
+								stderr.toArray(new String[stderr.size()]) //
+						));
+					} catch (Throwable e) {
+						result.completeExceptionally(e);
+					}
+				});
 			}
-			return builder.toString();
-		} catch (IOException | InterruptedException | ExecutionException | TimeoutException e) {
-			throw new OpenemsException(
-					"Execution of command failed. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		} catch (IOException e) {
+			result.completeExceptionally(e);
 		}
+
+		return result;
 	}
 
-	private static class InputStreamToString implements Callable<String> {
+	/**
+	 * Asynchronously converts a InputStream to a String.
+	 */
+	private static class InputStreamToString implements Supplier<List<String>> {
+		private final Logger log = LoggerFactory.getLogger(InputStreamToString.class);
+
+		private final Host parent;
+		private final String command;
 		private final InputStream stream;
 
-		public InputStreamToString(InputStream stream) {
+		public InputStreamToString(Host parent, String command, InputStream stream) {
+			this.parent = parent;
+			this.command = StringUtils.toShortString(command, 20);
 			this.stream = stream;
 		}
 
 		@Override
-		public String call() {
-			StringBuilder builder = new StringBuilder();
+		public List<String> get() {
+			List<String> result = new ArrayList<>();
 			BufferedReader reader = null;
 			String line = null;
 			try {
-				reader = new BufferedReader(new InputStreamReader(stream));
+				reader = new BufferedReader(new InputStreamReader(this.stream));
 				while ((line = reader.readLine()) != null) {
-					builder.append(line);
-					builder.append("\n");
+					result.add(line);
+					this.parent.logInfo(this.log, "[" + this.command + "] " + line);
 				}
-			} catch (IOException e) {
-				builder.append(e.getMessage());
-				builder.append("\n");
+			} catch (Throwable e) {
+				result.add(e.getClass().getSimpleName() + ": " + line);
 			} finally {
 				if (reader != null) {
 					try {
@@ -370,7 +394,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					}
 				}
 			}
-			return builder.toString();
+			return result;
 		}
 	}
 }

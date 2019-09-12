@@ -191,7 +191,6 @@
 	io.openems.edge.meter.pqplus.umd97;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
-	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
@@ -201,8 +200,6 @@
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
@@ -211,4 +208,7 @@
 	io.openems.edge.tesla.powerwall2;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	com.github.scribejava.core;version='[6.8.1,6.8.2)',\
-	com.google.guava;version='[28.1.0,28.1.1)'
+	com.google.guava;version='[28.1.0,28.1.1)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
+	com.fazecast.jSerialComm;version='[2.5.2,2.5.3)'
