@@ -15,12 +15,11 @@ export class ProductionModalComponent {
 
     @Input() edge: Edge;
     @Input() config: EdgeConfig;
-    @Input() productionMeterComponents: EdgeConfig.Component;
-    @Input() chargerComponents: EdgeConfig.Component;
+    @Input() productionMeterComponents: EdgeConfig.Component[];
+    @Input() chargerComponents: EdgeConfig.Component[];
 
     constructor(
         public service: Service,
-        private websocket: Websocket,
         public modalCtrl: ModalController,
     ) { }
 

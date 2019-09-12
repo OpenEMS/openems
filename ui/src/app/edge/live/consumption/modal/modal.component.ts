@@ -19,16 +19,9 @@ export class ConsumptionModalComponent {
 
     constructor(
         public service: Service,
-        private websocket: Websocket,
         public modalCtrl: ModalController
     ) { }
 
     ngOnInit() {
-    }
-
-    ngOnDestroy() {
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, ConsumptionModalComponent.SELECTOR);
-        }
     }
 }

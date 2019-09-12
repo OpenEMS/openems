@@ -15,17 +15,10 @@ export class GridModalComponent {
 
   constructor(
     public service: Service,
-    private websocket: Websocket,
     public modalCtrl: ModalController,
     public translate: TranslateService,
   ) { }
 
   ngOnInit() {
-  }
-
-  ngOnDestroy() {
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, GridModalComponent.SELECTOR);
-    }
   }
 }
