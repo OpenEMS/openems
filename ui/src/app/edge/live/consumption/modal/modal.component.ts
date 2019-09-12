@@ -13,7 +13,6 @@ export class ConsumptionModalComponent {
 
     @Input() edge: Edge;
     @Input() evcsComponents: EdgeConfig.Component[];
-    // FIXME: just a note: 'Function' is not what you think it is... https://stackoverflow.com/questions/14638990/are-strongly-typed-functions-as-parameters-possible-in-typescript
     @Input() currentTotalChargingPower: () => number;
 
     public config: EdgeConfig = null;

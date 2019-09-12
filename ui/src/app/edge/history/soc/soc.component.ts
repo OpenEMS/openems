@@ -177,9 +177,19 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
             /*
              * State-of-charge
              */
+            let data = result.data['_sum/EssSoc'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 100 || value < 0) {
+                return null;
+              } else {
+                return value;
+              }
+            })
+
             datasets.push({
               label: this.translate.instant('General.Soc'),
-              data: result.data['_sum/EssSoc'],
+              data: data,
               hidden: false
             });
           };
@@ -218,19 +228,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
               data: selfConsumption,
               hidden: false
             })
-          }
-
-          // FIXME this is not used anymore now (data is not used anywhere). The sense of this block was to convert SoC-values <0 && >100 to null; make sure to still do that!
-          for (let channel in result.data) {
-            let data = result.data[channel].map(value => {
-              if (value == null) {
-                return null
-              } else if (value > 100 || value < 0) {
-                return null;
-              } else {
-                return value;
-              }
-            });
           }
           this.datasets = datasets;
           this.loading = false;

@@ -1,6 +1,5 @@
 <ion-card *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
-  <!-- FIXME: please test if this works; it would make the code much shorter and more readable -->
   <ng-container *ngIf="(edge.currentData | async).channel[outputChannel.toString()] as channel">
     <ion-item lines="full" color="light">
       <ion-avatar slot="start">
@@ -11,21 +10,23 @@
       <ion-label translate>Edge.Index.Widgets.Channeltreshold.Output</ion-label>
     </ion-item>
     <ion-card-content>
-      <ion-grid no-padding>
-        <table class="full_width">
-          <tr>
-            <td style="width: 90%" *ngIf="component.id != component.alias" translate>
-              &nbsp;{{component.alias}}
-            </td>
-            <td style="width: 90%" *ngIf="component.id == component.alias" translate>
-              {{ outputChannel.channelId }}
-            </td>
-            <td style="width: 10%" *ngIf="channel == null">?</td>
-            <td style="width: 10%" *ngIf="channel == 1" translate>General.On</td>
-            <td style="width: 10%" *ngIf="channel == 0" translate>General.Off</td>
-          </tr>
-        </table>
-      </ion-grid>
+      <table class="full_width">
+        <tr>
+          <td style="width: 90%" *ngIf="component.id != component.alias" translate>
+            &nbsp;{{component.alias}}
+          </td>
+          <td style="width: 90%" *ngIf="component.id == component.alias" translate>
+            {{ outputChannel.channelId }}
+          </td>
+          <td style="width: 10%" class="align_right" *ngIf="channel == null">?</td>
+          <td style="width: 10%" class="align_right" *ngIf="channel == 1" translate>General.On
+          </td>
+          <td style="width: 10%" class="align_right" *ngIf="channel == 0" translate>General.Off
+          </td>
+        </tr>
+      </table>
     </ion-card-content>
   </ng-container>
 </ion-card>
+
+<!-- &nbsp;<span translate>Edge.Index.Widgets.Channeltreshold.Output</span>&nbsp; -->

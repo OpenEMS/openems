@@ -1,61 +1,54 @@
 <ng-container *ngIf="service.currentEdge | async as edge">
-  <ng-container *ngIf="edge.currentData | async as currentData">
-    <ion-card button (click)="presentModal()">
-      <ion-item lines="full" color="light">
-        <ion-avatar slot="start">
-          <img src="assets/img/consumption.png">
-        </ion-avatar>
-        <ion-label translate>General.Consumption</ion-label>
-      </ion-item>
-      <ion-card-content *ngIf="currentData.summary.consumption as sum">
-        <ion-grid class="ion-no-padding">
-          <table class="full_width" *ngIf="evcsComponents">
-            <ng-container *ngIf="evcsComponents.length == 0">
-              <tr>
-                <td style="width:65%"></td>
-                <ng-container *ngIf="sum.activePower != 0; else empty">
-                  <td style="width:35%" class="align_right">
-                    {{ sum.activePower | number:'1.0-0' }}&nbsp;W
-                  </td>
-                </ng-container>
-                <ng-template #empty>
-                  <td style="width:35%" class="align_right">-</td>
-                </ng-template>
-              </tr>
-            </ng-container>
-            <ng-container *ngIf="evcsComponents.length > 0">
-              <ng-container *ngFor="let component of evcsComponents">
-                <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                  <tr>
-                    <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
-                    </td>
-                    <td style="width: 65%" *ngIf="component.id != component.alias">
-                      {{component.alias}}
-                    </td>
-                    <ng-container *ngIf="currentData[component.id + '/ChargePower'] != 0; else empty">
-                      <td class="align_right" style="width: 35%">
-                        {{ currentData[component.id + '/ChargePower'] | number:'1.0-0' }}&nbsp;W
-                      </td>
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card button (click)="presentModal()">
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <img src="assets/img/consumption.png">
+                </ion-avatar>
+                <ion-label translate>General.Consumption</ion-label>
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary.consumption as sum">
+                <table class="full_width" *ngIf="evcsComponents">
+                    <ng-container *ngIf="evcsComponents.length == 0">
+                        <tr>
+                            <td style="width:65%"></td>
+                            <ng-container *ngIf="sum.activePower != 0; else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePower | number:'1.0-0' }}&nbsp;W
+                                </td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">-&nbsp;</td>
+                            </ng-template>
+                        </tr>
                     </ng-container>
-                    <ng-template #empty>
-                      <td class="align_right" style="width: 35%" class="align_right">-</td>
-                    </ng-template>
-                  </tr>
-                </ng-container>
-              </ng-container>
-              <tr *ngIf="evcsComponents.length != 0">
-                <td style="width: 65%" translate>General.otherConsumption</td>
-                <!-- FIXME please test if this works -->
-                <ng-container *ngIf="sum.activePower - currentTotalChargingPower() as otherPower">
-                  <td style="width: 35%" class="align_right">
-                    {{ otherPower == null ? '-' : (otherPower | number:'1.0-0') + '&nbsp;W' }}
-                  </td>
-                </ng-container>
-              </tr>
-            </ng-container>
-          </table>
-        </ion-grid>
-      </ion-card-content>
-    </ion-card>
-  </ng-container>
+                    <ng-container *ngIf="evcsComponents.length > 0">
+                        <ng-container *ngFor="let component of evcsComponents">
+                            <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+                                <tr>
+                                    <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
+                                    </td>
+                                    <td style="width: 65%" *ngIf="component.id != component.alias">
+                                        {{component.alias}}
+                                    </td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ currentData[component.id + '/ChargePower'] == 0? '-&nbsp;' : (currentData[component.id + '/ChargePower'] | number:'1.0-0') + '&nbsp;W' }}
+                                    </td>
+                                </tr>
+                            </ng-container>
+                        </ng-container>
+
+                        <tr *ngIf="evcsComponents.length != 0">
+                            <td style="width: 65%" translate>General.otherConsumption</td>
+                            <ng-container *ngIf="sum.activePower - currentTotalChargingPower() as otherPower">
+                                <td style="width: 35%" class="align_right">
+                                    {{ otherPower == null ? '-&nbsp;' : (otherPower | number:'1.0-0') + '&nbsp;W' }}
+                                </td>
+                            </ng-container>
+                        </tr>
+                    </ng-container>
+                </table>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
 </ng-container>
