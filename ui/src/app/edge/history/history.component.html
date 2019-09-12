@@ -13,7 +13,7 @@
             {{ service.historyPeriod.getText(translate) }}</ion-label>
         </ion-item>
         <ion-card-content *ngIf="widgets">
-          <ion-grid no-padding>
+          <ion-grid class="ion-no-padding">
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
               <ion-row *ngSwitchCase="'Storage'" [style.height]="socChartHeight">

@@ -68,8 +68,36 @@ public class ReadWorker extends AbstractCycleWorker {
 
 				JsonObject agg = this.getResponse(URL_METERS_AGGREGATES);
 				JsonObject aggBattery = JsonUtils.getAsJsonObject(agg, "battery");
-				battery.getActivePower().setNextValue(JsonUtils.getAsFloat(aggBattery, "instant_power"));
-				battery.getReactivePower().setNextValue(JsonUtils.getAsFloat(aggBattery, "instant_reactive_power"));
+				float essActivePower = JsonUtils.getAsFloat(aggBattery, "instant_power");
+				battery.getActivePower().setNextValue(essActivePower);
+				float essReactivePower = JsonUtils.getAsFloat(aggBattery, "instant_reactive_power");
+				battery.getReactivePower().setNextValue(essReactivePower);
+				switch (battery.getPhase()) {
+				case L1:
+					battery.getActivePowerL1().setNextValue(essActivePower);
+					battery.getActivePowerL2().setNextValue(0);
+					battery.getActivePowerL3().setNextValue(0);
+					battery.getReactivePowerL1().setNextValue(essActivePower);
+					battery.getReactivePowerL2().setNextValue(0);
+					battery.getReactivePowerL3().setNextValue(0);
+					break;
+				case L2:
+					battery.getActivePowerL1().setNextValue(0);
+					battery.getActivePowerL2().setNextValue(essActivePower);
+					battery.getActivePowerL3().setNextValue(0);
+					battery.getReactivePowerL1().setNextValue(0);
+					battery.getReactivePowerL2().setNextValue(essActivePower);
+					battery.getReactivePowerL3().setNextValue(0);
+					break;
+				case L3:
+					battery.getActivePowerL1().setNextValue(0);
+					battery.getActivePowerL2().setNextValue(0);
+					battery.getActivePowerL3().setNextValue(essActivePower);
+					battery.getReactivePowerL1().setNextValue(0);
+					battery.getReactivePowerL2().setNextValue(0);
+					battery.getReactivePowerL3().setNextValue(essActivePower);
+					break;
+				}
 				battery.getActiveChargeEnergy().setNextValue(JsonUtils.getAsFloat(aggBattery, "energy_imported"));
 				battery.getActiveDischargeEnergy().setNextValue(JsonUtils.getAsFloat(aggBattery, "energy_exported"));
 
