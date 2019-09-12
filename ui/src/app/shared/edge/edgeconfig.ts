@@ -80,8 +80,7 @@ export class EdgeConfig {
     public readonly widgets: Widgets;
 
     public isValid(): boolean {
-        //return Object.keys(this.components).length > 0 && Object.keys(this.factories).length > 0;
-        return true;
+        return Object.keys(this.components).length > 0 && Object.keys(this.factories).length > 0;
     }
 
     /**
