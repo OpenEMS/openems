@@ -11,9 +11,8 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.keba.kecontact.test.DummyKebaKeContact;
+import io.openems.edge.evcs.test.DummyManagedEvcs;
 
-@SuppressWarnings("restriction")
 public class EvcsControllerTest {
 
 	@SuppressWarnings("all")
@@ -101,10 +100,10 @@ public class EvcsControllerTest {
 	@Test
 	public void excessChargeTest1() throws Exception {
 		// Initialize mocked Clock
-	    final TimeLeapClock clock = new TimeLeapClock();
-	    
+		final TimeLeapClock clock = new TimeLeapClock();
+
 		// Initialize Controller
-	    controller = new EvcsController(clock);
+		controller = new EvcsController(clock);
 
 		// Add referenced services
 		componentManager = new DummyComponentManager();
@@ -123,28 +122,28 @@ public class EvcsControllerTest {
 		ChannelAddress sumGridActivePower = new ChannelAddress("_sum", "GridActivePower");
 		ChannelAddress sumEssActivePower = new ChannelAddress("_sum", "EssActivePower");
 		ChannelAddress evcs0ChargePower = new ChannelAddress("evcs0", "ChargePower");
-		ChannelAddress evcs0SetPower = new ChannelAddress("evcs0", "SetChargePower");
+		ChannelAddress evcs0SetChargePowerLimit = new ChannelAddress("evcs0", "SetChargePowerLimit");
 
 		// Build and run test
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
-		ManagedEvcs evcs = new DummyKebaKeContact("evcs0");
+		ManagedEvcs evcs = new DummyManagedEvcs("evcs0");
 
 		new ControllerTest(controller, componentManager, evcs, controller, sum, ess) //
 				.next(new TestCase() //
 						.input(sumEssActivePower, -6000) //
-						.input(sumGridActivePower, 0)
-						.input(evcs0ChargePower, 0)
-						.output(evcs0SetPower, 6000)) //
+						.input(sumGridActivePower, 0) //
+						.input(evcs0ChargePower, 0) //
+						.output(evcs0SetChargePowerLimit, 6000)) //
 				.run();
 	}
-	
+
 	@Test
 	public void excessChargeTest2() throws Exception {
 		// Initialize mocked Clock
-	    final TimeLeapClock clock = new TimeLeapClock();
-	    
+		final TimeLeapClock clock = new TimeLeapClock();
+
 		// Initialize Controller
-	    controller = new EvcsController(clock);
+		controller = new EvcsController(clock);
 
 		// Add referenced services
 		componentManager = new DummyComponentManager();
@@ -163,31 +162,30 @@ public class EvcsControllerTest {
 		ChannelAddress sumGridActivePower = new ChannelAddress("_sum", "GridActivePower");
 		ChannelAddress sumEssActivePower = new ChannelAddress("_sum", "EssActivePower");
 		ChannelAddress evcs0ChargePower = new ChannelAddress("evcs0", "ChargePower");
-		ChannelAddress evcs0SetPower = new ChannelAddress("evcs0", "SetChargePower");
+		ChannelAddress evcs0SetChargePowerLimit = new ChannelAddress("evcs0", "SetChargePowerLimit");
 		ChannelAddress essAllowedChargePower = new ChannelAddress("ess0", "AllowedChargePower");
-		
+
 		// Build and run test
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
-		ManagedEvcs evcs = new DummyKebaKeContact("evcs0");
+		ManagedEvcs evcs = new DummyManagedEvcs("evcs0");
 
 		new ControllerTest(controller, componentManager, evcs, controller, sum, ess) //
 				.next(new TestCase() //
 						.input(sumEssActivePower, -5000) //
-						.input(sumGridActivePower, -40000)
-						.input(evcs0ChargePower, 5000)
-						.input(essAllowedChargePower, 30000)
-						.output(evcs0SetPower, 20000))
+						.input(sumGridActivePower, -40000) //
+						.input(evcs0ChargePower, 5000) //
+						.input(essAllowedChargePower, 30000) //
+						.output(evcs0SetChargePowerLimit, 20000))
 				.run();
 	}
-	
-	
+
 	@Test
 	public void clusterTest() throws Exception {
 		// Initialize mocked Clock
-	    final TimeLeapClock clock = new TimeLeapClock();
-	    
+		final TimeLeapClock clock = new TimeLeapClock();
+
 		// Initialize Controller
-	    controller = new EvcsController(clock);
+		controller = new EvcsController(clock);
 
 		// Add referenced services
 		componentManager = new DummyComponentManager();
@@ -213,15 +211,12 @@ public class EvcsControllerTest {
 
 		// Build and run test
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
-		ManagedEvcs evcs = new DummyKebaKeContact("evcs0");
+		ManagedEvcs evcs = new DummyManagedEvcs("evcs0");
 
 		new ControllerTest(controller, componentManager, evcs, controller, sum, ess) //
 				.next(new TestCase().input(sumEssActivePower, -10000) //
-						.input(sumGridActivePower, 0)
-						.input(evcs0ChargePower, 0)
-						.input(evcs0MaximumPower, 6000)
-						.input(evcs0IsClustered, true)
-						.input(evcs0Status, Status.READY_FOR_CHARGING)
+						.input(sumGridActivePower, 0).input(evcs0ChargePower, 0).input(evcs0MaximumPower, 6000)
+						.input(evcs0IsClustered, true).input(evcs0Status, Status.READY_FOR_CHARGING)
 						.output(evcs0SetPowerRequest, 10000))
 				.run();
 	}
