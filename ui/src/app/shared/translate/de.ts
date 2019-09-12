@@ -41,7 +41,6 @@ export const TRANSLATION = {
             Sunday: "Sonntag"
         },
         ReportValue: "Fehlerhafte Daten melden",
-        Capacity: "Kapazität"
     },
     Menu: {
         Index: "Übersicht",

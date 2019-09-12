@@ -116,14 +116,6 @@
                         <td style="width: 35%" class="align_right">
                             {{ sum.soc | number:'1.0-0' }}&nbsp;%</td>
                     </tr>
-                    <!-- </table> -->
-                    <!-- <table class="full_width"> -->
-                    <tr>
-                        <td style="width:65%" translate>General.Capacity</td>
-                        <td style="width:35%" class="align_right">
-                            {{ sum.capacity == null? '-&nbsp;' : (sum.capacity | number:'1.0-0') + '&nbsp;Wh' }}
-                        </td>
-                    </tr>
                     <tr>
                         <td style="width:65%" translate>General.ChargePower</td>
                         <td style="width:35%" class="align_right">
@@ -220,12 +212,6 @@
                                 <td style="width: 65%" translate>General.Soc</td>
                                 <td style="width: 35%" class="align_right">
                                     {{ currentData[component.id + '/Soc'] | number:'1.0-0' }}&nbsp;%</td>
-                            </tr>
-                            <tr>
-                                <td style="width:65%" translate>General.Capacity</td>
-                                <td style="width:35%" class="align_right">
-                                    {{ currentData[component.id + '/Capacity'] == null? '-&nbsp;' : (currentData[component.id + '/Capacity'] | number:'1.0-0') + '&nbsp;Wh' }}
-                                </td>
                             </tr>
                         </table>
 

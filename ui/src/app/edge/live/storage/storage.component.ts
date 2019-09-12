@@ -43,8 +43,7 @@ export class StorageComponent {
                 let factory = config.factories[factoryID];
                 channels.push(
                     new ChannelAddress(component.id, 'Soc'),
-                    new ChannelAddress(component.id, 'ActivePower'),
-                    new ChannelAddress(component.id, 'Capacity'),
+                    new ChannelAddress(component.id, 'ActivePower')
                 );
                 if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                     channels.push(
@@ -59,8 +58,7 @@ export class StorageComponent {
                 new ChannelAddress('_sum', 'EssActivePower'),
                 new ChannelAddress('_sum', 'EssActivePowerL1'),
                 new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
-                new ChannelAddress('_sum', 'EssCapacity'),
+                new ChannelAddress('_sum', 'EssActivePowerL3')
             )
             this.edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, channels);
         })

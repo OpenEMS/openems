@@ -42,7 +42,6 @@ export module DefaultTypes {
       effectivePower: number,
       effectiveChargePower: number,
       effectiveDischargePower: number,
-      capacity: number,
     }, production: {
       powerRatio: number,
       hasDC: boolean,
@@ -141,9 +140,9 @@ export module DefaultTypes {
         {
           return translate.instant(
             'General.PeriodFromTo', {
-              value1: format(this.from, translate.instant('General.DateFormat')),
-              value2: format(this.to, translate.instant('General.DateFormat'))
-            })
+            value1: format(this.from, translate.instant('General.DateFormat')),
+            value2: format(this.to, translate.instant('General.DateFormat'))
+          })
         }
       }
     }

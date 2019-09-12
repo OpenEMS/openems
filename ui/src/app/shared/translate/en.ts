@@ -40,7 +40,6 @@ export const TRANSLATION = {
             Sunday: "Sunday"
         },
         ReportValue: "Report corrupted data",
-        Capacity: "Capacity"
     },
     Menu: {
         Index: "Index",
