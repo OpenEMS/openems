@@ -42,14 +42,13 @@
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
-            <ng-container *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'">
-              <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6">
-                <evcs [componentId]="widget.componentId">
-                </evcs>
-              </ion-col>
-            </ng-container>
+            <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
+              <evcs *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'"
+                [componentId]="widget.componentId">
+              </evcs>
+            </ion-col>
 
-            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12" size-lg="6">
+            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12">
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
