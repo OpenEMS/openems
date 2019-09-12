@@ -1,63 +1,128 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title text-start padding-left translate>General.Consumption</ion-title>
-        <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title text-start padding-left translate>General.Consumption</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-card-content>
-        <table class="full_width">
-            <ng-container *ngIf="service.currentEdge | async as edge">
-                <ng-container *ngIf="edge.currentData | async as currentData">
-                    <tr *ngIf="currentData.summary.consumption as sum">
-                        <td style="width:65%">Gesamtverbrauch</td>
-                        <ng-container *ngIf="sum.activePower != null; else empty">
-                            <td style="width:35%" class="align_right">{{ sum.activePower | number:'1.0-0' }}&nbsp;W</td>
-                        </ng-container>
-                        <ng-template #empty>
-                            <td style="width:35%" class="align_right">-</td>
-                        </ng-template>
-                    </tr>
-                </ng-container>
-            </ng-container>
-        </table>
-    </ion-card-content>
-    <ng-container *ngIf="evcsComponents != null && (edge.currentData | async)['channel'] as currentData">
-        <ng-container *ngFor="let component of evcsComponents">
-            <ion-row>
-                <ion-col class="ion-no-padding">
-                    <ion-item color="light" lines="none">
-                        <ion-avatar padding-left slot="start">
-                            <img src="assets/img/evcs.png">
-                        </ion-avatar>
-                        <ion-label padding-left *ngIf="component.id == component.alias">{{component.id}}
-                        </ion-label>
-                        <ion-label padding-left *ngIf="component.id != component.alias">{{component.alias}}
-                            <ion-note>
-                                ({{component.id}})</ion-note>
-                        </ion-label>
-                    </ion-item>
-                </ion-col>
-            </ion-row>
-            <ion-card-content>
-                <table class="full_width">
-                    <tr *ngIf="currentData[component.id + '/ChargePower'] != null">
-                        <td style="width:65%">Lade-Leistung</td>
-                        <ng-container *ngIf="currentData[component.id + '/ChargePower'] != 0; else empty">
-                            <td style="width:35%" class="align_right">
-                                {{ currentData[component.id + '/ChargePower'] | number:'1.0-0' }}&nbsp;W</td>
-                        </ng-container>
-                        <ng-template #empty>
-                            <td style="width:35%" class="align_right">-</td>
-                        </ng-template>
-                    </tr>
-                </table>
-            </ion-card-content>
-        </ng-container>
+  <ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <ng-container *ngIf="currentData.summary.consumption as sum">
+        <ion-card-content [class.underline]="evcsComponents.length != 0">
+          <table class="full_width">
+            <tr>
+              <td style="width:65%" translate>General.Total</td>
+              <ng-container *ngIf="sum.activePower != null; else empty">
+                <td style="width:35%" class="align_right">
+                  {{ sum.activePower | number:'1.0-0' }}&nbsp;W
+                </td>
+              </ng-container>
+              <ng-template #empty>
+                <td style="width:35%" class="align_right">-&nbsp;</td>
+              </ng-template>
+            </tr>
+          </table>
+          <!-- for spacing between Phases and Total Consumption -->
+          <div *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
+            style="padding-top: 5px;"></div>
+          <!-- 3 Phases -->
+          <table class="full_width"
+            *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
+            <tr *ngIf="sum.activePowerL1 != null">
+              <td style="width:2%"></td>
+              <td style="width:23%"><span translate>General.Phase</span>&nbsp;L1</td>
+              <td style="width:40%"></td>
+              <td style="width:35%" class="align_right">
+                {{ sum.activePowerL1 == 0? '-&nbsp;' : (sum.activePowerL1 | number:'1.0-0') + '&nbsp;W' }}
+              </td>
+            </tr>
+            <tr *ngIf="sum.activePowerL2 != null">
+              <td style="width:2%"></td>
+              <td style="width:23%"><span translate>General.Phase</span>&nbsp;L2</td>
+              <td style="width:40%"></td>
+              <td class="align_right" style="width: 35%">
+                {{ sum.activePowerL2 == 0? '-&nbsp;' : (sum.activePowerL2 | number:'1.0-0') + '&nbsp;W' }}
+              </td>
+            </tr>
+            <tr *ngIf="sum.activePowerL3 != null">
+              <td style="width:2%"></td>
+              <td style="width:23%"><span translate>General.Phase</span>&nbsp;L3</td>
+              <td style="width:40%"></td>
+              <td class="align_right" style="width: 35%">
+                {{ sum.activePowerL3 == 0? '-&nbsp;' : (sum.activePowerL3 | number:'1.0-0') + '&nbsp;W' }}
+              </td>
+            </tr>
+          </table>
+        </ion-card-content>
+      </ng-container>
     </ng-container>
+  </ng-container>
+  <ng-container *ngIf="evcsComponents.length > 1">
+    <ion-card-content class="underline">
+      <table class="full_width">
+        <tr>
+          <td style="width:65%" translate>General.Total<span>&nbsp;</span><span
+              translate>Edge.Index.Widgets.EVCS.ChargingPower</span>
+          </td>
+          <td class="align_right" style="width: 35%">
+            {{ currentTotalChargingPower() == 0? '-&nbsp;' : (currentTotalChargingPower() | number:'1.0-0') + '&nbsp;W' }}
+          </td>
+        </tr>
+      </table>
+    </ion-card-content>
+  </ng-container>
+
+  <ng-container *ngIf="evcsComponents.length != 0 && (edge.currentData | async)['channel'] as currentData">
+    <ng-container *ngFor="let component of evcsComponents">
+      <ion-card-content class="underline">
+        <table class="full_width">
+          <tr>
+            <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}</td>
+            <td style="width: 65%" *ngIf="component.id != component.alias">{{component.alias}}
+            </td>
+            <td class="align_right" style="width: 35%">
+              {{ currentData[component.id + '/ChargePower'] == 0? '-&nbsp;' : (currentData[component.id + '/ChargePower'] | number:'1.0-0') + '&nbsp;W' }}
+            </td>
+          </tr>
+        </table>
+      </ion-card-content>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="edge.currentData | async as currentData">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <ng-container *ngIf="currentData.summary.consumption as sum">
+        <ion-card-content>
+          <table class="full_width" *ngIf="evcsComponents.length != 0">
+            <tr>
+              <td style="width: 65%" translate>General.otherConsumption</td>
+              <ng-container *ngIf="sum.activePower - currentTotalChargingPower() as otherPower">
+                <td style="width: 35%" class="align_right">
+                  {{ otherPower == null ? '-&nbsp;' : (otherPower | number:'1.0-0') + '&nbsp;W' }}
+                </td>
+              </ng-container>
+            </tr>
+          </table>
+        </ion-card-content>
+
+        <ion-grid *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
+          padding-top>
+          <ion-row justify-content-center align-items-center>
+            <ion-col size="2" text-center>
+              <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+            </ion-col>
+            <ion-col size="10">
+              <ion-note text-wrap><small translate>Edge.Index.Widgets.phasesInfo</small>
+              </ion-note>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+    </ng-container>
+  </ng-container>
 </ion-content>

@@ -13,6 +13,14 @@
           <!-- Regular Widgets -->
           <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
+            <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="6">
+              <autarchy></autarchy>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="6">
+              <selfconsumption></selfconsumption>
+            </ion-col>
+
             <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6">
               <storage></storage>
             </ion-col>
@@ -49,11 +57,12 @@
               <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="6">
+            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6">
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="6">
+            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="12"
+              size-lg="6">
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 

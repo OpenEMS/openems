@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.timedata.rrd4j" increment="1567086400774">
+  <resource>
+    <capability namespace="osgi.identity">
+      <attribute name="osgi.identity" value="io.openems.edge.timedata.rrd4j"/>
+      <attribute name="type" value="osgi.bundle"/>
+      <attribute name="version" value="0.0.0" type="Version"/>
+    </capability>
+    <capability namespace="osgi.wiring.bundle">
+      <attribute name="bundle-version" value="0.0.0" type="Version"/>
+      <attribute name="osgi.wiring.bundle" value="io.openems.edge.timedata.rrd4j"/>
+    </capability>
+    <capability namespace="osgi.wiring.host">
+      <attribute name="bundle-version" value="0.0.0" type="Version"/>
+      <attribute name="osgi.wiring.host" value="io.openems.edge.timedata.rrd4j"/>
+    </capability>
+    <capability namespace="osgi.content">
+      <attribute name="size" value="8900081" type="Long"/>
+      <attribute name="url" value="generated/io.openems.edge.timedata.rrd4j.jar"/>
+      <attribute name="mime" value="application/vnd.osgi.bundle"/>
+      <attribute name="osgi.content" value="A40EDB6DFED290329071CD216D78292197EC2D5D62621A05E37A9F5EA20E81F2"/>
+    </capability>
+    <capability namespace="bndtools.workspace">
+      <attribute name="bndtools.workspace" value="file:/C:/Users/stefan.feilmeier/fems/develop-workspace"/>
+      <attribute name="project.path" value="/io.openems.edge.timedata.rrd4j"/>
+    </capability>
+  </resource>
+</repository>
