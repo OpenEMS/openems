@@ -80,9 +80,9 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	// protected static final int NO_OF_CELLS = 12; // Each memory contains 12 cells
 	// protected int numberOfSlaves = 10; // default 10 memories
 
-	public int a = 0;
-	public int counterOn = 0;
-	public int counterOff = 0;
+	private int a = 0;
+	private int counterOn = 0;
+	private int counterOff = 0;
 
 	// State-Machines
 	private final StateMachine stateMachine;
@@ -109,7 +109,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.config = config;
@@ -118,14 +118,9 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		// initialize the connection to the battery
 		this.initializeBattery(config.battery_id());
 
-		try {
-			// this.softStart();
-			// this.getNoOfCells();
-			this.resetDcAcEnergy();
-			this.inverterOn();
-		} catch (OpenemsNamedException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		// this.getNoOfCells();
+		this.resetDcAcEnergy();
+		this.inverterOn();
 	}
 
 	@Deactivate
@@ -142,7 +137,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(EssSinexcel.MAX_APPARENT_POWER);
 		this.stateMachine = new StateMachine(this);
-
 	}
 
 //	private void getNoOfCells() throws OpenemsNamedException {
@@ -255,21 +249,14 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	 *
 	 * @throws OpenemsNamedException on error
 	 */
-	public void softStart() throws OpenemsNamedException {
-		System.out.println("[In soft start method]");
-		IntegerWriteChannel setDcRelay = this.channel(SinexcelChannelId.SET_INTERN_DC_RELAY);
-		setDcRelay.setNextWriteValue(1);
-	}
-
-	public void softStart(Boolean switchOn) throws OpenemsNamedException {
-		System.out.println("[In boolean soft start method]");
+	public void softStart(boolean switchOn) throws OpenemsNamedException {
+		this.logInfo(this.log, "[In boolean soft start method]");
 		IntegerWriteChannel setDcRelay = this.channel(SinexcelChannelId.SET_INTERN_DC_RELAY);
 		if (switchOn) {
 			setDcRelay.setNextWriteValue(1);
 		} else {
 			setDcRelay.setNextWriteValue(0);
 		}
-
 	}
 
 	/**
@@ -676,13 +663,11 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		if (!battery.getReadyForWorking().value().orElse(false)) {
-//			log.info("getStaticConstraints: Battery not ready");
 			return new Constraint[] { //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
 			};
 		} else {
-//			log.info("getStaticConstraints: Battery ready");
 			return Power.NO_CONSTRAINTS;
 		}
 	}
@@ -692,12 +677,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		switch (this.inverterState) {
 		case ON:
 			IntegerWriteChannel setActivePower = this.channel(SinexcelChannelId.SET_ACTIVE_POWER);
-			int activeValue = (int) ((activePower / 100));
-			setActivePower.setNextWriteValue(activeValue);
+			setActivePower.setNextWriteValue(activePower / 100);
 
 			IntegerWriteChannel setReactivePower = this.channel(SinexcelChannelId.SET_REACTIVE_POWER);
-			int reactiveValue = (int) ((reactivePower / 100));
-			setReactivePower.setNextWriteValue(reactiveValue);
+			setReactivePower.setNextWriteValue(reactivePower / 100);
 
 			if (this.stateOnOff() == false) {
 				a = 1;
@@ -769,7 +752,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 100;
-//		return (int) (MAX_ACTIVE_POWER * 0.02);
 	}
 
 	public IntegerWriteChannel getDischargeMinVoltageChannel() {
