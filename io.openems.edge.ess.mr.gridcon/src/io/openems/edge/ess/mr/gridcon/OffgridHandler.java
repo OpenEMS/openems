@@ -74,12 +74,15 @@ public class OffgridHandler {
 			 */
 			log.info("OffgridHandler.doNormalBlackStartMode() Write channels for blackstart mode");
 			InverterCount inverterCount = this.parent.parent.config.inverterCount();
+			boolean enableIPU1 = this.parent.parent.config.enableIPU1();
+			boolean enableIPU2 = this.parent.parent.config.enableIPU2();
+			boolean enableIPU3 = this.parent.parent.config.enableIPU3();
 			new CommandControlRegisters() //
 					.play(true) //
 					.syncApproval(false) //
 					.blackstartApproval(true) //
 					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-					.enableIpus(inverterCount) //
+					.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
 					.parameterF0(GridconPCS.OFF_GRID_FREQUENCY_FACTOR) //
 					.parameterU0(GridconPCS.OFF_GRID_VOLTAGE_FACTOR) //
 					.writeToChannels(this.parent.parent);

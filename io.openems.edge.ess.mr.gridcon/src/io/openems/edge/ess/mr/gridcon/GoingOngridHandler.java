@@ -92,6 +92,9 @@ public class GoingOngridHandler {
 				+ ", " + invSetFreqNormalized + ", " + invSetVoltNormalized);
 
 		InverterCount inverterCount = this.parent.parent.config.inverterCount();
+		boolean enableIPU1 = this.parent.parent.config.enableIPU1();
+		boolean enableIPU2 = this.parent.parent.config.enableIPU2();
+		boolean enableIPU3 = this.parent.parent.config.enableIPU3();
 		new CommandControlRegisters() //
 				.play(true) //
 				.ready(false) //
@@ -101,7 +104,7 @@ public class GoingOngridHandler {
 				.blackstartApproval(true) //
 				.shortCircuitHandling(false) //
 				.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-				.enableIpus(inverterCount) //
+				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
 				.parameterU0(invSetVoltNormalized) //
 				.parameterF0(invSetFreqNormalized) //
 				.writeToChannels(this.parent.parent);

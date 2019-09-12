@@ -108,6 +108,9 @@ public class OngridHandler {
 		}
 
 		InverterCount inverterCount = this.parent.parent.config.inverterCount();
+		boolean enableIPU1 = this.parent.parent.config.enableIPU1();
+		boolean enableIPU2 = this.parent.parent.config.enableIPU2();
+		boolean enableIPU3 = this.parent.parent.config.enableIPU3();
 		new CommandControlRegisters() //
 				.play(true) // Start system
 				.syncApproval(true) //
@@ -117,7 +120,7 @@ public class OngridHandler {
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(inverterCount) //
+				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
 				.writeToChannels(this.parent.parent);
 		new CcuControlParameters() //
 				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
@@ -136,6 +139,9 @@ public class OngridHandler {
 		}
 
 		InverterCount inverterCount = this.parent.parent.config.inverterCount();
+		boolean enableIPU1 = this.parent.parent.config.enableIPU1();
+		boolean enableIPU2 = this.parent.parent.config.enableIPU2();
+		boolean enableIPU3 = this.parent.parent.config.enableIPU3();
 		new CommandControlRegisters() //
 				.syncApproval(true) //
 				.blackstartApproval(false) //
@@ -144,7 +150,7 @@ public class OngridHandler {
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(inverterCount) //
+				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
 				.writeToChannels(this.parent.parent);
 		new CcuControlParameters() //
 				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //

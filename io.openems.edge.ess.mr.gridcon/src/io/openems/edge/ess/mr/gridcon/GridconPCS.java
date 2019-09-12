@@ -126,6 +126,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 
+		this.checkIPUConfiguration(config);
+		
 		// Calculate max apparent power from number of inverters
 		this.getMaxApparentPower().setNextValue(config.inverterCount().getMaxApparentPower());
 
@@ -135,7 +137,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		
 	}
 	
-
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -516,13 +517,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				}
 			}
 		}
-		
-//		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
-//		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
-//		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);
-//		weightBchannel.setNextWriteValue(Float.valueOf(weightB));
-//		FloatWriteChannel weightCchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C);
-//		weightCchannel.setNextWriteValue(Float.valueOf(weightC));
 		
 		Map<GridConChannelId, Float> map = new HashMap<>();
 		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, (float) weightA);
@@ -1234,6 +1228,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				this.logError(this.log, "Unable to set output: [" + channel.address() + "] " + e.getMessage());
 			}
 		}
+	}
+	
+	/**
+	 * Helper function that checks if IPU configuration is possible
+	 * @param config
+	 * @throws OpenemsException
+	 */
+	private void checkIPUConfiguration(Config config) throws OpenemsException {		
+		switch (config.inverterCount()) {			
+		case ONE:
+			if (config.enableIPU2() || config.enableIPU3()) {
+				throw new OpenemsException("One inverter is configured, it is not possible to configure more");
+			}
+			break;
+		case TWO:
+			if (config.enableIPU3()) {
+				throw new OpenemsException("Two inverters are configured, it is not possible to use three");
+			}
+			break;
+		case THREE:
+			break;
+		}		
 	}
 
 	@Override

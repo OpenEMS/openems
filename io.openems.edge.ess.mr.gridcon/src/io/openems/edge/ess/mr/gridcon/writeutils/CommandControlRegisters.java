@@ -121,25 +121,25 @@ public class CommandControlRegisters {
 		return this;
 	}
 
-	public CommandControlRegisters enableIpus(InverterCount inverterCount) {
+	public CommandControlRegisters enableIpus(InverterCount inverterCount, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3 ) {
 		switch (inverterCount) {
 		case ONE:
-			this.disableIpu1 = false;
-			this.disableIpu2 = false;
+			this.disableIpu1 = !enableIPU1;
+			this.disableIpu2 = false; // this is DC DC
 			this.disableIpu3 = true;
 			this.disableIpu4 = true;
 			break;
 		case TWO:
-			this.disableIpu1 = false;
-			this.disableIpu2 = false;
-			this.disableIpu3 = false;
+			this.disableIpu1 = !enableIPU1;
+			this.disableIpu2 = !enableIPU2;
+			this.disableIpu3 = false; // this is DC DC
 			this.disableIpu4 = true;
 			break;
 		case THREE:
-			this.disableIpu1 = false;
-			this.disableIpu2 = false;
-			this.disableIpu3 = false;
-			this.disableIpu4 = false;
+			this.disableIpu1 = !enableIPU1;
+			this.disableIpu2 = !enableIPU2;
+			this.disableIpu3 = !enableIPU3;
+			this.disableIpu4 = false; // this is DC DC
 			break;
 		}
 		return this;

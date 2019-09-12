@@ -35,6 +35,15 @@ public
 
 	@AttributeDefinition(name = "IPUs", description = "Which IPUs are used, InverterCount 4 is DC DC Converter", required = true)
 	InverterCount inverterCount() default InverterCount.ONE;
+	
+	@AttributeDefinition(name = "Enable IPU 1", description = "IPU 1 is enabled")
+	boolean enableIPU1() default true;
+	
+	@AttributeDefinition(name = "Enable IPU 2", description = "IPU 2 is enabled")
+	boolean enableIPU2() default false;
+	
+	@AttributeDefinition(name = "Enable IPU 3", description = "IPU 3 is enabled")
+	boolean enableIPU3() default false;
 
 	@AttributeDefinition(name = "MinSoCA", description = "Minimal SoC of Battery String A, if reached no further discharging is allowed")
 	int minSocBatteryA() default 25;

@@ -20,6 +20,7 @@ import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
+import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.writeutils.CommandControlRegisters;
 
 public class ErrorHandler {
@@ -145,6 +146,11 @@ public class ErrorHandler {
 
 	private State doLinkVoltageTooLow() throws IllegalArgumentException, OpenemsNamedException {
 
+		boolean enableIPU1 = this.parent.parent.config.enableIPU1();
+		boolean enableIPU2 = this.parent.parent.config.enableIPU2();
+		boolean enableIPU3 = this.parent.parent.config.enableIPU3();
+		InverterCount inverterCount = this.parent.parent.config.inverterCount();
+		
 		new CommandControlRegisters() //
 				// Stop the system
 				.stop(true) //
@@ -155,7 +161,7 @@ public class ErrorHandler {
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.parent.config.inverterCount()) //
+				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
 				.writeToChannels(this.parent.parent);
 
 		return State.FINISH_ERROR_HANDLING;
@@ -267,6 +273,11 @@ public class ErrorHandler {
 
 			this.log.info("Acknowledging Error " + entry.getKey() + " [" + ed.nextAcknowledgeState + "]");
 
+			boolean enableIPU1 = this.parent.parent.config.enableIPU1();
+			boolean enableIPU2 = this.parent.parent.config.enableIPU2();
+			boolean enableIPU3 = this.parent.parent.config.enableIPU3();
+			InverterCount inverterCount = this.parent.parent.config.inverterCount();
+			
 			new CommandControlRegisters() //
 					// Acknowledge error
 					.acknowledge(acknowledge) //
@@ -278,7 +289,7 @@ public class ErrorHandler {
 					.parameterSet1(true) //
 					.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 					.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-					.enableIpus(this.parent.parent.config.inverterCount()) //
+					.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
 					.writeToChannels(this.parent.parent);
 
 			return State.ACKNOWLEDGE_ERRORS;
