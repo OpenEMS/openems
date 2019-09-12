@@ -372,18 +372,16 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		}
 		// Production
 		Value<Integer> production = this.getProductionActivePower().value();
-		Value<Integer> productionAc = this.getProductionAcActivePower().value();
-		Value<Integer> productionDc = this.getProductionDcActualPower().value();
-		if (productionAc.isDefined() || productionDc.isDefined()) {
+		if (production.isDefined()) {
 			result.append("Production ");
+			Value<Integer> productionAc = this.getProductionAcActivePower().value();
+			Value<Integer> productionDc = this.getProductionDcActualPower().value();
 			if (productionAc.isDefined() && productionDc.isDefined()) {
 				result.append("Total:" + production.asString() //
 						+ ",AC:" + productionAc.asString() //
 						+ ",DC:" + productionDc.asString()); //
-			} else if (productionAc.isDefined()) {
-				result.append("AC:" + productionAc.asString());
 			} else {
-				result.append("DC:" + productionDc.asString());
+				result.append(productionAc.asString());
 			}
 			result.append(" ");
 		}
