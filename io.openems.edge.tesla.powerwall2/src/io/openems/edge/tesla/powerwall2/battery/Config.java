@@ -3,6 +3,8 @@ package io.openems.edge.tesla.powerwall2.battery;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.ess.api.SinglePhase;
+
 @ObjectClassDefinition(name = "Tesla Powerwall 2 Battery", //
 		description = "Implements the Tesla Powerwall 2 Battery.")
 @interface Config {
@@ -15,6 +17,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Phase", description = "On which Phase is the Powerwall connected?")
+	SinglePhase phase() default SinglePhase.L1;
 
 	@AttributeDefinition(name = "Core-ID", description = "Component-ID of \"Tesla Powerwall 2 Core\" component ?")
 	String core_id() default "tesla0";
