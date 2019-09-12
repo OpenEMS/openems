@@ -7,6 +7,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.slf4j.Logger;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
@@ -34,12 +35,13 @@ import io.openems.edge.common.jsonapi.JsonApi;
 public class Host extends AbstractOpenemsComponent implements OpenemsComponent, JsonApi {
 
 	// only systemd-network is implemented currently
-	private final OperatingSystem operatingSystem = new OperatingSystemDebianSystemd();
+	private final OperatingSystem operatingSystem;
 
 	public Host() {
 		super(//
 				OpenemsComponent.ChannelId.values() //
 		);
+		this.operatingSystem = new OperatingSystemDebianSystemd(this);
 	}
 
 	@Activate
@@ -53,7 +55,7 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
 
@@ -64,6 +66,9 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 
 		case SetNetworkConfigRequest.METHOD:
 			return this.handleSetNetworkConfigRequest(user, SetNetworkConfigRequest.from(request));
+
+		case ExecuteSystemCommandRequest.METHOD:
+			return this.handleExecuteCommandRequest(user, ExecuteSystemCommandRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -98,5 +103,23 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 		NetworkConfiguration oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
 		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a ExecuteCommandRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the ExecuteCommandRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteCommandRequest(User user,
+			ExecuteSystemCommandRequest request) throws OpenemsNamedException {
+		return this.operatingSystem.handleExecuteCommandRequest(request);
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 }

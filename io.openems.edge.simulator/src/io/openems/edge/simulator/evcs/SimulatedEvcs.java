@@ -24,14 +24,14 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.Evcs", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, OpenemsComponent, EventHandler {
+public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEvcs, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT));
@@ -71,7 +71,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, Ope
 	public SimulatedEvcs() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Evcs.ChannelId.values(), //
+				ManagedEvcs.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}

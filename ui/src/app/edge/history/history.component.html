@@ -9,11 +9,11 @@
       <ion-card>
         <ion-item color="light" lines="full">
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label text-wrap *ngIf="translate"><span translate>Edge.History.SelectedPeriod</span>
+          <ion-label class="ion-text-wrap" *ngIf="translate"><span translate>Edge.History.SelectedPeriod</span>
             {{ service.historyPeriod.getText(translate) }}</ion-label>
         </ion-item>
         <ion-card-content *ngIf="widgets">
-          <ion-grid no-padding>
+          <ion-grid class="ion-no-padding">
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
               <ion-row *ngSwitchCase="'Storage'" [style.height]="socChartHeight">
@@ -51,6 +51,12 @@
                 </ion-col>
               </ion-row>
 
+              <ion-row *ngSwitchCase="'Controller.CHP.SoC'" style.height="150px">
+                <ion-col size="12">
+                  <chpsoc [period]="service.historyPeriod"></chpsoc>
+                </ion-col>
+              </ion-row>
+
             </ng-container>
           </ion-grid>
 
@@ -68,12 +74,12 @@
 </ion-grid>
 
 <ion-grid *ngIf="!isTimedataAvailable">
-  <ion-row justify-content-center>
+  <ion-row class="ion-justify-content-center">
     <ion-col size="12" size-md="8">
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-          <ion-label text-wrap>Historic data is not available</ion-label>
+          <ion-label class="ion-text-wrap">Historic data is not available</ion-label>
         </ion-item>
 
         <ion-card-content>

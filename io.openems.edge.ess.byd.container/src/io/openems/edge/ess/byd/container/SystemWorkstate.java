@@ -5,13 +5,13 @@ import io.openems.common.types.OptionsEnum;
 public enum SystemWorkstate implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), 
 	INITIAL(0, "Initial"), 
-	FAULT(2, "Fault"), 
-	STOP(4, "Stop"), 
-	STANDBY(8, "Standby"),
-	GRID_MONITORING(16, "Grid-Monitoring"), 
-	READY(32, "Ready"),
-	RUNNING(64, "Running"),
-	DEBUG(128, "Debug");
+	FAULT(1, "Fault"), 
+	STOP(2, "Stop"), 
+	STANDBY(3, "Standby"),
+	GRID_MONITORING(4, "Grid-Monitoring"), 
+	READY(5, "Ready"),
+	RUNNING(6, "Running"),
+	DEBUG(7, "Debug");
 
 	private final int value;
 	private final String name;
