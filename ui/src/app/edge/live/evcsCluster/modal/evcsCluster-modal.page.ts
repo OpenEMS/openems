@@ -1,9 +1,8 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { ModalController, IonSlides, IonReorderGroup } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonReorderGroup, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
