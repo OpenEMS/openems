@@ -4,10 +4,10 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Goodwe ET Charger PV1", //
+		name = "GoodWe ET Charger PV1", //
 		description = "Implements the Goodwe-ET Charger.")
-@interface ConfigPV1 {
 
+public @interface ConfigPV1 {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "charger0";
 
@@ -23,5 +23,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
-	String webconsole_configurationFactory_nameHint() default "Goodwe ET Charger PV1 [{id}]";
+	String webconsole_configurationFactory_nameHint() default "GoodWe ET Charger PV1 [{id}]";
 }

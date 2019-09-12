@@ -1,17 +1,16 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-enum MeterConnectCheckFlag implements OptionsEnum {
+public enum MeterCommunicateStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	STOP(0, "Stop Checking"), //
-	CHECKING(1, "Checking"), //
-	WAIT(2, "Wait for check"); //
-	
+	NG(0, "NG"), //
+	OK(1, "OK"); //
+
 	private final int value;
 	private final String option;
 
-	private MeterConnectCheckFlag(int value, String option) {
+	private MeterCommunicateStatus(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}
@@ -25,9 +24,9 @@ enum MeterConnectCheckFlag implements OptionsEnum {
 	public String getName() {
 		return this.option;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

@@ -72,7 +72,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
-  bnd.identity;id='io.openems.edge.goodwe.et',\
+	bnd.identity;id='io.openems.edge.goodwe.et',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.wago',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
@@ -148,7 +148,7 @@
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
-  io.openems.edge.goodwe.et;version=snapshot,\
+	io.openems.edge.goodwe.et;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
@@ -199,11 +199,6 @@
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
-	io.openems.edge.scheduler.daily;version=snapshot,\
-	io.openems.edge.meter.sunspec;version=snapshot,\
-	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.tesla.powerwall2;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\

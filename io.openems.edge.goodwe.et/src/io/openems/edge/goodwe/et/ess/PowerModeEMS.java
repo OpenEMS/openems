@@ -1,8 +1,8 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-enum PowerModeEMS implements OptionsEnum {
+public enum PowerModeEMS implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	STOPPED(0, "Stop connection to grid and turn to wait mode"), //
 	AUTO(1, "Self-Use mode, Smart Meter Com. Normal, and battery power is controlled based on Meter power"), //
@@ -35,9 +35,9 @@ enum PowerModeEMS implements OptionsEnum {
 	public String getName() {
 		return this.option;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

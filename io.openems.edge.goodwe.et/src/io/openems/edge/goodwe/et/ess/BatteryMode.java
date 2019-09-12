@@ -1,8 +1,8 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-enum BatteryMode implements OptionsEnum {
+public enum BatteryMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NO_BATTERY(0, "NO Battery,inverter disconnects to Battery"), //
 	STANDBY(1, "Standby,no diacharging and no charging"), //

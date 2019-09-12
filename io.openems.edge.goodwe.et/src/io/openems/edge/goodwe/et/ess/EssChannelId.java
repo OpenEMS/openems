@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -7,7 +7,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 
-public enum GoodweChannelIdET implements ChannelId {
+public enum EssChannelId implements ChannelId {
 	MODBUS_PROTOCOL_VERSION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	RATED_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -33,26 +33,14 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	SIMCCID(Doc.of(OpenemsType.STRING) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
-	
-	//Running Data
+
+	// Running Data
 	RTC_YEAR_MONTH(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	RTC_DATE_HOUR(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 	RTC_MINUTE_SECOND(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
-	V_PV1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
-	I_PV1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
-	P_PV1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
-	V_PV2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
-	I_PV2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
-	P_PV2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
 	V_PV3(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
 	I_PV3(Doc.of(OpenemsType.INTEGER) //
@@ -158,11 +146,11 @@ public enum GoodweChannelIdET implements ChannelId {
 	BATTERY_MODE(Doc.of(BatteryMode.values())), //
 	WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-	SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), //.
+	SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), // .
 	WORK_MODE(Doc.of(WorkMode.values())), //
 	OPERATION_MODE(Doc.of(OperationMode.values())), //
 
-	//Error Message
+	// Error Message
 	STATE_0(Doc.of(Level.FAULT).text("The GFCI detecting circuit is abnormal")), //
 	STATE_1(Doc.of(Level.FAULT).text("The output current sensor is abnormal")), //
 	STATE_2(Doc.of(Level.WARNING).text("TBD")), //
@@ -236,8 +224,8 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	DIAG_STATUS_L(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-	
-	//External Communication Data (ARM)
+
+	// External Communication Data (ARM)
 	COM_MODE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	RSSI(Doc.of(OpenemsType.INTEGER) //
@@ -270,7 +258,7 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY)), //
 	E_TOTAL_BUY2(Doc.of(OpenemsType.FLOAT) //
 			.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY)), //
-	
+
 	STATE_32(Doc.of(Level.WARNING).text("DRM0")), //
 	STATE_33(Doc.of(Level.WARNING).text("DRM1")), //
 	STATE_34(Doc.of(Level.WARNING).text("DRM2")), //
@@ -281,7 +269,7 @@ public enum GoodweChannelIdET implements ChannelId {
 	STATE_39(Doc.of(Level.WARNING).text("DRM7")), //
 	STATE_40(Doc.of(Level.WARNING).text("DRM8")), //
 	STATE_41(Doc.of(Level.WARNING).text("DRED Connect Status")), //
-	
+
 	BATTERY_TYPE_INDEX(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	BMS_STATUS(Doc.of(OpenemsType.INTEGER) //
@@ -292,7 +280,7 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	BMS_DISCHARGE_IMAX(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-	
+
 	STATE_42(Doc.of(Level.WARNING).text("Charging over-voltage2")), //
 	STATE_43(Doc.of(Level.WARNING).text("Discharging under-voltage2")), //
 	STATE_44(Doc.of(Level.WARNING).text("CellHigh temperature2")), //
@@ -309,14 +297,12 @@ public enum GoodweChannelIdET implements ChannelId {
 	STATE_55(Doc.of(Level.WARNING).text("Cell High temperature3")), //
 	STATE_56(Doc.of(Level.WARNING).text("Discharging under-voltage3")), //
 	STATE_57(Doc.of(Level.WARNING).text("Charging over-voltage3")), //
-	
-//	SOC(Doc.of(OpenemsType.INTEGER) //
-//			.unit(Unit.PERCENT).accessMode(AccessMode.READ_ONLY)),
+
 	BMS_SOH(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.PERCENT).accessMode(AccessMode.READ_ONLY)),
 	BMS_BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-	
+
 	STATE_58(Doc.of(Level.WARNING).text("Charging over-voltage1")), //
 	STATE_59(Doc.of(Level.WARNING).text("Discharging under-voltage1")), //
 	STATE_60(Doc.of(Level.WARNING).text("Cell High temperature1")), //
@@ -329,11 +315,11 @@ public enum GoodweChannelIdET implements ChannelId {
 	STATE_67(Doc.of(Level.WARNING).text("System Low temperature1")), //
 	STATE_68(Doc.of(Level.WARNING).text("System Low temperature2")), //
 	STATE_69(Doc.of(Level.WARNING).text("System High temperature")), //
-	
+
 	BATTERY_PROTOCOL(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-	
-	//Setting Parameter
+
+	// Setting Parameter
 	USER_PASSWORD1(Doc.of(OpenemsType.STRING) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	USER_PASSWORD2(Doc.of(OpenemsType.STRING) //
@@ -391,7 +377,7 @@ public enum GoodweChannelIdET implements ChannelId {
 	H_TOTAL_3(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.HOUR).accessMode(AccessMode.READ_WRITE)), //
 	E_DAY_SELL_3(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_WRITE)), // 
+			.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_WRITE)), //
 	E_TOTAL_BUY_3(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_WRITE)), //
 	E_DAY_BUY_3(Doc.of(OpenemsType.INTEGER) //
@@ -465,8 +451,8 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	CLEAR_BATTERY_SETTING(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.WRITE_ONLY)), //
-	
-	//Safety
+
+	// Safety
 	GRID_VOLT_HIGH_S1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
 	GRID_VOLT_HIGH_S1_TIME(Doc.of(OpenemsType.INTEGER) //
@@ -533,8 +519,8 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	POWER_SLOPE_ENABLE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	
-	//CosPhi curve
+
+	// CosPhi curve
 	ENABLE_CURVE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	POINT_A_VALUE(Doc.of(OpenemsType.INTEGER) //
@@ -555,11 +541,11 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
 	LOCK_OUT_POWER(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.WATT).accessMode(AccessMode.READ_WRITE)), //
-	
-	//Power and frequency curve
+
+	// Power and frequency curve
 	STATE_70(Doc.of(Level.INFO).text("ON/OFF")), //
 	STATE_71(Doc.of(Level.INFO).text("response mode")), //
-	
+
 	FFROZEN_DCH(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.HERTZ).accessMode(AccessMode.READ_WRITE)), //
 	FFROZEN_CH(Doc.of(OpenemsType.INTEGER) //
@@ -584,8 +570,8 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	DOWN_SLOP(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	
-	//QU curve
+
+	// QU curve
 	ENABLE_CURVE_QU(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	LOCK_IN_POWER_QU(Doc.of(OpenemsType.INTEGER) //
@@ -618,8 +604,8 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	RESPONSE_TIME(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	
-	//PU curve
+
+	// PU curve
 	PU_CURVE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	POWER_CHANGE_RATE(Doc.of(OpenemsType.INTEGER) //
@@ -658,8 +644,8 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.WRITE_ONLY)), //
 	UW_ITALY_FREQ_MODE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	
-	//Meter Control ARM
+
+	// Meter Control ARM
 	APP_MODE_INDEX(Doc.of(AppModeIndex.values())), //
 	METER_CHECK_VALUE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
@@ -673,7 +659,7 @@ public enum GoodweChannelIdET implements ChannelId {
 	DATA_SEND_INTERVAL(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.SECONDS).accessMode(AccessMode.READ_WRITE)), //
 
-	//Battery Control Data ARM
+	// Battery Control Data ARM
 	STOP_SOC_PROTECT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	BATTERY_FLOAT_VOLT(Doc.of(OpenemsType.INTEGER) //
@@ -709,7 +695,7 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	BAT_POWER_PERCENT_1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
-	
+
 	STATE_72(Doc.of(Level.INFO).text("SUNDAY")), //
 	STATE_73(Doc.of(Level.WARNING).text("MONDAY")), //
 	STATE_74(Doc.of(Level.WARNING).text("TUESDAY")), //
@@ -717,7 +703,7 @@ public enum GoodweChannelIdET implements ChannelId {
 	STATE_76(Doc.of(Level.WARNING).text("Thursday")), //
 	STATE_77(Doc.of(Level.WARNING).text("Friday")), //
 	STATE_78(Doc.of(Level.WARNING).text("Saturday")), //
-	
+
 	START_TIME_2(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	END_TIME_2(Doc.of(OpenemsType.INTEGER) //
@@ -742,8 +728,8 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	CLEAR_ALL_ECONOMIC_MODE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.WRITE_ONLY)), //
-	
-	//BMS for RS485
+
+	// BMS for RS485
 	BMS_VERSION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	BATT_STRINGS_RS485(Doc.of(OpenemsType.INTEGER) //
@@ -766,15 +752,15 @@ public enum GoodweChannelIdET implements ChannelId {
 			.unit(Unit.PERCENT).accessMode(AccessMode.READ_WRITE)), //
 	WBMS_BAT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.DEGREE_CELSIUS).accessMode(AccessMode.READ_WRITE)), //
-	
-	//BMS_STATUS(), //
+
+	// BMS_STATUS(), //
 	STATE_79(Doc.of(Level.INFO).text("force to charge")), //
 	STATE_80(Doc.of(Level.INFO).text("Stop charging")), //
 	STATE_81(Doc.of(Level.INFO).text("Stop discharging"));
 
 	private final Doc doc;
 
-	private GoodweChannelIdET(Doc doc) {
+	private EssChannelId(Doc doc) {
 		this.doc = doc;
 	}
 

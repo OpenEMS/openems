@@ -1,19 +1,16 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-enum MeterConnectStatus implements OptionsEnum {
+public enum LoadMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	NOT_CHECKED(0, "Not Checked"), //
-	CORRECT(1, "connect correctly"), //
-	REVERSE(2, "connect reverse"), //
-	INCORRRECT(3, "connect incorrectly"), //
-	FAULT(4, "Fault,fault mode,something is in fault mode"); //
+	ON(0, "ON,inverter connects to Load"), //
+	OFF(1, "OFF, inverter disconnects to Load"); //
 
 	private final int value;
 	private final String option;
 
-	private MeterConnectStatus(int value, String option) {
+	private LoadMode(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}
@@ -27,9 +24,9 @@ enum MeterConnectStatus implements OptionsEnum {
 	public String getName() {
 		return this.option;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

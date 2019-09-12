@@ -1,16 +1,18 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-enum MeterCommunicateStatus implements OptionsEnum {
+public enum AppModeIndex implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	NG(0, "NG"), //
-	OK(1, "OK"); //
+	SELF_USE(0, "Self use mode"), //
+	OFF_GRID(1, "Off grid mode"), //
+	BACKUP(2, "backup mode"), //
+	ECONOMIC(3, "economic mode"); //
 
 	private final int value;
 	private final String option;
 
-	private MeterCommunicateStatus(int value, String option) {
+	private AppModeIndex(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

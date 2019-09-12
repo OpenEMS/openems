@@ -24,16 +24,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.goodwe.et.GoodweChannelIdET;
 
 @Designate(ocd = ConfigPV2.class, factory = true)
 @Component( //
-		name = "GoodweET.Charger.pv2", //
+		name = "GoodWe.ET.Charger-PV2", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class GoodweETChargerPV2 extends AbstractOpenemsModbusComponent implements EssDcCharger, OpenemsComponent {
+public class GoodWeEtChargerPv2 extends AbstractOpenemsModbusComponent implements EssDcCharger, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -43,11 +42,11 @@ public class GoodweETChargerPV2 extends AbstractOpenemsModbusComponent implement
 		super.setModbus(modbus);
 	}
 
-	public GoodweETChargerPV2() {
+	public GoodWeEtChargerPv2() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
-				GoodweChannelIdET.values()
+				PvChannelId.values() //
 		);
 	}
 
@@ -66,11 +65,11 @@ public class GoodweETChargerPV2 extends AbstractOpenemsModbusComponent implement
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(35107, Priority.LOW, //
-				m(GoodweChannelIdET.V_PV2, new UnsignedWordElement(35107),
-						ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				m(GoodweChannelIdET.I_PV2, new UnsignedWordElement(35108),
-						ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(35109))));
+						m(PvChannelId.V, new UnsignedWordElement(35107),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(PvChannelId.I, new UnsignedWordElement(35108),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(35109))));
 	}
 
 	@Override

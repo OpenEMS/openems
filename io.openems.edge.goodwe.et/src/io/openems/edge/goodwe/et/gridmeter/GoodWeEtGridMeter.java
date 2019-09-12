@@ -26,19 +26,19 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.goodwe.et.GoodweChannelIdET;
+import io.openems.edge.goodwe.et.ess.GoodweChannelIdET;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "GoodweET.Grid-Meter", //
+		name = "GoodWe.ET.Grid-Meter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class GoodweETGridMeter extends AbstractOpenemsModbusComponent
+public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
 
 	@Reference
@@ -63,7 +63,7 @@ public class GoodweETGridMeter extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	public GoodweETGridMeter() {
+	public GoodWeEtGridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //

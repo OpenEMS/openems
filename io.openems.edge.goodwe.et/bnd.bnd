@@ -1,21 +1,20 @@
 Bundle-Name: OpenEMS Edge GoodweET
-Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Vendor: FENECON GmbH
 Bundle-Version: 1.0.0.${tstamp}
 
 Export-Package:  \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.dccharger.api,\
-	io.openems.edge.ess.power.api,\
-	io.openems.edge.goodwe.et.GoodweET
+	io.openems.edge.ess.power.api
 	
 Private-Package:  \
-	io.openems.edge.goodwe.et,\
 	io.openems.edge.goodwe.et.charger,\
+	io.openems.edge.goodwe.et.ess,\
 	io.openems.edge.goodwe.et.gridmeter
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\

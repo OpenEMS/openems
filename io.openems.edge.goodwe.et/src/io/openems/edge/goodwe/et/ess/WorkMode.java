@@ -1,8 +1,8 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-enum WorkMode implements OptionsEnum {
+public enum WorkMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	WAIT(0, "cut off all the connection to Inverter"), //
 	ON_GRID(1, "PV intputs to Inverter,Inverter outputs to Grid"), //
@@ -26,9 +26,9 @@ enum WorkMode implements OptionsEnum {
 	public String getName() {
 		return this.option;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

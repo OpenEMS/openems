@@ -1,16 +1,17 @@
-package io.openems.edge.goodwe.et;
+package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-enum LoadMode implements OptionsEnum {
+public enum OutputTypeAC implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	ON(0, "ON,inverter connects to Load"), //
-	OFF(1, "OFF, inverter disconnects to Load"); //
-	
+	SINGLE_PHASE(0, "single phase"), //
+	THREE_PHASE_FOUR_WIRE(1, "three phase four wire system"), //
+	THREE_PHASE_THREE_WIRE(2, "three phase three wire system");
+
 	private final int value;
 	private final String option;
 
-	private LoadMode(int value, String option) {
+	private OutputTypeAC(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}
@@ -24,9 +25,9 @@ enum LoadMode implements OptionsEnum {
 	public String getName() {
 		return this.option;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

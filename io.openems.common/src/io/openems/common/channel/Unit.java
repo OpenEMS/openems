@@ -292,7 +292,7 @@ public enum Unit {
 			return value + " " + this.symbol;
 		case ON_OFF:
 			boolean booleanValue = (Boolean) value;
-			return booleanValue ? "ON" : "OFF";	
+			return booleanValue ? "ON" : "OFF";
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}
