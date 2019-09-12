@@ -73,12 +73,12 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	
 	// Slow and Float Charge Voltage must be the same for the Lithium Ionbattery.
 	// Slow charge voltage = Float Charge Voltage = MAX_CELL_VOLT * NO_OF_CELLS * num of memories
-    protected int SLOW_CHARGE_VOLTAGE = 4370; // default for 10 cells
-    protected int FLOAT_CHARGE_VOLTAGE = 4370; // default for 10 cells
+    protected int SLOW_CHARGE_VOLTAGE = 4370; // default for 10 memories
+    protected int FLOAT_CHARGE_VOLTAGE = 4370; // default for 10 memories
 	
-	private static final double MAX_CELL_VOLT = 36.5; // Max voltage of the cell
-	protected static final int NO_OF_CELLS = 12; // Each memory contains 12 cells
-	protected int numberOfSlaves = 10; // default 10 memories
+	//private static final double MAX_CELL_VOLT = 36.5; // Max voltage of the cell
+	//protected static final int NO_OF_CELLS = 12; // Each memory contains 12 cells
+	//protected int numberOfSlaves = 10; // default 10 memories
 
 	public int a = 0;
 	public int counterOn = 0;
@@ -120,7 +120,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 		try {
 			//this.softStart();
-			this.getNoOfCells();
+			//this.getNoOfCells();
 			this.resetDcAcEnergy();
 			this.inverterOn();
 		} catch (OpenemsNamedException e) {
@@ -146,10 +146,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	}
 	
 	
-	private void getNoOfCells() throws OpenemsNamedException {
-		Battery bms = this.componentManager.getComponent(this.config.battery_id());
-		this.numberOfSlaves = (int) bms.getComponentContext().getProperties().get("numberOfSlaves");
-	}
+//	private void getNoOfCells() throws OpenemsNamedException {
+//		Battery bms = this.componentManager.getComponent(this.config.battery_id());
+//		this.numberOfSlaves = (int) bms.getComponentContext().getProperties().get("numberOfSlaves");
+//	}
 
 	/**
 	 * Initializes the connection to the Battery.
@@ -299,7 +299,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {		
 		
-		this.SLOW_CHARGE_VOLTAGE =  this.FLOAT_CHARGE_VOLTAGE = (int) (numberOfSlaves * MAX_CELL_VOLT * NO_OF_CELLS);		
+		//this.SLOW_CHARGE_VOLTAGE =  this.FLOAT_CHARGE_VOLTAGE = (int) (numberOfSlaves * MAX_CELL_VOLT * NO_OF_CELLS);		
 		
 		IntegerWriteChannel setSlowChargeVoltage = this.channel(SinexcelChannelId.SET_SLOW_CHARGE_VOLTAGE);
 		setSlowChargeVoltage.setNextWriteValue(SLOW_CHARGE_VOLTAGE);
