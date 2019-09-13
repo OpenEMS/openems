@@ -13,6 +13,14 @@
           <!-- Regular Widgets -->
           <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
+            <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="6">
+              <autarchy></autarchy>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="6">
+              <selfconsumption></selfconsumption>
+            </ion-col>
+
             <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6">
               <storage></storage>
             </ion-col>
@@ -34,14 +42,13 @@
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
-            <ng-container *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'">
-              <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6">
-                <evcs [componentId]="widget.componentId">
-                </evcs>
-              </ion-col>
-            </ng-container>
+            <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
+              <evcs *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'"
+                [componentId]="widget.componentId">
+              </evcs>
+            </ion-col>
 
-            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12" size-lg="6">
+            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12">
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
@@ -49,11 +56,12 @@
               <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="6">
+            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6">
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="6">
+            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="12"
+              size-lg="6">
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
