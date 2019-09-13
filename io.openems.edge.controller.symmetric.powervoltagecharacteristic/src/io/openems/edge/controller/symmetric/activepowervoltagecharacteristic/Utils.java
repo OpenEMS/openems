@@ -50,7 +50,7 @@ public class Utils {
 		}
 		qCharacteristic.remove(gridVoltageRatio, (float) 0);
 
-		// if its the first element; i will be equal to "0"
+		// if its the first element; it will be equal to "0"
 		if (i == 0) {
 			p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
 			return p;
