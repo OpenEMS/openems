@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
+package io.openems.edge.controller.symmetric.activepowervoltagecharacteristic;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,15 +14,18 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -34,20 +37,21 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Symmetric.ReactivePowerVoltageCharacteristic", //
+		name = "Controller.Symmetric.ActivePowerVoltageCharacteristic", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent {
+public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final Map<Float, Float> qCharacteristic = new HashMap<>();
+	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristic.class);
+
+	private final Map<Float, Float> voltagePowerMap = new HashMap<>();
 
 	/**
 	 * nominal voltage in [mV].
 	 */
 	private float nominalVoltage;
-
+	private Config config;
 	private int power = 0;
 
 	@Reference
@@ -60,6 +64,11 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	private ManagedSymmetricEss ess;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		PERCENT(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
+		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE))//
+
 		;
 		private final Doc doc;
 
@@ -73,7 +82,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		}
 	}
 
-	public ReactivePowerVoltageCharacteristic() {
+	public ActivePowerVoltageCharacteristic() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -90,9 +99,9 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
-
+		this.config = config;
 		this.nominalVoltage = config.nominalVoltage() * 1000;
-		this.initialize(config.percentQ());
+
 	}
 
 	@Deactivate
@@ -101,52 +110,59 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Initialize the Q by U characteristics.
-	 * 
+	 * Initialize the P by U characteristics.
+	 *
 	 * <p>
-	 * Parsing JSON then putting the point variables into qByUCharacteristicEquation
-	 * 
+	 * Parsing JSON then putting the point variables into pByUCharacteristicEquation
+	 *
 	 * <pre>
 	 * [
-	 *   { "voltage": 0.9, "percent" : 60 },
-	 *   { "voltage": 0.93, "percent": 0 },
-	 *   { "voltage": 1.07, "percent": 0 },
-	 *   { "voltage": 1.1, "percent": -60 }
+	 *  { "voltageRatio": 0.9, 		"power" : -4000 }},
+	 *  { "voltageRatio": 0.93,		"power": -1000 }},
+	 *  { "voltageRatio": 1.07,		"power": 0}},
+	 *  { "voltageRatio": 1.1, 		"power": 1000 } }
 	 * ]
 	 * </pre>
 	 * 
 	 * @param percentQ the configured Percent-by-Q values
+	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	private void initialize(String percentQ) throws OpenemsNamedException {
+
+	private void initialize(String powerConf, float gridVoltageRatio) throws OpenemsNamedException {
 		try {
-			JsonArray jPercentQ = JsonUtils.getAsJsonArray(JsonUtils.parse(percentQ));
-			for (JsonElement element : jPercentQ) {
-				float percent = JsonUtils.getAsFloat(element, "percent");
-				float voltage = JsonUtils.getAsFloat(element, "voltage");
-				this.qCharacteristic.put(voltage, percent);
+			JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConf));
+			for (JsonElement element : jpowerV) {
+				Float power = (float) JsonUtils.getAsInt(element, "power");
+				float voltageRatio = JsonUtils.getAsFloat(element, "voltageRatio");
+				this.voltagePowerMap.put(voltageRatio, power);
 			}
 		} catch (NullPointerException e) {
-			throw new OpenemsException("Unable to set values [" + percentQ + "] " + e.getMessage());
+			throw new OpenemsException("Unable to set values [" + powerConf + "] " + e.getMessage());
 		}
+
 	}
 
 	@Override
-	public void run() throws OpenemsException {
+	public void run() throws OpenemsNamedException {
+		int calculatedPower = 0;
 		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
-		float valueOfLine = Utils.getValueOfLine(this.qCharacteristic, voltageRatio);
-		if (valueOfLine == 0) {
+		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
+		if (voltageRatio == 0) {
+			log.info("Voltage Ratio is 0 ");
 			return;
 		}
-
-		Value<Integer> apparentPower = this.ess.getMaxApparentPower().value();
-		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
+		this.initialize(config.powerV(), voltageRatio);
+		float linePowerValue = Utils.getValueOfLine(this.voltagePowerMap, voltageRatio);
+		if (linePowerValue == 0) {
+			log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
+			this.channel(ChannelId.CALCULATED_POWER).setNextValue(-1);
 			return;
 		}
-
-		this.power = (int) (apparentPower.orElse(0) * valueOfLine);
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, this.power);
-		this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL, Pwr.REACTIVE,
+		this.power = (int) linePowerValue;
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, this.power);
+		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+		this.ess.addPowerConstraintAndValidate("ActivePowerVoltageCharacteristic", Phase.ALL, Pwr.ACTIVE,
 				Relationship.EQUALS, calculatedPower);
 	}
 }
