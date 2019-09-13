@@ -126,17 +126,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 
-		this.checkIPUConfiguration(config);
-		
-		// Calculate max apparent power from number of inverters
-		this.getMaxApparentPower().setNextValue(config.inverterCount().getMaxApparentPower());
+		this.checkIPUConfiguration(config);		
+		this.calculateMaxApparentPower(config);		
 
 		// Call parent activate()
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
 		
 	}
-	
+
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -1250,6 +1248,22 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case THREE:
 			break;
 		}		
+	}
+	
+	private void calculateMaxApparentPower(Config config) {
+
+		int maxPower = 0;
+		if (config.enableIPU1()) {
+			maxPower = maxPower + MAX_POWER_PER_INVERTER;
+		}
+		if (config.enableIPU2()) {
+			maxPower = maxPower + MAX_POWER_PER_INVERTER;
+		}
+		if (config.enableIPU3()) {
+			maxPower = maxPower + MAX_POWER_PER_INVERTER;
+		}
+		
+		this.getMaxApparentPower().setNextValue(maxPower);		
 	}
 
 	@Override
