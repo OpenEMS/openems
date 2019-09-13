@@ -44,8 +44,8 @@ public class StateMachine {
 		 * not present at start up
 		 */
 		BooleanReadChannel ccuStateRunChannel = this.parent.channel(GridConChannelId.CCU_STATE_RUN);
-		ccuStateRunChannel.onChange(v -> {
-			Optional<Boolean> val = v.asOptional();
+		ccuStateRunChannel.onChange((oldValue, newValue) -> {
+			Optional<Boolean> val = newValue.asOptional();
 			if (!val.isPresent()) {
 				return;
 			}

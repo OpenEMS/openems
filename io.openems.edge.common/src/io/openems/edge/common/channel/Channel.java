@@ -1,5 +1,6 @@
 package io.openems.edge.common.channel;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import io.openems.common.types.ChannelAddress;
@@ -135,8 +136,10 @@ public interface Channel<T> {
 	/**
 	 * Add an onChange callback. It is called, after a new, different active value
 	 * was set by nextProcessImage().
+	 * 
+	 * @param callback old value and new value
 	 */
-	public void onChange(Consumer<Value<T>> callback);
+	public void onChange(BiConsumer<Value<T>, Value<T>> callback);
 
 	/**
 	 * Deactivates the Channel and makes sure all callbacks are released for garbe

@@ -84,7 +84,7 @@ public interface OpenemsComponent {
 	 * 
 	 * @return the OSGi ComponentContext
 	 */
-	public ComponentContext getComponentContext();
+	public ComponentContext getComponentContext();	
 
 	/**
 	 * Returns an undefined Channel defined by its ChannelId string representation.
@@ -300,7 +300,7 @@ public interface OpenemsComponent {
 	 * @param property Name of the configuration property
 	 * @param value    New configuration value
 	 */
-	public static void updateConfigurationProperty(ConfigurationAdmin cm, String pid, String property, int value) {
+	public static void updateConfigurationProperty(ConfigurationAdmin cm, String pid, String property, Object value) {
 		Configuration c;
 		try {
 			c = cm.getConfiguration(pid, "?");

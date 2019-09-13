@@ -71,7 +71,9 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.cycleTime());
 		this.config = config;
-		this.updateControllerSchedule(JsonUtils.getAsJsonArray(JsonUtils.parse(config.controllerScheduleJson())));
+		if (config.controllerScheduleJson() != null && !config.controllerScheduleJson().trim().isEmpty()) {
+			this.updateControllerSchedule(JsonUtils.getAsJsonArray(JsonUtils.parse(config.controllerScheduleJson())));
+		}
 	}
 
 	/**

@@ -65,7 +65,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
-	
+
 	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
 
 	private Config config;
@@ -123,8 +123,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void initializeCallbacks() {
-		this.channel(ChannelId.BMS_CONTACTOR_CONTROL).onChange(value -> {
-			ContactorControl cc = value.asEnum();
+		this.channel(ChannelId.BMS_CONTACTOR_CONTROL).onChange((oldValue, newValue) -> {
+			ContactorControl cc = newValue.asEnum();
 
 			switch (cc) {
 			case CONNECTION_INITIATING:

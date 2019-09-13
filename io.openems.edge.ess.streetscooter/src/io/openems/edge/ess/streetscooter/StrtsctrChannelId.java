@@ -53,9 +53,9 @@ public enum StrtsctrChannelId implements ChannelId {
 			.unit(Unit.VOLT) //
 			// onChange calculate new value for MaxApparentPower
 			.onInit(channel -> { //
-				((IntegerReadChannel) channel).onChange(value -> {
+				((IntegerReadChannel) channel).onChange((oldValue, newValue) -> {
 					final int CHARGE_DISCHARGE_CURRENT = 40; // in ampere
-					int maxApparentPower = Math.min(value.orElse(Integer.MAX_VALUE) * CHARGE_DISCHARGE_CURRENT,
+					int maxApparentPower = Math.min(newValue.orElse(Integer.MAX_VALUE) * CHARGE_DISCHARGE_CURRENT,
 							AbstractEssStreetscooter.MAX_APPARENT_POWER);
 					channel.getComponent().channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
 							.setNextValue(maxApparentPower);

@@ -480,9 +480,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	private void initializeCallbacks() {
 
-		this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE).onChange(value -> {
+		this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -491,9 +491,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_volt);
 		});
 
-		this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
+		this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -504,9 +504,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		// write battery ranges to according channels in battery api
 		// MAX_VOLTAGE x2082
-		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange(value -> {
+		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -516,9 +516,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		});
 
 		// DISCHARGE_MIN_VOLTAGE 0x2088
-		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).onChange(value -> {
+		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -528,9 +528,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		});
 
 		// CHARGE_MAX_CURRENT 0x2160
-		this.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).onChange(value -> {
+		this.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
 			if (!cOpt.isPresent()) {
 				return;
 			}
@@ -540,9 +540,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		});
 
 		// DISCHARGE_MAX_CURRENT 0x2161
-		this.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).onChange(value -> {
+		this.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
 			if (!cOpt.isPresent()) {
 				return;
 			}

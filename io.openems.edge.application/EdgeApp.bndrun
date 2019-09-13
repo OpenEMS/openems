@@ -35,10 +35,10 @@
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
-	bnd.identity;id='io.openems.edge.controller.dischargelimitconsideringcellvoltage',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
+	bnd.identity;id='io.openems.edge.controller.ess.limitdischargecellvoltage',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
@@ -67,6 +67,7 @@
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
+	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -82,15 +83,19 @@
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
 	bnd.identity;id='io.openems.edge.meter.socomec',\
+	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
+	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
+	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.simulator',\
+	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb'
 
 -runbundles: \
@@ -114,9 +119,9 @@
 	io.openems.edge.controller.chp.soc;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
-	io.openems.edge.controller.dischargelimitconsideringcellvoltage;version=snapshot,\
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
+	io.openems.edge.controller.ess.limitdischargecellvoltage;version=snapshot,\
 	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
 	io.openems.edge.controller.highloadtimeslot;version=snapshot,\
@@ -186,7 +191,6 @@
 	io.openems.edge.meter.pqplus.umd97;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
-	com.google.guava;version='[28.0.0,28.0.1)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
@@ -196,9 +200,15 @@
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
-	com.github.scribejava.core;version='[6.7.0,6.7.1)',\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
-	io.openems.edge.scheduler.daily;version=snapshot
+	io.openems.edge.scheduler.daily;version=snapshot,\
+	io.openems.edge.meter.sunspec;version=snapshot,\
+	io.openems.edge.solaredge;version=snapshot,\
+	io.openems.edge.predictor.persistencemodel;version=snapshot,\
+	io.openems.edge.tesla.powerwall2;version=snapshot,\
+	io.openems.edge.evcs.cluster;version=snapshot,\
+	com.github.scribejava.core;version='[6.8.1,6.8.2)',\
+	com.google.guava;version='[28.1.0,28.1.1)'
