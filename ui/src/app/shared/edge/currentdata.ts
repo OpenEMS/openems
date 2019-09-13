@@ -205,7 +205,7 @@ export class CurrentData {
         + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
-      result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.dischargeActivePower);
+      result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.effectiveDischargePower);
     }
     return result;
   }
