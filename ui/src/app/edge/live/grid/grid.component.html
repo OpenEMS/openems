@@ -15,13 +15,13 @@
                     <tr>
                         <td style="width:65%" translate>General.GridBuyAdvanced</td>
                         <td style="width:35%" class="align_right">
-                            {{ sum.buyActivePower == 0? '-&nbsp;' : (sum.buyActivePower | number:'1.0-0') + '&nbsp;W' }}
+                            {{ sum.buyActivePower | unitvalue:'W' }}
                         </td>
                     </tr>
                     <tr>
                         <td style="width:65%" translate>General.GridSellAdvanced</td>
                         <td style="width:35%" class="align_right">
-                            {{ sum.sellActivePower == 0? '-&nbsp;' : (sum.sellActivePower | number:'1.0-0') + '&nbsp;W' }}
+                            {{ sum.sellActivePower | unitvalue:'W' }}
                         </td>
                     </tr>
                 </table>

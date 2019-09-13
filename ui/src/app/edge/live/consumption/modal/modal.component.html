@@ -17,14 +17,9 @@
           <table class="full_width">
             <tr>
               <td style="width:65%" translate>General.Total</td>
-              <ng-container *ngIf="sum.activePower != null; else empty">
-                <td style="width:35%" class="align_right">
-                  {{ sum.activePower | number:'1.0-0' }}&nbsp;W
-                </td>
-              </ng-container>
-              <ng-template #empty>
-                <td style="width:35%" class="align_right">-&nbsp;</td>
-              </ng-template>
+              <td style="width:35%" class="align_right">
+                {{ sum.activePower | unitvalue:'W' }}
+              </td>
             </tr>
           </table>
           <!-- for spacing between Phases and Total Consumption -->
@@ -38,7 +33,7 @@
               <td style="width:23%"><span translate>General.Phase</span>&nbsp;L1</td>
               <td style="width:40%"></td>
               <td style="width:35%" class="align_right">
-                {{ sum.activePowerL1 == 0? '-&nbsp;' : (sum.activePowerL1 | number:'1.0-0') + '&nbsp;W' }}
+                {{ sum.activePowerL1 | unitvalue:'W' }}
               </td>
             </tr>
             <tr *ngIf="sum.activePowerL2 != null">
@@ -46,7 +41,7 @@
               <td style="width:23%"><span translate>General.Phase</span>&nbsp;L2</td>
               <td style="width:40%"></td>
               <td class="align_right" style="width: 35%">
-                {{ sum.activePowerL2 == 0? '-&nbsp;' : (sum.activePowerL2 | number:'1.0-0') + '&nbsp;W' }}
+                {{ sum.activePowerL2 | unitvalue:'W' }}
               </td>
             </tr>
             <tr *ngIf="sum.activePowerL3 != null">
@@ -54,7 +49,7 @@
               <td style="width:23%"><span translate>General.Phase</span>&nbsp;L3</td>
               <td style="width:40%"></td>
               <td class="align_right" style="width: 35%">
-                {{ sum.activePowerL3 == 0? '-&nbsp;' : (sum.activePowerL3 | number:'1.0-0') + '&nbsp;W' }}
+                {{ sum.activePowerL3 | unitvalue:'W' }}
               </td>
             </tr>
           </table>
@@ -70,7 +65,7 @@
               translate>Edge.Index.Widgets.EVCS.ChargingPower</span>
           </td>
           <td class="align_right" style="width: 35%">
-            {{ currentTotalChargingPower() == 0? '-&nbsp;' : (currentTotalChargingPower() | number:'1.0-0') + '&nbsp;W' }}
+            {{ currentTotalChargingPower() | unitvalue:'W' }}
           </td>
         </tr>
       </table>
@@ -86,7 +81,7 @@
             <td style="width: 65%" *ngIf="component.id != component.alias">{{component.alias}}
             </td>
             <td class="align_right" style="width: 35%">
-              {{ currentData[component.id + '/ChargePower'] == 0? '-&nbsp;' : (currentData[component.id + '/ChargePower'] | number:'1.0-0') + '&nbsp;W' }}
+              {{ currentData[component.id + '/ChargePower'] | unitvalue:'W' }}
             </td>
           </tr>
         </table>
@@ -103,7 +98,7 @@
               <td style="width: 65%" translate>General.otherConsumption</td>
               <ng-container *ngIf="sum.activePower - currentTotalChargingPower() as otherPower">
                 <td style="width: 35%" class="align_right">
-                  {{ otherPower == null ? '-&nbsp;' : (otherPower | number:'1.0-0') + '&nbsp;W' }}
+                  {{ otherPower | unitvalue:'W'}}
                 </td>
               </ng-container>
             </tr>

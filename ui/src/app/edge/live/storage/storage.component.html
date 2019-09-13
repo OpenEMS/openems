@@ -80,13 +80,13 @@
                                 <tr>
                                     <td style="width:65%" translate>General.ChargePower</td>
                                     <td style="width:35%" class="align_right">
-                                        {{ sum.effectiveChargePower == null? '-&nbsp;' : (sum.effectiveChargePower | number:'1.0-0') + '&nbsp;W' }}
+                                        {{ sum.effectiveChargePower | unitvalue:'W' }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="width:65%" translate>General.DischargePower</td>
                                     <td style="width:35%" class="align_right">
-                                        {{ sum.effectiveDischargePower == null? '-&nbsp;' : (sum.effectiveDischargePower | number:'1.0-0') + '&nbsp;W' }}
+                                        {{ sum.effectiveDischargePower | unitvalue:'W' }}
                                     </td>
                                 </tr>
                             </table>
@@ -97,8 +97,8 @@
         </ng-container>
         <ng-container *ngIf="essComponents.length > 1">
             <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                <ion-card-content>
-                    <ng-container *ngFor="let component of essComponents">
+                <ng-container *ngFor="let component of essComponents">
+                    <ion-card-content class="underline">
                         <table class="full_width">
                             <tr>
                                 <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}
@@ -128,9 +128,8 @@
                                 </td>
                             </tr>
                         </table>
-                    </ng-container>
-                    <div style="padding-top: 5px;"></div>
-                </ion-card-content>
+                    </ion-card-content>
+                </ng-container>
             </ng-container>
         </ng-container>
     </ng-template>
