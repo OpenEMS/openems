@@ -42,8 +42,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent {
+public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ReactivePowerVoltageCharacteristic.class);
 
@@ -128,27 +127,27 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	 * 
 	 * 
 	 * @param percentQ the configured Percent-by-Q values
+	 * @param gridVoltageRatio 
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
 
-	private void initialize(String powerConf, float gridVoltageRatio) throws OpenemsNamedException {
+	private void initialize(String percentQ, float gridVoltageRatio) throws OpenemsNamedException {
 		try {
-			JsonArray jPercentQ = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConf));
+			JsonArray jPercentQ = JsonUtils.getAsJsonArray(JsonUtils.parse(percentQ));
 			for (JsonElement element : jPercentQ) {
 				float percent = JsonUtils.getAsFloat(element, "percent");
 				float voltageRatio = JsonUtils.getAsFloat(element, "voltageRatio");
 				this.powerCharacteristic.put(voltageRatio, percent);
 			}
 		} catch (NullPointerException e) {
-			throw new OpenemsException("Unable to set values [" + powerConf + "] " + e.getMessage());
+			throw new OpenemsException("Unable to set values [" + percentQ + "] " + e.getMessage());
 		}
 
 	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		int calculatedPower = 0;
 		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
 		if (voltageRatio == 0) {
 			log.info("Voltage Ratio is 0 ");
@@ -167,6 +166,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
 			return;
 		}
+        int calculatedPower = 0;
 		this.power = (int) (-apparentPower.orElse(0) * valueOfLine * 0.01);
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, this.power);
 		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);

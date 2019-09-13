@@ -3,8 +3,8 @@ package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
-		name = "Controller Voltage Reactive Power Characteristic", //
+@ObjectClassDefinition(//
+		name = "Controller Voltage Reactive Power Characteristic",
 		description = "Defines a power voltage characteristic for storage system.")
 @interface Config {
 
