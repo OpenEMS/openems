@@ -93,6 +93,7 @@
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\
+	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb'
 	
@@ -208,4 +209,6 @@
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
-	org.osgi.service.metatype;version='[1.3.0,1.3.1)'
+	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
+	io.openems.edge.meter.sunspec;version=snapshot,\
+	io.openems.edge.solaredge;version=snapshot
