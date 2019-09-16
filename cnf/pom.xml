@@ -151,7 +151,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.7</version>
+			<version>42.2.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
