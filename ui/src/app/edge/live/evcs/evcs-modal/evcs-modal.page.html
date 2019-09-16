@@ -227,14 +227,21 @@
                     <table class="full_width">
                         <tr>
                             <td>
-                                Beladung nach kWh
+                                Kapazitätsorientierte Beladung
+                            </td>
+                            <td class="align_right" style="width: 100%">
+                                <ion-icon class="ion-no-padding" style="text-align: right; font-size: 20px"
+                                    style="cursor: pointer" name="information-circle-outline"
+                                    (click)="isCapacity = true; presentPopover()">
+                                </ion-icon>
                             </td>
                         </tr>
-                        <!-- for spacing between function and heading -->
+                        <!-- for spacing -->
                         <div style="padding-top: 10px;"></div>
+
                         <tr>
                             <td style="width: 65%">Ladekapazität</td>
-                            <td style="width: 35%" class="align_right">{{kwhvalue | unitvalue:'kWh'}}</td>
+                            <td style="width: 35%" class="align_right">{{kwhvalue | unitvalue:'Wh'}}</td>
                         </tr>
                     </table>
                     <table class="full_width">
@@ -242,10 +249,10 @@
                             <ion-range style="width: 100%" min="0" max="20" color="dark" pin="true"
                                 style="padding-top: 8px;" step="100" debounce="1000" value="{{kwhvalue}}">
                                 <ion-label slot="start">
-                                    0&nbsp;kWh
+                                    0&nbsp;Wh
                                 </ion-label>
                                 <ion-label slot="end">
-                                    20&nbsp;kWh
+                                    20&nbsp;Wh
                                 </ion-label>
                             </ion-range>
                         </tr>

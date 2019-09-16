@@ -21,6 +21,7 @@ export class EvcsModalComponent implements OnInit {
 
   //boolean value to determine correct info text in popover
   public isPrioritization: boolean = null;
+  public isCapacity: boolean = null;
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;
   //for test purposes until controller propertie is available
@@ -240,6 +241,7 @@ export class EvcsModalComponent implements OnInit {
       translucent: true,
       componentProps: {
         isPrioritization: this.isPrioritization,
+        isCapacity: this.isCapacity,
         controller: this.controller
       }
     });
