@@ -84,7 +84,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
-
           let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
           // convert labels
@@ -220,6 +219,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               data: dischargeData,
               hidden: false
             });
+          }
+          // keep colors the same if no producing device
+          if (!config.hasProducer()) {
+            this.colors = this.colors.slice(1, this.colors.length);
           }
 
           this.datasets = datasets;

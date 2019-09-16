@@ -42,11 +42,11 @@ export class Widgets {
                 switch (clazz) {
                     case 'Grid':
                     case 'Consumption':
-                        return true; // Always show Grid + Consumption
-                    case 'Storage':
-                        return config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 0;
-                    case 'Production':
                     case 'Autarchy':
+                        return true; // Always show Grid + Consumption + Autarchy
+                    case 'Storage':
+                        return config.hasStorage();
+                    case 'Production':
                     case 'Selfconsumption':
                         return config.hasProducer();
                 };

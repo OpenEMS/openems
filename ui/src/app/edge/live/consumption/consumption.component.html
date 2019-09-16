@@ -12,14 +12,9 @@
                     <ng-container *ngIf="evcsComponents.length == 0">
                         <tr>
                             <td style="width:65%"></td>
-                            <ng-container *ngIf="sum.activePower != 0; else empty">
-                                <td style="width:35%" class="align_right">
-                                    {{ sum.activePower | number:'1.0-0' }}&nbsp;W
-                                </td>
-                            </ng-container>
-                            <ng-template #empty>
-                                <td style="width:35%" class="align_right">-&nbsp;</td>
-                            </ng-template>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.activePower | unitvalue:'W' }}
+                            </td>
                         </tr>
                     </ng-container>
                     <ng-container *ngIf="evcsComponents.length > 0">
@@ -32,7 +27,7 @@
                                         {{component.alias}}
                                     </td>
                                     <td style="width:35%" class="align_right">
-                                        {{ currentData[component.id + '/ChargePower'] == 0? '-&nbsp;' : (currentData[component.id + '/ChargePower'] | number:'1.0-0') + '&nbsp;W' }}
+                                        {{ currentData[component.id + '/ChargePower'] | unitvalue:'W' }}
                                     </td>
                                 </tr>
                             </ng-container>
@@ -42,7 +37,7 @@
                             <td style="width: 65%" translate>General.otherConsumption</td>
                             <ng-container *ngIf="sum.activePower - currentTotalChargingPower() as otherPower">
                                 <td style="width: 35%" class="align_right">
-                                    {{ otherPower == null ? '-&nbsp;' : (otherPower | number:'1.0-0') + '&nbsp;W' }}
+                                    {{ otherPower | unitvalue:'W' }}
                                 </td>
                             </ng-container>
                         </tr>
