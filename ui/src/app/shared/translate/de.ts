@@ -135,8 +135,8 @@ export const TRANSLATION = {
                         ShortName: "Automatisch",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
                         MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Aufladung garantieren",
-                        MinChargePower: "Beladeleistung",
+                        MinCharging: "Minimale Beladung garantieren",
+                        MinChargePower: "Minimale Ladestärke",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
                             Car: "Auto",

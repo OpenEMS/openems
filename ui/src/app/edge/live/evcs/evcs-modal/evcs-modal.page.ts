@@ -23,6 +23,8 @@ export class EvcsModalComponent implements OnInit {
   public isPrioritization: boolean = null;
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;
+  //for test purposes until controller propertie is available
+  public kwhvalue: number = 5;
 
   constructor(
     protected service: Service,
@@ -39,6 +41,7 @@ export class EvcsModalComponent implements OnInit {
     else {
       this.chargeMode = 'OFF';
     }
+    console.log("EVCSCONTROLLER", this.controller);
   }
 
   cancel() {
