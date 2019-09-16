@@ -188,6 +188,7 @@ export class EdgeConfig {
                     case 'SolarEdge.PV-Inverter':
                     case 'Simulator.PvInverter':
                     case 'Simulator.ProductionMeter.Acting':
+                    case 'Kaco.BlueplanetHybrid10.PVMeter':
                         return true;
                 }
             }
@@ -212,6 +213,7 @@ export class EdgeConfig {
                 case 'SolarEdge.PV-Inverter':
                 case 'Simulator.PvInverter':
                 case 'Simulator.ProductionMeter.Acting':
+                case 'Kaco.BlueplanetHybrid10.PVMeter':
                     return true;
             }
         }
