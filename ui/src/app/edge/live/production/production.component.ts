@@ -61,7 +61,6 @@ export class ProductionComponent {
     }
 
     async presentModal() {
-        console.log("PRODUCTIONMETER", this.productionMeterComponents)
         const modal = await this.modalCtrl.create({
             component: ProductionModalComponent,
             componentProps: {
