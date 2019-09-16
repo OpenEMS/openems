@@ -1,7 +1,11 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Režim",
         On: "zapnutý",
         Off: "Pryč",
+        Active: "aktivně",
+        Inactive: "Neaktivní",
+        Manually: "Ruční",
         Phase: "Fáze",
         Autarchy: "Soběstačnost",
         SelfConsumption: "Vlastní spotřeba",
@@ -126,10 +130,11 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimalizované zatížení",
-                        ShortName: "optimalizované",
+                        ShortName: "automaticky",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
                         MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
                         MinCharging: "Garance minimálního poplatku",
+                        MinChargePower: "nakládací sazba",
                         ChargingPriority: {
                             Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
                             Car: "Car",
@@ -138,7 +143,7 @@ export const TRANSLATION = {
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
-                        ShortName: "vynucený",
+                        ShortName: "Ruční",
                         Info: "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
                         MaxCharging: "Maximální síla náboje",
                         MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."

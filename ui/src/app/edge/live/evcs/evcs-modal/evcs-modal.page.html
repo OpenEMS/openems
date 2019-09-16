@@ -17,239 +17,247 @@
     </ion-header>
     <ion-content>
 
-        <ion-label style="width: 100%">
-            <ng-container *ngIf="componentId">
-                <ion-label class="normalFontSize" *ngIf="currentData[componentId + '/State'] != 3">
-                    <!--Controllable Evcs-->
-                    <ng-container *ngIf="controller">
-                        <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
-                            <table class="full_width">
-                                <tr>
-                                    <td style="width:50%" translate>
-                                        Edge.Index.Widgets.EVCS.ActivateCharging
+        <ng-container *ngIf="currentData[componentId + '/State'] != 3">
+            <ng-container *ngIf="controller">
+                <!--Controllable Evcs-->
+                <ion-card-content class="underline">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:20%" translate>
+                                Edge.Index.Widgets.EVCS.Status
+                            </td>
+                            <td style="width:80%" class="align_right">
+                                {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"]) }}
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:65%" translate>
+                                Edge.Index.Widgets.EVCS.ChargingPower
+                            </td>
+                            <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0;else empty">
+                                <td style="width:35%" class="align_right">
+                                    {{ currentData[componentId + "/ChargePower"] | number:'1.0-0' }}&nbsp;W&nbsp;
+                                </td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:35%" class="align_right">
+                                    -&nbsp;
+                                </td>
+                            </ng-template>
+                        </tr>
+                        <tr *ngIf="currentData[componentId + '/ChargePower'] > 0">
+                            <td style="width:65%" translate>
+                                Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+                            <td style="width:35%" class="align_right">
+                                {{ (currentData[componentId + "/EnergySession"] * 0.1) | number:'1.0-0' }}&nbsp;Wh
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
+                <ion-card-content>
+                    <table class="full_width">
+                        <tr>
+                            <td translate>
+                                Edge.Index.Widgets.EVCS.ChargeMode
+                            </td>
+                            <td class="align_right" *ngIf="chargeMode != 'OFF'">
+                                <ion-icon (click)="isPrioritization = false; presentPopover()" class="ion-no-padding"
+                                    style="text-align: right; font-size: 20px" style="cursor: pointer"
+                                    name="information-circle-outline">
+                                </ion-icon>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="full_width">
+                        <tr>
+                            <td colspan="3">
+                                <ion-segment (ionChange)="updateChargeMode($event, controller)" value={{chargeMode}}>
+                                    <ion-segment-button value="FORCE_CHARGE">
+                                        <ion-item lines="none">
+                                            <ion-img style="width:40px" src="assets/img/gridStorage.png">
+                                            </ion-img>
+                            <td translate>
+                                General.Manually
+                            </td>
+                            </ion-item>
+                            </ion-segment-button>
+                            <ion-segment-button value="EXCESS_POWER">
+                                <ion-item lines="none">
+                                    <ion-icon style="width:40px" name="sunny">
+                                    </ion-icon>
+                                    <td translate>
+                                        Edge.Index.Widgets.EVCS.OptimizedChargeMode.ShortName
                                     </td>
-                                    <td style="width:50%" class="align_right">
-                                        <ion-toggle class="swiper-no-swiping" slot="end"
-                                            (click)="enableOrDisableCharging($event, controller)"
-                                            [checked]="controller.properties.enabledCharging">
-                                        </ion-toggle>
+                                </ion-item>
+                            </ion-segment-button>
+                            <ion-segment-button value="OFF">
+                                <ion-item lines="none">
+                                    <ion-icon name="power" style="width: 40px"></ion-icon>
+                                    <td translate>
+                                        General.Off
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td style="width:50%" translate>
-                                        Edge.Index.Widgets.EVCS.ChargingPower
-                                    </td>
-                                    <td style="width:50%" class="align_right">
-                                        {{ getState(currentData[componentId + "/ChargePower"] | number:'1.0-0',
-                                    currentData[componentId + "/Status"], 
-                                    currentData[componentId + "/Plug"]) }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 50%" translate>
-                                        Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
-                                    <td style="width:50%" class="align_right">
-                                        {{ (currentData[componentId + "/EnergySession"] * 0.1) | number:'1.0-0' }}
-                                        Wh
-                                    </td>
-                                </tr>
-                            </table>
-                        </ion-item>
-                        <ion-item class="normalFontSize" lines="none">
-                            <table class="full_width" class="ion-text-wrap">
-                                <tr>
-                                    <td colspan="3" style="width: 95%">
-                                        <ion-segment (ionChange)="updateChargeMode($event, controller)"
-                                            value={{controller.properties.chargeMode}}>
-
-                                            <ion-segment-button value="EXCESS_POWER">
-                                                <ion-item lines="none">
-                                                    <ion-icon style="width:40px" name="sunny">
-                                                    </ion-icon>
-
-                                                    <ion-label translate>
-                                                        Edge.Index.Widgets.EVCS.OptimizedChargeMode.ShortName
-                                                    </ion-label>
-                                                </ion-item>
-                                            </ion-segment-button>
-                                            <ion-segment-button value="FORCE_CHARGE">
-                                                <ion-item lines="none">
-                                                    <ion-img style="width:30px" src="assets/img/gridStorage.png">
-                                                    </ion-img>
-                                                    <ion-label translate>
-                                                        Edge.Index.Widgets.EVCS.ForceChargeMode.ShortName
-                                                    </ion-label>
-                                                </ion-item>
-                                            </ion-segment-button>
-                                        </ion-segment>
-                                    </td>
-                                    <td style="width: 5%">
-                                        <ion-icon style="text-align: right; font-size: 20px" style="cursor: pointer"
-                                            name="information-circle-outline" (click)="displayInfo = !displayInfo">
-                                        </ion-icon>
-                                    </td>
-                                </tr>
-                                <tr *ngIf="displayInfo">
-                                    <td style="width: 45%">
-                                        <ion-note padding-top translate class="ion-text-wrap">
-                                            Edge.Index.Widgets.EVCS.OptimizedChargeMode.Info
-                                        </ion-note>
-                                    </td>
-                                    <td style="width: 2.5%"></td>
-                                    <td style="width: 52.5%" padding-top colspan="2">
-                                        <ion-note translate class="ion-text-wrap">
-                                            Edge.Index.Widgets.EVCS.ForceChargeMode.Info
-                                        </ion-note>
-                                    </td>
-                                </tr>
-                            </table>
-                        </ion-item>
-                        <ion-item lines="none">
-                            <table class="full_width" class="ion-text-wrap">
-                                <!--Excess Power settings-->
-                                <tr *ngIf="controller.properties.chargeMode == 'EXCESS_POWER'"
-                                    style="margin-top: 20px;">
-                                    <td>
-                                        <table class="full_width">
-                                            <tr>
-                                                <td width="70%">
-                                                    <span
-                                                        translate>Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging</span>
-                                                    <ion-text *ngIf="controller.properties.defaultChargeMinPower != 0">
-                                                        {{controller.properties.defaultChargeMinPower}}&nbsp;W
-                                                    </ion-text>
-                                                </td>
-                                                <td width="30%" style="text-align: right;">
-                                                    <ion-toggle class="swiper-no-swiping" style="margin: 2px;"
-                                                        slot="end"
-                                                        (ionChange)="allowMinimumChargePower($event, currentData[componentId + '/Phases'], controller)"
-                                                        [checked]="controller.properties.defaultChargeMinPower != 0">
-                                                    </ion-toggle>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <ion-range class="swiper-no-swiping"
-                                            style="z-index: 10000; page-break-inside: auto"
-                                            *ngIf="controller.properties.defaultChargeMinPower != 0"
-                                            (ionChange)="updateDefaultMinPower($event, controller)"
-                                            min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
-                                            max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
-                                            color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
-                                            value="{{controller.properties.defaultChargeMinPower}}">
-                                            <ion-label slot="start">
-                                                {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | number:'1.0-0'}}
-                                                &nbsp;W
-                                            </ion-label>
-                                            <ion-label slot="end">
-                                                {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
-                                            </ion-label>
-                                        </ion-range>
-
-                                        <table class="ion-justify-content-center">
-                                            <tr>
-                                                <td width="50%">Priorisierung:</td>
-                                                <td width="50%">
-                                                    <ion-segment ion-width="50%"
-                                                        (ionChange)="priorityChanged($event, controller)"
-                                                        value="{{controller.properties.priority}}">
-                                                        <ion-segment-button ion-margin="0px" ion-padding="0px"
-                                                            value="CAR">
-                                                            <ion-label lines="none">Auto
-                                                            </ion-label>
-                                                        </ion-segment-button>
-                                                        <ion-segment-button ion-margin="0px" ion-padding="0px"
-                                                            value="STORAGE">
-                                                            <ion-label lines="none">Speicher
-                                                            </ion-label>
-                                                        </ion-segment-button>
-                                                    </ion-segment>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <br>
-                                        <ion-label style="border-radius: 5px;" translate>
-                                            Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Info
-                                        </ion-label>
-                                    </td>
-                                </tr>
-                                <!--Force Charge settings-->
-                                <tr *ngIf="controller.properties.chargeMode == 'FORCE_CHARGE'"
-                                    style="padding-top: 20px;">
-                                    <td>
-                                        <table>
-                                            <tr>
-                                                <td width="100%">
-                                                    <span
-                                                        translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</span>:
-                                                    <ion-text>({{controller.properties.forceChargeMinPower}}&nbsp;W)
-                                                    </ion-text>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <ion-range class="swiper-no-swiping"
-                                            (ionChange)="updateForceMinPower($event, controller)"
-                                            min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
-                                            max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
-                                            color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
-                                            value="{{controller.properties.forceChargeMinPower}}">
-                                            <ion-label slot="start">
-                                                {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | number:'1.0-0'}}&nbsp;W
-                                            </ion-label>
-                                            <ion-label slot="end">
-                                                {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
-                                            </ion-label>
-                                        </ion-range>
-                                        <ion-label translate class="ion-text-wrap">
-                                            Edge.Index.Widgets.EVCS.ForceChargeMode.MaxChargingDetails
-                                        </ion-label>
-                                    </td>
-                                </tr>
-                            </table>
-                        </ion-item>
-                    </ng-container>
-                    <!--Uncontrollable Evcs-->
-                    <ng-container *ngIf="!controller">
-                        <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
-                            <table class="full_width">
-                                <tr>
-                                    <td style="width:50%" translate>
-                                        Edge.Index.Widgets.EVCS.ChargingPower
-                                    </td>
-                                    <td style="width:50%" class="align_right">
-                                        {{ getState(currentData[componentId + "/ChargePower"] | number:'1.0-0',
-                                            currentData[componentId + "/Status"], 
-                                            currentData[componentId + "/Plug"]) }}
-                                    </td>
-                                </tr>
-                            </table>
-                        </ion-item>
-                        <ion-item>
-                            <ion-label translate>
-                                Diese Ladesäule kann nicht gesteuert werden
-                            </ion-label>
-                        </ion-item>
-                    </ng-container>
-                </ion-label>
-                <ion-item class="normalFontSize" style="padding-top: 20px"
-                    *ngIf="currentData[componentId + '/State'] == 3">
-                    <tr>
-                        <td translate>
-                            Edge.Index.Widgets.EVCS.NoConnection.Description
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <ul>
-                                <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
-                                <ul>
-                                    <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1
-                                    </li>
-                                </ul>
-                            </ul>
-                        </td>
-                    </tr>
+                                </ion-item>
+                            </ion-segment-button>
+                            </ion-segment>
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
+                <ng-container *ngIf="controller.properties.chargeMode == 'EXCESS_POWER'">
+                    <!--Excess Power settings-->
+                    <ion-card-content>
+                        <table class="full_width">
+                            <tr>
+                                <td style="width: 65%" translate>
+                                    Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    <ion-toggle
+                                        (ionChange)="allowMinimumChargePower($event, currentData[componentId + '/Phases'], controller)"
+                                        [checked]="controller.properties.defaultChargeMinPower != 0">
+                                    </ion-toggle>
+                                </td>
+                            </tr>
+                            <tr *ngIf="controller.properties.defaultChargeMinPower != 0">
+                                <td style="width:65%" translate>
+                                    Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinChargePower
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{controller.properties.defaultChargeMinPower}}&nbsp;W&nbsp;
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="full_width">
+                            <tr>
+                                <ion-range class="swiper-no-swiping" style="z-index: 10000; page-break-inside: auto"
+                                    *ngIf="controller.properties.defaultChargeMinPower != 0"
+                                    (ionChange)="updateDefaultMinPower($event, controller)"
+                                    min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
+                                    max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
+                                    color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
+                                    value="{{controller.properties.defaultChargeMinPower}}">
+                                    <ion-label slot="start">
+                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | number:'1.0-0'}}
+                                        &nbsp;W
+                                    </ion-label>
+                                    <ion-label slot="end">
+                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                    </ion-label>
+                                </ion-range>
+                            </tr>
+                        </table>
+                    </ion-card-content>
+                    <ion-card-content class="underline">
+                        <table class="full_width">
+                            <tr>
+                                <td translate>
+                                    Edge.Index.Widgets.EVCS.Prioritization
+                                </td>
+                                <td class="align_right" style="width: 100%">
+                                    <ion-icon class="ion-no-padding" style="text-align: right; font-size: 20px"
+                                        style="cursor: pointer" name="information-circle-outline"
+                                        (click)="isPrioritization = true; presentPopover()">
+                                    </ion-icon>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="full_width">
+                            <tr>
+                                <td colspan="3">
+                                    <ion-segment ion-width="50%" (ionChange)="priorityChanged($event, controller)"
+                                        value="{{controller.properties.priority}}">
+                                        <ion-segment-button ion-margin="0px" ion-padding="0px" value="CAR">
+                                            <ion-item lines="none">
+                                                <ion-img style="width:40px" src="assets/img/evcs.png">
+                                                </ion-img>
+                                <td translate>Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Car
+                                </td>
+                                </ion-item>
+                                </ion-segment-button>
+                                <ion-segment-button ion-margin="0px" ion-padding="0px" value="STORAGE">
+                                    <ion-item lines="none">
+                                        <ion-img padding-right style="width:40px" src="assets/img/storage.png">
+                                        </ion-img>
+                                        <td translate>
+                                            Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Storage
+                                        </td>
+                                    </ion-item>
+                                </ion-segment-button>
+                                </ion-segment>
+                                </td>
+                            </tr>
+                        </table>
+                    </ion-card-content>
+                </ng-container>
+                <ng-container *ngIf="controller.properties.chargeMode == 'FORCE_CHARGE'">
+                    <ion-card-content class="underline">
+                        <!--Force Charge settings-->
+                        <table class="full_width">
+                            <tr>
+                                <td style="width:65%" translate>
+                                    Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{controller.properties.forceChargeMinPower}}&nbsp;W&nbsp;
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="full_width">
+                            <tr>
+                                <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller)"
+                                    min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
+                                    max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
+                                    color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
+                                    value="{{controller.properties.forceChargeMinPower}}">
+                                    <ion-label slot="start">
+                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                    </ion-label>
+                                    <ion-label slot="end">
+                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                    </ion-label>
+                                </ion-range>
+                            </tr>
+                        </table>
+                    </ion-card-content>
+                </ng-container>
+            </ng-container>
+            <!--Uncontrollable Evcs-->
+            <ng-container *ngIf="!controller">
+                <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:50%" translate>
+                                Edge.Index.Widgets.EVCS.ChargingPower
+                            </td>
+                            <td style="width:50%" class="align_right">
+                                {{ getState(currentData[componentId + "/ChargePower"] | number:'1.0-0',currentData[componentId + "/Status"], currentData[componentId + "/Plug"]) }}
+                            </td>
+                        </tr>
+                    </table>
+                </ion-item>
+                <ion-item>
+                    <ion-label translate>
+                        Diese Ladesäule kann nicht gesteuert werden
+                    </ion-label>
                 </ion-item>
             </ng-container>
-        </ion-label>
+        </ng-container>
+        <ion-item class="normalFontSize" style="padding-top: 20px" *ngIf="currentData[componentId + '/State'] == 3">
+            <tr>
+                <td translate>
+                    Edge.Index.Widgets.EVCS.NoConnection.Description
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <ul>
+                        <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
+                        <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1</li>
+                    </ul>
+                </td>
+            </tr>
+        </ion-item>
     </ion-content>
 </ng-container>
