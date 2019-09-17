@@ -287,7 +287,7 @@ public class PreConfig {
 				grid.put("alias", "");
 				grid.put("external", false);
 				factory.update(grid);
-				/*
+				
 				// Create PVMeter
 				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
 
@@ -297,7 +297,8 @@ public class PreConfig {
 				pv.put("id", "pv0");
 				pv.put("alias", "");
 				factory.update(pv);
-				*/
+				
+				/*
 				// Create PVvInverter
 				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PvInverter", null);
 
@@ -307,7 +308,7 @@ public class PreConfig {
 				pvinverter.put("id", "pvInverter0");
 				pvinverter.put("alias", "");
 				factory.update(pvinverter);
-
+				 */
 			} else {
 				System.out.println("Kaco already active");
 			}
