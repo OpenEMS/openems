@@ -16,7 +16,6 @@ import com.google.common.base.Strings;
 
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.OpenemsConstants;
-import io.openems.edge.common.component.ComponentManager;
 
 @Component(immediate = true)
 public class EdgeApp {

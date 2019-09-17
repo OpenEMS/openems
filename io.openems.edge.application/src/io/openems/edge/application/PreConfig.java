@@ -1,27 +1,17 @@
 package io.openems.edge.application;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
 import java.util.Hashtable;
-
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PreConfig {
 
-	private final Logger log = LoggerFactory.getLogger(PreConfig.class);
-
 	protected static void initConfig(ConfigurationAdmin cm) {
 
+		/*
 		char[] password = { 'g', 'u', 'e', 's', 't' };
 
 		try {
@@ -32,12 +22,12 @@ public class PreConfig {
 			SecretKey key = skf.generateSecret(spec);
 			byte[] res = key.getEncoded();
 
-			//System.out.println("PASSWORT: " + Base64.getEncoder().encodeToString(res));
+			System.out.println("PASSWORT: " + Base64.getEncoder().encodeToString(res));
 
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			throw new RuntimeException(e);
 		}
-
+		*/
 		Configuration factory;
 
 		Configuration[] configs;

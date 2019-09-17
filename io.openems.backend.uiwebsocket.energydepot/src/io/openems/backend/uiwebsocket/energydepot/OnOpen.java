@@ -17,13 +17,11 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
 import io.openems.common.session.Role;
-import io.openems.common.utils.JsonUtils;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 

@@ -4,7 +4,6 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.common.channel.Level;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.SemanticVersion;
 
 public class MyEdge extends Edge {
 
