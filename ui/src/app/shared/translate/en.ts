@@ -1,7 +1,5 @@
 export const TRANSLATION = {
     General: {
-        active: "active",
-        inactive: "inactive",
         On: "On",
         Off: "Off",
         Phase: "Phase",
@@ -136,7 +134,6 @@ export const TRANSLATION = {
                         Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
                         MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
                         MinCharging: "Guarantee minimum charge",
-                        MinChargePower: "Minimale Ladeleistung",
                         ChargingPriority: {
                             Info: "Depending on the prioritization, the selected component will be loaded first",
                             Car: "Car",

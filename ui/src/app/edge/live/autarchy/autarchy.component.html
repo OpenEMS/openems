@@ -8,15 +8,13 @@
                 <ion-label translate>General.Autarchy</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary as sum">
-                <ion-grid>
-                    <table class="full_width">
-                        <tr>
-                            <td style="width: 100%">
-                                <percentagebar [value]="sum.system.autarchy"></percentagebar>
-                            </td>
-                        </tr>
-                    </table>
-                </ion-grid>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%">
+                            <percentagebar [value]="sum.system.autarchy"></percentagebar>
+                        </td>
+                    </tr>
+                </table>
             </ion-card-content>
         </ion-card>
     </ng-container>

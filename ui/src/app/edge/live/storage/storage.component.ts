@@ -84,5 +84,4 @@ export class StorageComponent {
         });
         return await modal.present();
     }
-
 }

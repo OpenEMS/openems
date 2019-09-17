@@ -9,24 +9,19 @@
     <ion-label translate>Edge.Index.Widgets.Channeltreshold.Output</ion-label>
   </ion-item>
   <ion-card-content *ngIf="(edge.currentData | async).channel as channel">
-    <ion-grid no-padding>
-      <table class="full_width">
-        <tr>
-          <td style="width: 90%" *ngIf="component.id != component.alias" translate>
-            &nbsp;{{component.alias}}
-          </td>
-          <td style="width: 90%" *ngIf="component.id == component.alias" translate>
-            {{ outputChannel.channelId }}
-          </td>
-          <td class="align_right" style="width: 10%" *ngIf="channel[outputChannel.toString()] == null">?</td>
-          <td class="align_right" style="width: 10%" *ngIf="channel[outputChannel.toString()] == 1" translate>General.On
-          </td>
-          <td class="align_right" style="width: 10%" *ngIf="channel[outputChannel.toString()] == 0" translate>
-            General.Off</td>
-        </tr>
-      </table>
-    </ion-grid>
+    <table class="full_width">
+      <tr>
+        <td style="width: 90%" *ngIf="component.id != component.alias" translate>
+          &nbsp;{{component.alias}}
+        </td>
+        <td style="width: 90%" *ngIf="component.id == component.alias" translate>
+          {{ outputChannel.channelId }}
+        </td>
+        <td style="width: 10%" *ngIf="channel[outputChannel.toString()] == null">?</td>
+        <td style="width: 10%" *ngIf="channel[outputChannel.toString()] == 1" translate>General.On</td>
+        <td style="width: 10%" *ngIf="channel[outputChannel.toString()] == 0" translate>General.Off</td>
+      </tr>
+    </table>
   </ion-card-content>
 </ion-card>
-
 <!-- &nbsp;<span translate>Edge.Index.Widgets.Channeltreshold.Output</span>&nbsp; -->

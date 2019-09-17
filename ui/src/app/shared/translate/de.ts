@@ -1,8 +1,6 @@
 export const TRANSLATION = {
     General: {
-        Active: "aktiv",
-        Inactive: "inaktiv",
-        On: "Ein",
+        On: "An",
         Off: "Aus",
         Phase: "Phase",
         Autarchy: "Autarkie",
@@ -84,8 +82,8 @@ export const TRANSLATION = {
                     Output: "Ausgang"
                 },
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
-                autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt werden kann.",
-                selfconsumptionInfo: "Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt werden kann.",
+                autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
+                selfconsumptionInfo: "Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",
                     HighThreshold: "Oberer Schwellenwert"
@@ -136,8 +134,7 @@ export const TRANSLATION = {
                         ShortName: "Optimiert",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
                         MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Beladeleistung",
-                        MinChargePower: "Ladeleistung",
+                        MinCharging: "Minimale Aufladung garantieren",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen.",
                             Car: "Auto",

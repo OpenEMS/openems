@@ -2,11 +2,11 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, Service, Utils, EdgeConfig } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 
 @Component({
   selector: 'soc',
@@ -66,7 +66,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     }
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
-    // this.querykWh(this.fromDate, this.toDate)
   }
 
   private updateChart() {
@@ -82,19 +81,15 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           }
           this.labels = labels;
 
-          // show Component-ID if there is more than one Channel
-          let showComponentId = Object.keys(result.data).length > 1 ? true : false;
-
           // convert datasets
           let datasets = [];
 
           // required data for autarchy and self consumption
-          let buyFromGridData: number[];
-          let sellToGridData: number[];
-          let consumptionData: number[];
-          let dischargeData: number[];
-          let productionData: number[];
-
+          let buyFromGridData: number[] = [];
+          let sellToGridData: number[] = [];
+          let consumptionData: number[] = [];
+          let dischargeData: number[] = [];
+          let productionData: number[] = [];
 
           if (!edge.isVersionAtLeast('2018.8')) {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
@@ -118,7 +113,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
              * Storage Discharge
              */
             let effectivePower;
-
             if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
               effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
                 return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
@@ -126,7 +120,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
             } else {
               effectivePower = result.data['_sum/EssActivePower'];
             }
-
             dischargeData = effectivePower.map(value => {
               if (value == null) {
                 return null
@@ -136,6 +129,42 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
                 return 0;
               }
             });
+          };
+
+          /*
+          * Autarchy
+          */
+          if (config.hasProducer()) {
+            let autarchy = consumptionData.map((value, index) => {
+              if (value == null) {
+                return null
+              } else {
+                return CurrentData.calculateAutarchy(buyFromGridData[index], value);
+              }
+            })
+
+            datasets.push({
+              label: this.translate.instant('General.Autarchy'),
+              data: autarchy,
+              hidden: false
+            })
+
+            /*
+            * Self Consumption
+            */
+            let selfConsumption = productionData.map((value, index) => {
+              if (value == null) {
+                return null
+              } else {
+                return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+              }
+            })
+
+            datasets.push({
+              label: this.translate.instant('General.SelfConsumption'),
+              data: selfConsumption,
+              hidden: false
+            })
           }
 
           if ('_sum/GridActivePower' in result.data) {
@@ -183,9 +212,19 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
             /*
              * State-of-charge
              */
+            let data = result.data['_sum/EssSoc'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 100 || value < 0) {
+                return null;
+              } else {
+                return value;
+              }
+            })
+
             datasets.push({
               label: this.translate.instant('General.Soc'),
-              data: result.data['_sum/EssSoc'],
+              data: data,
               hidden: false
             });
           };
@@ -224,20 +263,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
               data: selfConsumption,
               hidden: false
             })
-          }
-
-          for (let channel in result.data) {
-
-            let data = result.data[channel].map(value => {
-              if (value == null) {
-                return null
-              } else if (value > 100 || value < 0) {
-                return null;
-              } else {
-                return value;
-              }
-            });
-
           }
           this.datasets = datasets;
           this.loading = false;

@@ -16,7 +16,7 @@
           <ion-grid class="ion-no-padding">
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
-              <ion-row *ngSwitchCase="'Storage'" [style.height]="socChartHeight">
+              <ion-row *ngSwitchCase="'Autarchy' || 'Storage' || 'Selfconsumption'" [style.height]="socChartHeight">
                 <ion-col size="12">
                   <soc [period]="service.historyPeriod"></soc>
                 </ion-col>

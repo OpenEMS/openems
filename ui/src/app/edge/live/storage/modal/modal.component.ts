@@ -16,6 +16,8 @@ export class StorageModalComponent implements OnInit {
     @Input() essComponents: EdgeConfig.Component[];
     @Input() chargerComponents: EdgeConfig.Component[];
 
+    // referene to the Utils method to access via html
+    public isLastElement = Utils.isLastElement;
 
     public outputChannel: ChannelAddress[] = null;
 
@@ -27,15 +29,4 @@ export class StorageModalComponent implements OnInit {
     ) { }
 
     ngOnInit() { }
-
-    ngOnDestroy() {
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, StorageModalComponent.SELECTOR);
-        }
-    }
-
-    // ToDo: move to Utils completely *atm not reachable via Utils on html*
-    public isLastElement(element, array: any[]) {
-        return Utils.isLastElement(element, array);
-    }
 }

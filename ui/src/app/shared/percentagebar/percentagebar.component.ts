@@ -11,8 +11,4 @@ export class PercentageBarComponent {
 
     constructor(
     ) { }
-
-    ngOnInit() { }
-
-    ngOnDestroy() { }
 }

@@ -8,34 +8,23 @@
                 <ion-label translate>General.Grid</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.grid as sum">
-                <ion-grid class="ion-no-padding">
-                    <table class="full_width">
-                        <tr class="underline" *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
-                            <td colspan="4" translate>General.OffGrid</td>
-                        </tr>
-                        <tr>
-                            <td style="width:65%" translate>General.GridBuyAdvanced</td>
-                            <ng-container *ngIf="sum.buyActivePower != 0; else empty">
-                                <td style="width:35%" class="align_right">
-                                    {{ sum.buyActivePower | number:'1.0-0' }}&nbsp;W</td>
-                            </ng-container>
-                            <ng-template #empty>
-                                <td style="width:35%" class="align_right">-&nbsp;</td>
-                            </ng-template>
-                        </tr>
-                        <tr>
-                            <td style="width:65%" translate>General.GridSellAdvanced</td>
-                            <ng-container *ngIf="sum.sellActivePower != 0; else empty">
-                                <td style="width:35%" class="align_right">
-                                    {{ sum.sellActivePower | number:'1.0-0' }}&nbsp;W
-                                </td>
-                            </ng-container>
-                            <ng-template #empty>
-                                <td style="width:35%" class="align_right">-&nbsp;</td>
-                            </ng-template>
-                        </tr>
-                    </table>
-                </ion-grid>
+                <table class="full_width">
+                    <tr class="underline" *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
+                        <td colspan="4" translate>General.OffGrid</td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%" translate>General.GridBuyAdvanced</td>
+                        <td style="width:35%" class="align_right">
+                            {{ sum.buyActivePower | unitvalue:'W' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%" translate>General.GridSellAdvanced</td>
+                        <td style="width:35%" class="align_right">
+                            {{ sum.sellActivePower | unitvalue:'W' }}
+                        </td>
+                    </tr>
+                </table>
             </ion-card-content>
         </ion-card>
     </ng-container>
