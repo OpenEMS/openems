@@ -92,6 +92,8 @@ export class EvcsComponent {
         return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
       case ChargeState.AUTHORIZATION_REJECTED:
         return this.translate.instant('Edge.Index.Widgets.EVCS.NotAuthorized');
+      case ChargeState.CHARGING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
     }
   }
 

@@ -24,8 +24,6 @@ export class EvcsModalComponent implements OnInit {
   public isCapacity: boolean = null;
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;
-  //for test purposes until controller propertie is available
-  public kwhvalue: number = 5;
 
   constructor(
     protected service: Service,
@@ -143,6 +141,28 @@ export class EvcsModalComponent implements OnInit {
       });
     }
   }
+
+
+  /**
+   * Updates the Energy Session Limit 
+   *  
+   * @param event 
+   */
+  updateEnergySessionLimit(event: CustomEvent, currentController: EdgeConfig.Component) {
+    let oldLimit = currentController.properties.energySessionLimit;
+    let newLimit = event.detail.value;
+
+    if (this.edge != null) {
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        { name: 'energySessionLimit', value: newLimit }
+      ]).then(() => {
+        currentController.properties.energySessionLimit = newLimit;
+      }).catch(reason => {
+        currentController.properties.energySessionLimit = oldLimit;
+      })
+    }
+  }
+
 
   /**
    * Updates the Min-Power of default charging
