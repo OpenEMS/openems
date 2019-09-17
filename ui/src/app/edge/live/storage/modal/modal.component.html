@@ -23,10 +23,10 @@
                             {{ sum.soc| unitvalue:'%' }}
                         </td>
                     </tr>
-                    <tr *ngIf="currentData[component.id + '/Capacity'] != null">
+                    <tr *ngIf="sum.capacity != null">
                         <td style="width:65%" translate>General.Capacity</td>
                         <td style="width:35%" class="align_right">
-                            {{ currentData[component.id + '/Capacity'] | unitvalue:'Wh' }}
+                            {{ sum.capacity | unitvalue:'Wh' }}
                         </td>
 
                     </tr>
