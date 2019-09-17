@@ -4,8 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { ChpsocModalComponent } from './chpsoc-modal/chpsoc-modal.page';
 import { ModalController } from '@ionic/angular';
 
-type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
-
 @Component({
     selector: ChpSocComponent.SELECTOR,
     templateUrl: './chpsoc.component.html'
@@ -21,8 +19,6 @@ export class ChpSocComponent {
     public controller: EdgeConfig.Component = null;
     public inputChannel: ChannelAddress = null;
     public outputChannel: ChannelAddress = null;
-    public lowThreshold: number;
-    public highThresold: number;
     public thresholdEnd: number;
 
     constructor(
@@ -37,13 +33,11 @@ export class ChpSocComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.controller = config.components[this.componentId];
+                this.thresholdEnd = this.controller.properties['highThreshold'] - this.controller.properties['lowThreshold'];
                 this.outputChannel = ChannelAddress.fromString(
                     this.controller.properties['outputChannelAddress']);
                 this.inputChannel = ChannelAddress.fromString(
                     this.controller.properties['inputChannelAddress']);
-                this.lowThreshold = this.controller.properties['lowThreshold'];
-                this.highThresold = this.controller.properties['highThreshold'];
-                this.thresholdEnd = this.highThresold - this.lowThreshold;
                 edge.subscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId, [
                     this.outputChannel,
                     this.inputChannel
@@ -65,7 +59,7 @@ export class ChpSocComponent {
             componentProps: {
                 controller: this.controller,
                 edge: this.edge,
-                componentId: this.componentId
+                componentId: this.componentId,
             }
         });
         return await modal.present();

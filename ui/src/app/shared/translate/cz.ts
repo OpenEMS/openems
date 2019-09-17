@@ -2,6 +2,12 @@ export const TRANSLATION = {
     General: {
         On: "zapnutý",
         Off: "Pryč",
+        Active: "Aktivně",
+        Inactive: "Neaktivní",
+        Manually: "Ruční",
+        Automatic: "Automaticky",
+        Mode: "Režim",
+        State: "Stát",
         Phase: "Fáze",
         Autarchy: "Soběstačnost",
         SelfConsumption: "Vlastní spotřeba",

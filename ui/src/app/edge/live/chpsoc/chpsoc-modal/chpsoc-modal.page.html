@@ -10,60 +10,99 @@
 </ion-header>
 
 <ion-content>
-    <ion-label style="width: 100%">
-        <ng-container *ngIf="componentId">
-            <ng-container *ngIf="edge.currentData | async as currentData">
-                <ion-label class="normalFontSize" *ngIf="currentData[componentId + '/Mode'] != 3">
-                    <!--Controllable Evcs-->
-                    <ng-container *ngIf="controller">
-                        <ion-item class="normalFontSize" lines="none">
-                            <table class="full_width" text-wrap>
-                                <tr>
-                                    <td colspan="3" style="width: 95%">
-                                        <ion-segment (ionChange)="updateMode($event, controller)"
-                                            value={{controller.properties.mode}}>
+    <ng-container *ngIf="componentId ">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ng-container *ngIf="controller">
+                <ion-card-content class="underline">
+                    <table class="full_width">
+                        <tr>
+                            <td translate>
+                                General.Mode
+                            </td>
+                            <td class="align_right">
+                                <ion-icon class="ion-no-padding" style="text-align: right; font-size: 20px"
+                                    style="cursor: pointer" name="information-circle-outline">
+                                </ion-icon>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="full_width">
+                        <tr>
+                            <td colspan="3">
+                                <ion-segment (ionChange)="updateMode($event, controller)"
+                                    value="{{controller.properties['mode']}}">
+                                    <ion-segment-button value="MANUAL_ON">
+                                        <ion-item lines="none">
+                                            <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+                            <td translate>
+                                General.On
+                            </td>
+                            </ion-item>
+                            </ion-segment-button>
 
-                                            <ion-segment-button value="MANUAL_ON">
-                                                <ion-item lines="none">
-                                                    <ion-img style="width:30px"
-                                                        src="assets/img/power-button-outline.png">
-                                                    </ion-img>
-
-                                                    <ion-label translate>
-                                                        Switch ON
-                                                    </ion-label>
-                                                </ion-item>
-                                            </ion-segment-button>
-                                            <ion-segment-button value="MANUAL_OFF">
-                                                <ion-item lines="none">
-                                                    <ion-img style="width:30px"
-                                                        src="assets/img/power-button-outline.png">
-                                                    </ion-img>
-                                                    <ion-label translate>
-                                                        Switch OFF
-                                                    </ion-label>
-                                                </ion-item>
-                                            </ion-segment-button>
-                                            <ion-segment-button value="AUTOMATIC">
-                                                <ion-item lines="none">
-                                                    <ion-img style="width:30px" src="assets/img/auto-flash.png">
-                                                    </ion-img>
-                                                    <ion-label translate>
-                                                        Atomatic
-                                                    </ion-label>
-                                                </ion-item>
-                                            </ion-segment-button>
-                                        </ion-segment>
+                            <ion-segment-button value="AUTOMATIC">
+                                <ion-item lines="none">
+                                    <ion-icon style="width:40px" name="sunny">
+                                    </ion-icon>
+                                    <td translate>
+                                        General.Automatic
                                     </td>
+                                </ion-item>
+                            </ion-segment-button>
 
-                                </tr>
 
-                            </table>
-                        </ion-item>
-                    </ng-container>
-                </ion-label>
+                            <ion-segment-button value="MANUAL_OFF">
+                                <ion-item lines="none">
+                                    <ion-icon name="power" style="width: 40px"></ion-icon>
+                                    <td translate>
+                                        General.Off
+                                    </td>
+                                </ion-item>
+                            </ion-segment-button>
+                            </ion-segment>
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
+                <ion-card-content>
+                    <table class="full_width">
+                        <tr>
+                            <td>
+                                Schwellwertkonfiguration
+                            </td>
+                        </tr>
+                        <div style="padding-top: 10px;"></div>
+                        <tr>
+                            <td style="width: 65%">
+                                Oberer Schwellwert
+                            </td>
+                            <td style="width: 35%" class="align_right">
+                                {{controller.properties['highThreshold'] | unitvalue:'%'}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 65%">
+                                Unterer Schwellwert
+                            </td>
+                            <td style="width: 35%" class="align_right">
+                                {{controller.properties['lowThreshold'] | unitvalue:'%'}}
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="full_width">
+                        <tr>
+                            <ion-range dual-knobs pin color="dark" min="0" max="100" [(ngModel)]="thresholds">
+                                <ion-label slot="start">
+                                    0&nbsp;%
+                                </ion-label>
+                                <ion-label slot="end">
+                                    100&nbsp;%
+                                </ion-label>
+                            </ion-range>
+                        </tr>
+                    </table>
+                </ion-card-content>
             </ng-container>
         </ng-container>
-    </ion-label>
-
+    </ng-container>
 </ion-content>

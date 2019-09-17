@@ -4,6 +4,7 @@ import { PopoverController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { RangeValue } from '@ionic/core';
 
 type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
@@ -16,23 +17,30 @@ export class ChpsocModalComponent implements OnInit {
 
     private static readonly SELECTOR = "chpsoc-modal";
 
-    @Input() edge: Edge;
-    @Input() controller: EdgeConfig.Component = null;
-    @Input() private componentId: string;
+    @Input() public edge: Edge;
+    @Input() public controller: EdgeConfig.Component;
+    @Input() public componentId: string;
+
+    public thresholds: RangeValue = {
+        lower: null,
+        upper: null
+    };
 
     constructor(
         protected service: Service,
         public websocket: Websocket,
         public router: Router,
         protected translate: TranslateService,
-        private modalCtrl: ModalController,
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
         this.edge.subscribeChannels(this.websocket, ChpsocModalComponent.SELECTOR + this.componentId, [
             new ChannelAddress(this.controller.id, "Mode")
         ]);
-    }
+        this.thresholds['lower'] = this.controller.properties['lowThreshold'];
+        this.thresholds['upper'] = this.controller.properties['highThreshold'];
+    };
 
     ngOnDestroy() {
         this.edge.unsubscribeChannels(this.websocket, ChpsocModalComponent.SELECTOR + this.componentId);
@@ -45,10 +53,10 @@ export class ChpsocModalComponent implements OnInit {
 
 
     /**  
-* Updates the Charge-Mode of the EVCS-Controller.
-* 
-* @param event 
-*/
+    * Updates the Charge-Mode of the EVCS-Controller.
+    * 
+    * @param event 
+    */
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldMode = currentController.properties.mode;
         let newMode: mode;
@@ -68,10 +76,10 @@ export class ChpsocModalComponent implements OnInit {
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
                 { name: 'mode', value: newMode }
-            ]).then(response => {
+            ]).then(() => {
                 currentController.properties.mode = newMode;
             }).catch(reason => {
-                currentController.properties.mode = newMode;
+                currentController.properties.mode = oldMode;
                 console.warn(reason);
             });
         }

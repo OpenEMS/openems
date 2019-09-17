@@ -7,52 +7,47 @@
                 <ion-label>{{ controller.alias }}</ion-label>
             </ion-item>
             <ion-card-content>
-                <ion-grid class="ion-no-padding">
-                    <table class="full_width">
-                        <tr class="underline">
-                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.HighThreshold</td>
-                            <td style="width:25%" class="align_right">
-                                {{ highThresold  }}</td>
-                            <td style="width:10%">&nbsp;%</td>
-                        </tr>
-                        <tr class="underline" *ngIf="currentData.channel[inputChannel] as value">
-                            <td style="width:65%" translate>General.Soc</td>
-                            <td style="width:25%" class="align_right">
-                                {{ value | number:'1.0-0'}}</td>
-                            <td style="width:10%">&nbsp;%</td>
-                        </tr>
-                        <tr class="underline">
-                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.LowThreshold</td>
-                            <td style="width:25%" class="align_right">
-                                {{ lowThreshold  }}</td>
-                            <td style="width:10%">&nbsp;%</td>
-                        </tr>
-                        <tr class="underline">
-                            <td style="width:65%" translate>Signal</td>
-                            <td style="width:25%" class="align_right">
-                                <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
-                                <ion-icon *ngIf="currentData.channel[outputChannel] == 1" name="radio-button-on">
-                                </ion-icon>
-                                <ion-icon *ngIf="currentData.channel[outputChannel] == 0" name="radio-button-off">
-                                </ion-icon>
-                            </td>
-                            <td style="width:10%">&nbsp;</td>
-                        </tr>
-                    </table>
-                    <table class="full_width">
-                        <tr>
-                            <td style="width: 100%">
-                                <svg width="100%" height="20">
-                                    <rect width="100%" rx="5" ry="5" height="20" style="fill:#000000" />
-                                    <rect attr.x="{{ lowThreshold }}%" y="2" rx="5" ry="5"
-                                        attr.width="{{ thresholdEnd }}%" height="16" style="fill:#2d8fab" />
-                                </svg>
-                            </td>
-                        </tr>
-                    </table>
-                </ion-grid>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.Mode
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            {{controller.properties['mode']}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%" translate>General.State</td>
+                        <td style="width:35%" class="align_right" translate>
+                            <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+                            <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                                General.Active
+                            </ng-container>
+                            <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                                General.Inactive
+                            </ng-container>
+                        </td>
+                    </tr>
+                </table>
+                <div style="padding-top: 5px;"></div>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%">
+                            <svg width="100%" height="20">
+                                <rect width="100%" rx="5" ry="5" height="20" style="fill:#f4f4f4" />
+                                <rect attr.x="{{ controller.properties['lowThreshold'] }}%" y="2" rx="5" ry="5"
+                                    attr.width="{{ thresholdEnd }}%" height="16" style="fill:#2d8fab" />
+                                <text attr.x="{{controller.properties['lowThreshold'] - 7}}%" y="58%"
+                                    dominant-baseline="middle" text-anchor="middle"
+                                    style="font-weight: 500">{{ controller.properties['lowThreshold'] + " %" }}</text>
+                                <text attr.x="{{controller.properties['highThreshold'] + 7}}%" y="58%"
+                                    dominant-baseline="middle" text-anchor="middle"
+                                    style="font-weight: 500">{{ controller.properties['highThreshold'] + " %" }}</text>
+                            </svg>
+                        </td>
+                    </tr>
+                </table>
             </ion-card-content>
-
         </ion-card>
     </ng-container>
 </ng-container>

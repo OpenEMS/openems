@@ -2,6 +2,12 @@ export const TRANSLATION = {
     General: {
         On: "On",
         Off: "Off",
+        Active: "Active",
+        Inactive: "Inactive",
+        Manually: "Manually",
+        Automatic: "Automatically",
+        Mode: "Mode",
+        State: "State",
         Phase: "Phase",
         Autarchy: "Autarchy",
         SelfConsumption: "Self Consumption",
