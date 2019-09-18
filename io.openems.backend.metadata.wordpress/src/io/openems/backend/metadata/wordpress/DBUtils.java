@@ -33,7 +33,7 @@ public class DBUtils {
 	private String dbuser;
 	private String dbname;
 	private String dburl;
-	
+
 	private final Logger log = LoggerFactory.getLogger(DBUtils.class);
 
 	public DBUtils(String dbuser, String p, String dbname, String dburl, String wpurl) {
@@ -48,7 +48,7 @@ public class DBUtils {
 			DriverManager.registerDriver(new Driver());
 			this.conn = DriverManager.getConnection(this.url);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			this.log.error("Cannot connect to Database: " + e.getMessage());
 		}
 	}
 
@@ -69,7 +69,7 @@ public class DBUtils {
 			return result;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			this.log.error("Failed to get Edges from Database: " + e.getMessage());
 		}
 
 		return null;
@@ -88,7 +88,7 @@ public class DBUtils {
 
 		} catch (SQLException e) {
 
-			e.printStackTrace();
+			this.log.error("Failed to get Edges from Wordpress: " + e.getMessage());
 		}
 
 		return null;
@@ -105,50 +105,13 @@ public class DBUtils {
 
 		} catch (SQLException e) {
 
-			e.printStackTrace();
+			this.log.error("Failed to write Edge to Database: " + e.getMessage());
 		}
 	}
 
 	public MyUser getUserFromDB(String login, String sessionId) throws OpenemsException {
 
 		MyUser user = createUser(sessionId);
-		
-		/*
-		if(createUser(sessionId) == false) {
-			log.warn("Error in createUser");
-		}
-
-		Statement stmt;
-		try {
-			reconnect();
-			stmt = this.conn.createStatement();
-			String sql = "SELECT * FROM users WHERE login = '" + login + "'";
-			ResultSet result = stmt.executeQuery(sql);
-
-			ArrayList<Integer> edge_ids_list = new ArrayList<>();
-
-			while (result.next()) {
-
-				sql = "SELECT edge_id FROM user_edges WHERE user_id = " + result.getInt("user_id");
-
-				ResultSet edges = stmt.executeQuery(sql);
-
-				while (edges.next()) {
-					edge_ids_list.add(edges.getInt("edge_id"));
-
-				}
-
-				user = new MyUser(result.getInt("user_id"), result.getString("name"), edge_ids_list,
-						result.getString("role"));
-			}
-			if (user == null) {
-
-			}
-
-		} catch (SQLException e) {
-
-			e.printStackTrace();
-		}*/
 
 		return user;
 
@@ -157,9 +120,9 @@ public class DBUtils {
 	private MyUser createUser(String sessionId) throws OpenemsException {
 
 		if (sessionId == null) {
-			
-			return new MyUser("0", "Gast", new ArrayList<String>(Arrays.asList("2","4")),"guest" );
-			
+
+			return new MyUser("0", "Gast", new ArrayList<String>(Arrays.asList("2", "4")), "guest");
+
 		}
 
 		JsonObject j = getWPResponse("/user/get_user_meta/?cookie=" + sessionId);
@@ -181,44 +144,10 @@ public class DBUtils {
 		if (!name.matches(".*\\w.*")) {
 			name = nick;
 		}
-		//String email = userinfo.get("email").getAsString();
-		
+
 		MyUser user = new MyUser(userinfo.get("id").getAsString(), name, edges, role);
-		/*
-		try {
-			reconnect();
-			Statement stmt;
-			stmt = this.conn.createStatement();
-			String sql_get = "SELECT * FROM users WHERE login = '" + nick + "'";
-			ResultSet userexists = stmt.executeQuery(sql_get);
-			if(userexists.next()) {
-				
-				return false;
-			}
-			
 
-			String sql = "INSERT INTO users (role,edge_id,name,email,login) VALUES ('" + role + "', '" + edges[0]
-					+ "', '" + name + "', '" + email + "', '" + nick + "')";
-			stmt.executeUpdate(sql);
-			
-
-			ResultSet result = stmt.executeQuery(sql_get);
-			while (result.next()) {
-				int id = result.getInt("user_id");
-				if (id == 0) {
-					throw new OpenemsException("error creating new User ID");
-				}
-				for (String edge_id : edges) {
-					sql = "INSERT INTO user_edges (user_id, edge_id) VALUES (" + id + ", " + edge_id + ")";
-					stmt.executeUpdate(sql);
-				}
-			}
-			return true;
-		} catch (SQLException e) {
-
-			log.warn(e.getMessage());
-		}*/
-			return user;
+		return user;
 	}
 
 	public JsonObject getWPResponse(String urlparams) throws OpenemsException {
@@ -270,7 +199,7 @@ public class DBUtils {
 			}
 		} catch (JsonSyntaxException | IOException e) {
 
-			e.printStackTrace();
+			this.log.error("Failed to get response from Wordpress: " + e.getMessage());
 			return null;
 		} finally {
 			if (connection != null) {
