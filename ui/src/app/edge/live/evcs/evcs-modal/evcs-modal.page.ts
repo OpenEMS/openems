@@ -150,8 +150,8 @@ export class EvcsModalComponent implements OnInit {
    */
   updateEnergySessionLimit(event: CustomEvent, currentController: EdgeConfig.Component) {
     let oldLimit = currentController.properties.energySessionLimit;
-    let newLimit = event.detail.value;
-
+    let newLimit = event.detail.value * 1000;
+    console.log("SCHAKALAKAKA", currentController.properties.energySessionLimit)
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'energySessionLimit', value: newLimit }

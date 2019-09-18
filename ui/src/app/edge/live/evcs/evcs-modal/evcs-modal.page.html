@@ -241,14 +241,14 @@
                         <tr>
                             <td style="width: 65%">Ladekapazität</td>
                             <td style="width: 35%" class="align_right">
-                                {{controller.properties['energySessionLimit'] | unitvalue:'kWh'}}</td>
+                                {{(controller.properties['energySessionLimit'] / 1000) | unitvalue:'kWh'}}</td>
                         </tr>
                     </table>
                     <table class="full_width">
                         <tr>
-                            <ion-range (ionChange)="updateDefaultMinPower($event, controller)" style="width: 100%"
-                                min="0" max="20" color="dark" pin="true" style="padding-top: 8px;" step="100"
-                                debounce="1000" value="{{controller.properties['energySessionLimit']}}">
+                            <ion-range (ionChange)="updateEnergySessionLimit($event, controller)" style="width: 100%"
+                                min="0" max="20" color="dark" pin="true" style="padding-top: 8px;" step="1"
+                                debounce="1000" value="{{(controller.properties['energySessionLimit'] / 1000)}}">
                                 <ion-label slot="start">
                                     0&nbsp;kWh
                                 </ion-label>

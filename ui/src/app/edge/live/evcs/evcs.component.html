@@ -95,7 +95,7 @@
               Energielimit
             </td>
             <td style="width: 65%" class="align_right">
-              {{controller.properties['energySessionLimit'] | unitvalue:'Wh'}}
+              {{(controller.properties['energySessionLimit'] / 1000) | unitvalue:'kWh'}}
             </td>
           </tr>
           <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0">
