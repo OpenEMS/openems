@@ -130,7 +130,7 @@ public class ReadHandler implements Consumer<String> {
 
 					// Set the EnergyLimit
 					this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT)
-							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "Setenergy").orElse(null)) * 0.1);
+							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "Setenergy").orElse(0)) * 0.1);
 
 				} else if (id.equals("3")) {
 					/*
@@ -196,7 +196,7 @@ public class ReadHandler implements Consumer<String> {
 
 					// Set ENERGY_SESSION
 					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
-							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null)) * 0.1);
+							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(0)) * 0.1);
 				}
 
 			} else {
@@ -217,7 +217,7 @@ public class ReadHandler implements Consumer<String> {
 				}
 				if (jMessage.has("E pres")) {
 					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
-							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null)) * 0.1);
+							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(0)) * 0.1);
 				}
 			}
 		}
