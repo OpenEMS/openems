@@ -107,6 +107,7 @@ export class EvcsComponent {
         getState: this.getState
       }
     });
+    console.log("TESTCONSOLELOG")
     return await modal.present();
   }
 
