@@ -144,27 +144,18 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case STARTING:
 			case UNDEFINED:
 			case NOT_READY_FOR_CHARGING:
+			case ENERGY_LIMIT_REACHED:
 				evcs.setChargePowerRequest().setNextWriteValue(0);
 				evcs.getMinimumPower().setNextValue(0);
 				return;
-			case AUTHORIZATION_REJECTED:
+			case CHARGING_REJECTED:
 			case READY_FOR_CHARGING:
 			case CHARGING:
 				break;
 			}
 		}
 
-		/*
-		 * Check if the maximum energy limit is reached, informs the user and sets the
-		 * power request to 0
-		 */
 		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
-		int limit = evcs.setEnergyLimit().value().orElse(0);
-		if (evcs.getEnergySession().value().orElse(0) >= limit && limit != 0) {
-			evcs.setDisplayText().setNextWriteValue("Limit of " + limit + " reached");
-			evcs.setChargePowerRequest().setNextWriteValue(0);
-			return;
-		}
 
 		/*
 		 * Stop early if charging is disabled
@@ -275,9 +266,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 */
 	private int calculateExcessPowerAfterEss(ManagedEvcs evcs, SymmetricEss ess) {
 		int maxEssCharge;
-		if(ess instanceof ManagedEvcs) {
+		if (ess instanceof ManagedEvcs) {
 			maxEssCharge = ((ManagedSymmetricEss) ess).getAllowedCharge().value().orElse(0);
-		}else {
+		} else {
 			maxEssCharge = ess.getMaxApparentPower().value().orElse(0);
 		}
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);

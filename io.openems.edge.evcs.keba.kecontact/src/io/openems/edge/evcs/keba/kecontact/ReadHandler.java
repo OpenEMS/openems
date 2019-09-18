@@ -82,9 +82,25 @@ public class ReadHandler implements Consumer<String> {
 					Status status = stateChannel.value().asEnum();
 					if (status == Status.NOT_READY_FOR_CHARGING) {
 						if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
-							status = Status.AUTHORIZATION_REJECTED;
+							status = Status.CHARGING_REJECTED;
 						}
 					}
+
+					/*
+					 * Check if the maximum energy limit is reached, informs the user and sets the
+					 * status
+					 */
+					int limit = this.parent.setEnergyLimit().value().orElse(0);
+					if (this.parent.getEnergySession().value().orElse(0) >= limit && limit != 0) {
+						try {
+							this.parent.setDisplayText().setNextWriteValue("Limit of " + limit + "Wh reached");
+							status = Status.ENERGY_LIMIT_REACHED;
+						} catch (OpenemsNamedException e) {
+							e.printStackTrace();
+						}
+						return;
+					}
+
 					this.parent.channel(Evcs.ChannelId.STATUS).setNextValue(status);
 
 					if (status == Status.ERROR) {
