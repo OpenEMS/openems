@@ -103,7 +103,7 @@
               <td style="width:65%" translate>
                 Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
               <td style="width:35%" class="align_right">
-                {{ (currentData[componentId + "/EnergySession"] * 0.1) | unitvalue:'Wh' }}
+                {{ currentData[componentId + "/EnergySession"] | unitvalue:'Wh' }}
               </td>
             </tr>
           </ng-container>
