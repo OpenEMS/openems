@@ -91,7 +91,8 @@
                     </table>
                     <table class="full_width">
                         <tr>
-                            <ion-range dual-knobs pin color="dark" min="0" max="100" [(ngModel)]="thresholds">
+                            <ion-range (ionChange)="updateThresholds($event, controller)" dual-knobs pin color="dark"
+                                min="0" max="100" [(ngModel)]="thresholds">
                                 <ion-label slot="start">
                                     0&nbsp;%
                                 </ion-label>

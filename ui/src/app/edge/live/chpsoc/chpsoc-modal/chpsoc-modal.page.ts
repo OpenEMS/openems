@@ -84,6 +84,33 @@ export class ChpsocModalComponent implements OnInit {
             });
         }
     }
+
+    /**
+    * Updates the Min-Power of force charging
+    *
+    * @param event
+    */
+    updateThresholds(event: CustomEvent, currentController: EdgeConfig.Component) {
+        let oldLowerThreshold = currentController.properties['lowThreshold'];
+        let oldUpperThreshold = currentController.properties['highThreshold'];
+
+        let newLowerThreshold = this.thresholds['lower'];
+        let newUpperThreshold = this.thresholds['upper'];
+
+        if (this.edge != null) {
+            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+                { name: 'lowThreshold', value: newUpperThreshold },
+                { name: 'highThreshold', value: newUpperThreshold }
+            ]).then(() => {
+                currentController.properties['lowThreshold'] = newLowerThreshold;
+                currentController.properties['highThreshold'] = newUpperThreshold;
+            }).catch(reason => {
+                currentController.properties['lowThreshold'] = oldLowerThreshold;
+                currentController.properties['highThreshold'] = oldUpperThreshold;
+                console.warn(reason);
+            })
+        }
+    }
 }
 
 
