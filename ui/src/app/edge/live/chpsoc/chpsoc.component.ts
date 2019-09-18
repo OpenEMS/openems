@@ -19,7 +19,6 @@ export class ChpSocComponent {
     public controller: EdgeConfig.Component = null;
     public inputChannel: ChannelAddress = null;
     public outputChannel: ChannelAddress = null;
-    public thresholdEnd: number;
 
     constructor(
         public service: Service,
@@ -33,7 +32,6 @@ export class ChpSocComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.controller = config.components[this.componentId];
-                this.thresholdEnd = this.controller.properties['highThreshold'] - this.controller.properties['lowThreshold'];
                 this.outputChannel = ChannelAddress.fromString(
                     this.controller.properties['outputChannelAddress']);
                 this.inputChannel = ChannelAddress.fromString(
@@ -62,6 +60,7 @@ export class ChpSocComponent {
                 componentId: this.componentId,
             }
         });
+        console.log("INPUTCHANNEL", this.inputChannel)
         return await modal.present();
     }
 }

@@ -72,9 +72,11 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		
 		this.lowThreshold = config.lowThreshold();
 		this.highThreshold = config.highThreshold();
+		if(this.lowThreshold > this.highThreshold) {
+			throw new OpenemsException("Low threshold Soc "+ this.lowThreshold +" should be less than the high threshold Soc "+ this.highThreshold);
+		}
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
-		
 		this.mode = config.mode();
 		this.channel(ChannelId.MODE).setNextValue(mode);
 		super.activate(context, config.id(), config.alias(), config.enabled());

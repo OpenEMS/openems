@@ -64,45 +64,47 @@
                         </tr>
                     </table>
                 </ion-card-content>
-                <ion-card-content>
-                    <table class="full_width">
-                        <tr>
-                            <td>
-                                Schwellwertkonfiguration
-                            </td>
-                        </tr>
-                        <div style="padding-top: 10px;"></div>
-                        <tr>
-                            <td style="width: 65%">
-                                Oberer Schwellwert
-                            </td>
-                            <td style="width: 35%" class="align_right">
-                                {{controller.properties['highThreshold'] | unitvalue:'%'}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 65%">
-                                Unterer Schwellwert
-                            </td>
-                            <td style="width: 35%" class="align_right">
-                                {{controller.properties['lowThreshold'] | unitvalue:'%'}}
-                            </td>
-                        </tr>
-                    </table>
-                    <table class="full_width">
-                        <tr>
-                            <ion-range (ionChange)="updateThresholds($event, controller)" dual-knobs pin color="dark"
-                                min="0" max="100" [(ngModel)]="thresholds">
-                                <ion-label slot="start">
-                                    0&nbsp;%
-                                </ion-label>
-                                <ion-label slot="end">
-                                    100&nbsp;%
-                                </ion-label>
-                            </ion-range>
-                        </tr>
-                    </table>
-                </ion-card-content>
+                <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
+                    <ion-card-content>
+                        <table class="full_width">
+                            <tr>
+                                <td>
+                                    Schwellwertkonfiguration
+                                </td>
+                            </tr>
+                            <div style="padding-top: 10px;"></div>
+                            <tr>
+                                <td style="width: 65%">
+                                    Oberer Schwellwert
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{controller.properties['highThreshold'] | unitvalue:'%'}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 65%">
+                                    Unterer Schwellwert
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{controller.properties['lowThreshold'] | unitvalue:'%'}}
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="full_width">
+                            <tr>
+                                <ion-range (ionChange)="updateThresholds(controller)" dual-knobs pin color="dark"
+                                    min="20" max="80" [(ngModel)]="thresholds">
+                                    <ion-label slot="start">
+                                        20&nbsp;%
+                                    </ion-label>
+                                    <ion-label slot="end">
+                                        80&nbsp;%
+                                    </ion-label>
+                                </ion-range>
+                            </tr>
+                        </table>
+                    </ion-card-content>
+                </ng-container>
             </ng-container>
         </ng-container>
     </ng-container>

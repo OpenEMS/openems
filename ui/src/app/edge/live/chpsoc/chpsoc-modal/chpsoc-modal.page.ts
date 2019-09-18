@@ -40,6 +40,7 @@ export class ChpsocModalComponent implements OnInit {
         ]);
         this.thresholds['lower'] = this.controller.properties['lowThreshold'];
         this.thresholds['upper'] = this.controller.properties['highThreshold'];
+        console.log("CHPCONTROLLER", this.controller)
     };
 
     ngOnDestroy() {
@@ -90,7 +91,7 @@ export class ChpsocModalComponent implements OnInit {
     *
     * @param event
     */
-    updateThresholds(event: CustomEvent, currentController: EdgeConfig.Component) {
+    updateThresholds(currentController: EdgeConfig.Component) {
         let oldLowerThreshold = currentController.properties['lowThreshold'];
         let oldUpperThreshold = currentController.properties['highThreshold'];
 
@@ -99,7 +100,7 @@ export class ChpsocModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'lowThreshold', value: newUpperThreshold },
+                { name: 'lowThreshold', value: newLowerThreshold },
                 { name: 'highThreshold', value: newUpperThreshold }
             ]).then(() => {
                 currentController.properties['lowThreshold'] = newLowerThreshold;
