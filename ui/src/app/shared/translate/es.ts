@@ -1,12 +1,25 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Modo",
+        On: "conmutada",
+        Off: "apagado",
+        Active: "Activo",
+        Inactive: "Inactivo",
+        Manually: "a mano",
+        Phase: "Fase",
+        Autarchy: "Autosuficiencia",
+        SelfConsumption: "Autoconsumo",
         Cumulative: "Valores Acumulativos",
         Grid: "Red",
         GridBuy: "Relación",
         GridSell: "Fuente de alimentación",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "No hay conexión de red",
         Production: "Producción",
         Consumption: "Consumo",
+        otherConsumption: "otro Consumo",
+        Total: "consumo total",
         Load: "la cantidad",
         Power: "Rendimiento",
         StorageSystem: "Almacenamiento",
@@ -68,7 +81,12 @@ export const TRANSLATION = {
                 ProductionDC: "Generación DC"
             },
             Widgets: {
-                Info: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
+                Channeltreshold: {
+                    Output: "Salida"
+                },
+                phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
+                autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
+                selfconsumptionInfo: "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
                 CHP: {
                     LowThreshold: "Umbral bajo",
                     HighThreshold: "Umbral alto"
@@ -88,6 +106,7 @@ export const TRANSLATION = {
                     Error: "Error",
                     NotAuthorized: "No autorizado",
                     Unplugged: "No conectado",
+                    ChargeLimitReached: "Límite de carga alcanzado",
                     ChargingStationPluggedIn: "Estación de carga encufada",
                     ChargingStationPluggedInLocked: "Estación de carga enchufada + bloqueado",
                     ChargingStationPluggedInEV: "Estación de carga + e-Car enchufado",
@@ -113,15 +132,16 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Carga optimizada",
-                        ShortName: "Optimizado",
+                        ShortName: "automáticamente",
                         Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
                         MinInfo: "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
-                        MinCharging: "Garantía de carga mínima?",
+                        MinCharging: "Garantía de carga mínima",
+                        MinChargePower: "velocidad de carga",
                         ChargingPriority: "Dependiendo de la priorización, el componente seleccionado se cargará primero"
                     },
                     ForceChargeMode: {
                         Name: "Carga forzada",
-                        ShortName: "Forzado",
+                        ShortName: "a mano",
                         Info: "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
                         MaxCharging: "Fuerza de carga maxima:",
                         MaxChargingDetails: "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente."

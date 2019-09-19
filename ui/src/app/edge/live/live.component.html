@@ -13,19 +13,27 @@
           <!-- Regular Widgets -->
           <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
-            <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6">
+            <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="6" class="ion-no-padding">
+              <autarchy></autarchy>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="6" class="ion-no-padding">
+              <selfconsumption></selfconsumption>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6" class="ion-no-padding">
               <storage></storage>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="6">
+            <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="6" class="ion-no-padding">
               <grid></grid>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Production'" size="12" size-lg="6">
+            <ion-col *ngSwitchCase="'Production'" size="12" size-lg="6" class="ion-no-padding">
               <production></production>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="6">
+            <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="6" class="ion-no-padding">
               <consumption></consumption>
             </ion-col>
 
@@ -34,33 +42,34 @@
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
-            <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
+            <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
               <evcs *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'"
                 [componentId]="widget.componentId">
               </evcs>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12">
+            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12" size-lg="6" class="ion-no-padding">
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12">
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" class="ion-no-padding">
               <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="6">
+            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="6">
+            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="12"
+              size-lg="6" class="ion-no-padding">
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6">
+            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6" class="ion-no-padding">
               <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="6">
+            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="6" class="ion-no-padding">
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
 

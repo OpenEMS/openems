@@ -1,12 +1,25 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Režim",
+        On: "zapnutý",
+        Off: "Pryč",
+        Active: "aktivně",
+        Inactive: "Neaktivní",
+        Manually: "Ruční",
+        Phase: "Fáze",
+        Autarchy: "Soběstačnost",
+        SelfConsumption: "Vlastní spotřeba",
         Cumulative: "Kumulativní Hodnoty",
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
+        otherConsumption: "jiná spotřeba",
+        Total: "celková spotřeba",
         Load: "nálož",
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
@@ -67,7 +80,12 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
-                Info: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
+                Channeltreshold: {
+                    Output: "Výstup"
+                },
+                phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
+                autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
+                selfconsumptionInfo: "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
                 CHP: {
                     LowThreshold: "Nízký práh",
                     HighThreshold: "vysoký práh"
@@ -87,6 +105,7 @@ export const TRANSLATION = {
                     Error: "Chyba",
                     NotAuthorized: "Neautorizovaný",
                     Unplugged: "Odpojena",
+                    ChargeLimitReached: "Bylo dosaženo limitu nabíjení",
                     ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
                     ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
                     ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",
@@ -112,10 +131,11 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimalizované zatížení",
-                        ShortName: "optimalizované",
+                        ShortName: "automaticky",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
                         MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
-                        MinCharging: "Garance minimálního poplatku?",
+                        MinCharging: "Garance minimálního poplatku",
+                        MinChargePower: "nakládací sazba",
                         ChargingPriority: {
                             Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
                             Car: "Car",
@@ -124,7 +144,7 @@ export const TRANSLATION = {
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
-                        ShortName: "vynucený",
+                        ShortName: "Ruční",
                         Info: "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
                         MaxCharging: "Maximální síla náboje",
                         MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."

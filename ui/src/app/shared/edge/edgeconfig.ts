@@ -158,6 +158,76 @@ export class EdgeConfig {
     }
 
     /**
+     * Determines if Edge has a Storage device
+     */
+    public hasStorage(): boolean {
+        if (this.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Determines if Edge has a producing device
+     */
+    public hasProducer(): boolean {
+        // Do we have a Ess DC Charger?
+        if (this.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
+            return true;
+        }
+        // Do we have a Meter with type PRODUCTION?
+        for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")) {
+            if (component.isEnabled) {
+                // TODO make sure 'type' is provided for all Meters
+                if (component.properties['type'] == "PRODUCTION") {
+                    return true;
+                }
+                switch (component.factoryId) {
+                    case 'Fenecon.Mini.PvMeter':
+                    case 'Fenecon.Dess.PvMeter':
+                    case 'Fenecon.Pro.PvMeter':
+                    case 'Kostal.Piko.Charger':
+                    case 'Kaco.BlueplanetHybrid10.PvInverter':
+                    case 'PV-Inverter.Solarlog':
+                    case 'PV-Inverter.KACO.blueplanet':
+                    case 'PV-Inverter.SunSpec':
+                    case 'SolarEdge.PV-Inverter':
+                    case 'Simulator.PvInverter':
+                    case 'Simulator.ProductionMeter.Acting':
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public isProducer(component: EdgeConfig.Component) {
+        // TODO make sure 'type' is provided for all Meters
+        if (component.properties['type'] == "PRODUCTION") {
+            return true;
+        } else {
+            switch (component.factoryId) {
+                case 'Fenecon.Mini.PvMeter':
+                case 'Fenecon.Dess.PvMeter':
+                case 'Fenecon.Pro.PvMeter':
+                case 'Kostal.Piko.Charger':
+                case 'Kaco.BlueplanetHybrid10.PvInverter':
+                case 'PV-Inverter.Solarlog':
+                case 'PV-Inverter.KACO.blueplanet':
+                case 'PV-Inverter.SunSpec':
+                case 'SolarEdge.PV-Inverter':
+                case 'Simulator.PvInverter':
+                case 'Simulator.ProductionMeter.Acting':
+                    return true;
+            }
+        }
+        return false;
+    }
+
+
+
+    /**
      * Get the implemented Natures by Component-ID.
      * 
      * @param componentId the Component-ID
@@ -169,6 +239,15 @@ export class EdgeConfig {
         }
         let factoryId = component.factoryId;
         return this.getNatureIdsByFactoryId(factoryId);
+    }
+
+    /**
+     * Get the Component.
+     * 
+     * @param componentId the Component-ID
+     */
+    public getComponent(componentId: string): EdgeConfig.Component {
+        return this.components[componentId];
     }
 
     /**
@@ -260,5 +339,4 @@ export module EdgeConfig {
         public name: string = "";
         public factoryIds: string[] = [];
     }
-
 }

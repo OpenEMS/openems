@@ -259,6 +259,8 @@ export class ModalComponentEvcsCluster implements OnInit {
                     return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
                 case ChargeState.AUTHORIZATION_REJECTED:
                     return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                case ChargeState.ENERGY_LIMIT_REACHED:
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
             }
         }
         return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
@@ -314,7 +316,8 @@ enum ChargeState {
     READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
     CHARGING,                 //Charging
     ERROR,                    //Error
-    AUTHORIZATION_REJECTED    //Authorization rejected
+    AUTHORIZATION_REJECTED,   //Authorization rejected
+    ENERGY_LIMIT_REACHED      //Charge limit reached
 }
 
 enum ChargePlug {
