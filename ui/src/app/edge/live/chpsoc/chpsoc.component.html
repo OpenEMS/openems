@@ -4,10 +4,8 @@
 
             <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="primary" name="flame"></ion-icon>
-                <ion-label *ngIf="controller.alias; else noAlias">{{ controller.alias }}</ion-label>
-                <ng-template #noAlias>
-                    <ion-label>{{ controller.id }}</ion-label>
-                </ng-template>
+                <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
+                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
             </ion-item>
             <ion-card-content>
                 <table class="full_width">

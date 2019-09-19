@@ -60,7 +60,6 @@ export class ChpSocComponent {
                 componentId: this.componentId,
             }
         });
-        console.log("INPUTCHANNEL", this.inputChannel)
         return await modal.present();
     }
 }
