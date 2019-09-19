@@ -76,7 +76,7 @@ export class EvcsComponent {
     let chargePlug = plug;
 
     if (chargePlug == null) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+      return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
     } else if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
       return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
     }
@@ -91,7 +91,7 @@ export class EvcsComponent {
       case ChargeState.NOT_READY_FOR_CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
       case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.NotAuthorized');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
       case ChargeState.CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
       case ChargeState.ENERGY_LIMIT_REACHED:
