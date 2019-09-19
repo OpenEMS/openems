@@ -105,6 +105,7 @@ export const TRANSLATION = {
                     Error: "Chyba",
                     NotAuthorized: "Neautorizovaný",
                     Unplugged: "Odpojena",
+                    ChargeLimitReached: "Bylo dosaženo limitu nabíjení",
                     ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
                     ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
                     ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",

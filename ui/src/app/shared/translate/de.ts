@@ -107,6 +107,7 @@ export const TRANSLATION = {
                     Error: "Fehler",
                     NotAuthorized: "Nicht authorisiert",
                     Unplugged: "Ausgesteckt",
+                    ChargeLimitReached: "Ladelimit erreicht",
                     ChargingStationPluggedIn: "Ladestation eingesteckt",
                     ChargingStationPluggedInLocked: "Ladestation eingesteckt + gesperrt",
                     ChargingStationPluggedInEV: "Ladestation + E-Auto eingesteckt",

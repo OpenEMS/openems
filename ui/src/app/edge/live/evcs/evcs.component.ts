@@ -94,6 +94,8 @@ export class EvcsComponent {
         return this.translate.instant('Edge.Index.Widgets.EVCS.NotAuthorized');
       case ChargeState.CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
+      case ChargeState.ENERGY_LIMIT_REACHED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
     }
   }
 
@@ -107,7 +109,6 @@ export class EvcsComponent {
         getState: this.getState
       }
     });
-    console.log("TESTCONSOLELOG")
     return await modal.present();
   }
 
@@ -125,7 +126,8 @@ enum ChargeState {
   READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
   CHARGING,                 //Charging
   ERROR,                    //Error
-  AUTHORIZATION_REJECTED    //Authorization rejected
+  AUTHORIZATION_REJECTED,    //Authorization rejected
+  ENERGY_LIMIT_REACHED
 }
 
 enum ChargePlug {
