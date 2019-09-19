@@ -20,6 +20,8 @@ export class ChpsocModalComponent implements OnInit {
     @Input() public edge: Edge;
     @Input() public controller: EdgeConfig.Component;
     @Input() public componentId: string;
+    @Input() public outputChannel: ChannelAddress;
+    @Input() public inputChannel: ChannelAddress;
 
     public thresholds: RangeValue = {
         lower: null,
@@ -40,7 +42,6 @@ export class ChpsocModalComponent implements OnInit {
         ]);
         this.thresholds['lower'] = this.controller.properties['lowThreshold'];
         this.thresholds['upper'] = this.controller.properties['highThreshold'];
-        console.log("CHPCONTROLLER", this.controller)
     };
 
     ngOnDestroy() {

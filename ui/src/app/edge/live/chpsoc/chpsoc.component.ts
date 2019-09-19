@@ -58,6 +58,8 @@ export class ChpSocComponent {
                 controller: this.controller,
                 edge: this.edge,
                 componentId: this.componentId,
+                outputChannel: this.outputChannel,
+                inputChannel: this.inputChannel
             }
         });
         return await modal.present();

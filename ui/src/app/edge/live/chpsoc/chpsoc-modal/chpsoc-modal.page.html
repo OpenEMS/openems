@@ -66,14 +66,17 @@
                     </table>
                 </ion-card-content>
                 <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
-                    <ion-card-content>
+                    <ion-card-content class="underline">
                         <table class="full_width">
                             <tr>
-                                <td>
-                                    Schwellwertkonfiguration
+                                <td style="width: 65%" translate>
+                                    General.Soc
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{currentData.channel[inputChannel] | unitvalue:'%'}}
                                 </td>
                             </tr>
-                            <div style="padding-top: 10px;"></div>
+                            <div style="padding-top: 5px;"></div>
                             <tr>
                                 <td style="width: 65%">
                                     Oberer Schwellwert
@@ -106,6 +109,22 @@
                         </table>
                     </ion-card-content>
                 </ng-container>
+                <ion-card-content>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:65%" translate>General.State</td>
+                            <td style="width:35%" class="align_right" translate>
+                                <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+                                <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                                    General.Active
+                                </ng-container>
+                                <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                                    General.Inactive
+                                </ng-container>
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
             </ng-container>
         </ng-container>
     </ng-container>
