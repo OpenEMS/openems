@@ -8,7 +8,7 @@
           <ion-label>Anlagenprofil</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/profile">
+          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/profile">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -23,7 +23,21 @@
         </ion-item>
         <ion-card-content>
           <!-- <ion-item translate>Edge.Config.Index.LiveLog</ion-item> -->
-          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/systemlog">
+          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemlog">
+            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
+    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('owner')">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="primary" name="play"></ion-icon>
+          <ion-label translate>Edge.Config.Index.SystemExecute</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemexecute">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -37,7 +51,7 @@
           <ion-label translate>Edge.Config.Index.AdjustComponents</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/component.update">
+          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/component.update">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -51,7 +65,7 @@
           <ion-label translate>Edge.Config.Index.AddComponents</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/component.install">
+          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/component.install">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -66,7 +80,7 @@
           <ion-label>Channels</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/channels">
+          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/channels">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -80,7 +94,7 @@
           <ion-label>Network Configuration</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/network">
+          <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>

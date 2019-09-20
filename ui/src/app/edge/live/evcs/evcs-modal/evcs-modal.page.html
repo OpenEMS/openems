@@ -56,7 +56,7 @@
                             </table>
                         </ion-item>
                         <ion-item class="normalFontSize" lines="none">
-                            <table class="full_width" text-wrap>
+                            <table class="full_width" class="ion-text-wrap">
                                 <tr>
                                     <td colspan="3" style="width: 95%">
                                         <ion-segment (ionChange)="updateChargeMode($event, controller)"
@@ -91,13 +91,13 @@
                                 </tr>
                                 <tr *ngIf="displayInfo">
                                     <td style="width: 45%">
-                                        <ion-note padding-top translate text-wrap>
+                                        <ion-note padding-top translate class="ion-text-wrap">
                                             Edge.Index.Widgets.EVCS.OptimizedChargeMode.Info
                                         </ion-note>
                                     </td>
                                     <td style="width: 2.5%"></td>
                                     <td style="width: 52.5%" padding-top colspan="2">
-                                        <ion-note translate text-wrap>
+                                        <ion-note translate class="ion-text-wrap">
                                             Edge.Index.Widgets.EVCS.ForceChargeMode.Info
                                         </ion-note>
                                     </td>
@@ -105,17 +105,21 @@
                             </table>
                         </ion-item>
                         <ion-item lines="none">
-                            <table class="full_width" text-wrap>
+                            <table class="full_width" class="ion-text-wrap">
                                 <!--Excess Power settings-->
                                 <tr *ngIf="controller.properties.chargeMode == 'EXCESS_POWER'"
                                     style="margin-top: 20px;">
                                     <td>
                                         <table class="full_width">
                                             <tr>
-                                                <td width="50%" translate>
-                                                    Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
+                                                <td width="70%">
+                                                    <span
+                                                        translate>Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging</span>
+                                                    <ion-text *ngIf="controller.properties.defaultChargeMinPower != 0">
+                                                        {{controller.properties.defaultChargeMinPower}}&nbsp;W
+                                                    </ion-text>
                                                 </td>
-                                                <td width="50%" style="text-align: right;">
+                                                <td width="30%" style="text-align: right;">
                                                     <ion-toggle class="swiper-no-swiping" style="margin: 2px;"
                                                         slot="end"
                                                         (ionChange)="allowMinimumChargePower($event, currentData[componentId + '/Phases'], controller)"
@@ -174,8 +178,11 @@
                                     <td>
                                         <table>
                                             <tr>
-                                                <td width="50%" translate>
-                                                    Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging
+                                                <td width="100%">
+                                                    <span
+                                                        translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</span>:
+                                                    <ion-text>({{controller.properties.forceChargeMinPower}}&nbsp;W)
+                                                    </ion-text>
                                                 </td>
                                             </tr>
                                         </table>
@@ -192,7 +199,7 @@
                                                 {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
                                             </ion-label>
                                         </ion-range>
-                                        <ion-label translate text-wrap>
+                                        <ion-label translate class="ion-text-wrap">
                                             Edge.Index.Widgets.EVCS.ForceChargeMode.MaxChargingDetails
                                         </ion-label>
                                     </td>

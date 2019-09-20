@@ -5,9 +5,14 @@ import io.openems.common.types.OptionsEnum;
 public enum Status implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	STARTING(0, "Starting"), //
-	NOT_READY_FOR_CHARGING(1, "Not ready for Charging"), // e.g. unplugged, X1 or "ena" not enabled, RFID not
-															// enabled,...
-	READY_FOR_CHARGING(2, "Ready for Charging"), // waiting for EV charging request
+	/**
+	 * e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
+	 */
+	NOT_READY_FOR_CHARGING(1, "Not ready for Charging"), //
+	/**
+	 * Waiting for EV charging request.
+	 */
+	READY_FOR_CHARGING(2, "Ready for Charging"), //
 	CHARGING(3, "Charging"), //
 	ERROR(4, "Error"), //
 	AUTHORIZATION_REJECTED(5, "Authorization rejected");
