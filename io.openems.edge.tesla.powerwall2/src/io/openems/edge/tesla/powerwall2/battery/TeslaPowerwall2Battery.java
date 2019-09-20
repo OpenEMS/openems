@@ -18,6 +18,9 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.tesla.powerwall2.core.TeslaPowerwall2Core;
 
@@ -29,7 +32,8 @@ import io.openems.edge.tesla.powerwall2.core.TeslaPowerwall2Core;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		})
-public class TeslaPowerwall2Battery extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent {
+public class TeslaPowerwall2Battery extends AbstractOpenemsComponent
+		implements SymmetricEss, AsymmetricEss, SinglePhaseEss, OpenemsComponent {
 
 	private final int CAPACITY = 14_200;
 
@@ -39,25 +43,29 @@ public class TeslaPowerwall2Battery extends AbstractOpenemsComponent implements 
 	@Reference
 	private ConfigurationAdmin cm;
 
+	private Config config;
+
 	public TeslaPowerwall2Battery() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				SinglePhaseEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
+		this.getCapacity().setNextValue(CAPACITY);
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.config = config;
 
 		// update filter for 'core'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
 		this.core.setBattery(this);
-
-		this.getCapacity().setNextValue(CAPACITY);
 	}
 
 	@Deactivate
@@ -86,5 +94,10 @@ public class TeslaPowerwall2Battery extends AbstractOpenemsComponent implements 
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	@Override
+	public SinglePhase getPhase() {
+		return this.config.phase();
 	}
 }

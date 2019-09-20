@@ -9,7 +9,7 @@ Include-Resource: \
 	@retrofit-2.5.0.jar, \
 	@converter-moshi-2.5.0.jar, \
 	@moshi-1.5.0.jar, \
-	@msgpack-core-0.8.16.jar, \
+	@msgpack-core-0.8.18.jar, \
 	@okhttp-3.13.1.jar, \
 	@okio-1.17.2.jar, \
 	@logging-interceptor-3.13.1.jar

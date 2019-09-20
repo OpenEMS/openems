@@ -1,6 +1,6 @@
 <ion-grid *ngIf="config">
 
-  <ion-row justify-content-center>
+  <ion-row class="ion-justify-content-center">
 
     <ng-container *ngIf="edge && edge.currentData | async as currentData">
       <ion-col *ngFor="let address of subscribedChannels" size="12" size-md="6">
@@ -19,7 +19,7 @@
             <!-- show meta information -->
             <ion-item>
               <ion-label>Meta</ion-label>
-              <ion-text text-wrap color="medium">
+              <ion-text class="ion-text-wrap" color="medium">
                 Type: {{ channelConfig.type.toLowerCase() }}
                 / Access-Mode: {{ channelConfig.accessMode }}
                 <span *ngIf="channelConfig.text">/ Text:{{ channelConfig.text }}</span>
