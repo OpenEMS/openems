@@ -231,9 +231,8 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// UnsignedDoublewordElement(30879)), //
 				// m(SunnyIsland6Ess.ChannelId.PV_MAINS_CONNECTION, new
 				// UnsignedDoublewordElement(30881)), //
-				// m(SunnyIsland6Ess.ChannelId.STATUS_OF_UTILITY_GRID, new
-				// UnsignedDoublewordElement(30883)), //
-				// new DummyRegisterElement(30885, 30900), //
+				new FC3ReadRegistersTask(30883, Priority.LOW, //
+						m(SiChannelId.STATUS_OF_UTILITY_GRID, new UnsignedDoublewordElement(30883))), //
 				// m(SunnyIsland6Ess.ChannelId.GRID_FREQ_OF_EXTERNAL_POWER_CONNECTION,
 				// new UnsignedDoublewordElement(30901)), //
 				// m(SunnyIsland6Ess.ChannelId.VOLTAGE_EXTERNAL_POWER_CONNECTION_PHASE_A,
@@ -286,15 +285,16 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 				// m(SunnyIsland6Ess.ChannelId.MAX_OCCURRED_BATTERY_VOLTAGE, new
 				// UnsignedDoublewordElement(31001)), //
-				// m(SunnyIsland6Ess.ChannelId.REMAINING_TIME_UNTIL_FULL_CHARGE,
+//				 m(SunnyIsland6Ess.ChannelId.REMAINING_TIME_UNTIL_FULL_CHARGE,
 				// new UnsignedDoublewordElement(31003)), //
 				// m(SunnyIsland6Ess.ChannelId.REMAINING_TIME_UNTIL_EQUALIZATION_CHARGE,
 				// new UnsignedDoublewordElement(31005),
 				// ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 				// m(SunnyIsland6Ess.ChannelId.REMAINING_ABSORPTION_TIME, new
 				// UnsignedDoublewordElement(31007)), //
-				// m(SunnyIsland6Ess.ChannelId.LOWER_DISCHARGE_LIMIT_FOR_SELF_CONSUMPTION_RANGE,
-				// new UnsignedDoublewordElement(31009)), //
+				new FC3ReadRegistersTask(31009, Priority.LOW, //
+						m(SiChannelId.LOWER_DISCHARGE_LIMIT_FOR_SELF_CONSUMPTION_RANGE,
+								new UnsignedDoublewordElement(31009))), //
 				// m(SunnyIsland6Ess.ChannelId.TOTAL_OUTPUT_CURRENT_OF_SOLAR_CHARGER,
 				// new UnsignedDoublewordElement(31011)), //
 				// m(SunnyIsland6Ess.ChannelId.REMAINING_MIN_OPERATING_TIME_OF_GENERATOR,
@@ -548,14 +548,16 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// new UnsignedDoublewordElement(40675)), //
 				// m(SunnyIsland6Ess.ChannelId.MAXIUMUM_CURRENT_FROM_PUBLIC_GRID,
 				// new UnsignedDoublewordElement(40677)), //
-				// m(SunnyIsland6Ess.ChannelId.POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED,
-				// new UnsignedDoublewordElement(40679)), //
-				// m(SunnyIsland6Ess.ChannelId.GRID_REQUEST_VIA_SOC_SWITCHED_ON,
+//				m(SunnyIsland6Ess.ChannelId.POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED,
+//						new UnsignedDoublewordElement(40679)), //
+//				 m(SunnyIsland6Ess.ChannelId.GRID_REQUEST_VIA_SOC_SWITCHED_ON,
 				// new UnsignedDoublewordElement(40681)), //
-				// m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID,
-				// new UnsignedDoublewordElement(40683)), //
-				// m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID,
-				// new UnsignedDoublewordElement(40685)), //
+				new FC16WriteRegistersTask(40683, //
+						m(SiChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID, new UnsignedDoublewordElement(40683)), //
+						m(SiChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID, new UnsignedDoublewordElement(40685))), //
+				new FC3ReadRegistersTask(40683, Priority.LOW, //
+						m(SiChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID, new UnsignedDoublewordElement(40683)), //
+						m(SiChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID, new UnsignedDoublewordElement(40685))), //
 				// m(SunnyIsland6Ess.ChannelId.START_TIME_ADDTIONAL_TIME_RANGE_GRID_REQUEST,
 				// new UnsignedDoublewordElement(40687)), //
 				// m(SunnyIsland6Ess.ChannelId.START_INTERVAL_GRID_REQUEST, new
@@ -579,14 +581,16 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// new UnsignedDoublewordElement(40709)), //
 				// m(SunnyIsland6Ess.ChannelId.END_TIME_OF_BATTERY_PROTECTION_MODE_LEVEL,
 				// new UnsignedDoublewordElement(40711)), //
-				// m(SunnyIsland6Ess.ChannelId.BATTERY_SOC_FOR_PROTECTION_MODE,
-				// new UnsignedDoublewordElement(40713)), //
+				new FC16WriteRegistersTask(40713, //
+						m(SiChannelId.BATTERY_SOC_FOR_PROTECTION_MODE, new UnsignedDoublewordElement(40713))), //
+				new FC3ReadRegistersTask(40713, Priority.LOW, //
+						m(SiChannelId.BATTERY_SOC_FOR_PROTECTION_MODE, new UnsignedDoublewordElement(40713))), //
 				// m(SunnyIsland6Ess.ChannelId.BATTERY_SWITCH_ONLIMIT_AFTER_OVER_TEMP_SHUT_DOWN,
 				// new UnsignedDoublewordElement(40715)), //
 				// m(SunnyIsland6Ess.ChannelId.OUTPUT_RESISTANCE_OF_BATTERY_CONNECTION,
 				// new UnsignedDoublewordElement(40717)), //
-				// m(SunnyIsland6Ess.ChannelId.LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN,
-				// new UnsignedDoublewordElement(40719)), //
+//				 m(SunnyIsland6Ess.ChannelId.LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN,
+//				 new UnsignedDoublewordElement(40719)), //
 				// m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_DEEP_DISCHARGE_PROTECTION_AREA,
 				// new UnsignedDoublewordElement(40721)), //
 				// m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_BAKCUP_POWER_AREA,
@@ -853,10 +857,12 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// new UnsignedDoublewordElement(40679)), //
 				// m(SunnyIsland6Ess.ChannelId.GRID_REQUEST_VIA_SOC_SWITCHED_ON,
 				// new UnsignedDoublewordElement(40681)), //
-				// m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID,
-				// new UnsignedDoublewordElement(40683)), //
-				// m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID,
-				// new UnsignedDoublewordElement(40685)), //
+				new FC3ReadRegistersTask(40683, Priority.LOW, //
+						m(SiChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID, new UnsignedDoublewordElement(40683)), //
+						m(SiChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID, new UnsignedDoublewordElement(40685))), //
+				new FC16WriteRegistersTask(40683, //
+						m(SiChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID, new UnsignedDoublewordElement(40683)), //
+						m(SiChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID, new UnsignedDoublewordElement(40685))), //
 				// m(SunnyIsland6Ess.ChannelId.START_TIME_ADDTIONAL_TIME_RANGE_GRID_REQUEST,
 				// new UnsignedDoublewordElement(40687)), //
 				// m(SunnyIsland6Ess.ChannelId.START_INTERVAL_GRID_REQUEST, new
@@ -886,8 +892,12 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// new UnsignedDoublewordElement(40715)), //
 				// m(SunnyIsland6Ess.ChannelId.OUTPUT_RESISTANCE_OF_BATTERY_CONNECTION,
 				// new UnsignedDoublewordElement(40717)), //
-				// m(SunnyIsland6Ess.ChannelId.LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN,
-				// new UnsignedDoublewordElement(40719)), //
+				new FC3ReadRegistersTask(40719, Priority.LOW, //
+						m(SiChannelId.LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN,
+								new UnsignedDoublewordElement(40719))), //
+				new FC16WriteRegistersTask(40719, //
+						m(SiChannelId.LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN,
+								new UnsignedDoublewordElement(40719))), //
 				// m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_DEEP_DISCHARGE_PROTECTION_AREA,
 				// new UnsignedDoublewordElement(40721)), //
 				// m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_BAKCUP_POWER_AREA,
@@ -923,10 +933,12 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// UnsignedDoublewordElement(40753)), //
 				// m(SunnyIsland6Ess.ChannelId.MAXIMUM_AC_BATTERY_CHARGE_CURRENT,
 				// new UnsignedDoublewordElement(40755)), //
-				// m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_1,
-				// new UnsignedDoublewordElement(40757)), //
-				// m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_1,
-				// new UnsignedDoublewordElement(40759)), //
+				new FC3ReadRegistersTask(40757, Priority.LOW, //
+						m(SiChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_1, new UnsignedDoublewordElement(40757)), //
+						m(SiChannelId.LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_1, new UnsignedDoublewordElement(40759))), //
+				new FC16WriteRegistersTask(40757, //
+						m(SiChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_1, new UnsignedDoublewordElement(40757)), //
+						m(SiChannelId.LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_1, new UnsignedDoublewordElement(40759))), //
 				// m(SunnyIsland6Ess.ChannelId.START_TIME_ADDITIONAL_TIME_RANGE_LOAD_SHEDDING_1,
 				// new UnsignedDoublewordElement(40761)), //
 				// m(SunnyIsland6Ess.ChannelId.TIME_LOAD_SHEDDING_1, new
