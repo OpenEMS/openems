@@ -20,11 +20,6 @@
                             <td translate>
                                 General.Mode
                             </td>
-                            <td class="align_right">
-                                <ion-icon class="ion-no-padding" style="text-align: right; font-size: 20px"
-                                    style="cursor: pointer" name="information-circle-outline">
-                                </ion-icon>
-                            </td>
                         </tr>
                     </table>
                     <table class="full_width">
@@ -50,8 +45,6 @@
                                     </td>
                                 </ion-item>
                             </ion-segment-button>
-
-
                             <ion-segment-button value="MANUAL_OFF">
                                 <ion-item lines="none">
                                     <ion-icon name="power" style="width: 40px"></ion-icon>
@@ -78,16 +71,16 @@
                             </tr>
                             <div style="padding-top: 5px;"></div>
                             <tr>
-                                <td style="width: 65%">
-                                    Oberer Schwellwert
+                                <td style="width: 65%" translate>
+                                    Edge.Index.Widgets.CHP.HighThreshold
                                 </td>
                                 <td style="width: 35%" class="align_right">
                                     {{controller.properties['highThreshold'] | unitvalue:'%'}}
                                 </td>
                             </tr>
                             <tr>
-                                <td style="width: 65%">
-                                    Unterer Schwellwert
+                                <td style="width: 65%" translate>
+                                    Edge.Index.Widgets.CHP.LowThreshold
                                 </td>
                                 <td style="width: 35%" class="align_right">
                                     {{controller.properties['lowThreshold'] | unitvalue:'%'}}
@@ -97,12 +90,12 @@
                         <table class="full_width">
                             <tr>
                                 <ion-range (ionChange)="updateThresholds(controller)" dual-knobs pin color="dark"
-                                    min="20" max="80" [(ngModel)]="thresholds">
+                                    min="15" max="85" [(ngModel)]="thresholds" debounce="1000">
                                     <ion-label slot="start">
-                                        20&nbsp;%
+                                        {{15 | unitvalue:'%'}}
                                     </ion-label>
                                     <ion-label slot="end">
-                                        80&nbsp;%
+                                        {{85 | unitvalue:'%'}}
                                     </ion-label>
                                 </ion-range>
                             </tr>

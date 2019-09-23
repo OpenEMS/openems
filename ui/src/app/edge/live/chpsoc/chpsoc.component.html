@@ -49,12 +49,8 @@
                                     <rect attr.x="{{ controller.properties['lowThreshold'] }}%" y="2" rx="5" ry="5"
                                         attr.width="{{ controller.properties['highThreshold'] - controller.properties['lowThreshold'] }}%"
                                         height="16" style="fill:#2d8fab" />
-                                    <rect *ngIf="currentData.channel[outputChannel] == 1" y="2" rx="5" ry="5"
-                                        attr.x="{{currentData.channel[inputChannel]}}%" width="1%" height="16"
-                                        style="fill:#00FF00" />
-                                    <rect *ngIf="currentData.channel[outputChannel] == 0" y="2" rx="5" ry="5"
-                                        attr.x="{{currentData.channel[inputChannel]}}%" width="1%" height="16"
-                                        style="fill:#ff0000" />
+                                    <rect y="2" rx="5" ry="5" attr.x="{{currentData.channel[inputChannel]}}%" width="1%"
+                                        height="16" style="fill:#bdbdbd" />
                                     <text attr.x="{{controller.properties['lowThreshold'] - 7}}%" y="58%"
                                         dominant-baseline="middle" text-anchor="middle"
                                         style="font-weight: 500">{{ controller.properties['lowThreshold'] + " %" }}</text>
