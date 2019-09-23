@@ -222,41 +222,41 @@
                         </table>
                     </ion-card-content>
                 </ng-container>
-                <ion-card-content>
+                <ion-card-content *ngIf="controller">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width: 65%">
+                                Maximale Energie pro Ladevorgang garantieren
+                            </td>
+                            <td style="width: 35%" class="align_right">
+                                <ion-toggle (ionChange)="allowEnergySessionLimit($event, controller)"
+                                    [checked]="controller.properties['energySessionLimit'] != 0">
+                                </ion-toggle>
+                            </td>
+                        </tr>
+                    </table>
+                    <ng-container *ngIf="controller.properties['energySessionLimit'] != 0">
+                        <div style="padding-top: 10px;"></div>
 
-                    <ng-container>
                         <table class="full_width">
-                            <tr>
-                                <td>
-                                    Maximale Energie pro Ladevorgang
-                                </td>
-                                <td class="align_right" style="width: 100%">
-                                    <ion-icon class="ion-no-padding" style="text-align: right; font-size: 20px"
-                                        style="cursor: pointer" name="information-circle-outline"
-                                        (click)="isCapacity = true; presentPopover()">
-                                    </ion-icon>
-                                </td>
-                            </tr>
-                            <!-- for spacing -->
-                            <div style="padding-top: 10px;"></div>
-
                             <tr>
                                 <td style="width: 65%">Ladekapazität</td>
                                 <td style="width: 35%" class="align_right">
-                                    {{(controller.properties['energySessionLimit'] / 1000) | unitvalue:'kWh'}}</td>
+                                    {{controller.properties['energySessionLimit'] | unitvalue:'kWh'}}</td>
+                                <td class="align_right" style="width: 100%">
+                                </td>
                             </tr>
                         </table>
                         <table class="full_width">
                             <tr>
-                                <ion-range (ionChange)="updateEnergySessionLimit($event, controller)"
-                                    style="width: 100%" min="0" max="20" color="dark" pin="true"
-                                    style="padding-top: 8px;" step="1" debounce="1000"
+                                <ion-range (ionChange)="updateEnergySessionLimit($event, controller)" min="1" max="80"
+                                    color="dark" pin="true" style="width: 100%" step="1" debounce="1000"
                                     value="{{(controller.properties['energySessionLimit'] / 1000)}}">
                                     <ion-label slot="start">
-                                        0&nbsp;kWh
+                                        {{1000 | unitvalue:'kWh'}}
                                     </ion-label>
                                     <ion-label slot="end">
-                                        20&nbsp;kWh
+                                        {{80000 | unitvalue:'kWh'}}
                                     </ion-label>
                                 </ion-range>
                             </tr>

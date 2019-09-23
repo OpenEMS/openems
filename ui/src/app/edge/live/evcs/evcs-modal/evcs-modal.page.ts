@@ -158,6 +158,32 @@ export class EvcsModalComponent implements OnInit {
         currentController.properties.energySessionLimit = newLimit;
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
+        console.warn(reason);
+      })
+    }
+  }
+
+  /**
+  * uptdate the state of the toggle whitch renders the minimum charge power
+  * 
+  * @param event 
+  */
+  allowEnergySessionLimit(event: CustomEvent, currentController: EdgeConfig.Component) {
+    let oldLimit = 0;
+    let newLimit = 1000;
+
+    if (this.edge != null) {
+      this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        { name: 'energySessionLimit', value: newLimit }
+      ]).then(() => {
+        if (currentController.properties.energySessionLimit > 0) {
+          currentController.properties.energySessionLimit = oldLimit;
+        } else {
+          currentController.properties.energySessionLimit = newLimit;
+        }
+      }).catch(reason => {
+        currentController.properties.energySessionLimit = oldLimit;
+        console.warn(reason);
       })
     }
   }

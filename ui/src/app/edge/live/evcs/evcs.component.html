@@ -89,13 +89,14 @@
             </tr>
           </table>
         </ng-container>
-        <table class="full_width" *ngIf="controller.properties['enabledCharging'] == true">
+        <table class="full_width"
+          *ngIf="controller.properties['enabledCharging'] == true && controller.properties['energySessionLimit'] != 0">
           <tr>
             <td style="width: 35%">
               Energielimit
             </td>
             <td style="width: 65%" class="align_right">
-              {{(controller.properties['energySessionLimit'] / 1000) | unitvalue:'kWh'}}
+              {{(controller.properties['energySessionLimit']) | unitvalue:'kWh'}}
             </td>
           </tr>
           <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0">
