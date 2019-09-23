@@ -45,16 +45,11 @@
         <ng-container
           *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
           <table class="full_width">
-            <tr>
+            <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
               <td style="width: 65%" translate>
                 Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
               </td>
-              <td style="width: 35%" class="align_right" *ngIf="controller.properties['defaultChargeMinPower'] == 0"
-                translate>
-                General.Inactive
-              </td>
-              <td style="width: 35%" class="align_right" *ngIf="controller.properties['defaultChargeMinPower'] > 0"
-                translate>
+              <td style="width: 35%" class="align_right" translate>
                 General.Active
               </td>
             </tr>

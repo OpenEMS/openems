@@ -114,7 +114,7 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
                     ChargingLimit: "Lade-Begrenzung",
                     AmountOfChargingStations: "Anzahl der Ladestationen",
-                    ChargingPower: "E-Auto Ladeleistung",
+                    ChargingPower: "Ladeleistung",
                     TotalChargingPower: "Gesamte Lade-Leistung",
                     CurrentCharge: "Aktuelle Beladung",
                     TotalCharge: "Gesamte Beladung",
@@ -140,7 +140,7 @@ export const TRANSLATION = {
                         MinChargePower: "Minimale Ladestärke",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
-                            Car: "Auto",
+                            Car: "E-Auto",
                             Storage: "Speicher"
                         }
                     },
