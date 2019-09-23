@@ -246,9 +246,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
 		int essDischarge = this.sum.getEssActivePower().value().orElse(0);
+		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
 
-		nextChargePower = evcsCharge - buyFromGrid - essDischarge;
+		int excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
+
+		nextChargePower = evcsCharge + excessPower;
+		
 
 		Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) { /* charging under 6A isn't possible */
@@ -273,9 +277,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
 		int essActivePower = this.sum.getEssActivePower().value().orElse(0);
+		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
-		int result = -buyFromGrid + evcsCharge - (maxEssCharge + essActivePower);
+		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower-essActivePowerDC));
 		result = result > 0 ? result : 0;
+
 		return result;
 	}
 
