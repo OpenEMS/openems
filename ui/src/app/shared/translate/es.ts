@@ -1,13 +1,13 @@
 export const TRANSLATION = {
     General: {
-        On: "conmutada",
-        Off: "apagado",
+        Mode: "Modo",
+        Automatic: "Automático",
+        State: "Estado",
+        On: "Conmutada",
+        Off: "Apagado",
         Active: "Activo",
         Inactive: "Inactivo",
-        Manually: "A Mano",
-        Automatic: "Automático",
-        Mode: "Modo",
-        State: "Estado",
+        Manually: "a mano",
         Phase: "Fase",
         Autarchy: "Autosuficiencia",
         SelfConsumption: "Autoconsumo",
@@ -94,7 +94,6 @@ export const TRANSLATION = {
                     HighThreshold: "Umbral alto"
                 },
                 EVCS: {
-                    OffInfoText: "La estación de carga está desactivada, seleccione una estrategia de carga diferente para obtener más información.",
                     ChargingStation: "Carga",
                     ChargingStationCluster: "Grupo de estaciones de carga",
                     OverviewChargingStations: "Resumen de estaciones de carga",
@@ -109,6 +108,7 @@ export const TRANSLATION = {
                     Error: "Error",
                     NotAuthorized: "No autorizado",
                     Unplugged: "No conectado",
+                    ChargeLimitReached: "Límite de carga alcanzado",
                     ChargingStationPluggedIn: "Estación de carga encufada",
                     ChargingStationPluggedInLocked: "Estación de carga enchufada + bloqueado",
                     ChargingStationPluggedInEV: "Estación de carga + e-Car enchufado",
@@ -133,18 +133,17 @@ export const TRANSLATION = {
                         Help1_1: "La IP de la estación de carga aparece cuando se enciende nuevamente"
                     },
                     OptimizedChargeMode: {
-                        AutoName: "carga automática",
-                        AutoShortName: "automáticamente",
                         Name: "Carga optimizada",
-                        ShortName: "Optimizado",
+                        ShortName: "automáticamente",
                         Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
                         MinInfo: "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
                         MinCharging: "Garantía de carga mínima",
+                        MinChargePower: "velocidad de carga",
                         ChargingPriority: "Dependiendo de la priorización, el componente seleccionado se cargará primero"
                     },
                     ForceChargeMode: {
                         Name: "Carga forzada",
-                        ShortName: "Forzado",
+                        ShortName: "a mano",
                         Info: "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
                         MaxCharging: "Fuerza de carga maxima:",
                         MaxChargingDetails: "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente."
