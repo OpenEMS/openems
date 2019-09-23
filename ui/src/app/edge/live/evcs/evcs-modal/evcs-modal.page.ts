@@ -262,7 +262,8 @@ export class EvcsModalComponent implements OnInit {
       componentProps: {
         isPrioritization: this.isPrioritization,
         isCapacity: this.isCapacity,
-        controller: this.controller
+        controller: this.controller,
+        componentId: this.componentId
       }
     });
     return await popover.present();
