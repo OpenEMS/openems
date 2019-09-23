@@ -125,7 +125,7 @@
                                     Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinChargePower
                                 </td>
                                 <td style="width: 35%" class="align_right">
-                                    {{controller.properties['defaultChargeMinPower']}}&nbsp;W&nbsp;
+                                    {{controller.properties['defaultChargeMinPower'] | unitvalue:'W'}}
                                 </td>
                             </tr>
                         </table>
@@ -139,11 +139,10 @@
                                     color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
                                     value="{{controller.properties['defaultChargeMinPower']}}">
                                     <ion-label slot="start">
-                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | number:'1.0-0'}}
-                                        &nbsp;W
+                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | unitvalue:'W'}}
                                     </ion-label>
                                     <ion-label slot="end">
-                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | unitvalue:'W'}}
                                     </ion-label>
                                 </ion-range>
                             </tr>
@@ -194,7 +193,7 @@
                                     Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging
                                 </td>
                                 <td style="width: 35%" class="align_right">
-                                    {{controller.properties['forceChargeMinPower']}}&nbsp;W&nbsp;
+                                    {{controller.properties['forceChargeMinPower'] | unitvalue:'W'}}
                                 </td>
                             </tr>
                         </table>
@@ -206,10 +205,10 @@
                                     color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
                                     value="{{controller.properties['forceChargeMinPower']}}">
                                     <ion-label slot="start">
-                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                        {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | unitvalue:'W'}}
                                     </ion-label>
                                     <ion-label slot="end">
-                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                        {{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) | unitvalue:'W'}}
                                     </ion-label>
                                 </ion-range>
                             </tr>
