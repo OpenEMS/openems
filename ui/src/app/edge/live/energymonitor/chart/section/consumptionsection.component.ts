@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { WidgetClass } from 'src/app/shared/type/widget';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 
 @Component({
     selector: '[consumptionsection]',
@@ -11,11 +11,15 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 })
 export class ConsumptionSectionComponent extends AbstractSection {
 
+    unitpipe: UnitvaluePipe;
+
     constructor(
+        unitpipe: UnitvaluePipe,
         translate: TranslateService,
-        service: Service
+        service: Service,
     ) {
         super('General.Consumption', "right", "#FDC507", translate, service, "Consumption");
+        this.unitpipe = unitpipe;
     }
 
     protected getStartAngle(): number {
@@ -51,8 +55,7 @@ export class ConsumptionSectionComponent extends AbstractSection {
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-
-        return value + " W";
+        return this.unitpipe.transform(value, 'kW')
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {

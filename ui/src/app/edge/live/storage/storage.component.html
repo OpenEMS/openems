@@ -30,27 +30,18 @@
                         <table class="full_width">
                             <tr class="underline">
                                 <td style="width:65%" translate>General.Soc</td>
-                                <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td>
-                                <td style="width:10%">&nbsp;%</td>
+                                <td style="width:35%" class="align_right">{{ sum.soc  | unitvalue:'%' }}</td>
                             </tr>
                             <tr>
                                 <td style="width:65%" translate>General.ChargePower</td>
-                                <ng-container *ngIf="sum.effectiveChargePower != null; else empty">
-                                    <td style="width:25%" class="align_right">
-                                        {{ sum.effectiveChargePower | number:'1.0-0' }}</td>
-                                    <td style="width:10%">&nbsp;W</td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td style="width:25%" class="align_right">-</td>
-                                    <td style="width:10%"></td>
-                                </ng-template>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.effectiveChargePower  | unitvalue:'kW' }}</td>
                             </tr>
                             <tr>
                                 <td style="width:65%" translate>General.DischargePower</td>
                                 <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
-                                    <td style="width:25%" class="align_right">
-                                        {{ sum.effectiveDischargePower | number:'1.0-0' }}</td>
-                                    <td style="width:10%">&nbsp;W</td>
+                                    <td style="width:35%" class="align_right">
+                                        {{ sum.effectiveDischargePower  | unitvalue:'kW' }}</td>
                                 </ng-container>
                                 <ng-template #empty>
                                     <td style="width:25%" class="align_right">-</td>
@@ -80,13 +71,13 @@
                                 <tr>
                                     <td style="width:65%" translate>General.ChargePower</td>
                                     <td style="width:35%" class="align_right">
-                                        {{ sum.effectiveChargePower | unitvalue:'W' }}
+                                        {{ sum.effectiveChargePower | unitvalue:'kW' }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="width:65%" translate>General.DischargePower</td>
                                     <td style="width:35%" class="align_right">
-                                        {{ sum.effectiveDischargePower | unitvalue:'W' }}
+                                        {{ sum.effectiveDischargePower | unitvalue:'kW' }}
                                     </td>
                                 </tr>
                             </table>
@@ -117,15 +108,27 @@
                         <table class="full_width" *ngIf="currentData[component.id + '/ActivePower'] != null">
                             <tr>
                                 <td style="width:65%" translate>General.ChargePower</td>
-                                <td style="width:35%" class="align_right">
-                                    {{ currentData[component.id + '/ActivePower'] <= 0? ((currentData[component.id + '/ActivePower'] * -1) | number:'1.0-0') + '&nbsp;W' : '-&nbsp;' }}
+                                <td style="width:35%" class="align_right"
+                                    *ngIf="currentData[component.id + '/ActivePower'] <= 0; else empty">
+                                    {{ (currentData[component.id + '/ActivePower'] * -1) | unitvalue:'kW' }}
                                 </td>
+                                <ng-template #empty>
+                                    <td style="width:35%" class="align_right">
+                                        -&nbsp;
+                                    </td>
+                                </ng-template>
                             </tr>
                             <tr>
                                 <td style="width:65%" translate>General.DischargePower</td>
-                                <td style="width:35%" class="align_right">
-                                    {{ currentData[component.id + '/ActivePower'] > 0? (currentData[component.id + '/ActivePower'] | number:'1.0-0') + '&nbsp;W' : '-&nbsp;' }}
+                                <td style="width:35%" class="align_right"
+                                    *ngIf="currentData[component.id + '/ActivePower'] > 0; else empty">
+                                    {{ currentData[component.id + '/ActivePower'] | unitvalue:'kW'}}
                                 </td>
+                                <ng-template #empty>
+                                    <td style="width:35%" class="align_right">
+                                        -&nbsp;
+                                    </td>
+                                </ng-template>
                             </tr>
                         </table>
                     </ion-card-content>

@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { WidgetClass } from 'src/app/shared/type/widget';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 
 @Component({
     selector: '[productionsection]',
@@ -11,11 +11,15 @@ import { WidgetClass } from 'src/app/shared/type/widget';
 })
 export class ProductionSectionComponent extends AbstractSection {
 
+    unitpipe: UnitvaluePipe;
+
     constructor(
         translate: TranslateService,
-        service: Service
+        service: Service,
+        unitpipe: UnitvaluePipe,
     ) {
         super('General.Production', "up", "#008DD2", translate, service, "Production");
+        this.unitpipe = unitpipe;
     }
 
     protected getStartAngle(): number {
@@ -52,7 +56,7 @@ export class ProductionSectionComponent extends AbstractSection {
             return "";
         }
 
-        return value + " W";
+        return this.unitpipe.transform(value, 'kW');
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
