@@ -10,6 +10,7 @@ EnRoute-Application: io.openems.edge.application
 	{readme.md}
 
 -buildpath: ${buildpath},\
+info.faljse:SDNotify;version=1.1,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\

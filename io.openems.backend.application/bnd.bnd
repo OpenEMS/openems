@@ -11,6 +11,7 @@ Private-Package:  \
 	io.openems.backend.common;version=latest,\
 	io.openems.backend.edgewebsocket.api;version=latest,\
 	io.openems.backend.metadata.api;version=latest,\
+	io.openems.backend.b2bwebsocket;version=latest,\
 	io.openems.backend.uiwebsocket.api;version=latest,\
 	io.openems.backend.timedata.api;version=latest,\
 	io.openems.common;version=latest,\
