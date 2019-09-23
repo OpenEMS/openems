@@ -40,7 +40,6 @@ export class EvcsModalComponent implements OnInit {
     else {
       this.chargeMode = 'OFF';
     }
-    console.log("EVCSCONTROLLER", this.controller);
   }
 
   cancel() {
