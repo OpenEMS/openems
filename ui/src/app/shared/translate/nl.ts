@@ -1,6 +1,8 @@
 export const TRANSLATION = {
     General: {
         Mode: "Mode",
+        Automatic: "Automatisch",
+        State: "Staat",
         On: "Naar",
         Off: "Van",
         Active: "Actief",

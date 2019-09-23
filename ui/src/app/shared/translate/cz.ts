@@ -1,8 +1,10 @@
 export const TRANSLATION = {
     General: {
         Mode: "Režim",
+        Automatic: "Automaticky",
         On: "zapnutý",
         Off: "Pryč",
+        State: "Stát",
         Active: "aktivně",
         Inactive: "Neaktivní",
         Manually: "Ruční",

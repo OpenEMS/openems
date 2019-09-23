@@ -1,6 +1,8 @@
 export const TRANSLATION = {
     General: {
         Mode: "Modus",
+        Automatic: "Automatisch",
+        State: "Zustand",
         On: "An",
         Off: "Aus",
         Active: "Aktiv",
@@ -123,7 +125,6 @@ export const TRANSLATION = {
                     CableNotConnected: "Kabel ist nicht angeschlossen",
                     CarFull: "Auto ist voll",
                     EnergieSinceBeginning: "Energie seit Ladebeginn",
-                    ChargeMode: "Belademodus",
                     ActivateCharging: "Aktivieren der Ladesäule",
                     ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
                     NoConnection: {
@@ -148,7 +149,7 @@ export const TRANSLATION = {
                         Name: "Erzwungene Beladung",
                         ShortName: "Manuell",
                         Info: "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
-                        MaxCharging: "Maximale Ladestärke",
+                        MaxCharging: "Maximale Ladeleistung",
                         MaxChargingDetails: "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt."
                     }
                 }

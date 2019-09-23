@@ -1,8 +1,10 @@
 export const TRANSLATION = {
     General: {
         Mode: "Modo",
-        On: "conmutada",
-        Off: "apagado",
+        Automatic: "Automático",
+        State: "Estado",
+        On: "Conmutada",
+        Off: "Apagado",
         Active: "Activo",
         Inactive: "Inactivo",
         Manually: "a mano",
