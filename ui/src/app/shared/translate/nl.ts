@@ -1,13 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Mode",
+        Automatic: "Automatisch",
+        State: "Staat",
         On: "Naar",
         Off: "Van",
         Active: "Actief",
         Inactive: "Inactief",
-        Manually: "Handmatig",
-        Automatic: "Automatisch",
-        Mode: "Mode",
-        State: "Staat",
+        Manually: "handmatig",
         Phase: "Fase",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigen consumptie",
@@ -91,7 +91,6 @@ export const TRANSLATION = {
                     HighThreshold: "hoge drempel"
                 },
                 EVCS: {
-                    OffInfoText: "Het laadstation is uitgeschakeld, selecteer een andere laadstrategie voor meer informatie.",
                     ChargingStation: "Laadstation",
                     ChargingStationCluster: "Laadstation cluster",
                     OverviewChargingStations: "Overzicht laadstations",
@@ -106,6 +105,7 @@ export const TRANSLATION = {
                     Error: "Fout",
                     NotAuthorized: "Geen bevoegdheid",
                     Unplugged: "Unplugged",
+                    ChargeLimitReached: "Oplaadlimiet bereikt",
                     CharingStationPluggedIn: "Laadstation aangesloten",
                     ChargingStationPluggedInLocked: "Laadstation aangesloten + op slot",
                     ChargingStationPluggedInEV: "Laadstation + E-Auto aangesloten",
@@ -130,18 +130,17 @@ export const TRANSLATION = {
                         Help1_1: "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen"
                     },
                     OptimizedChargeMode: {
-                        AutoName: "Automatisch Laden",
-                        AutoShortName: "automatisch",
                         Name: "Geoptimaliseerd laden",
-                        ShortName: "geoptimaliseerde",
+                        ShortName: "Automatisch",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
                         MinInfo: "Als u wilt voorkomen dat de auto 's nachts niet oplaadt, kunt u een minimale lading instellen.",
                         MinCharging: "Minimale vergoeding betalen",
+                        MinChargePower: "Loading rate",
                         ChargingPriority: "Afhankelijk van de prioriteit, wordt het geselecteerde onderdeel eerst geladen"
                     },
                     ForceChargeMode: {
                         Name: "Gedwongen laden",
-                        ShortName: "Gedwongen",
+                        ShortName: "handmatig",
                         Info: "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
                         MaxCharging: "Maximale laadstroom",
                         MaxChargingDetails: "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt."
