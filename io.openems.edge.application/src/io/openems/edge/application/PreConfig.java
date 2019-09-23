@@ -257,7 +257,7 @@ public class PreConfig {
 
 				Hashtable<String, Object> ess = new Hashtable<>();
 				ess.put("activateSurplusFeedIn", true);
-				ess.put("alias", "");
+				ess.put("alias", "Storage");
 				ess.put("core.id", "kacoCore0");
 				ess.put("enabled", true);
 				ess.put("id", "ess0");
@@ -274,9 +274,10 @@ public class PreConfig {
 				grid.put("enabled", true);
 				grid.put("core.id", "kacoCore0");
 				grid.put("id", "meter0");
-				grid.put("alias", "");
+				grid.put("alias", "Vectis");
 				grid.put("external", false);
 				factory.update(grid);
+				
 				
 				// Create PVMeter
 				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
@@ -285,19 +286,19 @@ public class PreConfig {
 				pv.put("enabled", true);
 				pv.put("core.id", "kacoCore0");
 				pv.put("id", "pv0");
-				pv.put("alias", "");
+				pv.put("alias", "PV");
 				factory.update(pv);
 				
 				/*
-				// Create PVvInverter
-				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PvInverter", null);
+				// Create Charger
+				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Charger", null);
 
-				Hashtable<String, Object> pvinverter = new Hashtable<>();
-				pvinverter.put("enabled", true);
-				pvinverter.put("core.id", "kacoCore0");
-				pvinverter.put("id", "pvInverter0");
-				pvinverter.put("alias", "");
-				factory.update(pvinverter);
+				Hashtable<String, Object> charger = new Hashtable<>();
+				charger.put("enabled", true);
+				charger.put("core.id", "kacoCore0");
+				charger.put("id", "charger0");
+				charger.put("alias", "PV");
+				factory.update(charger);
 				 */
 			} else {
 				System.out.println("Kaco already active");
