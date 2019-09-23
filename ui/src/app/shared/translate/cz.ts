@@ -1,13 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Režim",
+        Automatic: "Automaticky",
         On: "zapnutý",
         Off: "Pryč",
-        Active: "Aktivně",
+        State: "Stát",
+        Active: "aktivně",
         Inactive: "Neaktivní",
         Manually: "Ruční",
-        Automatic: "Automaticky",
-        Mode: "Režim",
-        State: "Stát",
         Phase: "Fáze",
         Autarchy: "Soběstačnost",
         SelfConsumption: "Vlastní spotřeba",
@@ -93,7 +93,6 @@ export const TRANSLATION = {
                     HighThreshold: "vysoký práh"
                 },
                 EVCS: {
-                    OffInfoText: "Nabíjecí stanice je deaktivována. Chcete-li zjistit více, vyberte jinou strategii načítání.",
                     ChargingStation: "Nabíjecí stanice",
                     ChargingStationCluster: "Klastr nabíjecí stanice",
                     OverviewChargingStations: "Přehled nabíjecích stanic",
@@ -108,6 +107,7 @@ export const TRANSLATION = {
                     Error: "Chyba",
                     NotAuthorized: "Neautorizovaný",
                     Unplugged: "Odpojena",
+                    ChargeLimitReached: "Bylo dosaženo limitu nabíjení",
                     ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
                     ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
                     ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",
@@ -132,13 +132,12 @@ export const TRANSLATION = {
                         Help1_1: "Při opětovném zapnutí se objeví IP nabíjecí stanice"
                     },
                     OptimizedChargeMode: {
-                        AutoName: "automatické načítání",
-                        AutoShortName: "automaticky",
                         Name: "Optimalizované zatížení",
-                        ShortName: "optimalizované",
+                        ShortName: "automaticky",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
                         MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
                         MinCharging: "Garance minimálního poplatku",
+                        MinChargePower: "nakládací sazba",
                         ChargingPriority: {
                             Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
                             Car: "Car",
@@ -147,7 +146,7 @@ export const TRANSLATION = {
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
-                        ShortName: "vynucený",
+                        ShortName: "Ruční",
                         Info: "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
                         MaxCharging: "Maximální síla náboje",
                         MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."
