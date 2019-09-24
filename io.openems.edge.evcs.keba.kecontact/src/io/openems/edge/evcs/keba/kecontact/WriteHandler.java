@@ -115,7 +115,6 @@ public class WriteHandler implements Runnable {
 					e.printStackTrace();
 				}
 
-				this.parent.logInfo(this.log, "currtime " + current);
 				boolean sentSuccessfully = parent.send("currtime " + current + " 1");
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
