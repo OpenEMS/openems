@@ -73,6 +73,10 @@
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.HeatingElement'" size="12" size-lg="6">
+              <heatingelement [componentId]="widget.componentId"></heatingelement>
+            </ion-col>
+
           </ng-container>
 
           <!-- <ion-col size="12" size-lg="12">

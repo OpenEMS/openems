@@ -1,7 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Modus",
+        Automatic: "Automatisch",
+        State: "Zustand",
         On: "An",
         Off: "Aus",
+        Active: "Aktiv",
+        Inactive: "Inaktiv",
+        Manually: "Manuell",
         Phase: "Phase",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigenverbrauch",
@@ -103,13 +109,14 @@ export const TRANSLATION = {
                     Error: "Fehler",
                     NotAuthorized: "Nicht authorisiert",
                     Unplugged: "Ausgesteckt",
+                    ChargeLimitReached: "Ladelimit erreicht",
                     ChargingStationPluggedIn: "Ladestation eingesteckt",
                     ChargingStationPluggedInLocked: "Ladestation eingesteckt + gesperrt",
                     ChargingStationPluggedInEV: "Ladestation + E-Auto eingesteckt",
                     ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
                     ChargingLimit: "Lade-Begrenzung",
                     AmountOfChargingStations: "Anzahl der Ladestationen",
-                    ChargingPower: "E-Auto Ladeleistung",
+                    ChargingPower: "Ladeleistung",
                     TotalChargingPower: "Gesamte Lade-Leistung",
                     CurrentCharge: "Aktuelle Beladung",
                     TotalCharge: "Gesamte Beladung",
@@ -117,8 +124,7 @@ export const TRANSLATION = {
                     Cable: "Kabel",
                     CableNotConnected: "Kabel ist nicht angeschlossen",
                     CarFull: "Auto ist voll",
-                    EnergieSinceBeginning: "Energie seit letztem Ladebeginn",
-                    ChargeMode: "Belademodus",
+                    EnergieSinceBeginning: "Energie seit Ladebeginn",
                     ActivateCharging: "Aktivieren der Ladesäule",
                     ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
                     NoConnection: {
@@ -128,21 +134,22 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimierte Beladung",
-                        ShortName: "Optimiert",
+                        ShortName: "Automatisch",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
                         MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Aufladung garantieren",
+                        MinCharging: "Minimale Beladung garantieren",
+                        MinChargePower: "Minimale Ladestärke",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
-                            Car: "Auto",
+                            Car: "E-Auto",
                             Storage: "Speicher"
                         }
                     },
                     ForceChargeMode: {
                         Name: "Erzwungene Beladung",
-                        ShortName: "Erzwungen",
+                        ShortName: "Manuell",
                         Info: "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
-                        MaxCharging: "Maximale Ladestärke",
+                        MaxCharging: "Maximale Ladeleistung",
                         MaxChargingDetails: "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt."
                     }
                 }

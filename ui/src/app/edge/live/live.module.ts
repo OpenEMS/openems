@@ -25,6 +25,8 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
+import { HeatingElementComponent } from './heatingelement/heatingelement.component';
+import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -39,7 +41,8 @@ import { StorageComponent } from './storage/storage.component';
     EvcsModalComponent,
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
-    SelfconsumptionModalComponent
+    SelfconsumptionModalComponent,
+    HeatingElementModalComponent
   ],
   declarations: [
     LiveComponent,
@@ -57,6 +60,7 @@ import { StorageComponent } from './storage/storage.component';
     StorageModalComponent,
     GridModalComponent,
     ChpSocComponent,
+    HeatingElementComponent,
     ConsumptionModalComponent,
     ProductionModalComponent,
     EvcsClusterComponent,
@@ -66,7 +70,8 @@ import { StorageComponent } from './storage/storage.component';
     AutarchyComponent,
     AutarchyModalComponent,
     SelfConsumptionComponent,
-    SelfconsumptionModalComponent
+    SelfconsumptionModalComponent,
+    HeatingElementModalComponent
   ]
 })
 export class LiveModule { }

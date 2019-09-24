@@ -1,0 +1,48 @@
+<ng-container *ngIf="controller && service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card button (click)="presentModal()">
+
+            <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" color="danger" name="flame"></ion-icon>
+                <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
+                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
+            </ion-item>
+            <ion-card-content>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.Mode
+                        </td>
+                        <td *ngIf="controller.properties['mode'] == 'MANUAL_ON'" style="width: 35%" class="align_right"
+                            translate>
+                            General.On
+                        </td>
+                        <td *ngIf="controller.properties['mode'] == 'MANUAL_OFF'" style="width: 35%" class="align_right"
+                            translate>
+                            General.Off
+                        </td>
+                        <td *ngIf="controller.properties['mode'] == 'AUTOMATIC'" style="width: 35%" class="align_right"
+                            translate>
+                            General.Automatic
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.State
+                        </td>
+                        <!-- <ng-container                            *ngIf="currentData.channel[outputChannelAdress1] == 1 || currentData.channel[outputChannelAddress2] == 1 || currentData.channel[outputChannelAddress3] == 1; else inactive"> -->
+                        <td class="align_right" style="width:35%" translate>
+                            General.Active
+                        </td>
+                        <!-- </ng-container> -->
+                        <!-- <ng-template #inactive>
+                            <td style="width:35%" class="align_right" translate>
+                                General.Inactive
+                            </td>
+                        </ng-template> -->
+                    </tr>
+                </table>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>
