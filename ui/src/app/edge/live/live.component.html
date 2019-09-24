@@ -1,13 +1,13 @@
 <ion-grid *ngIf="edge">
   <ion-row class="ion-justify-content-center">
-    <!-- Widgets -->
-
     <!-- Energymonitor -->
-    <ion-col size="12" size-md="8" size-lg="4">
+    <ion-col size="12" size-md="8" size-lg="4" class="ion-no-padding">
       <energymonitor></energymonitor>
     </ion-col>
 
-    <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6">
+
+    <!-- Widgets -->
+    <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
       <ion-grid class="ion-no-padding">
         <ion-row>
           <!-- Regular Widgets -->
