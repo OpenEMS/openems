@@ -18,11 +18,9 @@ export class HeatingElementComponent {
     private edge: Edge = null;
 
     public controller: EdgeConfig.Component = null;
-    public inputChannel: ChannelAddress = null;
-    public outputChannel: ChannelAddress = null;
-    public outputChannelAddress1: ChannelAddress = null;
-    public outputChannelAddress2: ChannelAddress = null;
-    public outputChannelAddress3: ChannelAddress = null;
+    public outputChannelPhaseOne: ChannelAddress = null;
+    public outputChannelPhaseTwo: ChannelAddress = null;
+    public outputChannelPhaseThree: ChannelAddress = null;
 
 
     constructor(
@@ -37,13 +35,16 @@ export class HeatingElementComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.controller = config.components[this.componentId];
-                this.outputChannel = ChannelAddress.fromString(
-                    this.controller.properties['outputChannelAddress1']);
-                this.inputChannel = ChannelAddress.fromString(
-                    this.controller.properties['inputChannelAddress2']);
+                this.outputChannelPhaseOne = ChannelAddress.fromString(
+                    this.controller.properties['outputChannelAddress2']);
+                // this.outputChannelPhaseTwo = ChannelAddress.fromString(
+                //     this.controller.properties['outputChannelAddress2']);
+                // this.outputChannelPhaseThree = ChannelAddress.fromString(
+                //     this.controller.properties['outputChannelAddress3']);
                 edge.subscribeChannels(this.websocket, HeatingElementComponent.SELECTOR + this.componentId, [
-                    this.outputChannel,
-                    this.inputChannel
+                    this.outputChannelPhaseOne,
+                    // this.outputChannelPhaseTwo,
+                    // this.outputChannelPhaseThree
                 ]);
             });
         });
