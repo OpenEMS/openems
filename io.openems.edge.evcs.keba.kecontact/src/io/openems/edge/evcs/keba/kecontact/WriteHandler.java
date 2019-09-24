@@ -135,21 +135,25 @@ public class WriteHandler implements Runnable {
 	 * command is 0.1 Wh. The charging station will charge till this limit.
 	 */
 	private void setEnergySession() {
-
+		
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
+		
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 
 			Integer energyTarget = valueOpt.get();
+			this.parent.setEnergyLimit().setNextValue(energyTarget);
 
 			if (energyTarget < 0) {
 				return;
 			}
 			
-			// limits the target value because KEBA knows only values between 0 and 999999999 0.1Wh
+			/**
+			 *  limits the target value because KEBA knows only values between 0 and 999999999 0.1Wh
+			 */
 			energyTarget = energyTarget > 99999999 ? 99999999 : energyTarget;
 			energyTarget = energyTarget > 0 && energyTarget < 1 ? 1 : energyTarget;
-			energyTarget *= 10; // EnergyTarget has to be 0.1Wh
+			energyTarget *= 10;
 
 			if (!energyTarget.equals(this.lastEnergySession)
 					|| this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {

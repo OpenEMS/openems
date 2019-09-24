@@ -133,6 +133,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
 
+
+		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
+		
 		/*
 		 * Sets a fixed request of 0 if the Charger is not ready
 		 */
@@ -154,8 +157,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				break;
 			}
 		}
-
-		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
 
 		/*
 		 * Stop early if charging is disabled
