@@ -177,7 +177,7 @@ export class EvcsModalComponent implements OnInit {
         newLimit = 0;
       }
       else {
-        newLimit = 1000;
+        newLimit = 20000;
       }
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'energySessionLimit', value: newLimit }
