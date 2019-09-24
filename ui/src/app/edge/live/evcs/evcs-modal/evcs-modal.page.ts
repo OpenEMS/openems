@@ -169,24 +169,27 @@ export class EvcsModalComponent implements OnInit {
   * @param event 
   */
   allowEnergySessionLimit(event: CustomEvent, currentController: EdgeConfig.Component) {
-    let oldLimit = 0;
-    let newLimit = 1000;
+    let oldLimit = currentController.properties['energySessionLimit'];
+    let newLimit;
 
     if (this.edge != null) {
+      if (oldLimit > 0) {
+        newLimit = 0;
+      }
+      else {
+        newLimit = 1000;
+      }
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'energySessionLimit', value: newLimit }
       ]).then(() => {
-        if (currentController.properties.energySessionLimit > 0) {
-          currentController.properties.energySessionLimit = oldLimit;
-        } else {
-          currentController.properties.energySessionLimit = newLimit;
-        }
+        currentController.properties.energySessionLimit = newLimit;
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
         console.warn(reason);
       })
     }
   }
+
 
 
   /**
