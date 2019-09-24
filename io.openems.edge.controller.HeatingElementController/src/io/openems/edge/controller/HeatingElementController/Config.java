@@ -15,12 +15,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.AUTOMATIC;
 
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel for the grid power")
 	String inputChannelAddress();
-
-	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel for Soc")
-	String inputChannelAddress1();
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
 	String outputChannelAddress1();
@@ -30,6 +30,19 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
 	String outputChannelAddres3();
+	
+	@AttributeDefinition(name = "End Time", description = "End time to check the minmum run time")
+	String endTime() default "17:00:00";
+	
+	@AttributeDefinition(name = "Priority of running the heating element", description = "Decide the priority, time or the Kilo watt hour")
+	Priority priority() default Priority.TIME;
+	
+	@AttributeDefinition(name = "Minimum time", description = "Minimum time for heating element to run in hours")
+	int minTime()  default  1;
+
+	@AttributeDefinition(name = "Min Kwh", description = "Minimun Kilo watt hour for heating element to run in kwh")
+	int minkwh() default 4;
+	
 
 	@AttributeDefinition(name = "Power of Phase", description = "Power of the single phase")
 	int powerOfPhase();

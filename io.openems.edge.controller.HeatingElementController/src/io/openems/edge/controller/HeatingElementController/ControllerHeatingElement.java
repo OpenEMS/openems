@@ -3,6 +3,9 @@ package io.openems.edge.controller.HeatingElementController;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
@@ -28,6 +31,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 
@@ -46,8 +50,27 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	protected Sum sum;
 
 	int noRelaisSwitchedOn = 0;
+	private Mode mode;
+	private Priority priority;
+	private int minTime;
+	private int minKwh;
+	private String endTime;
+	TimeLeapClock timeLeapClock = new TimeLeapClock();
+	LocalTime currentEndtime;
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+	long totalPhaseTime = 0;
+	LocalDateTime phaseTimeOn = null;
+	LocalDateTime phaseTimeOff = null;
+	LocalDateTime l3PhaseTime = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		MODE(Doc.of(Mode.values()) //
+				.initialValue(Mode.AUTOMATIC) //
+				.text("Configured Mode")), //
+		PRIORITY(Doc.of(Mode.values()) //
+				.initialValue(Priority.TIME) //
+				.text("Configured Mode")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")),
 		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
@@ -81,11 +104,10 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
-	private final TemporalAmount hysteresis = Duration.ofMinutes(5);
+	private final TemporalAmount hysteresis = Duration.ofSeconds(2);
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	private ChannelAddress inputChannelAddress;
-	private ChannelAddress inputChannelAddress1;
 	private ChannelAddress outputChannelAddress1;
 	private ChannelAddress outputChannelAddress2;
 	private ChannelAddress outputChannelAddress3;
@@ -95,10 +117,18 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.powerOfPhase = config.powerOfPhase();
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-		this.inputChannelAddress1 = ChannelAddress.fromString(config.inputChannelAddress1());
 		this.outputChannelAddress1 = ChannelAddress.fromString(config.outputChannelAddress1());
 		this.outputChannelAddress2 = ChannelAddress.fromString(config.outputChannelAddres2());
 		this.outputChannelAddress3 = ChannelAddress.fromString(config.outputChannelAddres3());
+
+		this.mode = config.mode();
+		this.channel(ChannelId.MODE).setNextValue(config.mode());
+		this.priority = config.priority();
+		this.channel(ChannelId.PRIORITY).setNextValue(config.priority());
+
+		this.minTime = this.getSeconds(config.minTime());
+		this.minKwh = config.minkwh();
+		this.endTime = config.endTime();
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
@@ -113,16 +143,62 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 	private State state = State.UNDEFINED;
 
+	private int getSeconds(int minTime) {
+		return minTime * 60 * 60; // Converting the time configured as hours into seconds
+	}
+
 	@Override
-	public void run() throws IllegalArgumentException, OpenemsNamedException {
+	public void run() throws OpenemsNamedException {
+
+		LocalDateTime now = LocalDateTime.now();
+		Boolean modeChanged;
+
+		do {
+			modeChanged = false;
+			switch (this.mode) {
+			case MANUAL_ON:
+				this.on(outputChannelAddress1);
+				this.on(outputChannelAddress2);
+				this.on(outputChannelAddress3);
+				modeChanged = changeMode(Mode.MANUAL_ON);
+				break;
+			case MANUAL_OFF:
+				this.off(outputChannelAddress1);
+				this.off(outputChannelAddress2);
+				this.off(outputChannelAddress3);
+				modeChanged = changeMode(Mode.MANUAL_OFF);
+				break;
+			case AUTOMATIC:
+				automaticMode(now);
+				modeChanged = changeMode(Mode.AUTOMATIC);
+				break;
+			}
+		} while (modeChanged);
+
+		this.channel(ChannelId.MODE).setNextValue(this.mode);
+		System.out.println("Total phase time : "+ totalPhaseTime);
+	}
+
+	/**
+	 * A flag to maintain change in the mode
+	 * 
+	 * @param nextmode the target mode
+	 * @return Flag that the mode is changed or not
+	 */
+	private boolean changeMode(Mode nextMode) {
+		if (this.mode != nextMode) {
+			this.mode = nextMode;
+			return true;
+		} else
+			return false;
+	}
+
+	protected void automaticMode(LocalDateTime now) throws IllegalArgumentException, OpenemsNamedException {
+
+		currentEndtime = LocalTime.parse(this.endTime);
 		// Get the input channel addresses
 		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
 		int gridActivePower = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
-		// int Soc = this.sum.getEssSoc().value().orElse(0);
-		Channel<?> socChannel = this.componentManager.getChannel(this.inputChannelAddress1);
-		int Soc = TypeUtils.getAsType(OpenemsType.INTEGER, socChannel.value().getOrError());
-
-		boolean stateChanged;
 		int excessPower;
 
 		// Calculate the Excess power
@@ -130,50 +206,181 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			excessPower = 0;
 		} else {
 			excessPower = Math.abs(gridActivePower);
+			excessPower += noRelaisSwitchedOn * 2000;
 		}
-		excessPower += noRelaisSwitchedOn * 2000;
 
+		Boolean priorityChanged;
+		
+		
+		boolean stateChanged;
 		do {
-			stateChanged = false;
-			if (Soc > 96 && excessPower >= (this.powerOfPhase * 3)) {
+
+			if (excessPower >= (this.powerOfPhase * 3)) {
 				stateChanged = this.changeState(State.THIRD_PHASE);
-			} else if (Soc > 94 && Soc <= 96 && excessPower >= (this.powerOfPhase * 2)) {
+			} else if (excessPower >= (this.powerOfPhase * 2)) {
 				stateChanged = this.changeState(State.SECOND_PHASE);
-			} else if (Soc > 92 && Soc <= 94 && excessPower >= this.powerOfPhase) {
+			} else if (excessPower >= this.powerOfPhase) {
 				stateChanged = this.changeState(State.FIRST_PHASE);
 			} else {
 				stateChanged = this.changeState(State.UNDEFINED);
-			}			
-		} while (stateChanged); // execute again if the state changed
+			}
+
+		} while (stateChanged); // execute again if the state changed	
 
 		switch (this.state) {
 		case UNDEFINED:
-			this.off(outputChannelAddress1);
-			this.off(outputChannelAddress2);
-			this.off(outputChannelAddress3);
-			noRelaisSwitchedOn = 0;
+			switch (this.priority) {
+			case TIME:
+				this.checkMinTime();
+				break;
+			case KILO_WATT_HOUR:
+				this.chkMinKwh(excessPower);
+				break;
+			}
 			break;
 		case FIRST_PHASE:
-			this.on(outputChannelAddress1);
-			this.off(outputChannelAddress2);
-			this.off(outputChannelAddress3);
-			noRelaisSwitchedOn = 1;
+			this.handleSinglePhase();
 			break;
 		case SECOND_PHASE:
-			this.on(outputChannelAddress1);
-			this.on(outputChannelAddress2);
-			this.off(outputChannelAddress3);
-			noRelaisSwitchedOn = 2;
+			this.handleSecondPhase();
 			break;
 		case THIRD_PHASE:
-			this.on(outputChannelAddress1);
-			this.on(outputChannelAddress2);
-			this.on(outputChannelAddress3);
-			noRelaisSwitchedOn = 3;
+			this.handleThirdPhase();
 			break;
 		}
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
+		this.channel(ChannelId.PRIORITY).setNextValue(this.priority);
+	}
+
+	private void checkMinKwh(int excessPower) {
+		
+	}
+	/**
+	 * Check the total time running of the heating element at the end of ENDTIME
+	 * case 1: if the totalTimePhase is less than the minTime -> force switch on the
+	 * all three phases for the difference period, and update the totalTimePhase,
+	 * case 2: if the totalTimePhase is equal to and more than minTime -> Do not
+	 * force charge
+	 * 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
+	private void checkMinTime() throws IllegalArgumentException, OpenemsNamedException {
+
+		if (formatter.format(LocalTime.now()).equals(formatter.format(currentEndtime))) {
+			if (this.totalPhaseTime < minTime) {
+				long deltaTime = minTime - this.totalPhaseTime;
+				// Switch-On all the 3 Phases
+				calculateTotalTime(3);
+				// update the endtime
+				currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.SECONDS);
+
+				// update the totalPhaseTime
+				this.totalPhaseTime += deltaTime;
+
+				checkMinTime();
+			}
+			// resetting the Total phase time, phasetimeon , Phasetimeoff to zero
+			this.totalPhaseTime = 0;
+			this.phaseTimeOff = null;
+			this.phaseTimeOn = null;
+		}
+		else {
+			// Switch-Off the phases
+			calculateTotalTime(0);
+		}
+
+	}
+
+//	private void handleUnDefined() throws IllegalArgumentException, OpenemsNamedException {
+//		noRelaisSwitchedOn = 0;
+//		calculateTotalTime(noRelaisSwitchedOn);
+//	}
+
+	/**
+	 * Switch on the first phase. Calculate the time, how long the first phase was
+	 * turned on.
+	 */
+	private void handleSinglePhase() throws IllegalArgumentException, OpenemsNamedException {
+		noRelaisSwitchedOn = 1;
+		calculateTotalTime(noRelaisSwitchedOn);
+	}
+
+	/**
+	 * Switch on the first phase and second phase. Calculate the time, how long the
+	 * second phase was turned on.
+	 */
+	private void handleSecondPhase() throws IllegalArgumentException, OpenemsNamedException {
+		noRelaisSwitchedOn = 2;
+		calculateTotalTime(noRelaisSwitchedOn);
+	}
+
+	/**
+	 * Switch on the third phase, first phase and second phase. Calculate the time,
+	 * how long the third phase was turned on.
+	 */
+	private void handleThirdPhase() throws IllegalArgumentException, OpenemsNamedException {
+		noRelaisSwitchedOn = 3;
+		calculateTotalTime(noRelaisSwitchedOn);
+	}
+
+	/**
+	 * Helper function to switch the relays on and off, and also calculate the time
+	 * how long the relays were switched on
+	 * 
+	 * @param noRelaisSwitchedOn no of relays turned on
+	 */
+	private void calculateTotalTime(int noRelaisSwitchedOn) throws IllegalArgumentException, OpenemsNamedException {
+
+		if (noRelaisSwitchedOn == 0) {
+				// If the Phase is not switched-On  do not record the PhasetimeOff
+			if (phaseTimeOn == null) {
+				phaseTimeOff = null;
+			} else {
+				phaseTimeOff = LocalDateTime.now();
+			}
+
+			this.off(outputChannelAddress1);
+			this.off(outputChannelAddress2);
+			this.off(outputChannelAddress3);
+		} else {
+			// Atleast one phase is running
+			if (phaseTimeOn != null) {
+			// do not take the current time
+			} else {
+				phaseTimeOn = LocalDateTime.now();
+			}
+			if (noRelaisSwitchedOn == 1) {
+				this.on(outputChannelAddress1);
+				this.off(outputChannelAddress2);
+				this.off(outputChannelAddress3);
+			} else if (noRelaisSwitchedOn == 2) {
+				this.on(outputChannelAddress1);
+				this.on(outputChannelAddress2);
+				this.off(outputChannelAddress3);
+			} else if (noRelaisSwitchedOn == 3) {
+				this.on(outputChannelAddress1);
+				this.on(outputChannelAddress2);
+				this.on(outputChannelAddress3);
+			} else {
+				throw new OpenemsException("Invalid number of relais");
+			}
+		}
+		if (phaseTimeOn != null && phaseTimeOff != null) {
+			// Atleast one cycle, any of the Phase was switch on and off
+			System.out.println("delta times : "+  ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff));
+			totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
+			// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to calculate the time for the next cycle of switch On and Off 
+			phaseTimeOn = null;
+		} else if (totalPhaseTime != 0){
+			// reserve the calculated totalPhaseTime
+		}else {
+			// no phases are running
+			// or one of the phases is still running and not stopped
+			totalPhaseTime = 0;
+		}
+
 	}
 
 	/**

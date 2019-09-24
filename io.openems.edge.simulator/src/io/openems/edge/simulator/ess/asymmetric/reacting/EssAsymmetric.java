@@ -18,7 +18,9 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -32,6 +34,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
+import io.openems.edge.simulator.ess.symmetric.reacting.EssSymmetric.ChannelId;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssAsymmetric.Reacting", //
@@ -57,7 +60,8 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	private int maxApparentPower = 0;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
+		SIMULATED_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT));
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -125,6 +129,11 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 
 	private void updateChannels() {
 		// nothing to do
+		/*
+		 * get and store Simulated Grid Active Power
+		 */
+		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "GridActivePower");
+		this.channel(ChannelId.SIMULATED_GRID_ACTIVE_POWER).setNextValue(simulatedActivePower);
 	}
 
 	@Override
