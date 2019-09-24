@@ -207,17 +207,19 @@ export class Websocket {
     switch (message.method) {
       case AuthenticateWithSessionIdNotification.METHOD:
         this.handleAuthenticateWithSessionId(message as AuthenticateWithSessionIdNotification);
+        this.service.hideLoader();
         break;
 
       case AuthenticateWithSessionIdFailedNotification.METHOD:
         this.handleAuthenticateWithSessionIdFailed(message as AuthenticateWithSessionIdNotification);
+        this.service.hideLoader();
         break;
 
       case EdgeRpcNotification.METHOD:
         this.handleEdgeRpcNotification(message as EdgeRpcNotification);
         break;
     }
-    this.service.hideLoader();
+
   }
 
   /**
