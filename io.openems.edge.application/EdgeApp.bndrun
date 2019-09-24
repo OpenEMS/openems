@@ -160,6 +160,7 @@
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.socomec;version=snapshot,\
+	io.openems.edge.meter.simulated;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\

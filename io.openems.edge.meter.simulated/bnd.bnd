@@ -1,0 +1,26 @@
+Bundle-Name: OpenEMS Edge Meter Simulated
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: \
+	io.openems.edge.meter.api,\
+	io.openems.edge.meter.asymmetric.api,\
+	io.openems.edge.meter.symmetric.api
+Private-Package: io.openems.edge.meter.simulated
+
+-includeresource: {readme.md}
+
+-buildpath: ${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	com.google.guava,\
+	slf4j.api
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
