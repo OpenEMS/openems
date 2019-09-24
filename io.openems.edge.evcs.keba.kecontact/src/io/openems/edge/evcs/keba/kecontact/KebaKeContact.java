@@ -211,7 +211,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(73, KebaChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
 				.channel(74, KebaChannelId.CURR_TIMER, ModbusType.UINT16)
 				.channel(75, KebaChannelId.TIMEOUT_CT, ModbusType.UINT16)
-				.channel(76, KebaChannelId.ENERGY_LIMIT, ModbusType.UINT16)
+				.uint16Reserved(76)
 				.channel(77, KebaChannelId.OUTPUT, ModbusType.UINT16)
 				.channel(78, KebaChannelId.INPUT, ModbusType.UINT16)
 
@@ -224,7 +224,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(84, KebaChannelId.CURRENT_L3, ModbusType.UINT16)
 				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
 				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16)
-				.channel(87, KebaChannelId.ENERGY_SESSION, ModbusType.UINT16)
+				.uint16Reserved(87)
 				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16)
 				.uint16Reserved(89).uint16Reserved(90)
 				.channel(91, KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, ModbusType.UINT16).build();

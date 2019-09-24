@@ -16,7 +16,7 @@ export class EvcsComponent {
 
   private static readonly SELECTOR = "evcs";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   public edge: Edge = null;
   public controller: EdgeConfig.Component = null;
