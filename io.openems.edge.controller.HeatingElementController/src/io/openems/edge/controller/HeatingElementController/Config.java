@@ -26,10 +26,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String outputChannelAddress1();
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddres2();
+	String outputChannelAddress2();
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddres3();
+	String outputChannelAddress3();
 	
 	@AttributeDefinition(name = "End Time", description = "End time to check the minmum run time")
 	String endTime() default "17:00:00";
