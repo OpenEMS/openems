@@ -176,7 +176,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		} while (modeChanged);
 
 		this.channel(ChannelId.MODE).setNextValue(this.mode);
-		System.out.println("Total phase time : "+ totalPhaseTime);
+		System.out.println("Total phase time : " + totalPhaseTime);
 	}
 
 	/**
@@ -210,8 +210,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 
 		Boolean priorityChanged;
-		
-		
+
 		boolean stateChanged;
 		do {
 
@@ -225,7 +224,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				stateChanged = this.changeState(State.UNDEFINED);
 			}
 
-		} while (stateChanged); // execute again if the state changed	
+		} while (stateChanged); // execute again if the state changed
 
 		switch (this.state) {
 		case UNDEFINED:
@@ -234,7 +233,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				this.checkMinTime();
 				break;
 			case KILO_WATT_HOUR:
-				this.chkMinKwh(excessPower);
+				this.checkMinKwh(excessPower);
 				break;
 			}
 			break;
@@ -254,8 +253,12 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	private void checkMinKwh(int excessPower) {
-		
+		if (formatter.format(LocalTime.now()).equals(formatter.format(currentEndtime))) {
+
+		}
+
 	}
+
 	/**
 	 * Check the total time running of the heating element at the end of ENDTIME
 	 * case 1: if the totalTimePhase is less than the minTime -> force switch on the
@@ -285,8 +288,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			this.totalPhaseTime = 0;
 			this.phaseTimeOff = null;
 			this.phaseTimeOn = null;
-		}
-		else {
+		} else {
 			// Switch-Off the phases
 			calculateTotalTime(0);
 		}
@@ -334,7 +336,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private void calculateTotalTime(int noRelaisSwitchedOn) throws IllegalArgumentException, OpenemsNamedException {
 
 		if (noRelaisSwitchedOn == 0) {
-				// If the Phase is not switched-On  do not record the PhasetimeOff
+			// If the Phase is not switched-On do not record the PhasetimeOff
 			if (phaseTimeOn == null) {
 				phaseTimeOff = null;
 			} else {
@@ -347,7 +349,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		} else {
 			// Atleast one phase is running
 			if (phaseTimeOn != null) {
-			// do not take the current time
+				// do not take the current time
 			} else {
 				phaseTimeOn = LocalDateTime.now();
 			}
@@ -369,13 +371,14 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 		if (phaseTimeOn != null && phaseTimeOff != null) {
 			// Atleast one cycle, any of the Phase was switch on and off
-			System.out.println("delta times : "+  ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff));
+			System.out.println("delta times : " + ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff));
 			totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
-			// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to calculate the time for the next cycle of switch On and Off 
+			// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
+			// calculate the time for the next cycle of switch On and Off
 			phaseTimeOn = null;
-		} else if (totalPhaseTime != 0){
+		} else if (totalPhaseTime != 0) {
 			// reserve the calculated totalPhaseTime
-		}else {
+		} else {
 			// no phases are running
 			// or one of the phases is still running and not stopped
 			totalPhaseTime = 0;
