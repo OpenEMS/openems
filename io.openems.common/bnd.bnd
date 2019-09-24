@@ -29,6 +29,7 @@ Export-Package: \
 	org.apache.felix.configadmin;version=1.8,\
 	com.google.guava,\
 	com.google.gson,\
+	org.java-websocket:Java-WebSocket;version=1.3,\
 	org.ops4j.pax.logging.pax-logging-api,\
 	org.dhatim:fastexcel
 
