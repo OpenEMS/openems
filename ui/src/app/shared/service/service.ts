@@ -13,6 +13,7 @@ import { Language, LanguageTag } from '../translate/language';
 import { filter, first, map } from 'rxjs/operators';
 import { Edges } from '../jsonrpc/shared';
 import { Role } from '../type/role';
+import { LoadingController } from '@ionic/angular';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -51,12 +52,15 @@ export class Service implements ErrorHandler {
 
   private auth: string;
 
+  loader: any;
+
   constructor(
     private router: Router,
     public translate: TranslateService,
     private http: HttpClient,
     private toaster: ToastController,
-    public spinnerDialog: SpinnerDialog
+    public spinnerDialog: SpinnerDialog,
+    public loadingController: LoadingController
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -334,5 +338,12 @@ export class Service implements ErrorHandler {
     return this.auth;
   }
 
+  public showLoader() {
+    this.loader = this.loadingController.create({ message: 'Loading...' }).then((res) => { res.present(); });
+  }
+
+  public hideLoader() {
+    this.loadingController.dismiss();
+  }
 
 }

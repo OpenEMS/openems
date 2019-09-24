@@ -54,6 +54,7 @@ export class Websocket {
     if (this.socket != null) {
       return this.isWebsocketConnected;
     }
+    this.service.showLoader();
 
     if (env.debugMode) {
       console.info("Websocket connect to URL [" + env.url + "]");
@@ -216,6 +217,7 @@ export class Websocket {
         this.handleEdgeRpcNotification(message as EdgeRpcNotification);
         break;
     }
+    this.service.hideLoader();
   }
 
   /**
