@@ -14,7 +14,6 @@ import com.google.gson.GsonBuilder;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
@@ -103,7 +102,7 @@ public class EdgeCache {
 		MyEdge edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge and register listeners
-			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, config, soc, ipv4, null);
+			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, config, soc, ipv4);
 			this.addListeners(edge);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
@@ -178,7 +177,7 @@ public class EdgeCache {
 		edge.onSetOnline(isOnline -> {
 			if (isOnline) {
 				// Edge came Online
-				this.parent.odooHandler.write(edge,
+				this.parent.odooHandler.writeEdge(edge,
 						new FieldValue<Boolean>(Field.EdgeDevice.OPENEMS_IS_CONNECTED, true));
 
 				if (edge.getState().equals(State.INACTIVE)) {
@@ -186,12 +185,12 @@ public class EdgeCache {
 					this.parent.logInfo(this.log,
 							"Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
 					edge.setState(State.ACTIVE);
-					this.parent.odooHandler.write(edge, new FieldValue<String>(Field.EdgeDevice.STATE, "active"));
+					this.parent.odooHandler.writeEdge(edge, new FieldValue<String>(Field.EdgeDevice.STATE, "active"));
 				}
 
 			} else {
 				// Edge disconnected
-				this.parent.odooHandler.write(edge,
+				this.parent.odooHandler.writeEdge(edge,
 						new FieldValue<Boolean>(Field.EdgeDevice.OPENEMS_IS_CONNECTED, false));
 			}
 		});
@@ -207,7 +206,7 @@ public class EdgeCache {
 			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
 			String components = new GsonBuilder().setPrettyPrinting().create()
 					.toJson(config.componentsToJson(JsonFormat.WITHOUT_CHANNELS));
-			this.parent.odooHandler.write(edge, //
+			this.parent.odooHandler.writeEdge(edge, //
 					new FieldValue<String>(Field.EdgeDevice.OPENEMS_CONFIG, conf),
 					new FieldValue<String>(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
 			this.parent.getOdooHandler().addChatterMessage(edge, "<p>Configuration Update:</p>" + diff.getAsHtml());
@@ -224,30 +223,20 @@ public class EdgeCache {
 			// Set Version in Odoo
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
-			this.parent.odooHandler.write(edge,
+			this.parent.odooHandler.writeEdge(edge,
 					new FieldValue<String>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		});
 		edge.onSetSoc(soc -> {
 			// Set SoC in Odoo
-			this.parent.odooHandler.write(edge, new FieldValue<String>(Field.EdgeDevice.SOC, String.valueOf(soc)));
+			this.parent.odooHandler.writeEdge(edge, new FieldValue<String>(Field.EdgeDevice.SOC, String.valueOf(soc)));
 		});
 		edge.onSetIpv4(ipv4 -> {
 			// Set IPv4 in Odoo
-			this.parent.odooHandler.write(edge, new FieldValue<String>(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
+			this.parent.odooHandler.writeEdge(edge,
+					new FieldValue<String>(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
 		});
-		edge.onSetSumState((sumState, activeStateChannels) -> {
-			// Set "_sum/State" in Odoo
-			String sumStateString;
-			if (sumState != null) {
-				sumStateString = sumState.getName().toLowerCase();
-			} else {
-				sumStateString = "";
-			}
-			String states = Metadata.activeStateChannelsToString(activeStateChannels);
-			this.parent.odooHandler.write(edge, //
-					new FieldValue<String>(Field.EdgeDevice.OPENEMS_SUM_STATE, sumStateString), //
-					new FieldValue<String>(Field.EdgeDevice.OPENEMS_SUM_STATE_TEXT, states));
-
+		edge.onSetComponentState(activeStateChannels -> {
+			this.parent.postgresHandler.writeDeviceStates(edge, activeStateChannels);
 		});
 	}
 

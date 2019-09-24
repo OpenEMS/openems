@@ -1,6 +1,7 @@
 package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.ResultSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -11,6 +12,8 @@ import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig.Component.Channel;
 
 public class PostgresHandler {
 
@@ -72,5 +75,15 @@ public class PostgresHandler {
 	 */
 	public Optional<MyEdge> getEdgeForApikey(String apikey) {
 		return Optional.ofNullable(this.edgeCache.getEdgeForApikey(apikey));
+	}
+
+	/**
+	 * Updates the Device States table.
+	 * 
+	 * @param edge                the Edge
+	 * @param activeStateChannels the active State-Channels
+	 */
+	public synchronized void writeDeviceStates(MyEdge edge, Map<ChannelAddress, Channel> activeStateChannels) {
+		this.connection.writeDeviceStates(edge, activeStateChannels);
 	}
 }

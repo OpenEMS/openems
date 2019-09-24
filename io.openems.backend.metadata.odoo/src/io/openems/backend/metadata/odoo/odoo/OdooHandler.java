@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.odoo.Config;
+import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
@@ -38,14 +39,15 @@ public class OdooHandler {
 	}
 
 	/**
-	 * Writes one field to Odoo.
+	 * Writes one field to Odoo Edge model.
 	 * 
 	 * @param edge        the Edge
 	 * @param fieldValues the FieldValues
 	 */
-	public void write(MyEdge edge, FieldValue<?>... fieldValues) {
+	public void writeEdge(MyEdge edge, FieldValue<?>... fieldValues) {
 		try {
-			OdooUtils.write(this.credentials, MetadataOdoo.ODOO_MODEL, new Integer[] { edge.getOdooId() }, fieldValues);
+			OdooUtils.write(this.credentials, Field.EdgeDevice.ODOO_MODEL, new Integer[] { edge.getOdooId() },
+					fieldValues);
 		} catch (OpenemsException e) {
 			this.parent.logError(this.log, "Unable to update Edge [" + edge.getId() + "] " //
 					+ "Odoo-ID [" + edge.getOdooId() + "] " //
@@ -62,7 +64,7 @@ public class OdooHandler {
 	 */
 	public void addChatterMessage(MyEdge edge, String message) {
 		try {
-			OdooUtils.addChatterMessage(this.credentials, MetadataOdoo.ODOO_MODEL, edge.getOdooId(), message);
+			OdooUtils.addChatterMessage(this.credentials, Field.EdgeDevice.ODOO_MODEL, edge.getOdooId(), message);
 		} catch (OpenemsException e) {
 			this.parent.logError(this.log, "Unable to add Chatter Message to Edge [" + edge.getId() + "] " //
 					+ "Message [" + message + "]" //

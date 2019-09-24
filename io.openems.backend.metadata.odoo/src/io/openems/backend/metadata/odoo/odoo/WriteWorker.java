@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.common.exceptions.OpenemsException;
 
@@ -86,7 +85,7 @@ public class WriteWorker {
 			}
 			if (ids.length > 0) {
 				try {
-					OdooUtils.write(credentials, MetadataOdoo.ODOO_MODEL, ids,
+					OdooUtils.write(credentials, Field.EdgeDevice.ODOO_MODEL, ids,
 							new FieldValue<String>(Field.EdgeDevice.LAST_MESSAGE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastMessage: " + e.getMessage());
@@ -101,7 +100,7 @@ public class WriteWorker {
 			}
 			if (ids.length > 0) {
 				try {
-					OdooUtils.write(credentials, MetadataOdoo.ODOO_MODEL, ids,
+					OdooUtils.write(credentials, Field.EdgeDevice.ODOO_MODEL, ids,
 							new FieldValue<String>(Field.EdgeDevice.LAST_UPDATE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastUpdate: " + e.getMessage());

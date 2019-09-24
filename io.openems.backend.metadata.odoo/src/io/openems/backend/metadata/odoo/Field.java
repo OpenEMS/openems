@@ -7,6 +7,9 @@ public interface Field {
 
 	public String id();
 
+	/**
+	 * The EdgeDevice-Model.
+	 */
 	public enum EdgeDevice implements Field {
 		ID("id", true), //
 		APIKEY("apikey", true), //
@@ -25,6 +28,9 @@ public interface Field {
 		OPENEMS_SUM_STATE_TEXT("openem_sum_state_text", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
+		public final static String ODOO_MODEL = "fems.device";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
 		}
@@ -37,6 +43,69 @@ public interface Field {
 		private final boolean query;
 
 		private EdgeDevice(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		public String id() {
+			return this.id;
+		}
+
+		public int index() {
+			return queryIndex;
+		}
+
+		public boolean isQuery() {
+			return query;
+		}
+
+		/**
+		 * Gets all fields that should be queried as a comma separated string.
+		 * 
+		 * @return the String
+		 */
+		public static final String getSqlQueryFields() {
+			return Stream.of(EdgeDevice.values()) //
+					.filter(f -> f.isQuery()) //
+					.map(f -> f.id()) //
+					.collect(Collectors.joining(","));
+		}
+	}
+
+	/**
+	 * The EdgeDeviceStatus-Model.
+	 */
+	public enum EdgeDeviceStatus implements Field {
+		DEVICE_ID("device_id", true), //
+		CHANNEL_ADDRESS("channel_address", true), //
+		LEVEL("level", true), //
+		COMPONENT_("component_id", true), //
+		CHANNEL_NAME("channel_name", false), //
+		LAST_APPEARANCE("last_appearance", true), //
+		LAST_ACKNOWLEDGE("last_acknowledge", false), //
+		ACKNOWLEDGE_DAYS("acknowledge_days", false);
+
+		public final static String ODOO_MODEL = "fems.device_status";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private EdgeDeviceStatus(String id, boolean query) {
 			this.id = id;
 			this.query = query;
 			if (query) {
