@@ -25,7 +25,7 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
-import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/chpsoc-modal.page';
+import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/evcs-popover.page';
 
 @NgModule({
