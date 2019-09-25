@@ -79,10 +79,10 @@ public class ChpSocTest {
 		// Build and run test
 		new ControllerTest(controller, componentManager, ess, io).next(new TestCase() //
 				.input(ess0, 14) //
-				.output(output0, false)) //
+				.output(output0, true)) //
 				.next(new TestCase() //
 						.input(ess0, 50) //
-						.output(output0, false)) //
+						.output(output0, true)) //
 				.next(new TestCase() //
 						.input(ess0, 90) //
 						.output(output0, false)) //
@@ -91,7 +91,7 @@ public class ChpSocTest {
 						.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 15) //
-						.output(output0, false)) //
+						.output(output0, true)) //
 				.next(new TestCase() //
 						.input(ess0, 85) //
 						.output(output0, false)) //
@@ -100,10 +100,10 @@ public class ChpSocTest {
 						.output(output0, false)) //
 				.next(new TestCase() //
 						.input(ess0, 14) //
-						.output(output0, false)) //
+						.output(output0, true)) //
 				.next(new TestCase() //
 						.input(ess0, 45) //
-						.output(output0, false)) //
+						.output(output0, true)) //
 				.run();
 	}
 
