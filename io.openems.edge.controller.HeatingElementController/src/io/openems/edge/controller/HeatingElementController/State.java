@@ -8,17 +8,14 @@ public enum State implements OptionsEnum {
 	 */
 	UNDEFINED(-1, "Undefined"),
 	/**
-	 * When production is 2000W more than the capacity of the ESS.
+	 * When production is 2000W more than the capacity of the ESS, last phase was undefined.
 	 */
-	FIRST_PHASE(0, "Digital output On/Off first relay"),
-	/**
-	 * Value Production is 2000W more than the First State.
-	 */
-	SECOND_PHASE(1, "Digital output On/Off second relay"),
-	/**
-	 * Value Production is 2000W more than the Second State.
-	 */
-	THIRD_PHASE(2, "Digital output On/Off third relay");
+	SWITCH_ON_FIRSTPHASE(0, "SWITCH ON first phase"),
+	SWITCH_OFF_FIRSTPHASE(1,"SWITCH OFF first phase "),
+	SWITCH_ON_SECONDPHASE(0, "SWITCH ON second phase"),
+	SWITCH_OFF_SECONDPHASE(1,"SWITCH OFF second phase "),
+	SWITCH_ON_THIRDPHASE(0, "SWITCH ON third phase"),
+	SWITCH_OFF_THIRDPHASE(1,"SWITCH OFF third phase ");
 
 	private final int value;
 	private final String name;

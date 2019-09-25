@@ -64,12 +64,12 @@ public class HeatingElementTest {
 		}
 
 		@Override
-		public String outputChannelAddres2() {
+		public String outputChannelAddress2() {
 			return this.outputChannelAddress2;
 		}
 
 		@Override
-		public String outputChannelAddres3() {
+		public String outputChannelAddress3() {
 			return this.outputChannelAddress3;
 		}
 
