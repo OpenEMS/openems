@@ -3,7 +3,6 @@ import { PopoverController, ModalController } from '@ionic/angular';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { EvcsPopoverComponent } from './evcs-popover/popover.page';
-import { environment } from 'src/environments';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 type Priority = 'CAR' | 'STORAGE';
@@ -19,9 +18,6 @@ export class EvcsModalComponent implements OnInit {
   @Input() getState: () => String;
   @Input() public componentId: string;
 
-  //boolean value to determine correct info text in popover
-  public isPrioritization: boolean = null;
-  public isCapacity: boolean = null;
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;
 
@@ -29,7 +25,7 @@ export class EvcsModalComponent implements OnInit {
     protected service: Service,
     public websocket: Websocket,
     protected translate: TranslateService,
-    private modalCtrl: ModalController,
+    public modalCtrl: ModalController,
     public popoverController: PopoverController
   ) { }
 
@@ -40,10 +36,6 @@ export class EvcsModalComponent implements OnInit {
     else {
       this.chargeMode = 'OFF';
     }
-  }
-
-  cancel() {
-    this.modalCtrl.dismiss();
   }
 
   /**  
@@ -168,7 +160,7 @@ export class EvcsModalComponent implements OnInit {
   * 
   * @param event 
   */
-  allowEnergySessionLimit(event: CustomEvent, currentController: EdgeConfig.Component) {
+  allowEnergySessionLimit(currentController: EdgeConfig.Component) {
     let oldLimit = currentController.properties['energySessionLimit'];
     let newLimit;
 
@@ -219,8 +211,8 @@ export class EvcsModalComponent implements OnInit {
    * @param event 
    * @param phases 
    */
-  allowMinimumChargePower(event: CustomEvent, phases: number, currentController: EdgeConfig.Component) {
-    let oldMinChargePower = currentController.properties.defaultChargeMinPower;
+  allowMinimumChargePower(phases: number, currentController: EdgeConfig.Component) {
+    let oldMinChargePower = currentController.properties['defaultChargeMinPower'];
     let newMinChargePower = 0;
     if (oldMinChargePower == null || oldMinChargePower == 0) {
       newMinChargePower = phases != undefined ? 1400 * phases : 4200;
@@ -229,9 +221,9 @@ export class EvcsModalComponent implements OnInit {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(() => {
-        currentController.properties.defaultChargeMinPower = newMinChargePower;
+        currentController.properties['defaultChargeMinPower'] = newMinChargePower;
       }).catch(reason => {
-        currentController.properties.defaultChargeMinPower = oldMinChargePower;
+        currentController.properties['defaultChargeMinPower'] = oldMinChargePower;
         console.warn(reason);
       });
     }
@@ -269,27 +261,12 @@ export class EvcsModalComponent implements OnInit {
     return round;
   }
 
-  /**
-   * Get Value or 3
-   * 
-   * @param i 
-   */
-  getValueOrThree(i: number) {
-    if (i == null || i == undefined) {
-      return 3;
-    } else {
-      return i;
-    }
-  }
-
   async presentPopover(ev: any) {
     const popover = await this.popoverController.create({
       component: EvcsPopoverComponent,
       event: ev,
       translucent: true,
       componentProps: {
-        isPrioritization: this.isPrioritization,
-        isCapacity: this.isCapacity,
         controller: this.controller,
         componentId: this.componentId
       }

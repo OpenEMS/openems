@@ -8,8 +8,6 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class EvcsPopoverComponent {
 
-    @Input() isPrioritization: boolean;
-    @Input() isCapacity: boolean;
     @Input() controller: EdgeConfig.Component;
 
     constructor(

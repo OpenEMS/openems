@@ -9,7 +9,7 @@
                 </ion-text>
             </ion-title>
             <ion-buttons slot="end">
-                <ion-button (click)="cancel()">
+                <ion-button (click)="modalCtrl.dismiss()">
                     <ion-icon name="close"></ion-icon>
                 </ion-button>
             </ion-buttons>
@@ -115,7 +115,7 @@
                                 </td>
                                 <td style="width: 35%" class="align_right">
                                     <ion-toggle
-                                        (ionChange)="allowMinimumChargePower($event, currentData[componentId + '/Phases'], controller)"
+                                        (ionChange)="allowMinimumChargePower(currentData[componentId + '/Phases'], controller)"
                                         [checked]="controller.properties['defaultChargeMinPower'] != 0">
                                     </ion-toggle>
                                 </td>
@@ -136,7 +136,7 @@
                                     (ionChange)="updateDefaultMinPower($event, controller)"
                                     min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
                                     max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
-                                    color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
+                                    color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="500"
                                     value="{{controller.properties['defaultChargeMinPower']}}">
                                     <ion-label slot="start">
                                         {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | unitvalue:'W'}}
@@ -202,7 +202,7 @@
                                 <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller)"
                                     min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
                                     max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
-                                    color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
+                                    color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="500"
                                     value="{{controller.properties['forceChargeMinPower']}}">
                                     <ion-label slot="start">
                                         {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | unitvalue:'W'}}
@@ -218,11 +218,11 @@
                 <ion-card-content *ngIf="controller">
                     <table class="full_width">
                         <tr>
-                            <td style="width: 65%">
-                                Maximale Energie pro Ladevorgang garantieren
+                            <td style="width: 65%" translate>
+                                Edge.Index.Widgets.EVCS.MaxEnergyRestriction
                             </td>
                             <td style="width: 35%" class="align_right">
-                                <ion-toggle (ionChange)="allowEnergySessionLimit($event, controller)"
+                                <ion-toggle (ionChange)="allowEnergySessionLimit(controller)"
                                     [checked]="controller.properties['energySessionLimit'] != 0">
                                 </ion-toggle>
                             </td>
@@ -233,7 +233,7 @@
 
                         <table class="full_width">
                             <tr>
-                                <td style="width: 65%">Ladekapazität</td>
+                                <td style="width: 65%" translate>Edge.Index.Widgets.EVCS.EnergyLimit</td>
                                 <td style="width: 35%" class="align_right">
                                     {{controller.properties['energySessionLimit'] | unitvalue:'kWh'}}</td>
                                 <td class="align_right" style="width: 100%">
@@ -243,7 +243,7 @@
                         <table class="full_width">
                             <tr>
                                 <ion-range (ionChange)="updateEnergySessionLimit($event, controller)" min="1" max="100"
-                                    color="dark" pin="true" style="width: 100%" step="1" debounce="1000"
+                                    color="dark" pin="true" style="width: 100%" step="1" debounce="500"
                                     value="{{(controller.properties['energySessionLimit'] / 1000)}}">
                                     <ion-label slot="start">
                                         {{1000 | unitvalue:'kWh'}}

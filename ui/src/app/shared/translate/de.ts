@@ -127,6 +127,8 @@ export const TRANSLATION = {
                     EnergieSinceBeginning: "Energie seit Ladebeginn",
                     ActivateCharging: "Aktivieren der Ladesäule",
                     ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
+                    EnergyLimit: "Energielimit",
+                    MaxEnergyRestriction: "Maximale Energie pro Ladevorgang begrenzen",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",

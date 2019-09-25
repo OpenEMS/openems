@@ -127,6 +127,8 @@ export const TRANSLATION = {
                     ChargeMode: "Charge Mode",
                     ActivateCharging: "Activate the charging station",
                     ClusterConfigError: "An error has occurred in the configuration of the Evcs cluster",
+                    EnergyLimit: "Energy Limit",
+                    MaxEnergyRestriction: "Limit maximum energy per charge",
                     NoConnection: {
                         Description: "No connection to the charging station.",
                         Help1: "Check if the charging station is switched on and can be reached via the network.",
