@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { EvcsPopoverComponent } from './evcs-popover/evcs-popover.page';
+import { EvcsPopoverComponent } from './evcs-popover/popover.page';
 import { environment } from 'src/environments';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
@@ -10,7 +10,7 @@ type Priority = 'CAR' | 'STORAGE';
 
 @Component({
   selector: 'evcs-modal',
-  templateUrl: './evcs-modal.page.html'
+  templateUrl: './modal.page.html'
 })
 export class EvcsModalComponent implements OnInit {
 

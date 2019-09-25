@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'evcs-popover',
-    templateUrl: './evcs-popover.page.html'
+    templateUrl: './popover.page.html'
 })
 export class EvcsPopoverComponent {
 
