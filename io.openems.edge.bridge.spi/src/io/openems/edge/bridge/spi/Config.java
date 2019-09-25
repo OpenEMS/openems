@@ -12,8 +12,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
     String id() default "spi0";
 
-    @AttributeDefinition(name = "Frequency", description = "The frequency of the SPI.")
+    @AttributeDefinition(name = "Frequency", description = "The frequency of the SPI Numbers Between 500_000 and 32_000_000.")
     int frequency() default 500_000;
+    int cs_0() default 0;
+    int cs_1() default 1;
 
     boolean enabled() default true;
 

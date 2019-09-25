@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.spi;
+package io.openems.edge.sensors.temperature.mcp3208;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -9,7 +9,7 @@ import org.junit.Test;
  *
  */
 
-public class BridgeSpiImplTest {
+public class Mcp3208TemperatureSensorTest {
 
 	/*
 	 * Example test method
@@ -17,7 +17,7 @@ public class BridgeSpiImplTest {
 
 	@Test
 	public void simple() {
-		BridgeSpiImpl impl = new BridgeSpiImpl();
+		Mcp3208TemperatureSensor impl = new Mcp3208TemperatureSensor();
 		assertNotNull(impl);
 	}
 

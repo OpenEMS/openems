@@ -8,6 +8,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -36,10 +37,10 @@ public class BridgeSpiImpl extends AbstractOpenemsComponent implements BridgeSpi
 
 	private final Logger log = LoggerFactory.getLogger(BridgeSpiImpl.class);
 
-	private final Map<String, Task> tasks = new HashMap<>();
+	private final Map<String, Task> tasks = new ConcurrentHashMap<>();
 	private final SpiWorker worker = new SpiWorker();
 
-	//tooked over from bridge.modbus, didn't check if it's right, need to look deeper into code
+
 	protected BridgeSpiImpl(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 								   io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
@@ -52,9 +53,10 @@ public class BridgeSpiImpl extends AbstractOpenemsComponent implements BridgeSpi
 		if (this.isEnabled()) {
 			this.worker.activate(config.id());
 		}
-
-		Spi.wiringPiSPISetup(SpiChannel.CS0.getChannel(), config.frequency());
-		Spi.wiringPiSPISetup(SpiChannel.CS1.getChannel(), config.frequency());
+		//doc https://github.com/Pi4J/pi4j/blob/master/pi4j-core/src/main/java/com/pi4j/wiringpi/Spi.java
+		// https://github.com/Pi4J/pi4j/blob/master/pi4j-core/src/main/java/com/pi4j/io/spi/SpiChannel.java
+		Spi.wiringPiSPISetup(SpiChannel.CS+config.cs_0().getChannel(), config.frequency());
+		Spi.wiringPiSPISetup(SpiChannel.CS+config.cs_1().getChannel(), config.frequency());
 	}
 
 	@Deactivate
