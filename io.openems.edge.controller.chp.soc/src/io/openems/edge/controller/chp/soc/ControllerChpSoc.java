@@ -69,11 +69,12 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		
+
 		this.lowThreshold = config.lowThreshold();
 		this.highThreshold = config.highThreshold();
-		if(this.lowThreshold > this.highThreshold) {
-			throw new OpenemsException("Low threshold Soc "+ this.lowThreshold +" should be less than the high threshold Soc "+ this.highThreshold);
+		if (this.lowThreshold > this.highThreshold) {
+			throw new OpenemsException("Low threshold Soc " + this.lowThreshold
+					+ " should be less than the high threshold Soc " + this.highThreshold);
 		}
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
@@ -89,38 +90,38 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 
 	private Mode mode;
 	/**
-	 * The current state in the State Machine
+	 * The current state in the State Machine.
 	 */
 	private State state = State.UNDEFINED;
 
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		Boolean modeChanged;		
+		boolean modeChanged;
 
 		do {
 			modeChanged = false;
 			switch (this.mode) {
 			case MANUAL_ON:
 				setOutput(true);
-				modeChanged = changeMode(Mode.MANUAL_ON);
+				modeChanged = this.changeMode(Mode.MANUAL_ON);
 				break;
 			case MANUAL_OFF:
 				setOutput(false);
-				modeChanged = changeMode(Mode.MANUAL_OFF);
+				modeChanged = this.changeMode(Mode.MANUAL_OFF);
 				break;
 			case AUTOMATIC:
-				automaticMode();
-				modeChanged = changeMode(Mode.AUTOMATIC);
+				this.automaticMode();
+				modeChanged = this.changeMode(Mode.AUTOMATIC);
 				break;
 			}
 		} while (modeChanged);
-		
+
 		this.channel(ChannelId.MODE).setNextValue(this.mode);
 
 	}
 
-	protected void automaticMode() throws IllegalArgumentException, OpenemsNamedException {
+	private void automaticMode() throws IllegalArgumentException, OpenemsNamedException {
 
 		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
 		int value = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
@@ -181,7 +182,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * A flag to maintain change in the state
+	 * A flag to maintain change in the state.
 	 * 
 	 * @param nextState the target state
 	 * @return Flag that the state is changed or not
@@ -190,15 +191,16 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		if (this.state != nextState) {
 			this.state = nextState;
 			return true;
-		} else
+		} else {
 			return false;
+		}
 	}
 
 	/**
 	 * Switch the output ON.
 	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
 	private void on() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true);
@@ -207,8 +209,8 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Switch the output OFF.
 	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
 	private void off() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false);
@@ -235,16 +237,17 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * A flag to maintain change in the mode
+	 * A flag to maintain change in the mode.
 	 * 
-	 * @param nextmode the target mode
+	 * @param nextMode the target mode
 	 * @return Flag that the mode is changed or not
 	 */
 	private boolean changeMode(Mode nextMode) {
 		if (this.mode != nextMode) {
 			this.mode = nextMode;
 			return true;
-		} else
+		} else {
 			return false;
+		}
 	}
 }

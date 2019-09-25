@@ -74,7 +74,7 @@ public class ChpSocTest {
 		controller.activate(null, myconfig);
 
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
-		DummyInputOutput io = new DummyInputOutput("io0");	 
+		DummyInputOutput io = new DummyInputOutput("io0");
 
 		// Build and run test
 		new ControllerTest(controller, componentManager, ess, io).next(new TestCase() //

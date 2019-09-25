@@ -4,7 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 public enum Mode implements OptionsEnum {
 	MANUAL_ON(0, "Manual control for the ON signal"), //
-	MANUAL_OFF(1, "Manual control for the OFF signal"),//
+	MANUAL_OFF(1, "Manual control for the OFF signal"), //
 	AUTOMATIC(2, "Automatic control"); //
 
 	private final int value;
