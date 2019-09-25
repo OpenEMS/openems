@@ -9,6 +9,7 @@ import { AutarchyModalComponent } from './modal/modal.component';
   templateUrl: './autarchy.component.html'
 })
 export class AutarchyComponent {
+  
 
   private static readonly SELECTOR = "autarchy";
 
