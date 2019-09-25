@@ -90,7 +90,7 @@
                         <table class="full_width">
                             <tr>
                                 <ion-range (ionChange)="updateThresholds(controller)" dual-knobs pin color="dark"
-                                    min="15" max="85" [(ngModel)]="thresholds" debounce="1000">
+                                    min="15" max="85" [(ngModel)]="thresholds" debounce="500">
                                     <ion-label slot="start">
                                         {{15 | unitvalue:'%'}}
                                     </ion-label>
