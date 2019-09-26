@@ -21,7 +21,7 @@
                         <tr>
                             <td style="width:65%" translate>General.Total</td>
                             <td style="width:35%" class="align_right">
-                                {{ sum.activePower == 0? '-&nbsp;' : (sum.activePower | number:'1.0-0') + '&nbsp;W' }}
+                                {{ sum.activePower | unitvalue:'W' }}
                             </td>
                         </tr>
                     </table>
@@ -38,15 +38,25 @@
                     <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
                         <table class="full_width">
                             <ng-container
-                                *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter') && currentData[component.id + '/ActivePower'] != null">
+                                *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter')">
                                 <tr>
                                     <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
                                     </td>
                                     <td style="width:65%" *ngIf="component.id != component.alias">
                                         {{component.alias}}</td>
                                     <td style="width:35%" class="align_right">
-                                        {{ currentData[component.id + '/ActivePower'] == 0? '-&nbsp;' : (currentData[component.id + '/ActivePower'] | number:'1.0-0') + '&nbsp;W' }}
+                                        {{ currentData[component.id + '/ActivePower'] | unitvalue:'W' }}
                                     </td>
+                                    <td style="width:65%" *ngIf="component.id != component.alias">
+                                        {{component.alias}}</td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePower'] != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-</td>
+                                    </ng-template>
                                 </tr>
                             </ng-container>
                         </table>
@@ -65,7 +75,7 @@
                                         <td style="width:23%"><span translate>General.Phase</span> L1</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
-                                            {{ sum.activePowerAcL1 == 0? '-&nbsp;' : (sum.activePowerAcL1 | number:'1.0-0') + '&nbsp;W' }}
+                                            {{ sum.activePowerAcL1 | unitvalue:'W' }}
                                         </td>
                                     </tr>
                                     <tr>
@@ -73,7 +83,7 @@
                                         <td style="width:23%"><span translate>General.Phase</span> L2</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
-                                            {{ sum.activePowerAcL2 == 0? '-&nbsp;' : (sum.activePowerAcL2 | number:'1.0-0') + '&nbsp;W' }}
+                                            {{ sum.activePowerAcL2 | unitvalue:'W' }}
                                         </td>
                                     </tr>
                                     <tr>
@@ -81,7 +91,7 @@
                                         <td style="width:23%"><span translate>General.Phase</span> L3</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
-                                            {{ sum.activePowerAcL3 == 0? '-&nbsp;' : (sum.activePowerAcL3 | number:'1.0-0') + '&nbsp;W' }}
+                                            {{ sum.activePowerAcL3 | unitvalue:'W' }}
                                         </td>
                                     </tr>
                                 </table>
@@ -109,7 +119,7 @@
                                 <td style="width:65%" translate>General.Total</td>
                             </ng-template>
                             <td style="width:35%" class="align_right">
-                                {{ sum.activePowerAc == 0? '-&nbsp;' : (sum.activePowerAc | number:'1.0-0') + '&nbsp;W' }}
+                                {{ sum.activePowerAc | unitvalue:'W' }}
                             </td>
                         </tr>
                     </table>
@@ -124,7 +134,7 @@
                                 <td style="width:23%"><span translate>General.Phase</span> L1</td>
                                 <td style="width:40%"></td>
                                 <td style="width:35%" class="align_right">
-                                    {{ sum.activePowerAcL1 == 0? '-&nbsp;' : (sum.activePowerAcL1 | number:'1.0-0') + '&nbsp;W' }}
+                                    {{ sum.activePowerAcL1 | unitvalue:'W' }}
                                 </td>
                             </tr>
                             <tr>
@@ -132,7 +142,7 @@
                                 <td style="width:23%"><span translate>General.Phase</span> L2</td>
                                 <td style="width:40%"></td>
                                 <td style="width:35%" class="align_right">
-                                    {{ sum.activePowerAcL2 == 0? '-&nbsp;' : (sum.activePowerAcL2 | number:'1.0-0') + '&nbsp;W' }}
+                                    {{ sum.activePowerAcL2 | unitvalue:'W' }}
                                 </td>
                             </tr>
                             <tr>
@@ -140,7 +150,7 @@
                                 <td style="width:23%"><span translate>General.Phase</span> L3</td>
                                 <td style="width:40%"></td>
                                 <td style="width:35%" class="align_right">
-                                    {{ sum.activePowerAcL3 == 0? '-&nbsp;' : (sum.activePowerAcL3 | number:'1.0-0') + '&nbsp;W' }}
+                                    {{ sum.activePowerAcL3 | unitvalue:'W' }}
                                 </td>
                             </tr>
                         </table>
@@ -157,13 +167,12 @@
                 <ion-card-content
                     [class.underline]="chargerComponents.length > 0 || !isLastElement(component, productionMeterComponents)">
                     <table class="full_width">
-                        <ng-container
-                            *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter') && currentData[component.id + '/ActivePower'] != null">
+                        <ng-container *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter')">
                             <tr>
                                 <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}</td>
                                 <td style="width:65%" *ngIf="component.id != component.alias">{{component.alias}}</td>
                                 <td style="width:35%" class="align_right">
-                                    {{ currentData[component.id + '/ActivePower'] == 0? '-&nbsp;' : (currentData[component.id + '/ActivePower'] | number:'1.0-0') + '&nbsp;W' }}
+                                    {{ currentData[component.id + '/ActivePower'] | unitvalue:'W' }}
                                 </td>
                             </tr>
                         </ng-container>
@@ -183,7 +192,7 @@
                         <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}</td>
                         <td style="width:65%" *ngIf="component.id != component.alias">{{component.alias}}</td>
                         <td style="width:35%" class="align_right">
-                            {{ currentData[component.id + '/ActualPower'] == 0? '-&nbsp;' : (currentData[component.id + '/ActualPower'] | number:'1.0-0') + '&nbsp;W' }}
+                            {{ currentData[component.id + '/ActualPower'] | unitvalue:'W' }}
                         </td>
                     </tr>
                 </table>
@@ -210,7 +219,7 @@
                                 </ng-template>
                                 <td style="width:15%"></td>
                                 <td style="width:50%" class="align_right">
-                                    {{ sum.activePowerDc == 0? '-&nbsp;' : (sum.activePowerDc | number:'1.0-0') + '&nbsp;W' }}
+                                    {{ sum.activePowerDc | unitvalue:'W' }}
                                 </td>
                             </tr>
                         </table>
@@ -226,7 +235,7 @@
                         <td style="width:35%" *ngIf="component.id != component.alias">{{component.alias}}</td>
                         <td style="width:15%"></td>
                         <td style="width:50%" class="align_right">
-                            {{ currentData[component.id + '/ActualPower'] == 0? '-&nbsp;' : (currentData[component.id + '/ActualPower'] | number:'1.0-0') + '&nbsp;W' }}
+                            {{ currentData[component.id + '/ActualPower'] | unitvalue:'W' }}
                         </td>
                     </tr>
                 </table>
@@ -242,7 +251,7 @@
                     *ngIf="sum.activePowerAcL1 != null && sum.activePowerAcL2 != null && sum.activePowerAcL3 != null"
                     padding-top>
                     <ion-row justify-content-center align-items-center>
-                        <ion-col size="2" text-center>
+                        <ion-col size="2" class="ion-text-center">
                             <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
                         </ion-col>
                         <ion-col size="10">

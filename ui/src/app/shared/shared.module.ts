@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -26,6 +26,7 @@ import { IsclassPipe } from './pipe/isclass/isclass.pipe';
  */
 import { KeysPipe } from './pipe/keys/keys.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
+import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 /*
  * Services
  */
@@ -59,6 +60,7 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     SignPipe,
     IsclassPipe,
     HasclassPipe,
+    UnitvaluePipe,
     // components
     SocComponent,
     PickDateComponent,
@@ -71,6 +73,7 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     ClassnamePipe,
     IsclassPipe,
     HasclassPipe,
+    UnitvaluePipe,
     // modules
     BrowserAnimationsModule,
     ChartsModule,
@@ -95,7 +98,9 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     Service,
     Websocket,
     ToasterService,
-    appRoutingProviders
+    appRoutingProviders,
+    DecimalPipe,
+    UnitvaluePipe
   ]
 })
 export class SharedModule {

@@ -85,11 +85,11 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
           let datasets = [];
 
           // required data for autarchy and self consumption
-          let buyFromGridData: number[];
-          let sellToGridData: number[];
-          let consumptionData: number[];
-          let dischargeData: number[];
-          let productionData: number[];
+          let buyFromGridData: number[] = [];
+          let sellToGridData: number[] = [];
+          let consumptionData: number[] = [];
+          let dischargeData: number[] = [];
+          let productionData: number[] = [];
 
           if (!edge.isVersionAtLeast('2018.8')) {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
@@ -120,7 +120,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
             } else {
               effectivePower = result.data['_sum/EssActivePower'];
             }
-
             dischargeData = effectivePower.map(value => {
               if (value == null) {
                 return null
@@ -130,6 +129,42 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
                 return 0;
               }
             });
+          };
+
+          /*
+          * Autarchy
+          */
+          if (config.hasProducer()) {
+            let autarchy = consumptionData.map((value, index) => {
+              if (value == null) {
+                return null
+              } else {
+                return CurrentData.calculateAutarchy(buyFromGridData[index], value);
+              }
+            })
+
+            datasets.push({
+              label: this.translate.instant('General.Autarchy'),
+              data: autarchy,
+              hidden: false
+            })
+
+            /*
+            * Self Consumption
+            */
+            let selfConsumption = productionData.map((value, index) => {
+              if (value == null) {
+                return null
+              } else {
+                return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+              }
+            })
+
+            datasets.push({
+              label: this.translate.instant('General.SelfConsumption'),
+              data: selfConsumption,
+              hidden: false
+            })
           }
 
           if ('_sum/GridActivePower' in result.data) {
