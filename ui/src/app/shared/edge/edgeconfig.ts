@@ -158,9 +158,16 @@ export class EdgeConfig {
     }
 
     /**
-     * Determines if Edge has a producing device
-     * 
+     * Determines if Edge has a Storage device
      */
+    public hasStorage(): boolean {
+        if (this.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Determines if Edge has a producing device
      */

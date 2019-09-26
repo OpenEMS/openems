@@ -20,13 +20,13 @@
                     <tr>
                         <td style="width:65%" translate>General.GridBuyAdvanced</td>
                         <td style="width:35%" class="align_right">
-                            {{ sum.buyActivePower == 0? '-&nbsp;' : (sum.buyActivePower | number:'1.0-0') + '&nbsp;W' }}
+                            {{ sum.buyActivePower | unitvalue:'W' }}
                         </td>
                     </tr>
                     <tr>
                         <td style="width:65%" translate>General.GridSellAdvanced</td>
                         <td style="width:35%" class="align_right">
-                            {{ sum.sellActivePower == 0? '-&nbsp;' : (sum.sellActivePower | number:'1.0-0') + '&nbsp;W' }}
+                            {{ sum.sellActivePower | unitvalue:'W' }}
                         </td>
                     </tr>
                 </table>
@@ -41,7 +41,7 @@
                         <td style="width:63%"><span translate>Phase</span> L1 <span
                                 translate>General.GridBuyAdvanced</span></td>
                         <td style="width:35%" class="align_right">
-                            {{ sum.activePowerL1 == 0? '-&nbsp;' : (sum.activePowerL1 | number:'1.0-0') + '&nbsp;W' }}
+                            {{ sum.activePowerL1 | unitvalue:'W' }}
                         </td>
                     </tr>
                     <tr *ngIf="sum.activePowerL1 <= 0">
@@ -49,7 +49,7 @@
                         <td style="width:63%"><span translate>Phase</span> L1 <span
                                 translate>General.GridSellAdvanced</span></td>
                         <td style="width:35%" class="align_right">
-                            {{ (sum.activePowerL1 * -1) == 0? '-&nbsp;' : ((sum.activePowerL1 * -1) | number:'1.0-0') + '&nbsp;W' }}
+                            {{ (sum.activePowerL1 * -1) | unitvalue:'W' }}
                         </td>
                     </tr>
                     <tr *ngIf="sum.activePowerL2 > 0">
@@ -57,7 +57,7 @@
                         <td style="width:63%"><span translate>Phase</span> L2 <span
                                 translate>General.GridBuyAdvanced</span></td>
                         <td style="width:35%" class="align_right">
-                            {{ sum.activePowerL2 == 0? '-&nbsp;' : (sum.activePowerL2 | number:'1.0-0') + '&nbsp;W' }}
+                            {{ sum.activePowerL2 | unitvalue:'W' }}
                         </td>
                     </tr>
                     <tr *ngIf="sum.activePowerL2 <= 0">
@@ -65,7 +65,7 @@
                         <td style="width:63%"><span translate>Phase</span> L2 <span
                                 translate>General.GridSellAdvanced</span></td>
                         <td style="width:35%" class="align_right">
-                            {{ (sum.activePowerL2 * -1) == 0? '-&nbsp;' : ((sum.activePowerL1 * -2) | number:'1.0-0') + '&nbsp;W' }}
+                            {{ (sum.activePowerL2 * -1) | unitvalue:'W' }}
                         </td>
                     </tr>
                     <tr *ngIf="sum.activePowerL3 > 0">
@@ -73,7 +73,7 @@
                         <td style="width:63%"><span translate>Phase</span> L3 <span
                                 translate>General.GridBuyAdvanced</span></td>
                         <td style="width:35%" class="align_right">
-                            {{ sum.activePowerL3 == 0? '-&nbsp;' : (sum.activePowerL3 | number:'1.0-0') + '&nbsp;W' }}
+                            {{ sum.activePowerL3 | unitvalue:'W' }}
                         </td>
                     </tr>
                     <tr *ngIf="sum.activePowerL3 <= 0">
@@ -81,7 +81,7 @@
                         <td style="width:63%"><span translate>Phase</span> L3 <span
                                 translate>General.GridSellAdvanced</span></td>
                         <td style="width:35%" class="align_right">
-                            {{ (sum.activePowerL3 * -1) == 0? '-&nbsp;' : ((sum.activePowerL3 * -2) | number:'1.0-0') + '&nbsp;W' }}
+                            {{ (sum.activePowerL3 * -1) | unitvalue:'W' }}
                         </td>
                     </tr>
                 </table>
