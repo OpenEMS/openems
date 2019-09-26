@@ -216,6 +216,7 @@ export const TRANSLATION = {
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
+        Patchnotes: "Změny v monitorování tohoto sestavení",
         Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Zvolte jazyk:",
         FAQ: "Často kladené otázky (FAQ)"

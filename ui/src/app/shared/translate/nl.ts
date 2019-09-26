@@ -210,6 +210,7 @@ export const TRANSLATION = {
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
+        Patchnotes: "Veranderingen in de monitoring voor deze build",
         Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Selecteer taal: ",
         FAQ: "Veel Gestelde Vragen (FAQ)"

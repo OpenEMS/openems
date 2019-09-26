@@ -216,6 +216,7 @@ export const TRANSLATION = {
         OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",
         Build: "This build",
+        Patchnotes: "Changes in the monitoring for this build",
         Contact: "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Select language:",
         FAQ: "Frequently asked questions (FAQ)"

@@ -214,6 +214,7 @@ export const TRANSLATION = {
         OpenEMS: "Acerca de OpenEMS",
         CurrentDevelopments: "Desarrollos actuales",
         Build: "Esta compilación",
+        Patchnotes: "Cambios en la supervisión de esta compilación",
         Contact: "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro FEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Seleccionar idioma:",
         FAQ: "Preguntas frecuentes (FAQ)"
