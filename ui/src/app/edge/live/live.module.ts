@@ -27,6 +27,7 @@ import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
 import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/popover.page';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 
 @NgModule({
   imports: [
@@ -43,6 +44,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
     EvcsPopoverComponent,
+    ChpsocModalComponent,
   ],
   declarations: [
     LiveComponent,
@@ -66,6 +68,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
     ModalComponentEvcsCluster,
     EvcsModalComponent,
     EvcsChart,
+    ChpsocModalComponent,
     AutarchyComponent,
     AutarchyModalComponent,
     SelfConsumptionComponent,

@@ -37,6 +37,8 @@
               <consumption></consumption>
             </ion-col>
 
+
+
           </ng-container>
 
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
@@ -70,7 +72,7 @@
               <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="6" class="ion-no-padding">
+            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
 
