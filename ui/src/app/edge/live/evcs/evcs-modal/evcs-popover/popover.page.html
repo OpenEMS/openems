@@ -1,4 +1,4 @@
-<ng-container *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && !isPrioritization && !isCapacity">
+<ng-container *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER'">
     <ion-card-content class="underline">
         <table class="full_width">
             <tr>
@@ -18,7 +18,7 @@
         </table>
     </ion-card-content>
 </ng-container>
-<ng-container *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE' && !isPrioritization && !isCapacity">
+<ng-container *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE'">
     <ion-card-content class="underline">
         <table class="full_width">
             <tr>
