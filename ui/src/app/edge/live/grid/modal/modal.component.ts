@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { Edge, Service, Websocket } from '../../../../shared/shared';
+import { Edge, Service } from '../../../../shared/shared';
 
 @Component({
   selector: GridModalComponent.SELECTOR,

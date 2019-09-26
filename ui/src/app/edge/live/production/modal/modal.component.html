@@ -47,6 +47,16 @@
                                     <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePower'] | unitvalue:'W' }}
                                     </td>
+                                    <td style="width:65%" *ngIf="component.id != component.alias">
+                                        {{component.alias}}</td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePower'] != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-</td>
+                                    </ng-template>
                                 </tr>
                             </ng-container>
                         </table>
