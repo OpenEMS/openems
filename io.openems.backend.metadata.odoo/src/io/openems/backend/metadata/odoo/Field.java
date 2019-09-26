@@ -7,6 +7,24 @@ public interface Field {
 
 	public String id();
 
+	public int index();
+
+	public String name();
+
+	public boolean isQuery();
+
+	/**
+	 * Gets all fields that should be queried as a comma separated string.
+	 * 
+	 * @return the String
+	 */
+	public static String getSqlQueryFields(Field[] fields) {
+		return Stream.of(fields) //
+				.filter(f -> f.isQuery()) //
+				.map(f -> f.id()) //
+				.collect(Collectors.joining(","));
+	}
+
 	/**
 	 * The EdgeDevice-Model.
 	 */
@@ -63,30 +81,18 @@ public interface Field {
 		public boolean isQuery() {
 			return query;
 		}
-
-		/**
-		 * Gets all fields that should be queried as a comma separated string.
-		 * 
-		 * @return the String
-		 */
-		public static final String getSqlQueryFields() {
-			return Stream.of(EdgeDevice.values()) //
-					.filter(f -> f.isQuery()) //
-					.map(f -> f.id()) //
-					.collect(Collectors.joining(","));
-		}
 	}
 
 	/**
 	 * The EdgeDeviceStatus-Model.
 	 */
 	public enum EdgeDeviceStatus implements Field {
-		DEVICE_ID("device_id", true), //
-		CHANNEL_ADDRESS("channel_address", true), //
+		DEVICE_ID("device_id", false), //
+		CHANNEL_ADDRESS("channel_address", false), //
 		LEVEL("level", true), //
-		COMPONENT_("component_id", true), //
-		CHANNEL_NAME("channel_name", false), //
-		LAST_APPEARANCE("last_appearance", true), //
+		COMPONENT_ID("component_id", true), //
+		CHANNEL_NAME("channel_name", true), //
+		LAST_APPEARANCE("last_appearance", false), //
 		LAST_ACKNOWLEDGE("last_acknowledge", false), //
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
@@ -125,18 +131,6 @@ public interface Field {
 
 		public boolean isQuery() {
 			return query;
-		}
-
-		/**
-		 * Gets all fields that should be queried as a comma separated string.
-		 * 
-		 * @return the String
-		 */
-		public static final String getSqlQueryFields() {
-			return Stream.of(EdgeDevice.values()) //
-					.filter(f -> f.isQuery()) //
-					.map(f -> f.id()) //
-					.collect(Collectors.joining(","));
 		}
 	}
 }

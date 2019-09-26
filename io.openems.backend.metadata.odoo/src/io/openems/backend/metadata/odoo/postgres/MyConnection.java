@@ -10,6 +10,7 @@ import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.Field.EdgeDeviceStatus;
 
@@ -45,6 +46,7 @@ public class MyConnection {
 		this.psQueryEdgesWithApikey = null;
 		this.psInsertOrUpdateDeviceState = null;
 		this.psQueryNotAcknowledgedDeviceStates = null;
+		this.psUpdateEdgeState = null;
 
 		// Open new Database connection
 		Properties props = new Properties();
@@ -87,7 +89,7 @@ public class MyConnection {
 		Connection conn = this.get();
 		if (this.psQueryAllEdges == null) {
 			this.psQueryAllEdges = conn.prepareStatement(//
-					"SELECT " + EdgeDevice.getSqlQueryFields() //
+					"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
 							+ " FROM " + EdgeDevice.ODOO_TABLE + ";");
 		}
 		return this.psQueryAllEdges;
@@ -105,7 +107,7 @@ public class MyConnection {
 		Connection conn = this.get();
 		if (this.psQueryEdgesWithApikey == null) {
 			this.psQueryEdgesWithApikey = conn.prepareStatement(//
-					"SELECT " + EdgeDevice.getSqlQueryFields() //
+					"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
 							+ " FROM " + EdgeDevice.ODOO_TABLE //
 							+ " WHERE apikey = ?;");
 		}
@@ -152,15 +154,38 @@ public class MyConnection {
 		Connection conn = this.get();
 		if (this.psQueryNotAcknowledgedDeviceStates == null) {
 			this.psQueryNotAcknowledgedDeviceStates = conn.prepareStatement(//
-					"SELECT level, component_id, channel_name" //
+					"SELECT " + Field.getSqlQueryFields(EdgeDeviceStatus.values()) //
 							+ " FROM " + EdgeDeviceStatus.ODOO_TABLE //
 							+ " WHERE device_id = ?" //
 							+ " AND (" //
-							+ " (acknowledge_days > 0 AND last_appearance + interval '1 day' * acknowledge_days > last_acknowledge)" //
+							+ " last_acknowledge IS NULL" //
+							+ " OR (acknowledge_days > 0 AND last_appearance > last_acknowledge + interval '1 day' * acknowledge_days)" //
 							+ " OR (acknowledge_days < 1 AND last_acknowledge IS NOT NULL)" //
 							+ ")");
 		}
 
 		return this.psQueryNotAcknowledgedDeviceStates;
+	}
+
+	private PreparedStatement psUpdateEdgeState = null;
+
+	/**
+	 * UPDATE {} SET openems_sum_state_level ? {}, openems_sum_state_text = {} WHERE
+	 * id = {};
+	 * 
+	 * @return the PreparedStatement
+	 * @throws SQLException on error
+	 */
+	public PreparedStatement psUpdateEdgeState() throws SQLException {
+		Connection conn = this.get();
+		if (this.psUpdateEdgeState == null) {
+			this.psUpdateEdgeState = conn.prepareStatement(//
+					"UPDATE " + EdgeDevice.ODOO_TABLE //
+							+ " SET" //
+							+ " openems_sum_state_level = ?," //
+							+ " openems_sum_state_text = ?" //
+							+ " WHERE id = ?");
+		}
+		return this.psUpdateEdgeState;
 	}
 }
