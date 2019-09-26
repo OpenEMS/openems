@@ -34,7 +34,6 @@ public class Charge implements IState {
 
 	@Override
 	public IState getNextStateObject() {
-
 		// According to the state machine the next states can be normal, charge or
 		// undefined
 		SymmetricEss ess = null;
@@ -42,7 +41,7 @@ public class Charge implements IState {
 		try {
 			ess = this.componentManager.getComponent(this.config.ess_id());
 		} catch (OpenemsNamedException e) {
-			log.error(e.getMessage());
+			this.log.error(e.getMessage());
 			this.resetStartTime();
 			return new Undefined(this.componentManager, this.config);
 		}

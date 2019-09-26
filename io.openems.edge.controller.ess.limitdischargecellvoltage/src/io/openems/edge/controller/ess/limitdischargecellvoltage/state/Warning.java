@@ -40,7 +40,7 @@ public class Warning implements IState {
 		try {
 			ess = this.componentManager.getComponent(this.config.ess_id());
 		} catch (OpenemsNamedException e) {
-			log.error(e.getMessage());
+			this.log.error(e.getMessage());
 			this.resetStartTime();
 			return new Undefined(this.componentManager, this.config);
 		}
@@ -80,7 +80,7 @@ public class Warning implements IState {
 
 	@Override
 	public void act() {
-		log.info("act() --> nothing to do");
+		// nothing to do
 	}
 
 	private void resetStartTime() {

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Controller Ess Limit Discharge Cell Voltage", //
-		description = "Forces charging when cell voltage is getting to low.")
+		description = "Forces charging when minimum cell voltage is getting to low.")
 public @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -23,7 +23,7 @@ public @interface Config {
 	@AttributeDefinition(name = "Warning Cell Voltage [mV]", description = "If voltage is below this value for a certain time period charging is forced.")
 	int warningCellVoltage() default 2900;
 
-	@AttributeDefinition(name = "Warning Cell Voltage time period [s]", description = "if cell voltage is lower than warning cell voltage for this time period charging is forced.")
+	@AttributeDefinition(name = "Warning Cell Voltage time period [s]", description = "If cell voltage is lower than warning cell voltage for this time period charging is forced.")
 	int warningCellVoltageTime() default 600;
 
 	@AttributeDefinition(name = "Critical Cell Voltage [mV]", description = "Charging is forced when minimal cell voltage is below this value.")
