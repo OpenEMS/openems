@@ -26,7 +26,6 @@ import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.comp
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
 import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
-import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/evcs-popover.page';
 
 @NgModule({
   imports: [
@@ -43,7 +42,6 @@ import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/evcs-popove
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
     ChpsocModalComponent,
-    EvcsPopoverComponent
   ],
   declarations: [
     LiveComponent,
@@ -72,7 +70,6 @@ import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/evcs-popove
     AutarchyModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
-    EvcsPopoverComponent
   ]
 })
 export class LiveModule { }
