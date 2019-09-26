@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title text-start padding-left translate>General.StorageSystem</ion-title>
+        <ion-title class="ion-text-start" padding-left translate>General.StorageSystem</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -248,6 +248,14 @@
                                     <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL1'] | unitvalue:'W' }}
                                     </td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ currentData[component.id + '/ActivePowerL1'] | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-&nbsp;</td>
+                                    </ng-template>
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] <= 0">
                                     <td style="width:2%"></td>
@@ -257,6 +265,14 @@
                                     <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL1'] * -1) | unitvalue:'W' }}
                                     </td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ (currentData[component.id + '/ActivePowerL1'] *-1) | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-&nbsp;</td>
+                                    </ng-template>
                                 </ng-container>
                             </tr>
                             <tr *ngIf="currentData[component.id + '/ActivePowerL2'] != null">
@@ -276,6 +292,14 @@
                                     <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL2'] * -1) | unitvalue:'W' }}
                                     </td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ (currentData[component.id + '/ActivePowerL2'] *-1) | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-&nbsp;</td>
+                                    </ng-template>
                                 </ng-container>
                             </tr>
                             <tr *ngIf="currentData[component.id + '/ActivePowerL3'] != null">
@@ -287,6 +311,14 @@
                                     <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL3'] | unitvalue:'W' }}
                                     </td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ currentData[component.id + '/ActivePowerL3'] | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-&nbsp;</td>
+                                    </ng-template>
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] <= 0">
                                     <td style="width:2%"></td>
@@ -296,6 +328,14 @@
                                     <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL3'] * -1) | unitvalue:'W' }}
                                     </td>
+                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] != 0; else empty">
+                                        <td style="width:35%" class="align_right">
+                                            {{ (currentData[component.id + '/ActivePowerL3'] *-1) | number:'1.0-0' }}&nbsp;W
+                                        </td>
+                                    </ng-container>
+                                    <ng-template #empty>
+                                        <td style="width:35%" class="align_right">-&nbsp;</td>
+                                    </ng-template>
                                 </ng-container>
                             </tr>
                         </table>
@@ -338,13 +378,13 @@
         <ng-container *ngIf="edge.currentData | async as currentData">
             <ng-container *ngIf="currentData.summary.storage as sum">
                 <ion-grid *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
-                    padding-top>
-                    <ion-row justify-content-center align-items-center>
-                        <ion-col size="2" text-center>
+                    class="ion-padding-top">
+                    <ion-row class="ion-justify-content-center ion-align-items-center">
+                        <ion-col size="2" class="ion-text-center">
                             <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
                         </ion-col>
                         <ion-col size="10">
-                            <ion-note text-wrap><small translate>Edge.Index.Widgets.phasesInfo</small>
+                            <ion-note class="ion-text-wrap"><small translate>Edge.Index.Widgets.phasesInfo</small>
                             </ion-note>
                         </ion-col>
                     </ion-row>
