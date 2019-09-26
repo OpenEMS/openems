@@ -129,7 +129,14 @@ public class BackendApi extends AbstractOpenemsComponent
 
 		// create http headers
 		Map<String, String> httpHeaders = new HashMap<>();
-		httpHeaders.put("apikey", config.apikey());
+		
+		String[] splitkey = config.apikey().split("MAC");
+		
+		httpHeaders.put("apikey", splitkey[0]);
+		if(splitkey.length == 2) {
+			httpHeaders.put("mac", splitkey[1]);
+		}
+		
 
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, COMPONENT_NAME + ":" + this.id(), uri, httpHeaders, proxy);

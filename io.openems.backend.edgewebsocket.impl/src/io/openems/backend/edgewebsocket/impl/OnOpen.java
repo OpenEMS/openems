@@ -36,7 +36,11 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			}
 			apikey = apikeyOpt.get();
 			wsData.setApikey(apikey);
-
+			
+			Optional<String> macOpt = JsonUtils.getAsOptionalString(handshake, "mac");
+			if(macOpt.isPresent()) {
+				this.parent.logInfo(log, "Received MAC addresse: " + macOpt.get());
+			}
 			// get edgeId for apikey
 			Optional<String> edgeIdOpt = this.parent.metadata.getEdgeIdForApikey(apikey);
 			if (!edgeIdOpt.isPresent()) {
