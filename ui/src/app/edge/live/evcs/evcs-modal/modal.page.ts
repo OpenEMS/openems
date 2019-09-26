@@ -13,9 +13,9 @@ type Priority = 'CAR' | 'STORAGE';
 })
 export class EvcsModalComponent implements OnInit {
 
-  @Input() edge: Edge;
-  @Input() controller: EdgeConfig.Component;
-  @Input() getState: () => String;
+  @Input() public edge: Edge;
+  @Input() public controller: EdgeConfig.Component;
+  @Input() public getState: () => String;
   @Input() public componentId: string;
 
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)

@@ -12,7 +12,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 })
 export class GridSectionComponent extends AbstractSection {
 
-    unitpipe: UnitvaluePipe;
+    private unitpipe: UnitvaluePipe;
 
     constructor(
         translate: TranslateService,

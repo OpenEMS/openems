@@ -11,7 +11,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 })
 export class ConsumptionSectionComponent extends AbstractSection {
 
-    unitpipe: UnitvaluePipe;
+    private unitpipe: UnitvaluePipe;
 
     constructor(
         unitpipe: UnitvaluePipe,

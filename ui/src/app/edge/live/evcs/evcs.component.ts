@@ -86,6 +86,7 @@ export class EvcsComponent {
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
         return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+      // if the car is not charging but would be ready to charge, the car is fully charged (keba logic dependency)
       case ChargeState.READY_FOR_CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
       case ChargeState.NOT_READY_FOR_CHARGING:

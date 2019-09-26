@@ -13,8 +13,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     private socValue: number
-
-    unitpipe: UnitvaluePipe;
+    private unitpipe: UnitvaluePipe;
 
     constructor(
         translate: TranslateService,
