@@ -55,11 +55,12 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private int minTime;
 	private int minKwh;
 	private String endTime;
-	TimeLeapClock timeLeapClock = new TimeLeapClock();
 	LocalTime currentEndtime;	
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-	long totalPhaseTime = 0;
+	public static final int PHASE_ONE = 1;
+	public static final int PHASE_TWO = 2;
+	public static final int PHASE_THREE = 3;
 	
 	
 
@@ -72,7 +73,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	LocalDateTime phaseTwoTimeOff = null;
 	LocalDateTime phaseThreeTimeOn = null;
 	LocalDateTime phaseThreeTimeOff = null;
-	LocalDateTime l3PhaseTime = null;
+
+	long totalPhaseOneTime = 0;
+	long totalPhaseTwoTime = 0;
+	long totalPhaseThreeTime = 0;
+	long totalPhaseTime = 0;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		MODE(Doc.of(Mode.values()) //
@@ -247,73 +252,272 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		 * 
 		 * } while (stateChanged); // execute again if the state changed
 		 */
-		switch (this.state) {
-		case UNDEFINED:
-			if(excessPower >= this.powerOfPhase){
-				this.state = State.SWITCH_ON_FIRSTPHASE;
-			}else if (excessPower < this.powerOfPhase){
-				this.state = State.SWITCH_OFF_FIRSTPHASE;
-			}else {
-				this.state = State.UNDEFINED;
+		boolean stateChanged = false;
+		do {
+			switch (this.state) {
+			case UNDEFINED:
+				if (excessPower >= this.powerOfPhase) {
+					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);//
+				} else if (excessPower < this.powerOfPhase) {
+					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
+				} else {
+					stateChanged = changeState(State.UNDEFINED);// changeState
+				}
+				break;
+			case SWITCH_ON_FIRSTPHASE:
+				testLogic(true, outputChannelAddress1, PHASE_ONE);
+				if (excessPower >= (this.powerOfPhase * 2)) {
+					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
+					
+					//this.on(outputChannelAddress1, PHASE_ONE); //--------------------------------------------------------------------
+				} else if (excessPower < (this.powerOfPhase)) {
+					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
+				} else {
+					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);// changeState
+				}
+				break;
+			case SWITCH_OFF_FIRSTPHASE:
+				if (excessPower >= (this.powerOfPhase)) {
+					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);// changeState
+				} else {
+					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
+					testLogic(false, outputChannelAddress1, PHASE_ONE);
+					//this.off(outputChannelAddress1, PHASE_ONE);//--------------------------------------------------------------------
+				}
+				break;
+			case SWITCH_ON_SECONDPHASE:
+				testLogic(true, outputChannelAddress2, PHASE_TWO);
+				if (excessPower >= (this.powerOfPhase * 3)) {
+					stateChanged = changeState(State.SWITCH_ON_THIRDPHASE);// changeState
+					
+					//this.on(outputChannelAddress2, PHASE_TWO);//--------------------------------------------------------------------
+				} else if (excessPower < (this.powerOfPhase * 2)) {
+					stateChanged = changeState(State.SWITCH_OFF_THIRDPHASE);// changeState
+				} else {
+					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
+				}
+				break;
+			case SWITCH_OFF_SECONDPHASE:
+				if (excessPower >= (this.powerOfPhase * 2)) {
+					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
+				} else if (excessPower < (this.powerOfPhase * 2) && excessPower >= this.powerOfPhase) {
+					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);// changeState
+				} else {
+					stateChanged = changeState(State.SWITCH_OFF_SECONDPHASE);// changeState
+					testLogic(false, outputChannelAddress2, PHASE_TWO);
+					//this.off(outputChannelAddress2, PHASE_TWO);//--------------------------------------------------------------------
+				}
+				break;
+			case SWITCH_ON_THIRDPHASE:
+				testLogic(true, outputChannelAddress3, PHASE_THREE);
+				if (excessPower < (this.powerOfPhase * 3)) {
+					stateChanged = changeState(State.SWITCH_OFF_THIRDPHASE);// changeState
+				} else {
+					stateChanged = changeState(State.SWITCH_ON_THIRDPHASE);// changeState
+					
+					//this.on(outputChannelAddress3);//--------------------------------------------------------------------
+				}
+				break;
+			case SWITCH_OFF_THIRDPHASE:
+				if (excessPower >= (this.powerOfPhase)) {
+					stateChanged = changeState(State.SWITCH_ON_THIRDPHASE);// changeState
+				} else if (excessPower < (this.powerOfPhase * 3) && excessPower >= (this.powerOfPhase * 2)) {
+					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
+				} else {
+					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
+					testLogic(false, outputChannelAddress3, PHASE_THREE);
+				//	this.off(outputChannelAddress3, PHASE_THREE);//--------------------------------------------------------------------
+				}
+				break;
 			}
-			break;
-			
-		case SWITCH_ON_FIRSTPHASE:
-			if(excessPower >= (this.powerOfPhase * 2)) {
-				this.state = State.SWITCH_ON_SECONDPHASE;
-				// on (output1)
-			}else if (excessPower < (this.powerOfPhase)) {
-				this.state = State.SWITCH_OFF_FIRSTPHASE;
-			}else {
-				this.state = State.SWITCH_ON_FIRSTPHASE;
-			}
-			break;
-		case SWITCH_OFF_FIRSTPHASE:
-			 if (excessPower >= (this.powerOfPhase)) {
-				this.state = State.SWITCH_ON_FIRSTPHASE;
-			}else {
-				this.state = State.SWITCH_OFF_FIRSTPHASE;
-			}
-			break;
-			
-		case SWITCH_ON_SECONDPHASE:
-			if(excessPower >= (this.powerOfPhase * 3)) {
-				this.state = State.SWITCH_ON_THIRDPHASE;
-				// on (output1)
-			}else if (excessPower < (this.powerOfPhase * 2)) {
-				this.state = State.SWITCH_OFF_THIRDPHASE;
-			}else {
-				this.state = State.SWITCH_ON_SECONDPHASE;
-			}
-			break;
-		case SWITCH_OFF_SECONDPHASE:
-			 if (excessPower >= (this.powerOfPhase *2 )) {
-				this.state = State.SWITCH_ON_SECONDPHASE;
-			}else {
-				this.state = State.SWITCH_OFF_SECONDPHASE;
-			}
-			break;
-			
-		case SWITCH_ON_THIRDPHASE:
-			 if (excessPower < (this.powerOfPhase * 3)) {
-				this.state = State.SWITCH_OFF_SECONDPHASE;
-			}else {
-				this.state = State.SWITCH_ON_FIRSTPHASE;
-			}
-			break;
-		case SWITCH_OFF_THIRDPHASE:
-			 if (excessPower >= (this.powerOfPhase)) {
-				this.state = State.SWITCH_ON_FIRSTPHASE;
-			}else {
-				this.state = State.SWITCH_OFF_FIRSTPHASE;
-			}
-			break;
-				
-
-		}
+		} while (stateChanged);
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 		this.channel(ChannelId.PRIORITY).setNextValue(this.priority);
+	}
+	
+
+	
+	private void testLogic(boolean onOFF, ChannelAddress outputChannelAddress, int phaseNumber)
+			throws IllegalArgumentException, OpenemsNamedException {
+		if (phaseNumber == 1) {
+			if (!onOFF) {
+
+				// If the Phase is not switched-On do not record the PhasetimeOff
+				if (phaseOneTimeOn == null) {
+					phaseOneTimeOff = null;
+				} else {
+					phaseOneTimeOff = LocalDateTime.now();
+				}
+
+				this.off(outputChannelAddress);
+
+			} else {
+				// Atleast one phase is running
+				if (phaseOneTimeOn != null) {
+					// do not take the current time
+				} else {
+					phaseOneTimeOn = LocalDateTime.now();
+				}
+				this.on(outputChannelAddress);
+
+			}
+			if (phaseOneTimeOn != null && phaseOneTimeOff != null) {
+				// Atleast one cycle, any of the Phase was switch on and off
+				System.out.println("delta times : " + ChronoUnit.SECONDS.between(phaseOneTimeOn, phaseOneTimeOff));
+				totalPhaseOneTime += ChronoUnit.SECONDS.between(phaseOneTimeOn, phaseOneTimeOff);
+				// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
+				// calculate the time for the next cycle of switch On and Off
+				phaseOneTimeOn = null;
+			} else if (totalPhaseOneTime != 0) {
+				// reserve the calculated totalPhaseTime
+			} else {
+				// no phases are running
+				// or one of the phases is still running and not stopped
+				totalPhaseOneTime = 0;
+			}
+		} else if (phaseNumber == 2) {
+			if (!onOFF) {
+
+				// If the Phase is not switched-On do not record the PhasetimeOff
+				if (phaseTwoTimeOn == null) {
+					phaseTwoTimeOff = null;
+				} else {
+					phaseTwoTimeOff = LocalDateTime.now();
+				}
+
+				this.off(outputChannelAddress);
+
+			} else {
+				// Atleast one phase is running
+				if (phaseTwoTimeOn != null) {
+					// do not take the current time
+				} else {
+					phaseTwoTimeOn = LocalDateTime.now();
+				}
+				this.on(outputChannelAddress);
+
+			}
+			if (phaseTwoTimeOn != null && phaseTwoTimeOff != null) {
+				// Atleast one cycle, any of the Phase was switch on and off
+				System.out.println("delta times : " + ChronoUnit.SECONDS.between(phaseTwoTimeOn, phaseTwoTimeOff));
+				totalPhaseTwoTime += ChronoUnit.SECONDS.between(phaseTwoTimeOn, phaseTwoTimeOff);
+				// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
+				// calculate the time for the next cycle of switch On and Off
+				phaseTwoTimeOn = null;
+			} else if (totalPhaseTwoTime != 0) {
+				// reserve the calculated totalPhaseTime
+			} else {
+				// no phases are running
+				// or one of the phases is still running and not stopped
+				totalPhaseTwoTime = 0;
+			}
+		} else if (phaseNumber == 3) {
+			if (!onOFF) {
+
+				// If the Phase is not switched-On do not record the PhasetimeOff
+				if (phaseThreeTimeOn == null) {
+					phaseThreeTimeOff = null;
+				} else {
+					phaseThreeTimeOff = LocalDateTime.now();
+				}
+
+				this.off(outputChannelAddress);
+
+			} else {
+				// Atleast one phase is running
+				if (phaseThreeTimeOn != null) {
+					// do not take the current time
+				} else {
+					phaseThreeTimeOn = LocalDateTime.now();
+				}
+				this.on(outputChannelAddress);
+
+			}
+			if (phaseThreeTimeOn != null && phaseThreeTimeOff != null) {
+				// Atleast one cycle, any of the Phase was switch on and off
+				System.out.println("delta times : " + ChronoUnit.SECONDS.between(phaseThreeTimeOn, phaseThreeTimeOff));
+				totalPhaseThreeTime += ChronoUnit.SECONDS.between(phaseThreeTimeOn, phaseThreeTimeOff);
+				// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
+				// calculate the time for the next cycle of switch On and Off
+				phaseThreeTimeOn = null;
+			} else if (totalPhaseThreeTime != 0) {
+				// reserve the calculated totalPhaseTime
+			} else {
+				// no phases are running
+				// or one of the phases is still running and not stopped
+				totalPhaseThreeTime = 0;
+			}
+		} else {
+			throw new OpenemsException("Wrong phase number");
+		}
+		
+		totalPhaseTime +=  totalPhaseOneTime + totalPhaseTwoTime + totalPhaseThreeTime ;
+		
+		System.out.println("totalPhaseOneTime : "+ totalPhaseOneTime);
+		System.out.println("totalPhaseTwoTime : "+ totalPhaseTwoTime);
+		System.out.println("totalPhaseThreeTime : "+ totalPhaseThreeTime);
+		System.out.println("totalPhaseTime : "+ totalPhaseTime);
+		
+	}
+	
+	/**
+	 * Helper function to switch the relays on and off, and also calculate the time
+	 * how long the relays were switched on
+	 * 
+	 * @param noRelaisSwitchedOn no of relays turned on
+	 */
+	private void calculateTotalTime(int noRelaisSwitchedOn) throws IllegalArgumentException, OpenemsNamedException {
+
+		if (noRelaisSwitchedOn == 0) {
+			// If the Phase is not switched-On do not record the PhasetimeOff
+			if (phaseTimeOn == null) {
+				phaseTimeOff = null;
+			} else {
+				phaseTimeOff = LocalDateTime.now();
+			}
+
+			this.off(outputChannelAddress1);
+			this.off(outputChannelAddress2);
+			this.off(outputChannelAddress3);
+		} else {
+			// Atleast one phase is running
+			if (phaseTimeOn != null) {
+				// do not take the current time
+			} else {
+				phaseTimeOn = LocalDateTime.now();
+			}
+			if (noRelaisSwitchedOn == 1) {
+				this.on(outputChannelAddress1);
+				this.off(outputChannelAddress2);
+				this.off(outputChannelAddress3);
+			} else if (noRelaisSwitchedOn == 2) {
+				this.on(outputChannelAddress1);
+				this.on(outputChannelAddress2);
+				this.off(outputChannelAddress3);
+			} else if (noRelaisSwitchedOn == 3) {
+				this.on(outputChannelAddress1);
+				this.on(outputChannelAddress2);
+				this.on(outputChannelAddress3);
+			} else {
+				throw new OpenemsException("Invalid number of relais");
+			}
+		}
+		if (phaseTimeOn != null && phaseTimeOff != null) {
+			// Atleast one cycle, any of the Phase was switch on and off
+			System.out.println("delta times : " + ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff));
+			totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
+			// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
+			// calculate the time for the next cycle of switch On and Off
+			phaseTimeOn = null;
+		} else if (totalPhaseTime != 0) {
+			// reserve the calculated totalPhaseTime
+		} else {
+			// no phases are running
+			// or one of the phases is still running and not stopped
+			totalPhaseTime = 0;
+		}
+
 	}
 	
 	/**
@@ -396,113 +600,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 	
 	
-//	LocalDateTime phaseTimeOn = null;
-//	LocalDateTime phaseTimeOff = null;
-//	LocalDateTime phaseOneTimeOn = null;
-//	LocalDateTime phaseOneTimeOff = null;
-//	LocalDateTime phaseTwoTimeOn = null;
-//	LocalDateTime phaseTwoTimeOff = null;
-//	LocalDateTime phaseThreeTimeOn = null;
-//	LocalDateTime phaseThreeTimeOff = null;
-//	LocalDateTime l3PhaseTime = null;
-	
-	private void testLogic(ChannelAddress outputChannelAddress)
-			throws IllegalArgumentException, OpenemsNamedException {
-		if (noRelaisSwitchedOn == 0) {
-			// If the Phase is not switched-On do not record the PhasetimeOff
-			if (phaseTimeOn == null) {
-				phaseTimeOff = null;
-			} else {
-				phaseTimeOff = LocalDateTime.now();
-			}
 
-			off(outputChannelAddress1);
-		} else {
-			// Atleast one phase is running
-			if (phaseTimeOn != null) {
-				// do not take the current time
-			} else {
-				phaseTimeOn = LocalDateTime.now();
-			}
-			on(outputChannelAddress1);
-			if (phaseTimeOn != null && phaseTimeOff != null) {
-				// Atleast one cycle, any of the Phase was switch on and off
-				System.out.println("delta times : " + ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff));
-				totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
-				// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
-				// calculate the time for the next cycle of switch On and Off
-				phaseTimeOn = null;
-			} else if (totalPhaseTime != 0) {
-				// reserve the calculated totalPhaseTime
-			} else {
-				// no phases are running
-				// or one of the phases is still running and not stopped
-				totalPhaseTime = 0;
-			}
-		}
-		
-	}
 
-	
 
-	/**
-	 * Helper function to switch the relays on and off, and also calculate the time
-	 * how long the relays were switched on
-	 * 
-	 * @param noRelaisSwitchedOn no of relays turned on
-	 */
-	private void calculateTotalTime(int noRelaisSwitchedOn) throws IllegalArgumentException, OpenemsNamedException {
-
-		if (noRelaisSwitchedOn == 0) {
-			// If the Phase is not switched-On do not record the PhasetimeOff
-			if (phaseTimeOn == null) {
-				phaseTimeOff = null;
-			} else {
-				phaseTimeOff = LocalDateTime.now();
-			}
-
-			this.off(outputChannelAddress1);
-			this.off(outputChannelAddress2);
-			this.off(outputChannelAddress3);
-		} else {
-			// Atleast one phase is running
-			if (phaseTimeOn != null) {
-				// do not take the current time
-			} else {
-				phaseTimeOn = LocalDateTime.now();
-			}
-			if (noRelaisSwitchedOn == 1) {
-				this.on(outputChannelAddress1);
-				this.off(outputChannelAddress2);
-				this.off(outputChannelAddress3);
-			} else if (noRelaisSwitchedOn == 2) {
-				this.on(outputChannelAddress1);
-				this.on(outputChannelAddress2);
-				this.off(outputChannelAddress3);
-			} else if (noRelaisSwitchedOn == 3) {
-				this.on(outputChannelAddress1);
-				this.on(outputChannelAddress2);
-				this.on(outputChannelAddress3);
-			} else {
-				throw new OpenemsException("Invalid number of relais");
-			}
-		}
-		if (phaseTimeOn != null && phaseTimeOff != null) {
-			// Atleast one cycle, any of the Phase was switch on and off
-			System.out.println("delta times : " + ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff));
-			totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
-			// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
-			// calculate the time for the next cycle of switch On and Off
-			phaseTimeOn = null;
-		} else if (totalPhaseTime != 0) {
-			// reserve the calculated totalPhaseTime
-		} else {
-			// no phases are running
-			// or one of the phases is still running and not stopped
-			totalPhaseTime = 0;
-		}
-
-	}
 
 	/**
 	 * Switch the output ON.

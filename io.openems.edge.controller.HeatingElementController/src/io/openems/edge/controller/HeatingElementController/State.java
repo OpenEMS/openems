@@ -12,10 +12,10 @@ public enum State implements OptionsEnum {
 	 */
 	SWITCH_ON_FIRSTPHASE(0, "SWITCH ON first phase"),
 	SWITCH_OFF_FIRSTPHASE(1,"SWITCH OFF first phase "),
-	SWITCH_ON_SECONDPHASE(0, "SWITCH ON second phase"),
-	SWITCH_OFF_SECONDPHASE(1,"SWITCH OFF second phase "),
-	SWITCH_ON_THIRDPHASE(0, "SWITCH ON third phase"),
-	SWITCH_OFF_THIRDPHASE(1,"SWITCH OFF third phase ");
+	SWITCH_ON_SECONDPHASE(2, "SWITCH ON second phase"),
+	SWITCH_OFF_SECONDPHASE(3,"SWITCH OFF second phase "),
+	SWITCH_ON_THIRDPHASE(4, "SWITCH ON third phase"),
+	SWITCH_OFF_THIRDPHASE(5,"SWITCH OFF third phase ");
 
 	private final int value;
 	private final String name;
