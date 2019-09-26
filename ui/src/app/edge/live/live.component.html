@@ -1,13 +1,13 @@
 <ion-grid *ngIf="edge">
   <ion-row class="ion-justify-content-center">
-    <!-- Widgets -->
-
     <!-- Energymonitor -->
-    <ion-col size="12" size-md="8" size-lg="4">
+    <ion-col size="12" size-md="8" size-lg="4" class="ion-no-padding">
       <energymonitor></energymonitor>
     </ion-col>
 
-    <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6">
+
+    <!-- Widgets -->
+    <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
       <ion-grid class="ion-no-padding">
         <ion-row>
           <!-- Regular Widgets -->
@@ -44,17 +44,18 @@
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
-            <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" class="ion-no-padding">
-              <evcs *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'"
-                [componentId]="widget.componentId">
-              </evcs>
-            </ion-col>
+            <ng-container *ngIf="config.components[widget.componentId].factoryId != 'Evcs.Cluster'">
+              <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
+                <evcs [componentId]="widget.componentId">
+                </evcs>
+              </ion-col>
+            </ng-container>
 
-            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12" class="ion-no-padding">
+            <ion-col *ngSwitchCase="'Evcs.Cluster'" size="12" size-lg="6" class="ion-no-padding">
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" class="ion-no-padding">
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
               <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 

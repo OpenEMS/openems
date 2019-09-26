@@ -7,7 +7,7 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
-import { EvcsModalComponent } from './evcs/evcs-modal/evcs-modal.page';
+import { EvcsModalComponent } from './evcs/evcs-modal/modal.page';
 import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
@@ -25,6 +25,8 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
+import { EvcsPopoverComponent } from './evcs/evcs-modal/evcs-popover/popover.page';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 
 @NgModule({
@@ -41,6 +43,7 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
+    EvcsPopoverComponent,
     ChpsocModalComponent,
   ],
   declarations: [
@@ -70,6 +73,7 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
     AutarchyModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
+    EvcsPopoverComponent,
   ]
 })
 export class LiveModule { }
