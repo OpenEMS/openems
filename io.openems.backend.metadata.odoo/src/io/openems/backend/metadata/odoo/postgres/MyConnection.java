@@ -4,27 +4,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.Field.EdgeDeviceStatus;
-import io.openems.backend.metadata.odoo.MyEdge;
-import io.openems.common.channel.Level;
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.EdgeConfig.Component.Channel;
-import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
-import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 
 public class MyConnection {
 
@@ -57,6 +44,7 @@ public class MyConnection {
 		this.psQueryAllEdges = null;
 		this.psQueryEdgesWithApikey = null;
 		this.psInsertOrUpdateDeviceState = null;
+		this.psQueryNotAcknowledgedDeviceStates = null;
 
 		// Open new Database connection
 		Properties props = new Properties();
@@ -137,7 +125,7 @@ public class MyConnection {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psInsertOrUpdateDeviceState() throws SQLException {
+	public PreparedStatement psInsertOrUpdateDeviceState() throws SQLException {
 		Connection conn = this.get();
 		if (this.psInsertOrUpdateDeviceState == null) {
 			this.psInsertOrUpdateDeviceState = conn.prepareStatement(//
@@ -152,57 +140,27 @@ public class MyConnection {
 		return this.psInsertOrUpdateDeviceState;
 	}
 
-	private final Map<MyEdge, LocalDateTime> lastWriteDeviceStates = new HashMap<>();
+	private PreparedStatement psQueryNotAcknowledgedDeviceStates = null;
 
 	/**
-	 * Updates the Device States table.
+	 * SELECT level, component_id, channel_name FROM {} WHERE device_id = {} AND ...
 	 * 
-	 * @param edge                the Edge
-	 * @param activeStateChannels the active State-Channels
+	 * @return the PreparedStatement
+	 * @throws SQLException on error
 	 */
-	public synchronized void writeDeviceStates(MyEdge edge, Map<ChannelAddress, Channel> activeStateChannels) {
-		LocalDateTime lastWriteDeviceStates = this.lastWriteDeviceStates.get(edge);
-		if (lastWriteDeviceStates != null && lastWriteDeviceStates.isAfter(LocalDateTime.now().minusMinutes(1))) {
-			// do not write more often than once per minute
-			return;
+	public PreparedStatement psQueryNotAcknowledgedDeviceStates() throws SQLException {
+		Connection conn = this.get();
+		if (this.psQueryNotAcknowledgedDeviceStates == null) {
+			this.psQueryNotAcknowledgedDeviceStates = conn.prepareStatement(//
+					"SELECT level, component_id, channel_name" //
+							+ " FROM " + EdgeDeviceStatus.ODOO_TABLE //
+							+ " WHERE device_id = ?" //
+							+ " AND (" //
+							+ " (acknowledge_days > 0 AND last_appearance + interval '1 day' * acknowledge_days > last_acknowledge)" //
+							+ " OR (acknowledge_days < 1 AND last_acknowledge IS NOT NULL)" //
+							+ ")");
 		}
-		this.lastWriteDeviceStates.put(edge, LocalDateTime.now());
 
-		try {
-			PreparedStatement ps = this.psInsertOrUpdateDeviceState();
-			for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
-				ChannelDetail detail = entry.getValue().getDetail();
-				if (!(detail instanceof ChannelDetailState)) {
-					continue;
-				}
-				Level level = ((ChannelDetailState) detail).getLevel();
-				ChannelAddress channelAddress = entry.getKey();
-				Channel channel = entry.getValue();
-				String stateChannelName;
-				if (!channel.getText().isEmpty()) {
-					stateChannelName = channel.getText();
-				} else {
-					stateChannelName = channel.getId();
-				}
-				// device_id
-				ps.setInt(1, edge.getOdooId());
-				// channel_address
-				ps.setString(2, channelAddress.toString());
-				// level
-				ps.setString(3, level.name().toLowerCase());
-				// component_id
-				ps.setString(4, channelAddress.getComponentId());
-				// channel_name
-				ps.setString(5, stateChannelName);
-				// last_appearance
-				ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
-
-				ps.execute();
-			}
-		} catch (SQLException e) {
-			this.log.error("Unable to update Device-States: " + e.getMessage() + "; for: "
-					+ Metadata.activeStateChannelsToString(activeStateChannels));
-		}
+		return this.psQueryNotAcknowledgedDeviceStates;
 	}
-
 }

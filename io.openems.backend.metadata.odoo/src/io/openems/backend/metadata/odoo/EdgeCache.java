@@ -236,7 +236,7 @@ public class EdgeCache {
 					new FieldValue<String>(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
 		});
 		edge.onSetComponentState(activeStateChannels -> {
-			this.parent.postgresHandler.writeDeviceStates(edge, activeStateChannels);
+			this.parent.postgresHandler.updateDeviceStates(edge, activeStateChannels);
 		});
 	}
 
