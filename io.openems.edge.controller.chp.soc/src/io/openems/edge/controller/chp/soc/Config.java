@@ -3,7 +3,7 @@ package io.openems.edge.controller.chp.soc;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller CHP SOC", //
 		description = "This is a Controller for CHP (Combined Heat and Power Unit, German: BHKW - Blockheizkraftwerk). The Controller is used to signal CHP turn ON or turn OFF when the battery is empty or battery is full respectively, based on the SoC percentage")
 @interface Config {
@@ -16,6 +16,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.AUTOMATIC;
 
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel")
 	String inputChannelAddress();
