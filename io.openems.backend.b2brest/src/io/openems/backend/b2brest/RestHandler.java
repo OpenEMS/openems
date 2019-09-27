@@ -51,6 +51,8 @@ import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
@@ -226,6 +228,7 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonRpcRequest(BackendUser user,
 			JsonrpcRequest request) throws OpenemsException, OpenemsNamedException {
+		String edgeid;
 		switch (request.getMethod()) {
 
 		case GetEdgesStatusRequest.METHOD:
@@ -240,8 +243,12 @@ public class RestHandler extends AbstractHandler {
 					SetGridConnScheduleRequest.from(request));
 
 		case QueryHistoricTimeseriesDataRequest.METHOD:
-			String edgeid = request.getParams().get("edgeid").getAsString();
+			edgeid = request.getParams().get("edgeid").getAsString();
 			return this.handleQueryHistoricDataRequest(edgeid, QueryHistoricTimeseriesDataRequest.from(request));
+			
+		case QueryHistoricTimeseriesEnergyRequest.METHOD:
+			edgeid = request.getParams().get("edgeid").getAsString();
+			return this.handleQueryHistoricEnergyRequest(edgeid, QueryHistoricTimeseriesEnergyRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -362,5 +369,25 @@ public class RestHandler extends AbstractHandler {
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
+	}
+	
+	/**
+	 * Handles a QueryHistoricEnergyequest.
+	 * 
+	 * @param edgeId  the Edge-ID
+	 * @param user    the User - no specific level required
+	 * @param request the QueryHistoricEnergyRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId,
+			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement> data;
+		data = this.parent.timeData.queryHistoricEnergy(//
+				edgeId, /* ignore Edge-ID */
+				request.getFromDate(), request.getToDate(), request.getChannels());
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
 	}
 }
