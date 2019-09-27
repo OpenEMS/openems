@@ -131,42 +131,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
             });
           };
 
-          /*
-          * Autarchy
-          */
-          if (config.hasProducer()) {
-            let autarchy = consumptionData.map((value, index) => {
-              if (value == null) {
-                return null
-              } else {
-                return CurrentData.calculateAutarchy(buyFromGridData[index], value);
-              }
-            })
-
-            datasets.push({
-              label: this.translate.instant('General.Autarchy'),
-              data: autarchy,
-              hidden: false
-            })
-
-            /*
-            * Self Consumption
-            */
-            let selfConsumption = productionData.map((value, index) => {
-              if (value == null) {
-                return null
-              } else {
-                return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
-              }
-            })
-
-            datasets.push({
-              label: this.translate.instant('General.SelfConsumption'),
-              data: selfConsumption,
-              hidden: false
-            })
-          }
-
           if ('_sum/GridActivePower' in result.data) {
             /*
              * Buy From Grid
@@ -222,6 +186,42 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
               }
             })
 
+            /*
+            * Autarchy
+            */
+            if (config.hasProducer()) {
+              let autarchy = consumptionData.map((value, index) => {
+                if (value == null) {
+                  return null
+                } else {
+                  return CurrentData.calculateAutarchy(buyFromGridData[index], value);
+                }
+              })
+
+              datasets.push({
+                label: this.translate.instant('General.Autarchy'),
+                data: autarchy,
+                hidden: false
+              })
+
+              /*
+              * Self Consumption
+              */
+              let selfConsumption = productionData.map((value, index) => {
+                if (value == null) {
+                  return null
+                } else {
+                  return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+                }
+              })
+
+              datasets.push({
+                label: this.translate.instant('General.SelfConsumption'),
+                data: selfConsumption,
+                hidden: false
+              })
+            }
+
             datasets.push({
               label: this.translate.instant('General.Soc'),
               data: data,
@@ -229,41 +229,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
             });
           };
 
-          /*
-          * Autarchy
-          */
-          if (config.hasProducer()) {
-            let autarchy = consumptionData.map((value, index) => {
-              if (value == null) {
-                return null
-              } else {
-                return CurrentData.calculateAutarchy(buyFromGridData[index], value);
-              }
-            })
-
-            datasets.push({
-              label: this.translate.instant('General.Autarchy'),
-              data: autarchy,
-              hidden: false
-            })
-
-            /*
-            * Self Consumption
-            */
-            let selfConsumption = productionData.map((value, index) => {
-              if (value == null) {
-                return null
-              } else {
-                return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
-              }
-            })
-
-            datasets.push({
-              label: this.translate.instant('General.SelfConsumption'),
-              data: selfConsumption,
-              hidden: false
-            })
-          }
           this.datasets = datasets;
           this.loading = false;
 
