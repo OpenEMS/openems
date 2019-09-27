@@ -1,8 +1,10 @@
 export const TRANSLATION = {
     General: {
         Mode: "Modo",
-        On: "conmutada",
-        Off: "apagado",
+        Automatic: "Automático",
+        State: "Estado",
+        On: "Conmutada",
+        Off: "Apagado",
         Active: "Activo",
         Inactive: "Inactivo",
         Manually: "a mano",
@@ -125,6 +127,8 @@ export const TRANSLATION = {
                     ChargeMode: "Modo de carga",
                     ActivateCharging: "Activar la estación de carga.",
                     ClusterConfigError: "Se ha producido un error en la configuración del clúster Evcs.",
+                    EnergyLimit: "Límite de la energía",
+                    MaxEnergyRestriction: "Limite la energía máxima por carga",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
                         Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",

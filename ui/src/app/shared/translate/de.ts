@@ -1,6 +1,8 @@
 export const TRANSLATION = {
     General: {
         Mode: "Modus",
+        Automatic: "Automatisch",
+        State: "Zustand",
         On: "An",
         Off: "Aus",
         Active: "Aktiv",
@@ -114,7 +116,7 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
                     ChargingLimit: "Lade-Begrenzung",
                     AmountOfChargingStations: "Anzahl der Ladestationen",
-                    ChargingPower: "E-Auto Ladeleistung",
+                    ChargingPower: "Ladeleistung",
                     TotalChargingPower: "Gesamte Lade-Leistung",
                     CurrentCharge: "Aktuelle Beladung",
                     TotalCharge: "Gesamte Beladung",
@@ -123,9 +125,10 @@ export const TRANSLATION = {
                     CableNotConnected: "Kabel ist nicht angeschlossen",
                     CarFull: "Auto ist voll",
                     EnergieSinceBeginning: "Energie seit Ladebeginn",
-                    ChargeMode: "Belademodus",
                     ActivateCharging: "Aktivieren der Ladesäule",
                     ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
+                    EnergyLimit: "Energielimit",
+                    MaxEnergyRestriction: "Maximale Energie pro Ladevorgang begrenzen",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
@@ -140,7 +143,7 @@ export const TRANSLATION = {
                         MinChargePower: "Minimale Ladestärke",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
-                            Car: "Auto",
+                            Car: "E-Auto",
                             Storage: "Speicher"
                         }
                     },
@@ -148,7 +151,7 @@ export const TRANSLATION = {
                         Name: "Erzwungene Beladung",
                         ShortName: "Manuell",
                         Info: "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
-                        MaxCharging: "Maximale Ladestärke",
+                        MaxCharging: "Maximale Ladeleistung",
                         MaxChargingDetails: "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt."
                     }
                 }

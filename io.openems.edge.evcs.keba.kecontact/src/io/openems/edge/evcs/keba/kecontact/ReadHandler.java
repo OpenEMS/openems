@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 
@@ -74,6 +73,8 @@ public class ReadHandler implements Consumer<String> {
 					receiveReport2 = true;
 					setInt(KebaChannelId.STATUS_KEBA, jMessage, "State");
 
+					// The setenergy value of KEBA is not used because it is reset by the currtime 0 1 command
+
 					// Set STATUS and Warning STATE Channel
 					Channel<Status> stateChannel = this.parent.channel(KebaChannelId.STATUS_KEBA);
 					Channel<Status> plugChannel = this.parent.channel(KebaChannelId.PLUG);
@@ -91,14 +92,16 @@ public class ReadHandler implements Consumer<String> {
 					 * status
 					 */
 					int limit = this.parent.setEnergyLimit().value().orElse(0);
-					if (this.parent.getEnergySession().value().orElse(0) >= limit && limit != 0) {
+					int energy = this.parent.getEnergySession().value().orElse(0);
+					if (energy >= limit && limit != 0) {
 						try {
-							this.parent.setDisplayText().setNextWriteValue("Limit of " + limit + "Wh reached");
+
+							this.parent.setDisplayText().setNextWriteValue(limit + "Wh erreicht");
 							status = Status.ENERGY_LIMIT_REACHED;
+							this.parent.logInfo(log, "Status: "+ status.getName());
 						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
 						}
-						return;
 					}
 
 					this.parent.channel(Evcs.ChannelId.STATUS).setNextValue(status);
@@ -143,10 +146,6 @@ public class ReadHandler implements Consumer<String> {
 					}
 
 					this.parent.channel(KebaChannelId.MAX_CURR).setNextValue(hwPower);
-
-					// Set the EnergyLimit
-					this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT)
-							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "Setenergy").orElse(0)) * 0.1);
 
 				} else if (id.equals("3")) {
 					/*

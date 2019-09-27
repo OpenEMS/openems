@@ -1,0 +1,5 @@
+= ESS Limit Discharge Cell Voltage
+
+Limits the discharge power of an energy storage system according to minimal cell voltage, e.g. to keep energy for emergency power or to avoid deep discharge.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.limitdischargecellvoltage[Source Code icon:github[]]
