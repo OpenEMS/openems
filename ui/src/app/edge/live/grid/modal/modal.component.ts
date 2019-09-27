@@ -11,7 +11,7 @@ export class GridModalComponent {
 
   private static readonly SELECTOR = "grid-modal";
 
-  @Input() edge: Edge;
+  @Input() public edge: Edge;
 
   constructor(
     public service: Service,

@@ -26,6 +26,13 @@
               {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"])}}
             </td>
           </tr>
+          <tr *ngIf="currentData[componentId + '/ChargePower'] > 0">
+            <td style="width:65%" translate>
+              Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+            <td style="width:35%" class="align_right">
+              {{ currentData[componentId + "/EnergySession"] | unitvalue:'kWh' }}
+            </td>
+          </tr>
         </table>
         <table class="full_width">
           <tr>
@@ -95,15 +102,6 @@
               {{(controller.properties['energySessionLimit']) | unitvalue:'kWh'}}
             </td>
           </tr>
-          <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0">
-            <tr>
-              <td style="width:65%" translate>
-                Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
-              <td style="width:35%" class="align_right">
-                {{ currentData[componentId + "/EnergySession"] | unitvalue:'kWh' }}
-              </td>
-            </tr>
-          </ng-container>
         </table>
       </ion-card-content>
     </ng-container>
