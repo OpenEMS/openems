@@ -15,7 +15,7 @@
                                 <td style="width:65%" translate>General.Production
                                 </td>
                                 <td style="width:35%" class="align_right">
-                                    {{ sum.activePower | unitvalue:'W' }}
+                                    {{ sum.activePower | unitvalue:'kW' }}
                                 </td>
                             </tr>
                         </table>
@@ -30,13 +30,13 @@
                                 <tr *ngIf="sum.activePowerDc != null">
                                     <td style="width:65%">DC</td>
                                     <td style="width:35%" class="align_right">
-                                        {{ sum.activePowerDc | unitvalue:'W' }}
+                                        {{ sum.activePowerDc | unitvalue:'kW' }}
                                     </td>
                                 </tr>
                                 <tr *ngIf="sum.activePowerAc != null">
                                     <td style="width:65%">AC</td>
                                     <td style="width:35%" class="align_right">
-                                        {{ sum.activePowerAc | unitvalue:'W' }}
+                                        {{ sum.activePowerAc | unitvalue:'kW' }}
                                     </td>
                                 </tr>
                             </table>
@@ -52,7 +52,7 @@
                                             <td style="width:65%" *ngIf="component.id != component.alias">
                                                 {{component.alias}}</td>
                                             <td style="width:35%" class="align_right">
-                                                {{ currentData[component.id + '/ActivePower'] | unitvalue:'W' }}
+                                                {{ currentData[component.id + '/ActivePower'] | unitvalue:'kW' }}
                                             </td>
                                         </tr>
                                     </table>
@@ -68,7 +68,7 @@
                                             <td style="width:65%" *ngIf="component.id != component.alias">
                                                 {{component.alias}}</td>
                                             <td style="width:35%" class="align_right">
-                                                {{ currentData[component.id + '/ActualPower'] | unitvalue:'W' }}
+                                                {{ currentData[component.id + '/ActualPower'] | unitvalue:'kW' }}
                                             </td>
                                         </tr>
                                     </table>

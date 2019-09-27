@@ -2,5 +2,5 @@
   <rect width="100%" rx="5" ry="5" height="20" style="fill:#f4f4f4" />
   <rect *ngIf="value" x="1" y="2" rx="5" ry="5" attr.width="{{value}}%" height="16" style="fill:#4d749c" />
   <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle"
-    style="font-weight: 500">{{ value == null ? "-" : (value | number:'1.0-0') + " %" }}</text>
+    style="font-weight: 500">{{ value | unitvalue:'%' }}</text>
 </svg>

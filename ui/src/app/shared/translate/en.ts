@@ -1,7 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Mode",
+        Automatic: "Automatically",
+        State: "State",
         On: "On",
         Off: "Off",
+        Active: "Active",
+        Inactive: "Inactive",
+        Manually: "Manually",
         Phase: "Phase",
         Autarchy: "Autarchy",
         SelfConsumption: "Self Consumption",
@@ -114,6 +120,7 @@ export const TRANSLATION = {
                     Error: "Error",
                     NotAuthorized: "Not authorized",
                     Unplugged: "Unplugged",
+                    ChargeLimitReached: "Charge limit reached",
                     ChargingStationPluggedIn: "Charing Station plugged in",
                     ChargingStationPluggedInLocked: "Charing Station plugged in + locked",
                     ChargingStationPluggedInEV: "Charing Station + E-Vehicel plugged in",
@@ -132,6 +139,8 @@ export const TRANSLATION = {
                     ChargeMode: "Charge Mode",
                     ActivateCharging: "Activate the charging station",
                     ClusterConfigError: "An error has occurred in the configuration of the Evcs cluster",
+                    EnergyLimit: "Energy Limit",
+                    MaxEnergyRestriction: "Limit maximum energy per charge",
                     NoConnection: {
                         Description: "No connection to the charging station.",
                         Help1: "Check if the charging station is switched on and can be reached via the network.",
@@ -139,10 +148,11 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimized charging",
-                        ShortName: "Optimized",
+                        ShortName: "Automatically",
                         Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
                         MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
                         MinCharging: "Guarantee minimum charge",
+                        MinChargePower: "Loading rate",
                         ChargingPriority: {
                             Info: "Depending on the prioritization, the selected component will be loaded first",
                             Car: "Car",
@@ -151,7 +161,7 @@ export const TRANSLATION = {
                     },
                     ForceChargeMode: {
                         Name: "Force charging",
-                        ShortName: "Forced",
+                        ShortName: "Manually",
                         Info: "In this mode the loading of the car is enforced, i.e. it is always guaranteed that the car will be charged, even if the charging station needs to access grid power.",
                         MaxCharging: "Maximum charging power",
                         MaxChargingDetails: "If the car can not load the entered maximum value, the power will be automatically limited."

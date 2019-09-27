@@ -99,7 +99,8 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     Websocket,
     ToasterService,
     appRoutingProviders,
-    DecimalPipe
+    DecimalPipe,
+    UnitvaluePipe
   ]
 })
 export class SharedModule {
