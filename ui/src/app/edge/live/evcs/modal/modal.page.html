@@ -105,7 +105,7 @@
                         </tr>
                     </table>
                 </ion-card-content>
-                <ng-container *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER'">
+                <ng-container *ngIf="chargeMode == 'EXCESS_POWER'">
                     <!--Excess Power settings-->
                     <ion-card-content>
                         <table class="full_width">
@@ -184,7 +184,7 @@
                         </table>
                     </ion-card-content>
                 </ng-container>
-                <ng-container *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE'">
+                <ng-container *ngIf="chargeMode == 'FORCE_CHARGE'">
                     <ion-card-content class="underline">
                         <!--Force Charge settings-->
                         <table class="full_width">
@@ -215,7 +215,7 @@
                         </table>
                     </ion-card-content>
                 </ng-container>
-                <ion-card-content *ngIf="controller">
+                <ion-card-content *ngIf="controller && chargeMode != 'OFF'">
                     <table class="full_width">
                         <tr>
                             <td style="width: 65%" translate>
