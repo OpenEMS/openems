@@ -35,17 +35,17 @@ export class HeatingElementComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.controller = config.components[this.componentId];
-                this.outputChannelPhaseOne = ChannelAddress.fromString(
-                    this.controller.properties['outputChannelAddress2']);
+                // this.outputChannelPhaseOne = ChannelAddress.fromString(
+                //     this.controller.properties['outputChannelAddress2']);
                 // this.outputChannelPhaseTwo = ChannelAddress.fromString(
                 //     this.controller.properties['outputChannelAddress2']);
                 // this.outputChannelPhaseThree = ChannelAddress.fromString(
                 //     this.controller.properties['outputChannelAddress3']);
-                edge.subscribeChannels(this.websocket, HeatingElementComponent.SELECTOR + this.componentId, [
-                    this.outputChannelPhaseOne,
-                    // this.outputChannelPhaseTwo,
-                    // this.outputChannelPhaseThree
-                ]);
+                // edge.subscribeChannels(this.websocket, HeatingElementComponent.SELECTOR + this.componentId, [
+                // this.outputChannelPhaseOne,
+                // this.outputChannelPhaseTwo,
+                // this.outputChannelPhaseThree
+                // ]);
             });
         });
     }

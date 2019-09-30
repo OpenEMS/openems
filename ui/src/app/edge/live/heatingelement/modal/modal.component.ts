@@ -1,21 +1,23 @@
-import { Component, OnInit, HostListener, Input, OnChanges } from '@angular/core';
-import { environment } from 'src/environments/openems-backend-dev-local';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { Component, OnInit, Input } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { RangeValue } from '@ionic/core';
 
 type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
 
 @Component({
     selector: HeatingElementModalComponent.SELECTOR,
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
+    styleUrls: ['./modal.component.scss']
 })
 export class HeatingElementModalComponent implements OnInit {
 
     private static readonly SELECTOR = "heatingelement-modal";
+    customPickerOptions: any;
+    time: any = '17:00';
+    timeStandardValue: any = "17:00";
 
     @Input() public edge: Edge;
     @Input() public controller: EdgeConfig.Component;
@@ -29,7 +31,25 @@ export class HeatingElementModalComponent implements OnInit {
         public router: Router,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
-    ) { }
+    ) {
+        this.customPickerOptions = {
+            buttons: [{
+                text: 'OK',
+                handler: (value: any): void => {
+                    this.time = value;
+                    console.log(value, 'ok');
+                },
+            }, {
+                text: 'Abbrechen',
+                role: 'cancel', // has no effect
+                class: 'vollrot',
+                handler: (value: any): void => {
+                    this.time = this.timeStandardValue;
+                    console.log(value, 'cancel');
+                },
+            }],
+        }
+    }
 
     ngOnInit() {
         this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.componentId, [

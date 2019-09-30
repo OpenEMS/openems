@@ -4,8 +4,10 @@
 
             <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="danger" name="flame"></ion-icon>
-                <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
-                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
+                <!-- No logic: controller.alias becomes controller.id -> talk to pooran -->
+                <!-- <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
+                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label> -->
+                <ion-label>{{controller.id}}</ion-label>
             </ion-item>
             <ion-card-content>
                 <table class="full_width">
@@ -40,6 +42,25 @@
                                 General.Inactive
                             </td>
                         </ng-template> -->
+                    </tr>
+                    <tr>
+                        <td style="width: 65%">
+                            Aktive Phasen
+                        </td>
+                        <td style="width:35%" class="align_right">
+                            2</td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%">
+                            Endzeit</td>
+                        <td style="width:35%" class="align_right">
+                            17:00</td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%">
+                            Orientierung</td>
+                        <td style="width:35%" class="align_right">
+                            5 kWh</td>
                     </tr>
                 </table>
             </ion-card-content>

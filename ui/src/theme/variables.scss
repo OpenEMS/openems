@@ -3,6 +3,13 @@
 
 /** Ionic CSS Variables **/
 :root {
+  ion-picker {
+    --max-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   /** primary **/
   --ion-color-primary: #2d8fab;
   --ion-color-primary-rgb: 72,138,255;

@@ -1,0 +1,63 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <!-- No logic: controller.alias becomes controller.id -> talk to pooran -->
+        <!-- <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
+                <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title> -->
+        <ion-title>{{controller.id}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-card-content>
+        <table class="full_width">
+            <tr>
+                <td colspan="3">
+                    <ion-segment>
+                        <ion-segment-button value="MANUAL_ON">
+                            <ion-item lines="none">
+                                <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+                <td translate>
+                    General.On
+                </td>
+                </ion-item>
+                </ion-segment-button>
+
+                <ion-segment-button value="AUTOMATIC">
+                    <ion-item lines="none">
+                        <ion-icon style="width:40px" name="sunny">
+                        </ion-icon>
+                        <td translate>
+                            General.Automatic
+                        </td>
+                    </ion-item>
+                </ion-segment-button>
+                <ion-segment-button value="MANUAL_OFF">
+                    <ion-item lines="none">
+                        <ion-icon name="power" style="width: 40px"></ion-icon>
+                        <td translate>
+                            General.Off
+                        </td>
+                    </ion-item>
+                </ion-segment-button>
+                </ion-segment>
+                </td>
+            </tr>
+        </table>
+        <table class="full_width">
+            <tr>
+                <td style="width: 100%">
+                    <ion-item cssClass="testo">
+                        <ion-label position="floating">Endzeit</ion-label>
+                        <ion-datetime value="{{time}}" [pickerOptions]="customPickerOptions" displayFormat="HH:mm">
+                        </ion-datetime>
+                    </ion-item>
+                </td>
+            </tr>
+        </table>
+    </ion-card-content>
+</ion-content>
