@@ -11,9 +11,9 @@ export class ConsumptionModalComponent {
 
     private static readonly SELECTOR = "consumption-modal";
 
-    @Input() edge: Edge;
-    @Input() evcsComponents: EdgeConfig.Component[];
-    @Input() currentTotalChargingPower: () => number;
+    @Input() public edge: Edge;
+    @Input() public evcsComponents: EdgeConfig.Component[];
+    @Input() public currentTotalChargingPower: () => number;
 
     public config: EdgeConfig = null;
 

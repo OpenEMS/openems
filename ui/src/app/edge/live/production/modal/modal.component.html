@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title text-start padding-left translate>General.Production</ion-title>
+        <ion-title class="ion-text-start ion-padding-left" translate>General.Production</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -47,16 +47,6 @@
                                     <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePower'] | unitvalue:'W' }}
                                     </td>
-                                    <td style="width:65%" *ngIf="component.id != component.alias">
-                                        {{component.alias}}</td>
-                                    <ng-container *ngIf="currentData[component.id + '/ActivePower'] != 0; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
-                                        </td>
-                                    </ng-container>
-                                    <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-</td>
-                                    </ng-template>
                                 </tr>
                             </ng-container>
                         </table>
@@ -249,13 +239,13 @@
             <ng-container *ngIf="currentData.summary.production as sum">
                 <ion-grid
                     *ngIf="sum.activePowerAcL1 != null && sum.activePowerAcL2 != null && sum.activePowerAcL3 != null"
-                    padding-top>
-                    <ion-row justify-content-center align-items-center>
+                    class="ion-padding-top">
+                    <ion-row class="ion-justify-content-center ion-align-items-center">
                         <ion-col size="2" class="ion-text-center">
                             <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
                         </ion-col>
                         <ion-col size="10">
-                            <ion-note text-wrap><small translate>Edge.Index.Widgets.phasesInfo</small>
+                            <ion-note class="ion-text-wrap"><small translate>Edge.Index.Widgets.phasesInfo</small>
                             </ion-note>
                         </ion-col>
                     </ion-row>

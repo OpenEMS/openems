@@ -222,7 +222,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           }
           // keep colors the same if no producing device
           if (!config.hasProducer()) {
-            this.colors = this.colors.slice(1, this.colors.length);
+            if (this.colors.length == 6) {
+              this.colors = this.colors.slice(1, this.colors.length);
+            }
           }
 
           this.datasets = datasets;
