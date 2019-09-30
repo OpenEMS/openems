@@ -160,6 +160,12 @@ public class PostgresHandler {
 				while (rs.next()) {
 					// Parse ResultSet
 					Level level = Level.valueOf(PgUtils.getAsString(rs, EdgeDeviceStatus.LEVEL).toUpperCase());
+
+					if (level == Level.OK) {
+						// ignore OK-Channels; no need to acknowledge them
+						continue;
+					}
+
 					String componentId = PgUtils.getAsString(rs, EdgeDeviceStatus.COMPONENT_ID);
 					String channelName = PgUtils.getAsString(rs, EdgeDeviceStatus.CHANNEL_NAME);
 
