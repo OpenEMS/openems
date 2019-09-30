@@ -17,7 +17,7 @@ public class ChargingLowerThanTargetHandler {
 	private static final int MAXIMUM_OUT_OF_RANGE_TRIES = 3;
 	private int outOfRangeCounter = 0;
 	private final static int CHARGING_TARGET_MAX_DIFFERENCE = 500; // W
-	private final static int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 30; // sec
+	private final static int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 10; // sec
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 
 	private final Clock clock;
@@ -35,14 +35,18 @@ public class ChargingLowerThanTargetHandler {
 	 * @throws InvalidValueException
 	 */
 	protected boolean isLower(ManagedEvcs evcs) throws InvalidValueException {
-		if (this.isChargingLowerThanTarget(evcs)) {
-			this.outOfRangeCounter++;
+		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
+				.isBefore(LocalDateTime.now(this.clock))) {
+			if (this.isChargingLowerThanTarget(evcs)) {
 
-			if (this.outOfRangeCounter >= MAXIMUM_OUT_OF_RANGE_TRIES) {
-				return true;
+				this.outOfRangeCounter++;
+				if (this.outOfRangeCounter >= MAXIMUM_OUT_OF_RANGE_TRIES) {
+					return true;
+				}
+			} else {
+				this.outOfRangeCounter = 0;
 			}
-		} else {
-			this.outOfRangeCounter = 0;
+			this.lastChargingCheck = LocalDateTime.now();
 		}
 		return false;
 	}
@@ -56,15 +60,11 @@ public class ChargingLowerThanTargetHandler {
 	 */
 	protected boolean isChargingLowerThanTarget(ManagedEvcs evcs) throws InvalidValueException {
 		int chargingPower = evcs.getChargePower().value().orElse(0);
-		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
-				.isBefore(LocalDateTime.now(this.clock))) {
-			int chargingPowerTarget = evcs.setChargePowerLimit().value()
-					.orElse(evcs.getMaximumHardwarePower().value().getOrError());
-			if (chargingPowerTarget - chargingPower > CHARGING_TARGET_MAX_DIFFERENCE) {
-				this.lastChargingCheck = LocalDateTime.now();
-				return true;
-			}
+		int chargingPowerTarget = evcs.setChargePowerLimit().value()
+				.orElse(evcs.getMaximumHardwarePower().value().getOrError());
+		if (chargingPowerTarget - chargingPower > CHARGING_TARGET_MAX_DIFFERENCE) {
 			this.lastChargingCheck = LocalDateTime.now();
+			return true;
 		}
 		return false;
 	}

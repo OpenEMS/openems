@@ -133,9 +133,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
 
-
 		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
-		
+
 		/*
 		 * Sets a fixed request of 0 if the Charger is not ready
 		 */
@@ -210,12 +209,16 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 * Distribute next charge power on EVCS.
 		 */
 		if (isClustered) {
-			int chargePower = evcs.getChargePower().value().orElse(0);
-			if (chargePower != 0) {
+			// int chargePower = evcs.getChargePower().value().orElse(0);
+			if (nextChargePower != 0) {
+				// if (chargePower != 0) {
 				// Check difference of the current charging and the previous charging target
 				if (this.chargingLowerThanTargetHandler.isLower(evcs)) {
-					nextChargePower = (evcs.getChargePower().value().orElse(0) + CHARGE_POWER_BUFFER)
-							/ evcs.getPhases().value().orElse(3);
+					if (evcs.getChargePower().value().orElse(0) <= 0) {
+						nextChargePower = 0;
+					} else {
+						nextChargePower = (evcs.getChargePower().value().orElse(0) + CHARGE_POWER_BUFFER);
+					}
 					evcs.getMaximumPower().setNextValue(nextChargePower);
 					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
 				}
@@ -253,7 +256,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		int excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 
 		nextChargePower = evcsCharge + excessPower;
-		
 
 		Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) { /* charging under 6A isn't possible */
@@ -280,7 +282,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		int essActivePower = this.sum.getEssActivePower().value().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
-		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower-essActivePowerDC));
+		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower - essActivePowerDC));
 		result = result > 0 ? result : 0;
 
 		return result;
