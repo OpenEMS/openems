@@ -1,8 +1,10 @@
 export const TRANSLATION = {
     General: {
         Mode: "Režim",
+        Automatic: "Automaticky",
         On: "zapnutý",
         Off: "Pryč",
+        State: "Stát",
         Active: "aktivně",
         Inactive: "Neaktivní",
         Manually: "Ruční",
@@ -124,6 +126,8 @@ export const TRANSLATION = {
                     ChargeMode: "režim načítání",
                     ActivateCharging: "Aktivujte nabíjecí stanici",
                     ClusterConfigError: "V konfiguraci clusteru Evcs došlo k chybě",
+                    EnergyLimit: "Limit energie",
+                    MaxEnergyRestriction: "Omezte maximální energii na jedno nabití",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",

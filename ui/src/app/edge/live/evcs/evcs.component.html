@@ -45,16 +45,11 @@
         <ng-container
           *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
           <table class="full_width">
-            <tr>
+            <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
               <td style="width: 65%" translate>
                 Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
               </td>
-              <td style="width: 35%" class="align_right" *ngIf="controller.properties['defaultChargeMinPower'] == 0"
-                translate>
-                General.Inactive
-              </td>
-              <td style="width: 35%" class="align_right" *ngIf="controller.properties['defaultChargeMinPower'] > 0"
-                translate>
+              <td style="width: 35%" class="align_right" translate>
                 General.Active
               </td>
             </tr>
@@ -63,7 +58,7 @@
                 Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinChargePower
               </td>
               <td style="width: 50%" class="align_right">
-                {{controller.properties['defaultChargeMinPower']}}&nbsp;W
+                {{controller.properties['defaultChargeMinPower'] | unitvalue:'kW'}}
               </td>
             </tr>
             <tr>
@@ -85,17 +80,19 @@
           <table class="full_width">
             <tr>
               <td style="width: 65%" translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</td>
-              <td style="width: 35%" class="align_right">{{controller.properties['forceChargeMinPower']}}&nbsp;W</td>
+              <td style="width: 35%" class="align_right">
+                {{controller.properties['forceChargeMinPower'] | unitvalue:'kW'}}</td>
             </tr>
           </table>
         </ng-container>
-        <table class="full_width" *ngIf="controller.properties['enabledCharging'] == true">
+        <table class="full_width"
+          *ngIf="controller.properties['enabledCharging'] == true && controller.properties['energySessionLimit'] != 0">
           <tr>
             <td style="width: 35%">
               Energielimit
             </td>
             <td style="width: 65%" class="align_right">
-              {{(controller.properties['energySessionLimit'] / 1000) | unitvalue:'kWh'}}
+              {{(controller.properties['energySessionLimit']) | unitvalue:'kWh'}}
             </td>
           </tr>
           <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0">
@@ -103,7 +100,7 @@
               <td style="width:65%" translate>
                 Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
               <td style="width:35%" class="align_right">
-                {{ currentData[componentId + "/EnergySession"] | unitvalue:'Wh' }}
+                {{ currentData[componentId + "/EnergySession"] | unitvalue:'kWh' }}
               </td>
             </tr>
           </ng-container>

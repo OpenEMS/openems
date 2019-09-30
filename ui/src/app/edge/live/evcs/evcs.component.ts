@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
-import { EvcsModalComponent } from './evcs-modal/evcs-modal.page';
+import { EvcsModalComponent } from './evcs-modal/modal.page';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -86,6 +86,7 @@ export class EvcsComponent {
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
         return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+      // if the car is not charging but would be ready to charge, the car is fully charged (keba logic dependency)
       case ChargeState.READY_FOR_CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
       case ChargeState.NOT_READY_FOR_CHARGING:

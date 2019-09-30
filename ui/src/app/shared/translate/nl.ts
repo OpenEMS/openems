@@ -1,6 +1,8 @@
 export const TRANSLATION = {
     General: {
         Mode: "Mode",
+        Automatic: "Automatisch",
+        State: "Staat",
         On: "Naar",
         Off: "Van",
         Active: "Actief",
@@ -122,6 +124,8 @@ export const TRANSLATION = {
                     ChargeMode: "laadmodus",
                     ActivateCharging: "Activeer het laadstation",
                     ClusterConfigError: "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
+                    EnergyLimit: "Energielimiet",
+                    MaxEnergyRestriction: "Beperk de maximale energie per lading",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
                         Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",

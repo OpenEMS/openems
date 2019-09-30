@@ -460,6 +460,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.battery.getMaxCellTemperature().onChange((oldValue, newValue) -> {
 			this.channel(ChannelId.BAT_TEMP).setNextValue(newValue.get());
 		});
+		
+		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
+			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
+		});
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
