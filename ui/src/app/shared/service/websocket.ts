@@ -54,7 +54,10 @@ export class Websocket {
     if (this.socket != null) {
       return this.isWebsocketConnected;
     }
-    this.service.showLoader();
+    if (env.backend !== 'OpenEMS Edge') {
+      this.service.showLoader();
+    }
+
 
     if (env.debugMode) {
       console.info("Websocket connect to URL [" + env.url + "]");
@@ -207,12 +210,16 @@ export class Websocket {
     switch (message.method) {
       case AuthenticateWithSessionIdNotification.METHOD:
         this.handleAuthenticateWithSessionId(message as AuthenticateWithSessionIdNotification);
-        this.service.hideLoader();
+        if (env.backend !== 'OpenEMS Edge') {
+          this.service.hideLoader();
+        }
         break;
 
       case AuthenticateWithSessionIdFailedNotification.METHOD:
         this.handleAuthenticateWithSessionIdFailed(message as AuthenticateWithSessionIdNotification);
-        this.service.hideLoader();
+        if (env.backend !== 'OpenEMS Edge') {
+          this.service.hideLoader();
+        }
         break;
 
       case EdgeRpcNotification.METHOD:
