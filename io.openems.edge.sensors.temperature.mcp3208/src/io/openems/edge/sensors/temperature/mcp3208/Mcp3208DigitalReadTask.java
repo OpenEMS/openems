@@ -11,7 +11,7 @@ public class Mcp3208DigitalReadTask extends Task {
     private final Channel<Integer> channel;
     private final int position;
     private final Board board;
-//position == port of SPI Channel....position of input maybe? CH0-CH7 ?
+//position == port of SPI Channel....position of input CH0-CH7
     public Mcp3208DigitalReadTask(SpiChannel spiChannel, int position, Channel<Integer> channel, Board board) {
         super(spiChannel);
         this.position = position;

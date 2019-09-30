@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.spi;
 
+import com.pi4j.gpio.extension.mcp.MCP3208GpioProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -28,6 +29,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.common.worker.AbstractCycleWorker;
 
+
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Bridge.Spi",
 		immediate = true,
@@ -48,15 +50,16 @@ public class BridgeSpiImpl extends AbstractOpenemsComponent implements BridgeSpi
 
 
 	@Activate
-	protected void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, Config config)  {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 		if (this.isEnabled()) {
 			this.worker.activate(config.id());
 		}
 		//doc https://github.com/Pi4J/pi4j/blob/master/pi4j-core/src/main/java/com/pi4j/wiringpi/Spi.java
 		// https://github.com/Pi4J/pi4j/blob/master/pi4j-core/src/main/java/com/pi4j/io/spi/SpiChannel.java
-		Spi.wiringPiSPISetup(SpiChannel.CS+config.cs_0().getChannel(), config.frequency());
-		Spi.wiringPiSPISetup(SpiChannel.CS+config.cs_1().getChannel(), config.frequency());
+		Spi.wiringPiSPISetup(config.cs_0(), config.frequency());
+		Spi.wiringPiSPISetup(config.cs_1(), config.frequency());
+
 	}
 
 	@Deactivate

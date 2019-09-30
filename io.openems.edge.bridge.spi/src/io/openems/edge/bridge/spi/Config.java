@@ -17,6 +17,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     int cs_0() default 0;
     int cs_1() default 1;
 
+    @AttributeDefinition(name = "SPI", description= "Test")
+    int spi() default 19;
+
     boolean enabled() default true;
 
     String webconsole_configurationFactory_nameHint() default "Bridge SPI [{id}]";

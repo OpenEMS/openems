@@ -1,11 +1,16 @@
-Bundle-Name: OpenEMS Edge Sensors Temperature MCP3208
+Bundle-Name: OpenEMS Edge RaspberryPi Spi
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Private-Package: \
-	io.openems.edge.sensors.temperature.mcp3208
 
-Export-Package: io.openems.edge.sensors.temperature.api
+
+Export-Package:  \
+	io.openems.edge.raspberrypi.spi,\
+	io.openems.edge.raspberrypi.spi.task,\
+	io.openems.edge.raspberrypi.spi.subchannel
+Private-Package:  \
+	io.openems.edge.raspberrypi.spi;
+
 
 -includeresource: {readme.md}
 
@@ -14,9 +19,6 @@ Export-Package: io.openems.edge.sensors.temperature.api
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	org.ops4j.pax.logging.pax-logging-api,\
-	io.openems.edge.sensors.temperature.api;version=latest,\
-	io.openems.edge.sensors.temperature.api.TemperatureSensor,\
-	io.openems.edge.bridge.spi;version=latest,\
 	pi4j-core;version=1.1
 
 -testpath: \

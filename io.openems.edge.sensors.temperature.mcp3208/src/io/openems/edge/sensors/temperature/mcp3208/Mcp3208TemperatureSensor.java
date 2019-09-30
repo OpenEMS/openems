@@ -53,6 +53,8 @@ public class Mcp3208TemperatureSensor extends AbstractOpenemsComponent implement
 				new Mcp3208DigitalReadTask(p.getSpiChannel(), p.getPort(), this.getTemperature(), Board.valueOf(config.board())));
 	}
 
+
+
 	@Deactivate
 	protected void deactivate() {
 		this.spi.removeTask(this.id());
