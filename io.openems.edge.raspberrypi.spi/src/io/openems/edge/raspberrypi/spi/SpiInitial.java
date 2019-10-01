@@ -1,33 +1,19 @@
 package io.openems.edge.raspberrypi.spi;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.Designate;
+import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
+import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
+import io.openems.edge.raspberrypi.spi.subchannel.SpiSensor;
 
+import java.util.List;
+import java.util.Map;
 
-@Designate( ocd= SpiInitial.Config.class, factory=true)
-@Component(name="io.openems.edge.raspberrypi.spi")
-public class SpiInitial /* implements SomeApi */ {
+public interface SpiInitial {
+    void addSpiList(SpiSensor spiSensor, SensorType sensorType);
 
-	@ObjectClassDefinition
-	@interface Config {
-		String name() default "World";
-	}
+    boolean addAdcList(Adc adc);
+    List<Adc> getAdcList();
 
-	private String name;
+    Map<SensorType, Adc> getAdcPart();
 
-	@Activate
-
-	//TODO SPI Wiring Pi Setup; Do SPI Worker --> for every Channel
-	//TODO handle Event
-	void activate(Config config) {
-		this.name = config.name();
-	}
-
-	@Deactivate
-	void deactivate() {
-	}
-
+    boolean addAdcPart(SensorType sensorType, Adc adc);
 }

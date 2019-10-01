@@ -2,7 +2,6 @@ package io.openems.edge.raspberrypi.sensor.sensortype.digitalReadTask;
 
 import com.pi4j.io.spi.SpiChannel;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.raspberrypi.sensor.api.Adc.AdcParts;
 import io.openems.edge.raspberrypi.spi.task.Task;
 
 import java.util.List;
