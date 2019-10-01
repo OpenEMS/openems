@@ -34,18 +34,22 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 
 public class PostgresHandler {
 
+	protected final MetadataOdoo parent;
+
 	private final Logger log = LoggerFactory.getLogger(PostgresHandler.class);
-	private final MetadataOdoo parent;
 	private final EdgeCache edgeCache;
 	private final Credentials credentials;
 	private final CompletableFuture<Void> initializeEdgesTask;
 	private final MyConnection connection;
+	private final WriteWorker writeWorker;
 
 	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config) {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.credentials = Credentials.fromConfig(config);
 		this.connection = new MyConnection(credentials);
+		this.writeWorker = new WriteWorker(this, this.connection);
+		this.writeWorker.start();
 
 		// Initialize EdgeCache
 		this.initializeEdgesTask = CompletableFuture.runAsync(() -> {
@@ -80,6 +84,7 @@ public class PostgresHandler {
 	}
 
 	public void deactivate() {
+		this.writeWorker.stop();
 		this.initializeEdgesTask.cancel(true);
 		this.connection.deactivate();
 	}
@@ -210,5 +215,9 @@ public class PostgresHandler {
 			this.log.error("Unable to update Device-States: " + e.getMessage() + "; for: "
 					+ Metadata.activeStateChannelsToString(activeStateChannels));
 		}
+	}
+
+	public WriteWorker getWriteWorker() {
+		return writeWorker;
 	}
 }

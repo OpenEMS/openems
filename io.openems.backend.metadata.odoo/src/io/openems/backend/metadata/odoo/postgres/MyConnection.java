@@ -170,7 +170,7 @@ public class MyConnection {
 	private PreparedStatement psUpdateEdgeState = null;
 
 	/**
-	 * UPDATE {} SET openems_sum_state_level ? {}, openems_sum_state_text = {} WHERE
+	 * UPDATE {} SET openems_sum_state_level = {}, openems_sum_state_text = {} WHERE
 	 * id = {};
 	 * 
 	 * @return the PreparedStatement

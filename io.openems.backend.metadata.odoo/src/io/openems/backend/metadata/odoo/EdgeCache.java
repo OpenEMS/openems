@@ -212,12 +212,12 @@ public class EdgeCache {
 			this.parent.getOdooHandler().addChatterMessage(edge, "<p>Configuration Update:</p>" + diff.getAsHtml());
 		});
 		edge.onSetLastMessage(() -> {
-			// Set LastMessage timestamp in Odoo
-			this.parent.getOdooHandler().getWriteWorker().onLastMessage(edge);
+			// Set LastMessage timestamp in Odoo/Postgres
+			this.parent.getPostgresHandler().getWriteWorker().onLastMessage(edge);
 		});
 		edge.onSetLastUpdate(() -> {
-			// Set LastUpdate timestamp in Odoo
-			this.parent.getOdooHandler().getWriteWorker().onLastUpdate(edge);
+			// Set LastUpdate timestamp in Odoo/Postgres
+			this.parent.getPostgresHandler().getWriteWorker().onLastUpdate(edge);
 		});
 		edge.onSetVersion(version -> {
 			// Set Version in Odoo

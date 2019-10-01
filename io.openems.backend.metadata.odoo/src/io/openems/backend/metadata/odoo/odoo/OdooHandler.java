@@ -25,17 +25,10 @@ public class OdooHandler {
 
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
-	private final WriteWorker writeWorker;
 
 	public OdooHandler(MetadataOdoo parent, Config config) {
 		this.parent = parent;
 		this.credentials = Credentials.fromConfig(config);
-		this.writeWorker = new WriteWorker(this, this.credentials);
-		this.writeWorker.start();
-	}
-
-	public WriteWorker getWriteWorker() {
-		return writeWorker;
 	}
 
 	/**
