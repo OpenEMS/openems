@@ -16,9 +16,17 @@
     position: center;
 }
 
-.vollrot {
-    color:red;
+ion-segment.small {
+    max-width: 250px;
+    position: center;
 }
+
+ion-picker.small {
+    --max-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
 mat-card.single {
     margin: 20px;

@@ -7,7 +7,7 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
-import { EvcsModalComponent } from './evcs/evcs-modal/evcs-modal.page';
+import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';

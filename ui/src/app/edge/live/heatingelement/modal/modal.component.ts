@@ -10,7 +10,6 @@ type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 @Component({
     selector: HeatingElementModalComponent.SELECTOR,
     templateUrl: './modal.component.html',
-    styleUrls: ['./modal.component.scss']
 })
 export class HeatingElementModalComponent implements OnInit {
 
@@ -18,6 +17,7 @@ export class HeatingElementModalComponent implements OnInit {
     customPickerOptions: any;
     time: any = '17:00';
     timeStandardValue: any = "17:00";
+    modimode: string = 'ZEIT';
 
     @Input() public edge: Edge;
     @Input() public controller: EdgeConfig.Component;
@@ -39,15 +39,16 @@ export class HeatingElementModalComponent implements OnInit {
                     this.time = value;
                     console.log(value, 'ok');
                 },
-            }, {
+            },
+            {
                 text: 'Abbrechen',
                 role: 'cancel', // has no effect
-                class: 'vollrot',
                 handler: (value: any): void => {
                     this.time = this.timeStandardValue;
                     console.log(value, 'cancel');
                 },
-            }],
+            }
+            ],
         }
     }
 
@@ -59,44 +60,5 @@ export class HeatingElementModalComponent implements OnInit {
 
     ngOnDestroy() {
         this.edge.unsubscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.componentId);
-    }
-
-    cancel() {
-        this.modalCtrl.dismiss();
-    }
-
-
-
-    /**  
-    * Updates the Charge-Mode of the EVCS-Controller.
-    * 
-    * @param event 
-    */
-    updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
-        let oldMode = currentController.properties.mode;
-        let newMode: mode;
-
-        switch (event.detail.value) {
-            case 'MANUAL_ON':
-                newMode = 'MANUAL_ON';
-                break;
-            case 'MANUAL_OFF':
-                newMode = 'MANUAL_OFF';
-                break;
-            case 'AUTOMATIC':
-                newMode = 'AUTOMATIC';
-                break;
-        }
-
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'mode', value: newMode }
-            ]).then(() => {
-                currentController.properties.mode = newMode;
-            }).catch(reason => {
-                currentController.properties.mode = oldMode;
-                console.warn(reason);
-            });
-        }
     }
 }
