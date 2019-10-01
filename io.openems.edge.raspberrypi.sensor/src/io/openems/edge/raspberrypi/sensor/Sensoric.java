@@ -14,7 +14,7 @@ public interface Sensoric extends OpenemsComponent {
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId{
        ;
-       /* TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS)); //
+       /*TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS)); //
         private final Doc doc;
         private ChannelId(Doc doc) {
             this.doc = doc;
@@ -22,7 +22,7 @@ public interface Sensoric extends OpenemsComponent {
         public Doc doc() {
             return this.doc;
         }
-*/
+
 
        //Sensoric stellt auswahl an OpenemsChannel bereit; in Utils werden sie der Liste zugefügt
         @Override

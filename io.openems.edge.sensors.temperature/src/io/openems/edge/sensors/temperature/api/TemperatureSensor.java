@@ -25,7 +25,7 @@ import io.openems.edge.common.component.OpenemsComponent;
              * </ul>
              */
 
-            //extend to °K and °F ?
+
             TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS)); //
             private final Doc doc;
             private ChannelId(Doc doc) {

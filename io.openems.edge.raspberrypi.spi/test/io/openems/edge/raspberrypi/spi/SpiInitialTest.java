@@ -2,6 +2,7 @@ package io.openems.edge.raspberrypi.spi;
 
 import static org.junit.Assert.assertNotNull;
 
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import org.junit.Test;
 
 /*
@@ -17,7 +18,7 @@ public class SpiInitialTest {
 
 	@Test
 	public void simple() {
-		SpiInitial impl = new SpiInitial();
+		AbstractOpenemsComponent impl = new SpiInitialImpl();
 		assertNotNull(impl);
 	}
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 public abstract class Typ8 extends Adc {
 
-    protected Typ8(List<Long> pins, Board board, String id) {
-        super(pins, 8, board, id);
+    protected Typ8(List<Long> pins, int inputType ,Board board, int id, int SpiChannel) {
+        super(pins, inputType ,(byte)8, board, id, SpiChannel );
     }
 }

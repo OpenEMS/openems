@@ -1,33 +1,28 @@
 package io.openems.edge.raspberrypi.spi;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.Designate;
+import io.openems.edge.raspberrypi.sensor.Sensor;
+import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
+import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
 
 
-@Designate( ocd= SpiInitial.Config.class, factory=true)
-@Component(name="io.openems.edge.raspberrypi.spi")
-public class SpiInitial /* implements SomeApi */ {
+import java.util.List;
+import java.util.Map;
 
-	@ObjectClassDefinition
-	@interface Config {
-		String name() default "World";
-	}
+public interface SpiInitial {
 
-	private String name;
+    boolean addAdcList(Adc adc);
+    List<Adc> getAdcList();
+    List<Sensor> getSensorList();
+    List<SensorType> getSensorTypeList();
 
-	@Activate
+    Map <String, List<String>> getSensorManager();
 
-	//TODO SPI Wiring Pi Setup; Do SPI Worker --> for every Channel
-	//TODO handle Event
-	void activate(Config config) {
-		this.name = config.name();
-	}
+    Map<String, Map<Integer, List<Integer>>> getAdcManager();
 
-	@Deactivate
-	void deactivate() {
-	}
+    Map<Integer, String> getSpiManager();
+    boolean addToSensorManager(String child, String father);
+    List<Integer> getFreeSpiChannels();
+
+
 
 }

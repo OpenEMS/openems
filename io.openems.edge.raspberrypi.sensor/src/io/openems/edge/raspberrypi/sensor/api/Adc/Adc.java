@@ -2,35 +2,60 @@ package io.openems.edge.raspberrypi.sensor.api.Adc;
 
 import io.openems.edge.raspberrypi.sensor.api.Adc.Pins.Pin;
 import io.openems.edge.raspberrypi.sensor.api.Board;
+import io.openems.edge.raspberrypi.spi.SpiInitial;
+import jdk.nashorn.internal.ir.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Adc {
-//Adc abstract class: Created by Sensor Type
-    private final List<Pin> pins=new ArrayList<>();
-    //TODO for later change to short
-    private final int MAX_SIZE;
-
+    //TODO Add Input Type --> 12 bit or so for each concrete MCP
+    //TODO IMPORTANT!!!! Adc needs SPI channel not the sensor!!!! remember!!
+    @Reference
+    protected SpiInitial spiInitial;
+    //Adc abstract class: Created by Sensor Type
+    private List<Pin> pins = new ArrayList<>();
+    private int spiChannel;
+    private int inputType;
+    private byte MAX_SIZE;
     private Board board;
-    private String id;
+    private int id;
 
-    protected Adc(List<Long> PinList, int max_size, Board board, String id) {
-        MAX_SIZE = max_size;
-        this.board=board;
-        this.id=id;
-        int position= 0;
-        for (long l:PinList
-             ) {
+    public Adc(List<Long> pins,int inputType ,byte max_size, Board board, int id, int spiChannel) {
+        this.MAX_SIZE = max_size;
+        this.board = board;
+        this.id = id;
+        int position = 0;
 
-            pins.add(new Pin(l, position++));
+        for (long l : pins) {
+
+            this.pins.add(new Pin(l, position++));
         }
+        this.spiChannel=spiChannel;
+        this.inputType=inputType;
+
+        //TODO
+        //OpenSpiChannel --> SpiChannelForNewMcp
+
+        this.spiInitial.addAdcList(this);
 
     }
+
+
 
     public Board getBoard() {
         return board;
     }
 
-    public String getId(){return id;}
+    public int getId() {
+        return id;
+    }
+
+    public List<Pin> getPins() {
+        return pins;
+    }
+
+    public int getSpiChannel() {
+        return spiChannel;
+    }
 }
