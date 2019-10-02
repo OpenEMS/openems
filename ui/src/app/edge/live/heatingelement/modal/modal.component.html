@@ -16,43 +16,21 @@
     <ion-card-content class="underline">
         <table class="full_width">
             <tr>
-                <td style="width: 65%">
-                    Zustand
-                </td>
-                <td style="width: 35%" class="align_right">
-                    Aktiv</td>
-            </tr>
-            <tr>
-                <td style="width: 65%">
-                    Aktive Phasen
-                </td>
-                <td style="width: 35%" class="align_right">
-                    2</td>
-            </tr>
-            <div style="padding-top: 5px;"></div>
-            <tr>
-                <td style="width:65%">
-                    Heizleistung
-                </td>
-                <td style="width: 35%" class="align_right">
-                    {{1337 | unitvalue:'W'}}</td>
-            </tr>
-        </table>
-        <table class="full_width">
-            <tr>
-                <td style="width:2%"></td>
-                <td style="width:23%"><span translate>General.Phase</span>&nbsp;L2</td>
-                <td style="width:40%"></td>
+                <td style="width:65%"><span translate>General.Phase</span>&nbsp;L1</td>
                 <td class="align_right" style="width: 35%">
-                    {{ 800 | unitvalue:'W' }}
+                    Inaktiv
                 </td>
             </tr>
             <tr>
-                <td style="width:2%"></td>
-                <td style="width:23%"><span translate>General.Phase</span>&nbsp;L3</td>
-                <td style="width:40%"></td>
+                <td style="width:65%"><span translate>General.Phase</span>&nbsp;L2</td>
                 <td class="align_right" style="width: 35%">
-                    {{ 537 | unitvalue:'W' }}
+                    Aktiv
+                </td>
+            </tr>
+            <tr>
+                <td style="width:65%"><span translate>General.Phase</span>&nbsp;L3</td>
+                <td class="align_right" style="width: 35%">
+                    Aktiv
                 </td>
             </tr>
         </table>
@@ -128,6 +106,19 @@
                 </ion-segment>
             </ion-row>
         </ion-grid>
+        <table class="full_width">
+            <tr>
+                <ion-item lines="none" class="ion-no-padding">
+                    <ion-label class="heating">Phasen</ion-label>
+                    <ion-select cancelText='Abbrechen' multiple="true" [interfaceOptions]="selectOptions"
+                        class="align_right">
+                        <ion-select-option class="heating">Phase 1</ion-select-option>
+                        <ion-select-option class="heating">Phase 2</ion-select-option>
+                        <ion-select-option class="heating">Phase 3</ion-select-option>
+                    </ion-select>
+                </ion-item>
+            </tr>
+        </table>
         <table class="full_width">
             <tr>
                 <td style="width: 65%">

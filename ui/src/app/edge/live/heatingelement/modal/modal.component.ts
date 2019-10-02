@@ -15,6 +15,7 @@ export class HeatingElementModalComponent implements OnInit {
 
     private static readonly SELECTOR = "heatingelement-modal";
     customPickerOptions: any;
+    selectOptions: any;
     time: any = '17:00';
     timeStandardValue: any = "17:00";
     modimode: string = 'ZEIT';
@@ -45,6 +46,22 @@ export class HeatingElementModalComponent implements OnInit {
                 role: 'cancel', // has no effect
                 handler: (value: any): void => {
                     this.time = this.timeStandardValue;
+                    console.log(value, 'cancel');
+                },
+            }
+            ],
+        }
+        this.selectOptions = {
+            buttons: [{
+                text: 'OK',
+                handler: (value: any): void => {
+                    console.log(value, 'ok');
+                },
+            },
+            {
+                text: 'Abbrechen',
+                role: 'cancel', // has no effect
+                handler: (value: any): void => {
                     console.log(value, 'cancel');
                 },
             }
