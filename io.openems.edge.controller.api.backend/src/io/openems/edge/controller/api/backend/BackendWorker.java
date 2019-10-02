@@ -91,7 +91,7 @@ class BackendWorker extends AbstractCycleWorker {
 		this.cycleCount = 0;
 
 		// resets the mode to 'send changed values only'
-		boolean sendChangedValuesOnly = this.sendChangedValuesOnly.getAndSet(true);
+		boolean sendChangedValuesOnly = this.sendChangedValuesOnly.getAndSet(false);
 
 		// Prepare message values
 		Map<ChannelAddress, JsonElement> sendValues = new HashMap<>();
