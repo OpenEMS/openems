@@ -5,6 +5,7 @@ import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { WidgetClass } from 'src/app/shared/type/widget';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
     selector: '[gridsection]',
