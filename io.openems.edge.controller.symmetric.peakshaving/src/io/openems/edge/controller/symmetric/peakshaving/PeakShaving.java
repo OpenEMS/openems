@@ -137,6 +137,9 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		// store lastSetActivePower
 		this.lastSetActivePower = calculatedPower;
 
+		// store lastSetActivePower
+		this.lastSetActivePower = calculatedPower;
+
 		/*
 		 * set result
 		 */

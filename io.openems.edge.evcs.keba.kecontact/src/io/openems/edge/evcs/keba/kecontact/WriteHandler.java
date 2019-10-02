@@ -23,8 +23,9 @@ public class WriteHandler implements Runnable {
 	/**
 	 * Minimum pause between two consecutive writes
 	 */
-	private final static int WRITE_INTERVAL_SECONDS = 5; // before change the interval was 60 seconds
+	private final static int WRITE_INTERVAL_SECONDS = 5;
 	private final static int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
+	private final static int WRITE_ENERGY_SESSION_INTERVAL_SECONDS = 10;
 
 	public WriteHandler(KebaKeContact parent) {
 		this.parent = parent;
@@ -32,8 +33,14 @@ public class WriteHandler implements Runnable {
 
 	@Override
 	public void run() {
+
+		Channel<Boolean> communicationChannel = this.parent.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+		if (communicationChannel.value().orElse(true)) {
+			return;
+		}
 		this.setDisplay();
 		this.setPower();
+		this.setEnergySession();
 	}
 
 	private String lastDisplay = null;
@@ -69,8 +76,6 @@ public class WriteHandler implements Runnable {
 		}
 	}
 
-	private LocalDateTime nextEnabledWrite = LocalDateTime.MIN;
-
 	private Integer lastCurrent = null;
 	private LocalDateTime nextCurrentWrite = LocalDateTime.MIN;
 
@@ -78,51 +83,94 @@ public class WriteHandler implements Runnable {
 	 * Sets the current from SET_CHARGE_POWER channel
 	 * 
 	 * Allowed loading current are between 6000mA and 63000mA. Invalid values are
-	 * discarded and the default is set to 6000mA. The value is also depending on
-	 * the DIP-switch settings and the used cable of the charging station.
+	 * discarded. The value is also depending on the DIP-switch settings and the
+	 * used cable of the charging station.
 	 */
 	private void setPower() {
-		if (this.nextEnabledWrite.isAfter(LocalDateTime.now())) {
-			return;
-		}
 
-		Channel<Boolean> communicationChannel = this.parent.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
-		boolean communicationFailed = communicationChannel.value().orElse(true);
-		if (communicationFailed) {
-			return;
-		}
-		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER);
+		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 
 			Integer power = valueOpt.get();
 			Channel<Integer> phases = this.parent.getPhases();
 			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
-			// limits the charging value because KEBA knows only values between 6000 and 63000
+			// limits the charging value because KEBA knows only values between 6000 and
+			// 63000
 			if (current > 63000) {
 				current = 63000;
 			}
 			if (current < 6000) {
 				current = 0;
 			}
-			
+
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
-				this.parent.logInfo(this.log, "Setting KEBA "+ this.parent.alias() +" current to [" + current
+				this.parent.logInfo(this.log, "Setting KEBA " + this.parent.alias() + " current to [" + current
 						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
 
 				try {
 					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
-					this.parent.setDisplayText()
-							.setNextWriteValue("Charging " + (currPower.value().orElse(0) / 1000) + "W");
+					this.parent.setDisplayText().setNextWriteValue((currPower.value().orElse(0) / 1000) + "W");
 				} catch (OpenemsNamedException e) {
 					e.printStackTrace();
 				}
 
-				this.parent.logInfo(this.log, "currtime " + current);
 				boolean sentSuccessfully = parent.send("currtime " + current + " 1");
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 					this.lastCurrent = current;
+				}
+			}
+		}
+	}
+
+	private Integer lastEnergySession = null;
+	private LocalDateTime nextEnergySessionWrite = LocalDateTime.MIN;
+
+	/**
+	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel
+	 * 
+	 * Allowed values for the command setenergy are 0; 1-999999999 the value of the
+	 * command is 0.1 Wh. The charging station will charge till this limit.
+	 */
+	private void setEnergySession() {
+		
+		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
+		
+		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+		if (valueOpt.isPresent()) {
+
+			Integer energyTarget = valueOpt.get();
+			this.parent.setEnergyLimit().setNextValue(energyTarget);
+
+			if (energyTarget < 0) {
+				return;
+			}
+			
+			/**
+			 *  limits the target value because KEBA knows only values between 0 and 999999999 0.1Wh
+			 */
+			energyTarget = energyTarget > 99999999 ? 99999999 : energyTarget;
+			energyTarget = energyTarget > 0 && energyTarget < 1 ? 1 : energyTarget;
+			energyTarget *= 10;
+
+			if (!energyTarget.equals(this.lastEnergySession)
+					|| this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
+				this.parent.logInfo(this.log, "Setting KEBA " + this.parent.alias()
+						+ " Energy Limit in this Session to [" + energyTarget + " Wh]");
+
+				boolean sentSuccessfully = parent.send("setenergy " + energyTarget);
+				if (sentSuccessfully) {
+					
+					try {
+						this.parent.setDisplayText().setNextWriteValue("Max: " + energyTarget / 10000 + "kWh");
+					} catch (OpenemsNamedException e) {
+						e.printStackTrace();
+					}
+					
+					this.nextEnergySessionWrite = LocalDateTime.now()
+							.plusSeconds(WRITE_ENERGY_SESSION_INTERVAL_SECONDS);
+					this.lastEnergySession = energyTarget;
 				}
 			}
 		}

@@ -16,8 +16,8 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 	SYSTEM_STATE(Doc.of(SystemState.values()) //
 			.onInit(channel -> { //
 				// on each update set Grid-Mode channel
-				channel.onChange(value -> {
-					SystemState systemState = value.asEnum();
+				channel.onChange((oldValue, newValue) -> {
+					SystemState systemState = newValue.asEnum();
 					EnumReadChannel gridMode = channel.getComponent().channel(SymmetricEss.ChannelId.GRID_MODE);
 					switch (systemState) {
 					case STANDBY:
@@ -119,9 +119,9 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 			.unit(Unit.VOLT_AMPERE) //
 			.onInit(channel -> { //
 				// on each update -> update MaxApparentPower to 3 x Single Phase Apparent Power
-				((Channel<Integer>) channel).onChange(value -> {
+				((Channel<Integer>) channel).onChange((oldValue, newValue) -> {
 					channel.getComponent().channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
-							.setNextValue(value.orElse(0) * 3);
+							.setNextValue(newValue.orElse(0) * 3);
 				});
 			})), //
 

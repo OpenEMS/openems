@@ -1,6 +1,6 @@
 package io.openems.common.utils;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 /**
  * Provides static helper functions for string manipulation.
@@ -15,7 +15,7 @@ public class StringUtils {
 		}
 	}
 
-	public static String toShortString(JsonObject j, int length) {
+	public static String toShortString(JsonElement j, int length) {
 		String s = j.toString();
 		return toShortString(s, length);
 	}

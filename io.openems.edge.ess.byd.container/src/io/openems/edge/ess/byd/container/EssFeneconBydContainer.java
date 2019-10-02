@@ -54,6 +54,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	//private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
 
 	private static final int MAX_APPARENT_POWER = 480_000;
+
 	private static final int UNIT_ID = 100;
 	private boolean readonly = false;	
 
