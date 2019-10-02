@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -55,8 +56,13 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private int minTime;
 	private int minKwh;
 	private String endTime;
+	TimeLeapClock timeLeapClock = new TimeLeapClock();
 	LocalTime currentEndtime;	
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+
+	
+	
 
 	public static final int PHASE_ONE = 1;
 	public static final int PHASE_TWO = 2;
@@ -64,7 +70,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	
 	
 
-	
+	boolean checkOnceFlag = true;
 	LocalDateTime phaseTimeOn = null;
 	LocalDateTime phaseTimeOff = null;
 	LocalDateTime phaseOneTimeOn = null;
@@ -73,11 +79,17 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	LocalDateTime phaseTwoTimeOff = null;
 	LocalDateTime phaseThreeTimeOn = null;
 	LocalDateTime phaseThreeTimeOff = null;
-
+	
 	long totalPhaseOneTime = 0;
 	long totalPhaseTwoTime = 0;
 	long totalPhaseThreeTime = 0;
 	long totalPhaseTime = 0;
+	
+	/**
+	 * Flag to check the Mintime and MinKwh conditions are met
+	 */
+	boolean CheckOnceflag = true;
+
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		MODE(Doc.of(Mode.values()) //
@@ -88,24 +100,28 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				.text("Configured Mode")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")),
-		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would change State, but hystesis is active")),
-		PHASE1_TIME(Doc.of(Level.INFO)
-				.text("Time on Phase one")),
-		PHASE2_TIME(Doc.of(Level.INFO)
-				.text("Time on Phase two")),
-		PHASE3_TIME(Doc.of(Level.INFO)
-				.text("Time on Phase three")),
-		PHASE1_POWER(Doc.of(Level.INFO)
-				.text("Power on Phase one")),
-		PHASE2_POWER(Doc.of(Level.INFO)
-				.text("Power on Phase two")),
-		PHASE3_POWER(Doc.of(Level.INFO)
-				.text("Power on Phase three")),
-		TOTAL_PHASE_POWER(Doc.of(Level.INFO)
-				.text("Total Power on all three Phases")),
-		TOTAL_PHASE_TIME(Doc.of(Level.INFO)
-				.text("Total time on all three Phases")),; //
+		NO_OF_RELAIS_ON(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)),
+		PHASE1_TIME(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		PHASE2_TIME(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		PHASE3_TIME(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		PHASE1_POWER(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		PHASE2_POWER(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		PHASE3_POWER(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		TOTAL_PHASE_POWER(Doc.of(OpenemsType.INTEGER)
+				.unit(Unit.NONE)),
+		TOTAL_PHASE_TIME(Doc.of(OpenemsType.LONG)
+				.unit(Unit.NONE)),; //
+		
+//		CURRENT_L2(Doc.of(OpenemsType.INTEGER)//
+//				.unit(Unit.AMPERE)), //
 
 		private final Doc doc;
 
@@ -206,7 +222,13 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			}
 		} while (modeChanged);
 
-		this.channel(ChannelId.MODE).setNextValue(this.mode);
+		this.channel(ChannelId.MODE).setNextValue(this.mode);		
+		this.channel(ChannelId.PHASE1_TIME).setNextValue(this.totalPhaseOneTime);
+		this.channel(ChannelId.PHASE2_TIME).setNextValue(this.totalPhaseTwoTime);
+		this.channel(ChannelId.PHASE3_TIME).setNextValue(this.totalPhaseThreeTime);
+		this.totalPhaseTime = this.totalPhaseOneTime + this.totalPhaseThreeTime + this.totalPhaseTwoTime;
+		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
+
 		System.out.println("Total phase time : " + totalPhaseTime);
 	}
 
@@ -238,110 +260,77 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		} else {
 			excessPower = Math.abs(gridActivePower);
 			excessPower += noRelaisSwitchedOn * 2000;
-		}		
+		}
+		
+		
+		System.out.println("gridActivePower  : "+gridActivePower);
+		System.out.println(" excessPower : "+excessPower);
 
-		/*
-		 * boolean stateChanged; do {
-		 * 
-		 * if (excessPower >= (this.powerOfPhase * 3)) { stateChanged =
-		 * this.changeState(State.THIRD_PHASE); } else if (excessPower >=
-		 * (this.powerOfPhase * 2)) { stateChanged =
-		 * this.changeState(State.SECOND_PHASE); } else if (excessPower >=
-		 * this.powerOfPhase) { stateChanged = this.changeState(State.FIRST_PHASE); }
-		 * else { stateChanged = this.changeState(State.UNDEFINED); }
-		 * 
-		 * } while (stateChanged); // execute again if the state changed
-		 */
-		boolean stateChanged = false;
+		boolean stateChanged;
 		do {
-			switch (this.state) {
-			case UNDEFINED:
-				if (excessPower >= this.powerOfPhase) {
-					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);//
-				} else if (excessPower < this.powerOfPhase) {
-					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
-				} else {
-					stateChanged = changeState(State.UNDEFINED);// changeState
-				}
+
+			if (excessPower >= (this.powerOfPhase * 3)) {
+				stateChanged = this.changeState(State.THIRD_PHASE);
+			} else if (excessPower >= (this.powerOfPhase * 2)) {
+				stateChanged = this.changeState(State.SECOND_PHASE);
+			} else if (excessPower >= this.powerOfPhase) {
+				stateChanged = this.changeState(State.FIRST_PHASE);
+			} else {
+				stateChanged = this.changeState(State.UNDEFINED);
+			}
+
+		} while (stateChanged); // execute again if the state changed
+
+		switch (this.state) {
+		case UNDEFINED:
+			switch (this.priority) {
+			case TIME:
+				this.checkMinTime();
 				break;
-			case SWITCH_ON_FIRSTPHASE:
-				testLogic(true, outputChannelAddress1, PHASE_ONE);
-				if (excessPower >= (this.powerOfPhase * 2)) {
-					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
-					
-					//this.on(outputChannelAddress1, PHASE_ONE); //--------------------------------------------------------------------
-				} else if (excessPower < (this.powerOfPhase)) {
-					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
-				} else {
-					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);// changeState
-				}
-				break;
-			case SWITCH_OFF_FIRSTPHASE:
-				if (excessPower >= (this.powerOfPhase)) {
-					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);// changeState
-				} else {
-					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
-					testLogic(false, outputChannelAddress1, PHASE_ONE);
-					//this.off(outputChannelAddress1, PHASE_ONE);//--------------------------------------------------------------------
-				}
-				break;
-			case SWITCH_ON_SECONDPHASE:
-				testLogic(true, outputChannelAddress2, PHASE_TWO);
-				if (excessPower >= (this.powerOfPhase * 3)) {
-					stateChanged = changeState(State.SWITCH_ON_THIRDPHASE);// changeState
-					
-					//this.on(outputChannelAddress2, PHASE_TWO);//--------------------------------------------------------------------
-				} else if (excessPower < (this.powerOfPhase * 2)) {
-					stateChanged = changeState(State.SWITCH_OFF_THIRDPHASE);// changeState
-				} else {
-					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
-				}
-				break;
-			case SWITCH_OFF_SECONDPHASE:
-				if (excessPower >= (this.powerOfPhase * 2)) {
-					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
-				} else if (excessPower < (this.powerOfPhase * 2) && excessPower >= this.powerOfPhase) {
-					stateChanged = changeState(State.SWITCH_ON_FIRSTPHASE);// changeState
-				} else {
-					stateChanged = changeState(State.SWITCH_OFF_SECONDPHASE);// changeState
-					testLogic(false, outputChannelAddress2, PHASE_TWO);
-					//this.off(outputChannelAddress2, PHASE_TWO);//--------------------------------------------------------------------
-				}
-				break;
-			case SWITCH_ON_THIRDPHASE:
-				testLogic(true, outputChannelAddress3, PHASE_THREE);
-				if (excessPower < (this.powerOfPhase * 3)) {
-					stateChanged = changeState(State.SWITCH_OFF_THIRDPHASE);// changeState
-				} else {
-					stateChanged = changeState(State.SWITCH_ON_THIRDPHASE);// changeState
-					
-					//this.on(outputChannelAddress3);//--------------------------------------------------------------------
-				}
-				break;
-			case SWITCH_OFF_THIRDPHASE:
-				if (excessPower >= (this.powerOfPhase)) {
-					stateChanged = changeState(State.SWITCH_ON_THIRDPHASE);// changeState
-				} else if (excessPower < (this.powerOfPhase * 3) && excessPower >= (this.powerOfPhase * 2)) {
-					stateChanged = changeState(State.SWITCH_ON_SECONDPHASE);// changeState
-				} else {
-					stateChanged = changeState(State.SWITCH_OFF_FIRSTPHASE);// changeState
-					testLogic(false, outputChannelAddress3, PHASE_THREE);
-				//	this.off(outputChannelAddress3, PHASE_THREE);//--------------------------------------------------------------------
-				}
+			case KILO_WATT_HOUR:
+				this.checkMinKwh(excessPower);
 				break;
 			}
-		} while (stateChanged);
+			if(CheckOnceflag) {
+			testLogic(false, outputChannelAddress1, PHASE_ONE);
+			testLogic(false, outputChannelAddress2, PHASE_TWO);
+			testLogic(false, outputChannelAddress3, PHASE_THREE);
+			noRelaisSwitchedOn = 0;
+			}
+			break;
+		case FIRST_PHASE:
+			//this.calculateTotalTime(1); // no of relais switched on is 1	
+			testLogic(true, outputChannelAddress1, PHASE_ONE);
+			testLogic(false, outputChannelAddress2, PHASE_TWO);
+			testLogic(false, outputChannelAddress3, PHASE_THREE);
+			noRelaisSwitchedOn = 1;
+			
+			break;
+		case SECOND_PHASE:
+			//this.calculateTotalTime(2);// no of relais switched on is 2		
+			testLogic(true, outputChannelAddress1, PHASE_ONE);
+			testLogic(true, outputChannelAddress2, PHASE_TWO);
+			testLogic(false, outputChannelAddress3, PHASE_THREE);
+			noRelaisSwitchedOn = 2;
+			break;
+		case THIRD_PHASE:
+			//this.calculateTotalTime(3);// no of relais switched on is 3
+			testLogic(true, outputChannelAddress1, PHASE_ONE);
+			testLogic(true, outputChannelAddress2, PHASE_TWO);
+			testLogic(true, outputChannelAddress3, PHASE_THREE);
+			noRelaisSwitchedOn = 3;
+			break;
+		}
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 		this.channel(ChannelId.PRIORITY).setNextValue(this.priority);
+		this.channel(ChannelId.NO_OF_RELAIS_ON).setNextValue(noRelaisSwitchedOn);
 	}
 	
-
-	
-	private void testLogic(boolean onOFF, ChannelAddress outputChannelAddress, int phaseNumber)
+	private void testLogic(boolean isSwitchOn, ChannelAddress outputChannelAddress, int phaseNumber)
 			throws IllegalArgumentException, OpenemsNamedException {
 		if (phaseNumber == 1) {
-			if (!onOFF) {
+			if (!isSwitchOn) {
 
 				// If the Phase is not switched-On do not record the PhasetimeOff
 				if (phaseOneTimeOn == null) {
@@ -351,7 +340,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				}
 
 				this.off(outputChannelAddress);
-
+				//noRelaisSwitchedOn = 0;
 			} else {
 				// Atleast one phase is running
 				if (phaseOneTimeOn != null) {
@@ -360,6 +349,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 					phaseOneTimeOn = LocalDateTime.now();
 				}
 				this.on(outputChannelAddress);
+				//noRelaisSwitchedOn = 1;
 
 			}
 			if (phaseOneTimeOn != null && phaseOneTimeOff != null) {
@@ -376,8 +366,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				// or one of the phases is still running and not stopped
 				totalPhaseOneTime = 0;
 			}
+			//totalPhaseTime +=  totalPhaseOneTime;
 		} else if (phaseNumber == 2) {
-			if (!onOFF) {
+			if (!isSwitchOn) {
 
 				// If the Phase is not switched-On do not record the PhasetimeOff
 				if (phaseTwoTimeOn == null) {
@@ -387,6 +378,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				}
 
 				this.off(outputChannelAddress);
+				//noRelaisSwitchedOn = 1;
 
 			} else {
 				// Atleast one phase is running
@@ -396,7 +388,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 					phaseTwoTimeOn = LocalDateTime.now();
 				}
 				this.on(outputChannelAddress);
-
+				//noRelaisSwitchedOn = 2;
 			}
 			if (phaseTwoTimeOn != null && phaseTwoTimeOff != null) {
 				// Atleast one cycle, any of the Phase was switch on and off
@@ -412,8 +404,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				// or one of the phases is still running and not stopped
 				totalPhaseTwoTime = 0;
 			}
+			//totalPhaseTime +=   totalPhaseTwoTime ;
 		} else if (phaseNumber == 3) {
-			if (!onOFF) {
+			if (!isSwitchOn) {
 
 				// If the Phase is not switched-On do not record the PhasetimeOff
 				if (phaseThreeTimeOn == null) {
@@ -423,6 +416,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				}
 
 				this.off(outputChannelAddress);
+				//noRelaisSwitchedOn = 2;
 
 			} else {
 				// Atleast one phase is running
@@ -432,7 +426,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 					phaseThreeTimeOn = LocalDateTime.now();
 				}
 				this.on(outputChannelAddress);
-
+				//noRelaisSwitchedOn = 3;
 			}
 			if (phaseThreeTimeOn != null && phaseThreeTimeOff != null) {
 				// Atleast one cycle, any of the Phase was switch on and off
@@ -448,19 +442,21 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				// or one of the phases is still running and not stopped
 				totalPhaseThreeTime = 0;
 			}
+			//totalPhaseTime +=   totalPhaseThreeTime ;
 		} else {
 			throw new OpenemsException("Wrong phase number");
 		}
 		
-		totalPhaseTime +=  totalPhaseOneTime + totalPhaseTwoTime + totalPhaseThreeTime ;
+		
 		
 		System.out.println("totalPhaseOneTime : "+ totalPhaseOneTime);
 		System.out.println("totalPhaseTwoTime : "+ totalPhaseTwoTime);
 		System.out.println("totalPhaseThreeTime : "+ totalPhaseThreeTime);
-		System.out.println("totalPhaseTime : "+ totalPhaseTime);
+
 		
 	}
 	
+
 	/**
 	 * Helper function to switch the relays on and off, and also calculate the time
 	 * how long the relays were switched on
@@ -573,35 +569,37 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
+	
+	
 	private void checkMinTime() throws IllegalArgumentException, OpenemsNamedException {
 
-		if (formatter.format(LocalTime.now()).equals(formatter.format(currentEndtime))) {
-			if (this.totalPhaseTime < minTime) {
-				long deltaTime = minTime - this.totalPhaseTime;
-				// Switch-On all the 3 Phases
-				calculateTotalTime(3);
-				// update the endtime
-				currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.SECONDS);
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime)) {			
+				if (this.totalPhaseTime < minTime) {
+					System.out.println("inside if in chkmintime");
+					long deltaTime = minTime - this.totalPhaseTime;
+					// Switch-On all the 3 Phases
+					testLogic(true, outputChannelAddress1, PHASE_ONE);
+					testLogic(true, outputChannelAddress2, PHASE_TWO);
+					testLogic(true, outputChannelAddress3, PHASE_THREE);
+					noRelaisSwitchedOn = 3;
+					// update the endtime
+					currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.SECONDS);
 
-				// update the totalPhaseTime
-				this.totalPhaseTime += deltaTime;
-
-				checkMinTime();
-			}
-			// resetting the Total phase time, phasetimeon , Phasetimeoff to zero
-			this.totalPhaseTime = 0;
-			this.phaseTimeOff = null;
-			this.phaseTimeOn = null;
-		} else {
-			// Switch-Off the phases
-			calculateTotalTime(0);
-		}
-
+					// update the totalPhaseTime
+					this.totalPhaseTime += deltaTime;
+					CheckOnceflag = false;
+					// checkMinTime();
+				}
+				if(this.totalPhaseTime >= minTime) {
+					CheckOnceflag = true;
+				}
+				}
 	}
 	
 	
 
 
+	
 
 
 	/**
@@ -658,8 +656,10 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @return whether the state was changed
 	 */
 	private boolean changeState(State nextState) {
+		System.out.println("From "+ this.state + " to " + nextState);
 		if (this.state != nextState) {
 			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
+				System.out.println("Not Awaiting the hysterisis : " + this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock)));
 				this.state = nextState;
 				this.lastStateChange = LocalDateTime.now(this.clock);
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);

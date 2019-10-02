@@ -10,12 +10,12 @@ public enum State implements OptionsEnum {
 	/**
 	 * When production is 2000W more than the capacity of the ESS, last phase was undefined.
 	 */
-	SWITCH_ON_FIRSTPHASE(0, "SWITCH ON first phase"),
-	SWITCH_OFF_FIRSTPHASE(1,"SWITCH OFF first phase "),
-	SWITCH_ON_SECONDPHASE(2, "SWITCH ON second phase"),
-	SWITCH_OFF_SECONDPHASE(3,"SWITCH OFF second phase "),
-	SWITCH_ON_THIRDPHASE(4, "SWITCH ON third phase"),
-	SWITCH_OFF_THIRDPHASE(5,"SWITCH OFF third phase ");
+	FIRST_PHASE(0, "SWITCH ON first phase"),
+	
+	SECOND_PHASE(1, "SWITCH ON second phase"),
+	
+	THIRD_PHASE(2, "SWITCH ON third phase");
+	
 
 	private final int value;
 	private final String name;

@@ -3,6 +3,8 @@ package io.openems.edge.controller.HeatingElementController;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+
+
 @ObjectClassDefinition( //
 		name = "Controller Heating Element", //
 		description = "This controller will dynamically switches one of the three coils of the heating element(heizstab)")

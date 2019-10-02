@@ -1,5 +1,5 @@
 
-package io.openems.edge.controller.HeatingElementController;
+package io.openems.edge.controller.heiztabcontroller;
 
 import io.openems.common.types.OptionsEnum;
 

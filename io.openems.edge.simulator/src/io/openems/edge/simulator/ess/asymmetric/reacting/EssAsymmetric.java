@@ -1,6 +1,7 @@
 package io.openems.edge.simulator.ess.asymmetric.reacting;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -34,7 +35,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
-import io.openems.edge.simulator.ess.symmetric.reacting.EssSymmetric.ChannelId;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssAsymmetric.Reacting", //
@@ -128,18 +128,30 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	}
 
 	private void updateChannels() {
-		// nothing to do
+		
 		/*
 		 * get and store Simulated Grid Active Power
 		 */
-		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "GridActivePower");
-		this.channel(ChannelId.SIMULATED_GRID_ACTIVE_POWER).setNextValue(simulatedActivePower);
+		int simulatedGridActivePower = this.datasource.getValue(OpenemsType.INTEGER, "GridActivePower");
+		this.channel(ChannelId.SIMULATED_GRID_ACTIVE_POWER).setNextValue(simulatedGridActivePower / 10000);
+		
+		
+		/*
+		 * Calculate Active Power
+		 */
+		int gridActivePower = simulatedGridActivePower/ 10000;
+		
+		System.out.println(gridActivePower);
+		
+		
+
 	}
 
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
+				+ "|GridActivePower:" + this.channel(ChannelId.SIMULATED_GRID_ACTIVE_POWER).value().asString() //
 				+ "|" + this.getGridMode().value().asOptionString();
 	}
 
