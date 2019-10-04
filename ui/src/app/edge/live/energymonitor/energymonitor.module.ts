@@ -7,10 +7,14 @@ import { ConsumptionSectionComponent } from './chart/section/consumptionsection.
 import { GridSectionComponent } from './chart/section/gridsection.component';
 import { ProductionSectionComponent } from './chart/section/productionsection.component';
 import { StorageSectionComponent } from './chart/section/storagesection.component';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   imports: [
-    SharedModule
+    SharedModule,
+    BrowserModule,
+    BrowserAnimationsModule
   ],
   declarations: [
     EnergymonitorComponent,
@@ -18,7 +22,7 @@ import { StorageSectionComponent } from './chart/section/storagesection.componen
     ConsumptionSectionComponent,
     ProductionSectionComponent,
     GridSectionComponent,
-    StorageSectionComponent
+    StorageSectionComponent,
   ],
   exports: [
     EnergymonitorComponent

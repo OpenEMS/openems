@@ -20,6 +20,8 @@ export class Service implements ErrorHandler {
 
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
+  public colored: boolean = false;
+
   /**
    * Holds the currenty selected Page Title.
    */

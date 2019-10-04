@@ -4,14 +4,32 @@ import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { trigger, state, style, animate, transition } from '@angular/animations';
+
 
 @Component({
     selector: '[productionsection]',
-    templateUrl: './section.component.html'
+    templateUrl: './section.component.html',
+    animations: [
+        trigger('colored', [
+            state('true', style({
+                height: '200px',
+                opacity: 1,
+                backgroundColor: 'yellow'
+            })),
+            state('false', style({
+                height: '5px',
+                opacity: 0.5,
+                backgroundColor: 'green'
+            })),
+            transition('false <=> true', animate('1s'))
+        ])
+    ]
 })
 export class ProductionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
+    public colored = false;
 
     constructor(
         translate: TranslateService,

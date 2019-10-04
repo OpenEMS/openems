@@ -1,0 +1,23 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card>
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <img src="assets/img/autarchy.png">
+                </ion-avatar>
+                <ion-label>Energyflow</ion-label>
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary as sum">
+                <table class="full_width">
+                    <tr>
+                        <div [@popOverState]="stateName">
+                            <img src="assets/img/arrows.svg">
+                        </div>
+
+                    </tr>
+                </table>
+                <button (click)="toggle()">Toggle PopOver</button>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

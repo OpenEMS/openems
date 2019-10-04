@@ -5,11 +5,13 @@
       <energymonitor></energymonitor>
     </ion-col>
 
-
     <!-- Widgets -->
     <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
       <ion-grid class="ion-no-padding">
         <ion-row>
+          <ion-col size="12" size-lg="6" class="ion-no-padding">
+            <energyflow></energyflow>
+          </ion-col>
           <!-- Regular Widgets -->
           <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 

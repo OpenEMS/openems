@@ -9,11 +9,28 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 
 @Component({
     selector: '[gridsection]',
-    templateUrl: './section.component.html'
+    templateUrl: './section.component.html',
+    animations: [
+        trigger('colored', [
+            state('true', style({
+                height: '200px',
+                opacity: 1,
+                backgroundColor: 'yellow'
+            })),
+            state('false', style({
+                height: '100px',
+                opacity: 0.5,
+                backgroundColor: 'green'
+            })),
+            transition('false <=> true', animate('1s'))
+        ])
+    ]
 })
 export class GridSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
+    public colored = true;
+
 
     constructor(
         translate: TranslateService,

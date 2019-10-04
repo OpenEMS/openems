@@ -1,19 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostBinding } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { interval } from 'rxjs';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { trigger, state, style, animate, transition } from '@angular/animations';
+import { reduce } from 'rxjs/operators';
 
 @Component({
     selector: '[storagesection]',
-    templateUrl: './section.component.html'
+    templateUrl: './section.component.html',
+    animations: [
+        trigger('colored', [
+            state('true', style({
+                height: '200px',
+                opacity: 1,
+                backgroundColor: 'yellow'
+            })),
+            state('false', style({
+                height: '100px',
+                opacity: 0.5,
+                backgroundColor: 'green'
+            })),
+            transition('false <=> true', animate('1s'))
+        ])
+    ]
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     private socValue: number
     private unitpipe: UnitvaluePipe;
+    public colored = false;
+
 
     constructor(
         translate: TranslateService,
