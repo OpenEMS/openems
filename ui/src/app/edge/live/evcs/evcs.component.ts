@@ -20,6 +20,7 @@ export class EvcsComponent {
 
   public edge: Edge = null;
   public controller: EdgeConfig.Component = null;
+  public evcsComponent: EdgeConfig.Component = null;
   public chargeMode: ChargeMode = null;
 
   constructor(
@@ -46,11 +47,10 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
         new ChannelAddress(this.componentId, 'MaximumHardwarePower')
       ]);
-
-      // Gets the Controller for the given EVCS-Component.
+      // Gets the Controller & Component for the given EVCS-Component.
       this.service.getConfig().then(config => {
         let controllers = config.getComponentsByFactory("Controller.Evcs");
-
+        this.evcsComponent = config.getComponent(this.componentId);
         for (let controller of controllers) {
           let properties = controller.properties;
           if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
@@ -107,6 +107,7 @@ export class EvcsComponent {
         controller: this.controller,
         edge: this.edge,
         componentId: this.componentId,
+        evcsComponent: this.evcsComponent,
         getState: this.getState
       }
     });

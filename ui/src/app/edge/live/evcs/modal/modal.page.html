@@ -1,12 +1,11 @@
 <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
-            <ion-title *ngIf="currentData[componentId + '/Alias'] as alias">{{alias}}</ion-title>
-            <ion-title *ngIf="!currentData[componentId + '/Alias'] as alias" translate>
+            <ion-title *ngIf="evcsComponent.alias == evcsComponent.id" style="padding-left: 20px;" translate>
                 Edge.Index.Widgets.EVCS.ChargingStation
-                <ion-text>
-                    {{ componentId }}
-                </ion-text>
+            </ion-title>
+            <ion-title *ngIf="evcsComponent.alias != evcsComponent.id" style="padding-left: 20px;">
+                {{evcsComponent.alias}}
             </ion-title>
             <ion-buttons slot="end">
                 <ion-button (click)="modalCtrl.dismiss()">
