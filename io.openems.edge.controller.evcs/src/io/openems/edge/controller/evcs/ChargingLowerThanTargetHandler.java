@@ -16,7 +16,7 @@ public class ChargingLowerThanTargetHandler {
 	 */
 	private static final int MAXIMUM_OUT_OF_RANGE_TRIES = 3;
 	private int outOfRangeCounter = 0;
-	private final static int CHARGING_TARGET_MAX_DIFFERENCE = 500; // W
+	private final static double CHARGING_TARGET_MAX_DIFFERENCE_PERCENT = 0.05; // 5%
 	private final static int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 10; // sec
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 
@@ -62,7 +62,7 @@ public class ChargingLowerThanTargetHandler {
 		int chargingPower = evcs.getChargePower().value().orElse(0);
 		int chargingPowerTarget = evcs.setChargePowerLimit().value()
 				.orElse(evcs.getMaximumHardwarePower().value().getOrError());
-		if (chargingPowerTarget - chargingPower > CHARGING_TARGET_MAX_DIFFERENCE) {
+		if (chargingPowerTarget - chargingPower > chargingPowerTarget * CHARGING_TARGET_MAX_DIFFERENCE_PERCENT) {
 			this.lastChargingCheck = LocalDateTime.now();
 			return true;
 		}

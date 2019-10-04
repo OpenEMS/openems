@@ -43,6 +43,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final static int CHARGE_POWER_BUFFER = 100;
+	private final static double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.05; // 5%
 
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 
@@ -161,6 +162,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 * Stop early if charging is disabled
 		 */
 		if (!config.enabledCharging()) {
+			if(isClustered) {
+				evcs.setChargePowerRequest().setNextWriteValue(0);
+			}
 			evcs.setChargePowerLimit().setNextWriteValue(0);
 			return;
 		}
@@ -211,16 +215,24 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (isClustered) {
 			// int chargePower = evcs.getChargePower().value().orElse(0);
 			if (nextChargePower != 0) {
-				// if (chargePower != 0) {
+
+				int chargePower = evcs.getChargePower().value().orElse(0);
+
 				// Check difference of the current charging and the previous charging target
 				if (this.chargingLowerThanTargetHandler.isLower(evcs)) {
-					if (evcs.getChargePower().value().orElse(0) <= 0) {
+					if (chargePower <= 0) {
 						nextChargePower = 0;
 					} else {
-						nextChargePower = (evcs.getChargePower().value().orElse(0) + CHARGE_POWER_BUFFER);
+						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
 					}
 					evcs.getMaximumPower().setNextValue(nextChargePower);
 					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
+				} else {
+					int currMax = evcs.getMaximumPower().value().orElse(0);
+
+					if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
+						evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().getOrError());
+					}
 				}
 
 				// If a maximum charge power is defined.
