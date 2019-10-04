@@ -109,11 +109,11 @@ export class GridSectionComponent extends AbstractSection {
         let v = Math.abs(ratio);
         let r = radius;
         let p = {
-            topLeft: { x: r * -1, y: v * -1 },
-            middleLeft: { x: r * -1 + v, y: 0 },
-            bottomLeft: { x: r * -1, y: v },
-            topRight: { x: v * -1, y: v * -1 },
-            bottomRight: { x: v * -1, y: v },
+            topLeft: { x: r * -1.5, y: -10 },
+            middleLeft: { x: r * -1.5 + v, y: 0 },
+            bottomLeft: { x: r * -1.5, y: 10 },
+            topRight: { x: v * -1, y: -10 },
+            bottomRight: { x: v * -1, y: 10 },
             middleRight: { x: 0, y: 0 }
         }
         if (ratio > 0) {

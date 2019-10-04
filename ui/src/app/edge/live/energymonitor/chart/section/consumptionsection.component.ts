@@ -85,11 +85,11 @@ export class ConsumptionSectionComponent extends AbstractSection {
         let v = Math.abs(ratio);
         let r = radius;
         let p = {
-            topLeft: { x: v, y: v * -1 },
+            topLeft: { x: v, y: -20 },
             middleLeft: { x: 0, y: 0 },
-            bottomLeft: { x: v, y: v },
-            topRight: { x: r, y: v * -1 },
-            bottomRight: { x: r, y: v },
+            bottomLeft: { x: v, y: 20 },
+            topRight: { x: r, y: -20 },
+            bottomRight: { x: r, y: 20 },
             middleRight: { x: r - v, y: 0 }
         }
         if (ratio > 0) {
