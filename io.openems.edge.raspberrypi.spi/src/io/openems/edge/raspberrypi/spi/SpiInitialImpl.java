@@ -1,5 +1,6 @@
 package io.openems.edge.raspberrypi.spi;
 
+<<<<<<< HEAD
 import com.pi4j.wiringpi.Spi;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -9,6 +10,14 @@ import io.openems.edge.raspberrypi.sensor.Sensor;
 import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
 import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
 import io.openems.edge.raspberrypi.spi.api.BridgeSpi;
+=======
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
+import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
+import io.openems.edge.raspberrypi.spi.api.BridgeSpi;
+import io.openems.edge.raspberrypi.spi.subchannel.SpiSensor;
+>>>>>>> SPI
 import io.openems.edge.raspberrypi.spi.task.Task;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,7 +30,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import java.util.concurrent.ConcurrentHashMap;
+=======
+>>>>>>> SPI
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -29,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Config
 public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiInitial, BridgeSpi, EventHandler, OpenemsComponent {
 
+<<<<<<< HEAD
     private List<Adc> adcList = new ArrayList<>();
     private List<Sensor> sensorList = new ArrayList<>();
     private List<SensorType> sensorTypes = new ArrayList<>();
@@ -42,27 +55,42 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
     private List<Integer> freeSpiChannels=new ArrayList<>();
     private final Map<String, Task> tasks = new ConcurrentHashMap<>();
     private final SpiWorker worker = new SpiWorker();
+=======
+    private Map<SpiSensor, SensorType> spiList = new HashMap<>();
+
+    private List<Adc> adcList = new ArrayList<>();
+    private Map<SensorType, Adc> adcPart = new HashMap<>();
+    private String name;
+>>>>>>> SPI
 
     protected SpiInitialImpl(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
         super(firstInitialChannelIds, furtherInitialChannelIds);
     }
 
     @Activate
+<<<<<<< HEAD
 
+=======
+    //TODO Create SPI List and ADC List, used by every device
+>>>>>>> SPI
     //TODO SPI Wiring Pi Setup; Do SPI Worker --> for every Channel
     //TODO handle Event
     public void activate(Config config) {
         this.name = config.id();
+<<<<<<< HEAD
         super.activate(getComponentContext(), config.service_pid(), config.id(), config.enabled());
         if(this.isEnabled()){
             this.worker.activate(config.id());
         }
         Spi.wiringPiSPISetup(0, config.frequency());
 
+=======
+>>>>>>> SPI
     }
 
     @Deactivate
     public void deactivate() {
+<<<<<<< HEAD
 
         for (Sensor sensor: sensorList
              ) {
@@ -76,6 +104,17 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
     @Override
     public void addTask(String sourceId, Task task) {
     this.tasks.put(sourceId, task);
+=======
+        //TODO Close every SPI SubChannel and with it, it's connected Devices
+        //TODO Worker Deactivate
+        super.deactivate();
+    }
+
+    //TODO Write Tasks
+    @Override
+    public void addTask(String sourceId, Task task) {
+
+>>>>>>> SPI
     }
 
     @Override
@@ -83,6 +122,7 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
     }
 
+<<<<<<< HEAD
     private class SpiWorker extends AbstractCycleWorker{
 
         @Override
@@ -112,16 +152,27 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
                 this.worker.triggerNextRun();
             break;
         }
+=======
+    @Override
+    public void handleEvent(Event event) {
+>>>>>>> SPI
 
     }
 
     //useful for checks if SpiSensor-->Channel is already used or if adc already exists
+<<<<<<< HEAD
 
+=======
+    public Map<SpiSensor, SensorType> getSpiList() {
+        return spiList;
+    }
+>>>>>>> SPI
 
     public List<Adc> getAdcList() {
         return adcList;
     }
 
+<<<<<<< HEAD
 
     @Override
     public boolean addAdcList(Adc adc) {
@@ -180,4 +231,27 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
     }
 
 
+=======
+    @Override
+    public void addSpiList(SpiSensor spiSensor, SensorType sensorType) {
+        this.spiList.put(spiSensor, sensorType);
+
+    }
+
+    @Override
+    public boolean addAdcList(Adc adc) {
+        return this.adcList.add(adc);
+    }
+
+    @Override
+    public Map<SensorType, Adc> getAdcPart() {
+        return adcPart;
+    }
+
+    @Override
+    public boolean addAdcPart(SensorType sensorType, Adc adc) {
+
+        return this.adcPart.put(sensorType, adc) == null;
+    }
+>>>>>>> SPI
 }

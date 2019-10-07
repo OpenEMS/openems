@@ -6,7 +6,12 @@ import java.util.List;
 
 public abstract class Typ2 extends Adc {
 
+<<<<<<< HEAD
     public Typ2(List<Long> pins,int inputType, Board board, int id, int SpiChannel){
         super(pins, inputType ,(byte)2, board, id, SpiChannel );
+=======
+    public Typ2(List<Long> pins, Board board, int id){
+        super(pins, (byte)2, board, id);
+>>>>>>> SPI
     }
 }
