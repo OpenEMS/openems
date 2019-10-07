@@ -6,17 +6,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition
 ( //
         name = "SensorType", //
-<<<<<<< HEAD
         description = "This is the Subtype of your ParentSensor; " +
                         "e.g. if your parent Sensor can track multiple Stuff, here you go")
-=======
-        description = "This is the Subtype of your ParentSensor; e.g. if your parent Sensor can track multiple Stuff, here you go")
->>>>>>> SPI
 
 @interface Config {
 
    @AttributeDefinition(name="SensorTypeID",
-<<<<<<< HEAD
                         description = "Subtype of your previous activated Sensor Like: Temperature0")
     String typeId() default "child0";
 
@@ -30,11 +25,4 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     String pinPositions() default "01234567";
    @AttributeDefinition(name="OpenEmsChannel", description = "What this Type can measure. Like: Temperature")
     String channelId() default "Temperature";
-=======
-                        description = "Subtype of your previous activated Sensor Like:")
-    String id() default "Sensor0";
-   @AttributeDefinition(name = "ChannelId", description = "What the SensorType is used for/Which Channel it should write")
-   String channelId() default "Temperature";
-
->>>>>>> SPI
 }
