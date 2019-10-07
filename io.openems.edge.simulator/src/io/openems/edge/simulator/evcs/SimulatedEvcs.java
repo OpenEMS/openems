@@ -86,10 +86,10 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 	}
 
 	private void updateChannels() {
-		Optional<Integer> chargePowerLimitOpt = this.setChargePower().getNextWriteValueAndReset();
+		Optional<Integer> chargePowerLimitOpt = this.setChargePowerLimit().getNextWriteValueAndReset();
 
 		// copy write value to read value
-		this.setChargePower().setNextValue(chargePowerLimitOpt);
+		this.setChargePowerLimit().setNextValue(chargePowerLimitOpt);
 
 		// get and store Simulated Charge Power
 		int simulatedChargePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");

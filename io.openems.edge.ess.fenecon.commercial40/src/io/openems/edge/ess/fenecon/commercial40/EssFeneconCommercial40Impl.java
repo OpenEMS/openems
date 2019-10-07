@@ -167,10 +167,10 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
 					// delta of max 500
-					channel.onChange(originalValueChannel -> {
+					channel.onChange((oldValue, newValue) -> {
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> originalValue = newValue.asOptional();
 						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
 						int value;
 						if (!originalValue.isPresent() && !currentValue.isPresent()) {
@@ -189,11 +189,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
-					channel.onChange(originalValueChannel -> {
+					channel.onChange((oldValue, newValue) -> {
 
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> originalValue = newValue.asOptional();
 						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
 						int value;
 						if (!originalValue.isPresent() && !currentValue.isPresent()) {

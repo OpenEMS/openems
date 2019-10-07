@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
 		name = "ESS FENECON BYD Container", //
 		description = "Implements the FENECON BYD Container")
-@interface Config {
+public @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";

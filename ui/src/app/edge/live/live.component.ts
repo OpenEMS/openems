@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, Service, Utils, Widgets, EdgeConfig, Widget } from '../../shared/shared';
+import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
 
 @Component({
   selector: 'live',

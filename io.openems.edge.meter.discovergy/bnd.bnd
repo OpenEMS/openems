@@ -15,7 +15,7 @@ Private-Package: io.openems.edge.meter.discovergy
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
-	com.github.scribejava.core;version=6.8.0,\
+	com.github.scribejava.core,\
 	com.google.gson
 
 -testpath: ${testpath}

@@ -14,61 +14,131 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.sum.GridMode;
 
 public enum SinexcelChannelId implements ChannelId {
-	SUNSPEC_DID_0103(Doc.of(OpenemsType.INTEGER)), //
+
+	MOD_ON_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	MOD_OFF_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	CLEAR_FAILURE_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	ON_GRID_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	OFF_GRID_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+
 	SET_INTERN_DC_RELAY(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
+			.accessMode(AccessMode.READ_WRITE) //
 			.unit(Unit.NONE)),
-	SETDATA_MOD_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SETDATA_MOD_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SETDATA_GRID_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SETDATA_GRID_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SET_ANTI_ISLANDING(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SET_CHARGE_DISCHARGE_ACTIVE(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.KILOWATT)), //
-	SET_CHARGE_DISCHARGE_REACTIVE(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.KILOVOLT_AMPERE_REACTIVE)), //
-	SET_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.AMPERE)),
-	SET_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.AMPERE)),
+
+	SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+			.accessMode(AccessMode.READ_WRITE)), //
+
+	DEBUG_DISCHARGE_MAX_A(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE)), //
+
+	DEBUG_CHARGE_MAX_A(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE)), //
+
+	CHARGE_MAX_A(new IntegerDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.unit(Unit.AMPERE) //
+			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_CHARGE_MAX_A))), //
+
+	DISCHARGE_MAX_A(new IntegerDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.unit(Unit.AMPERE) //
+			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_DISCHARGE_MAX_A))), //
+
 	SET_SLOW_CHARGE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
+			.accessMode(AccessMode.READ_WRITE) //
 			.unit(Unit.VOLT)),
 	SET_FLOAT_CHARGE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
+			.accessMode(AccessMode.READ_WRITE) //
 			.unit(Unit.VOLT)),
-	SET_UPPER_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.VOLT)),
-	SET_LOWER_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.VOLT)),
+
+	DEBUG_DIS_MIN_V(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)), //
+	DEBUG_CHA_MAX_V(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)), //
+	DISCHARGE_MIN_V(new IntegerDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.unit(Unit.VOLT) //
+			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_DIS_MIN_V))), //
+	CHARGE_MAX_V(new IntegerDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.unit(Unit.VOLT) //
+			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_CHA_MAX_V))), //
+
 	SET_ANALOG_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
+			.accessMode(AccessMode.READ_WRITE) //
 			.unit(Unit.KILOWATT_HOURS)),
 	SET_ANALOG_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
+			.accessMode(AccessMode.READ_WRITE) //
 			.unit(Unit.KILOWATT_HOURS)),
 	SET_ANALOG_DC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
+			.accessMode(AccessMode.READ_WRITE) //
 			.unit(Unit.KILOWATT_HOURS)),
 	SET_ANALOG_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
+			.accessMode(AccessMode.READ_WRITE) //
 			.unit(Unit.KILOWATT_HOURS)),
+
+	INVOUTVOLT_L1(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)), //
+	INVOUTVOLT_L2(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)),
+	INVOUTVOLT_L3(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)), //
+	INVOUTCURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE)), //
+	INVOUTCURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE)), //
+	INVOUTCURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE)), //
+
+	ANALOG_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.KILOWATT_HOURS)),
+	ANALOG_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.KILOWATT_HOURS)), //
+
+	TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+
+	DC_POWER(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.WATT)), //
+
+	ANALOG_DC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.KILOVOLT_AMPERE)),
+	ANALOG_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.KILOVOLT_AMPERE)),
+
+	FREQUENCY(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.HERTZ)), //
+	DC_CURRENT(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE)), //
+	DC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)), //
+
+	SINEXCEL_STATE(Doc.of(CurrentState.values())), //
+
+	SERIAL(Doc.of(OpenemsType.STRING) //
+			.unit(Unit.NONE)), //
+	MODEL(Doc.of(OpenemsType.STRING) //
+			.unit(Unit.NONE)), //
+
+	VERSION(Doc.of(OpenemsType.STRING) //
+			.unit(Unit.NONE)), //
+
+	LOWER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)), //
+	UPPER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT)),
+
+	SET_ANTI_ISLANDING(Doc.of(OpenemsType.INTEGER) //
+			.accessMode(AccessMode.READ_WRITE) //
+			.unit(Unit.ON_OFF)),
+
 	BAT_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIVOLT)),
 	BAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -82,110 +152,12 @@ public enum SinexcelChannelId implements ChannelId {
 	BAT_SOH(Doc.of(OpenemsType.INTEGER) //
 			.accessMode(AccessMode.WRITE_ONLY) //
 			.unit(Unit.PERCENT)),
-	DEBUG_DIS_MIN_V(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)), //
-	DIS_MIN_V(new IntegerDoc() //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.VOLT) //
-			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_DIS_MIN_V))), //
-	DEBUG_CHA_MAX_V(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)), //
-	CHA_MAX_V(new IntegerDoc() //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.VOLT) //
-			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_CHA_MAX_V))), //
-	DEBUG_DIS_MAX_A(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	DIS_MAX_A(new IntegerDoc() //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.AMPERE) //
-			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_DIS_MAX_A))), //
-	DEBUG_CHA_MAX_A(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	CHA_MAX_A(new IntegerDoc() //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.AMPERE) //
-			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_CHA_MAX_A))), //
+
 	DEBUG_EN_LIMIT(Doc.of(OpenemsType.INTEGER)), //
 	EN_LIMIT(new IntegerDoc() //
 			.accessMode(AccessMode.WRITE_ONLY) //
 			.text("new battery limits are activated when EnLimit is 1") //
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_EN_LIMIT))), //
-	ANTI_ISLANDING(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)),
-	MOD_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
-	MOD_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
-	GRID_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
-	GRID_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
-	FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.HERTZ)), //
-	TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.DEGREE_CELSIUS)), //
-	SERIAL(Doc.of(OpenemsType.STRING) //
-			.unit(Unit.NONE)), //
-	MODEL(Doc.of(OpenemsType.STRING) //
-			.unit(Unit.NONE)), //
-	MANUFACTURER(Doc.of(OpenemsType.STRING) //
-			.unit(Unit.NONE)),
-	MODEL_2(Doc.of(OpenemsType.STRING) //
-			.unit(Unit.NONE)), //
-	VERSION(Doc.of(OpenemsType.STRING) //
-			.unit(Unit.NONE)), //
-	SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
-			.unit(Unit.NONE)), //
-	ANALOG_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOWATT_HOURS)),
-	ANALOG_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOWATT_HOURS)), //
-	TARGET_OFFGRID_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.NONE)),
-	TARGET_OFFGRID_FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.HERTZ)),
-	ANALOG_DC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOVOLT_AMPERE)),
-	ANALOG_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOVOLT_AMPERE)),
-	AC_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT_AMPERE)), //
-	AC_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-	AC_POWER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT)), //
-	INVOUTVOLT_L1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)), //
-	INVOUTVOLT_L2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)),
-	INVOUTVOLT_L3(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)), //
-	INVOUTCURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	INVOUTCURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	INVOUTCURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	DC_POWER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT)), //
-	DC_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	DC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)), //
-	SINEXCEL_STATE(Doc.of(CurrentState.values())), //
-	TARGET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOWATT)), //
-	TARGET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.KILOWATT)), //
-	MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)),
-	LOWER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)), //
-	UPPER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT)),
 
 	SINEXCEL_STATE_1(Doc.of(Level.INFO) //
 			.text("OFF")), //
@@ -252,8 +224,8 @@ public enum SinexcelChannelId implements ChannelId {
 			.onInit(c -> { //
 				StateChannel channel = (StateChannel) c;
 				EssSinexcel self = (EssSinexcel) channel.getComponent();
-				((StateChannel) channel).onChange(v -> {
-					Optional<Boolean> value = v.asOptional();
+				((StateChannel) channel).onChange((oldValue, newValue) -> {
+					Optional<Boolean> value = newValue.asOptional();
 					if (!value.isPresent()) {
 						self.getGridMode().setNextValue(GridMode.UNDEFINED);
 					} else {
@@ -374,9 +346,7 @@ public enum SinexcelChannelId implements ChannelId {
 	STATE_73(Doc.of(Level.FAULT) //
 			.text("BUS start fails")), //
 	STATE_74(Doc.of(Level.WARNING) //
-			.text("DC OCP")), //
-	STATE_UNABLE_TO_SET_BATTERY_RANGES(Doc.of(Level.FAULT) //
-			.text("Unable to set battery ranges")); //
+			.text("DC OCP"));
 
 	private final Doc doc;
 

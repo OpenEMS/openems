@@ -61,7 +61,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	private final Logger log = LoggerFactory.getLogger(File.class);
 
 	private final BackendUser user = new BackendUser("admin", "Administrator");
-	private final Map<String, Edge> edges = new HashMap<>();
+	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	private String path = "";
 
@@ -103,8 +103,8 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	@Override
 	public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
 		this.refreshData();
-		for (Entry<String, Edge> entry : this.edges.entrySet()) {
-			Edge edge = entry.getValue();
+		for (Entry<String, MyEdge> entry : this.edges.entrySet()) {
+			MyEdge edge = entry.getValue();
 			if (edge.getApikey().equals(apikey)) {
 				return Optional.of(edge.getId());
 			}
@@ -145,7 +145,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 				return;
 			}
 
-			List<Edge> edges = new ArrayList<>();
+			List<MyEdge> edges = new ArrayList<>();
 
 			// parse to JSON
 			try {
@@ -153,7 +153,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 				JsonObject jEdges = JsonUtils.getAsJsonObject(config, "edges");
 				for (Entry<String, JsonElement> entry : jEdges.entrySet()) {
 					JsonObject edge = JsonUtils.getAsJsonObject(entry.getValue());
-					edges.add(new Edge(//
+					edges.add(new MyEdge(//
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //
 							JsonUtils.getAsString(edge, "comment"), //
@@ -173,7 +173,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 			}
 
 			// Add Edges and configure User permissions
-			for (Edge edge : edges) {
+			for (MyEdge edge : edges) {
 				this.edges.put(edge.getId(), edge);
 				this.user.addEdgeRole(edge.getId(), Role.ADMIN);
 			}
