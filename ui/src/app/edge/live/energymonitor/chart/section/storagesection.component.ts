@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { interval } from 'rxjs';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
@@ -6,7 +6,6 @@ import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { reduce } from 'rxjs/operators';
 
 @Component({
     selector: '[storagesection]',
@@ -57,38 +56,43 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     ngOnInit() {
         interval(1000)
-            .subscribe(x => {
+            .subscribe(() => {
             })
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
+
         if (sum.storage.effectiveChargePower != null) {
+            let arrowIndicate: number;
+            if (sum.storage.effectiveChargePower > 49) {
+                arrowIndicate = Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower);
+            } else {
+                arrowIndicate = 0;
+            }
+
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge');
             super.updateSectionData(
                 sum.storage.effectiveChargePower,
                 sum.storage.powerRatio,
-                Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower));
-
+                arrowIndicate);
         } else if (sum.storage.effectiveDischargePower != null) {
+            let arrowIndicate: number;
+            if (sum.storage.effectiveDischargePower > 49) {
+                arrowIndicate = Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower);
+            } else {
+                arrowIndicate = 0;
+            }
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge');
             super.updateSectionData(
                 sum.storage.effectiveDischargePower,
                 sum.storage.powerRatio,
-                Utils.multiplySafely(
-                    Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower), -1));
-
+                arrowIndicate);
         } else {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateSectionData(null, null, null);
         }
 
         this.socValue = sum.storage.soc;
-        if (sum.storage.soc) {
-            this.valueText2 = Math.round(sum.storage.soc) + " %";
-        } else {
-            this.valueText2 = "";
-        }
-
         if (this.square) {
             this.square.image.image = "assets/img/" + this.getImagePath();
         }
@@ -101,17 +105,18 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        if (this.socValue < 20) {
-            return "storage_20.png"
-        } else if (this.socValue < 40) {
-            return "storage_40.png"
-        } else if (this.socValue < 60) {
-            return "storage_60.png"
-        } else if (this.socValue < 80) {
-            return "storage_80.png"
-        } else {
-            return "storage_100.png"
-        }
+        // if (this.socValue < 20) {
+        //     return "storage_20.png"
+        // } else if (this.socValue < 40) {
+        //     return "storage_40.png"
+        // } else if (this.socValue < 60) {
+        //     return "storage_60.png"
+        // } else if (this.socValue < 80) {
+        //     return "storage_80.png"
+        // } else {
+        //     return "storage_100.png"
+        // }
+        return "storage_cut.png";
     }
 
     protected getValueText(value: number): string {
@@ -127,6 +132,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
         let r = radius;
         let p = {
             topLeft: { x: v * -1, y: v },

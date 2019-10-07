@@ -54,10 +54,16 @@ export class ConsumptionSectionComponent extends AbstractSection {
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
+        let arrowIndicate: number;
+        if (sum.consumption.activePower > 49) {
+            arrowIndicate = Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower);
+        } else {
+            arrowIndicate = 0;
+        }
         super.updateSectionData(
             sum.consumption.activePower,
             sum.consumption.powerRatio,
-            Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower));
+            arrowIndicate);
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -83,13 +89,16 @@ export class ConsumptionSectionComponent extends AbstractSection {
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
         let r = radius;
         let p = {
-            topLeft: { x: v, y: -20 },
+            topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
-            bottomLeft: { x: v, y: 20 },
-            topRight: { x: r, y: -20 },
-            bottomRight: { x: r, y: 20 },
+            bottomLeft: { x: v, y: v },
+            topRight: { x: r, y: v * -1 },
+            bottomRight: { x: r, y: v },
             middleRight: { x: r - v, y: 0 }
         }
         if (ratio > 0) {

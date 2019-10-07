@@ -55,18 +55,30 @@ export class GridSectionComponent extends AbstractSection {
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
         if (sum.grid.buyActivePower && sum.grid.buyActivePower > 0) {
+            let arrowIndicate: number;
+            if (sum.grid.buyActivePower > 49) {
+                arrowIndicate = Utils.multiplySafely(
+                    Utils.divideSafely(sum.grid.buyActivePower, sum.system.totalPower), -1)
+            } else {
+                arrowIndicate = 0;
+            }
             this.name = this.translate.instant('General.GridBuy');
             super.updateSectionData(
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
-                Utils.multiplySafely(
-                    Utils.divideSafely(sum.grid.buyActivePower, sum.system.totalPower), -1));
+                arrowIndicate);
         } else if (sum.grid.sellActivePower && sum.grid.sellActivePower > 0) {
+            let arrowIndicate: number;
+            if (sum.grid.sellActivePower > 49) {
+                arrowIndicate = Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower)
+            } else {
+                arrowIndicate = 0;
+            }
             this.name = this.translate.instant('General.GridSell');
             super.updateSectionData(
                 sum.grid.sellActivePower,
                 sum.grid.powerRatio,
-                Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower));
+                arrowIndicate);
         } else {
             this.name = this.translate.instant('General.Grid')
             super.updateSectionData(null, null, null);
@@ -107,13 +119,16 @@ export class GridSectionComponent extends AbstractSection {
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
         let r = radius;
         let p = {
-            topLeft: { x: r * -1.5, y: -10 },
-            middleLeft: { x: r * -1.5 + v, y: 0 },
-            bottomLeft: { x: r * -1.5, y: 10 },
-            topRight: { x: v * -1, y: -10 },
-            bottomRight: { x: v * -1, y: 10 },
+            topLeft: { x: r * -1, y: v * -1 },
+            middleLeft: { x: r * -1 + v, y: 0 },
+            bottomLeft: { x: r * -1, y: v },
+            topRight: { x: v * -1, y: v * -1 },
+            bottomRight: { x: v * -1, y: v },
             middleRight: { x: 0, y: 0 }
         }
         if (ratio > 0) {

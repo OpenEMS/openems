@@ -53,10 +53,16 @@ export class ProductionSectionComponent extends AbstractSection {
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
+        let arrowIndicate: number;
+        if (sum.production.activePower > 49) {
+            arrowIndicate = Utils.divideSafely(sum.production.activePower, sum.system.totalPower);
+        } else {
+            arrowIndicate = 0;
+        }
         super.updateSectionData(
             sum.production.activePower,
             sum.production.powerRatio,
-            Utils.divideSafely(sum.production.activePower, sum.system.totalPower));
+            arrowIndicate);
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -83,6 +89,9 @@ export class ProductionSectionComponent extends AbstractSection {
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
         let r = radius;
         let p = {
             topLeft: { x: v * -1, y: r * -1 },
