@@ -11,25 +11,24 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     selector: '[productionsection]',
     templateUrl: './section.component.html',
     animations: [
-        trigger('colored', [
-            state('true', style({
-                height: '200px',
+        trigger('popOverState', [
+            state('show', style({
                 opacity: 1,
-                backgroundColor: 'yellow'
+                transform: 'translateX(0)'
             })),
-            state('false', style({
-                height: '5px',
-                opacity: 0.5,
-                backgroundColor: 'green'
+            state('hide', style({
+                opacity: 0,
+                transform: 'translateX(-10%)'
             })),
-            transition('false <=> true', animate('1s'))
+            transition('show => hide', animate('600ms ease-out')),
+            transition('hide => show', animate('1600ms ease-in'))
         ])
     ]
 })
 export class ProductionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
-    public colored = false;
+    public show = false;
 
     constructor(
         translate: TranslateService,
@@ -38,6 +37,17 @@ export class ProductionSectionComponent extends AbstractSection {
     ) {
         super('General.Production', "up", "#008DD2", translate, service, "Production");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        let timerId = setInterval(() => {
+            this.show = !this.show;
+        }, 850)
+        setTimeout(() => { clearInterval(timerId) }, 10000);
+    }
+
+    get stateName() {
+        return this.show ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -94,12 +104,12 @@ export class ProductionSectionComponent extends AbstractSection {
         }
         let r = radius;
         let p = {
-            topLeft: { x: v * -1, y: r * -1 },
+            topLeft: { x: v * -1, y: r * -1.2 },
             bottomLeft: { x: v * -1, y: v * -1 },
-            topRight: { x: v, y: r * -1 },
+            topRight: { x: v, y: r * -1.2 },
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
-            middleTop: { x: 0, y: r * -1 + v }
+            middleTop: { x: 0, y: r * -1.2 + v }
         }
         if (ratio < 0) {
             // towards top

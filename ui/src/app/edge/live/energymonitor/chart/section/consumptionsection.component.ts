@@ -11,26 +11,24 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     selector: '[consumptionsection]',
     templateUrl: './section.component.html',
     animations: [
-        trigger('colored', [
-            state('true', style({
-                height: '200px',
+        trigger('popOverState', [
+            state('show', style({
                 opacity: 1,
-                backgroundColor: 'yellow'
+                transform: 'translateX(0)'
             })),
-            state('false', style({
-                height: '100px',
-                opacity: 0.5,
-                backgroundColor: 'green'
+            state('hide', style({
+                opacity: 0,
+                transform: 'translateX(-10%)'
             })),
-            transition('false <=> true', animate('1s'))
+            transition('show => hide', animate('600ms ease-out')),
+            transition('hide => show', animate('1600ms ease-in'))
         ])
     ]
 })
 export class ConsumptionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
-    public colored = true;
-
+    public show = false;
 
     constructor(
         unitpipe: UnitvaluePipe,
@@ -39,6 +37,17 @@ export class ConsumptionSectionComponent extends AbstractSection {
     ) {
         super('General.Consumption', "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        let timerId = setInterval(() => {
+            this.show = !this.show;
+        }, 850)
+        setTimeout(() => { clearInterval(timerId) }, 10000);
+    }
+
+    get stateName() {
+        return this.show ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -97,9 +106,9 @@ export class ConsumptionSectionComponent extends AbstractSection {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
-            topRight: { x: r, y: v * -1 },
-            bottomRight: { x: r, y: v },
-            middleRight: { x: r - v, y: 0 }
+            topRight: { x: r * 1.2, y: v * -1 },
+            bottomRight: { x: r * 1.2, y: v },
+            middleRight: { x: (r * 1.2) - v, y: 0 }
         }
         if (ratio > 0) {
             // towards right

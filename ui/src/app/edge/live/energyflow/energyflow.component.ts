@@ -37,13 +37,6 @@ export class EnergyflowComponent {
     public done: boolean = false;
     public n: number = 1;
     currentState = 'initial';
-    public states: string[] = [
-        'void',
-        'started',
-        'running',
-        'done'
-    ]
-    public animState: flowState = 'void';
 
     private edge: Edge = null;
 

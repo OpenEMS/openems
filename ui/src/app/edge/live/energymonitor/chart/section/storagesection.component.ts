@@ -11,18 +11,17 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     selector: '[storagesection]',
     templateUrl: './section.component.html',
     animations: [
-        trigger('colored', [
-            state('true', style({
-                height: '200px',
+        trigger('popOverState', [
+            state('show', style({
                 opacity: 1,
-                backgroundColor: 'yellow'
+                transform: 'translateX(0)'
             })),
-            state('false', style({
-                height: '100px',
-                opacity: 0.5,
-                backgroundColor: 'green'
+            state('hide', style({
+                opacity: 0,
+                transform: 'translateX(-10%)'
             })),
-            transition('false <=> true', animate('1s'))
+            transition('show => hide', animate('600ms ease-out')),
+            transition('hide => show', animate('1600ms ease-in'))
         ])
     ]
 })
@@ -30,8 +29,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     private socValue: number
     private unitpipe: UnitvaluePipe;
-    public colored = false;
-
+    public show = false;
 
     constructor(
         translate: TranslateService,
@@ -40,6 +38,17 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     ) {
         super('Edge.Index.Energymonitor.Storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        let timerId = setInterval(() => {
+            this.show = !this.show;
+        }, 850)
+        setTimeout(() => { clearInterval(timerId) }, 10000);
+    }
+
+    get stateName() {
+        return this.show ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -52,12 +61,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     protected getRatioType(): Ratio {
         return 'Negative and Positive [-1,1]';
-    }
-
-    ngOnInit() {
-        interval(1000)
-            .subscribe(() => {
-            })
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
@@ -78,7 +81,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         } else if (sum.storage.effectiveDischargePower != null) {
             let arrowIndicate: number;
             if (sum.storage.effectiveDischargePower > 49) {
-                arrowIndicate = Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower);
+                arrowIndicate = Utils.multiplySafely(
+                    Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower), -1);
             } else {
                 arrowIndicate = 0;
             }
@@ -138,10 +142,10 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         let r = radius;
         let p = {
             topLeft: { x: v * -1, y: v },
-            bottomLeft: { x: v * -1, y: r },
+            bottomLeft: { x: v * -1, y: r * 1.2 },
             topRight: { x: v, y: v },
-            bottomRight: { x: v, y: r },
-            middleBottom: { x: 0, y: r - v },
+            bottomRight: { x: v, y: r * 1.2 },
+            middleBottom: { x: 0, y: (r * 1.2) - v },
             middleTop: { x: 0, y: 0 }
         }
         if (ratio > 0) {

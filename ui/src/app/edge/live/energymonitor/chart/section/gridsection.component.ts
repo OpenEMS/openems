@@ -1,35 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { WidgetClass } from 'src/app/shared/type/widget';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
     selector: '[gridsection]',
-    templateUrl: './section.component.html',
+    templateUrl: './gridsection.component.html',
     animations: [
-        trigger('colored', [
-            state('true', style({
-                height: '200px',
-                opacity: 1,
-                backgroundColor: 'yellow'
+        trigger('popOverState', [
+            state('show', style({
+                opacity: 0.50,
+                transform: 'translateX(0%)',
             })),
-            state('false', style({
-                height: '100px',
-                opacity: 0.5,
-                backgroundColor: 'green'
+            state('hide', style({
+                opacity: 0,
+                transform: 'translateX(10%)'
             })),
-            transition('false <=> true', animate('1s'))
+            transition('show => hide', animate('300ms ease-in')),
+            transition('hide => show', animate('0ms'))
         ])
     ]
 })
-export class GridSectionComponent extends AbstractSection {
+export class GridSectionComponent extends AbstractSection implements OnInit {
 
     private unitpipe: UnitvaluePipe;
-    public colored = true;
+    public show = false;
 
 
     constructor(
@@ -39,6 +37,19 @@ export class GridSectionComponent extends AbstractSection {
     ) {
         super('General.Grid', "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        console.log("ONINIT")
+        let timerId = setInterval(() => {
+            this.show = !this.show;
+        }, 450)
+        setTimeout(() => { clearInterval(timerId) }, 10000);
+    }
+
+    get stateName() {
+        console.log("SHOW", this.show)
+        return this.show ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -119,14 +130,15 @@ export class GridSectionComponent extends AbstractSection {
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
+        // if (v < 8 && v != 0) {
+        //     v = 8;
+        // }
+        v = 8;
         let r = radius;
         let p = {
-            topLeft: { x: r * -1, y: v * -1 },
-            middleLeft: { x: r * -1 + v, y: 0 },
-            bottomLeft: { x: r * -1, y: v },
+            topLeft: { x: r * -1.2, y: v * -1 },
+            middleLeft: { x: r * -1.2 + v, y: 0 },
+            bottomLeft: { x: r * -1.2, y: v },
             topRight: { x: v * -1, y: v * -1 },
             bottomRight: { x: v * -1, y: v },
             middleRight: { x: 0, y: 0 }
