@@ -36,7 +36,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 	 */
 	private final Multimap<Level, io.openems.edge.common.channel.ChannelId> activeStates = HashMultimap.create();
 
-	protected StateCollectorChannel(OpenemsComponent parent, ChannelId channelId, StateCollectorChannelDoc channelDoc) {
+	public StateCollectorChannel(OpenemsComponent parent, ChannelId channelId, StateCollectorChannelDoc channelDoc) {
 		super(parent, channelId, channelDoc, Level.OK);
 	}
 

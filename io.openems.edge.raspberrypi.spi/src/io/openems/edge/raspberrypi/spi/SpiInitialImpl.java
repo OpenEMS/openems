@@ -1,7 +1,10 @@
 package io.openems.edge.raspberrypi.spi;
 
+import com.pi4j.wiringpi.Spi;
+import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.raspberrypi.sensor.Sensor;
 import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
 import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
@@ -38,29 +41,38 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
     private Map <Integer, String> SpiManager = new HashMap<>();
     private List<Integer> freeSpiChannels=new ArrayList<>();
     private final Map<String, Task> tasks = new ConcurrentHashMap<>();
+    private final SpiWorker worker = new SpiWorker();
 
     protected SpiInitialImpl(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
         super(firstInitialChannelIds, furtherInitialChannelIds);
     }
 
     @Activate
-    //TODO Create SPI List and ADC List, used by every device
+
     //TODO SPI Wiring Pi Setup; Do SPI Worker --> for every Channel
     //TODO handle Event
     public void activate(Config config) {
         this.name = config.id();
+        super.activate(getComponentContext(), config.service_pid(), config.id(), config.enabled());
+        if(this.isEnabled()){
+            this.worker.activate(config.id());
+        }
+        Spi.wiringPiSPISetup(0, config.frequency());
 
     }
 
     @Deactivate
     public void deactivate() {
-        //TODO Close every SPI SubChannel and with it, it's connected Devices
-        //TODO Worker Deactivate
+
+        for (Sensor sensor: sensorList
+             ) {
+            sensor.deactivate();
+        }
+        this.worker.deactivate();
         super.deactivate();
-        //this.worker.deactivate()
     }
 
-    //TODO Write Tasks
+
     @Override
     public void addTask(String sourceId, Task task) {
     this.tasks.put(sourceId, task);
@@ -71,8 +83,35 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
     }
 
+    private class SpiWorker extends AbstractCycleWorker{
+
+        @Override
+        public void activate(String name){
+            super.activate(name);
+        }
+        @Override
+        public void deactivate(){
+            super.deactivate();
+        }
+
+        @Override
+        protected void forever() throws Throwable {
+            for(Task task : tasks.values()){
+                byte[]data= task.getRequest();
+                //TODO SPI WIRINGPI DATARW(task.getChannel.getChannel, data); SpiChannel where to look -->From ADC
+                task.setResponse(data);
+            }
+        }
+    }
+
     @Override
     public void handleEvent(Event event) {
+        switch(event.getTopic()){
+            case EdgeEventConstants
+                    .TOPIC_CYCLE_EXECUTE_WRITE:
+                this.worker.triggerNextRun();
+            break;
+        }
 
     }
 

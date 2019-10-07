@@ -7,7 +7,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class FloatReadChannel extends AbstractReadChannel<OpenemsTypeDoc<Float>, Float> {
 
-	protected FloatReadChannel(OpenemsComponent component, ChannelId channelId, FloatDoc channelDoc) {
+	public FloatReadChannel(OpenemsComponent component, ChannelId channelId, FloatDoc channelDoc) {
 		this(component, channelId, channelDoc, null);
 	}
 

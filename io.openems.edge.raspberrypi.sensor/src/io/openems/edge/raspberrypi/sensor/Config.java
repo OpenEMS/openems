@@ -17,5 +17,8 @@ String boardId() default "LEAFLET_1_00";
     String adcType() default "MCP3208";
 @AttributeDefinition(name="PinUsage", description = "What Pins you want to use for which ADC: Write grouped Pins like: 0472 Different Chip: ';' like: 026; 1245")
     String pinUsage()default "01234567";
+@AttributeDefinition(name="alias", description= "alternate readable Name.")
+    String alias() default "";
+
 
 }

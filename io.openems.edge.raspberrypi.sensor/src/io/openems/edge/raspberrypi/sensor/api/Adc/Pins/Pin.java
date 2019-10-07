@@ -17,6 +17,7 @@ public class Pin {
     public int getPosition(){
         return this.position;
     }
+    public long getValue(){return this.value;}
     public boolean isUsed() {
         return isUsed;
     }

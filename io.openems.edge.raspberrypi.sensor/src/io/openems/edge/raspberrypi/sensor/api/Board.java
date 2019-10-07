@@ -2,7 +2,7 @@ package io.openems.edge.raspberrypi.sensor.api;
 
 public enum Board {
 
-        //Explain Those Numbers pls!
+        //TODO Change Numbers and make names easier for user
         LEAFLET_1_00(0.00001, 0.0438, -44.135);
 
         private final double a;

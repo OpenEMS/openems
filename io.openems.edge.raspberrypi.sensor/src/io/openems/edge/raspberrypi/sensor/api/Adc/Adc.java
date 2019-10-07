@@ -34,10 +34,14 @@ public abstract class Adc {
         this.spiChannel=spiChannel;
         this.inputType=inputType;
 
-        //TODO
-        //OpenSpiChannel --> SpiChannelForNewMcp
 
-        this.spiInitial.addAdcList(this);
+
+        if(this.spiInitial.addAdcList(this)){
+
+            //TODO
+            //OpenSpiChannel --> SpiChannelForNewMcp
+
+        }
 
     }
 

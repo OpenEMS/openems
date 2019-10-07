@@ -6,6 +6,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
 import io.openems.edge.raspberrypi.sensor.api.Adc.Pins.Pin;
 import io.openems.edge.raspberrypi.sensor.api.Board;
+import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
 import io.openems.edge.raspberrypi.spi.SpiInitial;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -77,11 +78,11 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
             }
 
         }
-        //TODO sebastian fragen warum boolean nutzen und die Interface add methode
+
         //Important for SensorTypes
         spiInitial.getSensorList().add(this);
         spiInitial.getSensorManager().put(this.id(), null);
-        //TODO create correct worker
+        //TODO is worker actually needed?
         this.worker.activate(config.sensorId());
 
     }
@@ -247,11 +248,15 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
 
 
     @Deactivate
-    protected void deactivate() {
+    public void deactivate() {
 
         //TODO Deactivate SensorTypes with this SensorID
         //TODO Deactivate this
         //TODO Remove from spiInitial list
+
+        removeSensorTypes();
+
+
         for (Integer allocatedAdc: this.adcId
              ) {
 
@@ -261,6 +266,20 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
 
         super.deactivate();
         this.worker.deactivate();
+    }
+
+    private void removeSensorTypes() {
+
+        for (SensorType willBeRemoved: spiInitial.getSensorTypeList()
+             ) {
+            if(willBeRemoved.getFatherId()==this.sensorId)
+            {
+                willBeRemoved.deactivate();
+            }
+        }
+        spiInitial.getSensorManager().remove(this);
+
+
     }
 
     private void adcAndPinRemove(int allocatedAdc) {
@@ -283,7 +302,7 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
     public String debugLog() {
         return "This will be a List for All Chip and Pin Usage, maybe with Sensor Types from List";
     }
-    //TODO Create correct Worker -->Later
+    //TODO worker actually needed?
     private class SensorWorker extends AbstractCycleWorker{
 
         @Override

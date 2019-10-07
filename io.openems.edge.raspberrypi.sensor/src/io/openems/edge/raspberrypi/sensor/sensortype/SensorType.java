@@ -1,13 +1,12 @@
 package io.openems.edge.raspberrypi.sensor.sensortype;
 
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.raspberrypi.sensor.Sensor;
-import io.openems.edge.raspberrypi.sensor.Sensoric;
 import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
-import io.openems.edge.raspberrypi.sensor.api.Adc.Pins.Pin;
-import io.openems.edge.raspberrypi.sensor.sensortype.digitalReadTask.DigitalReadTask;
 import io.openems.edge.raspberrypi.spi.SpiInitialImpl;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
@@ -20,7 +19,7 @@ import java.util.Map;
 @Designate(ocd= Config.class, factory=true)
 @Component(name="SensorType")
 
-public abstract class SensorType implements Sensoric {
+public abstract class SensorType extends AbstractOpenemsComponent {
     @Reference
     protected SpiInitialImpl spiInitial;
     
@@ -31,9 +30,12 @@ public abstract class SensorType implements Sensoric {
     private String ChannelId; //Will be the Indicator for what it ll be used--> Like Temperature for temperature Channel
      //Which ADC uses Which Pin
     private Map<Integer, List<Integer>> pinUsage = new HashMap<>();
-    
-    public SensorType(){}
-    
+
+    public SensorType(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
+        super(firstInitialChannelIds, furtherInitialChannelIds);
+    }
+
+
     @Activate
     void activate(Config config) throws ConfigurationException {
         
@@ -65,6 +67,36 @@ public abstract class SensorType implements Sensoric {
 
     }
 
+    @Deactivate
+    public void deactivate() {
+        removeUsedBy();
+        spiInitial.getSensorManager().get(fatherId).remove(this.typeId);
+        spiInitial.getSensorTypeList().remove(this);
+    }
+
+
+    //TODO Check entryChild etc
+    private void removeUsedBy() {
+
+            for (Map.Entry<Integer, List<Integer>> entryChild : pinUsage.entrySet()){
+
+                for (Adc adcParent: spiInitial.getAdcList()
+                ) {
+                    if(adcParent.getId()==entryChild.getKey()){
+                        for (int childPin:pinUsage.get(entryChild)
+                        ) {
+                            if(adcParent.getPins().get(entryChild.getKey()).getPosition()==childPin){
+                                adcParent.getPins().get(entryChild.getKey()).setUsedBy("");
+                            }
+                        }
+                    }
+
+                }
+            }
+
+    }
+
+
     public String getTypeId() {
         return typeId;
     }
@@ -82,7 +114,7 @@ public abstract class SensorType implements Sensoric {
     }
 
     //TODO Check for correct iteration
-    private void allocateUsedBy() {
+    public void allocateUsedBy() {
         for (Map.Entry<Integer, List<Integer>> entryChild : pinUsage.entrySet()){
 
             for (Adc adcParent: spiInitial.getAdcList()
@@ -101,7 +133,7 @@ public abstract class SensorType implements Sensoric {
 
     }
     //TODO Check correct iteration map
-    private void childAndFatherValidation(Sensor father) throws ConfigurationException {
+    public void childAndFatherValidation(Sensor father) throws ConfigurationException {
 
         /*
         1. check if each ADC Id of Child is in Father Map
@@ -134,7 +166,7 @@ public abstract class SensorType implements Sensoric {
 
     }
 
-    private void mapAdcAndPinUsage(String adc, String pins) throws ConfigurationException {
+    public void mapAdcAndPinUsage(String adc, String pins) throws ConfigurationException {
         List<List<Integer>> pinList = new ArrayList<>();
         if(pins.contains(";")) {
             for (String pinSection : pins.split(";")
