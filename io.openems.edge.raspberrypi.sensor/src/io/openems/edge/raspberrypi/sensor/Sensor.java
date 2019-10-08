@@ -22,8 +22,6 @@ import java.util.*;
 public abstract class Sensor extends AbstractOpenemsComponent implements OpenemsComponent {
     @Reference
     private SpiInitial spiInitial;
-    @Reference
-    protected ConfigurationAdmin cm;
 
     private String sensorId;
 
@@ -32,8 +30,8 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
     private List<String> adcType = new ArrayList<>();
     //First Integer is ChipID, Second is PinPosition
     private Map<Integer, List<Integer>> pinUsage = new HashMap<>();
-    private final SensorWorker worker = new SensorWorker();
-    //TODO create ChannelIds
+
+
     public Sensor(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
                   io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
         super(firstInitialChannelIds, furtherInitialChannelIds);
@@ -82,8 +80,7 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
         //Important for SensorTypes
         spiInitial.getSensorList().add(this);
         spiInitial.getSensorManager().put(this.id(), null);
-        //TODO is worker actually needed?
-        this.worker.activate(config.sensorId());
+
 
     }
 
@@ -205,9 +202,7 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
 
                 if (arranger.contains(";")) {
 
-                    for (String adcType : arranger.split(";")) {
-                        this.adcType.add(adcType);
-                    }
+                    this.adcType.addAll(Arrays.asList(arranger.split(";")));
                 } else {
                     this.adcType.add(arranger);
                 }
@@ -265,19 +260,19 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
 
 
         super.deactivate();
-        this.worker.deactivate();
+
     }
 
     private void removeSensorTypes() {
 
         for (SensorType willBeRemoved: spiInitial.getSensorTypeList()
              ) {
-            if(willBeRemoved.getFatherId()==this.sensorId)
+            if(willBeRemoved.getFatherId().equals(this.sensorId))
             {
                 willBeRemoved.deactivate();
             }
         }
-        spiInitial.getSensorManager().remove(this);
+        spiInitial.getSensorManager().remove(this.sensorId);
 
 
     }
@@ -302,24 +297,8 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
     public String debugLog() {
         return "This will be a List for All Chip and Pin Usage, maybe with Sensor Types from List";
     }
-    //TODO worker actually needed?
-    private class SensorWorker extends AbstractCycleWorker{
 
-        @Override
-        public void activate(String name) {
-            super.activate(name);
-        }
 
-        @Override
-        public void deactivate() {
-            super.deactivate();
-        }
 
-        @Override
-        protected void forever() {
-
-        }
-
-    }
 
 }

@@ -4,7 +4,6 @@ import io.openems.edge.raspberrypi.sensor.Sensor;
 import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
 import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
 
-
 import java.util.List;
 import java.util.Map;
 

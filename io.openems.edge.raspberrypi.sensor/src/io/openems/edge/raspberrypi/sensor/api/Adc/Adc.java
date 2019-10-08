@@ -62,4 +62,8 @@ public abstract class Adc {
     public int getSpiChannel() {
         return spiChannel;
     }
+
+    public int getInputType() {
+        return inputType;
+    }
 }

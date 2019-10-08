@@ -1,38 +1,43 @@
 package io.openems.edge.raspberrypi.spi;
 
 import com.pi4j.wiringpi.Spi;
-import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.raspberrypi.sensor.Sensor;
-import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
-import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
-import io.openems.edge.raspberrypi.spi.api.BridgeSpi;
-import io.openems.edge.raspberrypi.spi.task.Task;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.metatype.annotations.Designate;
+
+import io.openems.common.worker.AbstractCycleWorker;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+
+import io.openems.edge.raspberrypi.sensor.Sensor;
+import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
+import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
+import io.openems.edge.raspberrypi.spi.api.BridgeSpi;
+import io.openems.edge.raspberrypi.spi.task.Task;
 
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "SpiInitial")
-@Config
+@Component(name = "SpiInitial",
+            immediate=true,
+        configurationPolicy = ConfigurationPolicy.REQUIRE,
+            property= EventConstants.EVENT_TOPIC+"="+EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiInitial, BridgeSpi, EventHandler, OpenemsComponent {
 
     private List<Adc> adcList = new ArrayList<>();
     private List<Sensor> sensorList = new ArrayList<>();
     private List<SensorType> sensorTypes = new ArrayList<>();
-    private String name;
+
     //sensorManager --> father and child
     private Map <String, List<String>> sensorManager = new HashMap<>();
     //adcManager --> adc and Sensortypes
@@ -50,13 +55,12 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
     @Activate
 
     //TODO SPI Wiring Pi Setup; Do SPI Worker --> for every Channel
-    //TODO handle Event
     public void activate(Config config) {
-        this.name = config.id();
         super.activate(getComponentContext(), config.service_pid(), config.id(), config.enabled());
         if(this.isEnabled()){
             this.worker.activate(config.id());
         }
+        //
         Spi.wiringPiSPISetup(0, config.frequency());
 
     }
@@ -98,6 +102,7 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
         protected void forever() throws Throwable {
             for(Task task : tasks.values()){
                 byte[]data= task.getRequest();
+               int uebergabe = task.getSpiChannel(); //<---INT SpiSubChannel!
                 //TODO SPI WIRINGPI DATARW(task.getChannel.getChannel, data); SpiChannel where to look -->From ADC
                 task.setResponse(data);
             }
@@ -106,12 +111,11 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
     @Override
     public void handleEvent(Event event) {
-        switch(event.getTopic()){
-            case EdgeEventConstants
-                    .TOPIC_CYCLE_EXECUTE_WRITE:
-                this.worker.triggerNextRun();
-            break;
+        if(event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE))
+        {
+            this.worker.triggerNextRun();
         }
+
 
     }
 

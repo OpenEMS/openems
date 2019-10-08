@@ -21,8 +21,8 @@ public class DigitalReadTaskOnePin extends Task{
     private final int adc;
     private final int pin;
 
-    public DigitalReadTaskOnePin(Channel<?> channel, String sensorType, int adc, int pin){
-
+    public DigitalReadTaskOnePin(Channel<?> channel, String sensorType, int adc, int pin, int Spi ){
+        super(Spi);
         this.channel=channel;
 
         this.sensorType=sensorType;
@@ -48,9 +48,10 @@ public class DigitalReadTaskOnePin extends Task{
         byte[] data = {0, 0, 0};
 
         for (int i = 0; i < 3; i++) {
-            //TODO Correct Byte etc (in general) ...u can do it...i guess gogogo
-            data[2 - i] = (byte) (correctPinValue % 256);
-            correctPinValue = correctPinValue >> 8;
+            //20 bc of bytes in enum...not figured out why yet
+            int calculator = 20-correctAdc.getInputType();
+            data[2 - i] = (byte) (correctPinValue % Math.pow(2, calculator));
+            correctPinValue = correctPinValue >> calculator;
         }
             return data;
 
@@ -83,9 +84,11 @@ public class DigitalReadTaskOnePin extends Task{
     public void setResponse(byte[] data){
         //TODO In General needed
         Adc correctAdc = getCorrectAdc();
-
-        int digit = (data[1] << 8) + (data[2] & 0xFF);
+        //um 3 pos nach links, auffüllen 8 bit ganz hinten
+        int calculator = 20-correctAdc.getInputType();
+        int digit = (data[1] << calculator) + (data[2] & 0xFF);
         digit &=0xFFF;
+        //ax^2+bx+10c
         int value =(int) (correctAdc.getBoard().getA()*Math.pow(digit, 2)
                             +correctAdc.getBoard().getB()*digit
                                     +correctAdc.getBoard().getC()*10);

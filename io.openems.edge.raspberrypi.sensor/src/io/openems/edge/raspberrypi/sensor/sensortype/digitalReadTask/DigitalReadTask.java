@@ -15,7 +15,8 @@ public abstract class DigitalReadTask extends Task {
     private final String sensorType;
     private final Map<Integer, List<Integer>> adcWithPins;
 //adcParts used to get all Chips with Pins to get or set the Task complete
-    public DigitalReadTask(Channel<?> channel, String sensorType, Map<Integer, List<Integer>> adcWithPins) {
+    public DigitalReadTask(Channel<?> channel, String sensorType, Map<Integer, List<Integer>> adcWithPins, int spiChannel) {
+        super(spiChannel);
 
         this.channel=channel;
 
