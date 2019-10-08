@@ -23,41 +23,47 @@
                             </td>
                         </tr>
                     </table>
-                    <table class="full_width">
-                        <tr>
-                            <td colspan="3">
+                    <!-- <table class="full_width"> -->
+                    <!-- <tr> -->
+                    <!-- <td colspan="3"> -->
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col>
                                 <ion-segment (ionChange)="updateMode($event, controller)"
                                     value="{{controller.properties['mode']}}">
                                     <ion-segment-button value="MANUAL_ON">
                                         <ion-item lines="none">
                                             <ion-icon color="success" style="width:40px" name="power"></ion-icon>
-                            <td translate>
-                                General.On
-                            </td>
-                            </ion-item>
-                            </ion-segment-button>
+                                            <td translate>
+                                                General.On
+                                            </td>
+                                        </ion-item>
+                                    </ion-segment-button>
 
-                            <ion-segment-button value="AUTOMATIC">
-                                <ion-item lines="none">
-                                    <ion-icon style="width:40px" name="sunny">
-                                    </ion-icon>
-                                    <td translate>
-                                        General.Automatic
-                                    </td>
-                                </ion-item>
-                            </ion-segment-button>
-                            <ion-segment-button value="MANUAL_OFF">
-                                <ion-item lines="none">
-                                    <ion-icon name="power" style="width: 40px"></ion-icon>
-                                    <td translate>
-                                        General.Off
-                                    </td>
-                                </ion-item>
-                            </ion-segment-button>
-                            </ion-segment>
-                            </td>
-                        </tr>
-                    </table>
+                                    <ion-segment-button value="AUTOMATIC">
+                                        <ion-item lines="none">
+                                            <ion-icon style="width:40px" name="sunny">
+                                            </ion-icon>
+                                            <td translate>
+                                                General.Automatic
+                                            </td>
+                                        </ion-item>
+                                    </ion-segment-button>
+                                    <ion-segment-button value="MANUAL_OFF">
+                                        <ion-item lines="none">
+                                            <ion-icon name="power" style="width: 40px"></ion-icon>
+                                            <td translate>
+                                                General.Off
+                                            </td>
+                                        </ion-item>
+                                    </ion-segment-button>
+                                </ion-segment>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                    <!-- </td> -->
+                    <!-- </tr> -->
+                    <!-- </table> -->
                 </ion-card-content>
                 <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
                     <ion-card-content class="underline">
