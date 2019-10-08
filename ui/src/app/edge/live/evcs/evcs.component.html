@@ -23,7 +23,7 @@
               {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"])}}
             </td>
           </tr>
-          <tr *ngIf="currentData[componentId + '/ChargePower'] > 0">
+          <tr *ngIf="currentData[componentId + '/ChargePower'] > 0 || currentData[componentId + '/Status'] == 2">
             <td style="width:65%" translate>
               Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
             <td style="width:35%" class="align_right">
