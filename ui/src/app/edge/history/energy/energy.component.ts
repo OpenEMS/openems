@@ -63,7 +63,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.setCurrentComponent('', this.route);
     this.service.getConfig().then(config => {
       if (!config.hasProducer()) {
-        this.colors = this.colors.slice(1, this.colors.length);
+        this.colors.splice(0, 1);
       }
     })
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
