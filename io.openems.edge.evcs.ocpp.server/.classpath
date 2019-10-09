@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
+	<classpathentry kind="src" output="bin" path="src"/>
+	<classpathentry kind="src" output="bin_test" path="test">
+		<attributes>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/io.openems.wrapper/generated/io.openems.wrapper.websocket.jar">
+		<attributes>
+			<attribute name="bsn" value="io.openems.wrapper.websocket.jar"/>
+			<attribute name="type" value="PROJECT"/>
+			<attribute name="project" value="io.openems.wrapper"/>
+			<attribute name="version" value="latest"/>
+			<attribute name="index_location" value="platform:/plugin/bndtools.builder/org/bndtools/builder/classpath/empty.index"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/java_websocket/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/client/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/drafts/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/enums/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/exceptions/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/handshake/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/server/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/util/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/framing/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/extensions/*"/>
+			<accessrule kind="accessible" pattern="org/java_websocket/protocols/*"/>
+			<accessrule ignoreifbetter="true" kind="discouraged" pattern="**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/sebastian.asen/.m2/repository/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar">
+		<attributes>
+			<attribute name="bsn" value="com.google.gson"/>
+			<attribute name="type" value="REPO"/>
+			<attribute name="project" value="io.openems.backend.b2brest"/>
+			<attribute name="version" value="2.8"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/google/gson/*"/>
+			<accessrule kind="accessible" pattern="com/google/gson/annotations/*"/>
+			<accessrule kind="accessible" pattern="com/google/gson/reflect/*"/>
+			<accessrule kind="accessible" pattern="com/google/gson/stream/*"/>
+			<accessrule ignoreifbetter="true" kind="discouraged" pattern="**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.common"/>
+	<classpathentry kind="src" path="/io.openems.edge.evcs.api"/>
+	<classpathentry kind="src" path="/io.openems.edge.evcs.ocpp.unmanaged"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
