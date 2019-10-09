@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.openems.edge.raspberrypi.circuitboard.CircuitBoard;
+import io.openems.edge.raspberrypi.circuitboard.api.adc.Adc;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -21,10 +24,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 import io.openems.edge.raspberrypi.sensor.Sensor;
-import io.openems.edge.raspberrypi.sensor.api.Adc.Adc;
 import io.openems.edge.raspberrypi.sensor.sensortype.SensorType;
 import io.openems.edge.raspberrypi.spi.api.BridgeSpi;
 import io.openems.edge.raspberrypi.spi.task.Task;
+import osgi.enroute.iot.gpio.api.CircuitBoard;
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -34,17 +37,22 @@ import io.openems.edge.raspberrypi.spi.task.Task;
             property= EventConstants.EVENT_TOPIC+"="+EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiInitial, BridgeSpi, EventHandler, OpenemsComponent {
 
-    private List<Adc> adcList = new ArrayList<>();
-    private List<Sensor> sensorList = new ArrayList<>();
+    //private List<Adc> adcList = new ArrayList<>();
+
+    private List<io.openems.edge.raspberrypi.circuitboard.api.adc.Adc> adcList = new ArrayList<>();
+    //BoardList --> Boards
+    private List<CircuitBoard> circuitBoards= new ArrayList<>();
+    // private List<Sensor> sensorList = new ArrayList<>();
+    //Not necessary anymore
     private List<SensorType> sensorTypes = new ArrayList<>();
 
-    //sensorManager --> father and child
-    private Map <String, List<String>> sensorManager = new HashMap<>();
-    //adcManager --> adc and Sensortypes
-    private Map<String, Map<Integer, List<Integer>>> adcManager= new HashMap<>();
+     //sensorManager --> father and child
+     //adcManager --> adc and Sensortypes
+    //private Map<String, Map<Integer, List<Integer>>> adcManager= new HashMap<>();
     //SpiManager --> SpiChannel and Adc
-    private Map <Integer, String> SpiManager = new HashMap<>();
-    private List<Integer> freeSpiChannels=new ArrayList<>();
+    private Map <Integer, Integer > SpiManager = new HashMap<>();
+    private List <Integer > freeSpiChannels = new ArrayList<>();
+    private List<Integer> freeAdcIds = new ArrayList<>();
     private final Map<String, Task> tasks = new ConcurrentHashMap<>();
     private final SpiWorker worker = new SpiWorker();
 
@@ -95,7 +103,7 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
         }
         @Override
         public void deactivate(){
-            super.deactivate();
+
         }
 
         @Override
@@ -122,16 +130,20 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
     //useful for checks if SpiSensor-->Channel is already used or if adc already exists
 
 
-    public List<Adc> getAdcList() {
-        return adcList;
-    }
+  //  public List<Adc> getAdcList() {
+     //   return adcList;
+   // }
 
 
-    @Override
-    public boolean addAdcList(Adc adc) {
-        return this.adcList.add(adc);
-    }
+    //@Override
+   // public boolean addAdcList(Adc adc) {
+     //   return this.adcList.add(adc);
+    //}
 
+//@Override
+//public boolean addAdcList(Adc adc){
+    //      return this.adcList.add(adc);
+//}
 
     @Override
     public Map <String, List<String>>getSensorManager() {
@@ -150,7 +162,7 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
 
     @Override
-    public Map<Integer, String> getSpiManager() {
+    public Map<Integer, Integer> getSpiManager() {
         return SpiManager;
     }
 
@@ -182,6 +194,13 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
         return this.freeSpiChannels;
     }
+@Override
+public boolean addAdcList(Adc adc){return this.adcList.add(adc);}
 
+@Override
+public List<Integer>getFreeAdcIds(){return this.freeAdcIds;}
+
+@Override
+    public List<CircuitBoard> getCircuitBoards(){return this.circuitBoards;}
 
 }

@@ -22,6 +22,8 @@ Private-Package:  \
 	io.openems.edge.raspberrypi.sensor;version=latest,\
 	io.openems.edge.raspberrypi.sensor.api,\
 	io.openems.edge.raspberrypi.sensor.sensor,\
+	io.openems.edge.raspberrypi.circuitBoard;version=latest,\
+	io.openems.edge.raspberrypi.sensors;version=latest,\
 	org.ops4j.pax.logging.pax-logging-api,\
 	pi4j-core;version=1.1
 
