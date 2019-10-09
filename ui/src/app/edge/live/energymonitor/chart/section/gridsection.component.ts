@@ -8,11 +8,11 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 
 @Component({
     selector: '[gridsection]',
-    templateUrl: './gridsection.component.html',
+    templateUrl: './section.component.html',
     animations: [
         trigger('popOverState', [
             state('show', style({
-                opacity: 0.50,
+                opacity: 0.5,
                 transform: 'translateX(0%)',
             })),
             state('hide', style({
@@ -28,6 +28,14 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
     private unitpipe: UnitvaluePipe;
     public show = false;
+    public animationFlow: any = {
+        topLeft: { x: null, y: null },
+        middleLeft: { x: null, y: null },
+        bottomLeft: { x: null, y: null },
+        topRight: { x: null, y: null },
+        bottomRight: { x: null, y: null },
+        middleRight: { x: null, y: null }
+    };
 
 
     constructor(
@@ -40,7 +48,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     }
 
     ngOnInit() {
-        console.log("ONINIT")
         let timerId = setInterval(() => {
             this.show = !this.show;
         }, 450)
@@ -48,7 +55,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     }
 
     get stateName() {
-        console.log("SHOW", this.show)
         return this.show ? 'show' : 'hide'
     }
 
@@ -130,10 +136,10 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        // if (v < 8 && v != 0) {
-        //     v = 8;
-        // }
-        v = 8;
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
+        // v = 8;
         let r = radius;
         let p = {
             topLeft: { x: r * -1.2, y: v * -1 },
@@ -152,4 +158,26 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         return p;
     }
 
+    protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
+        let v = Math.abs(ratio);
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
+        let r = radius;
+        let p = {
+            topLeft: { x: v * -1, y: v },
+            bottomLeft: { x: v * -1, y: r * 1.2 },
+            topRight: { x: v, y: v },
+            bottomRight: { x: v, y: r * 1.2 },
+            middleBottom: { x: 0, y: (r * 1.2) - v },
+            middleTop: { x: 0, y: 0 }
+        }
+        if (ratio > 0) {
+            // towards bottom
+            p.bottomLeft.y = p.bottomLeft.y - v;
+            p.middleBottom.y = p.middleBottom.y + v;
+            p.bottomRight.y = p.bottomRight.y - v;
+        }
+        return p;
+    }
 }

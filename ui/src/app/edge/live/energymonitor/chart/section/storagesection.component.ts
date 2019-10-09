@@ -109,18 +109,17 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        // if (this.socValue < 20) {
-        //     return "storage_20.png"
-        // } else if (this.socValue < 40) {
-        //     return "storage_40.png"
-        // } else if (this.socValue < 60) {
-        //     return "storage_60.png"
-        // } else if (this.socValue < 80) {
-        //     return "storage_80.png"
-        // } else {
-        //     return "storage_100.png"
-        // }
-        return "storage_cut.png";
+        if (this.socValue < 20) {
+            return "storage_20.png"
+        } else if (this.socValue < 40) {
+            return "storage_40.png"
+        } else if (this.socValue < 60) {
+            return "storage_60.png"
+        } else if (this.socValue < 80) {
+            return "storage_80.png"
+        } else {
+            return "storage_100.png"
+        }
     }
 
     protected getValueText(value: number): string {
@@ -135,6 +134,29 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
+        let v = Math.abs(ratio);
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
+        let r = radius;
+        let p = {
+            topLeft: { x: v * -1, y: v },
+            bottomLeft: { x: v * -1, y: r * 1.2 },
+            topRight: { x: v, y: v },
+            bottomRight: { x: v, y: r * 1.2 },
+            middleBottom: { x: 0, y: (r * 1.2) - v },
+            middleTop: { x: 0, y: 0 }
+        }
+        if (ratio > 0) {
+            // towards bottom
+            p.bottomLeft.y = p.bottomLeft.y - v;
+            p.middleBottom.y = p.middleBottom.y + v;
+            p.bottomRight.y = p.bottomRight.y - v;
+        }
+        return p;
+    }
+
+    protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         if (v < 8 && v != 0) {
             v = 8;

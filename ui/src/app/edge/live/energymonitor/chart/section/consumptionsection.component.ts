@@ -118,4 +118,27 @@ export class ConsumptionSectionComponent extends AbstractSection {
         }
         return p;
     }
+
+    protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
+        let v = Math.abs(ratio);
+        if (v < 8 && v != 0) {
+            v = 8;
+        }
+        let r = radius;
+        let p = {
+            topLeft: { x: v * -1, y: v },
+            bottomLeft: { x: v * -1, y: r * 1.2 },
+            topRight: { x: v, y: v },
+            bottomRight: { x: v, y: r * 1.2 },
+            middleBottom: { x: 0, y: (r * 1.2) - v },
+            middleTop: { x: 0, y: 0 }
+        }
+        if (ratio > 0) {
+            // towards bottom
+            p.bottomLeft.y = p.bottomLeft.y - v;
+            p.middleBottom.y = p.middleBottom.y + v;
+            p.bottomRight.y = p.bottomRight.y - v;
+        }
+        return p;
+    }
 }

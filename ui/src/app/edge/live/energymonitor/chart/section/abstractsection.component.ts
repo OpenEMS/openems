@@ -58,6 +58,7 @@ export interface SvgEnergyFlow {
 
 export class EnergyFlow {
     public points: string = "0,0 0,0";
+    public animationPoints: string = "0,0 0,0";
 
     constructor(
         public radius: number,
@@ -74,6 +75,21 @@ export class EnergyFlow {
             this.points = "0,0 0,0";
         } else {
             this.points = p.topLeft.x + "," + p.topLeft.y
+                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+                + " " + p.topRight.x + "," + p.topRight.y
+                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+                + " " + p.bottomRight.x + "," + p.bottomRight.y
+                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        }
+    }
+
+    public updateAnimation(p: SvgEnergyFlow) {
+        if (p == null) {
+            this.animationPoints = "0,0 0,0";
+        } else {
+            this.animationPoints = p.topLeft.x + "," + p.topLeft.y
                 + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
                 + " " + p.topRight.x + "," + p.topRight.y
                 + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
@@ -173,6 +189,14 @@ export abstract class AbstractSection {
     protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
 
     /**
+     * Gets the SVG for EnergyFlowAnimation
+     * 
+     * @param ratio  the ratio of the value [-1,1] * scale factor
+     * @param radius the available radius
+     */
+    protected abstract getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+
+    /**
      * Updates the Values for this Section.
      * 
      * @param sum the CurrentData.Summary
@@ -237,7 +261,9 @@ export abstract class AbstractSection {
         sumRatio *= 10;
 
         let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius);
+        let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius);
         this.energyFlow.update(svgEnergyFlow);
+        this.energyFlow.updateAnimation(svgAnimationEnergyFlow);
     }
 
     /**
