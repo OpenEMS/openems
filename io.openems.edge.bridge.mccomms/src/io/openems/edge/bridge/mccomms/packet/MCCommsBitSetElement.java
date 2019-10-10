@@ -1,16 +1,15 @@
 package io.openems.edge.bridge.mccomms.packet;
 
+import java.util.BitSet;
+
 import com.google.common.collect.Range;
-import io.openems.common.exceptions.NotImplementedException;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
-
-import java.util.BitSet;
 
 /**
  * An extension of {@link MCCommsElement} that allows each bit of a collection of bytes (1 or more) to be assigned to a channel
  */
-@SuppressWarnings("JavadocReference")
 public class MCCommsBitSetElement extends MCCommsElement {
 	/**
 	 * The channels, in order of which bit the pertain to

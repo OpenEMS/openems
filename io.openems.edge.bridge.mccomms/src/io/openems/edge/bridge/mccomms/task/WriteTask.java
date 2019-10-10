@@ -1,16 +1,13 @@
 package io.openems.edge.bridge.mccomms.task;
 
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.mccomms.IMCCommsBridge;
 import io.openems.edge.bridge.mccomms.MCCommsBridge;
 import io.openems.edge.bridge.mccomms.packet.MCCommsElement;
 import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
-
-import java.io.OutputStream;
-import java.util.Optional;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Class to represent packets that must be written out to the serial bus via an {@link MCCommsBridge}
@@ -61,7 +58,7 @@ public class WriteTask {
 	 * @param timeUnit the time unit the time period must be measured in
 	 * @return a {@link ScheduledFuture} which can be used to cancel repetition
 	 */
-	public ScheduledFuture sendRepeatedly(IMCCommsBridge bridge, long timePeriod, TimeUnit timeUnit) {
+	public ScheduledFuture<?> sendRepeatedly(IMCCommsBridge bridge, long timePeriod, TimeUnit timeUnit) {
 		return bridge.getScheduledExecutorService().scheduleAtFixedRate(() -> bridge.addWriteTask(this), 0, timePeriod, timeUnit);
 	}
 	

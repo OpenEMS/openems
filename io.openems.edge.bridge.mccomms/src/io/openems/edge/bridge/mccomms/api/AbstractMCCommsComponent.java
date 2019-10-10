@@ -1,15 +1,15 @@
 package io.openems.edge.bridge.mccomms.api;
 
-import io.openems.edge.bridge.mccomms.IMCCommsBridge;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicReference;
+import io.openems.edge.bridge.mccomms.IMCCommsBridge;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Abstract class extended by components wanting to interface with a {@link io.openems.edge.bridge.mccomms.MCCommsBridge} for device communication

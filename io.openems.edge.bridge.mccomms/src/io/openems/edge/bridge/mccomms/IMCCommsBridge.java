@@ -9,7 +9,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
-@SuppressWarnings("JavadocReference")
 public interface IMCCommsBridge extends OpenemsComponent {
 	
 	/**

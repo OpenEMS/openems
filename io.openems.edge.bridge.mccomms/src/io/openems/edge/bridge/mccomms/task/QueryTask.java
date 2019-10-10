@@ -37,7 +37,7 @@ public class QueryTask {
 	 * {@link ScheduledFuture} used to repeatedly execute this QueryTask
 	 * @see QueryTask#queryRepeatedly(long, TimeUnit)
 	 */
-	private ScheduledFuture future;
+	private ScheduledFuture<?> future;
 	/**
 	 * {@link io.openems.edge.bridge.mccomms.MCCommsBridge} instance used to execute this QueryTask
 	 */
@@ -87,7 +87,6 @@ public class QueryTask {
 	 * @param outputStream the {@link com.fazecast.jSerialComm.SerialPort} output stream (see {@link SerialPort#getOutputStream()})
 	 * @param lockingBool Atomic boolean used to synchronise bus write locking
 	 */
-	@SuppressWarnings("JavadocReference")
 	public void doWriteWithReplyWriteLock(OutputStream outputStream, AtomicBoolean lockingBool) {
 		bridge.getSingleThreadExecutor().execute(() -> {
 			lockingBool.set(true);

@@ -5,11 +5,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import com.google.common.collect.Range;
-
-import com.google.common.primitives.Shorts;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInts;
-import io.openems.common.exceptions.NotImplementedException;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
 
@@ -36,7 +34,7 @@ public class MCCommsElement {
 	/**
 	 * {@link Channel} bound to this element
 	 */
-	private final Channel channel;
+	private final Channel<?> channel;
 	
 	/**
 	 * Constructor
@@ -45,7 +43,7 @@ public class MCCommsElement {
 	 * @param scaleFactor Amount by which to scale values when pulling and pushing values to the buffer
 	 * @param channel {@link Channel} to bind to this element
 	 */
-	MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, double scaleFactor, Channel channel) {
+	MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, double scaleFactor, Channel<?> channel) {
 		this.addressRange = addressRange;
 		this.valueBuffer = ByteBuffer.allocate(addressRange.upperEndpoint() - addressRange.lowerEndpoint() + 1);
 		this.isUnsigned = isUnsigned;
@@ -91,7 +89,7 @@ public class MCCommsElement {
 	 * @param channel {@link Channel} to bind to this element
 	 * @return a new MCCommsElement instance with a bound channel
 	 */
-	public static MCCommsElement newInstanceFromChannel(int startAddress, int numBytes, Channel channel) {
+	public static MCCommsElement newInstanceFromChannel(int startAddress, int numBytes, Channel<?> channel) {
 		return new MCCommsElement(Range.closed(startAddress, (startAddress + numBytes -1)), true, 1.0, channel);
 	}
 	

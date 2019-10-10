@@ -17,7 +17,6 @@ import java.util.function.Predicate;
  * Class used to listen for incoming packet buffers and map them to a defined {@link MCCommsPacket} structure
  * @see io.openems.edge.bridge.mccomms.MCCommsBridge.PacketPicker
  */
-@SuppressWarnings("JavadocReference")
 public class ListenTask implements Future<MCCommsPacket> {
 	/**
 	 * The MCComms address from which incoming packets must originate in order to be mapped by this task

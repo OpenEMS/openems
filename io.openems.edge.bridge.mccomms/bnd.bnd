@@ -1,13 +1,12 @@
 #
 # io.openems.edge.bridge.mccomms PROVIDER BUNDLE
 #
-
+Bundle-Name: OpenEMS Edge Bridge mccomms
+Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version:					1.0.0.${tstamp}
 Bundle-Description: \
 	The provider bundle for io.openems.edge.bridge.mccomms. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.edge.bridge.mccomms/api.bnd}
-
+	
 Export-Package: \
 	io.openems.edge.bridge.mccomms,\
 	io.openems.edge.bridge.mccomms.api,\
