@@ -1,8 +1,7 @@
 #
 # io.openems.edge.battery.microcare.ubmu PROVIDER BUNDLE
 #
-Bundle-Name: OpenEMS Edge Microcare ubmu  
-Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Name: OpenEMS Edge Microcare ubmu
 Bundle-Version:					1.0.0.${tstamp}
 Bundle-Description: \
 	The provider bundle for io.openems.edge.battery.microcare.ubmu. \
