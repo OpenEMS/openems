@@ -185,6 +185,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             p.middleBottom.y = p.middleTop.y + animationWidth * 0.1;
             p.bottomRight.y = p.topRight.y + animationWidth * 0.1;
             p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1;
+        } else {
+            p = null;
         }
         return p;
     }

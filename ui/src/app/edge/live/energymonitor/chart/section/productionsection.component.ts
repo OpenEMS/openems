@@ -141,8 +141,7 @@ export class ProductionSectionComponent extends AbstractSection {
             p.bottomRight.y = p.topRight.y + animationWidth * 0.1
             p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1
             p.middleBottom.y = p.middleTop.y + animationWidth * 0.1
-        } else if (ratio < 0 || ratio == 0) {
-            // towards top or 0
+        } else {
             p = null;
         }
         return p;
