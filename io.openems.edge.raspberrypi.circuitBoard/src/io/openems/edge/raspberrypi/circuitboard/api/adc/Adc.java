@@ -42,9 +42,10 @@ public abstract class Adc {
         }
     }
 
-
     public int getId() {
-
+        if (!initialized) {
+            return -1;
+        }
         return id;
     }
 
@@ -53,6 +54,9 @@ public abstract class Adc {
     }
 
     public int getSpiChannel() {
+        if (!initialized) {
+            return -1;
+        }
         return spiChannel;
     }
 
@@ -62,5 +66,16 @@ public abstract class Adc {
 
     public boolean isInitialized() {
         return initialized;
+    }
+
+    public byte getMaxSize() {
+        return maxSize;
+    }
+
+    public String getCircuitBoardId() {
+        if (!initialized) {
+            return "not initialized yet";
+        }
+        return circuitBoardId;
     }
 }

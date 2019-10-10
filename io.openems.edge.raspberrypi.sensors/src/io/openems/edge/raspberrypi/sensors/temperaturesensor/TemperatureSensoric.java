@@ -14,6 +14,15 @@ public interface TemperatureSensoric extends OpenemsComponent {
     //TODO Different Sensoric Interfaces --> Different Channels
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+        /**
+         * Temperature
+         *
+         * <ul>
+         * <li>Interface: TemperatureSensoric
+         * <li>Type: Float
+         * <li>Unit: Degree Celsius
+         * </ul>
+         */
         TEMPERATURE(Doc.of(OpenemsType.FLOAT).unit(Unit.DEZIDEGREE_CELSIUS)); //
         private final Doc doc;
 
@@ -25,6 +34,12 @@ public interface TemperatureSensoric extends OpenemsComponent {
             return this.doc;
         }
     }
+
+    /**
+     * Gets the Temperature in [dezidegree celsius].
+     *
+     *
+     */
 
     default Channel<Integer> getTemperature() {
         return this.channel(ChannelId.TEMPERATURE);

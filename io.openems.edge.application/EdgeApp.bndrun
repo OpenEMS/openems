@@ -14,6 +14,9 @@
 
 -runrequires: \
  osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.simulated)',\
+ osgi.identity;filter:='(osgi.identity=io.openems.edge.raspberrypi.circuitBoard)',\
+ osgi.identity;filter:='(osgi.identity=io.openems.edge.raspberrypi.sensors)',\
+ osgi.identity;filter:='(osgi.identity=io.openems.edge.raspberrypi.spi)',\
 	bnd.identity;id='org.apache.felix.http.jetty',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\
@@ -163,6 +166,10 @@
 	io.openems.edge.meter.simulated;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.weidmueller;version=snapshot,\
+	pi4j-core;version='[1.1.0,1.1.1)',\
+    io.openems.edge.raspberrypi.circuitBoard;version=snapshot,\
+    io.openems.edge.raspberrypi.sensors;version=snapshot,\
+    io.openems.edge.raspberrypi.spi;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\

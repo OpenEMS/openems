@@ -81,7 +81,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		this.addChannels(furtherInitialChannelIds);
 	}
 
-	/**
+
+    /**
 	 * Handles @Activate of implementations. Prints log output.
 	 * 
 	 * @param context the OSGi ComponentContext

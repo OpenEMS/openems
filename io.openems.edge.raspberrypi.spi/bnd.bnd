@@ -19,9 +19,6 @@ Private-Package:  \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.raspberrypi.sensor;version=latest,\
-	io.openems.edge.raspberrypi.sensor.api,\
-	io.openems.edge.raspberrypi.sensor.sensor,\
 	io.openems.edge.raspberrypi.circuitBoard;version=latest,\
 	io.openems.edge.raspberrypi.sensors;version=latest,\
 	org.ops4j.pax.logging.pax-logging-api,\
