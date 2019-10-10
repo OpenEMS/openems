@@ -37,8 +37,6 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	CURR_TIMER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Shows the current preset value of currtime")), //
 	TIMEOUT_CT(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)
 			.text("Shows the remaining time until the current value is accepted")), //
-	ENERGY_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text("Shows the set energy limit")), //
-	// TODO: 0.1 Wh
 	OUTPUT(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF).text("State of the output X2")), //
 	INPUT(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF).text(
 			"State of the potential free Enable input X1. When using the input, please pay attention to the information in the installation manual.")), //
@@ -53,9 +51,6 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")), //
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")), //
 	COS_PHI(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).text("Power factor")), //
-	// TODO: 0.1 %
-	ENERGY_SESSION(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text(
-			"Power consumption of the current loading session. Reset with new loading session (Status = NOT_READY_FOR_CHARGING)")), //
 	// TODO: 0.1 Wh
 	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text(
 			"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //

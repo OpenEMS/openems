@@ -1,12 +1,27 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Mode",
+        Automatic: "Automatisch",
+        State: "Staat",
+        On: "Naar",
+        Off: "Van",
+        Active: "Actief",
+        Inactive: "Inactief",
+        Manually: "handmatig",
+        Phase: "Fase",
+        Autarchy: "Autarkie",
+        SelfConsumption: "Eigen consumptie",
         Cumulative: "Cumulatieve Waarden",
         Grid: "Net",
         GridBuy: "Netafname",
         GridSell: "Netteruglevering",
+        GridBudyAdvanced: "Bezug",
+        GridSellAdvanced: "Einspeisung",
         OffGrid: "Geen Netaansluiting!",
         Production: "Opwekking",
         Consumption: "Verbruik",
+        otherConsumption: "andere consumptie",
+        Total: "totale verbruik",
         Load: "Laden",
         Power: "Vermogen",
         StorageSystem: "Batterij",
@@ -65,7 +80,12 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
-                Info: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
+                Channeltreshold: {
+                    Output: "uitgang"
+                },
+                phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
+                autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
+                selfconsumptionInfo: "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",
                     HighThreshold: "hoge drempel"
@@ -85,6 +105,7 @@ export const TRANSLATION = {
                     Error: "Fout",
                     NotAuthorized: "Geen bevoegdheid",
                     Unplugged: "Unplugged",
+                    ChargeLimitReached: "Oplaadlimiet bereikt",
                     CharingStationPluggedIn: "Laadstation aangesloten",
                     ChargingStationPluggedInLocked: "Laadstation aangesloten + op slot",
                     ChargingStationPluggedInEV: "Laadstation + E-Auto aangesloten",
@@ -103,6 +124,8 @@ export const TRANSLATION = {
                     ChargeMode: "laadmodus",
                     ActivateCharging: "Activeer het laadstation",
                     ClusterConfigError: "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
+                    EnergyLimit: "Energielimiet",
+                    MaxEnergyRestriction: "Beperk de maximale energie per lading",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
                         Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
@@ -110,15 +133,16 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Geoptimaliseerd laden",
-                        ShortName: "geoptimaliseerde",
+                        ShortName: "Automatisch",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
                         MinInfo: "Als u wilt voorkomen dat de auto 's nachts niet oplaadt, kunt u een minimale lading instellen.",
-                        MinCharging: "Minimale vergoeding betalen?",
+                        MinCharging: "Minimale vergoeding betalen",
+                        MinChargePower: "Loading rate",
                         ChargingPriority: "Afhankelijk van de prioriteit, wordt het geselecteerde onderdeel eerst geladen"
                     },
                     ForceChargeMode: {
                         Name: "Gedwongen laden",
-                        ShortName: "Gedwongen",
+                        ShortName: "handmatig",
                         Info: "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
                         MaxCharging: "Maximale laadstroom",
                         MaxChargingDetails: "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt."
