@@ -164,6 +164,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.battery.getVoltage().onChange((oldValue, newValue) -> {
 			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
+		
+		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
+			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
+		});
 	}
 
 	/**
