@@ -1,7 +1,10 @@
 package io.openems.edge.controller.evcs;
 
+import java.io.IOException;
 import java.time.Clock;
+import java.util.Dictionary;
 
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,6 +23,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -133,6 +137,14 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	public void run() throws OpenemsNamedException {
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
+		int maxHW = evcs.getMaximumHardwarePower().value().orElse(0);
+		maxHW =(int) Math.ceil(maxHW / 100.0) * 100;
+		if (config.defaultChargeMinPower() > maxHW) {
+			configUpdate("defaultChargeMinPower", maxHW);
+		}
+		if(config.forceChargeMinPower() > maxHW) {
+			configUpdate("forceChargeMinPower", maxHW);
+		}
 
 		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
 
@@ -162,7 +174,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 * Stop early if charging is disabled
 		 */
 		if (!config.enabledCharging()) {
-			if(isClustered) {
+			if (isClustered) {
 				evcs.setChargePowerRequest().setNextWriteValue(0);
 			}
 			evcs.setChargePowerLimit().setNextWriteValue(0);
@@ -315,5 +327,22 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Controller.getModbusSlaveNatureTable(accessMode));
+	}
+	
+	public void configUpdate(String targetProperty, Object requiredValue){
+		//final String targetProperty = property + ".target";
+		Configuration c;
+		try {
+			c = cm.getConfiguration(this.servicePid(), "?");
+			Dictionary<String, Object> properties = c.getProperties();
+			Object target = properties.get(targetProperty);
+			String existingTarget = target.toString();
+			if (!existingTarget.isEmpty()) {
+				properties.put(targetProperty, requiredValue);
+				c.update(properties);
+			}
+		} catch (IOException | SecurityException e) {
+			System.out.println("ERROR: " + e.getMessage());
+		}
 	}
 }
