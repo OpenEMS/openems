@@ -85,7 +85,7 @@ public class HeatingElementTest2 {
 		}
 
 		@Override
-		public int minTime() {
+		public double minTime() {
 			return minTime;
 		}
 

@@ -40,14 +40,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	Priority priority() default Priority.TIME;
 	
 	@AttributeDefinition(name = "Minimum time", description = "Minimum time for heating element to run in hours")
-	int minTime()  default  1;
+	double minTime()  default  1.0;
 
 	@AttributeDefinition(name = "Min Kwh", description = "Minimun Kilo watt hour for heating element to run in kwh")
 	int minkwh() default 4;
 	
 
 	@AttributeDefinition(name = "Power of Phase", description = "Power of the single phase")
-	int powerOfPhase();
+	int powerOfPhase() default 2000;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Heating Element [{id}]";
 }

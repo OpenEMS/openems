@@ -1,7 +1,6 @@
 package io.openems.edge.simulator.ess.asymmetric.reacting;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
