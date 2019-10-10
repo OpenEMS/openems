@@ -29,6 +29,7 @@ export class ProductionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
     public show = false;
+    private p: any = null;
 
     constructor(
         translate: TranslateService,
@@ -117,6 +118,7 @@ export class ProductionSectionComponent extends AbstractSection {
             p.middleTop.y = p.middleTop.y - v;
             p.topRight.y = p.topRight.y + v;
         }
+        this.p = p;
         return p;
     }
 
@@ -127,18 +129,18 @@ export class ProductionSectionComponent extends AbstractSection {
         }
         let r = radius;
         let p = {
-            topLeft: { x: v * -1, y: v },
-            bottomLeft: { x: v * -1, y: r * 1.2 },
-            topRight: { x: v, y: v },
-            bottomRight: { x: v, y: r * 1.2 },
-            middleBottom: { x: 0, y: (r * 1.2) - v },
-            middleTop: { x: 0, y: 0 }
+            topLeft: { x: v * -1, y: r * -1.2 },
+            bottomLeft: { x: v * -1, y: v * -1 },
+            topRight: { x: v, y: r * -1.2 },
+            bottomRight: { x: v, y: v * -1 },
+            middleBottom: { x: 0, y: 0 },
+            middleTop: { x: 0, y: r * -1.2 + v }
         }
-        if (ratio > 0) {
-            // towards bottom
-            p.bottomLeft.y = p.bottomLeft.y - v;
-            p.middleBottom.y = p.middleBottom.y + v;
-            p.bottomRight.y = p.bottomRight.y - v;
+        if (ratio < 0) {
+            // towards top
+            p.topLeft.y = p.topLeft.y + v;
+            p.middleTop.y = p.middleTop.y - v;
+            p.topRight.y = p.topRight.y + v;
         }
         return p;
     }

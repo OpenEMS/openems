@@ -19,8 +19,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
                 opacity: 0,
                 transform: 'translateX(10%)'
             })),
-            transition('show => hide', animate('300ms ease-in')),
-            transition('hide => show', animate('0ms'))
+            transition('show => hide', animate('100ms')),
+            transition('hide => show', animate('300ms'))
         ])
     ]
 })
@@ -28,15 +28,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
     private unitpipe: UnitvaluePipe;
     public show = false;
-    public animationFlow: any = {
-        topLeft: { x: null, y: null },
-        middleLeft: { x: null, y: null },
-        bottomLeft: { x: null, y: null },
-        topRight: { x: null, y: null },
-        bottomRight: { x: null, y: null },
-        middleRight: { x: null, y: null }
-    };
-
+    private p = null;
 
     constructor(
         translate: TranslateService,
@@ -48,10 +40,17 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     }
 
     ngOnInit() {
-        let timerId = setInterval(() => {
+        // let timerId = setInterval(() => {
+        //     this.show = !this.show;
+        // }, 450)
+        // setTimeout(() => { clearInterval(timerId) }, 10000);
+        // this.toggleBuy();
+    }
+
+    toggleBuy() {
+        setInterval(() => {
             this.show = !this.show;
-        }, 450)
-        setTimeout(() => { clearInterval(timerId) }, 10000);
+        }, 450);
     }
 
     get stateName() {
@@ -72,6 +71,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
         if (sum.grid.buyActivePower && sum.grid.buyActivePower > 0) {
+            // this.show = !this.show;
             let arrowIndicate: number;
             if (sum.grid.buyActivePower > 49) {
                 arrowIndicate = Utils.multiplySafely(
@@ -155,6 +155,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
             p.middleLeft.x = p.middleLeft.x - v;
             p.bottomLeft.x = p.bottomLeft.x + v;
         }
+        this.p = p;
         return p;
     }
 
@@ -165,19 +166,28 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         }
         let r = radius;
         let p = {
-            topLeft: { x: v * -1, y: v },
-            bottomLeft: { x: v * -1, y: r * 1.2 },
-            topRight: { x: v, y: v },
-            bottomRight: { x: v, y: r * 1.2 },
-            middleBottom: { x: 0, y: (r * 1.2) - v },
-            middleTop: { x: 0, y: 0 }
+            topLeft: { x: r * -1.2, y: v * -1 },
+            middleLeft: { x: r * -1.2 + v, y: 0 },
+            bottomLeft: { x: r * -1.2, y: v },
+            topRight: { x: v * -1, y: v * -1 },
+            bottomRight: { x: v * -1, y: v },
+            middleRight: { x: 0, y: 0 }
         }
         if (ratio > 0) {
-            // towards bottom
-            p.bottomLeft.y = p.bottomLeft.y - v;
-            p.middleBottom.y = p.middleBottom.y + v;
-            p.bottomRight.y = p.bottomRight.y - v;
+            // towards left
+            p.topLeft.x = p.topLeft.x + v;
+            p.middleLeft.x = p.middleLeft.x - v;
+            p.bottomLeft.x = p.bottomLeft.x + v;
         }
+        console.log("TR", p.topRight.x)
+
+        // let p = this.p;
+        // p.topLeft['x'] += 5;
+        // p.middleLeft['x'] += 5;
+        // p.bottomLeft['x'] += 5;
+        // p.topRight['x'] -= 80;
+        // p.bottomRight['x'] -= 80;
+        // p.middleRight['x'] -= 80;
         return p;
     }
 }
