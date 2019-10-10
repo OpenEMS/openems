@@ -128,21 +128,24 @@ export class ProductionSectionComponent extends AbstractSection {
             v = 8;
         }
         let r = radius;
+        let animationWidth = r * -1.2 + v;
         let p = {
             topLeft: { x: v * -1, y: r * -1.2 },
-            bottomLeft: { x: v * -1, y: v * -1 },
+            bottomLeft: { x: v * -1, y: null },
             topRight: { x: v, y: r * -1.2 },
-            bottomRight: { x: v, y: v * -1 },
-            middleBottom: { x: 0, y: 0 },
+            bottomRight: { x: v, y: null },
+            middleBottom: { x: 0, y: null },
             middleTop: { x: 0, y: r * -1.2 + v }
         }
+        p.bottomRight.y = p.bottomLeft.y
+        p.bottomLeft.y = p.bottomRight.y
+        p.middleBottom.y = p.middleTop.y
         if (ratio < 0) {
             // towards top
             p.topLeft.y = p.topLeft.y + v;
             p.middleTop.y = p.middleTop.y - v;
             p.topRight.y = p.topRight.y + v;
         }
-        p = null;
         return p;
     }
 }

@@ -151,6 +151,8 @@ export class ConsumptionSectionComponent extends AbstractSection {
             // p.middleRight.x = p.middleRight.x + v;
             // p.bottomRight.x = p.bottomRight.x - v;
         }
+        console.log("TOPLEFT,CONSUMPTION", p.topLeft.x)
+        console.log("TOPRIGHT,CONSUMPTION", p.topRight.x)
         return p;
     }
 }

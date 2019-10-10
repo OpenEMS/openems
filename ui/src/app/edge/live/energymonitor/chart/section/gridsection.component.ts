@@ -17,7 +17,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
             })),
             state('hide', style({
                 opacity: 0,
-                transform: 'translateX(10%)'
+                transform: 'translateX(-10%)'
             })),
             transition('show => hide', animate('300ms')),
             transition('hide => show', animate('0ms'))
@@ -177,13 +177,15 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
         if (ratio > 0) {
             // towards left
-            p.topLeft.x = p.topLeft.x + v;
-            p.middleLeft.x = p.middleLeft.x - v;
-            p.bottomLeft.x = p.bottomLeft.x + v;
+            p.topLeft.x = p.topRight.x + animationWidth * 0.65;
+            p.middleLeft.x = p.middleRight.x - 2 * v + animationWidth * 0.65;
+            p.bottomLeft.x = p.bottomRight.x + animationWidth * 0.65;
+            p.topRight.x = p.topLeft.x + v * 1.25
+            p.middleRight.x = p.middleLeft.x + v * 1.25;
+            p.bottomRight.x = p.bottomLeft.x + v * 1.25;
         }
-        console.log("GRID TOPLEFT", p.topLeft.x)
-        console.log("GRID MIDDLERIGHT", p.middleRight.x)
-        console.log("GRID TOPRIGHT", p.topRight.x)
+        console.log("TOPLEFT,GRID", p.topLeft.x)
+        console.log("TOPRIGHT,GRID", p.topRight.x)
         return p;
     }
 }
