@@ -69,6 +69,7 @@
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
+	bnd.identity;id='io.openems.edge.evcs.ocpp.unmanaged',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.server',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -148,6 +149,7 @@
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.evcs.ocpp.server;version=snapshot,\
+	io.openems.edge.evcs.ocpp.unmanaged;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
@@ -211,4 +213,5 @@
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	com.fazecast.jSerialComm;version='[2.5.2,2.5.3)',\
 	io.openems.edge.meter.sunspec;version=snapshot,\
-	io.openems.edge.solaredge;version=snapshot
+	io.openems.edge.solaredge;version=snapshot,\
+	io.openems.edge.evcs.ocpp.unmanaged;version=snapshot

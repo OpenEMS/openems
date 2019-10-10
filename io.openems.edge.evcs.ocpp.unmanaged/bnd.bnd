@@ -7,7 +7,8 @@ Bundle-Description: \
 	\
 
 Export-Package:  \
-	io.openems.edge.evcs.ocpp.unmanaged.api;-provide=true
+	io.openems.edge.evcs.ocpp.unmanaged.api;-provide=true, \
+	io.openems.edge.evcs.ocpp.unmanaged
 
 Private-Package:  \
 	io.openems.edge.evcs.ocpp.unmanaged

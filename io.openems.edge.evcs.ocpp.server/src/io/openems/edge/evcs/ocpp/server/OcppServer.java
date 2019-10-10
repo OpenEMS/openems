@@ -3,6 +3,7 @@ package io.openems.edge.evcs.ocpp.server;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.osgi.service.component.ComponentContext;
@@ -74,13 +75,13 @@ public class OcppServer extends AbstractOpenemsComponent implements OpenemsCompo
 				for (HashMap.Entry<UUID, Evcs> entry : sessionMap.entrySet()) {
 					UUID session = entry.getKey();
 					Evcs evcs = entry.getValue();
-					/*
+					
+					
 					if (session.equals(sessionIndex)) {
 						EvcsOcppUnmanaged ev = new EvcsOcppUnmanaged();
-						//evcs.channel(EvcsOcppUnmanagedChannelId.CHARGING_SESSION_ID).setNextValue(null);
+						evcs.channel(EvcsOcppUnmanagedChannelId.CHARGING_SESSION_ID).setNextValue(null);
 						sessionMap.remove(sessionIndex);
 					}
-					*/
 				}
 			}
 
@@ -88,8 +89,8 @@ public class OcppServer extends AbstractOpenemsComponent implements OpenemsCompo
 			public void newSession(UUID sessionIndex, SessionInformation information) {
 				System.out.println("New session " + sessionIndex + ": Chargepoint: " + information.getIdentifier()
 						+ ", IP: " + information.getAddress());
-				/*
-				List<OpenemsComponent> components = componentManager.getEnabledComponents();			//TODO: Find a solution for this discouraged access warning
+			
+				List<OpenemsComponent> components = componentManager.getEnabledComponents();			
 				for (OpenemsComponent openemsComponent : components) {
 					if (openemsComponent instanceof EvcsOcppUnmanaged) { // TODO: All OcppEvcss
 
@@ -98,9 +99,7 @@ public class OcppServer extends AbstractOpenemsComponent implements OpenemsCompo
 						break;
 					}
 				}
-				*/
 			}
-
 		});
 		/*
 		 * // Use the feature profile to help create event ClearCacheRequest request =

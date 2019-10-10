@@ -21,10 +21,11 @@ Export-Package:  \
 	eu.chargetime.ocpp.model.validation, \
 	eu.chargetime.ocpp.utilities, \
 	eu.chargetime.ocpp.wss \
+	
 
 	
 Private-Package:  \
-	io.openems.edge.evcs.ocpp.server
+	io.openems.edge.evcs.ocpp.server 
 
 -includeresource: {readme.md} \
 	
