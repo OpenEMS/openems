@@ -44,9 +44,6 @@ export class SelfConsumptionComponent {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: SelfconsumptionModalComponent,
-            componentProps: {
-                edge: this.edge
-            }
         });
         return await modal.present();
     }

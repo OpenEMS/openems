@@ -36,22 +36,9 @@ export class ChpsocModalComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.edge.subscribeChannels(this.websocket, ChpsocModalComponent.SELECTOR + this.componentId, [
-            new ChannelAddress(this.controller.id, "Mode")
-        ]);
         this.thresholds['lower'] = this.controller.properties['lowThreshold'];
         this.thresholds['upper'] = this.controller.properties['highThreshold'];
     };
-
-    ngOnDestroy() {
-        this.edge.unsubscribeChannels(this.websocket, ChpsocModalComponent.SELECTOR + this.componentId);
-    }
-
-    cancel() {
-        this.modalCtrl.dismiss();
-    }
-
-
 
     /**  
     * Updates the Charge-Mode of the EVCS-Controller.

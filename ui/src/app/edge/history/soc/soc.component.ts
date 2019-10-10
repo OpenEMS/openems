@@ -49,6 +49,11 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
+    this.service.getConfig().then(config => {
+      if (!config.hasStorage()) {
+        this.colors.splice(0, 1);
+      }
+    })
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
@@ -130,42 +135,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
               }
             });
           };
-
-          /*
-          * Autarchy
-          */
-          if (config.hasProducer()) {
-            let autarchy = consumptionData.map((value, index) => {
-              if (value == null) {
-                return null
-              } else {
-                return CurrentData.calculateAutarchy(buyFromGridData[index], value);
-              }
-            })
-
-            datasets.push({
-              label: this.translate.instant('General.Autarchy'),
-              data: autarchy,
-              hidden: false
-            })
-
-            /*
-            * Self Consumption
-            */
-            let selfConsumption = productionData.map((value, index) => {
-              if (value == null) {
-                return null
-              } else {
-                return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
-              }
-            })
-
-            datasets.push({
-              label: this.translate.instant('General.SelfConsumption'),
-              data: selfConsumption,
-              hidden: false
-            })
-          }
 
           if ('_sum/GridActivePower' in result.data) {
             /*
@@ -264,6 +233,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
               hidden: false
             })
           }
+
           this.datasets = datasets;
           this.loading = false;
 
