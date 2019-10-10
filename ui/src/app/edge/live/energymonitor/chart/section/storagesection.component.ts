@@ -14,11 +14,11 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         trigger('popOverState', [
             state('show', style({
                 opacity: 1,
-                transform: 'translateX(0)'
+                transform: 'translatey(0)'
             })),
             state('hide', style({
                 opacity: 0,
-                transform: 'translateX(-10%)'
+                transform: 'translatey(+10%)'
             })),
             transition('show => hide', animate('600ms ease-out')),
             transition('hide => show', animate('1600ms ease-in'))
@@ -41,10 +41,10 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     ngOnInit() {
-        let timerId = setInterval(() => {
-            this.show = !this.show;
-        }, 850)
-        setTimeout(() => { clearInterval(timerId) }, 10000);
+        // let timerId = setInterval(() => {
+        //     this.show = !this.show;
+        // }, 850)
+        // setTimeout(() => { clearInterval(timerId) }, 10000);
     }
 
     get stateName() {
@@ -162,6 +162,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             v = 8;
         }
         let r = radius;
+        let animationWidth = (r * -1.2) - v;
         let p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r * 1.2 },
@@ -170,13 +171,21 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             middleBottom: { x: 0, y: (r * 1.2) - v },
             middleTop: { x: 0, y: 0 }
         }
-        if (ratio > 0) {
+        if (ratio < 0) {
+            // towards top
+            p.middleTop.y = p.middleBottom.y + animationWidth * 0.1;
+            p.topRight.y = p.bottomRight.y + animationWidth * 0.1;
+            p.topLeft.y = p.bottomLeft.y + animationWidth * 0.1;
+        } else if (ratio > 0) {
             // towards bottom
-            p.bottomLeft.y = p.bottomLeft.y - v;
-            p.middleBottom.y = p.middleBottom.y + v;
-            p.bottomRight.y = p.bottomRight.y - v;
+            p.middleTop.y = p.middleBottom.y + animationWidth * 0.75 + 2 * v;
+            p.topRight.y = p.bottomRight.y + animationWidth * 0.75;
+            p.topLeft.y = p.bottomLeft.y + animationWidth * 0.75;
+
+            p.middleBottom.y = p.middleTop.y + animationWidth * 0.1;
+            p.bottomRight.y = p.topRight.y + animationWidth * 0.1;
+            p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1;
         }
-        p = null;
         return p;
     }
 }

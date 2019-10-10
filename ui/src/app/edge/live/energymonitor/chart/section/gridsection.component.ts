@@ -163,29 +163,33 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         v = 8;
         // }
         let r = radius;
-        let animationWidth = r * 1.2 + v;
+        let animationWidth = r * -1.2 + v;
         let p = {
+            bottomRight: { x: v * -1, y: v },
+            bottomLeft: { x: r * -1.2, y: v },
+            topRight: { x: v * -1, y: v * -1 },
             topLeft: { x: r * -1.2, y: v * -1 },
             middleLeft: { x: r * -1.2 + v, y: 0 },
-            bottomLeft: { x: r * -1.2, y: v },
-            topRight: { x: null, y: v * -1 },
-            bottomRight: { x: null, y: v },
-            middleRight: { x: null, y: 0 }
+            middleRight: { x: 0, y: 0 }
         }
-        p.topRight.x = p.topLeft.x + animationWidth * 0.1;
-        p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.1;
-        p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
+
         if (ratio > 0) {
             // towards left
-            p.topLeft.x = p.topRight.x + animationWidth * 0.65;
-            p.middleLeft.x = p.middleRight.x - 2 * v + animationWidth * 0.65;
-            p.bottomLeft.x = p.bottomRight.x + animationWidth * 0.65;
-            p.topRight.x = p.topLeft.x + v * 1.25
-            p.middleRight.x = p.middleLeft.x + v * 1.25;
-            p.bottomRight.x = p.bottomLeft.x + v * 1.25;
+            p.middleRight.x = p.middleLeft.x - animationWidth * 0.9 - 2 * v;
+            p.topRight.x = p.topLeft.x - animationWidth * 0.9;
+            p.bottomRight.x = p.bottomLeft.x - animationWidth * 0.9;
+
+            p.middleLeft.x = p.middleRight.x - animationWidth * 0.1;
+            p.topLeft.x = p.topRight.x - animationWidth * 0.1;
+            p.bottomLeft.x = p.bottomRight.x - animationWidth * 0.1;
+        } else if (ratio < 0) {
+            // towards right
+            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
+            p.topRight.x = p.topLeft.x + animationWidth * 0.1;
+            p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.1;
+        } else {
+            p = null;
         }
-        console.log("TOPLEFT,GRID", p.topLeft.x)
-        console.log("TOPRIGHT,GRID", p.topRight.x)
         return p;
     }
 }

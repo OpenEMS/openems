@@ -118,7 +118,6 @@ export class ProductionSectionComponent extends AbstractSection {
             p.middleTop.y = p.middleTop.y - v;
             p.topRight.y = p.topRight.y + v;
         }
-        this.p = p;
         return p;
     }
 
@@ -128,23 +127,23 @@ export class ProductionSectionComponent extends AbstractSection {
             v = 8;
         }
         let r = radius;
-        let animationWidth = r * -1.2 + v;
+        let animationWidth = r * 1.2 + v;
         let p = {
             topLeft: { x: v * -1, y: r * -1.2 },
-            bottomLeft: { x: v * -1, y: null },
+            bottomLeft: { x: v * -1, y: v * -1 },
             topRight: { x: v, y: r * -1.2 },
-            bottomRight: { x: v, y: null },
-            middleBottom: { x: 0, y: null },
+            bottomRight: { x: v, y: v * -1 },
+            middleBottom: { x: 0, y: 0 },
             middleTop: { x: 0, y: r * -1.2 + v }
         }
-        p.bottomRight.y = p.bottomLeft.y
-        p.bottomLeft.y = p.bottomRight.y
-        p.middleBottom.y = p.middleTop.y
-        if (ratio < 0) {
-            // towards top
-            p.topLeft.y = p.topLeft.y + v;
-            p.middleTop.y = p.middleTop.y - v;
-            p.topRight.y = p.topRight.y + v;
+        if (ratio > 0) {
+            // towards bottom
+            p.bottomRight.y = p.topRight.y + animationWidth * 0.1
+            p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1
+            p.middleBottom.y = p.middleTop.y + animationWidth * 0.1
+        } else if (ratio < 0 || ratio == 0) {
+            // towards top or 0
+            p = null;
         }
         return p;
     }

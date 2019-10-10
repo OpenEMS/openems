@@ -132,27 +132,42 @@ export class ConsumptionSectionComponent extends AbstractSection {
         v = 8;
         // }
         let r = radius;
-        let animationWidth = 0.1 * ((r * 1.2) - v);
+        let animationWidth = 0.1 * ((r * - 1.2) - v);
         let p = {
             topLeft: { x: v, y: v * -1 },
-            middleLeft: { x: null, y: 0 },
+            middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
-            topRight: { x: null, y: v * -1 },
-            bottomRight: { x: null, y: v },
-            middleRight: { x: null, y: 0 }
+            topRight: { x: r * 1.2, y: v * -1 },
+            bottomRight: { x: r * 1.2, y: v },
+            middleRight: { x: (r * 1.2) - v, y: 0 }
         }
-        p.middleLeft.x = v * 2;
-        if (ratio > 0) {
-            p.topRight.x = p.topLeft.x + animationWidth + 1.6;
-            p.bottomRight.x = p.bottomLeft.x + animationWidth + 1.6;
-            p.middleRight.x = p.middleLeft.x + animationWidth + 1.6;
+
+        if (ratio < 0) {
+            // towards left
+        } else if (ratio > 0) {
             // towards right
-            // p.topRight.x = p.topRight.x - v;
-            // p.middleRight.x = p.middleRight.x + v;
-            // p.bottomRight.x = p.bottomRight.x - v;
+            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
+            p.topRight.x = p.topLeft.x + animationWidth * 0.1;
+            p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.1;
         }
         console.log("TOPLEFT,CONSUMPTION", p.topLeft.x)
         console.log("TOPRIGHT,CONSUMPTION", p.topRight.x)
         return p;
     }
 }
+
+// if (ratio < 0) {
+//     // towards top
+//     p.middleTop.y = p.middleBottom.y + animationWidth * 0.1;
+//     p.topLeft.y = p.bottomLeft.y + animationWidth * 0.1;
+//     p.topRight.y = p.bottomRight.y + animationWidth * 0.1;
+// } else if (ratio > 0) {
+//     // towards bottom
+//     p.middleTop.y = p.middleBottom.y + animationWidth * 0.75 + 2 * v;
+//     p.topRight.y = p.bottomRight.y + animationWidth * 0.75;
+//     p.topLeft.y = p.bottomLeft.y + animationWidth * 0.75;
+
+//     p.middleBottom.y = p.middleTop.y + animationWidth * 0.1;
+//     p.bottomRight.y = p.topRight.y + animationWidth * 0.1;
+//     p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1;
+// }
