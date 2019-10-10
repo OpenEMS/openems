@@ -142,6 +142,7 @@ export class ProductionSectionComponent extends AbstractSection {
             p.middleTop.y = p.middleTop.y - v;
             p.topRight.y = p.topRight.y + v;
         }
+        p = null;
         return p;
     }
 }

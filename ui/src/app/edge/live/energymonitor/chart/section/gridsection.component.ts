@@ -19,8 +19,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
                 opacity: 0,
                 transform: 'translateX(10%)'
             })),
-            transition('show => hide', animate('100ms')),
-            transition('hide => show', animate('300ms'))
+            transition('show => hide', animate('300ms')),
+            transition('hide => show', animate('0ms'))
         ])
     ]
 })
@@ -28,7 +28,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
     private unitpipe: UnitvaluePipe;
     public show = false;
-    private p = null;
 
     constructor(
         translate: TranslateService,
@@ -44,13 +43,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         //     this.show = !this.show;
         // }, 450)
         // setTimeout(() => { clearInterval(timerId) }, 10000);
-        // this.toggleBuy();
+        this.toggleBuy();
     }
 
     toggleBuy() {
         setInterval(() => {
             this.show = !this.show;
-        }, 450);
+        }, 850);
     }
 
     get stateName() {
@@ -155,39 +154,36 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
             p.middleLeft.x = p.middleLeft.x - v;
             p.bottomLeft.x = p.bottomLeft.x + v;
         }
-        this.p = p;
         return p;
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
+        // if (v < 8 && v != 0) {
+        v = 8;
+        // }
         let r = radius;
+        let animationWidth = r * 1.2 + v;
         let p = {
             topLeft: { x: r * -1.2, y: v * -1 },
             middleLeft: { x: r * -1.2 + v, y: 0 },
             bottomLeft: { x: r * -1.2, y: v },
-            topRight: { x: v * -1, y: v * -1 },
-            bottomRight: { x: v * -1, y: v },
-            middleRight: { x: 0, y: 0 }
+            topRight: { x: null, y: v * -1 },
+            bottomRight: { x: null, y: v },
+            middleRight: { x: null, y: 0 }
         }
+        p.topRight.x = p.topLeft.x + animationWidth * 0.1;
+        p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.1;
+        p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
         if (ratio > 0) {
             // towards left
             p.topLeft.x = p.topLeft.x + v;
             p.middleLeft.x = p.middleLeft.x - v;
             p.bottomLeft.x = p.bottomLeft.x + v;
         }
-        console.log("TR", p.topRight.x)
-
-        // let p = this.p;
-        // p.topLeft['x'] += 5;
-        // p.middleLeft['x'] += 5;
-        // p.bottomLeft['x'] += 5;
-        // p.topRight['x'] -= 80;
-        // p.bottomRight['x'] -= 80;
-        // p.middleRight['x'] -= 80;
+        console.log("GRID TOPLEFT", p.topLeft.x)
+        console.log("GRID MIDDLERIGHT", p.middleRight.x)
+        console.log("GRID TOPRIGHT", p.topRight.x)
         return p;
     }
 }

@@ -13,15 +13,15 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     animations: [
         trigger('popOverState', [
             state('show', style({
-                opacity: 1,
-                transform: 'translateX(0)'
+                opacity: 0.5,
+                transform: 'translateX(0%)',
             })),
             state('hide', style({
                 opacity: 0,
-                transform: 'translateX(-10%)'
+                transform: 'translateX(10%)'
             })),
-            transition('show => hide', animate('600ms ease-out')),
-            transition('hide => show', animate('1600ms ease-in'))
+            transition('show => hide', animate('300ms')),
+            transition('hide => show', animate('0ms'))
         ])
     ]
 })
@@ -44,6 +44,13 @@ export class ConsumptionSectionComponent extends AbstractSection {
         //     this.show = !this.show;
         // }, 850)
         // setTimeout(() => { clearInterval(timerId) }, 10000);
+        this.toggleAnimation();
+    }
+
+    toggleAnimation() {
+        setInterval(() => {
+            this.show = !this.show;
+        }, 850);
     }
 
     get stateName() {
@@ -121,25 +128,29 @@ export class ConsumptionSectionComponent extends AbstractSection {
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
+        // if (v < 8 && v != 0) {
+        v = 8;
+        // }
         let r = radius;
+        let animationWidth = 0.1 * ((r * 1.2) - v);
         let p = {
-            topLeft: { x: v + 2, y: v * -1 },
-            middleLeft: { x: 22, y: 0 },
-            bottomLeft: { x: v + 2, y: v },
-            topRight: { x: (r * 1.2) - 64, y: v * -1 },
-            bottomRight: { x: (r * 1.2) - 64, y: v },
-            middleRight: { x: (r * 1.2) - v - 64, y: 0 }
+            topLeft: { x: v, y: v * -1 },
+            middleLeft: { x: null, y: 0 },
+            bottomLeft: { x: v, y: v },
+            topRight: { x: null, y: v * -1 },
+            bottomRight: { x: null, y: v },
+            middleRight: { x: null, y: 0 }
         }
+        p.middleLeft.x = v * 2;
         if (ratio > 0) {
+            p.topRight.x = p.topLeft.x + animationWidth + 1.6;
+            p.bottomRight.x = p.bottomLeft.x + animationWidth + 1.6;
+            p.middleRight.x = p.middleLeft.x + animationWidth + 1.6;
             // towards right
-            p.topRight.x = p.topRight.x - v;
-            p.middleRight.x = p.middleRight.x + v;
-            p.bottomRight.x = p.bottomRight.x - v;
+            // p.topRight.x = p.topRight.x - v;
+            // p.middleRight.x = p.middleRight.x + v;
+            // p.bottomRight.x = p.bottomRight.x - v;
         }
-        p = null;
         return p;
     }
 }
