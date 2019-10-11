@@ -12,10 +12,10 @@ export class ProductionModalComponent {
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
-    @Input() edge: Edge;
-    @Input() config: EdgeConfig;
-    @Input() productionMeterComponents: EdgeConfig.Component[];
-    @Input() chargerComponents: EdgeConfig.Component[];
+    @Input() public edge: Edge;
+    @Input() public config: EdgeConfig;
+    @Input() public productionMeterComponents: EdgeConfig.Component[];
+    @Input() public chargerComponents: EdgeConfig.Component[];
 
     constructor(
         public service: Service,
