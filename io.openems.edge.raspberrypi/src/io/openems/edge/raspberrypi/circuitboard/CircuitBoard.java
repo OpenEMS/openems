@@ -25,12 +25,13 @@ public class CircuitBoard {
 	@Reference
 	private SpiInitial spiInitial;
 
-    private String circuitBoardId;
+	private String circuitBoardId;
     private String type;
     private String versionId;
-    private List<Sensor> sensors = new ArrayList<>();
+//  private List<Sensor> sensors = new ArrayList<>();
     private short maxCapacity;
-    private List<Integer> mcpListViaId = new ArrayList<>();
+    private List<Adc> adcList=new ArrayList<>();
+//  private List<Integer> mcpListViaId = new ArrayList<>();
 
 
 
@@ -39,22 +40,15 @@ public class CircuitBoard {
         this.circuitBoardId = config.boardId();
         this.versionId = config.versionNumber();
         this.type = config.boardType();
-
+        List<String> frequency=new ArrayList<>();
+        List<String> pPort= new ArrayList<>();
         instantiateCorrectBoard(config);
-
         spiInitial.getCircuitBoards().add(this);
-
-        //TODO When wiring pi is expanded
-        /*
-        for (Adc adcWantToActivate : spiInitial.getAdcList()
-        ) {
-            int counter = 0;
-            // if(adcWantToActivate.getId())
+        if(config.adcFrequency().contains(";")) {
+            for (String freq : config.adcFrequency().split(";")) {
+                frequency.add(freq);
+            }
         }
-
-        //Add to SpiManager
-
-         */
     }
 
 
@@ -82,15 +76,18 @@ public class CircuitBoard {
 
         int spiChannelWantToBeUsed;
         int mcpId;
-        if (spiInitial.getFreeSpiChannels().size() == 0) {
-            spiChannelWantToBeUsed = spiInitial.getSpiManager().size() + 1;
-        } else {
-            spiChannelWantToBeUsed = spiInitial.getFreeSpiChannels().get(0);
-            spiInitial.getFreeSpiChannels().remove(0);
-            if (spiInitial.getFreeSpiChannels().size() > 0) {
-                Collections.sort(spiInitial.getFreeSpiChannels());
-            }
-        }
+
+
+//        //
+//        if (spiInitial.getFreeSpiChannels().size() == 0) {
+//            spiChannelWantToBeUsed = spiInitial.getSpiManager().size() + 1;
+//        } else {
+//            spiChannelWantToBeUsed = spiInitial.getFreeSpiChannels().get(0);
+//            spiInitial.getFreeSpiChannels().remove(0);
+//            if (spiInitial.getFreeSpiChannels().size() > 0) {
+//                Collections.sort(spiInitial.getFreeSpiChannels());
+//            }
+//        }
 
         mcpId = getMcpId();
 

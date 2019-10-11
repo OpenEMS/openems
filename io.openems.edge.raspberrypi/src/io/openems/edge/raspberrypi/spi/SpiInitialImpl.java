@@ -59,8 +59,7 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
         if (this.isEnabled()) {
             this.worker.activate(config.id());
         }
-        //
-        Spi.wiringPiSPISetup(0, config.frequency());
+
 
     }
 
