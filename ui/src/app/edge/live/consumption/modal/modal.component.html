@@ -23,7 +23,7 @@
             </tr>
           </table>
           <!-- for spacing between Phases and Total Consumption -->
-          <div ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
+          <div *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null"
             style="padding-top: 5px;"></div>
           <!-- 3 Phases -->
           <table class="full_width"
