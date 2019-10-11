@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.controller.symmetric.selfconsumption" increment="1570785625866">
+  <resource>
+    <capability namespace="osgi.identity">
+      <attribute name="osgi.identity" value="io.openems.edge.controller.symmetric.selfconsumption"/>
+      <attribute name="type" value="osgi.bundle"/>
+      <attribute name="version" value="0.0.0" type="Version"/>
+    </capability>
+    <capability namespace="osgi.wiring.bundle">
+      <attribute name="bundle-version" value="0.0.0" type="Version"/>
+      <attribute name="osgi.wiring.bundle" value="io.openems.edge.controller.symmetric.selfconsumption"/>
+    </capability>
+    <capability namespace="osgi.wiring.host">
+      <attribute name="bundle-version" value="0.0.0" type="Version"/>
+      <attribute name="osgi.wiring.host" value="io.openems.edge.controller.symmetric.selfconsumption"/>
+    </capability>
+    <capability namespace="osgi.content">
+      <attribute name="size" value="145254" type="Long"/>
+      <attribute name="url" value="generated/io.openems.edge.controller.symmetric.selfconsumption.jar"/>
+      <attribute name="mime" value="application/vnd.osgi.bundle"/>
+      <attribute name="osgi.content" value="F7649BA920D1F637F69CBCF3F8B5729C18E678F10B454EDE2B3AA02390CA3100"/>
+    </capability>
+    <capability namespace="bndtools.workspace">
+      <attribute name="bndtools.workspace" value="file:/C:/Users/sagar.venu/git/Self-Consumption-workspace"/>
+      <attribute name="project.path" value="/io.openems.edge.controller.symmetric.selfconsumption"/>
+    </capability>
+  </resource>
+</repository>
