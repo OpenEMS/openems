@@ -26,7 +26,7 @@
         </svg:linearGradient>
     </svg:defs>
     <svg:polygon [attr.points]="energyFlow.points" attr.fill="url({{ url }}#{{ sectionId }})" />
-    <svg:polygon [attr.points]="energyFlow.animationPoints" style="fill:red;" />
+    <svg:polygon [@popOState]="stateName" [attr.points]="energyFlow.animationPoints" style="fill:red;" />
 </svg:g>
 
 <!-- [@popOverState]="stateName" -->

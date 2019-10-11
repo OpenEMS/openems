@@ -132,7 +132,7 @@ export class ConsumptionSectionComponent extends AbstractSection {
         v = 8;
         // }
         let r = radius;
-        let animationWidth = 0.1 * ((r * - 1.2) - v);
+        let animationWidth = (r * 1.2) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
@@ -141,33 +141,15 @@ export class ConsumptionSectionComponent extends AbstractSection {
             bottomRight: { x: r * 1.2, y: v },
             middleRight: { x: (r * 1.2) - v, y: 0 }
         }
-
-        if (ratio < 0) {
-            // towards left
-        } else if (ratio > 0) {
+        if (ratio > 0) {
             // towards right
-            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
             p.topRight.x = p.topLeft.x + animationWidth * 0.1;
+            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1 + 2 * v;
             p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.1;
+            p.middleLeft.x = p.middleRight.x - animationWidth * 0.1;
+        } else {
+            p = null;
         }
-        console.log("TOPLEFT,CONSUMPTION", p.topLeft.x)
-        console.log("TOPRIGHT,CONSUMPTION", p.topRight.x)
         return p;
     }
 }
-
-// if (ratio < 0) {
-//     // towards top
-//     p.middleTop.y = p.middleBottom.y + animationWidth * 0.1;
-//     p.topLeft.y = p.bottomLeft.y + animationWidth * 0.1;
-//     p.topRight.y = p.bottomRight.y + animationWidth * 0.1;
-// } else if (ratio > 0) {
-//     // towards bottom
-//     p.middleTop.y = p.middleBottom.y + animationWidth * 0.75 + 2 * v;
-//     p.topRight.y = p.bottomRight.y + animationWidth * 0.75;
-//     p.topLeft.y = p.bottomLeft.y + animationWidth * 0.75;
-
-//     p.middleBottom.y = p.middleTop.y + animationWidth * 0.1;
-//     p.bottomRight.y = p.topRight.y + animationWidth * 0.1;
-//     p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1;
-// }

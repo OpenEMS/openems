@@ -163,7 +163,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         v = 8;
         // }
         let r = radius;
-        let animationWidth = r * -1.2 + v;
+        let animationWidth = r * 1.2 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1.2, y: v },
@@ -175,13 +175,10 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
         if (ratio > 0) {
             // towards left
-            p.middleRight.x = p.middleLeft.x - animationWidth * 0.9 - 2 * v;
-            p.topRight.x = p.topLeft.x - animationWidth * 0.9;
-            p.bottomRight.x = p.bottomLeft.x - animationWidth * 0.9;
-
-            p.middleLeft.x = p.middleRight.x - animationWidth * 0.1;
             p.topLeft.x = p.topRight.x - animationWidth * 0.1;
+            p.middleLeft.x = p.middleRight.x - animationWidth * 0.1 - 2 * v;
             p.bottomLeft.x = p.bottomRight.x - animationWidth * 0.1;
+            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
         } else if (ratio < 0) {
             // towards right
             p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;

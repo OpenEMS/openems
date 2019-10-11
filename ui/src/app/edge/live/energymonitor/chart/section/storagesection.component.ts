@@ -11,17 +11,29 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     selector: '[storagesection]',
     templateUrl: './section.component.html',
     animations: [
-        trigger('popOverState', [
+        trigger('Discharge', [
             state('show', style({
                 opacity: 1,
-                transform: 'translatey(0)'
+                transform: 'translate(0,0)'
             })),
             state('hide', style({
                 opacity: 0,
-                transform: 'translatey(+10%)'
+                transform: 'translate(0,-10%)'
             })),
-            transition('show => hide', animate('600ms ease-out')),
-            transition('hide => show', animate('1600ms ease-in'))
+            transition('show => hide', animate('300ms')),
+            transition('hide => show', animate('0ms'))
+        ]),
+        trigger('Charge', [
+            state('show', style({
+                opacity: 1,
+                transform: 'translate(0,0)'
+            })),
+            state('hide', style({
+                opacity: 0,
+                transform: 'translate(0,10%)'
+            })),
+            transition('show => hide', animate('300ms')),
+            transition('hide => show', animate('0ms'))
         ])
     ]
 })
@@ -45,6 +57,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         //     this.show = !this.show;
         // }, 850)
         // setTimeout(() => { clearInterval(timerId) }, 10000);
+        setInterval(() => {
+            this.show = !this.show;
+        }, 850)
     }
 
     get stateName() {
@@ -178,13 +193,10 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             p.topLeft.y = p.bottomLeft.y + animationWidth * 0.1;
         } else if (ratio > 0) {
             // towards bottom
-            p.middleTop.y = p.middleBottom.y + animationWidth * 0.75 + 2 * v;
-            p.topRight.y = p.bottomRight.y + animationWidth * 0.75;
-            p.topLeft.y = p.bottomLeft.y + animationWidth * 0.75;
-
-            p.middleBottom.y = p.middleTop.y + animationWidth * 0.1;
-            p.bottomRight.y = p.topRight.y + animationWidth * 0.1;
-            p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1;
+            p.bottomLeft.y = p.topLeft.y - animationWidth * 0.1;
+            p.middleBottom.y = p.middleTop.y - animationWidth * 0.1 + 2 * v;
+            p.bottomRight.y = p.topRight.y - animationWidth * 0.1;
+            p.middleTop.y = p.middleBottom.y + animationWidth * 0.1;
         } else {
             p = null;
         }
