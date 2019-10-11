@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Edge, Service, Websocket } from '../../../../shared/shared';
+import { Service } from '../../../../shared/shared';
 
 @Component({
   selector: AutarchyModalComponent.SELECTOR,
@@ -10,20 +10,8 @@ export class AutarchyModalComponent {
 
   private static readonly SELECTOR = "autarchy-modal";
 
-  @Input() edge: Edge;
-
   constructor(
     public service: Service,
-    private websocket: Websocket,
     public modalCtrl: ModalController,
   ) { }
-
-  ngOnInit() {
-  }
-
-  ngOnDestroy() {
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, AutarchyModalComponent.SELECTOR);
-    }
-  }
 }

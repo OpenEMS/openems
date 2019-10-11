@@ -1,12 +1,11 @@
-import { Component, Input, HostListener } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
-import { EvcsModalComponent } from './evcs-modal/modal.page';
+import { EvcsModalComponent } from './modal/modal.page';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
-type Priority = 'CAR' | 'STORAGE';
 
 @Component({
   selector: 'evcs',
@@ -20,6 +19,7 @@ export class EvcsComponent {
 
   public edge: Edge = null;
   public controller: EdgeConfig.Component = null;
+  public evcsComponent: EdgeConfig.Component = null;
   public chargeMode: ChargeMode = null;
 
   constructor(
@@ -47,10 +47,10 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'MaximumHardwarePower')
       ]);
 
-      // Gets the Controller for the given EVCS-Component.
+      // Gets the Controller & Component for the given EVCS-Component.
       this.service.getConfig().then(config => {
         let controllers = config.getComponentsByFactory("Controller.Evcs");
-
+        this.evcsComponent = config.getComponent(this.componentId);
         for (let controller of controllers) {
           let properties = controller.properties;
           if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
@@ -109,6 +109,7 @@ export class EvcsComponent {
         controller: this.controller,
         edge: this.edge,
         componentId: this.componentId,
+        evcsComponent: this.evcsComponent,
         getState: this.getState
       }
     });

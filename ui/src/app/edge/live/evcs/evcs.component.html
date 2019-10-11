@@ -1,17 +1,14 @@
-<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
+<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge && evcsComponent">
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-item lines="full" color="light">
       <ion-avatar>
         <ion-img src="assets/img/evcs.png"></ion-img>
       </ion-avatar>
-      <ion-label *ngIf="currentData[componentId + '/Alias'] as alias" style="padding-left: 20px;">
-        {{ alias }}
-      </ion-label>
-      <ion-label *ngIf="!currentData[componentId + '/Alias']" style="padding-left: 20px;" translate>
+      <ion-label *ngIf="evcsComponent.alias == evcsComponent.id" style="padding-left: 20px;" translate>
         Edge.Index.Widgets.EVCS.ChargingStation
-        <ion-text>
-          {{ componentId }}
-        </ion-text>
+      </ion-label>
+      <ion-label *ngIf="evcsComponent.alias != evcsComponent.id" style="padding-left: 20px;">
+        {{evcsComponent.alias}}
       </ion-label>
     </ion-item>
 
@@ -24,6 +21,13 @@
             </td>
             <td style="width:80%" class="align_right">
               {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"])}}
+            </td>
+          </tr>
+          <tr *ngIf="currentData[componentId + '/ChargePower'] > 0 || currentData[componentId + '/Status'] == 2">
+            <td style="width:65%" translate>
+              Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+            <td style="width:35%" class="align_right">
+              {{ currentData[componentId + "/EnergySession"] | unitvalue:'kWh' }}
             </td>
           </tr>
         </table>
@@ -95,15 +99,6 @@
               {{(controller.properties['energySessionLimit']) | unitvalue:'kWh'}}
             </td>
           </tr>
-          <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0">
-            <tr>
-              <td style="width:65%" translate>
-                Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
-              <td style="width:35%" class="align_right">
-                {{ currentData[componentId + "/EnergySession"] | unitvalue:'kWh' }}
-              </td>
-            </tr>
-          </ng-container>
         </table>
       </ion-card-content>
     </ng-container>
