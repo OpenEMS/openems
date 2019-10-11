@@ -242,7 +242,9 @@ export class ModalComponentEvcsCluster implements OnInit {
             this.chargePlug = plug;
 
             if (this.chargePlug == null) {
-                return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                if (this.chargeState == null) {
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                }
             } else if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
                 return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
             }
