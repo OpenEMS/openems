@@ -99,8 +99,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		}
 
 		CompletableFuture<AuthenticatedRpcResponse> result = new CompletableFuture<AuthenticatedRpcResponse>();
-		resultFuture.thenAccept(r -> {
-			result.complete(new AuthenticatedRpcResponse(authenticatedRpcRequest.getId(), r));
+		resultFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				result.completeExceptionally(ex);
+			} else if (r != null) {
+				result.complete(new AuthenticatedRpcResponse(authenticatedRpcRequest.getId(), r));
+			} else {
+				result.completeExceptionally(
+						new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, request.getMethod()));
+			}
 		});
 		return result;
 	}
@@ -217,7 +224,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
+		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
 				request.getPayload());
 
 		// handle null response
@@ -227,8 +234,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// Wrap reply in EdgeRpcResponse
 		CompletableFuture<GenericJsonrpcResponseSuccess> edgeRpcResponse = new CompletableFuture<>();
-		responseFuture.thenAccept(response -> {
-			edgeRpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		responseFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				edgeRpcResponse.completeExceptionally(ex);
+			} else if (r != null) {
+				edgeRpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), r.getResult()));
+			} else {
+				edgeRpcResponse.completeExceptionally(new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD,
+						request.getPayload().getMethod()));
+			}
 		});
 
 		return edgeRpcResponse;

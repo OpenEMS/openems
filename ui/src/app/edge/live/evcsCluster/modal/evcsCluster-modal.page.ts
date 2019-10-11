@@ -1,9 +1,8 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { ModalController, IonSlides, IonReorderGroup } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonReorderGroup, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -260,6 +259,8 @@ export class ModalComponentEvcsCluster implements OnInit {
                     return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
                 case ChargeState.AUTHORIZATION_REJECTED:
                     return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                case ChargeState.ENERGY_LIMIT_REACHED:
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
             }
         }
         return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
@@ -315,7 +316,8 @@ enum ChargeState {
     READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
     CHARGING,                 //Charging
     ERROR,                    //Error
-    AUTHORIZATION_REJECTED    //Authorization rejected
+    AUTHORIZATION_REJECTED,   //Authorization rejected
+    ENERGY_LIMIT_REACHED      //Charge limit reached
 }
 
 enum ChargePlug {

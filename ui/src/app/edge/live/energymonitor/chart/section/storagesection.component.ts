@@ -4,7 +4,7 @@ import { interval } from 'rxjs';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { WidgetClass } from 'src/app/shared/type/widget';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 
 @Component({
     selector: '[storagesection]',
@@ -13,12 +13,15 @@ import { WidgetClass } from 'src/app/shared/type/widget';
 export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     private socValue: number
+    private unitpipe: UnitvaluePipe;
 
     constructor(
         translate: TranslateService,
-        service: Service
+        service: Service,
+        unitpipe: UnitvaluePipe,
     ) {
         super('Edge.Index.Energymonitor.Storage', "down", "#009846", translate, service, "Storage");
+        this.unitpipe = unitpipe;
     }
 
     protected getStartAngle(): number {
@@ -96,7 +99,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-        return value + " W";
+        return this.unitpipe.transform(value, 'kW');
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {

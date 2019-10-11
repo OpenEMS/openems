@@ -107,13 +107,20 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 			// Unwrap Response
 			CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<JsonrpcResponseSuccess>();
-			responseFuture.thenAccept(r -> {
-				try {
-					AuthenticatedRpcResponse response = AuthenticatedRpcResponse.from(r);
-					result.complete(response.getPayload());
-				} catch (OpenemsNamedException e) {
-					this.logError(this.log, e.getMessage());
-					throw new RuntimeException(e.getMessage());
+			responseFuture.whenComplete((r, ex) -> {
+				if (ex != null) {
+					result.completeExceptionally(ex);
+				} else if (r != null) {
+					try {
+						AuthenticatedRpcResponse response = AuthenticatedRpcResponse.from(r);
+						result.complete(response.getPayload());
+					} catch (OpenemsNamedException e) {
+	                    this.logError(this.log, e.getMessage());
+						result.completeExceptionally(e);
+					}
+				} else {
+					result.completeExceptionally(
+							new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, request.getMethod()));
 				}
 			});
 			return result;
