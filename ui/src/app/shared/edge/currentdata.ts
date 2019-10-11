@@ -87,12 +87,12 @@ export class CurrentData {
       }
       result.grid.gridMode = c['_sum/GridMode'];
       if (gridActivePower > 0) {
-        result.grid.sellActivePower = 0;
+        result.grid.sellActivePower = null;
         result.grid.buyActivePower = gridActivePower;
         result.grid.powerRatio = Utils.orElse(Utils.divideSafely(gridActivePower, result.grid.maxBuyActivePower), 0);
       } else {
         result.grid.sellActivePower = gridActivePower * -1;
-        result.grid.buyActivePower = 0;
+        result.grid.buyActivePower = null;
         result.grid.powerRatio = Utils.orElse(Utils.divideSafely(gridActivePower, result.grid.maxSellActivePower), 0);
       }
     }
