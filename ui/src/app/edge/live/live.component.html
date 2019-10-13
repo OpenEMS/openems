@@ -1,7 +1,7 @@
 <ion-grid *ngIf="edge">
   <ion-row class="ion-justify-content-center">
     <!-- Energymonitor -->
-    <ion-col size="12" size-md="8" size-lg="4" class="ion-no-padding">
+    <ion-col size="12" size-md="8" size-lg="3" class="ion-no-padding">
       <energymonitor></energymonitor>
     </ion-col>
 
@@ -9,9 +9,6 @@
     <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
       <ion-grid class="ion-no-padding">
         <ion-row>
-          <ion-col size="12" size-lg="6" class="ion-no-padding">
-            <energyflow></energyflow>
-          </ion-col>
           <!-- Regular Widgets -->
           <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 

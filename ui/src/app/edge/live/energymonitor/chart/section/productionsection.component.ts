@@ -9,19 +9,19 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 
 @Component({
     selector: '[productionsection]',
-    templateUrl: './section.component.html',
+    templateUrl: './production.component.html',
     animations: [
-        trigger('popOverState', [
+        trigger('Production', [
             state('show', style({
-                opacity: 1,
-                transform: 'translateX(0)'
+                opacity: 0.3,
+                transform: 'translateY(0)'
             })),
             state('hide', style({
                 opacity: 0,
-                transform: 'translateX(-10%)'
+                transform: 'translateY(10%)'
             })),
-            transition('show => hide', animate('600ms ease-out')),
-            transition('hide => show', animate('1600ms ease-in'))
+            transition('show => hide', animate('300ms')),
+            transition('hide => show', animate('0ms'))
         ])
     ]
 })
@@ -29,7 +29,7 @@ export class ProductionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
     public show = false;
-    private p: any = null;
+    public production = false;
 
     constructor(
         translate: TranslateService,
@@ -41,10 +41,13 @@ export class ProductionSectionComponent extends AbstractSection {
     }
 
     ngOnInit() {
-        let timerId = setInterval(() => {
+    }
+
+    toggleAnimation() {
+        setInterval(() => {
             this.show = !this.show;
-        }, 850)
-        setTimeout(() => { clearInterval(timerId) }, 10000);
+        }, this.animationSpeed);
+        this.production = true;
     }
 
     get stateName() {
@@ -66,6 +69,9 @@ export class ProductionSectionComponent extends AbstractSection {
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
         let arrowIndicate: number;
         if (sum.production.activePower > 49) {
+            if (!this.production) {
+                this.toggleAnimation();
+            }
             arrowIndicate = Utils.divideSafely(sum.production.activePower, sum.system.totalPower);
         } else {
             arrowIndicate = 0;
@@ -78,7 +84,7 @@ export class ProductionSectionComponent extends AbstractSection {
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         let x = (square.length / 2) * (-1);
-        let y = (innerRadius - 5) * (-1);
+        let y = (innerRadius - 10) * (-1);
         return new SvgSquarePosition(x, y);
     }
 
@@ -94,15 +100,13 @@ export class ProductionSectionComponent extends AbstractSection {
         return this.unitpipe.transform(value, 'kW');
     }
 
-    protected initEnergyFlow(radius: number): EnergyFlow {
+    protected initEnergyFlow(radius: number, animationSpeed: number): EnergyFlow {
+        this.animationSpeed = animationSpeed;
         return new EnergyFlow(radius, { x1: "50%", y1: "100%", x2: "50%", y2: "0%" });
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
         let r = radius;
         let p = {
             topLeft: { x: v * -1, y: r * -1.2 },

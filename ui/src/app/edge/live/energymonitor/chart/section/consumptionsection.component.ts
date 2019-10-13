@@ -9,11 +9,11 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 
 @Component({
     selector: '[consumptionsection]',
-    templateUrl: './section.component.html',
+    templateUrl: './consumption.component.html',
     animations: [
-        trigger('popOverState', [
+        trigger('Consumption', [
             state('show', style({
-                opacity: 0.5,
+                opacity: 0.7,
                 transform: 'translateX(0%)',
             })),
             state('hide', style({
@@ -29,6 +29,7 @@ export class ConsumptionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
     public show = false;
+    public consumption = false;
 
     constructor(
         unitpipe: UnitvaluePipe,
@@ -40,17 +41,13 @@ export class ConsumptionSectionComponent extends AbstractSection {
     }
 
     ngOnInit() {
-        // let timerId = setInterval(() => {
-        //     this.show = !this.show;
-        // }, 850)
-        // setTimeout(() => { clearInterval(timerId) }, 10000);
-        this.toggleAnimation();
     }
 
     toggleAnimation() {
         setInterval(() => {
             this.show = !this.show;
-        }, 850);
+        }, this.animationSpeed);
+        this.consumption = true;
     }
 
     get stateName() {
@@ -72,6 +69,9 @@ export class ConsumptionSectionComponent extends AbstractSection {
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
         let arrowIndicate: number;
         if (sum.consumption.activePower > 49) {
+            if (!this.consumption) {
+                this.toggleAnimation();
+            }
             arrowIndicate = Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower);
         } else {
             arrowIndicate = 0;
@@ -99,15 +99,13 @@ export class ConsumptionSectionComponent extends AbstractSection {
         return this.unitpipe.transform(value, 'kW')
     }
 
-    protected initEnergyFlow(radius: number): EnergyFlow {
+    protected initEnergyFlow(radius: number, animationSpeed: number): EnergyFlow {
+        this.animationSpeed = animationSpeed;
         return new EnergyFlow(radius, { x1: "0%", y1: "50%", x2: "100%", y2: "50%" });
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
         let r = radius;
         let p = {
             topLeft: { x: v, y: v * -1 },
@@ -115,22 +113,20 @@ export class ConsumptionSectionComponent extends AbstractSection {
             bottomLeft: { x: v, y: v },
             topRight: { x: r * 1.2, y: v * -1 },
             bottomRight: { x: r * 1.2, y: v },
-            middleRight: { x: (r * 1.2) - v, y: 0 }
+            middleRight: { x: r * 1.2 - v, y: 0 }
         }
         if (ratio > 0) {
             // towards right
             p.topRight.x = p.topRight.x - v;
             p.middleRight.x = p.middleRight.x + v;
             p.bottomRight.x = p.bottomRight.x - v;
+            p.middleLeft.x = p.topLeft.x + v;
         }
         return p;
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        // if (v < 8 && v != 0) {
-        v = 8;
-        // }
         let r = radius;
         let animationWidth = (r * 1.2) - v;
         let p = {
@@ -139,7 +135,7 @@ export class ConsumptionSectionComponent extends AbstractSection {
             bottomLeft: { x: v, y: v },
             topRight: { x: r * 1.2, y: v * -1 },
             bottomRight: { x: r * 1.2, y: v },
-            middleRight: { x: (r * 1.2) - v, y: 0 }
+            middleRight: { x: r * 1.2 - v, y: 0 }
         }
         if (ratio > 0) {
             // towards right

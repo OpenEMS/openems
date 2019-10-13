@@ -9,39 +9,42 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 
 @Component({
     selector: '[storagesection]',
-    templateUrl: './section.component.html',
+    templateUrl: './storage.component.html',
     animations: [
         trigger('Discharge', [
             state('show', style({
-                opacity: 1,
-                transform: 'translate(0,0)'
+                opacity: 0.3,
+                transform: 'translateY(0)'
             })),
             state('hide', style({
                 opacity: 0,
-                transform: 'translate(0,-10%)'
+                transform: 'translateY(-10%)'
             })),
             transition('show => hide', animate('300ms')),
             transition('hide => show', animate('0ms'))
         ]),
         trigger('Charge', [
             state('show', style({
-                opacity: 1,
-                transform: 'translate(0,0)'
+                opacity: 0.3,
+                transform: 'translateY(0)'
             })),
             state('hide', style({
                 opacity: 0,
-                transform: 'translate(0,10%)'
+                transform: 'translateY(10%)'
             })),
             transition('show => hide', animate('300ms')),
-            transition('hide => show', animate('0ms'))
+            transition('hide => show', animate('100ms'))
         ])
     ]
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
 
-    private socValue: number
+    public socValue: number
     private unitpipe: UnitvaluePipe;
-    public show = false;
+    public showCharge = false;
+    public showDischarge = false;
+    public charge = false;
+    public discharge = false;
 
     constructor(
         translate: TranslateService,
@@ -53,17 +56,30 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     ngOnInit() {
-        // let timerId = setInterval(() => {
-        //     this.show = !this.show;
-        // }, 850)
-        // setTimeout(() => { clearInterval(timerId) }, 10000);
-        setInterval(() => {
-            this.show = !this.show;
-        }, 850)
     }
 
-    get stateName() {
-        return this.show ? 'show' : 'hide'
+    toggleCharge() {
+        setInterval(() => {
+            this.showCharge = !this.showCharge;
+        }, this.animationSpeed);
+        this.charge = true;
+        this.discharge = false;
+    }
+
+    toggleDischarge() {
+        setInterval(() => {
+            this.showDischarge = !this.showDischarge;
+        }, this.animationSpeed);
+        this.charge = false;
+        this.discharge = true;
+    }
+
+    get stateNameCharge() {
+        return this.showCharge ? 'show' : 'hide'
+    }
+
+    get stateNameDischarge() {
+        return this.showDischarge ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -79,10 +95,12 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-
         if (sum.storage.effectiveChargePower != null) {
             let arrowIndicate: number;
             if (sum.storage.effectiveChargePower > 49) {
+                if (!this.charge) {
+                    this.toggleCharge();
+                }
                 arrowIndicate = Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower);
             } else {
                 arrowIndicate = 0;
@@ -96,6 +114,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         } else if (sum.storage.effectiveDischargePower != null) {
             let arrowIndicate: number;
             if (sum.storage.effectiveDischargePower > 49) {
+                if (!this.discharge) {
+                    this.toggleDischarge();
+                }
                 arrowIndicate = Utils.multiplySafely(
                     Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower), -1);
             } else {
@@ -124,16 +145,28 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        if (this.socValue < 20) {
-            return "storage_20.png"
-        } else if (this.socValue < 40) {
-            return "storage_40.png"
-        } else if (this.socValue < 60) {
-            return "storage_60.png"
-        } else if (this.socValue < 80) {
-            return "storage_80.png"
+        if (this.socValue < 11) {
+            return "storage_10_monitor.png"
+        } else if (this.socValue < 21) {
+            return "storage_20_monitor.png"
+        } else if (this.socValue < 31) {
+            return "storage_30_monitor.png"
+        } else if (this.socValue < 41) {
+            return "storage_40_monitor.png"
+        } else if (this.socValue < 51) {
+            return "storage_50_monitor.png"
+        } else if (this.socValue < 61) {
+            return "storage_60_monitor.png"
+        } else if (this.socValue < 71) {
+            return "storage_71_monitor.png"
+        } else if (this.socValue < 81) {
+            return "storage_80_monitor.png"
+        } else if (this.socValue < 88) {
+            return "storage_90_monitor.png"
+        } else if (this.socValue < 101) {
+            return "storage_100_monitor.png"
         } else {
-            return "storage_100.png"
+            return "storage_empty_monitor.png"
         }
     }
 
@@ -144,15 +177,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         return this.unitpipe.transform(value, 'kW');
     }
 
-    protected initEnergyFlow(radius: number): EnergyFlow {
+    protected initEnergyFlow(radius: number, animationSpeed: number): EnergyFlow {
+        this.animationSpeed = animationSpeed;
         return new EnergyFlow(radius, { x1: "50%", y1: "0%", x2: "50%", y2: "100%" });
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
         let r = radius;
         let p = {
             topLeft: { x: v * -1, y: v },
@@ -167,6 +198,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             p.bottomLeft.y = p.bottomLeft.y - v;
             p.middleBottom.y = p.middleBottom.y + v;
             p.bottomRight.y = p.bottomRight.y - v;
+            p.middleTop.y = p.topLeft.y + v;
         }
         return p;
     }

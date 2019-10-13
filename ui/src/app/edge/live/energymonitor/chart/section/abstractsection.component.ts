@@ -134,6 +134,7 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
     public isEnabled: boolean = false;
+    public animationSpeed: number = 580;
 
     protected valueText: string = "";
     protected valueText2: string = "";
@@ -155,7 +156,7 @@ export abstract class AbstractSection {
     ) {
         this.sectionId = translateName;
         this.name = translate.instant(translateName);
-        this.energyFlow = this.initEnergyFlow(0);
+        this.energyFlow = this.initEnergyFlow(0, this.animationSpeed);
         service.getConfig().then(config => {
             config.widgets.classes.forEach(clazz => {
                 if (clazz.toString() === widgetClass) {
@@ -289,7 +290,7 @@ export abstract class AbstractSection {
          * energy flow rectangle
          */
         let availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
-        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
+        this.energyFlow = this.initEnergyFlow(availableInnerRadius, this.animationSpeed);
 
         // now update also the value specific elements
         if (this.lastCurrentData) {
@@ -330,7 +331,7 @@ export abstract class AbstractSection {
     protected abstract getImagePath(): string;
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
-    protected abstract initEnergyFlow(radius: number): EnergyFlow;
+    protected abstract initEnergyFlow(radius: number, animationSpeed: number): EnergyFlow;
 
     protected getArc(): any {
         return d3.arc()
