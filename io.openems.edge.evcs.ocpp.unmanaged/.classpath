@@ -42,5 +42,95 @@
 	</classpathentry>
 	<classpathentry kind="src" path="/io.openems.edge.evcs.api"/>
 	<classpathentry kind="src" path="/io.openems.common"/>
+	<classpathentry kind="lib" path="C:/Users/sebastian.asen/.m2/repository/org/osgi/osgi.enroute.base.api/2.1.0/osgi.enroute.base.api-2.1.0.jar" sourcepath="C:/Users/sebastian.asen/.m2/repository/org/osgi/osgi.enroute.base.api/2.1.0/osgi.enroute.base.api-2.1.0.jar">
+		<attributes>
+			<attribute name="bsn" value="osgi.enroute.base.api"/>
+			<attribute name="type" value="REPO"/>
+			<attribute name="project" value="io.openems.backend.application"/>
+			<attribute name="version" value="2.1"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="aQute/bnd/annotation/headers/*"/>
+			<accessrule kind="accessible" pattern="aQute/bnd/annotation/licenses/*"/>
+			<accessrule kind="accessible" pattern="aQute/bnd/annotation/metatype/*"/>
+			<accessrule kind="accessible" pattern="javax/servlet/*"/>
+			<accessrule kind="accessible" pattern="javax/servlet/http/*"/>
+			<accessrule kind="accessible" pattern="javax/servlet/annotation/*"/>
+			<accessrule kind="accessible" pattern="javax/servlet/descriptor/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/annotation/versioning/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/bundle/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/resolver/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/service/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/weaving/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/launch/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/namespace/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/startlevel/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/startlevel/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/wiring/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/wiring/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/namespace/contract/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/namespace/extender/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/namespace/implementation/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/namespace/service/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/http/whiteboard/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/http/context/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/http/runtime/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/http/runtime/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/resource/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/resource/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/async/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/async/delegate/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/cm/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/component/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/component/runtime/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/component/runtime/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/component/annotations/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/coordinator/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/event/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/http/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/log/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/metatype/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/metatype/annotations/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/remoteserviceadmin/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/url/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/useradmin/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/util/function/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/util/promise/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/util/tracker/*"/>
+			<accessrule kind="accessible" pattern="org/slf4j/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/authentication/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/authorization/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/configurer/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/debug/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/dto/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/eventadminserversentevents/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/executor/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/github/angular_ui/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/google/angular/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/http/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/iot/admin/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/iot/admin/dto/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/iot/gpio/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/iot/gpio/util/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/jsonrpc/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/jsonrpc/dto/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/launch/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/logger/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/namespace/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/rest/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/rootservlet/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/scheduler/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/servlet/api/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/stackexchange/pagedown/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/twitter/bootstrap/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/webserver/capabilities/*"/>
+			<accessrule kind="accessible" pattern="osgi/enroute/jsplumb/capabilities/*"/>
+			<accessrule ignoreifbetter="true" kind="discouraged" pattern="**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

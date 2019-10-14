@@ -35,7 +35,10 @@ Private-Package:  \
 	io.openems.edge.common;version=latest,\
 	org.java-websocket:Java-WebSocket,\
 	com.sun.jna,\
-	io.openems.edge.evcs.ocpp.unmanaged;version=latest
+	io.openems.edge.evcs.ocpp.unmanaged;version=latest,\
+	org.ops4j.pax.logging.pax-logging-api,\
+	osgi.enroute.logger.simple.provider,\
+	slf4j.api
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
