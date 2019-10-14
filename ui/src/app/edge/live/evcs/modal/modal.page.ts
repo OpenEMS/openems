@@ -17,6 +17,7 @@ export class EvcsModalComponent implements OnInit {
   @Input() public controller: EdgeConfig.Component;
   @Input() public getState: () => String;
   @Input() public componentId: string;
+  @Input() public evcsComponent: EdgeConfig.Component;
 
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;

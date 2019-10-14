@@ -77,7 +77,8 @@ export class IndexComponent {
       .filter(edgeId => {
         let edge = allEdges[edgeId];
         if (/* name */ edge.id.toLowerCase().includes(filter)
-          || /* comment */ edge.comment.toLowerCase().includes(filter)) {
+          || /* comment */ edge.comment.toLowerCase().includes(filter)
+          || /* producttype */ edge.producttype.toLowerCase().includes(filter)) {
           return true;
         }
         return false;
