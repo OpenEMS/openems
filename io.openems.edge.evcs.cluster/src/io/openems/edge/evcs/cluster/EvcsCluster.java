@@ -28,6 +28,8 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Status;
+
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +60,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	private double totalPowerLeftInACycle = 0; // W
 	private final int MINIMUM_EVCS_CHARGING_POWER = 4500; // W
 	private LocalDateTime lastPowerLeftDistribution = LocalDateTime.now();
-	private final int POWER_LEFT_DISTRIBUTION_MIN_TIME = 10; // sec
+	private final int POWER_LEFT_DISTRIBUTION_MIN_TIME = 30; // sec
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -202,30 +204,37 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			// Defines the active charging stations that are charging
 			List<ManagedEvcs> activeEvcss = new ArrayList<>();
 			for (ManagedEvcs evcs : this.sortedEvcss) {
-				int requestedPower = evcs.setChargePowerRequest().getNextWriteValue().orElse(0);
-				if (requestedPower > 0) {
+				Status status = evcs.status().value().asEnum();
+				switch (status) {
+				case ERROR:
+				case STARTING:
+				case UNDEFINED:
+				case NOT_READY_FOR_CHARGING:
+				case ENERGY_LIMIT_REACHED:
+					break;
+				case CHARGING_REJECTED:
+				case READY_FOR_CHARGING:
+				case CHARGING:
 					activeEvcss.add(evcs);
-					int evcsMaxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
-					int guarantee = evcsMaxPower > MINIMUM_EVCS_CHARGING_POWER ? MINIMUM_EVCS_CHARGING_POWER
-							: evcsMaxPower;
-					totalPowerLeftMinusGuarantee -= guarantee;
-				} else {
-					evcs.setChargePowerLimit().setNextWriteValue(0);
+					int requestedPower = evcs.setChargePowerRequest().getNextWriteValue().orElse(0);
+					if (requestedPower > 0) {
+
+						int evcsMaxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
+						int guarantee = evcsMaxPower > MINIMUM_EVCS_CHARGING_POWER ? MINIMUM_EVCS_CHARGING_POWER
+								: evcsMaxPower;
+						totalPowerLeftMinusGuarantee -= guarantee;
+						evcs.getMinimumPower().setNextValue(guarantee);
+					}
 				}
 			}
 			
 			this.logInfo(this.log, "Total Power to distribute: "+ totalPowerLeftMinusGuarantee);		
 			
-			// Distributes the available Power to the active Evcss
+			// Distributes the available Power to the active EVCSs
 			for (ManagedEvcs evcs : activeEvcss) {
-				int evcsMaxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
-				int guarantee = evcsMaxPower > MINIMUM_EVCS_CHARGING_POWER ? MINIMUM_EVCS_CHARGING_POWER : evcsMaxPower;
+				int guarantee = evcs.getMinimumPower().value().orElse(0);
 
-				if (evcsMaxPower == 0) {
-					break;
-				}
-				
-				// Power left for the single evcs including their guarantee
+				// Power left for the single EVCS including their guarantee
 				int powerLeft = totalPowerLeftMinusGuarantee + guarantee;
 
 				int nextChargePower;
