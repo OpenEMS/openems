@@ -12,7 +12,4 @@ export class SelfconsumptionModalComponent {
         public service: Service,
         public modalCtrl: ModalController,
     ) { }
-
-    ngOnInit() {
-    }
 }
