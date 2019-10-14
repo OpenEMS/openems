@@ -397,6 +397,10 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
+		
+		ESS_AMPERE_HOURS(Doc.of(OpenemsType.LONG).unit(Unit.AMPERE_HOURS)),
+		
+		
 		/**
 		 * Grid: Buy-from-grid Energy ("Production").
 		 * 
@@ -645,6 +649,10 @@ public interface Sum extends OpenemsComponent {
 
 	public default Channel<Long> getEssActiveDischargeEnergy() {
 		return this.channel(ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY);
+	}
+	
+	public default Channel<Long> getEssAmperHours() {
+		return this.channel(ChannelId.ESS_AMPERE_HOURS);
 	}
 
 	public default Channel<Long> getGridBuyActiveEnergy() {

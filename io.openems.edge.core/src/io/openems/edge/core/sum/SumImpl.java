@@ -100,6 +100,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final CalculateLongSum essActiveChargeEnergy = new CalculateLongSum();
 		final CalculateLongSum essActiveDischargeEnergy = new CalculateLongSum();
 		final CalculateIntegerSum essCapacity = new CalculateIntegerSum();
+		final CalculateLongSum essAmpereHour = new CalculateLongSum();
 
 		// Grid
 		final CalculateIntegerSum gridActivePower = new CalculateIntegerSum();
@@ -143,6 +144,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergy());
 				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
 				essCapacity.addValue(ess.getCapacity());
+				essAmpereHour.addValue(ess.channel("BmsAmpereHours"));
 
 				if (ess instanceof AsymmetricEss) {
 					AsymmetricEss e = (AsymmetricEss) ess;
@@ -257,6 +259,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.getEssActiveChargeEnergy().setNextValue(essActiveChargeEnergySum);
 		Long essActiveDischargeEnergySum = essActiveDischargeEnergy.calculate();
 		this.getEssActiveDischargeEnergy().setNextValue(essActiveDischargeEnergySum);
+		
+		Long essAmperHourSum = essAmpereHour.calculate();
+		this.getEssAmperHours().setNextValue(essAmperHourSum);
 
 		Integer essCapacitySum = essCapacity.calculate();
 		this.getEssCapacity().setNextValue(essCapacitySum);
@@ -391,6 +396,12 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		if (consumptionActivePower.isDefined()) {
 			result.append("Consumption:" + consumptionActivePower.asString() + " ");
 		}
+		
+		Value<Long> amperehours = this.getEssAmperHours().value();
+		if(amperehours.isDefined()) {
+			result.append("Amperehours:" + amperehours.asString() + " ");
+		}
+		
 		// Remove last 'space' character and return result
 		String resultString = result.toString();
 		return resultString.substring(0, resultString.length() - 1);
