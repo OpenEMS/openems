@@ -3,8 +3,6 @@ package io.openems.edge.evcs.ocpp.server;
 import java.util.Calendar;
 import java.util.UUID;
 
-import org.omg.CORBA.ValueMember;
-
 import eu.chargetime.ocpp.feature.profile.ServerCoreEventHandler;
 import eu.chargetime.ocpp.model.core.AuthorizationStatus;
 import eu.chargetime.ocpp.model.core.AuthorizeConfirmation;
@@ -28,6 +26,7 @@ import eu.chargetime.ocpp.model.core.StatusNotificationRequest;
 import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
+import io.openems.edge.evcs.api.OcppEvcs;
 
 public class EventHandler implements ServerCoreEventHandler {
 
@@ -65,7 +64,7 @@ public class EventHandler implements ServerCoreEventHandler {
 		StartTransactionConfirmation response = new StartTransactionConfirmation();
 		IdTagInfo tag = new IdTagInfo();
 		tag.setStatus(AuthorizationStatus.Accepted);
-		//tag.setParentIdTag(authorizeRequest.getIdTag());
+		// tag.setParentIdTag(authorizeRequest.getIdTag());
 		tag.validate();
 		response.setIdTagInfo(tag);
 		/*
@@ -110,23 +109,92 @@ public class EventHandler implements ServerCoreEventHandler {
 
 		System.out.println("handleMeterValuesRequest: " + request);
 
+		OcppEvcs evcs = this.parent.sessionMap.get(sessionIndex);
+		if (evcs == null) {
+			System.out.println("No Chargingstation for session " + sessionIndex + " found.");
+			return new MeterValuesConfirmation();
+		}
+
 		MeterValue[] meterValueArr = request.getMeterValue();
 		for (MeterValue meterValue : meterValueArr) {
 
 			SampledValue[] sampledValues = meterValue.getSampledValue();
 			for (SampledValue value : sampledValues) {
-				
-				// Value is formated in RAW data (integer/decimal) or in SignedData (binary data block, encoded as hex data)
-				ValueFormat format = value.getFormat();
-				
-				//value.getLocation(); Not really needed
-				
-				String measurand = value.getMeasurand();
+
+				// value.getLocation(); Not really needed
+
 				String phases = value.getPhase();
-				String unit = value.getUnit();
+
+				String unitString = value.getUnit();
+				Unit unit = Unit.valueOf(unitString.toUpperCase());
+
 				String val = value.getValue();
-				
-				System.out.println(value);
+
+				if (val != null) {
+					// Value is formated in RAW data (integer/decimal) or in SignedData (binary data block, encoded as hex data)
+					ValueFormat format = value.getFormat();
+					if (format.equals(ValueFormat.SignedData)) {
+						val = fromHexToString(val);
+					}
+
+					String measurandString = value.getMeasurand();
+					SampleValueMeasurand measurand = SampleValueMeasurand
+							.valueOf(measurandString.replace(".", ":").toUpperCase());
+
+					switch (measurand) {
+					case CURRENT_IMPORT:
+						break;
+					case CURRENT_EXPORT:
+						
+						break;
+					case CURRENT_OFFERED:
+						break;
+					case ENERGY_ACTIVE_EXPORT_INTERVAL:
+						break;
+					case ENERGY_ACTIVE_EXPORT_REGISTER:
+						break;
+					case ENERGY_ACTIVE_IMPORT_INTERVAL:
+						break;
+					case ENERGY_ACTIVE_IMPORT_REGISTER:
+						break;
+					case ENERGY_REACTIVE_EXPORT_INTERVAL:
+						break;
+					case ENERGY_REACTIVE_EXPORT_REGISTER:
+						break;
+					case ENERGY_REACTIVE_IMPORT_INTERVAL:
+						break;
+					case ENERGY_REACTIVE_IMPORT_REGISTER:
+						break;
+					case FREQUENCY:
+						break;
+					case POWER_ACTIVE_EXPORT:
+						break;
+					case POWER_ACTIVE_IMPORT:
+						if (unit.equals(Unit.KW)) {
+							val = divideByThousand(val);
+						}
+						evcs.getChargePower().setNextValue(val); 
+						break;
+					case POWER_FACTOR:
+						break;
+					case POWER_OFFERED:
+						break;
+					case POWER_REACTIVE_EXPORT:
+						break;
+					case POWER_REACTIVE_IMPORT:
+						break;
+					case RPM:
+						break;
+					case SOC:
+						break;
+					case TEMPERATURE:
+						break;
+					case VOLTAGE:
+						break;
+					}
+
+					System.out.println(value);
+				}
 			}
 		}
 
@@ -181,4 +249,20 @@ public class EventHandler implements ServerCoreEventHandler {
 		return response;
 	}
 
+	public String fromHexToString(String hex) {
+		StringBuilder str = new StringBuilder();
+		for (int i = 0; i < hex.length(); i += 2) {
+			str.append((char) Integer.parseInt(hex.substring(i, i + 2), 16));
+		}
+		return str.toString();
+	}
+
+
+	private String divideByThousand(String val) {
+		if(val.isEmpty()) {
+			return val;
+		}
+		return String.valueOf((Double.parseDouble(val)/1000.0));
+	}
+	
 }

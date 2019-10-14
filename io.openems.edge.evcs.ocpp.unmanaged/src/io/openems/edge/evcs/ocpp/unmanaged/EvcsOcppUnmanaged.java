@@ -11,11 +11,12 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.OcppEvcs;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -23,23 +24,37 @@ import io.openems.edge.evcs.api.Evcs;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class EvcsOcppUnmanaged extends AbstractOpenemsComponent implements Evcs, OpenemsComponent, EventHandler {
+public class EvcsOcppUnmanaged extends AbstractOpenemsComponent implements Evcs, OcppEvcs, OpenemsComponent, EventHandler {
 
-	private Boolean lastConnectionLostState = false;
 	//private final WriteHandler writeHandler = new WriteHandler(this);
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId{
+		;
+		private Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+	
 	public EvcsOcppUnmanaged() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				EvcsOcppUnmanagedChannelId.values() //
-
+				OcppEvcs.ChannelId.values(), //
+				ChannelId.values() //
 		);
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		
+		this.channel(OcppEvcs.ChannelId.OCPP_ID).setNextValue(config.ocpp_id());
 	}
 
 	@Deactivate
@@ -52,31 +67,9 @@ public class EvcsOcppUnmanaged extends AbstractOpenemsComponent implements Evcs,
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 
-			// Clear channels if the connection to the Charging Station has been lost
-			Channel<Boolean> connectionLostChannel = this.channel(EvcsOcppUnmanagedChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
-			Boolean connectionLost = connectionLostChannel.value().orElse(lastConnectionLostState);
-			if (connectionLost != lastConnectionLostState) {
-				if (connectionLost) {
-					resetChannelValues();
-				}
-				lastConnectionLostState = connectionLost;
-			}
-
 			// handle writes
 			//this.writeHandler.run();
 			break;
-		}
-	}
-
-	/**
-	 * Resets all channel values except the Communication_Failed channel
-	 */
-	private void resetChannelValues() {
-		for (EvcsOcppUnmanagedChannelId c : EvcsOcppUnmanagedChannelId.values()) {
-			if (c != EvcsOcppUnmanagedChannelId.CHARGINGSTATION_COMMUNICATION_FAILED) {
-				Channel<?> channel = this.channel(c);
-				channel.setNextValue(null);
-			}
 		}
 	}
 

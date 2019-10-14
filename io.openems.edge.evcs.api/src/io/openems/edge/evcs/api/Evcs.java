@@ -1,11 +1,13 @@
 package io.openems.edge.evcs.api;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -132,8 +134,21 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		ENERGY_SESSION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY));
+				.accessMode(AccessMode.READ_ONLY)),
 
+
+		/**
+		 * Failed state channel for a failed communication to the EVCS.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Level: FAULT
+		 * </ul>
+		 */
+		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT)
+				.accessMode(AccessMode.READ_ONLY));
+		
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -218,6 +233,10 @@ public interface Evcs extends OpenemsComponent {
 		return this.channel(ChannelId.ENERGY_SESSION);
 	}
 
+	public default StateChannel getChargingstationCommunicationFailed() {
+		return this.channel(ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+	}
+	
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		// TODO add remaining channels
 		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //

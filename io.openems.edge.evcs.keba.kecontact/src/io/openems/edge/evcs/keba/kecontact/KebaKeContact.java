@@ -82,7 +82,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		this.kebaKeContactCore.onReceive((ip, message) -> {
 			if (ip.equals(this.ip)) { // same IP -> handle message
 				this.readHandler.accept(message);
-				this.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
+				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
 			}
 		});
 
@@ -103,7 +103,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 
 			// Clear channels if the connection to the Charging Station has been lost
-			Channel<Boolean> connectionLostChannel = this.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+			Channel<Boolean> connectionLostChannel = this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
 			Boolean connectionLost = connectionLostChannel.value().orElse(lastConnectionLostState);
 			if (connectionLost != lastConnectionLostState) {
 				if (connectionLost) {
@@ -176,7 +176,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	 */
 	private void resetChannelValues() {
 		for (KebaChannelId c : KebaChannelId.values()) {
-			if (c != KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED && c != KebaChannelId.ALIAS) {
+			if (c != KebaChannelId.ALIAS) {
 				Channel<?> channel = this.channel(c);
 				channel.setNextValue(null);
 			}
@@ -224,8 +224,6 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
 				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16)
 				.uint16Reserved(87)
-				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16)
-				.uint16Reserved(89).uint16Reserved(90)
-				.channel(91, KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, ModbusType.UINT16).build();
+				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
 	}
 }

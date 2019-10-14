@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 /**
@@ -34,7 +35,7 @@ public class WriteHandler implements Runnable {
 	@Override
 	public void run() {
 
-		Channel<Boolean> communicationChannel = this.parent.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+		Channel<Boolean> communicationChannel = this.parent.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
 		if (communicationChannel.value().orElse(true)) {
 			return;
 		}

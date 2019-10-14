@@ -55,10 +55,6 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text(
 			"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //
 
-	/*
-	 * Fail State Channels
-	 */
-	CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT)),
 	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING));
 
 	private final Doc doc;

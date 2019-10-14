@@ -23,13 +23,13 @@ import eu.chargetime.ocpp.UnsupportedFeatureException;
 import eu.chargetime.ocpp.feature.profile.ServerCoreEventHandler;
 import eu.chargetime.ocpp.feature.profile.ServerCoreProfile;
 import eu.chargetime.ocpp.model.SessionInformation;
+import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.ocpp.unmanaged.EvcsOcppUnmanaged;
-import io.openems.edge.evcs.ocpp.unmanaged.EvcsOcppUnmanagedChannelId;
+import io.openems.edge.evcs.api.OcppEvcs;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -43,7 +43,7 @@ public class OcppServer extends AbstractOpenemsComponent implements OpenemsCompo
 	public JSONServer server;
 	private String femsIP;
 	private final ServerCoreEventHandler eventHandler;
-	private HashMap<UUID, Evcs> sessionMap = new HashMap<UUID, Evcs>();
+	protected HashMap<UUID, OcppEvcs> sessionMap = new HashMap<UUID, OcppEvcs>();
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -72,14 +72,11 @@ public class OcppServer extends AbstractOpenemsComponent implements OpenemsCompo
 			public void lostSession(UUID sessionIndex) {
 				System.out.println("Session " + sessionIndex + " lost connection");
 
-				for (HashMap.Entry<UUID, Evcs> entry : sessionMap.entrySet()) {
+				for (HashMap.Entry<UUID, OcppEvcs> entry : sessionMap.entrySet()) {
 					UUID session = entry.getKey();
 					Evcs evcs = entry.getValue();
-					
-					
 					if (session.equals(sessionIndex)) {
-						EvcsOcppUnmanaged ev = new EvcsOcppUnmanaged();
-						evcs.channel(EvcsOcppUnmanagedChannelId.CHARGING_SESSION_ID).setNextValue(null);
+						evcs.channel(OcppEvcs.ChannelId.CHARGING_SESSION_ID).setNextValue(null);
 						sessionMap.remove(sessionIndex);
 					}
 				}
@@ -89,14 +86,18 @@ public class OcppServer extends AbstractOpenemsComponent implements OpenemsCompo
 			public void newSession(UUID sessionIndex, SessionInformation information) {
 				System.out.println("New session " + sessionIndex + ": Chargepoint: " + information.getIdentifier()
 						+ ", IP: " + information.getAddress());
-			
-				List<OpenemsComponent> components = componentManager.getEnabledComponents();			
-				for (OpenemsComponent openemsComponent : components) {
-					if (openemsComponent instanceof EvcsOcppUnmanaged) { // TODO: All OcppEvcss
 
-						openemsComponent.channel(EvcsOcppUnmanagedChannelId.CHARGING_SESSION_ID).setNextValue(sessionIndex.toString());
-						sessionMap.put(sessionIndex, (Evcs) openemsComponent);
-						break;
+				List<OpenemsComponent> components = componentManager.getEnabledComponents();
+				for (OpenemsComponent openemsComponent : components) {
+					if (openemsComponent instanceof OcppEvcs) { // TODO: All OcppEvcss
+						StringReadChannel channelOcppId = openemsComponent.channel(OcppEvcs.ChannelId.OCPP_ID);
+						String ocppId = channelOcppId.value().orElse("");
+						if (information.getIdentifier().equals("/" + ocppId)) {
+							openemsComponent.channel(OcppEvcs.ChannelId.CHARGING_SESSION_ID)
+									.setNextValue(sessionIndex.toString());
+							sessionMap.put(sessionIndex, (OcppEvcs) openemsComponent);
+							break;
+						}
 					}
 				}
 			}

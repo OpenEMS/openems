@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 import io.openems.common.worker.AbstractWorker;
+import io.openems.edge.evcs.api.Evcs;
 
 public class ReadWorker extends AbstractWorker {
 
@@ -114,7 +115,7 @@ public class ReadWorker extends AbstractWorker {
 	 * @param receivedAMessage return value from the ReadHandler   
 	 */
 	private void currentCommunication(boolean receivedAMessage) {
-		this.parent.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+		this.parent.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
 	}
 	
 }
