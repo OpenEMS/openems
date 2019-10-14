@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { interval } from 'rxjs';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
@@ -13,31 +12,31 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     animations: [
         trigger('Discharge', [
             state('show', style({
-                opacity: 0.3,
+                opacity: 0.4,
                 transform: 'translateY(0)'
             })),
             state('hide', style({
-                opacity: 0,
-                transform: 'translateY(-10%)'
+                opacity: 0.1,
+                transform: 'translateY(-20%)'
             })),
-            transition('show => hide', animate('300ms')),
-            transition('hide => show', animate('0ms'))
+            transition('show => hide', animate('650ms ease-out')),
+            transition('hide => show', animate('0ms ease-in'))
         ]),
         trigger('Charge', [
             state('show', style({
-                opacity: 0.3,
+                opacity: 0.1,
                 transform: 'translateY(0)'
             })),
             state('hide', style({
-                opacity: 0,
-                transform: 'translateY(10%)'
+                opacity: 0.4,
+                transform: 'translateY(20%)'
             })),
-            transition('show => hide', animate('300ms')),
-            transition('hide => show', animate('100ms'))
+            transition('show => hide', animate('650ms ease-out')),
+            transition('hide => show', animate('0ms ease-out'))
         ])
     ]
 })
-export class StorageSectionComponent extends AbstractSection implements OnInit {
+export class StorageSectionComponent extends AbstractSection {
 
     public socValue: number
     private unitpipe: UnitvaluePipe;
@@ -53,9 +52,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     ) {
         super('Edge.Index.Energymonitor.Storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
-    }
-
-    ngOnInit() {
     }
 
     toggleCharge() {
@@ -158,7 +154,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         } else if (this.socValue < 61) {
             return "storage_60_monitor.png"
         } else if (this.socValue < 71) {
-            return "storage_71_monitor.png"
+            return "storage_70_monitor.png"
         } else if (this.socValue < 81) {
             return "storage_80_monitor.png"
         } else if (this.socValue < 88) {
@@ -205,11 +201,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
         let r = radius;
-        let animationWidth = (r * -1.2) - v;
+        let animationWidth = (r * 1.2) - v;
         let p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r * 1.2 },
@@ -220,15 +213,15 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         }
         if (ratio < 0) {
             // towards top
-            p.middleTop.y = p.middleBottom.y + animationWidth * 0.1;
-            p.topRight.y = p.bottomRight.y + animationWidth * 0.1;
-            p.topLeft.y = p.bottomLeft.y + animationWidth * 0.1;
+            p.middleTop.y = p.middleBottom.y + animationWidth * 0.2;
+            p.topRight.y = p.bottomRight.y + animationWidth * 0.2;
+            p.topLeft.y = p.bottomLeft.y + animationWidth * 0.2;
         } else if (ratio > 0) {
             // towards bottom
-            p.bottomLeft.y = p.topLeft.y - animationWidth * 0.1;
-            p.middleBottom.y = p.middleTop.y - animationWidth * 0.1 + 2 * v;
-            p.bottomRight.y = p.topRight.y - animationWidth * 0.1;
-            p.middleTop.y = p.middleBottom.y + animationWidth * 0.1;
+            p.bottomLeft.y = p.topLeft.y - animationWidth * 0.2;
+            p.middleBottom.y = p.middleTop.y - animationWidth * 0.2 + 2 * v;
+            p.bottomRight.y = p.topRight.y - animationWidth * 0.2;
+            p.middleTop.y = p.middleBottom.y + animationWidth * 0.2;
         } else {
             p = null;
         }

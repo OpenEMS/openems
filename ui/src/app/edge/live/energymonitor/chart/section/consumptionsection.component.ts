@@ -13,15 +13,15 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     animations: [
         trigger('Consumption', [
             state('show', style({
-                opacity: 0.7,
+                opacity: 0.1,
                 transform: 'translateX(0%)',
             })),
             state('hide', style({
-                opacity: 0,
-                transform: 'translateX(10%)'
+                opacity: 0.4,
+                transform: 'translateX(20%)'
             })),
-            transition('show => hide', animate('300ms')),
-            transition('hide => show', animate('0ms'))
+            transition('show => hide', animate('650ms ease-out')),
+            transition('hide => show', animate('0ms ease-in'))
         ])
     ]
 })
@@ -38,9 +38,6 @@ export class ConsumptionSectionComponent extends AbstractSection {
     ) {
         super('General.Consumption', "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
-    }
-
-    ngOnInit() {
     }
 
     toggleAnimation() {
@@ -128,7 +125,7 @@ export class ConsumptionSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        let animationWidth = (r * 1.2) - v;
+        let animationWidth = (r * -1.2) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
@@ -139,10 +136,10 @@ export class ConsumptionSectionComponent extends AbstractSection {
         }
         if (ratio > 0) {
             // towards right
-            p.topRight.x = p.topLeft.x + animationWidth * 0.1;
-            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1 + 2 * v;
-            p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.1;
-            p.middleLeft.x = p.middleRight.x - animationWidth * 0.1;
+            p.topRight.x = p.topLeft.x + animationWidth * 0.2;
+            p.middleRight.x = p.middleLeft.x + animationWidth * 0.2 + 2 * v;
+            p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.2;
+            p.middleLeft.x = p.middleRight.x - animationWidth * 0.2;
         } else {
             p = null;
         }

@@ -21,9 +21,9 @@
     </svg:defs>
     <svg:polygon [attr.points]="energyFlow.points" attr.fill="url({{ url }}#{{ sectionId }})" />
     <ng-container *ngIf="buy">
-        <svg:polygon [@GridBuy]="stateNameBuy" [attr.points]="energyFlow.animationPoints" style="fill:#f4f4f4" />
+        <svg:polygon [@GridBuy]="stateNameBuy" [attr.points]="energyFlow.animationPoints" style="fill:white" />
     </ng-container>
     <ng-container *ngIf="sell">
-        <svg:polygon [@GridSell]="stateNameSell" [attr.points]="energyFlow.animationPoints" style="fill:#f4f4f4" />
+        <svg:polygon [@GridSell]="stateNameSell" [attr.points]="energyFlow.animationPoints" style="fill:white" />
     </ng-container>
 </svg:g>

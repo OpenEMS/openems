@@ -2,7 +2,6 @@ import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service } from 'src/app/shared/shared';
-import { WidgetClass } from 'src/app/shared/type/widget';
 
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
@@ -70,33 +69,26 @@ export class EnergyFlow {
         }
     ) { }
 
-    public update(p: SvgEnergyFlow) {
+    public update(p: SvgEnergyFlow, isAnimation: boolean) {
+        let generalPoints = p.topLeft.x + "," + p.topLeft.y
+            + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+            + " " + p.topRight.x + "," + p.topRight.y
+            + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+            + " " + p.bottomRight.x + "," + p.bottomRight.y
+            + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+            + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+            + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+
         if (p == null) {
             this.points = "0,0 0,0";
-        } else {
-            this.points = p.topLeft.x + "," + p.topLeft.y
-                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-                + " " + p.topRight.x + "," + p.topRight.y
-                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-                + " " + p.bottomRight.x + "," + p.bottomRight.y
-                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
-        }
-    }
-
-    public updateAnimation(p: SvgEnergyFlow) {
-        if (p == null) {
             this.animationPoints = "0,0 0,0";
         } else {
-            this.animationPoints = p.topLeft.x + "," + p.topLeft.y
-                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-                + " " + p.topRight.x + "," + p.topRight.y
-                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-                + " " + p.bottomRight.x + "," + p.bottomRight.y
-                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+            switch (isAnimation) {
+                case false:
+                    this.points = generalPoints;
+                case true:
+                    this.animationPoints = generalPoints;
+            }
         }
     }
 
@@ -134,7 +126,7 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
     public isEnabled: boolean = false;
-    public animationSpeed: number = 580;
+    public animationSpeed: number = 500;
 
     protected valueText: string = "";
     protected valueText2: string = "";
@@ -263,8 +255,8 @@ export abstract class AbstractSection {
 
         let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius);
         let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius);
-        this.energyFlow.update(svgEnergyFlow);
-        this.energyFlow.updateAnimation(svgAnimationEnergyFlow);
+        this.energyFlow.update(svgEnergyFlow, false);
+        this.energyFlow.update(svgAnimationEnergyFlow, true);
     }
 
     /**

@@ -13,15 +13,15 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     animations: [
         trigger('Production', [
             state('show', style({
-                opacity: 0.3,
+                opacity: 0.4,
                 transform: 'translateY(0)'
             })),
             state('hide', style({
-                opacity: 0,
-                transform: 'translateY(10%)'
+                opacity: 0.1,
+                transform: 'translateY(20%)'
             })),
-            transition('show => hide', animate('300ms')),
-            transition('hide => show', animate('0ms'))
+            transition('show => hide', animate('650ms ease-out')),
+            transition('hide => show', animate('0ms ease-in'))
         ])
     ]
 })
@@ -127,11 +127,8 @@ export class ProductionSectionComponent extends AbstractSection {
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
-        if (v < 8 && v != 0) {
-            v = 8;
-        }
         let r = radius;
-        let animationWidth = r * 1.2 + v;
+        let animationWidth = r * -1.2 + v;
         let p = {
             topLeft: { x: v * -1, y: r * -1.2 },
             bottomLeft: { x: v * -1, y: v * -1 },
@@ -142,9 +139,9 @@ export class ProductionSectionComponent extends AbstractSection {
         }
         if (ratio > 0) {
             // towards bottom
-            p.bottomRight.y = p.topRight.y + animationWidth * 0.1
-            p.bottomLeft.y = p.topLeft.y + animationWidth * 0.1
-            p.middleBottom.y = p.middleTop.y + animationWidth * 0.1
+            p.bottomRight.y = p.topRight.y + animationWidth * 0.2;
+            p.bottomLeft.y = p.topLeft.y + animationWidth * 0.2;
+            p.middleBottom.y = p.middleTop.y + animationWidth * 0.2;
         } else {
             p = null;
         }

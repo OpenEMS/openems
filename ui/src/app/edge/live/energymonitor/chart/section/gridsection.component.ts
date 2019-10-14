@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { interval } from 'rxjs';
 
 @Component({
     selector: '[gridsection]',
@@ -13,31 +12,31 @@ import { interval } from 'rxjs';
     animations: [
         trigger('GridBuy', [
             state('show', style({
-                opacity: 0.3,
+                opacity: 0.4,
                 transform: 'translateX(0%)',
             })),
             state('hide', style({
-                opacity: 0,
-                transform: 'translateX(10%)'
+                opacity: 0.1,
+                transform: 'translateX(20%)'
             })),
-            transition('show => hide', animate('300ms')),
+            transition('show => hide', animate('650ms')),
             transition('hide => show', animate('0ms'))
         ]),
         trigger('GridSell', [
             state('show', style({
-                opacity: 0.3,
+                opacity: 0.1,
                 transform: 'translateX(0%)',
             })),
             state('hide', style({
-                opacity: 0,
-                transform: 'translateX(-10%)'
+                opacity: 0.4,
+                transform: 'translateX(-20%)'
             })),
-            transition('show => hide', animate('300ms')),
-            transition('hide => show', animate('0ms'))
+            transition('show => hide', animate('650ms ease-out')),
+            transition('hide => show', animate('0ms ease-in'))
         ])
     ]
 })
-export class GridSectionComponent extends AbstractSection implements OnInit {
+export class GridSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
     public showBuy = false;
@@ -52,9 +51,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     ) {
         super('General.Grid', "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;
-    }
-
-    ngOnInit() {
     }
 
     toggleBuy() {
@@ -98,7 +94,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
             if (!this.buy) {
                 this.toggleBuy();
             }
-            // this.show = !this.show;
             let arrowIndicate: number;
             if (sum.grid.buyActivePower > 49) {
                 arrowIndicate = Utils.multiplySafely(
@@ -189,7 +184,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        let animationWidth = r * 1.2 + v;
+        let animationWidth = r * -1.2 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1.2, y: v },
@@ -201,15 +196,15 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
         if (ratio > 0) {
             // towards left
-            p.topLeft.x = p.topRight.x - animationWidth * 0.1;
-            p.middleLeft.x = p.middleRight.x - animationWidth * 0.1 - 2 * v;
-            p.bottomLeft.x = p.bottomRight.x - animationWidth * 0.1;
-            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
+            p.topLeft.x = p.topRight.x - animationWidth * 0.2;
+            p.middleLeft.x = p.middleRight.x - animationWidth * 0.2 - 2 * v;
+            p.bottomLeft.x = p.bottomRight.x - animationWidth * 0.2;
+            p.middleRight.x = p.middleLeft.x + animationWidth * 0.2;
         } else if (ratio < 0) {
             // towards right
-            p.middleRight.x = p.middleLeft.x + animationWidth * 0.1;
-            p.topRight.x = p.topLeft.x + animationWidth * 0.1;
-            p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.1;
+            p.middleRight.x = p.middleLeft.x + animationWidth * 0.2;
+            p.topRight.x = p.topLeft.x + animationWidth * 0.2;
+            p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.2;
         } else {
             p = null;
         }
