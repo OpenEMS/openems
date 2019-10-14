@@ -57,7 +57,8 @@ export class KwhComponent implements OnInit, OnChanges {
         new ChannelAddress('_sum', 'ProductionActiveEnergy'),
         new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
         new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
-        new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
+        new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
+        new ChannelAddress('_sum', 'EssAmpereHours')
       ]);
     });
   };

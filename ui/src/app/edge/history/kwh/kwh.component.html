@@ -37,18 +37,11 @@
             <table class="full_width">
                 <tr>
                     <td>
-                        <ion-label padding-left translate>General.ChargePower</ion-label>
+                        <ion-label padding-left><span translate>General.ChargePower</span>/<span
+                                translate>General.DischargePower</span></ion-label>
                     </td>
                     <td class="align_right" *ngIf="data">
-                        {{data["_sum/EssActiveChargeEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <ion-label padding-left translate>General.DischargePower</ion-label>
-                    </td>
-                    <td class="align_right" *ngIf="data">
-                        {{data["_sum/EssActiveDischargeEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
+                        {{data["_sum/EssAmpereHours"] | number:'1.0-2'}}&nbsp;Ah
                     </td>
                 </tr>
             </table>

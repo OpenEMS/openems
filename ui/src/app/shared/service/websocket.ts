@@ -213,12 +213,18 @@ export class Websocket {
         if (env.backend !== 'OpenEMS Edge') {
           this.service.hideLoader();
         }
+        if (env.backend === 'App') {
+          this.service.spinnerDialog.hide();
+        }
         break;
 
       case AuthenticateWithSessionIdFailedNotification.METHOD:
         this.handleAuthenticateWithSessionIdFailed(message as AuthenticateWithSessionIdNotification);
         if (env.backend !== 'OpenEMS Edge') {
           this.service.hideLoader();
+        }
+        if (env.backend === 'App') {
+          this.service.spinnerDialog.hide();
         }
         break;
 
@@ -342,7 +348,7 @@ export class Websocket {
 
   public wpconnect() {
     this.connect();
-    this.service.spinnerDialog.hide();
+
   }
 
   getUrl(): string {
