@@ -136,6 +136,7 @@ public class BackendApi extends AbstractOpenemsComponent
 		if(splitkey.length == 2) {
 			httpHeaders.put("mac", splitkey[1]);
 		}
+		httpHeaders.put("pwd", "g6J:X)JE,VC?-@Y!");
 		
 
 		// Create Websocket instance
