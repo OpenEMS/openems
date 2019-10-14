@@ -27,7 +27,7 @@ Export-Package:  \
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	org.ops4j.pax.logging.pax-logging-api,\
-	pi4j-core;version=1.1,\
+	pi4j-core,\
 
 
 -testpath: \

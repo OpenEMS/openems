@@ -1,11 +1,7 @@
 package io.openems.edge.raspberrypi.circuitboard;
 
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.raspberrypi.circuitboard.api.adc.Adc;
 import io.openems.edge.raspberrypi.circuitboard.api.boardtypes.TemperatureBoard;
-import io.openems.edge.raspberrypi.sensors.Sensor;
 import io.openems.edge.raspberrypi.spi.SpiInitial;
 
 import org.osgi.service.cm.ConfigurationException;
@@ -17,165 +13,97 @@ import java.util.Collections;
 import java.util.List;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "CircuitBoard",immediate = true,
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "CircuitBoard", immediate = true,
+        configurationPolicy = ConfigurationPolicy.REQUIRE)
 
 public class CircuitBoard {
-
-	@Reference
-	private SpiInitial spiInitial;
-
-	private String circuitBoardId;
+    @Reference
+    private SpiInitial spiInitial;
+    private String circuitBoardId;
     private String type;
     private String versionId;
-//  private List<Sensor> sensors = new ArrayList<>();
     private short maxCapacity;
-    private List<Adc> adcList=new ArrayList<>();
-//  private List<Integer> mcpListViaId = new ArrayList<>();
-
-
+    private List<Adc> adcList = new ArrayList<>();
 
     @Activate
     public void activate(Config config) throws ConfigurationException {
         this.circuitBoardId = config.boardId();
         this.versionId = config.versionNumber();
         this.type = config.boardType();
-        List<String> frequency=new ArrayList<>();
-        List<String> pPort= new ArrayList<>();
-        instantiateCorrectBoard(config);
+        List<String> frequency = new ArrayList<>();
+        List<Character> dipSwitch = new ArrayList<>();
+
+        if (config.adcFrequency().contains(";")) {
+            Collections.addAll(frequency, config.adcFrequency().split(";"));
+        } else {
+            frequency.add(config.adcFrequency());
+        }
+        for (Character dipSwitchUse : config.dipSwitches().toCharArray()) {
+            dipSwitch.add(dipSwitchUse);
+        }
+        instantiateCorrectBoard(config, frequency, dipSwitch);
         spiInitial.getCircuitBoards().add(this);
-        if(config.adcFrequency().contains(";")) {
-            for (String freq : config.adcFrequency().split(";")) {
-                frequency.add(freq);
-            }
+    }
+
+    private void instantiateCorrectBoard(Config config, List<String> frequency, List<Character> dipSwitch) throws ConfigurationException {
+        boolean wasCreated = false;
+        switch (config.boardType()) {
+            case "Temperature":
+                createTemperatureBoard(config.versionNumber(), frequency, dipSwitch);
+                wasCreated = true;
+                break;
+        }
+        if (!wasCreated) {
+            throw new ConfigurationException("Something went wrong", "Wrong BoardType");
         }
     }
 
-
-
-    private void instantiateCorrectBoard(Config config) throws ConfigurationException {
-
-        switch (config.boardType()) {
-            case "Temperature":
-                createTemperatureBoard(config.versionNumber());
+    private void createTemperatureBoard(String versionNumber, List<String> frequency, List<Character> dipSwitch) throws ConfigurationException {
+        switch (versionNumber) {
+            case "1":
+                this.maxCapacity = TemperatureBoard.TEMPERATURE_BOARD_V_1.getMaxSize();
+                short counter = 0;
+                for (Adc mcpWantToCreate : TemperatureBoard.TEMPERATURE_BOARD_V_1.getMcpContainer()) {
+                    createMcp(mcpWantToCreate, frequency.get(counter), dipSwitch.get(counter));
+                    counter++;
+                }
                 break;
         }
     }
 
-    private void createTemperatureBoard(String versionNumber) throws ConfigurationException {
-        switch (versionNumber) {
-            case "1":
-                this.maxCapacity = TemperatureBoard.TEMPERATURE_BOARD_V_1.getMaxSize();
-                for (Adc mcpWantToCreate : TemperatureBoard.TEMPERATURE_BOARD_V_1.getMcpContainer()) {
-                    createMcp(mcpWantToCreate);
-                }
-        }
-    }
-
-    private void createMcp(Adc mcpWantToCreate) throws ConfigurationException {
-
-        int spiChannelWantToBeUsed;
-        int mcpId;
-
-
-//        //
-//        if (spiInitial.getFreeSpiChannels().size() == 0) {
-//            spiChannelWantToBeUsed = spiInitial.getSpiManager().size() + 1;
-//        } else {
-//            spiChannelWantToBeUsed = spiInitial.getFreeSpiChannels().get(0);
-//            spiInitial.getFreeSpiChannels().remove(0);
-//            if (spiInitial.getFreeSpiChannels().size() > 0) {
-//                Collections.sort(spiInitial.getFreeSpiChannels());
-//            }
-//        }
-
-        mcpId = getMcpId();
-
-
-		mcpWantToCreate.initialize(mcpId, spiChannelWantToBeUsed, this.circuitBoardId);
-		spiInitial.addAdcList(mcpWantToCreate);
-		this.mcpListViaId.add(mcpId);
-		//TODO try mcpId.openSpiChannel();
-		spiInitial.getSpiManager().put(mcpWantToCreate.getId(), spiChannelWantToBeUsed);
-
-
-	}
-
-    private int getMcpId() {
-
-        if (spiInitial.getFreeAdcIds().size() == 0) {
-            return spiInitial.getAdcList().size() + 1;
-        }
-        int toReturn = spiInitial.getFreeAdcIds().get(0);
-        spiInitial.getFreeAdcIds().remove(0);
-        Collections.sort(spiInitial.getFreeAdcIds());
-        return toReturn;
+    private void createMcp(Adc mcpWantToCreate, String frequency, Character dipSwitch) {
+        mcpWantToCreate.initialize(Character.getNumericValue(dipSwitch), Integer.parseInt(frequency), this.circuitBoardId);
+        this.adcList.add(mcpWantToCreate);
     }
 
     public short getMaxCapacity() {
         return maxCapacity;
     }
 
-
-
-	@Deactivate
-	public void deactivate() {
-        for (Sensor sensor: this.sensors
-             ) {
-            sensor.deactivate();
-            this.getSensors().remove(sensor);
-        }
-        for (Adc shutDown:spiInitial.getAdcList()
-        ) {
-            if (shutDown.getCircuitBoardId().equals(this.circuitBoardId)) {
-                //TODO close spi Channel
-                //shutDown.getSpiChannel()
-                spiInitial.getSpiManager().remove(shutDown.getId());
-                spiInitial.getFreeSpiChannels().add(shutDown.getSpiChannel());
-                Collections.sort(spiInitial.getFreeSpiChannels());
-                spiInitial.getAdcList().remove(shutDown);
-                spiInitial.getFreeAdcIds().add(shutDown.getId());
-                Collections.sort(spiInitial.getFreeAdcIds());
-            }
-        }
-    }
-    /*
-    private void temp() {
-        Optional<String> any = this.getSensors().stream().filter(sensor -> sensor.isOn()).map(sensor -> sensor.getName()).findAny();
-    }
-*/
-    public List<Sensor> getSensors() {
-        return sensors;
-    }
-
-    public void addToSensors(Sensor sensor) throws ConfigurationException {
-        if (sensor.getCircuitBoardId().equals(this.type)) {
-            if (this.maxCapacity < this.getSensors().size()) {
-                this.getSensors().add(sensor);
-            } else {
-                throw new ConfigurationException("", "There are already " + this.getSensors().size()
-                        + "installed, use another " + this.getType() + "for further Sensors");
-            }
-        } else {
-            throw new ConfigurationException("", "Wrong Type of Sensor try to use this type: " + this.getType());
+    @Deactivate
+    public void deactivate() {
+        for (Adc adc : this.adcList) {
+            this.adcList.remove(adc);
         }
     }
 
+    public String getCircuitBoardId() {
+        return circuitBoardId;
+    }
 
+    public String getType() {
+        return type;
+    }
 
-	public String getCircuitBoardId() {
-		return circuitBoardId;
-	}
+    public String getVersionId() {
+        return versionId;
+    }
 
-	public String getType() {
-		return type;
-	}
-
-	public List<Integer> getMcpListViaId() {
-		return mcpListViaId;
-	}
-
-	public String getVersionId() {
-		return versionId;
-	}
+    public List<Adc> getAdcList() {
+        return adcList;
+    }
 }
+//Just an example function to explain Streams to myself
+//private void temp() {
+// Optional<String> any = this.getSensors().stream().filter(sensor -> sensor.isOn()).map(sensor -> sensor.getName()).findAny();
+//}

@@ -4,16 +4,12 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.raspberrypi.circuitboard.api.adc.Adc;
 import io.openems.edge.raspberrypi.sensors.Utils.Utils;
 import io.openems.edge.raspberrypi.spi.SpiInitial;
-import io.openems.edge.raspberrypi.circuitboard.CircuitBoard;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
-
 
 import java.util.stream.Stream;
 
@@ -29,15 +25,14 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
     private final String type;
     private final String circuitBoardId;
     private String versionId;
-    private final int adcId;
+    private final int spiChannel;
     private final int pinPosition;
-    private int indexAdcOfCircuitBoard;
     private String servicePid;
     private boolean enabled;
 
 
     public Sensor(String id, String type, String circuitBoardId,
-                  int adcId, int pinPosition, String servicePid, boolean enabled,
+                  int spiChannel, int pinPosition, String servicePid, boolean enabled,
 				  io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 				  io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
         super(firstInitialChannelIds, furtherInitialChannelIds);
@@ -47,7 +42,7 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
         this.id = id;
         this.type = type;
         this.circuitBoardId = circuitBoardId;
-        this.adcId = adcId;
+        this.spiChannel = spiChannel;
         this.pinPosition = pinPosition;
         this.servicePid = servicePid;
         this.enabled = enabled;
@@ -56,53 +51,11 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
     @Activate
     public void activate(ComponentContext context) throws ConfigurationException {
         super.activate(context, this.servicePid, this.id(), this.enabled);
-        this.addToCircuitBoard();
 
     }
-
-    protected void addToCircuitBoard() throws ConfigurationException {
-        for (CircuitBoard consolinno : spiInitial.getCircuitBoards()) {
-            if (consolinno.getType().equals(this.type) && consolinno.getCircuitBoardId().equals(this.circuitBoardId)) {
-                if (this.adcId > consolinno.getMcpListViaId().size()) {
-                    throw new org.osgi.service.cm.ConfigurationException("", "Wrong ADC Position given, max size is "
-                            + consolinno.getMcpListViaId().size() + "First Position is 0 second is 1 etc");
-                } else {
-                    this.indexAdcOfCircuitBoard = consolinno.getMcpListViaId().get(this.adcId);
-                    Adc allocatePin = spiInitial.getAdcList().get(indexAdcOfCircuitBoard);
-                    if (allocatePin.getPins().get(this.pinPosition).isUsed()) {
-                        throw new org.osgi.service.cm.ConfigurationException("",
-                                "Wrong Pin, Pin already used by: "
-                                        + allocatePin.getPins().get(this.pinPosition).isUsed());
-                    } else {
-                        allocatePin.getPins().get(this.pinPosition).setUsedBy(this.id);
-
-
-                    }
-                }
-
-                consolinno.addToSensors(this);
-                this.versionId = consolinno.getVersionId();
-            }
-        }
-    }
-
-
 
 	@Deactivate
     public void deactivate() {
-        spiInitial.getAdcList().get(this.indexAdcOfCircuitBoard).getPins().get(this.pinPosition).setUsed(false);
-        for (CircuitBoard consolinno : spiInitial.getCircuitBoards()
-        ) {
-            if (consolinno.getCircuitBoardId().equals(this.circuitBoardId)) {
-                for (Sensor sensor :
-                        consolinno.getSensors()) {
-                    if (sensor.id.equals(this.id)) {
-                        consolinno.getSensors().remove(sensor);
-                        break;
-                    }
-                }
-            }
-        }
         spiInitial.removeTask(this.id);
     }
 
@@ -131,16 +84,12 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
         return circuitBoardId;
     }
 
-    public int getAdcId() {
-        return adcId;
+    public int getSpiChannel() {
+        return spiChannel;
     }
 
     public int getPinPosition() {
         return pinPosition;
-    }
-
-    public int getIndexAdcOfCircuitBoard() {
-        return indexAdcOfCircuitBoard;
     }
 
     public SpiInitial getSpiInitial() {

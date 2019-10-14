@@ -22,10 +22,8 @@ public class Utils {
                 case STATE:
                     StateCollectorChannelDoc doc = new StateCollectorChannelDoc();
                     return new StateCollectorChannel(c, channelId, doc);
-
             }
             return null;
-
         }), Arrays.stream(TemperatureSensoric.ChannelId.values()).map(channelId -> {
 
             switch (channelId) {
@@ -35,6 +33,5 @@ public class Utils {
             }
             return null;
         })).flatMap(channel -> channel);
-
     }
 }

@@ -22,13 +22,9 @@ public class TemperatureDigitalReadTask extends Task {
     public TemperatureDigitalReadTask(Channel<?> channel, String version, Adc adc, int pin)  {
         super(adc.getSpiChannel());
         this.channel = channel;
-
-        //Get to know why 20 and then change in future
         calculator = 20 - adc.getInputType();
         pinValue = adc.getPins().get(pin).getValue();
-
         allocateRegressionValues(version);
-
     }
 
     private void allocateRegressionValues(String version) {
@@ -42,15 +38,10 @@ public class TemperatureDigitalReadTask extends Task {
         }
     }
 
-
     @Override
     public byte[] getRequest() {
-
-
         byte[] data = {0, 0, 0};
-
         for (int i = 0; i < 3; i++) {
-
             data[2 - i] = (byte) (pinValue % Math.pow(2, calculator));
             pinValue = pinValue >> calculator;
         }
@@ -64,7 +55,6 @@ public class TemperatureDigitalReadTask extends Task {
         int value = (int) (this.regressionValueA * Math.pow(digit, 2)
                 + this.regressionValueB * digit
                 + this.regressionValueC * 10);
-
         this.channel.setNextValue(value);
     }
 }
