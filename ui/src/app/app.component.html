@@ -1,15 +1,19 @@
 <ion-app>
   <ion-header>
     <ion-toolbar color="primary">
+
       <ion-buttons *ngIf="backUrl" slot="start">
         <ion-button [routerLink]="backUrl">
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title>{{ service.currentPageTitle }}</ion-title>
       <ion-buttons slot="start" *ngIf="enableSideMenu">
         <ion-menu-button autoHide="false"></ion-menu-button>
       </ion-buttons>
+      <!-- TODO COSTUM FEMS WIDTH -->
+      <ion-title *ngIf="!mobileMode && mobileMode != null" slot="start" style="max-width: 160.33px;">
+        {{ service.currentPageTitle }}
+      </ion-title>
       <ng-container *ngIf="service.currentEdge | async as edge">
         <ion-buttons slot="end" *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
           <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
@@ -17,12 +21,10 @@
           </ion-button>
         </ion-buttons>
       </ng-container>
-    </ion-toolbar>
-
-    <ng-container *ngIf="service.currentEdge | async as edge">
-      <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
-        <ion-toolbar color="primary">
-          <ion-segment>
+      <ng-container *ngIf="service.currentEdge | async as edge">
+        <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
+          <!-- TODO COSTUM FEMS WIDTH -->
+          <ion-segment *ngIf="mobileMode != null" [class.toolbarpadding]="!mobileMode">
             <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
               routerLink="/device/{{ edge.id }}/live">
               <ion-label translate>General.Live</ion-label>
@@ -32,9 +34,12 @@
               <ion-label translate>General.History</ion-label>
             </ion-segment-button>
           </ion-segment>
-        </ion-toolbar>
+        </ng-container>
       </ng-container>
 
+    </ion-toolbar>
+
+    <ng-container *ngIf="service.currentEdge | async as edge">
       <ng-container *ngIf="currentPage == 'IndexHistory'">
         <ion-toolbar color="secondary">
           <ion-buttons slot="end">

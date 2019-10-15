@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
-import { Edge, Service, Widgets } from '../../shared/shared';
+import { Edge, Service, Widgets, EdgeConfig } from '../../shared/shared';
 
 @Component({
   selector: 'history',
@@ -23,6 +23,8 @@ export class HistoryComponent implements OnInit {
   // holds the current Edge
   public edge: Edge = null;
 
+  public config: EdgeConfig = null;
+
   constructor(
     public service: Service,
     public translate: TranslateService,
@@ -34,6 +36,8 @@ export class HistoryComponent implements OnInit {
       this.edge = edge;
     });
     this.service.getConfig().then(config => {
+      this.config = config;
+      config.hasStorage()
       this.widgets = config.widgets;
       // Are we connected to OpenEMS Edge and is a timedata service available?
       if (environment.backend == 'OpenEMS Edge'

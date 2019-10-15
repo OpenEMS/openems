@@ -1,25 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Platform, ToastController, MenuController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil, debounce } from 'rxjs/operators';
 import { environment } from '../environments';
 import { Service, Websocket, Edge } from './shared/shared';
 import { LanguageTag } from './shared/translate/language';
+
+
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html'
 })
 export class AppComponent {
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    // this.width = event.target.innerWidth;
+    // care for FENECON REP
+    // 992 is the width that triggers widget size change
+    // this.width < 993 ? this.mobileMode = true : this.mobileMode = false;
+    this.setMobileMode(event);
+  }
   public env = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
-
+  private width: number = null;
+  public mobileMode: boolean;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
@@ -63,6 +75,7 @@ export class AppComponent {
     ).subscribe(event => {
       this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
     })
+    this.setMobileMode();
   }
 
   updateUrl(url: string) {
@@ -143,6 +156,13 @@ export class AppComponent {
     } else {
       this.currentPage = 'Other';
     }
+  }
+
+  setMobileMode(event?) {
+    event != null ? this.width = event.target.innerWidth : this.width = window.innerWidth;
+    // care for FENECON REP
+    // 992 is the width that triggers widget size change
+    this.width < 993 ? this.mobileMode = true : this.mobileMode = false;
   }
 
   ngOnDestroy() {

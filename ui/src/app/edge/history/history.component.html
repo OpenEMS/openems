@@ -22,12 +22,28 @@
         <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
       </ion-col>
 
-      <ng-container *ngFor="let name of widgets.names" [ngSwitch]="name">
-        <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px" size="12">
-          <evcs [period]="service.historyPeriod"></evcs>
-        </ion-col>
+      <!-- KWH Widgets -->
+      <ion-col *ngIf="config.hasStorage()" size="12" size-lg="2">
+        <storage [period]="service.historyPeriod"></storage>
+      </ion-col>
+      <ion-col *ngIf="config.hasProducer()" size="12" size-lg="2">
+        <production [period]="service.historyPeriod"></production>
+      </ion-col>
+      <ion-col size="12" size-lg="2">
+        <grid [period]="service.historyPeriod"></grid>
+      </ion-col>
+      <ion-col size="12" size-lg="2">
+        <consumption [period]="service.historyPeriod"></consumption>
+      </ion-col>
 
-        <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
+      <ng-container *ngFor="let name of widgets.names" [ngSwitch]="name">
+        <!-- <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px" size="12">
+          <evcs [period]="service.historyPeriod"></evcs>
+        </ion-col> -->
+        <!-- <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="3">
+          <evcsWidget [period]="service.historyPeriod"></evcsWidget>
+        </ion-col> -->
+        <!-- <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
           style.height="150px" size="12">
           <channelthreshold [period]="service.historyPeriod"></channelthreshold>
         </ion-col>
@@ -38,22 +54,9 @@
 
         <ion-col *ngSwitchCase="'Controller.CHP.SoC'" style.height="150px" size="12">
           <chpsoc [period]="service.historyPeriod"></chpsoc>
-        </ion-col>
+        </ion-col> -->
       </ng-container>
     </ng-container>
-    <!-- KWH Widgets -->
-    <ion-col size="12" size-lg="3">
-      <production [period]="service.historyPeriod"></production>
-    </ion-col>
-    <ion-col size="12" size-lg="3">
-      <storage [period]="service.historyPeriod"></storage>
-    </ion-col>
-    <ion-col size="12" size-lg="3">
-      <grid [period]="service.historyPeriod"></grid>
-    </ion-col>
-    <ion-col size="12" size-lg="3">
-      <consumption [period]="service.historyPeriod"></consumption>
-    </ion-col>
   </ion-row>
 
   <!-- TODO ADD EXPORT ALSO -->

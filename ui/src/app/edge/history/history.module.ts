@@ -11,6 +11,7 @@ import { GridComponent } from './grid/grid.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { StorageComponent } from './storage/storage.component';
 import { ProductionComponent } from './production/production.component';
+import { EvcsWidgetComponent } from './evcs/widget.component';
 
 @NgModule({
   imports: [
@@ -27,7 +28,8 @@ import { ProductionComponent } from './production/production.component';
     ConsumptionComponent,
     GridComponent,
     StorageComponent,
-    ProductionComponent
+    ProductionComponent,
+    EvcsWidgetComponent
   ]
 })
 export class HistoryModule { }
