@@ -182,8 +182,6 @@ export class StorageSectionComponent extends AbstractSection {
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        v = 10;
-
         let p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r * 1.2 },
@@ -205,7 +203,6 @@ export class StorageSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        v = 10;
         let animationWidth = (r * 1.2) - v;
         let p = {
             topLeft: { x: v * -1, y: v },

@@ -104,8 +104,6 @@ export class ConsumptionSectionComponent extends AbstractSection {
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        v = 10;
-
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
@@ -127,8 +125,6 @@ export class ConsumptionSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        v = 10;
-
         let animationWidth = (r * -1.2) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },

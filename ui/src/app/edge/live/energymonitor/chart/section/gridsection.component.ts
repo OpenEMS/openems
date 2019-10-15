@@ -163,8 +163,6 @@ export class GridSectionComponent extends AbstractSection {
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        v = 10;
-
         let p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1.2, y: v },
@@ -186,8 +184,6 @@ export class GridSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        v = 10;
-
         let animationWidth = r * -1.2 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },
