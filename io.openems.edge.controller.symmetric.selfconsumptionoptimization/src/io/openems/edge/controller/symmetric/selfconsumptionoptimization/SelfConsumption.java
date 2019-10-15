@@ -21,6 +21,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
 import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.HourlyPredictor;
@@ -39,7 +40,6 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 	@Reference
 	protected ConsumptionHourlyPredictor consumptionHourlyPredictor;
 
-	
 	private final Clock clock;
 	private int targetHour = 0;
 	private LocalDateTime predictionStartHour;
@@ -56,7 +56,9 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 		CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.text("Charge-Power limitation")),
 		TARGET_HOUR(Doc.of(OpenemsType.INTEGER) //
-				.text("Target hour"));
+				.text("Target hour")),
+		GRID_POWER(Doc.of(OpenemsType.INTEGER) //
+				.text("Actual Grid Power")); //
 
 		private final Doc doc;
 
@@ -99,11 +101,14 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 
 		// Get required variables
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+
 		int capacity = ess.getCapacity().value().getOrError();
 
 		LocalDateTime now = LocalDateTime.now();
 
-		//start hour of the controller has been given in config in order to enable it whenever possible for testing.
+		// start hour of the controller has been given in config in order to enable it
+		// whenever possible for testing.
 		if (now.getHour() == config.Start_hour() && !executed) {
 			this.hourlyProduction = productionHourlyPredictor.get24hPrediction().getValues();
 			this.hourlyConsumption = consumptionHourlyPredictor.get24hPrediction().getValues();
@@ -111,13 +116,13 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 			// Start hour of the predicted values
 			this.predictionStartHour = productionHourlyPredictor.get24hPrediction().getStart();
 
-			//calculating target hour
+			// calculating target hour
 			this.targetHour = calculateTargetHour();
-			
+
 			// Setting the Target hour channel id
 			IntegerReadChannel targetHour = this.channel(ChannelId.TARGET_HOUR);
 			targetHour.setNextValue(this.targetHour);
-			
+
 			// for running once
 			this.executed = true;
 		}
@@ -155,8 +160,28 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 			return;
 		}
 
+		// Calculating the actual grid power
+		int gridPower = meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
+				+ ess.getActivePower().value().orElse(0); /* current charge/discharge Ess */
+
+		// Setting the Grid Power channel id
+		IntegerReadChannel actualGridPower = this.channel(ChannelId.GRID_POWER);
+		actualGridPower.setNextValue(gridPower);
+
+		int maximumFeedIn = config.Maximum_Feed_In();
+
 		// calculate charge power limit
 		int limit = remainingCapacity / remainingTime * -1;
+
+		int feedIn = gridPower - limit;
+
+		// Checking if the grid power is below the maximum feed-in
+		if (feedIn > maximumFeedIn) {
+			this.setChannels(State.REDUCING_THE_FEED_IN_POWER, 0);
+
+			// Adjusting the limit to the maximum feed-in.
+			limit = gridPower - maximumFeedIn;
+		}
 
 		// reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
@@ -175,22 +200,22 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 		int lastHour = 0;
 		int targetHour = 0;
 
-		for (int i = 0; i < hourlyProduction.length; i++) {
-			if ((hourlyProduction[i] != null && hourlyConsumption[i] != null && hourlyConsumption[i] >= 0)) {
-				if (hourlyProduction[i] > hourlyConsumption[i]) {
+		for (int i = 0; i < this.hourlyProduction.length; i++) {
+			// to avoid null and negative consumption values.
+			if ((this.hourlyProduction[i] != null && this.hourlyConsumption[i] != null && this.hourlyConsumption[i] >= 0)) {
+				if (this.hourlyProduction[i] > this.hourlyConsumption[i]) {
 					lastHour = i;
 				}
 			}
 		}
 
 		// target hour --> immediate next hour from the last Hour
-		targetHour = predictionStartHour.plusHours(lastHour).plusHours(1).getHour();
+		targetHour = this.predictionStartHour.plusHours(lastHour).plusHours(1).getHour();
 		return targetHour;
 	}
 
 	// number of seconds left to the target hour.
 	private int calculateRemainingTime() {
-
 		int targetSecondOfDay = targetHour * 3600;
 		int remainingTime = targetSecondOfDay - currentSecondOfDay();
 
