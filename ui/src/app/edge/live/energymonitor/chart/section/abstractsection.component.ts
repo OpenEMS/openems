@@ -69,26 +69,32 @@ export class EnergyFlow {
         }
     ) { }
 
-    public update(p: SvgEnergyFlow, isAnimation: boolean) {
-        let generalPoints = p.topLeft.x + "," + p.topLeft.y
-            + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-            + " " + p.topRight.x + "," + p.topRight.y
-            + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-            + " " + p.bottomRight.x + "," + p.bottomRight.y
-            + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-            + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-            + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
-
-        if (p == null) {
-            this.points = "0,0 0,0";
-            this.animationPoints = "0,0 0,0";
+    public update(energyFlow: SvgEnergyFlow, animationEnergyFlow: SvgEnergyFlow) {
+        if (energyFlow == null) {
+            this.points = "0,0 0,0"
         } else {
-            switch (isAnimation) {
-                case false:
-                    this.points = generalPoints;
-                case true:
-                    this.animationPoints = generalPoints;
-            }
+            let p = energyFlow;
+            this.points = p.topLeft.x + "," + p.topLeft.y
+                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+                + " " + p.topRight.x + "," + p.topRight.y
+                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+                + " " + p.bottomRight.x + "," + p.bottomRight.y
+                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        }
+        if (animationEnergyFlow == null) {
+            this.animationPoints = "0,0 0,0"
+        } else {
+            let p = animationEnergyFlow;
+            this.animationPoints = p.topLeft.x + "," + p.topLeft.y
+                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+                + " " + p.topRight.x + "," + p.topRight.y
+                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+                + " " + p.bottomRight.x + "," + p.bottomRight.y
+                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
         }
     }
 
@@ -255,8 +261,7 @@ export abstract class AbstractSection {
 
         let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius);
         let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius);
-        this.energyFlow.update(svgEnergyFlow, false);
-        this.energyFlow.update(svgAnimationEnergyFlow, true);
+        this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
     }
 
     /**

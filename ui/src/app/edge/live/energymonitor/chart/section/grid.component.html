@@ -1,16 +1,5 @@
 <svg:path [attr.d]="outlinePath" fill="#f4f4f4" stroke="LightGray"></svg:path>
 <svg:path *ngIf="isEnabled" [attr.d]="valuePath" [attr.fill]="color" stroke="LightGray"></svg:path>
-<svg:g *ngIf="isEnabled && squarePosition && square"
-    attr.transform="translate({{squarePosition.x}},{{squarePosition.y}})">
-    <svg:text [attr.x]="square.valueText.x" [attr.y]="square.valueText.y - 20"
-        [attr.text-anchor]="square.valueText.anchor" font-family="sans-serif" font-size="square.valueText.fontsize"
-        fill="grey">
-        <ng-container *ngIf="valueText; else no_text">{{valueText}}</ng-container>
-        <ng-template #no_text>-</ng-template>
-    </svg:text>
-    <svg:image [attr.x]="square.image.x" [attr.y]="square.image.y - 15" [attr.width]="square.image.length"
-        [attr.height]="square.image.length" [attr.xlink:href]="square.image.image"></svg:image>
-</svg:g>
 <svg:g *ngIf="isEnabled && energyFlow">
     <svg:defs>
         <svg:linearGradient [attr.id]="sectionId" [attr.x1]="energyFlow.gradient.x1" [attr.y1]="energyFlow.gradient.y1"
@@ -26,4 +15,16 @@
     <ng-container *ngIf="sell">
         <svg:polygon [@GridSell]="stateNameSell" [attr.points]="energyFlow.animationPoints" style="fill:white" />
     </ng-container>
+</svg:g>
+<svg:g *ngIf="isEnabled && squarePosition && square"
+    attr.transform="translate({{squarePosition.x}},{{squarePosition.y}})">
+    <svg:text [attr.x]="square.valueText.x" [attr.y]="square.valueText.y - (square.valueText.y * 0.3)"
+        [attr.text-anchor]="square.valueText.anchor" font-family="sans-serif" font-size="square.valueText.fontsize"
+        fill="grey">
+        <ng-container *ngIf="valueText; else no_text">{{valueText}}</ng-container>
+        <ng-template #no_text>-</ng-template>
+    </svg:text>
+    <svg:image [attr.x]="square.image.x" [attr.y]="square.image.y - (square.image.y * 0.3)"
+        [attr.width]="square.image.length" [attr.height]="square.image.length" [attr.xlink:href]="square.image.image">
+    </svg:image>
 </svg:g>

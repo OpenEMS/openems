@@ -6,6 +6,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
+
 @Component({
     selector: '[storagesection]',
     templateUrl: './storage.component.html',
@@ -17,7 +18,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateY(-20%)'
+                transform: 'translateY(-17%)'
             })),
             transition('show => hide', animate('650ms ease-out')),
             transition('hide => show', animate('0ms ease-in'))
@@ -29,7 +30,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateY(20%)'
+                transform: 'translateY(17%)'
             })),
             transition('show => hide', animate('650ms ease-out')),
             transition('hide => show', animate('0ms ease-out'))
@@ -40,10 +41,10 @@ export class StorageSectionComponent extends AbstractSection {
 
     public socValue: number
     private unitpipe: UnitvaluePipe;
-    public showCharge = false;
-    public showDischarge = false;
-    public charge = false;
-    public discharge = false;
+    private showCharge: boolean = false;
+    private showDischarge: boolean = false;
+    public charge: boolean = false;
+    public discharge: boolean = false;
 
     constructor(
         translate: TranslateService,
@@ -181,6 +182,8 @@ export class StorageSectionComponent extends AbstractSection {
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
+
         let p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r * 1.2 },
@@ -202,6 +205,7 @@ export class StorageSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
         let animationWidth = (r * 1.2) - v;
         let p = {
             topLeft: { x: v * -1, y: v },

@@ -17,8 +17,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
                 transform: 'translateX(0%)',
             })),
             state('hide', style({
-                opacity: 0.4,
-                transform: 'translateX(20%)'
+                opacity: 0.6,
+                transform: 'translateX(17%)'
             })),
             transition('show => hide', animate('650ms ease-out')),
             transition('hide => show', animate('0ms ease-in'))
@@ -28,8 +28,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 export class ConsumptionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
-    public show = false;
-    public consumption = false;
+    private show: boolean = false;
+    public consumption: boolean = false;
 
     constructor(
         unitpipe: UnitvaluePipe,
@@ -104,6 +104,8 @@ export class ConsumptionSectionComponent extends AbstractSection {
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
+
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
@@ -125,6 +127,8 @@ export class ConsumptionSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
+
         let animationWidth = (r * -1.2) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },

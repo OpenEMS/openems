@@ -17,7 +17,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateX(20%)'
+                transform: 'translateX(17%)'
             })),
             transition('show => hide', animate('650ms')),
             transition('hide => show', animate('0ms'))
@@ -29,7 +29,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateX(-20%)'
+                transform: 'translateX(-17%)'
             })),
             transition('show => hide', animate('650ms ease-out')),
             transition('hide => show', animate('0ms ease-in'))
@@ -39,8 +39,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 export class GridSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
-    public showBuy = false;
-    public showSell = false;
+    private showBuy = false;
+    private showSell = false;
     public buy: boolean = false;
     public sell: boolean = false;
 
@@ -163,6 +163,8 @@ export class GridSectionComponent extends AbstractSection {
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
+
         let p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1.2, y: v },
@@ -184,6 +186,8 @@ export class GridSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
+
         let animationWidth = r * -1.2 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },

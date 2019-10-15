@@ -18,7 +18,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateY(20%)'
+                transform: 'translateY(17%)'
             })),
             transition('show => hide', animate('650ms ease-out')),
             transition('hide => show', animate('0ms ease-in'))
@@ -28,8 +28,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 export class ProductionSectionComponent extends AbstractSection {
 
     private unitpipe: UnitvaluePipe;
-    public show = false;
-    public production = false;
+    private show: boolean = false;
+    public production: boolean = false;
 
     constructor(
         translate: TranslateService,
@@ -108,6 +108,8 @@ export class ProductionSectionComponent extends AbstractSection {
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
+
         let p = {
             topLeft: { x: v * -1, y: r * -1.2 },
             bottomLeft: { x: v * -1, y: v * -1 },
@@ -128,6 +130,7 @@ export class ProductionSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
+        v = 10;
         let animationWidth = r * -1.2 + v;
         let p = {
             topLeft: { x: v * -1, y: r * -1.2 },
