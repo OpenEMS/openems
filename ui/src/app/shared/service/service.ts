@@ -12,6 +12,10 @@ import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
 import { Widget, WidgetNature, WidgetFactory, Widgets } from '../type/widget';
 import { ToastController } from '@ionic/angular';
+import { ChannelAddress } from '../shared';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
+import { JsonrpcResponseError } from '../jsonrpc/base';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -228,6 +232,43 @@ export class Service implements ErrorHandler {
       newEdges[newEdge.id] = newEdge;
     }
     this.edges.next(newEdges);
+  }
+
+  /**
+   * Gets the ChannelAdresses for cumulated values that should be queried.
+   * 
+   * @param edge the current Edge
+   */
+  public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
+    return new Promise((resolve) => {
+      resolve(channels);
+    });
+  };
+
+  /**
+   * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
+   * 
+   * @param fromDate the From-Date
+   * @param toDate   the To-Date
+   * @param edge     the current Edge
+   * @param ws       the websocket
+   */
+  public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
+    return new Promise((resolve, reject) => {
+      this.getCurrentEdge().then(edge => {
+        this.getChannelAddresses(edge, channels).then(channelAddresses => {
+          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
+          edge.sendRequest(this.websocket, request).then(response => {
+            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+            if (Object.keys(result.data).length != 0) {
+              resolve(response as QueryHistoricTimeseriesEnergyResponse);
+            } else {
+              reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+            }
+          }).catch(reason => reject(reason));
+        }).catch(reason => reject(reason));
+      })
+    })
   }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {

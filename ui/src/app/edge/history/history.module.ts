@@ -7,6 +7,10 @@ import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.c
 import { EvcsComponent } from './evcs/evcs.component';
 import { ExportComponent } from './export/export.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
+import { GridComponent } from './grid/grid.component';
+import { ConsumptionComponent } from './consumption/consumption.component';
+import { StorageComponent } from './storage/storage.component';
+import { ProductionComponent } from './production/production.component';
 
 @NgModule({
   imports: [
@@ -19,7 +23,11 @@ import { ChpSocComponent } from './chpsoc/chpsoc.component';
     ChannelthresholdComponent,
     EvcsComponent,
     ExportComponent,
-    ChpSocComponent
+    ChpSocComponent,
+    ConsumptionComponent,
+    GridComponent,
+    StorageComponent,
+    ProductionComponent
   ]
 })
 export class HistoryModule { }
