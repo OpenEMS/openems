@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,26 +31,29 @@ public class CircuitBoard {
         this.circuitBoardId = config.boardId();
         this.versionId = config.versionNumber();
         this.type = config.boardType();
+        String adcFrequency = config.adcFrequency();
+        String dipSwitches = config.dipSwitches();
         List<String> frequency = new ArrayList<>();
         List<Character> dipSwitch = new ArrayList<>();
 
-        if (config.adcFrequency().contains(";")) {
-            Collections.addAll(frequency, config.adcFrequency().split(";"));
+        if (adcFrequency.contains(";")) {
+            String[] parts = adcFrequency.split(";");
+            frequency.addAll(Arrays.asList(parts));
         } else {
-            frequency.add(config.adcFrequency());
+            frequency.add(adcFrequency);
         }
-        for (Character dipSwitchUse : config.dipSwitches().toCharArray()) {
+        for (Character dipSwitchUse : dipSwitches.toCharArray()) {
             dipSwitch.add(dipSwitchUse);
         }
-        instantiateCorrectBoard(config, frequency, dipSwitch);
-        spiInitial.getCircuitBoards().add(this);
+        instantiateCorrectBoard(this.type, this.versionId, frequency, dipSwitch);
+        spiInitial.addCircuitBoards(this);
     }
 
-    private void instantiateCorrectBoard(Config config, List<String> frequency, List<Character> dipSwitch) throws ConfigurationException {
+    private void instantiateCorrectBoard(String boardType, String versionId, List<String> frequency, List<Character> dipSwitch) throws ConfigurationException {
         boolean wasCreated = false;
-        switch (config.boardType()) {
+        switch (boardType) {
             case "Temperature":
-                createTemperatureBoard(config.versionNumber(), frequency, dipSwitch);
+                createTemperatureBoard(versionId, frequency, dipSwitch);
                 wasCreated = true;
                 break;
         }
@@ -85,6 +89,7 @@ public class CircuitBoard {
         for (Adc adc : this.adcList) {
             this.adcList.remove(adc);
         }
+        spiInitial.removeCircuitBoard(this);
     }
 
     public String getCircuitBoardId() {

@@ -16,7 +16,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     String versionNumber() default "1";
 
     @AttributeDefinition(name = "ADC Frequencies", description = "ADC Frequency, if more than 1 ADC is on CircuitBoard seperate via ';'")
-    String adcFrequency() default "500_000;500_000";
+    String adcFrequency() default "500000;500000";
 
     @AttributeDefinition(name = "Dip Switches", description = "What Switches are enabled on the Circuit Board, just type in the Numbers like 025")
     String dipSwitches() default "01";

@@ -28,6 +28,7 @@ public class TemperatureSensor extends Sensor implements OpenemsComponent, Tempe
     private final String sensorType = "Temperature";
     private Adc adcForTemperature;
     private final Logger log = LoggerFactory.getLogger(TemperatureSensor.class);
+
     protected TemperatureSensor(Config config, ComponentContext context) {
         super(config.sensorId(), "Temperature", config.circuitBoardId(), config.spiChannel(),
                 config.pinPosition(), config.spiInitial_id(), config.enabled(),

@@ -8,8 +8,11 @@ public interface SpiInitial {
 
     List<CircuitBoard> getCircuitBoards();
 
+    void addCircuitBoards(CircuitBoard cb);
+
     void addTask(String sourceId, Task task);
 
     void removeTask(String sourceId);
 
+    void removeCircuitBoard(CircuitBoard circuitBoard);
 }

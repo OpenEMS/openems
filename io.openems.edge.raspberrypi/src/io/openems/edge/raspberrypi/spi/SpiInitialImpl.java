@@ -7,10 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.pi4j.wiringpi.Spi;
 import io.openems.edge.raspberrypi.circuitboard.CircuitBoard;
 import io.openems.edge.raspberrypi.spi.task.Task;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -21,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "SpiInitial",
+@Component(name = "Spi.Initial",
         immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE,
         property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
@@ -30,11 +28,14 @@ public class SpiInitialImpl  implements SpiInitial, EventHandler {
     private List<CircuitBoard> circuitBoards = new ArrayList<>();
     private final Map<String, Task> tasks = new ConcurrentHashMap<>();
     private final SpiWorker worker = new SpiWorker();
-
+    private Config config;
+@Reference
+    ConfigurationAdmin cm;
     @Activate
     public void activate(Config config) {
-        if (config.enabled()) {
-            this.worker.activate(config.id());
+        this.config = config;
+        if (this.config.enabled()) {
+            this.worker.activate(this.config.id());
         }
     }
 
@@ -72,10 +73,10 @@ public class SpiInitialImpl  implements SpiInitial, EventHandler {
         @Override
         protected void forever() throws Throwable {
             for (Task task : tasks.values()) {
-                byte[] data = task.getRequest();
-                int uebergabe = task.getSpiChannel();
-                Spi.wiringPiSPIDataRW(uebergabe,data);
-                task.setResponse(data);
+              //  byte[] data = task.getRequest();
+                int channelInput = task.getSpiChannel();
+              //  Spi.wiringPiSPIDataRW(channelInput,data);
+               // task.setResponse(data);
             }
         }
     }
@@ -92,4 +93,30 @@ public class SpiInitialImpl  implements SpiInitial, EventHandler {
         return this.circuitBoards;
     }
 
+    @Override
+    public void addCircuitBoards(CircuitBoard cb) {
+        if (cb != null) {
+            for (CircuitBoard board : this.circuitBoards) {
+                if (board.getCircuitBoardId().equals(cb.getCircuitBoardId())) {
+                    return;
+                } else {
+                    this.circuitBoards.add(cb);
+                    return;
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public void removeCircuitBoard(CircuitBoard circuitBoard) {
+        for (CircuitBoard rbToRemove : this.circuitBoards) {
+            if (rbToRemove.getCircuitBoardId().equals(circuitBoard.getCircuitBoardId())) {
+                this.circuitBoards.remove(rbToRemove);
+                break;
+            }
+        }
+    }
 }
+
+

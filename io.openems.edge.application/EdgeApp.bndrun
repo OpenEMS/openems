@@ -11,7 +11,7 @@
 -runee: JavaSE-1.8
 
 -runsystempackages: sun.misc, com.sun.net.httpserver
-
+<
 -runrequires: \
 	bnd.identity;id='org.apache.felix.http.jetty',\
 	bnd.identity;id='org.apache.felix.webconsole',\
@@ -162,8 +162,8 @@
 	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.weidmueller;version=snapshot,\
-	pi4j-core;version='[1.1.0,1.1.1)',\
-    io.openems.edge.raspberrypi;version=snapshot,\
+	pi4j-core;version='[1.0,1.4)',\
+	io.openems.edge.raspberrypi;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\

@@ -17,8 +17,8 @@ import java.util.stream.Stream;
 public abstract class Sensor extends AbstractOpenemsComponent implements OpenemsComponent {
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     private SpiInitial spiInitial;
-    @Reference
-    protected ConfigurationAdmin cm;
+    //@Reference
+  //  protected ConfigurationAdmin cm;
 
 
     private final String id;
@@ -50,7 +50,7 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
 
     @Activate
     public void activate(ComponentContext context) throws ConfigurationException {
-        super.activate(context, this.servicePid, this.id(), this.enabled);
+        super.activate(context, this.id, "", true);
 
     }
 
