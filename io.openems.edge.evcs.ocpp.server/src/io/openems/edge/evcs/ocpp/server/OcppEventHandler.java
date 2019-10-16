@@ -9,6 +9,7 @@ import eu.chargetime.ocpp.model.core.AuthorizeConfirmation;
 import eu.chargetime.ocpp.model.core.AuthorizeRequest;
 import eu.chargetime.ocpp.model.core.BootNotificationConfirmation;
 import eu.chargetime.ocpp.model.core.BootNotificationRequest;
+import eu.chargetime.ocpp.model.core.ChargePointStatus;
 import eu.chargetime.ocpp.model.core.DataTransferConfirmation;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
 import eu.chargetime.ocpp.model.core.HeartbeatConfirmation;
@@ -27,14 +28,13 @@ import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
 import io.openems.edge.evcs.api.OcppEvcs;
+import io.openems.edge.evcs.api.Status;
 
-public class EventHandler implements ServerCoreEventHandler {
-
-	private AuthorizeRequest authorizeRequest;
+public class OcppEventHandler implements ServerCoreEventHandler {
 
 	private OcppServer parent;
 
-	public EventHandler(OcppServer parent) {
+	public OcppEventHandler(OcppServer parent) {
 		this.parent = parent;
 	}
 
@@ -42,8 +42,7 @@ public class EventHandler implements ServerCoreEventHandler {
 	public AuthorizeConfirmation handleAuthorizeRequest(UUID sessionIndex, AuthorizeRequest request) {
 
 		System.out.println("handleAuthorizeRequest: " + request);
-		authorizeRequest = request;
-
+		
 		// ... handle event
 		AuthorizeConfirmation response = new AuthorizeConfirmation();
 		IdTagInfo tag = new IdTagInfo();
@@ -109,9 +108,8 @@ public class EventHandler implements ServerCoreEventHandler {
 
 		System.out.println("handleMeterValuesRequest: " + request);
 
-		OcppEvcs evcs = this.parent.sessionMap.get(sessionIndex);
+		OcppEvcs evcs = getEvcsBySessionIndex(sessionIndex);
 		if (evcs == null) {
-			System.out.println("No Chargingstation for session " + sessionIndex + " found.");
 			return new MeterValuesConfirmation();
 		}
 
@@ -124,85 +122,144 @@ public class EventHandler implements ServerCoreEventHandler {
 				// value.getLocation(); Not really needed
 
 				String phases = value.getPhase();
+				System.out.println("Phases: " + phases);
 
 				String unitString = value.getUnit();
 				Unit unit = Unit.valueOf(unitString.toUpperCase());
+				System.out.println();
 
 				String val = value.getValue();
 
 				if (val != null) {
-					// Value is formated in RAW data (integer/decimal) or in SignedData (binary data block, encoded as hex data)
+					// Value is formated in RAW data (integer/decimal) or in SignedData (binary data
+					// block, encoded as hex data)
 					ValueFormat format = value.getFormat();
 					if (format.equals(ValueFormat.SignedData)) {
+						System.out.println("Signed data: " + val);
 						val = fromHexToString(val);
+						System.out.println("Raw data: " + val);
 					}
 
 					String measurandString = value.getMeasurand();
 					SampleValueMeasurand measurand = SampleValueMeasurand
-							.valueOf(measurandString.replace(".", ":").toUpperCase());
+							.valueOf(measurandString.replace(".", "_").toUpperCase());
 
 					switch (measurand) {
 					case CURRENT_IMPORT:
+						evcs.getCurrentToEV().setNextValue(Double.valueOf(val) * 1000);
 						break;
 					case CURRENT_EXPORT:
-						
+						evcs.getCurrentToGrid().setNextValue(Double.valueOf(val) * 1000);
 						break;
 					case CURRENT_OFFERED:
-						break;
-					case ENERGY_ACTIVE_EXPORT_INTERVAL:
+						evcs.getCurrentOffered().setNextValue(Double.valueOf(val) * 1000);
 						break;
 					case ENERGY_ACTIVE_EXPORT_REGISTER:
-						break;
-					case ENERGY_ACTIVE_IMPORT_INTERVAL:
+						if (unit.equals(Unit.KWH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getActiveEnergyToGrid().setNextValue(val);
 						break;
 					case ENERGY_ACTIVE_IMPORT_REGISTER:
-						break;
-					case ENERGY_REACTIVE_EXPORT_INTERVAL:
+						if (unit.equals(Unit.KWH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getEnergySession().setNextValue(val);
 						break;
 					case ENERGY_REACTIVE_EXPORT_REGISTER:
-						break;
-					case ENERGY_REACTIVE_IMPORT_INTERVAL:
+						if (unit.equals(Unit.KVARH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getReactiveEnergyToGrid().setNextValue(val);
 						break;
 					case ENERGY_REACTIVE_IMPORT_REGISTER:
+						if (unit.equals(Unit.KVARH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getReactiveEnergyToEV().setNextValue(val);
+						break;
+					case ENERGY_ACTIVE_IMPORT_INTERVAL:
+						if (unit.equals(Unit.KWH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getActiveEnergyToEVInInterval().setNextValue(val);
+						break;
+					case ENERGY_ACTIVE_EXPORT_INTERVAL:
+						if (unit.equals(Unit.KWH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getActiveEnergyToGridInInterval().setNextValue(val);
+						break;
+					case ENERGY_REACTIVE_IMPORT_INTERVAL:
+						if (unit.equals(Unit.KVARH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getReactiveEnergyToEvInInterval().setNextValue(val);
+						break;
+					case ENERGY_REACTIVE_EXPORT_INTERVAL:
+						if (unit.equals(Unit.KVARH)) {
+							val = divideByThousand(val);
+						}
+						evcs.getReactiveEnergyToGridInInterval().setNextValue(val);
 						break;
 					case FREQUENCY:
+						evcs.getFrequency().setNextValue(val);
 						break;
 					case POWER_ACTIVE_EXPORT:
+						if (unit.equals(Unit.KW)) {
+							val = divideByThousand(val);
+						}
+						evcs.getActivePowerToGrid();
 						break;
 					case POWER_ACTIVE_IMPORT:
 						if (unit.equals(Unit.KW)) {
 							val = divideByThousand(val);
 						}
-						evcs.getChargePower().setNextValue(val); 
+						evcs.getChargePower().setNextValue(val);
 						break;
 					case POWER_FACTOR:
+						evcs.getPowerFactor().setNextValue(val);
 						break;
 					case POWER_OFFERED:
+						if (unit.equals(Unit.KW)) {
+							val = divideByThousand(val);
+						}
+						evcs.getPowerOffered().setNextValue(val);
 						break;
 					case POWER_REACTIVE_EXPORT:
+						if (unit.equals(Unit.KVAR)) {
+							val = divideByThousand(val);
+						}
+						evcs.getReactivePowerToGrid().setNextValue(val);
 						break;
 					case POWER_REACTIVE_IMPORT:
+						if (unit.equals(Unit.KVAR)) {
+							val = divideByThousand(val);
+						}
+						evcs.getReactivePowerToEV().setNextValue(val);
 						break;
 					case RPM:
+						evcs.getFanSpeed().setNextValue(val);
+						;
 						break;
 					case SOC:
+						evcs.getSoC().setNextValue(val);
 						break;
 					case TEMPERATURE:
+						System.out.println("Temp:" + val);
+						// evcs.getTemperature().setNextValue(val);
 						break;
 					case VOLTAGE:
+						evcs.getVoltage().setNextValue(Math.round(Double.valueOf(val)));
 						break;
 					}
 
-					System.out.println(value);
+					System.out.println(val);
+					System.out.println(unitString);
 				}
 			}
 		}
-
-		// ... handle event
-
-		MeterValuesConfirmation response = new MeterValuesConfirmation();
-
-		return response;
+		return new MeterValuesConfirmation();
 	}
 
 	@Override
@@ -210,12 +267,48 @@ public class EventHandler implements ServerCoreEventHandler {
 			StatusNotificationRequest request) {
 
 		System.out.println("handleStatusNotificationRequest: " + request);
-		// ... handle event
+		OcppEvcs evcs = getEvcsBySessionIndex(sessionIndex);
+		if (evcs == null) {
+			return new StatusNotificationConfirmation();
+		}
 
-		StatusNotificationConfirmation response = new StatusNotificationConfirmation();
-		response.validate();
-
-		return response; // returning null means unsupported feature
+		Status evcsStatus = null;
+		ChargePointStatus ocppStatus = request.getStatus();
+		switch (ocppStatus) {
+		case Available:
+			evcs.getChargingstationCommunicationFailed().setNextValue(false);
+			break;
+		case Charging:
+			evcsStatus = Status.CHARGING;
+			break;
+		case Faulted:
+			evcsStatus = Status.ERROR;
+			break;
+		case Finishing:
+			evcsStatus = Status.CHARGING_FINISHED;
+			break;
+		case Preparing:
+			evcsStatus = Status.READY_FOR_CHARGING;
+			break;
+		case Reserved:
+			System.out.println("Reservation currently not supported");
+			break;
+		case SuspendedEV:
+			evcsStatus = Status.CHARGING_REJECTED;
+			break;
+		case SuspendedEVSE:
+			evcsStatus = Status.CHARGING_REJECTED;
+			break;
+		case Unavailable:
+			System.out.println("Charging Station is Unavailable.");
+			evcs.getChargingstationCommunicationFailed().setNextValue(true);
+			evcsStatus = Status.ERROR;
+			break;
+		}
+		if (evcsStatus != null) {
+			evcs.status().setNextValue(evcsStatus);
+		}
+		return new StatusNotificationConfirmation();
 	}
 
 	@Override
@@ -249,6 +342,15 @@ public class EventHandler implements ServerCoreEventHandler {
 		return response;
 	}
 
+	private OcppEvcs getEvcsBySessionIndex(UUID sessionIndex) {
+		OcppEvcs evcs = this.parent.sessionMap.get(sessionIndex);
+		if (evcs == null) {
+			System.out.println("No Chargingstation for session " + sessionIndex + " found.");
+			return null;
+		}
+		return evcs;
+	}
+
 	public String fromHexToString(String hex) {
 		StringBuilder str = new StringBuilder();
 		for (int i = 0; i < hex.length(); i += 2) {
@@ -257,12 +359,11 @@ public class EventHandler implements ServerCoreEventHandler {
 		return str.toString();
 	}
 
-
 	private String divideByThousand(String val) {
-		if(val.isEmpty()) {
+		if (val.isEmpty()) {
 			return val;
 		}
-		return String.valueOf((Double.parseDouble(val)/1000.0));
+		return String.valueOf((Double.parseDouble(val) / 1000.0));
 	}
-	
+
 }

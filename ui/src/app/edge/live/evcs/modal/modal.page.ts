@@ -31,11 +31,13 @@ export class EvcsModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.controller.properties.enabledCharging) {
-      this.chargeMode = this.controller.properties.chargeMode;
-    }
-    else {
-      this.chargeMode = 'OFF';
+    if (this.controller != null) {
+      if (this.controller.properties.enabledCharging) {
+        this.chargeMode = this.controller.properties.chargeMode;
+      }
+      else {
+        this.chargeMode = 'OFF';
+      }
     }
   }
 
