@@ -212,7 +212,11 @@
 	com.fazecast.jSerialComm;version='[2.5.2,2.5.3)',\
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	javax.jmdns;version='[3.5.5,3.5.6)',\
-	io.openems.edge.controller.symmetric.peaklimiting;version=snapshot
+	io.openems.edge.controller.symmetric.peaklimiting;version=snapshot,\
+	com.fasterxml.jackson.core.jackson-annotations;version='[2.10.0,2.10.1)',\
+	com.fasterxml.jackson.core.jackson-core;version='[2.10.0,2.10.1)',\
+	com.fasterxml.jackson.core.jackson-databind;version='[2.10.0,2.10.1)',\
+	com.github.scribejava.core;version='[6.9.0,6.9.1)'
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
 	com.fasterxml.jackson.core.jackson-annotations;version='[2.10.0,2.10.1)',\

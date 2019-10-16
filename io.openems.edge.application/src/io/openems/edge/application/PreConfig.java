@@ -245,7 +245,7 @@ public class PreConfig {
 				core.put("serialnumber", "");
 				core.put("id", "kacoCore0");
 				core.put("alias", "");
-				if(userkey.isEmpty()) {
+				if(userkey == "") {
 					userkey = "user";
 				}
 				core.put("userkey", userkey);
