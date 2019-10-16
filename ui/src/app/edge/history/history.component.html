@@ -1,4 +1,4 @@
-<ion-grid *ngIf="isTimedataAvailable">
+<ion-grid *ngIf="isTimedataAvailable && widgets">
   <ion-row>
 
     <!-- <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
@@ -10,40 +10,50 @@
           <ion-label class="ion-text-wrap" *ngIf="translate"><span translate>Edge.History.SelectedPeriod</span>
             {{ service.historyPeriod.getText(translate) }}</ion-label>
         </ion-item> -->
-    <ng-container class="ion-no-padding" *ngIf="widgets">
-      <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+    <!-- <ng-container class="ion-no-padding" *ngIf="widgets"> -->
+    <!-- <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
         <ion-col *ngSwitchCase="'Autarchy' || 'Storage' || 'Selfconsumption'" size="12">
           <soc [period]="service.historyPeriod" [style.height]="socChartHeight"></soc>
         </ion-col>
-      </ng-container>
+      </ng-container> -->
 
+    <!-- Energymonitor Chart -->
+    <ion-col size="12">
+      <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
+    </ion-col>
 
-      <ion-col size="12">
-        <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
-      </ion-col>
-
+    <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
       <!-- KWH Widgets -->
-      <ion-col *ngIf="config.hasStorage()" size="12" size-lg="2">
+      <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="2">
         <storage [period]="service.historyPeriod"></storage>
       </ion-col>
-      <ion-col *ngIf="config.hasProducer()" size="12" size-lg="2">
+      <ion-col *ngSwitchCase="'Production'" size="12" size-lg="2">
         <production [period]="service.historyPeriod"></production>
       </ion-col>
-      <ion-col size="12" size-lg="2">
+      <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="2">
         <grid [period]="service.historyPeriod"></grid>
       </ion-col>
-      <ion-col size="12" size-lg="2">
+      <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="2">
         <consumption [period]="service.historyPeriod"></consumption>
       </ion-col>
-
-      <ng-container *ngFor="let name of widgets.names" [ngSwitch]="name">
-        <!-- <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px" size="12">
+      <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="2">
+        <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>
+      </ion-col>
+      <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="2">
+        <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
+      </ion-col>
+    </ng-container>
+    <ng-container *ngFor="let name of widgets.names" [ngSwitch]="name">
+      <!-- <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px" size="12">
           <evcs [period]="service.historyPeriod"></evcs>
         </ion-col> -->
-        <!-- <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="3">
-          <evcsWidget [period]="service.historyPeriod"></evcsWidget>
-        </ion-col> -->
-        <!-- <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
+      <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="2">
+        <evcsWidget [period]="service.historyPeriod"></evcsWidget>
+      </ion-col>
+      <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="2">
+        <chpsocWidget [period]="service.historyPeriod"></chpsocWidget>
+      </ion-col>
+      <!-- <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
           style.height="150px" size="12">
           <channelthreshold [period]="service.historyPeriod"></channelthreshold>
         </ion-col>
@@ -55,8 +65,8 @@
         <ion-col *ngSwitchCase="'Controller.CHP.SoC'" style.height="150px" size="12">
           <chpsoc [period]="service.historyPeriod"></chpsoc>
         </ion-col> -->
-      </ng-container>
     </ng-container>
+    <!-- </ng-container> -->
   </ion-row>
 
   <!-- TODO ADD EXPORT ALSO -->

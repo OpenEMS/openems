@@ -1,4 +1,4 @@
-<ion-card *ngIf="data">
+<ion-card>
     <ion-item lines="full" color="light">
         <ion-avatar slot="start">
             <img src="assets/img/consumption.png">
@@ -10,7 +10,7 @@
             <tr>
                 <td style="width:65%"></td>
                 <td style="width:35%" class="align_right">
-                    {{data["_sum/ConsumptionActiveEnergy"] | unitvalue:'kWh'}}
+                    {{1337000 | unitvalue:'kWh'}}
                 </td>
             </tr>
         </table>

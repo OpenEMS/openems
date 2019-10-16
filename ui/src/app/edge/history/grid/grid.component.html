@@ -1,4 +1,4 @@
-<ion-card *ngIf="data">
+<ion-card>
     <ion-item lines="full" color="light">
         <ion-avatar slot="start">
             <img src="assets/img/grid.png">
@@ -10,13 +10,13 @@
             <tr>
                 <td style="width:65%" translate>General.GridBuyAdvanced</td>
                 <td style="width:35%" class="align_right">
-                    {{data["_sum/GridBuyActiveEnergy"] | unitvalue:'kWh'}}
+                    {{1337000 | unitvalue:'kWh'}}
                 </td>
             </tr>
             <tr>
                 <td style="width:65%" translate>General.GridSellAdvanced</td>
                 <td style="width:35%" class="align_right">
-                    {{data["_sum/GridSellActiveEnergy"] | unitvalue:'kWh'}}
+                    {{1337000 | unitvalue:'kWh'}}
                 </td>
             </tr>
         </table>

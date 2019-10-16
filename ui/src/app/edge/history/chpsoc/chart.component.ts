@@ -3,16 +3,15 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Service, Edge, ChannelAddress, Utils } from 'src/app/shared/shared';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { Dataset, EMPTY_DATASET, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Data } from '../shared';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { formatNumber } from '@angular/common';
 
 @Component({
-    selector: 'chpsoc',
-    templateUrl: './chpsoc.component.html'
+    selector: 'chpsocChart',
+    templateUrl: './chart.component.html'
 })
-export class ChpSocComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
     @Input() private period: DefaultTypes.HistoryPeriod;
 
     ngOnChanges() {
@@ -22,7 +21,6 @@ export class ChpSocComponent extends AbstractHistoryChart implements OnInit, OnC
     constructor(
         protected service: Service,
         private route: ActivatedRoute,
-        private translate: TranslateService
     ) {
         super(service);
     }

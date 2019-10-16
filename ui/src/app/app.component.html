@@ -11,7 +11,7 @@
         <ion-menu-button autoHide="false"></ion-menu-button>
       </ion-buttons>
       <!-- TODO COSTUM FEMS WIDTH -->
-      <ion-title *ngIf="!mobileMode && mobileMode != null" slot="start" style="max-width: 160.33px;">
+      <ion-title *ngIf="!isMobileMode()" slot="start" style="max-width: 160.33px;">
         {{ service.currentPageTitle }}
       </ion-title>
       <ng-container *ngIf="service.currentEdge | async as edge">
@@ -24,7 +24,7 @@
       <ng-container *ngIf="service.currentEdge | async as edge">
         <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
           <!-- TODO COSTUM FEMS WIDTH -->
-          <ion-segment *ngIf="mobileMode != null" [class.toolbarpadding]="!mobileMode">
+          <ion-segment [class.toolbarpadding]="!isMobileMode()">
             <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
               routerLink="/device/{{ edge.id }}/live">
               <ion-label translate>General.Live</ion-label>

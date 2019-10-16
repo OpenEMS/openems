@@ -1,18 +1,18 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, Input } from '@angular/core';
 import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
+import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
-    selector: EvcsWidgetComponent.SELECTOR,
+    selector: AutarchyWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class EvcsWidgetComponent {
+export class AutarchyWidgetComponent implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "evcsWidget";
+    private static readonly SELECTOR = "autarchyWidget";
 
     public data: Cumulated = null;
     public values: any;
@@ -37,19 +37,15 @@ export class EvcsWidgetComponent {
     };
 
     updateValues() {
-        let channels: ChannelAddress[] = [];
-        this.service.getConfig().then(config => {
-            // find all EVCS components
-            for (let componentId of config.getComponentIdsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
-                channels.push(new ChannelAddress(componentId, 'ChargePower'));
-            }
-        })
+        let channels: ChannelAddress[] = [
+            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+        ];
+
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
             this.data = response.result.data;
         }).catch(reason => {
             console.error(reason); // TODO error message
         });
     };
-
 }
 

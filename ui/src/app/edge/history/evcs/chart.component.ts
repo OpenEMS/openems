@@ -10,9 +10,9 @@ import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET,
 
 @Component({
   selector: 'evcs',
-  templateUrl: './evcs.component.html'
+  templateUrl: './chart.component.html'
 })
-export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
   @Input() private period: DefaultTypes.HistoryPeriod;
 
