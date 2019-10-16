@@ -25,15 +25,17 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -50,6 +52,7 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 	/**
 	 * nominal voltage in [mV].
 	 */
+	private float voltageRatio;
 	private float nominalVoltage;
 	private Config config;
 	private int power = 0;
@@ -58,17 +61,22 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricMeter meter;
+	private AsymmetricMeter meter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private ManagedSymmetricEss ess;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		PERCENT(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
-		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE))//
-
+		VOLTAGE_RATIO(Doc.of(OpenemsType.DOUBLE)), //
+		VOLTAGE_RATIOL1(Doc.of(OpenemsType.DOUBLE)), //
+		VOLTAGE_RATIOL2(Doc.of(OpenemsType.DOUBLE)), //
+		VOLTAGE_RATIOL3(Doc.of(OpenemsType.DOUBLE))//
 		;
 		private final Doc doc;
 
@@ -129,31 +137,92 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 	 * @throws OpenemsNamedException on error
 	 */
 
-	private void initialize(String powerConf, float gridVoltageRatio) throws OpenemsNamedException {
+	private void initialize(String powerVoltConf) throws OpenemsNamedException {
 		try {
-			JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConf));
+			JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerVoltConf));
 			for (JsonElement element : jpowerV) {
-				Float power = (float) JsonUtils.getAsInt(element, "power");
-				float voltageRatio = JsonUtils.getAsFloat(element, "voltageRatio");
-				this.voltagePowerMap.put(voltageRatio, power);
+				Float powerConf = (float) JsonUtils.getAsInt(element, "power");
+				float voltageRatioConf = JsonUtils.getAsFloat(element, "voltageRatio");
+				this.voltagePowerMap.put(voltageRatioConf, powerConf);
 			}
 		} catch (NullPointerException e) {
-			throw new OpenemsException("Unable to set values [" + powerConf + "] " + e.getMessage());
+			throw new OpenemsException("Unable to set values [" + powerVoltConf + "] " + e.getMessage());
 		}
 
 	}
 
+	/**
+	 * Initialize the P by U characteristics.
+	 *
+	 * <p>
+	 * Gets EssID and according to that " componentId / device ", it will "point
+	 * out/ indicate/assign" on which power line connected.// Numbers will be
+	 * recursive after L3/ess3.See ess4...
+	 *
+	 * <pre>
+	 * [
+	 *  { "ess0"	: Ess Cluster}
+	 *  { "ess1"	: power line : 1}},
+	 *  { "ess2"	: power line : 2}},
+	 *  { "ess3"	: power line : 3}},
+	 *  { "ess4"	: power line : 1}},
+	 *  ......
+	 * ]
+	 * </pre>
+	 * 
+	 * @param percentQ the configured Percent-by-Q values
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	private essId getEssId() {
+		String[] parts = this.config.ess_id().split("ess");
+		String part2 = parts[1];
+		int essIdInt = Integer.parseInt(part2);
+
+		if (this.config.ess_id().equals("ess0")) {
+			return essId.ess0;
+		} else if (this.config.ess_id().equals("ess1") || ((essIdInt % 3) == 1)) {
+			return essId.ess1;
+		} else if (this.config.ess_id().equals("ess2") || ((essIdInt % 3) == 2)) {
+			return essId.ess2;
+		}
+		return essId.ess3;
+	}
+
+	private enum essId {
+		ess0, ess1, ess2, ess3
+	}
+
 	@Override
 	public void run() throws OpenemsNamedException {
+		AsymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter_id());
+		Channel<Integer> gridLineVoltage;
+		switch (this.getEssId()) {
+		case ess0:
+			this.log.info("\n'ess0' assumed as a essCluster by this controller.\n"
+					+ "Each ess number related with power line, ex: ess1 == L1 ");
+			return;
+		case ess1:
+			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
+			this.voltageRatio = (float) gridLineVoltage.value().orElse(0) / this.nominalVoltage;
+			break;
+		case ess2:
+			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L2);
+			this.voltageRatio = (float) gridLineVoltage.value().orElse(0) / this.nominalVoltage;
+			break;
+		case ess3:
+			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L3);
+			this.voltageRatio = (float) gridLineVoltage.value().orElse(0) / this.nominalVoltage;
+			break;
+		}
 		int calculatedPower = 0;
-		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
-		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
-		if (voltageRatio == 0) {
-			log.info("Voltage Ratio is 0 ");
+		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(this.voltageRatio);
+		if (this.voltageRatio == 0) {
+			log.info("Voltage Ratio is 0");
 			return;
 		}
-		this.initialize(config.powerV(), voltageRatio);
-		float linePowerValue = Utils.getValueOfLine(this.voltagePowerMap, voltageRatio);
+		this.initialize(config.powerVoltConfig());
+		float linePowerValue = Utils.getValueOfLine(this.voltagePowerMap, this.voltageRatio);
 		if (linePowerValue == 0) {
 			log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
 			this.channel(ChannelId.CALCULATED_POWER).setNextValue(-1);
