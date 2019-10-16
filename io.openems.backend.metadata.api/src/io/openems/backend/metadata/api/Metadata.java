@@ -160,4 +160,8 @@ public interface Metadata {
 		}
 		return result.toString();
 	}
+
+	public default Optional<String> addEdgeToDB(String apikey, String mac, String version) {
+		return null;
+	}
 }

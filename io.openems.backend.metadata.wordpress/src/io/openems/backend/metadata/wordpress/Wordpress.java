@@ -310,5 +310,16 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		
 		return null;
 	}
+	
+	@Override
+	public
+	Optional<String> addEdgeToDB(String apikey, String mac, String version){
+		if (this.dbu.addEdge(apikey, mac, version)) {
+			this.logInfo(log, "Added new hy-control to Wordpress: Apikey " + apikey + ", MAC " + mac );
+			this.updateEdges();
+			return this.getEdgeIdForApikey(apikey);
+		}
+		return null;
+	}
 
 }

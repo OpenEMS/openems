@@ -27,6 +27,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
@@ -137,6 +138,7 @@ public class BackendApi extends AbstractOpenemsComponent
 			httpHeaders.put("mac", splitkey[1]);
 		}
 		httpHeaders.put("pwd", "g6J:X)JE,VC?-@Y!");
+		httpHeaders.put("version", OpenemsConstants.VERSION.toString());
 		
 
 		// Create Websocket instance

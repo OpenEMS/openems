@@ -19,6 +19,7 @@ import org.mariadb.jdbc.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -93,6 +94,27 @@ public class DBUtils {
 
 		return null;
 	}
+	
+	public boolean addEdge(String apikey, String mac, String version) {
+		Connection conn;
+		try {
+			conn = DriverManager
+					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			Statement stmt = conn.createStatement();
+			String sql = "INSERT INTO wp_participants_database (apikey,mac,producttype,edge_name,edge_comment,serial) VALUES('" + apikey +"', '" + mac +"', 'blueplanet hybrid 10.0 TL3', '" + version + "', '" + apikey + "', '" + apikey + "')";
+			int result = stmt.executeUpdate(sql);
+			if(result == 1) {
+				return true;
+			}
+		} catch (SQLException e) {
+			return false;
+		}
+		
+		
+		
+		return false;
+		
+	}
 
 	public void writeEdge(String apikey, String name, String comment, String producttype, int id) {
 		try {
@@ -129,25 +151,105 @@ public class DBUtils {
 		if (j == null) {
 			throw new OpenemsException("no response from Wordpress");
 		}
+		
 		String nick = j.get("nickname").getAsString();
-		String role = j.get("primusrole").getAsString();
-		String primus = j.get("primus").getAsString();
-		ArrayList<String> edges = new ArrayList<String>(Arrays.asList(primus.split(",")));
+		JsonElement hasrole = j.get("primusrole");
+		String role = null;
+		String primus;
+		ArrayList<String> edges = null;
+		if(hasrole != null) {
+			role = hasrole.getAsString();
+			primus = j.get("primus").getAsString();
+			edges = new ArrayList<String>(Arrays.asList(primus.split(",")));
+		}
 
-		j = getWPResponse("/user/get_currentuserinfo/?cookie=" + sessionId);
-		if (j == null) {
+		
+		JsonObject j2 = getWPResponse("/user/get_currentuserinfo/?cookie=" + sessionId);
+		if (j2 == null) {
 			throw new OpenemsException("no response from Wordpress");
 		}
-		JsonObject userinfo = j.getAsJsonObject("user");
+		JsonObject userinfo = j2.getAsJsonObject("user");
+		String userid = userinfo.get("id").getAsString();
+		
+		if(edges == null) {
+			String serial = j.get("bp_serial").getAsString();
+			String mac = j.get("bp_mac").getAsString();
+			edges = checkNewUser(serial, mac);
+			role = "owner";
+			updateNewUser(userid, edges, role);
+		}
+
+		
 
 		String name = userinfo.get("firstname").getAsString() + " " + userinfo.get("lastname").getAsString();
 		if (!name.matches(".*\\w.*")) {
 			name = nick;
 		}
 
-		MyUser user = new MyUser(userinfo.get("id").getAsString(), name, edges, role);
+		MyUser user = new MyUser(userid, name, edges, role);
 
 		return user;
+	}
+
+	private boolean updateNewUser(String userid, ArrayList<String> edges, String role) throws OpenemsException {
+		Connection conn;
+		try {
+			conn = DriverManager
+					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			Statement stmt = conn.createStatement();
+			String sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid +"', 'primus', '" + edges.get(0) + "')";
+			int result = stmt.executeUpdate(sql);
+			if(result == 1) {
+				sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid +"', 'primusrole', '" + role + "')";
+				result = stmt.executeUpdate(sql);
+				if(result == 1) {
+					return true;
+				}
+			}
+		} catch (SQLException e) {
+			throw new OpenemsException("Couldn't update user: " + e.getMessage());
+		}
+		return false;
+		
+	}
+
+	private ArrayList<String> checkNewUser(String serial, String mac) throws OpenemsException {
+		
+		if(serial == null || mac == null) {
+			throw new OpenemsException("No valid User");
+		}
+		
+		String id = getEdgeIdFromDB(serial, mac);
+		if(id != null) {
+			
+			ArrayList<String> edges = new ArrayList<String>();
+			edges.add(id);
+			return edges;
+		}
+		
+		return null;
+	}
+
+	private String getEdgeIdFromDB(String serial, String mac) throws OpenemsException {
+		try {
+			Connection conn = DriverManager
+					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			Statement stmt = conn.createStatement();
+			String sql = "SELECT * FROM wp_participants_database WHERE apikey = " + serial + " AND mac = '" + mac +"'";
+			ResultSet result = stmt.executeQuery(sql);
+			conn.close();
+					if(result.first()) {
+						return result.getString("id");
+					}
+			
+					throw new OpenemsException("No valid Edge in Database found!");
+			
+
+		} catch (SQLException e) {
+
+			this.log.error("Failed to get Edges from Wordpress: " + e.getMessage());
+		}
+		return null;
 	}
 
 	public JsonObject getWPResponse(String urlparams) throws OpenemsException {

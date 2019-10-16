@@ -38,13 +38,17 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			wsData.setApikey(apikey);
 			
 			Optional<String> macOpt = JsonUtils.getAsOptionalString(handshake, "mac");
-			if(macOpt.isPresent()) {
-				this.parent.logInfo(log, "Received MAC addresse: " + macOpt.get());
-			}
+			Optional<String> version = JsonUtils.getAsOptionalString(handshake, "version");
 			// get edgeId for apikey
 			Optional<String> edgeIdOpt = this.parent.metadata.getEdgeIdForApikey(apikey);
 			if (!edgeIdOpt.isPresent()) {
-				throw new OpenemsException("Unable to authenticate this Apikey. Key: [" + apikey + "] IP: " + ws.getRemoteSocketAddress().toString());
+				if(macOpt.isPresent()) {
+					edgeIdOpt = this.parent.metadata.addEdgeToDB(apikey, macOpt.get(), version.get());
+				}else {
+					throw new OpenemsException("Unable to authenticate this Apikey. Key: [" + apikey + "] IP: " + ws.getRemoteSocketAddress().toString());
+				}
+				
+				
 			}
 			String edgeId = edgeIdOpt.get();
 			wsData.setEdgeId(edgeId);
@@ -73,5 +77,6 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 					"Connection to backend failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
 		}
 	}
+
 
 }
