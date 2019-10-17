@@ -272,7 +272,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		int excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 
-		nextChargePower = evcsCharge + excessPower;
+		nextChargePower = excessPower;
 
 		Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) { /* charging under 6A isn't possible */
