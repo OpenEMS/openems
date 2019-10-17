@@ -34,9 +34,7 @@ public class CircuitBoard extends AbstractOpenemsComponent implements Consolinno
     private List<Adc> adcList = new ArrayList<>();
 
     public CircuitBoard() {
-        super(OpenemsComponent.ChannelId.values(),
-                ConsolinnoBoards.ChannelId.values(),
-                ChannelId.values());
+        super(OpenemsComponent.ChannelId.values());
     }
 
 

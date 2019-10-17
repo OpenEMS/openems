@@ -29,7 +29,7 @@ public abstract class Adc {
             this.spiChannel = spiChannel;
             this.initialized = true;
 
-            //Spi.wiringPiSPISetup(spiChannel, frequency);
+            Spi.wiringPiSPISetup(spiChannel, frequency);
         }
     }
 

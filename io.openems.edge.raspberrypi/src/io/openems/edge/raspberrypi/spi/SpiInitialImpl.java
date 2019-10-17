@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
         configurationPolicy = ConfigurationPolicy.REQUIRE,
         property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiInitial, EventHandler, OpenemsComponent, SpiBridge {
-    @Reference
-    ConfigurationAdmin cm;
+
 
     private final Logger log = LoggerFactory.getLogger(SpiInitialImpl.class);
 
@@ -44,9 +43,7 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
     @Activate
     public void activate(ComponentContext context, Config config) {
-//        if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Spi", config.id())) {
-//            return;
-//        }
+
         super.activate(context, config.id(), config.alias(), config.enabled());
 
         if (config.enabled()) {
@@ -107,20 +104,18 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
         @Override
         public void forever() throws Throwable {
-            boolean implemented = false;
+
             for (Task task : tasks.values()) {
-                // byte[] data = task.getRequest();
-                // int channelInput = task.getSpiChannel();
-                // Spi.wiringPiSPIDataRW(channelInput,data);
-                //task.setResponse(data);
-                implemented = true;
-                log.info("Task implemented");
+                byte[] data = task.getRequest();
+                int channelInput = task.getSpiChannel();
+                Spi.wiringPiSPIDataRW(channelInput, data);
+                task.setResponse(data);
+
             }
-            if(!implemented) {
-                log.info("No Tasks implemented yet");
-            }
+
         }
     }
+
 
     @Override
     public void handleEvent(Event event) {

@@ -17,6 +17,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,61 +58,45 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
     @Activate
     public void activate(ComponentContext context, Config config) throws ConfigurationException {
         super.activate(context, config.id(), config.alias(), config.enabled());
-        // if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "SpiInitial", config.spiInitial_id())) {
-        //   return;
-        //}
-        //this.addChannels(TemperatureSensoric.ChannelId.values());
         this.id = config.id();
         this.circuitBoardId = config.circuitBoardId();
         this.spiChannel = config.spiChannel();
         this.pinPosition = config.pinPosition();
 
-        for (CircuitBoard fromConsolinno : spiInitial.getCircuitBoards()) {
-            if (fromConsolinno.getCircuitBoardId().equals(this.circuitBoardId)) {
-                this.versionId = fromConsolinno.getVersionId();
-                for (Adc adc : fromConsolinno.getAdcList()
-                ) {
-                    if (adc.getSpiChannel() == this.spiChannel) {
-                        adcForTemperature = adc;
-                        if (adc.getPins().get(this.pinPosition) != null) {
-                            Optional<Pin> opt = adc.getPins().stream().filter(pin -> pin.getPosition() == this.pinPosition).findFirst();
-                            if (opt.isPresent()) {
-                                Pin wantToUse = opt.get();
-                                if (wantToUse.isUsed() && !wantToUse.getUsedBy().equals(this.id)) {
-                                    throw new ConfigurationException(
-                                            "Pin is already used", "Pin is already used by "
-                                            + wantToUse.getUsedBy());
-                                } else {
-                                    spiInitial.addTask(this.id, new TemperatureDigitalReadTask(getTemperature(),
-                                            this.versionId, adcForTemperature, this.pinPosition));
-                                    wantToUse.setUsedBy(this.id);
-                                    return;
-                                }
-                            }
-//                            Pin wantToUse = adc.getPins().get(this.pinPosition);
-//                            if (wantToUse.isUsed() && !wantToUse.getUsedBy().equals(this.id)) {
-//                                throw new ConfigurationException(
-//                                        "Pin is already used", "Pin is already used by "
-//                                        + wantToUse.getUsedBy());
-//                            } else {
-//                                spiInitial.addTask(this.id, new TemperatureDigitalReadTask(getTemperature(),
-//                                        this.versionId, adcForTemperature, this.pinPosition));
-//                                wantToUse.setUsedBy(this.id);
-//                                return;
-//                            }
-                        } else {
-                            throw new ConfigurationException("Wrong Pin",
-                                    "The PinPosition" + this.pinPosition + "couldn't be found on the Adc");
-                        }
+        Optional<CircuitBoard> optCb = spiInitial.getCircuitBoards().stream().filter(
+                fromConsolinno -> fromConsolinno.getCircuitBoardId().equals(this.circuitBoardId)).findFirst();
+        if (optCb.isPresent()) {
+            this.versionId = optCb.get().getVersionId();
+            Optional<Adc> optAdc = optCb.get().getAdcList().stream().filter(adc -> adc.getSpiChannel() == this.spiChannel).findFirst();
+            if (optAdc.isPresent()) {
+                Adc adcForTemperature = optAdc.get();
+                Optional<Pin> opt = adcForTemperature.getPins().stream().filter(pin -> pin.getPosition() == this.pinPosition).findFirst();
+                if (opt.isPresent()) {
+                    Pin wantToUse = opt.get();
+                    if (wantToUse.isUsed() && !wantToUse.getUsedBy().equals(this.id)) {
+                        throw new ConfigurationException(
+                                "Pin is already used", "Pin is already used by "
+                                + wantToUse.getUsedBy());
                     } else {
-                        throw new ConfigurationException("Wrong SpiChannel", "SpiChannel was wrong");
+                        TemperatureDigitalReadTask task = new TemperatureDigitalReadTask(this.getTemperature(),
+                                this.versionId, adcForTemperature, this.pinPosition);
+                        spiInitial.addTask(this.id, task);
+                        wantToUse.setUsedBy(this.id);
+                        return;
                     }
+                } else {
+                    throw new ConfigurationException("Wrong Pin",
+                            "The PinPosition" + this.pinPosition + "couldn't be found on the Adc");
+
                 }
             } else {
-                throw new ConfigurationException("Wrong CircuitBoard ID", "CircuitBoard id was wrong");
+                throw new ConfigurationException("Wrong SpiChannel", "SpiChannel was wrong");
             }
+        } else {
+            throw new ConfigurationException("Wrong CircuitBoard ID", "CircuitBoard id was wrong");
         }
     }
+
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         ;
@@ -139,4 +124,38 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
         return "T:" + this.getTemperature().value().asString();
     }
 
+
+        //                if (adcForTemperature.getPins().get(this.pinPosition) != null) {
+ //    for (CircuitBoard fromConsolinno : spiInitial.getCircuitBoards()) {
+//            if (fromConsolinno.getCircuitBoardId().equals(this.circuitBoardId)) {
+//                this.versionId = fromConsolinno.getVersionId();
+//                for (Adc adc : fromConsolinno.getAdcList()) {
+//                    if (adc.getSpiChannel() == this.spiChannel) {
+//                        adcForTemperature = adc;
+//                        if (adc.getPins().get(this.pinPosition) != null) {
+//                            Optional<Pin> opt = adc.getPins().stream().filter(pin -> pin.getPosition() == this.pinPosition).findFirst();
+//                            if (opt.isPresent()) {
+//                                Pin wantToUse = opt.get();
+//                                if (wantToUse.isUsed() && !wantToUse.getUsedBy().equals(this.id)) {
+//                                    throw new ConfigurationException(
+//                                            "Pin is already used", "Pin is already used by "
+//                                            + wantToUse.getUsedBy());
+//                                } else {
+//                                    spiInitial.addTask(this.id, new TemperatureDigitalReadTask(getTemperature(),
+//                                            this.versionId, adcForTemperature, this.pinPosition));
+//                                    wantToUse.setUsedBy(this.id);
+//                                    return;
+//                                }
+
+//                            Pin wantToUse = adc.getPins().get(this.pinPosition);
+//                            if (wantToUse.isUsed() && !wantToUse.getUsedBy().equals(this.id)) {
+//                                throw new ConfigurationException(
+//                                        "Pin is already used", "Pin is already used by "
+//                                        + wantToUse.getUsedBy());
+//                            } else {
+//                                spiInitial.addTask(this.id, new TemperatureDigitalReadTask(getTemperature(),
+//                                        this.versionId, adcForTemperature, this.pinPosition));
+//                                wantToUse.setUsedBy(this.id);
+//                                return;
+//                            }
 }

@@ -12,14 +12,14 @@ import io.openems.edge.raspberrypi.spi.task.Task;
 public class TemperatureDigitalReadTask extends Task {
 
 
-    private final Channel<?> channel;
+    private final Channel<Float> channel;
     private double regressionValueA;
     private  double regressionValueB;
     private  double regressionValueC;
     private int calculator;
     private long pinValue;
 
-    public TemperatureDigitalReadTask(Channel<?> channel, String version, Adc adc, int pin)  {
+    public TemperatureDigitalReadTask(Channel<Float> channel, String version, Adc adc, int pin)  {
         super(adc.getSpiChannel());
         this.channel = channel;
         calculator = 20 - adc.getInputType();
@@ -40,17 +40,18 @@ public class TemperatureDigitalReadTask extends Task {
 
     @Override
     public byte[] getRequest() {
+        long output = this.pinValue;
         byte[] data = {0, 0, 0};
         for (int i = 0; i < 3; i++) {
-            data[2 - i] = (byte) (pinValue % Math.pow(2, calculator));
-            pinValue = pinValue >> calculator;
+            data[2 - i] = (byte) (output % 256);
+            output = output >> 8;
         }
         return data;
     }
 
     @Override
     public void setResponse(byte[] data) {
-        int digit = (data[1] << calculator) + (data[2] & 0xFF);
+        int digit = (data[1] << 8) + (data[2] & 0xFF);
         digit &= 0xFFF;
         int value = (int) (this.regressionValueA * Math.pow(digit, 2)
                 + this.regressionValueB * digit
