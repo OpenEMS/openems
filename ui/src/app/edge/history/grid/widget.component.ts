@@ -1,20 +1,20 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
-import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { SelfconsumptionModalComponent } from './modal/modal.component';
+import { GridModalComponent } from './modal/modal.component';
 
 @Component({
-    selector: SelfconsumptionWidgetComponent.SELECTOR,
+    selector: GridComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
+export class GridComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "selfconsumptionWidget";
+    private static readonly SELECTOR = "grid";
 
     public data: Cumulated = null;
     public values: any;
@@ -41,7 +41,8 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
 
     updateValues() {
         let channels: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+            new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+            new ChannelAddress('_sum', 'GridSellActiveEnergy'),
         ];
 
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
@@ -53,7 +54,7 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
 
     async presentModal() {
         const modal = await this.modalCtrl.create({
-            component: SelfconsumptionModalComponent,
+            component: GridModalComponent,
         });
         return await modal.present();
     }

@@ -1,18 +1,20 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
-import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ActivatedRoute } from '@angular/router';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ModalController } from '@ionic/angular';
+import { StorageModalComponent } from './modal/modal.component';
 
 @Component({
-    selector: ConsumptionComponent.SELECTOR,
-    templateUrl: './consumption.component.html'
+    selector: StorageComponent.SELECTOR,
+    templateUrl: './widget.component.html'
 })
-export class ConsumptionComponent implements OnInit, OnChanges {
+export class StorageComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "consumption";
+    private static readonly SELECTOR = "storage";
 
     public data: Cumulated = null;
     public values: any;
@@ -21,6 +23,8 @@ export class ConsumptionComponent implements OnInit, OnChanges {
     constructor(
         public service: Service,
         private route: ActivatedRoute,
+        public modalCtrl: ModalController,
+
     ) { }
 
     ngOnInit() {
@@ -38,7 +42,8 @@ export class ConsumptionComponent implements OnInit, OnChanges {
 
     updateValues() {
         let channels: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+            new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+            new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
         ];
 
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
@@ -47,5 +52,12 @@ export class ConsumptionComponent implements OnInit, OnChanges {
             console.error(reason); // TODO error message
         });
     };
+
+    async presentModal() {
+        const modal = await this.modalCtrl.create({
+            component: StorageModalComponent,
+        });
+        return await modal.present();
+    }
 }
 

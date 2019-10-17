@@ -3,6 +3,8 @@ import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/share
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ActivatedRoute } from '@angular/router';
+import { ModalController } from '@ionic/angular';
+import { EvcsModalComponent } from './modal/modal.component';
 
 @Component({
     selector: EvcsWidgetComponent.SELECTOR,
@@ -21,6 +23,7 @@ export class EvcsWidgetComponent {
     constructor(
         public service: Service,
         private route: ActivatedRoute,
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
@@ -51,5 +54,11 @@ export class EvcsWidgetComponent {
         });
     };
 
+    async presentModal() {
+        const modal = await this.modalCtrl.create({
+            component: EvcsModalComponent,
+        });
+        return await modal.present();
+    }
 }
 

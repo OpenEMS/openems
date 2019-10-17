@@ -3,6 +3,8 @@ import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/share
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ModalController } from '@ionic/angular';
+import { AutarchyModalComponent } from './modal/modal.component';
 
 @Component({
     selector: AutarchyWidgetComponent.SELECTOR,
@@ -21,6 +23,7 @@ export class AutarchyWidgetComponent implements OnInit, OnChanges {
     constructor(
         public service: Service,
         private route: ActivatedRoute,
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
@@ -47,5 +50,12 @@ export class AutarchyWidgetComponent implements OnInit, OnChanges {
             console.error(reason); // TODO error message
         });
     };
+
+    async presentModal() {
+        const modal = await this.modalCtrl.create({
+            component: AutarchyModalComponent,
+        });
+        return await modal.present();
+    }
 }
 

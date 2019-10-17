@@ -1,18 +1,20 @@
 import { Component, Input } from '@angular/core';
 import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ActivatedRoute } from '@angular/router';
+import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ModalController } from '@ionic/angular';
+import { ProductionModalComponent } from './modal/modal.component';
 
 @Component({
-    selector: GridComponent.SELECTOR,
-    templateUrl: './grid.component.html'
+    selector: ProductionComponent.SELECTOR,
+    templateUrl: './widget.component.html'
 })
-export class GridComponent {
+export class ProductionComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "grid";
+    private static readonly SELECTOR = "production";
 
     public data: Cumulated = null;
     public values: any;
@@ -21,6 +23,7 @@ export class GridComponent {
     constructor(
         public service: Service,
         private route: ActivatedRoute,
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
@@ -38,8 +41,7 @@ export class GridComponent {
 
     updateValues() {
         let channels: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-            new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+            new ChannelAddress('_sum', 'ProductionActiveEnergy')
         ];
 
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
@@ -48,5 +50,12 @@ export class GridComponent {
             console.error(reason); // TODO error message
         });
     };
+
+    async presentModal() {
+        const modal = await this.modalCtrl.create({
+            component: ProductionModalComponent,
+        });
+        return await modal.present();
+    }
 }
 

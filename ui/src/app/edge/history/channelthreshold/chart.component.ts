@@ -10,7 +10,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 @Component({
   selector: 'channelthreshold',
-  templateUrl: './channelthreshold.component.html'
+  templateUrl: './chart.component.html'
 })
 export class ChannelthresholdComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
