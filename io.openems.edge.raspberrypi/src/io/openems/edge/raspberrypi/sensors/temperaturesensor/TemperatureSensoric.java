@@ -22,7 +22,7 @@ public interface TemperatureSensoric extends OpenemsComponent {
          * <li>Unit: Degree Celsius
          * </ul>
          */
-        TEMPERATURE(Doc.of(OpenemsType.FLOAT).unit(Unit.DEZIDEGREE_CELSIUS)); //
+        TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS)); //
         private final Doc doc;
 
         private ChannelId(Doc doc) {
@@ -38,7 +38,7 @@ public interface TemperatureSensoric extends OpenemsComponent {
      * @return Gets the Temperature in [dezidegree celsius].
      */
 
-    public default Channel<Float> getTemperature() {
+    public default Channel<Integer> getTemperature() {
         return this.channel(ChannelId.TEMPERATURE);
     }
 }

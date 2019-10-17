@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Spi Initial",
+@Component(name = "SpiInitial",
         immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE,
         property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
@@ -110,7 +110,6 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
                 int channelInput = task.getSpiChannel();
                 Spi.wiringPiSPIDataRW(channelInput, data);
                 task.setResponse(data);
-
             }
 
         }

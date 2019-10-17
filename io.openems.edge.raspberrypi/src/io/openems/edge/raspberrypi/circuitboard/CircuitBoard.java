@@ -103,6 +103,7 @@ public class CircuitBoard extends AbstractOpenemsComponent implements Consolinno
             this.adcList.remove(adc);
         }
         spiInitial.removeCircuitBoard(this);
+        super.deactivate();
     }
 
     public String getCircuitBoardId() {

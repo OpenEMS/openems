@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Temperature.Sensor", immediate = true,
+@Component(name = "TemperatureSensor", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 
 public class TemperatureSensor extends AbstractOpenemsComponent implements OpenemsComponent, TemperatureSensoric {
@@ -40,6 +40,7 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
     private int spiChannel;
     private int pinPosition;
     private String servicePid;
+    private String alias;
     private final String sensorType = "Temperature";
     private Adc adcForTemperature;
     private final Logger log = LoggerFactory.getLogger(TemperatureSensor.class);
@@ -62,6 +63,7 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
         this.circuitBoardId = config.circuitBoardId();
         this.spiChannel = config.spiChannel();
         this.pinPosition = config.pinPosition();
+        this.alias = config.alias();
 
         Optional<CircuitBoard> optCb = spiInitial.getCircuitBoards().stream().filter(
                 fromConsolinno -> fromConsolinno.getCircuitBoardId().equals(this.circuitBoardId)).findFirst();
@@ -69,7 +71,7 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
             this.versionId = optCb.get().getVersionId();
             Optional<Adc> optAdc = optCb.get().getAdcList().stream().filter(adc -> adc.getSpiChannel() == this.spiChannel).findFirst();
             if (optAdc.isPresent()) {
-                Adc adcForTemperature = optAdc.get();
+                this.adcForTemperature = optAdc.get();
                 Optional<Pin> opt = adcForTemperature.getPins().stream().filter(pin -> pin.getPosition() == this.pinPosition).findFirst();
                 if (opt.isPresent()) {
                     Pin wantToUse = opt.get();
@@ -121,7 +123,7 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
 
     @Override
     public String debugLog() {
-        return "T:" + this.getTemperature().value().asString();
+        return "T:" + this.getTemperature().value().asString() + " of TemperatureSensor: " + this.id + this.alias;
     }
 
 
