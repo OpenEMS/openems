@@ -91,7 +91,7 @@ public class OsgiValidateWorker extends AbstractWorker {
 						Configuration config = this.parent.getExistingConfigForId(entry.getKey());
 						Dictionary<String, Object> properties = config.getProperties();
 						config.update(properties);
-						entry.setValue(LocalDateTime.now());
+						entry.setValue(LocalDateTime.now().minusMinutes(9));
 
 					} catch (OpenemsNamedException | IOException e) {
 						this.parent.logError(this.log, e.getMessage());
@@ -109,6 +109,7 @@ public class OsgiValidateWorker extends AbstractWorker {
 				return true;
 			}
 		}
+
 		return false;
 	}
 

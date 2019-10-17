@@ -7,7 +7,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
         description = "Consolinno Circuit Boards, connected to the Leaflet. Communicating with Sensors")
 @interface Config {
     @AttributeDefinition(name = "CircuitBoardId", description = "Unique ID of SensorComponent")
-    String boardId() default "Temperature0";
+    String id() default "Temperature0";
 
     @AttributeDefinition(name = "CircuitBoardType", description = "What kind Circuit Board do you want to activate?")
     String boardType() default "Temperature";
@@ -24,6 +24,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "alias", description = "alternate readable Name.")
     String alias() default "";
 
+    boolean enabled() default true;
 
 
     String webconsole_configurationFactory_nameHint() default "Circuitboard [{id}]";

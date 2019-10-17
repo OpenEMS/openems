@@ -38,7 +38,7 @@ public interface TemperatureSensoric extends OpenemsComponent {
      * @return Gets the Temperature in [dezidegree celsius].
      */
 
-    default Channel<Integer> getTemperature() {
+    public default Channel<Float> getTemperature() {
         return this.channel(ChannelId.TEMPERATURE);
     }
 }

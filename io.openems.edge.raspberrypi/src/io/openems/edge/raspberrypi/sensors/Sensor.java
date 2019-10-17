@@ -4,9 +4,8 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.raspberrypi.sensors.Utils.Utils;
+import io.openems.edge.raspberrypi.sensors.temperaturesensor.Utils;
 import io.openems.edge.raspberrypi.spi.SpiInitial;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -33,12 +32,12 @@ public abstract class Sensor extends AbstractOpenemsComponent implements Openems
 
     public Sensor(String id, String type, String circuitBoardId,
                   int spiChannel, int pinPosition, String servicePid, boolean enabled,
-				  io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-				  io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+                  io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+                  io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
         super(firstInitialChannelIds, furtherInitialChannelIds);
 
-        Stream<? extends AbstractReadChannel<?, ?>> stream = Utils.initializeChannels(this);
-        stream.forEach(channel -> this.addChannel(channel.channelId()));
+        //  Stream<? extends AbstractReadChannel<?, ?>> stream = Utils.initializeChannels(this);
+        //stream.forEach(channel -> this.addChannel(channel.channelId()));
         this.id = id;
         this.type = type;
         this.circuitBoardId = circuitBoardId;

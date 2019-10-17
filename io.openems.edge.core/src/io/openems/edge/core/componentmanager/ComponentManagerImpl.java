@@ -86,7 +86,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 
-@Component( //
+@Component(//
 		name = "Core.ComponentManager", //
 		immediate = true, //
 		property = { //

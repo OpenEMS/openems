@@ -28,7 +28,7 @@ public abstract class Adc {
             this.circuitBoardId = circuitBoardId;
             this.spiChannel = spiChannel;
             this.initialized = true;
-            //TODO Rmv comments after debugging/bugfixing
+
             //Spi.wiringPiSPISetup(spiChannel, frequency);
         }
     }

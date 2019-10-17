@@ -1,5 +1,7 @@
 package io.openems.edge.raspberrypi.circuitboard.api.adc.pins;
 
+import java.util.Objects;
+
 public class Pin {
 
     private final long value;
@@ -39,4 +41,16 @@ public class Pin {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pin pin = (Pin) o;
+        return position == pin.position;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position);
+    }
 }

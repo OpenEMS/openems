@@ -89,7 +89,9 @@
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
-	bnd.identity;id='io.openems.edge.raspberrypi,\
+	bnd.identity;id='io.openems.edge.raspberrypi.circuitboard,\
+	bnd.identity;id='io.openems.edge.raspberrypi.sensors,\
+	bnd.identity;id='io.openems.edge.raspberrypi.spi,\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\

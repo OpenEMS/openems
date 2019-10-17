@@ -1,11 +1,18 @@
 package io.openems.edge.raspberrypi.circuitboard;
 
+import io.openems.common.worker.AbstractCycleWorker;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.raspberrypi.circuitboard.api.adc.Adc;
 import io.openems.edge.raspberrypi.circuitboard.api.boardtypes.TemperatureBoard;
 import io.openems.edge.raspberrypi.spi.SpiInitial;
 
 import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.util.ArrayList;
@@ -17,7 +24,7 @@ import java.util.List;
 @Component(name = "CircuitBoard", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 
-public class CircuitBoard {
+public class CircuitBoard extends AbstractOpenemsComponent implements ConsolinnoBoards, OpenemsComponent {
     @Reference
     private SpiInitial spiInitial;
     private String circuitBoardId;
@@ -26,9 +33,17 @@ public class CircuitBoard {
     private short maxCapacity;
     private List<Adc> adcList = new ArrayList<>();
 
+    public CircuitBoard() {
+        super(OpenemsComponent.ChannelId.values(),
+                ConsolinnoBoards.ChannelId.values(),
+                ChannelId.values());
+    }
+
+
     @Activate
-    public void activate(Config config) throws ConfigurationException {
-        this.circuitBoardId = config.boardId();
+    public void activate(ComponentContext context, Config config) throws ConfigurationException {
+        super.activate(context, config.id(), config.alias(), config.enabled());
+        this.circuitBoardId = config.id();
         this.versionId = config.versionNumber();
         this.type = config.boardType();
         String adcFrequency = config.adcFrequency();
@@ -106,6 +121,21 @@ public class CircuitBoard {
 
     public List<Adc> getAdcList() {
         return adcList;
+    }
+
+    public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+        ;
+
+        private final Doc doc;
+
+        private ChannelId(Doc doc) {
+            this.doc = doc;
+        }
+
+        @Override
+        public Doc doc() {
+            return this.doc;
+        }
     }
 }
 //Just an example function to explain Streams to myself
