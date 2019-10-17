@@ -53,14 +53,19 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	// Total power limit for the whole cluster
 	private int totalPowerLimit;
 	
-	
+	// Used EVCSs
 	private String[] evcsIds = new String[0];
 	private final List<ManagedEvcs> sortedEvcss = new ArrayList<>();
 	private Map<String, ManagedEvcs> _evcss = new ConcurrentHashMap<>();
-	private double totalPowerLeftInACycle = 0; // W
+
+	// Default minimum charge power, so if it possible every EV will be able to charge
 	private final int MINIMUM_EVCS_CHARGING_POWER = 4500; // W
+
+	// Distribute the Power that is not used in a cycle
+	private double totalPowerLeftInACycle = 0; // W
 	private LocalDateTime lastPowerLeftDistribution = LocalDateTime.now();
 	private final int POWER_LEFT_DISTRIBUTION_MIN_TIME = 30; // sec
+	private int lastPreferredEvcsCounter = 0;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -70,7 +75,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(ManagedEvcs evcs) {
-		// Do not add myself
 		if (evcs == this) {
 			return;
 		}
@@ -204,8 +208,14 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			// Defines the active charging stations that are charging
 			List<ManagedEvcs> activeEvcss = new ArrayList<>();
 			for (ManagedEvcs evcs : this.sortedEvcss) {
+				int requestedPower = evcs.setChargePowerRequest().getNextWriteValue().orElse(0);
 				Status status = evcs.status().value().asEnum();
 				switch (status) {
+				case CHARGING_FINISHED:
+					if (requestedPower > 0) {
+						evcs.setChargePowerLimit().setNextWriteValue(requestedPower);
+					}
+					break;
 				case ERROR:
 				case STARTING:
 				case UNDEFINED:
@@ -216,7 +226,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 				case READY_FOR_CHARGING:
 				case CHARGING:
 					activeEvcss.add(evcs);
-					int requestedPower = evcs.setChargePowerRequest().getNextWriteValue().orElse(0);
+					requestedPower = evcs.setChargePowerRequest().getNextWriteValue().orElse(0);
 					if (requestedPower > 0) {
 
 						int evcsMaxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
@@ -227,11 +237,16 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 					}
 				}
 			}
-			
-			this.logInfo(this.log, "Total Power to distribute: "+ totalPowerLeftMinusGuarantee);		
-			
+
+			// If one ore more EVCSs no longer active, than change the preferred Evcs
+			lastPreferredEvcsCounter = (activeEvcss.size() - 1) < lastPreferredEvcsCounter ? 0 : lastPreferredEvcsCounter;
+
+			this.logInfo(this.log, "Total Power to distribute: " + totalPowerLeftMinusGuarantee);
+
 			// Distributes the available Power to the active EVCSs
-			for (ManagedEvcs evcs : activeEvcss) {
+			for (int index = 0; index < activeEvcss.size(); index++) {
+				ManagedEvcs evcs = activeEvcss.get(index);
+
 				int guarantee = evcs.getMinimumPower().value().orElse(0);
 
 				// Power left for the single EVCS including their guarantee
@@ -247,11 +262,12 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 				} else {
 					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT);
 				}
+				// It should not be charged more than possible for the current EV
+				int maxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
+				nextChargePower = nextChargePower > maxPower ? maxPower : nextChargePower;
 
-				this.logInfo(this.log, "Next Charge Power: " + nextChargePower);
-
-				// Adds extra power that is calculated by the unused power in the cycle before
-				int extraPower = (int) (this.totalPowerLeftInACycle / activeEvcss.size());
+				int extraPower = calculateExtraPowerIfPrefered(index, evcs);
+				this.totalPowerLeftInACycle -= extraPower;
 				nextChargePower = nextChargePower + extraPower;
 
 				// Checks if there is enough power left and sets the charge power
@@ -266,7 +282,10 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 					totalPowerLeftMinusGuarantee = 0;
 				}
 			}
-
+			if (this.lastPowerLeftDistribution.plusSeconds(POWER_LEFT_DISTRIBUTION_MIN_TIME / 3)
+					.isBefore(LocalDateTime.now())) {
+				this.lastPreferredEvcsCounter++;
+			}
 			if (this.lastPowerLeftDistribution.plusSeconds(POWER_LEFT_DISTRIBUTION_MIN_TIME)
 					.isBefore(LocalDateTime.now())) {
 				this.totalPowerLeftInACycle = totalPowerLeftMinusGuarantee;
@@ -276,5 +295,22 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Adds extra power that is calculated by the unused power in the cycle before
+	 * 
+	 * @param index
+	 * @param evcs
+	 * @return
+	 */
+	private int calculateExtraPowerIfPrefered(int index, ManagedEvcs evcs) {
+		int extraPower = 0;
+		if (index == lastPreferredEvcsCounter) {
+			int leftToMaxPower = evcs.getMaximumHardwarePower().value().orElse(22800)
+					- evcs.getChargePower().value().orElse(0);
+			extraPower = (int) (this.totalPowerLeftInACycle - leftToMaxPower);
+		}
+		return extraPower > 0 ? extraPower : 0;
 	}
 }

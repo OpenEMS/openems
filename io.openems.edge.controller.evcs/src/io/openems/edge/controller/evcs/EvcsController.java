@@ -137,11 +137,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
 		int maxHW = evcs.getMaximumHardwarePower().value().orElse(0);
-		maxHW =(int) Math.ceil(maxHW / 100.0) * 100;
+		maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
 		if (config.defaultChargeMinPower() > maxHW) {
 			configUpdate("defaultChargeMinPower", maxHW);
 		}
-		if(config.forceChargeMinPower() > maxHW) {
+		if (config.forceChargeMinPower() > maxHW) {
 			configUpdate("forceChargeMinPower", maxHW);
 		}
 
@@ -165,6 +165,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case CHARGING_REJECTED:
 			case READY_FOR_CHARGING:
 			case CHARGING:
+			case CHARGING_FINISHED:
 				break;
 			}
 		}
@@ -235,8 +236,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 						nextChargePower = 0;
 					} else {
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
+						evcs.getMaximumPower().setNextValue(nextChargePower); 
 					}
-					evcs.getMaximumPower().setNextValue(nextChargePower);
 					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
 				} else {
 					int currMax = evcs.getMaximumPower().value().orElse(0);
@@ -244,13 +245,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 					if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
 						evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().getOrError());
 					}
-				}
-
-				// If a maximum charge power is defined.
-				// The calculated charge power must be lower then this
-				int maxChargePower = evcs.getMaximumPower().value().orElse(Integer.MAX_VALUE);
-				if (nextChargePower > maxChargePower) {
-					nextChargePower = maxChargePower;
 				}
 			}
 
@@ -327,9 +321,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Controller.getModbusSlaveNatureTable(accessMode));
 	}
-	
-	public void configUpdate(String targetProperty, Object requiredValue){
-		//final String targetProperty = property + ".target";
+
+	public void configUpdate(String targetProperty, Object requiredValue) {
+		// final String targetProperty = property + ".target";
 		Configuration c;
 		try {
 			c = cm.getConfiguration(this.servicePid(), "?");
