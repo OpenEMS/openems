@@ -113,7 +113,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
-		this.getCapacity().setNextValue(config.capacity());
+		this.getCapacity().setNextValue(config.capacity() * 1000);
 		initializeCallbacks();
 	}
 
