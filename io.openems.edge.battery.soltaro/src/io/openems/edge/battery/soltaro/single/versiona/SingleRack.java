@@ -281,15 +281,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					this.pendingTimestamp = null;
 				}
 			}
-			break;
-		case ERROR_CELL_VOLTAGES_DRIFT:
-			// not possible to handle in version A
-			this.setStateMachineState(State.UNDEFINED);
-			break;
-		case ONE_CELL_DRIFTING:
-			// not possible to handle in version A
-			this.setStateMachineState(State.UNDEFINED);
-			break;
+			break;		
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);

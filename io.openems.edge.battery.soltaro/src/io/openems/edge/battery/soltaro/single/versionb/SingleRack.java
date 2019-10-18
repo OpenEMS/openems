@@ -68,9 +68,9 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class SingleRack extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave { 
-		
-		// , // JsonApi // TODO
+		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
+
+	// , // JsonApi // TODO
 
 	protected static final int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
@@ -79,9 +79,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private static final String KEY_VOLTAGE = "_VOLTAGE";
 	private static final Integer SYSTEM_RESET = 0x1;
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
-	private static final double MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT = 50;
-	private static final double MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT = 400;
-	private static final int SECONDS_TOLERANCE_CELL_DRIFT = 15 * 60;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -104,13 +101,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private int DELAY_AUTO_ID_SECONDS = 5;
 	private int DELAY_AFTER_CONFIGURING_FINISHED = 5;
 
-	// Remind last min and max cell voltages to register a cell drift
-	private double lastMinCellVoltage = Double.MIN_VALUE;
-	private double lastMaxCellVoltage = Double.MIN_VALUE;
 	private ResetState resetState = ResetState.NONE;
-	
-	private LocalDateTime handleOneCellDriftHandlingStarted = null;
-	private int handleOneCellDriftHandlingCounter = 0;
+	private boolean resetDone;
 
 	private LocalDateTime pendingTimestamp;
 
@@ -154,24 +146,26 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
-			if (handleOneCellDriftHandlingCounter > 5) {
-				// this cell drift error seems to be not removable
-				// systems remains in error state, can only be  removed by restarting component
-			}	else {	
-				stopSystem();
-				errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-				setStateMachineState(State.ERRORDELAY);
-			}
+			// handle errors with resetting the system
+			this.stopSystem();
+
+			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
+			setStateMachineState(State.ERRORDELAY);
 			break;
 
 		case ERRORDELAY:
+			// If we are in the error delay time, the system is resetted, this can help
+			// handling the rrors
 			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
 				errorDelayIsOver = null;
+				resetDone = false;
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
 				} else {
-					this.setStateMachineState(State.OFF);
+					this.setStateMachineState(State.UNDEFINED);
 				}
+			} else if (!resetDone) {
+				this.handleErrorsWithReset();
 			}
 			break;
 		case INIT:
@@ -201,35 +195,11 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			startAttemptTime = LocalDateTime.now();
 			break;
 		case RUNNING:
-
-			if ( // if it has run 15 minutes in normal mode, reset timer and counter
-				this.handleOneCellDriftHandlingStarted != null && // 
-				this.handleOneCellDriftHandlingStarted.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isBefore(LocalDateTime.now()) //
-			) { //
-				this.handleOneCellDriftHandlingStarted = null;
-				this.handleOneCellDriftHandlingCounter = 0;
-			}
-
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (!this.isSystemRunning()) {
 				this.setStateMachineState(State.UNDEFINED);
-			} else if (this.isCellVoltagesDrift()) {
-				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);
-			} else if (this.isOneCellDrifting()) {
-				this.setStateMachineState(State.ONE_CELL_DRIFTING);
 			} else {
-//				// if minimal cell voltage is lower than configured minimal cell voltage, then force system to charge
-//				IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
-//				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
-//				if (minCellVoltageOpt.isPresent()) {
-//					int minCellVoltage =  minCellVoltageOpt.get();
-//					if (minCellVoltage < this.config.minimalCellVoltage()) {
-//						// set the discharge current negative to force the system to charge
-//						// TODO check if this is working!
-//						this.getDischargeMaxCurrent().setNextValue( (-1) * this.getChargeMaxCurrent().value().get() );
-//					}
-//				}		
 				this.setStateMachineState(State.RUNNING);
 				readyForWorking = true;
 			}
@@ -276,54 +246,16 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				}
 			}
 			break;
-		case ERROR_CELL_VOLTAGES_DRIFT:
-			this.handleCellDrift();
-			break;
-		case ONE_CELL_DRIFTING:
-			this.handleOneCellDrifting();
+		case ERROR_HANDLING:
+			this.handleErrorsWithReset();
 			break;
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
 	}
 
-	private void handleOneCellDrifting() {
-		if (this.handleOneCellDriftHandlingStarted == null) {	
-			this.handleOneCellDriftHandlingStarted = LocalDateTime.now();			
-		}
-		
-		if (this.resetState == ResetState.NONE) {
-			handleOneCellDriftHandlingCounter++; // only increase one time per reset cycle
-		}
-		
-		this.handleCellDrift();
-		
-		
-		if (this.handleOneCellDriftHandlingCounter > 5 && this.handleOneCellDriftHandlingStarted.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isAfter(LocalDateTime.now())) {
-			this.setStateMachineState(State.ERROR);
-		}
-	}
-
-	private boolean isOneCellDrifting() {
-		/*
-		 * If voltage of one cell is going down immediately(Cell Voltage Low) and the
-		 * other cells do not (Cell diff high) that's an indicator for this error
-		 */
-		StateChannel cellVoltLowChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW);
-		StateChannel cellDiffHighChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH);
-
-		Optional<Boolean> cellVoltLowOpt = cellVoltLowChannel.getNextValue().asOptional();
-		Optional<Boolean> cellDiffHighOpt = cellDiffHighChannel.getNextValue().asOptional();
-
-		if (!cellVoltLowOpt.isPresent() || !cellDiffHighOpt.isPresent()) {
-			return false;
-		}
-
-		return cellVoltLowOpt.get() && cellDiffHighOpt.get();
-	}
-
-	private void handleCellDrift() {
-		// To reset the cell drift phenomenon, first sleep and then reset the system
+	private void handleErrorsWithReset() {
+		// To reset , first sleep and then reset the system
 		switch (this.resetState) {
 		case NONE:
 			this.resetState = ResetState.SLEEP;
@@ -338,7 +270,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			break;
 		case FINISHED:
 			this.resetState = ResetState.NONE;
-			this.setStateMachineState(State.UNDEFINED);
+			this.setStateMachineState(State.ERRORDELAY);
+			resetDone = true;
 			break;
 		}
 	}
@@ -362,65 +295,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			System.out.println("Error while trying to sleep the system!");
 		}
 
-	}
-
-	/*
-	 * This function tries to find out if cell voltages has been drifted away see
-	 * \doc\cell_drift.png If this phenomenon has happened, a system reset is
-	 * necessary
-	 */
-	private boolean isCellVoltagesDrift() {
-
-		Optional<Integer> maxCellVoltageOpt = this.getMaxCellVoltage().getNextValue().asOptional();
-		Optional<Integer> minCellVoltageOpt = this.getMinCellVoltage().getNextValue().asOptional();
-
-		if (!maxCellVoltageOpt.isPresent() || !minCellVoltageOpt.isPresent()) {
-			return false; // no new values, comparison not possible
-		}
-
-		double currentMaxCellVoltage = maxCellVoltageOpt.get();
-		double currentMinCellVoltage = minCellVoltageOpt.get();
-
-		if (lastMaxCellVoltage == Double.MIN_VALUE || lastMinCellVoltage == Double.MIN_VALUE) {
-			// Not all values has been set yet, check is not possible
-			lastMaxCellVoltage = currentMaxCellVoltage;
-			lastMinCellVoltage = currentMinCellVoltage;
-
-			return false;
-		}
-		double deltaMax = lastMaxCellVoltage - currentMaxCellVoltage;
-		double deltaMin = lastMinCellVoltage - currentMinCellVoltage;
-		double deltaMinMax = currentMaxCellVoltage - currentMinCellVoltage;
-
-		lastMaxCellVoltage = currentMaxCellVoltage;
-		lastMinCellVoltage = currentMinCellVoltage;
-
-		if (deltaMax < 0 && deltaMin > 0) { // max cell rises, min cell falls
-			// at least one of them changes faster than typically
-			if (deltaMinMax > MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT && //
-					(Math.abs(deltaMax) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT
-							|| Math.abs(deltaMin) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT)) {
-
-				// If cells are neighbours then there is a drift error
-				Optional<Integer> minCellVoltageIdOpt = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID);
-				Optional<Integer> maxCellVoltageIdOpt = this.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID);
-
-				if (!minCellVoltageIdOpt.isPresent() || !maxCellVoltageIdOpt.isPresent()) {
-					return false;
-				}
-
-				int minCellVoltageId = minCellVoltageIdOpt.get();
-				int maxCellVoltageId = maxCellVoltageIdOpt.get();
-
-				if (Math.abs(minCellVoltageId - maxCellVoltageId) == 1) {
-					return true;
-				}
-
-			}
-
-		}
-
-		return false;
 	}
 
 	/*
