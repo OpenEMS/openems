@@ -16,6 +16,7 @@ public class Utils {
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		System.out.println(map);
 		List<Float> voltageList = new ArrayList<Float>(map.keySet());
 		List<Float> powerList = new ArrayList<Float>(map.values());
 		// if the grid voltage ratio in the list, return that point
@@ -45,11 +46,15 @@ public class Utils {
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 		List<Float> voltageList = new ArrayList<Float>(map.keySet());
 		List<Float> percentList = new ArrayList<Float>(map.values());
+		if (voltageList.get(2) == gridVoltageRatio) {
+			p = new Point(gridVoltageRatio, 0);
+			qCharacteristic.remove(gridVoltageRatio, (float) 0);
+			return p;
+		}
 		while (voltageList.get(i) != gridVoltageRatio) {
 			i++;
 		}
 		qCharacteristic.remove(gridVoltageRatio, (float) 0);
-
 		// if its the first element; it will be equal to "0"
 		if (i == 0) {
 			p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
@@ -59,28 +64,33 @@ public class Utils {
 		return p;
 	}
 
-	public static Point getGreaterPoint(Map<Float, Float> qCharacteristic, float voltageRatio) {
+	public static Point getGreaterPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
 		// 0 random number, just to fill value
-		qCharacteristic.put(voltageRatio, (float) 0);
+		qCharacteristic.put(gridVoltageRatio, (float) 0);
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 		List<Float> voltageList = new ArrayList<Float>(map.keySet());
 		List<Float> percentList = new ArrayList<Float>(map.values());
-		while (voltageList.get(i) != voltageRatio) {
+		if (voltageList.get(2) == gridVoltageRatio) {
+			qCharacteristic.remove(gridVoltageRatio, (float) 0);
+			p = new Point(gridVoltageRatio, 0);
+			return p;
+		}
+		while (voltageList.get(i) != gridVoltageRatio) {
 			i++;
 		}
 
 		// if its the last element it will be equal the size of list
 		if ((i + 1) >= voltageList.size()) {
+			qCharacteristic.remove(gridVoltageRatio, (float) 0);
 			p = new Point(voltageList.get(voltageList.size() - 2), percentList.get((percentList.size() - 2)));
-			qCharacteristic.remove(voltageRatio, (float) 0);
 			return p;
 		}
-		qCharacteristic.remove(voltageRatio, (float) 0);
+		qCharacteristic.remove(gridVoltageRatio, (float) 0);
 		p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
 		return p;
 	}

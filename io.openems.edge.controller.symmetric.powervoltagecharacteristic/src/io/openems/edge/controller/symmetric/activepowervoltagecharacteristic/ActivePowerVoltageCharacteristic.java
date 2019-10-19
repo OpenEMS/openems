@@ -1,5 +1,7 @@
 package io.openems.edge.controller.symmetric.activepowervoltagecharacteristic;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +49,11 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 
 	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristic.class);
 
+//	public static final String GREEN = "\u001B[32m";
+	private static final int WAIT_FOR_HYSTERESIS = 20;
 	private final Map<Float, Float> voltagePowerMap = new HashMap<>();
+
+	private final Clock clock;
 
 	/**
 	 * nominal voltage in [mV].
@@ -68,6 +74,8 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -91,11 +99,16 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 	}
 
 	public ActivePowerVoltageCharacteristic() {
+		this(Clock.systemDefaultZone());
+	}
+
+	protected ActivePowerVoltageCharacteristic(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
+		this.clock = clock;
 	}
 
 	@Activate
@@ -204,15 +217,16 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 			return;
 		case ess1:
 			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
-			this.voltageRatio = (float) gridLineVoltage.value().orElse(0) / this.nominalVoltage;
+			this.voltageRatio = gridLineVoltage.value().orElse(0) / this.nominalVoltage;
+			System.out.println("====voltage Ratio L1 ==== " + voltageRatio);
 			break;
 		case ess2:
 			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L2);
-			this.voltageRatio = (float) gridLineVoltage.value().orElse(0) / this.nominalVoltage;
+			this.voltageRatio = gridLineVoltage.value().orElse(0) / this.nominalVoltage;
 			break;
 		case ess3:
 			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L3);
-			this.voltageRatio = (float) gridLineVoltage.value().orElse(0) / this.nominalVoltage;
+			this.voltageRatio = gridLineVoltage.value().orElse(0) / this.nominalVoltage;
 			break;
 		}
 		int calculatedPower = 0;
@@ -223,9 +237,14 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 		}
 		this.initialize(config.powerVoltConfig());
 		float linePowerValue = Utils.getValueOfLine(this.voltagePowerMap, this.voltageRatio);
+
+		if (this.lastSetPowerTime.isAfter(LocalDateTime.now(this.clock).minusSeconds(WAIT_FOR_HYSTERESIS))) {
+			return;
+		}
+		lastSetPowerTime = LocalDateTime.now(this.clock);
 		if (linePowerValue == 0) {
 			log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
-			this.channel(ChannelId.CALCULATED_POWER).setNextValue(-1);
+			this.channel(ChannelId.CALCULATED_POWER).setNextValue(0);
 			return;
 		}
 		this.power = (int) linePowerValue;
