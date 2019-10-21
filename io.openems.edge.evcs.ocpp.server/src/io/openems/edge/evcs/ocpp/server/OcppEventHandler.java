@@ -122,12 +122,8 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 				// value.getLocation(); Not really needed
 
 				String phases = value.getPhase();
-				System.out.println("Phases: " + phases);
-
 				String unitString = value.getUnit();
 				Unit unit = Unit.valueOf(unitString.toUpperCase());
-				System.out.println();
-
 				String val = value.getValue();
 
 				if (val != null) {
@@ -135,8 +131,9 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 					// block, encoded as hex data)
 					ValueFormat format = value.getFormat();
 					if (format.equals(ValueFormat.SignedData)) {
+						
 						System.out.println("Signed data: " + val);
-						val = fromHexToString(val);
+						val = fromHexToDezString(val);
 						System.out.println("Raw data: " + val);
 					}
 
@@ -246,16 +243,13 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 						evcs.getSoC().setNextValue(val);
 						break;
 					case TEMPERATURE:
-						System.out.println("Temp:" + val);
-						// evcs.getTemperature().setNextValue(val);
+						evcs.getTemperature().setNextValue(val);
 						break;
 					case VOLTAGE:
 						evcs.getVoltage().setNextValue(Math.round(Double.valueOf(val)));
 						break;
 					}
-
-					System.out.println(val);
-					System.out.println(unitString);
+					System.out.println(measurandString+": "+val+" "+unitString);
 				}
 			}
 		}
@@ -351,12 +345,9 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 		return evcs;
 	}
 
-	public String fromHexToString(String hex) {
-		StringBuilder str = new StringBuilder();
-		for (int i = 0; i < hex.length(); i += 2) {
-			str.append((char) Integer.parseInt(hex.substring(i, i + 2), 16));
-		}
-		return str.toString();
+	public String fromHexToDezString(String hex) {
+		int dezValue = Integer.parseInt(hex, 16);
+		return String.valueOf(dezValue);
 	}
 
 	private String divideByThousand(String val) {

@@ -86,6 +86,7 @@ public class OcppServer extends AbstractOpenemsComponent implements OpenemsCompo
 					Evcs evcs = entry.getValue();
 					if (session.equals(sessionIndex)) {
 						evcs.channel(OcppEvcs.ChannelId.CHARGING_SESSION_ID).setNextValue(null);
+						evcs.getChargingstationCommunicationFailed().setNextValue(true);
 						sessionMap.remove(sessionIndex);
 					}
 				}

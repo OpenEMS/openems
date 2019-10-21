@@ -78,7 +78,9 @@ export class EvcsComponent {
     let chargePlug = plug;
 
     if (chargePlug == null) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+      if (chargeState == null) {
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+      }
     } else if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
       return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
     }

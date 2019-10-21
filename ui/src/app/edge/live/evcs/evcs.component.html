@@ -13,7 +13,7 @@
     </ion-item>
 
     <ng-container *ngIf="currentData[componentId + '/State'] != 3">
-      <ion-card-content *ngIf="controller">
+      <ion-card-content>
         <table class="full_width">
           <tr>
             <td style="width:20%" translate>
@@ -31,75 +31,77 @@
             </td>
           </tr>
         </table>
-        <table class="full_width">
-          <tr>
-            <td style="width: 50%" *ngIf="controller.properties['enabledCharging'] == true" translate>
-              General.Mode
-            </td>
-            <td style="width: 50%" class="align_right" translate
-              *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE' && controller.properties['enabledCharging'] == true">
-              General.Manually
-            </td>
-            <td style="width: 50%" class="align_right" translate
-              *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
-              Edge.Index.Widgets.EVCS.OptimizedChargeMode.ShortName
-            </td>
-          </tr>
-        </table>
-        <ng-container
-          *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
+        <ng-container *ngIf="controller">
           <table class="full_width">
-            <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
-              <td style="width: 65%" translate>
-                Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
-              </td>
-              <td style="width: 35%" class="align_right" translate>
-                General.Active
-              </td>
-            </tr>
-            <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
-              <td style=" width: 50%" translate>
-                Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinChargePower
-              </td>
-              <td style="width: 50%" class="align_right">
-                {{controller.properties['defaultChargeMinPower'] | unitvalue:'kW'}}
-              </td>
-            </tr>
             <tr>
-              <td style="width: 50%" translate>
-                Edge.Index.Widgets.EVCS.Prioritization
+              <td style="width: 50%" *ngIf="controller.properties['enabledCharging'] == true" translate>
+                General.Mode
               </td>
-              <td style="width: 50%" class="align_right" *ngIf="controller.properties['priority'] == 'CAR'" translate>
-                Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Car
+              <td style="width: 50%" class="align_right" translate
+                *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE' && controller.properties['enabledCharging'] == true">
+                General.Manually
               </td>
-              <td style="width: 50%" class="align_right" *ngIf="controller.properties['priority'] == 'STORAGE'"
-                translate>
-                Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Storage
+              <td style="width: 50%" class="align_right" translate
+                *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
+                Edge.Index.Widgets.EVCS.OptimizedChargeMode.ShortName
+              </td>
+            </tr>
+          </table>
+          <ng-container
+            *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
+            <table class="full_width">
+              <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
+                <td style="width: 65%" translate>
+                  Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
+                </td>
+                <td style="width: 35%" class="align_right" translate>
+                  General.Active
+                </td>
+              </tr>
+              <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
+                <td style=" width: 50%" translate>
+                  Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinChargePower
+                </td>
+                <td style="width: 50%" class="align_right">
+                  {{controller.properties['defaultChargeMinPower'] | unitvalue:'kW'}}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%" translate>
+                  Edge.Index.Widgets.EVCS.Prioritization
+                </td>
+                <td style="width: 50%" class="align_right" *ngIf="controller.properties['priority'] == 'CAR'" translate>
+                  Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Car
+                </td>
+                <td style="width: 50%" class="align_right" *ngIf="controller.properties['priority'] == 'STORAGE'"
+                  translate>
+                  Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Storage
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+          <ng-container
+            *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE' && controller.properties['enabledCharging'] == true">
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%" translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</td>
+                <td style="width: 35%" class="align_right">
+                  {{controller.properties['forceChargeMinPower'] | unitvalue:'kW'}}</td>
+              </tr>
+            </table>
+          </ng-container>
+          <table class="full_width"
+            *ngIf="controller.properties['enabledCharging'] == true && controller.properties['energySessionLimit'] != 0">
+            <tr>
+              <td style="width: 35%">
+                Energielimit
+              </td>
+              <td style="width: 65%" class="align_right">
+                {{(controller.properties['energySessionLimit']) | unitvalue:'kWh'}}
               </td>
             </tr>
           </table>
         </ng-container>
-        <ng-container
-          *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE' && controller.properties['enabledCharging'] == true">
-          <table class="full_width">
-            <tr>
-              <td style="width: 65%" translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</td>
-              <td style="width: 35%" class="align_right">
-                {{controller.properties['forceChargeMinPower'] | unitvalue:'kW'}}</td>
-            </tr>
-          </table>
-        </ng-container>
-        <table class="full_width"
-          *ngIf="controller.properties['enabledCharging'] == true && controller.properties['energySessionLimit'] != 0">
-          <tr>
-            <td style="width: 35%">
-              Energielimit
-            </td>
-            <td style="width: 65%" class="align_right">
-              {{(controller.properties['energySessionLimit']) | unitvalue:'kWh'}}
-            </td>
-          </tr>
-        </table>
       </ion-card-content>
     </ng-container>
     <ng-container *ngIf="currentData[componentId + '/State'] == 3">
