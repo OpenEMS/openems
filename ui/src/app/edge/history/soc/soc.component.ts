@@ -54,26 +54,10 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
         this.colors.splice(0, 1);
       }
     })
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      if (label == this.grid) {
-        if (value < 0) {
-          value *= -1;
-          label = this.gridBuy;
-        } else {
-          label = this.gridSell;
-        }
-      }
-      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-    }
-    options.scales.yAxes[0].ticks.max = 100;
-    this.options = options;
+    this.setLabel();
   }
 
-  private updateChart() {
+  protected updateChart() {
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
@@ -301,6 +285,26 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     });
   }
 
+  protected setLabel() {
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+      let label = data.datasets[tooltipItem.datasetIndex].label;
+      let value = tooltipItem.yLabel;
+      if (label == this.grid) {
+        if (value < 0) {
+          value *= -1;
+          label = this.gridBuy;
+        } else {
+          label = this.gridSell;
+        }
+      }
+      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+    }
+    options.scales.yAxes[0].ticks.max = 100;
+    this.options = options;
+  }
+
   private getSoc(ids: string[], ignoreIds: string[]): ChannelAddress[] {
     let result: ChannelAddress[] = [];
     for (let id of ids) {
@@ -312,12 +316,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
       ]);
     }
     return result;
-  }
-
-  private initializeChart() {
-    this.datasets = EMPTY_DATASET;
-    this.labels = [];
-    this.loading = false;
   }
 
   /**

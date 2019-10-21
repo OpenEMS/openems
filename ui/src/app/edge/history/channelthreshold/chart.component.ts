@@ -1,16 +1,15 @@
 import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
-  selector: 'channelthreshold',
-  templateUrl: './chart.component.html'
+  selector: 'channelthresholdChart',
+  templateUrl: '../abstracthistorychart.html'
 })
 export class ChannelthresholdComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
@@ -23,43 +22,16 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
   constructor(
     protected service: Service,
     private route: ActivatedRoute,
-    private translate: TranslateService
   ) {
     super(service);
   }
 
-  public loading: boolean = true;
-
-  protected labels: Date[] = [];
-  protected datasets: Dataset[] = EMPTY_DATASET;
-  protected options: ChartOptions;
-  protected colors = [{
-    backgroundColor: 'rgba(204,204,204,0.1)',
-    borderColor: 'rgba(204,204,204,1)',
-  }, {
-    backgroundColor: 'rgba(153,153,153,0.1)',
-    borderColor: 'rgba(153,153,153,1)',
-  }, {
-    backgroundColor: 'rgba(102,102,102,0.1)',
-    borderColor: 'rgba(102,102,102,1)',
-  }, {
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    borderColor: 'rgba(0,0,0,1)',
-  }];
-
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = "%";
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " %";
-    }
-    this.options = options;
+    this.setLabel();
   }
 
-  private updateChart() {
+  protected updateChart() {
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
@@ -89,6 +61,10 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
           label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
           data: data
         });
+        this.colors.push({
+          backgroundColor: 'rgba(204,204,204,0.1)',
+          borderColor: 'rgba(204,204,204,1)',
+        })
       }
       this.datasets = datasets;
 
@@ -117,10 +93,14 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
     });
   }
 
-  private initializeChart() {
-    this.datasets = EMPTY_DATASET;
-    this.labels = [];
-    this.loading = false;
+  protected setLabel() {
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    options.scales.yAxes[0].scaleLabel.labelString = "%";
+    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+      let label = data.datasets[tooltipItem.datasetIndex].label;
+      let value = tooltipItem.yLabel;
+      return label + ": " + formatNumber(value, 'de', '1.0-2') + " %";
+    }
+    this.options = options;
   }
-
 }

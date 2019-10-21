@@ -14,7 +14,7 @@ export class ProductionComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "production";
+    private static readonly SELECTOR = "productionWidget";
 
     public data: Cumulated = null;
     public values: any;

@@ -25,16 +25,16 @@
     <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
       <!-- KWH Widgets -->
       <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="2">
-        <storage [period]="service.historyPeriod"></storage>
+        <storageWidget [period]="service.historyPeriod"></storageWidget>
       </ion-col>
       <ion-col *ngSwitchCase="'Production'" size="12" size-lg="2">
-        <production [period]="service.historyPeriod"></production>
+        <productionWidget [period]="service.historyPeriod"></productionWidget>
       </ion-col>
       <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="2">
-        <grid [period]="service.historyPeriod"></grid>
+        <gridWidget [period]="service.historyPeriod"></gridWidget>
       </ion-col>
       <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="2">
-        <consumption [period]="service.historyPeriod"></consumption>
+        <consumptionWidget [period]="service.historyPeriod"></consumptionWidget>
       </ion-col>
       <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="2">
         <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>

@@ -6,13 +6,13 @@ import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
-import { AbstractHistoryChartNew } from '../abstracthistorychartnew';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
     selector: 'autarchychart',
-    templateUrl: '../abstracthistorychartnew.html'
+    templateUrl: '../abstracthistorychart.html'
 })
-export class AutarchyChartComponent extends AbstractHistoryChartNew implements OnInit, OnChanges {
+export class AutarchyChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
 

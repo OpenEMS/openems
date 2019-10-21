@@ -6,13 +6,12 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
-    selector: 'consumptionChart',
+    selector: 'socStorageChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ConsumptionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
 
@@ -39,8 +38,7 @@ export class ConsumptionChartComponent extends AbstractHistoryChart implements O
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(() => {
                 this.service.getConfig().then(() => {
-                    let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
+                    let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
                     for (let timestamp of result.timestamps) {
@@ -51,29 +49,33 @@ export class ConsumptionChartComponent extends AbstractHistoryChart implements O
                     // convert datasets
                     let datasets = [];
 
-                    if ('_sum/ConsumptionActivePower' in result.data) {
+                    if ('_sum/EssSoc' in result.data) {
                         /*
-                        * Consumption
+                         * State-of-charge
                          */
-                        let consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+                        let data = result.data['_sum/EssSoc'].map(value => {
                             if (value == null) {
                                 return null
+                            } else if (value > 100 || value < 0) {
+                                return null;
                             } else {
-                                return value / 1000; // convert to kW
+                                return value;
                             }
-                        });
+                        })
+
                         datasets.push({
-                            label: this.translate.instant('General.Consumption'),
-                            data: consumptionData,
+                            label: this.translate.instant('General.Soc'),
+                            data: data,
                             hidden: false
                         });
                         this.colors.push({
-                            backgroundColor: 'rgba(253,197,7,0.05)',
-                            borderColor: 'rgba(253,197,7,1)',
+                            backgroundColor: 'rgba(0,223,0,0.05)',
+                            borderColor: 'rgba(0,223,0,1)'
                         })
-                    }
+                    };
                     this.datasets = datasets;
                     this.loading = false;
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -94,7 +96,7 @@ export class ConsumptionChartComponent extends AbstractHistoryChart implements O
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'ConsumptionActivePower')
+                new ChannelAddress('_sum', 'EssSoc'),
             ];
             resolve(result);
         })
@@ -102,7 +104,7 @@ export class ConsumptionChartComponent extends AbstractHistoryChart implements O
 
     protected setLabel() {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
+        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
@@ -114,8 +116,9 @@ export class ConsumptionChartComponent extends AbstractHistoryChart implements O
                     label = this.gridSell;
                 }
             }
-            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
         }
+        options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }
 }

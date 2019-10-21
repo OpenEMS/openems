@@ -14,7 +14,7 @@ export class StorageComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "storage";
+    private static readonly SELECTOR = "storageWidget";
 
     public data: Cumulated = null;
     public values: any;

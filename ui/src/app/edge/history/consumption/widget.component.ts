@@ -14,7 +14,7 @@ export class ConsumptionComponent implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "consumption";
+    private static readonly SELECTOR = "consumptionWidget";
 
     public data: Cumulated = null;
     public values: any;

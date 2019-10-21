@@ -14,7 +14,7 @@ export class GridComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "grid";
+    private static readonly SELECTOR = "gridWidget";
 
     public data: Cumulated = null;
     public values: any;

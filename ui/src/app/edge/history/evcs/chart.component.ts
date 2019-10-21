@@ -5,12 +5,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
-  selector: 'evcs',
-  templateUrl: './chart.component.html'
+  selector: 'evcsChart',
+  templateUrl: '../abstracthistorychart.html'
 })
 export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
@@ -28,30 +28,12 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
     super(service);
   }
 
-  public loading: boolean = true;
-
-  protected labels: Date[] = [];
-  protected datasets: Dataset[] = EMPTY_DATASET;
-  protected options: ChartOptions;
-  protected colors = [{
-    // Actual Power
-    backgroundColor: 'rgba(173,255,47,0.1)',
-    borderColor: 'rgba(173,255,47,1)',
-  }];
-
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-    }
-    this.options = options;
+    this.setLabel();
   }
 
-  private updateChart() {
+  protected updateChart() {
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
@@ -81,6 +63,10 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
           label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
           data: data
         });
+        this.colors.push({
+          backgroundColor: 'rgba(173,255,47,0.1)',
+          borderColor: 'rgba(173,255,47,1)',
+        })
       }
       this.datasets = datasets;
 
@@ -106,11 +92,15 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
     });
   }
 
-  private initializeChart() {
-    this.datasets = EMPTY_DATASET;
-    this.labels = [];
-    this.loading = false;
+  protected setLabel() {
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+      let label = data.datasets[tooltipItem.datasetIndex].label;
+      let value = tooltipItem.yLabel;
+      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+    }
+    this.options = options;
   }
-
 }
 

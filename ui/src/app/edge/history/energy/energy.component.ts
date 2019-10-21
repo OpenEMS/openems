@@ -20,8 +20,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.updateChart();
   };
 
-  public loading: boolean = true;
-
   constructor(
     protected service: Service,
     private route: ActivatedRoute,
@@ -30,61 +28,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     super(service);
   }
 
-  protected labels: Date[] = [];
-  protected datasets: Dataset[] = EMPTY_DATASET;
-  protected options: ChartOptions;
-  protected colors = [{
-    // Production
-    backgroundColor: 'rgba(45,143,171,0.05)',
-    borderColor: 'rgba(45,143,171,1)',
-  }, {
-    // Grid Buy
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderColor: 'rgba(0,0,0,1)',
-  }, {
-    // Grid Sell
-    backgroundColor: 'rgba(0,0,200,0.05)',
-    borderColor: 'rgba(0,0,200,1)',
-  }, {
-    // Consumption
-    backgroundColor: 'rgba(253,197,7,0.05)',
-    borderColor: 'rgba(253,197,7,1)',
-  }, {
-    // Storage Charge
-    backgroundColor: 'rgba(0,223,0,0.05)',
-    borderColor: 'rgba(0,223,0,1)',
-  }, {
-    // Storage Discharge
-    backgroundColor: 'rgba(200,0,0,0.05)',
-    borderColor: 'rgba(200,0,0,1)',
-  }];
-
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.service.getConfig().then(config => {
-      if (!config.hasProducer()) {
-        this.colors.splice(0, 1);
-      }
-    })
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      if (label == this.grid) {
-        if (value < 0) {
-          value *= -1;
-          label = this.gridBuy;
-        } else {
-          label = this.gridSell;
-        }
-      }
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-    }
-    this.options = options;
+    this.setLabel()
   }
 
-  private updateChart() {
+  protected updateChart() {
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
@@ -122,6 +71,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               data: productionData,
               hidden: false
             });
+            this.colors.push({
+              backgroundColor: 'rgba(45,143,171,0.05)',
+              borderColor: 'rgba(45,143,171,1)'
+            })
           }
 
           if ('_sum/GridActivePower' in result.data) {
@@ -143,6 +96,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               data: buyFromGridData,
               hidden: false
             });
+            this.colors.push({
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              borderColor: 'rgba(0,0,0,1)'
+            })
 
             /*
             * Sell To Grid
@@ -161,6 +118,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               data: sellToGridData,
               hidden: false
             });
+            this.colors.push({
+              backgroundColor: 'rgba(0,0,200,0.05)',
+              borderColor: 'rgba(0,0,200,1)',
+            })
           }
 
           if ('_sum/ConsumptionActivePower' in result.data) {
@@ -179,6 +140,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               data: consumptionData,
               hidden: false
             });
+            this.colors.push({
+              backgroundColor: 'rgba(253,197,7,0.05)',
+              borderColor: 'rgba(253,197,7,1)',
+            })
           }
 
           if ('_sum/EssActivePower' in result.data) {
@@ -207,6 +172,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               data: chargeData,
               hidden: false
             });
+            this.colors.push({
+              backgroundColor: 'rgba(0,223,0,0.05)',
+              borderColor: 'rgba(0,223,0,1)',
+            })
             /*
              * Storage Discharge
              */
@@ -224,6 +193,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               data: dischargeData,
               hidden: false
             });
+            this.colors.push({
+              backgroundColor: 'rgba(200,0,0,0.05)',
+              borderColor: 'rgba(200,0,0,1)',
+            })
           }
           this.datasets = datasets;
           this.loading = false;
@@ -300,6 +273,25 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         })
       }
     })
+  }
+
+  protected setLabel() {
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+      let label = data.datasets[tooltipItem.datasetIndex].label;
+      let value = tooltipItem.yLabel;
+      if (label == this.grid) {
+        if (value < 0) {
+          value *= -1;
+          label = this.gridBuy;
+        } else {
+          label = this.gridSell;
+        }
+      }
+      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+    }
+    this.options = options;
   }
 
   private getAsymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {
@@ -424,11 +416,4 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       });
     }
   }
-
-  private initializeChart() {
-    this.datasets = EMPTY_DATASET;
-    this.labels = [];
-    this.loading = false;
-  }
-
 }

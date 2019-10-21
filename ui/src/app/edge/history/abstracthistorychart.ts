@@ -2,8 +2,16 @@ import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { EMPTY_DATASET, Dataset, ChartOptions } from './shared';
 
 export abstract class AbstractHistoryChart {
+
+    protected labels: Date[] = [];
+    protected datasets: Dataset[] = EMPTY_DATASET;
+    protected options: ChartOptions;
+    protected colors = []
+    protected loading: boolean = true;
+
 
     constructor(
         protected service: Service
@@ -43,5 +51,24 @@ export abstract class AbstractHistoryChart {
                 })
             });
         });
+    }
+
+    /**
+     * Sets the Label of Chart
+     */
+    protected abstract setLabel()
+
+    /**
+     * Updates and Fills the Chart
+     */
+    protected abstract updateChart()
+
+    /**
+     * Initializes Chart
+     */
+    protected initializeChart() {
+        this.datasets = EMPTY_DATASET;
+        this.labels = [];
+        this.loading = false;
     }
 }
