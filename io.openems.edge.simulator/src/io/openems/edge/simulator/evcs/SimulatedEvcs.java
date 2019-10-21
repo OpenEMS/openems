@@ -1,6 +1,8 @@
 package io.openems.edge.simulator.evcs;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -21,18 +23,23 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Status;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.Evcs", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEvcs, OpenemsComponent, EventHandler {
+public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
+	public LocalDateTime startTime;
+	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT));
 
@@ -45,6 +52,16 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+	
+	public SimulatedEvcs() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ManagedEvcs.ChannelId.values(), //
+				Evcs.ChannelId.values(), //
+				ChannelId.values() //
+
+		);
 	}
 
 	@Reference
@@ -61,6 +78,14 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
+		
+		startTime = LocalDateTime.now();
+		this.getMaximumHardwarePower().setNextValue(22800);
+		this.getMinimumHardwarePower().setNextValue(6000);
+		this.getPhases().setNextValue(3);
+		this.status().setNextValue(Status.CHARGING);
+	
+		
 	}
 
 	@Deactivate
@@ -68,13 +93,6 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 		super.deactivate();
 	}
 
-	public SimulatedEvcs() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ManagedEvcs.ChannelId.values(), //
-				ChannelId.values() //
-		);
-	}
 
 	@Override
 	public void handleEvent(Event event) {
@@ -84,10 +102,13 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 			break;
 		}
 	}
-
+	private LocalDateTime letzterUpdate = LocalDateTime.now();
+	private double exactEnergySession = 0;
 	private void updateChannels() {
+		
 		Optional<Integer> chargePowerLimitOpt = this.setChargePowerLimit().getNextWriteValueAndReset();
-
+		
+		System.out.println("chargePowerLimitOpt"+chargePowerLimitOpt);
 		// copy write value to read value
 		this.setChargePowerLimit().setNextValue(chargePowerLimitOpt);
 
@@ -100,8 +121,18 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 			int chargePowerLimit = chargePowerLimitOpt.get();
 			simulatedChargePower = Math.min(simulatedChargePower, chargePowerLimit);
 		}
+		
 
 		this.getChargePower().setNextValue(simulatedChargePower);
+		
+		long timeDiff = ChronoUnit.MILLIS.between(letzterUpdate, LocalDateTime.now());
+		double energieTransfered = (timeDiff / 1000.0/60/60) * this.getChargePower().getNextValue().orElse(0);
+		System.out.println(this.getChargePower().getNextValue().orElse(0));
+		exactEnergySession = exactEnergySession + energieTransfered;
+		System.out.println("Exakt:"+exactEnergySession);
+		this.getEnergySession().setNextValue((int) exactEnergySession);	
+
+		letzterUpdate = LocalDateTime.now();
 	}
 
 	@Override
