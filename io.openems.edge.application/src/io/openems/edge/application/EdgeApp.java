@@ -62,6 +62,6 @@ public class EdgeApp {
 	@Deactivate
 	void deactivate() {
 		this.log.debug("Deactivate EdgeApp");
-	}
+	} 
 
 }
