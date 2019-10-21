@@ -146,6 +146,7 @@
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
+	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
