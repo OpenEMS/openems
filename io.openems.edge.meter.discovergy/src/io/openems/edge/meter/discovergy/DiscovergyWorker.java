@@ -1,5 +1,8 @@
 package io.openems.edge.meter.discovergy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,17 +21,19 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 	private final Logger log = LoggerFactory.getLogger(DiscovergyWorker.class);
 	private final MeterDiscovergy parent;
 	private final DiscovergyApiClient apiClient;
+	private final Config config;
 
 	/**
 	 * Holds the internal Discovergy meterId.
 	 */
 	private String meterId = null;
 
-	public DiscovergyWorker(MeterDiscovergy parent, DiscovergyApiClient apiClient, String meterId) {
+	public DiscovergyWorker(MeterDiscovergy parent, DiscovergyApiClient apiClient, Config config) {
 		this.parent = parent;
 		this.apiClient = apiClient;
-		if (!meterId.trim().isEmpty()) {
-			this.meterId = meterId;
+		this.config = config;
+		if (!config.meterId().trim().isEmpty()) {
+			this.meterId = config.meterId();
 		}
 	}
 
@@ -81,13 +86,95 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 		if (this.meterId != null) {
 			return;
 		}
-		JsonArray meters = this.apiClient.getMeters();
-		for (JsonElement meter : meters) {
-			this.meterId = JsonUtils.getAsString(meter, "meterId");
-			this.parent.logInfo(this.log, "Updated Discovergy MeterId [" + this.meterId + "]");
-			return;
+		JsonArray jMeters = this.apiClient.getMeters();
+		if (jMeters.size() == 0) {
+			// too few
+			throw new OpenemsException("No Meters available.");
 		}
-		throw new OpenemsException("No Meters available.");
+
+		List<DiscovergyMeter> meters = new ArrayList<>();
+		for (JsonElement j : jMeters) {
+			DiscovergyMeter meter = DiscovergyMeter.fromJson(j);
+			meters.add(meter);
+		}
+
+		if (!this.config.fullSerialNumber().trim().isEmpty()) {
+			// search for given fullSerialNumber
+			for (DiscovergyMeter meter : meters) {
+				if (meter.fullSerialNumber.equalsIgnoreCase(this.config.fullSerialNumber())) {
+					this.meterId = meter.meterId;
+					return;
+				}
+			}
+			throw new OpenemsException(
+					"Unable to find meter with full serial number [" + this.config.fullSerialNumber() + "]");
+		}
+
+		if (!this.config.serialNumber().trim().isEmpty()) {
+			// search for given serialNumber
+			for (DiscovergyMeter meter : meters) {
+				if (meter.fullSerialNumber.equalsIgnoreCase(this.config.serialNumber())) {
+					this.meterId = meter.meterId;
+					return;
+				}
+			}
+			throw new OpenemsException("Unable to find meter with serial number [" + this.config.serialNumber() + "]");
+		}
+
+		if (meters.size() > 1) {
+			// too many
+			StringBuilder b = new StringBuilder("Unable to identify meter, because there are multiple:");
+			for (DiscovergyMeter meter : meters) {
+				b.append(" ");
+				b.append(meter.toString());
+			}
+			throw new OpenemsException(b.toString());
+		}
+
+		// exactly one
+		DiscovergyMeter meter = meters.get(0);
+		this.meterId = meter.meterId;
+		this.parent.logInfo(this.log, "Updated Discovergy MeterId [" + this.meterId + "]");
+	}
+
+	private static class DiscovergyMeter {
+
+		public static DiscovergyMeter fromJson(JsonElement j) throws OpenemsNamedException {
+			String meterId = JsonUtils.getAsString(j, "meterId");
+			String manufacturerId = JsonUtils.getAsOptionalString(j, "manufacturerId").orElse(""); // e.g. "ESY"
+			String serialNumber = JsonUtils.getAsOptionalString(j, "serialNumber").orElse(""); // e.g. "12345678"
+			String fullSerialNumber = JsonUtils.getAsOptionalString(j, "fullSerialNumber").orElse(""); // e.g.
+																										// 1ESY1234567890
+			String type = JsonUtils.getAsOptionalString(j, "type").orElse(""); // e.g. "EASYMETER"
+			String measurementType = JsonUtils.getAsOptionalString(j, "measurementType").orElse(""); // e.g.
+																										// "ELECTRICITY"
+			return new DiscovergyMeter(meterId, manufacturerId, serialNumber, fullSerialNumber, type, measurementType);
+		}
+
+		private final String meterId;
+		private final String manufacturerId;
+		private final String serialNumber;
+		private final String fullSerialNumber;
+		private final String type;
+		private final String measurementType;
+
+		private DiscovergyMeter(String meterId, String manufacturerId, String serialNumber, String fullSerialNumber,
+				String type, String measurementType) {
+			this.meterId = meterId;
+			this.manufacturerId = manufacturerId;
+			this.serialNumber = serialNumber;
+			this.fullSerialNumber = fullSerialNumber;
+			this.type = type;
+			this.measurementType = measurementType;
+		}
+
+		@Override
+		public String toString() {
+			return "[meterId=" + meterId + ", manufacturerId=" + manufacturerId + ", serialNumber=" + serialNumber
+					+ ", fullSerialNumber=" + fullSerialNumber + ", type=" + type + ", measurementType="
+					+ measurementType + "]";
+		}
+
 	}
 
 }

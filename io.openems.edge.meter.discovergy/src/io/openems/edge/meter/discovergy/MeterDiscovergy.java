@@ -54,7 +54,7 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 			DiscovergyApi api = new DiscovergyApi(config.email(), config.password());
 			this.apiClient = new DiscovergyApiClient(api);
 
-			this.worker = new DiscovergyWorker(this, apiClient, config.meterId());
+			this.worker = new DiscovergyWorker(this, apiClient, config);
 			this.worker.activate(config.id());
 			this.worker.triggerNextRun();
 		}
