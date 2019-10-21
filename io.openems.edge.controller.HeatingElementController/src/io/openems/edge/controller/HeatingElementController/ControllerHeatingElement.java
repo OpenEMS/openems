@@ -301,10 +301,13 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			 currentEndtime = LocalTime.parse(this.config.endTime());
 		}
 		
+		System.out.println("local time" + LocalTime.parse(formatter.format(LocalTime.now())));
+		System.out.println("curent endtime : "+ currentEndtime);
 		
 		// checking the end time, during checking of the endtime, state machine is stopped
 		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime)) {
-			if (!this.isEndTime) {
+			System.out.println("REadched the end time ");
+			if (this.isEndTime) {
 			switch (this.priority) {
 			case TIME:
 				this.checkMinTime(excessPower);
@@ -427,7 +430,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 
 	private void checkMinTime(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
-
+			System.out.println("total phase time :" + this.totalPhaseTime);
+			System.out.println("mintime : " + minTime);
 	
 			if (this.totalPhaseTime < minTime) {
 				this.isEndTime = false;
