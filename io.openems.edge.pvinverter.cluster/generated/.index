@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.cluster" increment="1571664403412">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.cluster" increment="1571664900864">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.pvinverter.cluster"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="version" value="1.0.0.201910211335" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.pvinverter.cluster"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.pvinverter.cluster"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -27,7 +27,7 @@
       <attribute name="size" value="32321" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.pvinverter.cluster.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="EEAC819582D49420F7E2A707FAD45C29837B5CEBC3A3EDD61E4325930005754E"/>
+      <attribute name="osgi.content" value="175B28CEDCB7EEDF69161678FD4BF89AC3C7B67076BCE5FDDA87620F2806AC7B"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>

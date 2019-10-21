@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.meter.sunspec" increment="1571664405188">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.meter.sunspec" increment="1571664901998">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.meter.sunspec"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="version" value="1.0.0.201910211335" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.meter.sunspec"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.meter.sunspec"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -24,7 +24,7 @@
       <attribute name="size" value="12508" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.meter.sunspec.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="8BD4FAE77591E00F3B441629CAD27BEB05F2D19528E8F279A62536AC2097D60A"/>
+      <attribute name="osgi.content" value="B8B20BBEA03149C050A392D3BF8ED274CF4032FA88DFCF1886513488E79D90B9"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>

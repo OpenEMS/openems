@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.kaco.blueplanet" increment="1571664404896">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.kaco.blueplanet" increment="1571669423459">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.pvinverter.kaco.blueplanet"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="version" value="1.0.0.201910211450" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211450" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.pvinverter.kaco.blueplanet"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211450" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.pvinverter.kaco.blueplanet"/>
     </capability>
     <capability namespace="osgi.service">
@@ -22,7 +22,7 @@
       <attribute name="size" value="9356" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.pvinverter.kaco.blueplanet.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="340239116E19412DFC300F166D31FAC3D90ACEA3CC01C5DC832AB0E04FE3D259"/>
+      <attribute name="osgi.content" value="AD955F034539549513923DFD3F2F1A725E2305B11D50889EFF889B456F83A917"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>

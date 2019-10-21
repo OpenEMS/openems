@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.meter.discovergy" increment="1571664403595">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.meter.discovergy" increment="1571664900988">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.meter.discovergy"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="version" value="1.0.0.201910211335" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.meter.discovergy"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211326" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.meter.discovergy"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -32,10 +32,10 @@
       <attribute name="objectClass" value="io.openems.edge.common.component.OpenemsComponent,io.openems.edge.meter.api.AsymmetricMeter,io.openems.edge.meter.api.SymmetricMeter,org.osgi.service.event.EventHandler" type="List&lt;String&gt;"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="size" value="44149" type="Long"/>
+      <attribute name="size" value="44148" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.meter.discovergy.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="D23409727F001E258F29BBEA6630B46D3CF11411A382E5D1E22CAB4AE1C749D4"/>
+      <attribute name="osgi.content" value="574F85442F9396DAF817072D0C22167DEA5EE2BA6FB91D7E3B5A3B2DAEB8C2DB"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>
