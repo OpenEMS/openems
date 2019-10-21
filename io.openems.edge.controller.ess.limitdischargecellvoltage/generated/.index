@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.controller.ess.limitdischargecellvoltage" increment="1571664906736">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.controller.ess.limitdischargecellvoltage" increment="1571670477709">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.controller.ess.limitdischargecellvoltage"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211335" type="Version"/>
+      <attribute name="version" value="1.0.0.201910211507" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.controller.ess.limitdischargecellvoltage"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211335" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.controller.ess.limitdischargecellvoltage"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -27,7 +27,7 @@
       <attribute name="size" value="31905" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.controller.ess.limitdischargecellvoltage.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="99781E4A3080B57B799C843D606C139AC5A620F063D0014FC584D3E6DFD71CFD"/>
+      <attribute name="osgi.content" value="AFD44E4D2F245D7527EE4FAB2A9160557058926C4234E439802A81C083CAC971"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>
