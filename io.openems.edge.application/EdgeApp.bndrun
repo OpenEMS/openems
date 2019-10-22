@@ -21,6 +21,7 @@
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
+	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
 	bnd.identity;id='io.openems.edge.controller.api.backend',\
 	bnd.identity;id='io.openems.edge.controller.api.core',\
@@ -86,6 +87,7 @@
 	bnd.identity;id='io.openems.edge.meter.socomec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
+	bnd.identity;id='io.openems.edge.onewire.thermometer',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
