@@ -10,5 +10,11 @@
 </ion-header>
 
 <ion-content>
-    <chpsocChart [period]="service.historyPeriod"></chpsocChart>
+    <ion-card-content class="underline">
+        <ion-row>
+            <ion-col>
+                <chpsocChart [period]="service.historyPeriod"></chpsocChart>
+            </ion-col>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

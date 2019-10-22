@@ -32,9 +32,6 @@ export class GridComponent {
         });
     }
 
-    ngOnDestroy() {
-    }
-
     ngOnChanges() {
         this.updateValues();
     };
@@ -59,4 +56,3 @@ export class GridComponent {
         return await modal.present();
     }
 }
-

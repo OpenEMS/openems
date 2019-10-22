@@ -5,7 +5,6 @@ import { EnergyComponent } from './energy/energy.component';
 import { KwhComponent } from './kwh/kwh.component';
 import { ChannelthresholdComponent } from './channelthreshold/chart.component';
 import { EvcsChartComponent } from './evcs/chart.component';
-import { ExportComponent } from './export/export.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { GridComponent } from './grid/widget.component';
 import { ConsumptionComponent } from './consumption/widget.component';
@@ -32,6 +31,7 @@ import { StorageChartComponent } from './storage/chart.component';
 import { GridChartComponent } from './grid/chart.component';
 import { ConsumptionChartComponent } from './consumption/chart.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
+import { EnergyModalComponent } from './energy/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -46,7 +46,8 @@ import { SocStorageChartComponent } from './storage/socchart.component';
     ConsumptionModalComponent,
     ChpSocModalComponent,
     ChannelthresholdModalComponent,
-    AutarchyModalComponent
+    AutarchyModalComponent,
+    EnergyModalComponent
   ],
   declarations: [
     HistoryComponent,
@@ -55,7 +56,6 @@ import { SocStorageChartComponent } from './storage/socchart.component';
     KwhComponent,
     ChannelthresholdComponent,
     EvcsChartComponent,
-    ExportComponent,
     ChpSocChartComponent,
     ConsumptionComponent,
     GridComponent,
@@ -80,7 +80,8 @@ import { SocStorageChartComponent } from './storage/socchart.component';
     ProductionChartComponent,
     GridChartComponent,
     ConsumptionChartComponent,
-    SocStorageChartComponent
+    SocStorageChartComponent,
+    EnergyModalComponent
   ]
 })
 export class HistoryModule { }

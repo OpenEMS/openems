@@ -164,7 +164,11 @@ export const TRANSLATION = {
             LastMonth: "El me pasado",
             LastYear: "El año pasado",
             Go: "Nwo!",
-            Export: "descargar como archivo de excel"
+            Export: "descargar como archivo de excel",
+            Day: "Día",
+            Week: "Semana",
+            Month: "Mes",
+            Year: "Año"
         },
         Config: {
             Index: {

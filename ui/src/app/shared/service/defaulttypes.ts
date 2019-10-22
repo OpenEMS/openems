@@ -84,12 +84,21 @@ export module DefaultTypes {
     params?: string[]
   }
 
+  export type PeriodString = 'day' | 'week' | 'month' | 'year' | 'custom';
+
   export class HistoryPeriod {
 
     constructor(
       public from: Date = new Date(),
       public to: Date = new Date(),
     ) { }
+
+    public dateForward() {
+
+    }
+
+    public dateBackward() {
+    }
 
     public getText(translate: TranslateService): string {
       if (isSameDay(this.from, this.to) && isSameDay(this.from, new Date())) {
@@ -141,9 +150,9 @@ export module DefaultTypes {
         {
           return translate.instant(
             'General.PeriodFromTo', {
-              value1: format(this.from, translate.instant('General.DateFormat')),
-              value2: format(this.to, translate.instant('General.DateFormat'))
-            })
+            value1: format(this.from, translate.instant('General.DateFormat')),
+            value2: format(this.to, translate.instant('General.DateFormat'))
+          })
         }
       }
     }

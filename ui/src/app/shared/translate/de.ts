@@ -168,7 +168,11 @@ export const TRANSLATION = {
             LastMonth: "Letzter Monat",
             LastYear: "Letztes Jahr",
             Go: "Los!",
-            Export: "Download als EXCEL-Datei"
+            Export: "Download als EXCEL-Datei",
+            Day: "Tag",
+            Week: "Woche",
+            Month: "Monat",
+            Year: "Jahr"
         },
         Config: {
             Index: {

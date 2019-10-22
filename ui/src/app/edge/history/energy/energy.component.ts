@@ -4,15 +4,26 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { fromEvent, Subject } from 'rxjs';
+import { takeUntil, debounceTime, delay } from 'rxjs/operators';
+import { ModalController } from '@ionic/angular';
+import { EnergyModalComponent } from './modal/modal.component';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import { isSameDay, format, isSameMonth, isSameYear } from 'date-fns';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'energy',
   templateUrl: './energy.component.html'
 })
 export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
+
+  private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  private static readonly EXCEL_EXTENSION = '.xlsx';
 
   @Input() private period: DefaultTypes.HistoryPeriod;
 
@@ -23,14 +34,89 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   constructor(
     protected service: Service,
     private route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
+    public modalCtrl: ModalController,
+    private websocket: Websocket,
   ) {
     super(service);
+  }
+
+  private ngUnsubscribe: Subject<void> = new Subject<void>();
+
+  // EXPORT WILL MOVE TO MODAL WHEN KWH ARE READY
+
+  /**
+   * Export historic data to Excel file.
+   */
+  public exportToXlxs() {
+    this.service.getCurrentEdge().then(edge => {
+      // TODO the order of these channels should be reflected in the excel file
+      let dataChannels = [
+        new ChannelAddress('_sum', 'EssActivePower'),
+        // Grid
+        new ChannelAddress('_sum', 'GridActivePower'),
+        // Production
+        new ChannelAddress('_sum', 'ProductionActivePower'),
+        // Consumption
+        new ChannelAddress('_sum', 'ConsumptionActivePower')
+      ];
+      let energyChannels = [
+        // new ChannelAddress('_sum', 'EssSoc'),
+        // new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+        // new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+        // new ChannelAddress('_sum', 'ProductionActiveEnergy'),
+        // new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
+        // new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+        // new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
+      ];
+      edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to, dataChannels, energyChannels)).then(response => {
+        let r = response as Base64PayloadResponse;
+        var binary = atob(r.result.payload.replace(/\s/g, ''));
+        var len = binary.length;
+        var buffer = new ArrayBuffer(len);
+        var view = new Uint8Array(buffer);
+        for (var i = 0; i < len; i++) {
+          view[i] = binary.charCodeAt(i);
+        }
+        const data: Blob = new Blob([view], {
+          type: EnergyComponent.EXCEL_TYPE
+        });
+
+        let fileName = "Export-" + edge.id + "-";
+        let dateFrom = this.service.historyPeriod.from;
+        let dateTo = this.service.historyPeriod.to;
+        if (isSameDay(dateFrom, dateTo)) {
+          fileName += format(dateFrom, "dd.MM.yyyy");
+        } else if (isSameMonth(dateFrom, dateTo)) {
+          fileName += format(dateFrom, "dd.") + "-" + format(dateTo, "dd.MM.yyyy");
+        } else if (isSameYear(dateFrom, dateTo)) {
+          fileName += format(dateFrom, "dd.MM.") + "-" + format(dateTo, "dd.MM.yyyy");
+        } else {
+          fileName += format(dateFrom, "dd.MM.yyyy") + "-" + format(dateTo, "dd.MM.yyyy");
+        }
+        fileName += EnergyComponent.EXCEL_EXTENSION;
+        FileSaver.saveAs(data, fileName);
+
+      }).catch(reason => {
+        console.warn(reason);
+      })
+    })
   }
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
     this.setLabel()
+    // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => this.getChartHeight(), 500);
+    const source = fromEvent(window, 'resize', null, null);
+    source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+      this.getChartHeight();
+    });
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   protected updateChart() {
@@ -218,7 +304,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (edge.isVersionAtLeast('2018.8')) {
         let result: ChannelAddress[] = [];
         config.widgets.classes.forEach(clazz => {
@@ -416,4 +502,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       });
     }
   }
+
+  public getChartHeight(): number {
+    return window.innerHeight / 2.5;
+  }
+
+  async presentModal() {
+    const modal = await this.modalCtrl.create({
+      component: EnergyModalComponent,
+    });
+    return await modal.present();
+  }
+
+
 }

@@ -10,6 +10,12 @@
 </ion-header>
 
 <ion-content>
-    <autarchychart [period]="service.historyPeriod">
-    </autarchychart>
+    <ion-card-content class="underline">
+        <ion-row>
+            <ion-col>
+                <autarchychart [period]="service.historyPeriod">
+                </autarchychart>
+            </ion-col>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

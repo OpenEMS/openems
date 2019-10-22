@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { addDays, getDate, getMonth, getYear } from 'date-fns/esm';
-import { IMyDrpOptions, IMyDate, IMyDateRangeModel } from 'mydaterangepicker';
+import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, startOfMonth, startOfYear, endOfWeek, endOfMonth, endOfYear } from 'date-fns/esm';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../service/defaulttypes';
+import { IMyDate, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
+
 
 @Component({
     selector: 'pickdatepopover',
@@ -12,9 +13,15 @@ import { DefaultTypes } from '../../service/defaulttypes';
 })
 export class PickDatePopoverComponent {
 
+    @Input() public disableArrow: boolean;
+
+    public readonly TODAY = new Date();
+    public readonly YESTERDAY = subDays(new Date(), 1);
     public readonly TOMORROW = addDays(new Date(), 1);
 
-    private selectedPeriod: DefaultTypes.HistoryPeriod;
+
+    public activePeriod: DefaultTypes.PeriodString = this.service.periodString;
+    public showCustomDate: boolean = false;
 
     //DateRangePicker Options
     public dateRangePickerOptions: IMyDrpOptions = {
@@ -33,17 +40,59 @@ export class PickDatePopoverComponent {
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        private translate: TranslateService
+        public translate: TranslateService,
     ) { }
 
-    ngOnInit() {
-        this.selectedPeriod = this.service.historyPeriod;
+
+    /**
+     * Sets the current time period.
+     * 
+     * @param fromDate the starting date
+     * @param toDate   the end date
+     */
+    public setDateRange(period: DefaultTypes.HistoryPeriod) {
+        this.service.historyPeriod = period;
+        // this.updateActivePeriod();
     }
 
-    ngOnDestroy() { }
-
-    dismiss() {
-        this.popoverCtrl.dismiss(this.selectedPeriod);
+    /**
+     * This is called by the input button on the UI.
+     * 
+     * @param period
+     * @param from
+     * @param to
+     */
+    public setPeriod(period: DefaultTypes.PeriodString) {
+        switch (period) {
+            case 'day': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(this.TODAY, this.TODAY));
+                this.service.periodString = period;
+                this.disableArrow = true;
+                this.popoverCtrl.dismiss(this.disableArrow);
+                break;
+            }
+            case 'week': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfWeek(this.TODAY, { weekStartsOn: 1 }), endOfWeek(this.TODAY, { weekStartsOn: 1 })));
+                this.service.periodString = period;
+                this.disableArrow = true;
+                this.popoverCtrl.dismiss(this.disableArrow);
+                break;
+            }
+            case 'month': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
+                this.service.periodString = period;
+                this.disableArrow = true;
+                this.popoverCtrl.dismiss(this.disableArrow);
+                break;
+            }
+            case 'year': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
+                this.service.periodString = period;
+                this.disableArrow = true;
+                this.popoverCtrl.dismiss(this.disableArrow);
+                break;
+            }
+        }
     }
 
     /**
@@ -57,7 +106,8 @@ export class PickDatePopoverComponent {
     }
 
     public onDateRangeChanged(event: IMyDateRangeModel) {
-        this.selectedPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
-        this.dismiss()
+        this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
+        this.service.periodString = 'custom';
+        this.popoverCtrl.dismiss();
     }
 }

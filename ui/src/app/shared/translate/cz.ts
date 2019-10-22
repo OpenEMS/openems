@@ -167,7 +167,11 @@ export const TRANSLATION = {
             LastMonth: "Poslední měsíc",
             LastYear: "Poslední rok",
             Go: "Jdi!",
-            Export: "stáhnout jako soubor programu Excel"
+            Export: "stáhnout jako soubor programu Excel",
+            Day: "Den",
+            Week: "Týden",
+            Month: "Měsíc",
+            Year: "Rok"
         },
         Config: {
             Index: {

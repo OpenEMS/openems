@@ -135,7 +135,7 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
 
     protected setLabel() {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+        options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
@@ -147,9 +147,8 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
                     label = this.gridSell;
                 }
             }
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
-        options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }
 

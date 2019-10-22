@@ -10,5 +10,11 @@
 </ion-header>
 
 <ion-content>
-    <evcsChart [period]="service.historyPeriod"></evcsChart>
+    <ion-card-content class="underline">
+        <ion-row>
+            <ion-col size="12">
+                <evcsChart [period]="service.historyPeriod"></evcsChart>
+            </ion-col>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

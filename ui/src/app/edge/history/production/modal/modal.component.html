@@ -10,5 +10,11 @@
 </ion-header>
 
 <ion-content>
-    <productionChart [period]="service.historyPeriod"></productionChart>
+    <ion-card-content class="underline">
+        <ion-row>
+            <ion-col size="12">
+                <productionChart [period]="service.historyPeriod"></productionChart>
+            </ion-col>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

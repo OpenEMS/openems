@@ -284,4 +284,9 @@ export class Service implements ErrorHandler {
    * Currently selected history period
    */
   public historyPeriod: DefaultTypes.HistoryPeriod;
+
+  /**
+   * Currently selected history period string
+   */
+  public periodString: DefaultTypes.PeriodString;
 }

@@ -10,5 +10,11 @@
 </ion-header>
 
 <ion-content>
-    <consumptionChart [period]="service.historyPeriod"></consumptionChart>
+    <ion-card-content class="underline">
+        <ion-row>
+            <ion-col size="12">
+                <consumptionChart [period]="service.historyPeriod"></consumptionChart>
+            </ion-col>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

@@ -11,5 +11,11 @@
 </ion-header>
 
 <ion-content>
-    <channelthresholdChart [period]="service.historyPeriod"></channelthresholdChart>
+    <ion-card-content class="underline">
+        <ion-row>
+            <ion-col>
+                <channelthresholdChart [period]="service.historyPeriod"></channelthresholdChart>
+            </ion-col>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

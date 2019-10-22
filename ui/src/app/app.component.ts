@@ -3,11 +3,12 @@ import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Platform, ToastController, MenuController } from '@ionic/angular';
-import { Subject, Observable } from 'rxjs';
-import { filter, takeUntil, debounce } from 'rxjs/operators';
+import { Subject, Observable, fromEvent } from 'rxjs';
+import { filter, takeUntil, debounce, debounceTime, delay } from 'rxjs/operators';
 import { environment } from '../environments';
 import { Service, Websocket, Edge } from './shared/shared';
 import { LanguageTag } from './shared/translate/language';
+import { TranslateService } from '@ngx-translate/core';
 
 
 
@@ -22,6 +23,7 @@ export class AppComponent {
   public enableSideMenu: boolean;
   public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
+  public isMobile: boolean = null;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
@@ -33,6 +35,7 @@ export class AppComponent {
     public router: Router,
     public toastController: ToastController,
     public menu: MenuController,
+    public translate: TranslateService
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
@@ -65,6 +68,12 @@ export class AppComponent {
     ).subscribe(event => {
       this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
     })
+    // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => this.isMobileMode(), 500);
+    const source = fromEvent(window, 'resize', null, null);
+    source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
+      this.isMobileMode();
+    });
   }
 
   updateUrl(url: string) {
@@ -147,11 +156,11 @@ export class AppComponent {
     }
   }
 
-  isMobileMode(): boolean {
+  isMobileMode() {
     if (window.innerWidth < 993) {
-      return true;
+      this.isMobile = true;
     } else {
-      return false;
+      this.isMobile = false;
     }
   }
 

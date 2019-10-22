@@ -6,6 +6,7 @@ import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'channelthresholdChart',
@@ -22,6 +23,7 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
   constructor(
     protected service: Service,
     private route: ActivatedRoute,
+    private translate: TranslateService
   ) {
     super(service);
   }
@@ -95,12 +97,21 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
 
   protected setLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = "%";
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " %";
+      if (label == this.grid) {
+        if (value < 0) {
+          value *= -1;
+          label = this.gridBuy;
+        } else {
+          label = this.gridSell;
+        }
+      }
+      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
     }
+    options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 }

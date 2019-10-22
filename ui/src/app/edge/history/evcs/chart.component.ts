@@ -4,8 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { ChannelAddress, Edge, Service, Utils, EdgeConfig } from '../../../shared/shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
@@ -20,6 +20,8 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
     this.updateChart();
   };
 
+  private config: EdgeConfig
+
   constructor(
     protected service: Service,
     private route: ActivatedRoute,
@@ -30,6 +32,7 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
+    this.service.getConfig().then(config => { this.config = config });
     this.setLabel();
   }
 
@@ -48,9 +51,9 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
       // show Component-ID if there is more than one Channel
       let showComponentId = Object.keys(result.data).length > 1 ? true : false;
 
-      // convert datasets
       let datasets = [];
-      for (let channel in result.data) {
+      // convert datasets
+      Object.keys(result.data).forEach((channel, index) => {
         let address = ChannelAddress.fromString(channel);
         let data = result.data[channel].map(value => {
           if (value == null) {
@@ -63,13 +66,28 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
           label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
           data: data
         });
-        this.colors.push({
-          backgroundColor: 'rgba(173,255,47,0.1)',
-          borderColor: 'rgba(173,255,47,1)',
-        })
-      }
+        if (this.config.components[address['componentId']].factoryId == 'Evcs.Cluster') {
+          this.colors.push({
+            backgroundColor: 'rgba(102,102,102,0.1)',
+            borderColor: 'rgba(102,102,102,1)',
+          })
+        } else {
+          switch (index % 2) {
+            case 0:
+              this.colors.push({
+                backgroundColor: 'rgba(255,0,0,0.1)',
+                borderColor: 'rgba(255,0,0,1)',
+              });
+              break;
+            case 1: this.colors.push({
+              backgroundColor: 'rgba(0,0,255,0.1)',
+              borderColor: 'rgba(0,0,255,1)',
+            });
+              break;
+          }
+        }
+      })
       this.datasets = datasets;
-
       this.loading = false;
 
     }).catch(reason => {
