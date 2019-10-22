@@ -90,7 +90,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		MODE(Doc.of(Mode.values()) //
 				.initialValue(Mode.AUTOMATIC) //
 				.text("Configured Mode")), //
-		PRIORITY(Doc.of(Mode.values()) //
+		PRIORITY(Doc.of(Priority.values()) //
 				.initialValue(Priority.TIME) //
 				.text("Configured Mode")), //
 		STATE_MACHINE(Doc.of(State.values()) //

@@ -6,8 +6,8 @@ import io.openems.common.types.OptionsEnum;
 public enum Priority implements OptionsEnum{
 	
 
-	TIME(0, "Car"),
-	KILO_WATT_HOUR(1, "Storage");
+	TIME(0, "TIME"),
+	KILO_WATT_HOUR(1, "Kilo watt hour");
 
 	private final int value;
 	private final String name;
