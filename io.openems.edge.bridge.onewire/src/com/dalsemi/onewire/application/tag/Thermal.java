@@ -32,78 +32,71 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.container.*;
 import com.dalsemi.onewire.OneWireException;
 
-
 /**
- * This class provides a default object for the Thermal type of a tagged 1-Wire device.
+ * This class provides a default object for the Thermal type of a tagged 1-Wire
+ * device.
  */
-public class Thermal
-   extends    TaggedDevice
-   implements TaggedSensor
-{
+public class Thermal extends TaggedDevice implements TaggedSensor {
 
-   /**
-    * Creates an object for the device.
-    */
-   public Thermal()
-   {
-      super();
-   }
+	/**
+	 * Creates an object for the device.
+	 */
+	public Thermal() {
+		super();
+	}
 
-   /**
-    * Creates an object for the device with the supplied address and device type connected
-    * to the supplied port adapter.
-    * @param adapter The adapter serving the sensor.
-    * @param netAddress The 1-Wire network address of the sensor.
-    */
-   public Thermal(DSPortAdapter adapter, String netAddress)
-   {
-      super(adapter, netAddress);
-   }
+	/**
+	 * Creates an object for the device with the supplied address and device type
+	 * connected to the supplied port adapter.
+	 * 
+	 * @param adapter    The adapter serving the sensor.
+	 * @param netAddress The 1-Wire network address of the sensor.
+	 */
+	public Thermal(DSPortAdapter adapter, String netAddress) {
+		super(adapter, netAddress);
+	}
 
-   /**
-    * The readSensor method returns a temperature in degrees Celsius 
-    *
-    * @param--none.
-    *
-    * @return String temperature in degrees Celsius
-    */
-   public String readSensor()
-   throws OneWireException
-   {
-      String returnString = "";
-      double theTemperature;
-      TemperatureContainer tc = (TemperatureContainer) DeviceContainer;
+	/**
+	 * The readSensor method returns a temperature in degrees Celsius
+	 *
+	 * @param--none.
+	 *
+	 *               @return String temperature in degrees Celsius
+	 */
+	public String readSensor() throws OneWireException {
+		String returnString = "";
+		double theTemperature;
+		TemperatureContainer tc = (TemperatureContainer) DeviceContainer;
 
-      // read the device first before getting the temperature
-      byte[] state = tc.readDevice();
-  
-      // perform a temperature conversion
-      tc.doTemperatureConvert(state);
+		// read the device first before getting the temperature
+		byte[] state = tc.readDevice();
 
-      // read the result of the conversion
-      state = tc.readDevice();
+		// perform a temperature conversion
+		tc.doTemperatureConvert(state);
 
-      // extract the result out of state
-      theTemperature = tc.getTemperature(state);
-      //theTemperature = (double)(Math.round(theTemperature * 100))/100; // avoid Math for TINI?
-      theTemperature = roundDouble(theTemperature * 100)/100;
-      // make string out of results
-      returnString = theTemperature + " °C"; 
-      
-      return returnString;
-   }
+		// read the result of the conversion
+		state = tc.readDevice();
 
-   /**
-    * The roundDouble method returns a double rounded to the 
-    * nearest digit in the "ones" position. 
-    *
-    * @param--double
-    *
-    * @return double rounded to the nearest digit in the "ones"
-    * position.
-    */
-   private double roundDouble (double d)
-   {
-      return (double)((int)(d+((d > 0)? 0.5 : -0.5)));
-   }
+		// extract the result out of state
+		theTemperature = tc.getTemperature(state);
+		// theTemperature = (double)(Math.round(theTemperature * 100))/100; // avoid
+		// Math for TINI?
+		theTemperature = roundDouble(theTemperature * 100) / 100;
+		// make string out of results
+		returnString = theTemperature + " °C";
+
+		return returnString;
+	}
+
+	/**
+	 * The roundDouble method returns a double rounded to the nearest digit in the
+	 * "ones" position.
+	 *
+	 * @param--double
+	 *
+	 * @return double rounded to the nearest digit in the "ones" position.
+	 */
+	private double roundDouble(double d) {
+		return (double) ((int) (d + ((d > 0) ? 0.5 : -0.5)));
+	}
 }

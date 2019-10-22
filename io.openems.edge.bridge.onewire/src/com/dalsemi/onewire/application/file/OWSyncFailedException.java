@@ -30,15 +30,13 @@ package com.dalsemi.onewire.application.file;
 /**
  * Represents a failed 1-Wire memory sync operation.
  */
-public class OWSyncFailedException extends java.io.IOException
-{
-   /**
-    * Constructs a SyncFailedException with a the given message.
-    *
-    * @param desc  a String describing the exception.
-    */
-   public OWSyncFailedException(String desc)
-   {
-      super(desc);
-   }
+public class OWSyncFailedException extends java.io.IOException {
+	/**
+	 * Constructs a SyncFailedException with a the given message.
+	 *
+	 * @param desc a String describing the exception.
+	 */
+	public OWSyncFailedException(String desc) {
+		super(desc);
+	}
 }

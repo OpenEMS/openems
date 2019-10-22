@@ -32,36 +32,40 @@ package com.dalsemi.onewire.container;
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 
-
 /**
- * <P>1-Wire sensor interface class for basic sensor operations. </P>
+ * <P>
+ * 1-Wire sensor interface class for basic sensor operations.
+ * </P>
  *
- * <P> Typically the operations of 1-Wire Sensors are memory mapped so
- * writing to a particular location causes the state to change.  To
- * accommodate this type of architecture and reduce the number of 1-
- * Wire operations that need to take place, a 'read-modify-write'
- * technique is used.  Each Sensor interface is derived from this
- * super-interface that contain just two methods: 
- * {@link #readDevice() readDevice}, 
- * {@link #writeDevice(byte[]) writeDevice}.  The
- * read returns a byte array and the write takes a byte array.  The
- * byte array is the state of the device.  The interfaces that
- * extend this interface have 'get' and 'set' methods that
- * manipulate the byte array.  So a OneWireSensor operation is: </P>
- *           
+ * <P>
+ * Typically the operations of 1-Wire Sensors are memory mapped so writing to a
+ * particular location causes the state to change. To accommodate this type of
+ * architecture and reduce the number of 1- Wire operations that need to take
+ * place, a 'read-modify-write' technique is used. Each Sensor interface is
+ * derived from this super-interface that contain just two methods:
+ * {@link #readDevice() readDevice}, {@link #writeDevice(byte[]) writeDevice}.
+ * The read returns a byte array and the write takes a byte array. The byte
+ * array is the state of the device. The interfaces that extend this interface
+ * have 'get' and 'set' methods that manipulate the byte array. So a
+ * OneWireSensor operation is:
+ * </P>
+ * 
  * <OL>
- *    <LI> state = readDevice()
- *    <LI> 'get' and 'set' methods on state
- *    <LI> writeDevice(state)
+ * <LI>state = readDevice()
+ * <LI>'get' and 'set' methods on state
+ * <LI>writeDevice(state)
  * </OL>
  * 
- * <H3> Usage </H3> 
- *  
- * <DL> 
- * <DD> <H4> Example 1</H4> 
- * Read the sensed level of a 
- *    {@link com.dalsemi.onewire.container.SwitchContainer SwitchContainer} instance 'sw': 
- * <PRE> <CODE>
+ * <H3>Usage</H3>
+ * 
+ * <DL>
+ * <DD>
+ * <H4>Example 1</H4> Read the sensed level of a
+ * {@link com.dalsemi.onewire.container.SwitchContainer SwitchContainer}
+ * instance 'sw':
+ * 
+ * <PRE>
+ *  <CODE>
  *  byte[] state = sw.readDevice();
  *  if (sw.hasLevelSensing())
  *  {
@@ -76,17 +80,22 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *  }
  *  else
  *      System.out.println("This SwitchContainer can not sense level");
- * </CODE> </PRE>
+ * </CODE>
+ * </PRE>
  * 
- * <DD> <H4> Example 2</H4> 
- * Set the clock of a 
- *    {@link com.dalsemi.onewire.container.ClockContainer ClockContainer} instance 'cl': 
- * <PRE> <CODE>
+ * <DD>
+ * <H4>Example 2</H4> Set the clock of a
+ * {@link com.dalsemi.onewire.container.ClockContainer ClockContainer} instance
+ * 'cl':
+ * 
+ * <PRE>
+ *  <CODE>
  *  byte[] state = cl.readDevice();
  *  cl.setClock((new Date().getTime()), state);
  *  cl.setClockRunEnable(true, state);
  *  cl.writeDevice(state);
- * </CODE> </PRE>
+ * </CODE>
+ * </PRE>
  * </DL>
  *
  * @see com.dalsemi.onewire.container.ADContainer
@@ -95,49 +104,47 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * @see com.dalsemi.onewire.container.SwitchContainer
  * @see com.dalsemi.onewire.container.TemperatureContainer
  *
- * @version    0.00, 28 Aug 2000
- * @author     DS
+ * @version 0.00, 28 Aug 2000
+ * @author DS
  */
-public interface OneWireSensor
-{
+public interface OneWireSensor {
 
-   //--------
-   //-------- Sensor I/O methods
-   //--------
+	// --------
+	// -------- Sensor I/O methods
+	// --------
 
-   /**
-    * Retrieves the 1-Wire device sensor state.  This state is
-    * returned as a byte array.  Pass this byte array to the 'get'
-    * and 'set' methods.  If the device state needs to be changed then call
-    * the 'writeDevice' to finalize the changes.
-    *
-    * @return 1-Wire device sensor state    
-    *
-    * @throws OneWireIOException on a 1-Wire communication error such as 
-    *         reading an incorrect CRC from a 1-Wire device.  This could be
-    *         caused by a physical interruption in the 1-Wire Network due to 
-    *         shorts or a newly arriving 1-Wire device issuing a 'presence pulse'.
-    * @throws OneWireException on a communication or setup error with the 1-Wire 
-    *         adapter
-    */
-   public byte[] readDevice ()
-      throws OneWireIOException, OneWireException;
+	/**
+	 * Retrieves the 1-Wire device sensor state. This state is returned as a byte
+	 * array. Pass this byte array to the 'get' and 'set' methods. If the device
+	 * state needs to be changed then call the 'writeDevice' to finalize the
+	 * changes.
+	 *
+	 * @return 1-Wire device sensor state
+	 *
+	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
+	 *                            incorrect CRC from a 1-Wire device. This could be
+	 *                            caused by a physical interruption in the 1-Wire
+	 *                            Network due to shorts or a newly arriving 1-Wire
+	 *                            device issuing a 'presence pulse'.
+	 * @throws OneWireException   on a communication or setup error with the 1-Wire
+	 *                            adapter
+	 */
+	public byte[] readDevice() throws OneWireIOException, OneWireException;
 
-   /**
-    * Writes the 1-Wire device sensor state that
-    * have been changed by 'set' methods.  Only the state registers that
-    * changed are updated.  This is done by referencing a field information
-    * appended to the state data.
-    *
-    * @param  state 1-Wire device sensor state
-    *
-    * @throws OneWireIOException on a 1-Wire communication error such as 
-    *         reading an incorrect CRC from a 1-Wire device.  This could be
-    *         caused by a physical interruption in the 1-Wire Network due to 
-    *         shorts or a newly arriving 1-Wire device issuing a 'presence pulse'.
-    * @throws OneWireException on a communication or setup error with the 1-Wire 
-    *         adapter
-    */
-   public void writeDevice (byte[] state)
-      throws OneWireIOException, OneWireException;
+	/**
+	 * Writes the 1-Wire device sensor state that have been changed by 'set'
+	 * methods. Only the state registers that changed are updated. This is done by
+	 * referencing a field information appended to the state data.
+	 *
+	 * @param state 1-Wire device sensor state
+	 *
+	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
+	 *                            incorrect CRC from a 1-Wire device. This could be
+	 *                            caused by a physical interruption in the 1-Wire
+	 *                            Network due to shorts or a newly arriving 1-Wire
+	 *                            device issuing a 'presence pulse'.
+	 * @throws OneWireException   on a communication or setup error with the 1-Wire
+	 *                            adapter
+	 */
+	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException;
 }

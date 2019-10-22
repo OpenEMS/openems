@@ -37,94 +37,82 @@ import com.dalsemi.onewire.utils.OWPath;
 
 import java.io.InputStream;
 
-
 /**
  * The tag parser parses tagging information.
  */
-public class TAGParser
-{
+public class TAGParser {
 
-   /**
-    * Construct the tag parser.
-    *
-    * @param adapter What port adapter will serve the devices created.
-    */
-   public TAGParser(DSPortAdapter adapter)
-   {
-      parser  = XML.createSAXParser();
-      handler = new TAGHandler();
+	/**
+	 * Construct the tag parser.
+	 *
+	 * @param adapter What port adapter will serve the devices created.
+	 */
+	public TAGParser(DSPortAdapter adapter) {
+		parser = XML.createSAXParser();
+		handler = new TAGHandler();
 
-      try
-      {
-         handler.setAdapter(adapter);
-      }
-      catch (Exception e)
-      {
-         System.out.println(e);
-      }
+		try {
+			handler.setAdapter(adapter);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 
-      parser.setDocumentHandler(handler);
-      parser.setErrorHandler(handler);
-   }
+		parser.setDocumentHandler(handler);
+		parser.setErrorHandler(handler);
+	}
 
-   /**
-    * Returns the vector of TaggedDevice objects described in the TAG file.
-    *
-    * @param in The XML document to parse.
-    *
-    * @return Vector of TaggedDevice objects.
-    * @throws SAXException If a parse error occurs parsing <var>in</var>.
-    * @throws IOException If an I/O error occurs while reading <var>in</var>.
-    */
-   public Vector<TaggedDevice> parse(InputStream in)
-      throws SAXException, IOException
-   {
-      InputSource insource = new InputSource(in);
+	/**
+	 * Returns the vector of TaggedDevice objects described in the TAG file.
+	 *
+	 * @param in The XML document to parse.
+	 *
+	 * @return Vector of TaggedDevice objects.
+	 * @throws SAXException If a parse error occurs parsing <var>in</var>.
+	 * @throws IOException  If an I/O error occurs while reading <var>in</var>.
+	 */
+	public Vector<TaggedDevice> parse(InputStream in) throws SAXException, IOException {
+		InputSource insource = new InputSource(in);
 
-      parser.parse(insource);
+		parser.parse(insource);
 
-      Vector<TaggedDevice> v = handler.getTaggedDeviceList();
+		Vector<TaggedDevice> v = handler.getTaggedDeviceList();
 
-      return v;
-   }
+		return v;
+	}
 
-   /**
-    * Returns the vector of Branch TaggedDevice objects described in the TAG file.
-    * The XML should already be parsed before calling this method.
-    *
-    * @param in The XML document to parse.
-    *
-    * @return Vector of Branch TaggedDevice objects.
-    */
-   public Vector<TaggedDevice> getBranches()
-   {
- 
-      Vector<TaggedDevice> v = handler.getAllBranches();
+	/**
+	 * Returns the vector of Branch TaggedDevice objects described in the TAG file.
+	 * The XML should already be parsed before calling this method.
+	 *
+	 * @param in The XML document to parse.
+	 *
+	 * @return Vector of Branch TaggedDevice objects.
+	 */
+	public Vector<TaggedDevice> getBranches() {
 
-      return v;
-   }
+		Vector<TaggedDevice> v = handler.getAllBranches();
 
-   /**
-    * Returns the vector of OWPath objects discovered through parsing 
-    * the XML file.  The XML file should already be parsed before calling 
-    * this method.
-    *
-    * @param no parameters.
-    *
-    * @return Vector of OWPath objects.
-    */
-   public Vector<OWPath> getOWPaths()
-   {
+		return v;
+	}
 
-      Vector<OWPath> v = handler.getAllBranchPaths();
+	/**
+	 * Returns the vector of OWPath objects discovered through parsing the XML file.
+	 * The XML file should already be parsed before calling this method.
+	 *
+	 * @param no parameters.
+	 *
+	 * @return Vector of OWPath objects.
+	 */
+	public Vector<OWPath> getOWPaths() {
 
-      return v;
-   }
+		Vector<OWPath> v = handler.getAllBranchPaths();
 
+		return v;
+	}
 
-   /** Field parser           */
-   private SAXParser parser;
+	/** Field parser */
+	private SAXParser parser;
 
-   /** Field handler           */
-   private TAGHandler handler;
+	/** Field handler */
+	private TAGHandler handler;
 }

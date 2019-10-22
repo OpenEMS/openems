@@ -31,37 +31,31 @@ package com.dalsemi.onewire;
 // imports
 import java.lang.Exception;
 
-
 /**
- * This is the general exception thrown by the iButton and 1-Wire
- * operations.
+ * This is the general exception thrown by the iButton and 1-Wire operations.
  *
- * @version    0.00, 21 August 2000
- * @author     DS
+ * @version 0.00, 21 August 2000
+ * @author DS
  */
-public class OneWireException
-   extends Exception
-{
+public class OneWireException extends Exception {
 
-   //--------
-   //-------- Contructor
-   //--------
+	// --------
+	// -------- Contructor
+	// --------
 
-   /**
-    * Constructs a <code>OneWireException</code> with no detail message.
-    */
-   public OneWireException ()
-   {
-      super();
-   }
+	/**
+	 * Constructs a <code>OneWireException</code> with no detail message.
+	 */
+	public OneWireException() {
+		super();
+	}
 
-   /**
-    * Constructs a <code>OneWireException</code> with the specified detail message.
-    *
-    * @param  desc   the detail message description
-    */
-   public OneWireException (String desc)
-   {
-      super(desc);
-   }
+	/**
+	 * Constructs a <code>OneWireException</code> with the specified detail message.
+	 *
+	 * @param desc the detail message description
+	 */
+	public OneWireException(String desc) {
+		super(desc);
+	}
 }

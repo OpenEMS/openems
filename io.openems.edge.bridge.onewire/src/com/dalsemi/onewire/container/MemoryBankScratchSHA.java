@@ -34,123 +34,109 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.utils.CRC16;
 import com.dalsemi.onewire.container.OneWireContainer;
 
-
 /**
- * Memory bank class for the Scratchpad section of SHA iButtons and
- * 1-Wire devices.
+ * Memory bank class for the Scratchpad section of SHA iButtons and 1-Wire
+ * devices.
  *
- *  @version    0.00, 28 Aug 2000
- *  @author     DS
+ * @version 0.00, 28 Aug 2000
+ * @author DS
  */
-class MemoryBankScratchSHA
-   extends MemoryBankScratchCRC
-{
+class MemoryBankScratchSHA extends MemoryBankScratchCRC {
 
-   //--------
-   //-------- Static Final Variables
-   //--------
+	// --------
+	// -------- Static Final Variables
+	// --------
 
-   /**
-    * Erase Scratchpad Command
-    */
-   public static final byte ERASE_SCRATCHPAD_COMMAND = ( byte ) 0xC3;
+	/**
+	 * Erase Scratchpad Command
+	 */
+	public static final byte ERASE_SCRATCHPAD_COMMAND = (byte) 0xC3;
 
-   //--------
-   //-------- Constructor
-   //--------
+	// --------
+	// -------- Constructor
+	// --------
 
-   /**
-    * Memory bank contstuctor.  Requires reference to the OneWireContainer
-    * this memory bank resides on.
-    */
-   public MemoryBankScratchSHA (OneWireContainer ibutton)
-   {
-      super(ibutton);
+	/**
+	 * Memory bank contstuctor. Requires reference to the OneWireContainer this
+	 * memory bank resides on.
+	 */
+	public MemoryBankScratchSHA(OneWireContainer ibutton) {
+		super(ibutton);
 
-      // initialize attributes of this memory bank - DEFAULT: DS1963S scratchapd
-      bankDescription = "Scratchpad with CRC and auto-hide";
-   }
+		// initialize attributes of this memory bank - DEFAULT: DS1963S scratchapd
+		bankDescription = "Scratchpad with CRC and auto-hide";
+	}
 
-   //--------
-   //-------- ScratchPad methods
-   //--------
+	// --------
+	// -------- ScratchPad methods
+	// --------
 
-   /**
-    * Write to the scratchpad page of memory a NVRAM device.
-    *
-    * @param  startAddr     starting address
-    * @param  writeBuf      byte array containing data to write
-    * @param  offset        offset into readBuf to place data
-    * @param  len           length in bytes to write
-    *
-    * @throws OneWireIOException
-    * @throws OneWireException
-    */
-   public void writeScratchpad (int startAddr, byte[] writeBuf, int offset,
-                                int len)
-      throws OneWireIOException, OneWireException
-   {
-      boolean calcCRC = false;
-      byte[]  raw_buf = new byte [37];
+	/**
+	 * Write to the scratchpad page of memory a NVRAM device.
+	 *
+	 * @param startAddr starting address
+	 * @param writeBuf  byte array containing data to write
+	 * @param offset    offset into readBuf to place data
+	 * @param len       length in bytes to write
+	 *
+	 * @throws OneWireIOException
+	 * @throws OneWireException
+	 */
+	public void writeScratchpad(int startAddr, byte[] writeBuf, int offset, int len)
+			throws OneWireIOException, OneWireException {
+		boolean calcCRC = false;
+		byte[] raw_buf = new byte[37];
 
-      // select the device
-      if (!ib.adapter.select(ib.address))
-      {
-         forceVerify();
+		// select the device
+		if (!ib.adapter.select(ib.address)) {
+			forceVerify();
 
-         throw new OneWireIOException("Device select failed");
-      }
+			throw new OneWireIOException("Device select failed");
+		}
 
-      // erase the scratchpad
-      raw_buf [0] = ERASE_SCRATCHPAD_COMMAND;
+		// erase the scratchpad
+		raw_buf[0] = ERASE_SCRATCHPAD_COMMAND;
 
-      System.arraycopy(ffBlock, 0, raw_buf, 1, 8);
-      ib.adapter.dataBlock(raw_buf, 0, 9);
+		System.arraycopy(ffBlock, 0, raw_buf, 1, 8);
+		ib.adapter.dataBlock(raw_buf, 0, 9);
 
-      if ((( byte ) (raw_buf [8] & 0x0F0) != ( byte ) 0xA0)
-              && (( byte ) (raw_buf [8] & 0x0F0) != ( byte ) 0x50))
-      {
-         forceVerify();
+		if (((byte) (raw_buf[8] & 0x0F0) != (byte) 0xA0) && ((byte) (raw_buf[8] & 0x0F0) != (byte) 0x50)) {
+			forceVerify();
 
-         throw new OneWireIOException("Erase scratchpad complete not found");
-      }
+			throw new OneWireIOException("Erase scratchpad complete not found");
+		}
 
-      // select the device
-      if (!ib.adapter.select(ib.address))
-      {
-         forceVerify();
+		// select the device
+		if (!ib.adapter.select(ib.address)) {
+			forceVerify();
 
-         throw new OneWireIOException("Device select failed");
-      }
+			throw new OneWireIOException("Device select failed");
+		}
 
-      // build block to send
-      raw_buf [0] = WRITE_SCRATCHPAD_COMMAND;
-      raw_buf [1] = ( byte ) (startAddr & 0xFF);
-      raw_buf [2] = ( byte ) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
+		// build block to send
+		raw_buf[0] = WRITE_SCRATCHPAD_COMMAND;
+		raw_buf[1] = (byte) (startAddr & 0xFF);
+		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
 
-      System.arraycopy(writeBuf, offset, raw_buf, 3, len);
+		System.arraycopy(writeBuf, offset, raw_buf, 3, len);
 
-      // check if full page (can utilize CRC)
-      if (((startAddr + len) % pageLength) == 0)
-      {
-         System.arraycopy(ffBlock, 0, raw_buf, len + 3, 2);
+		// check if full page (can utilize CRC)
+		if (((startAddr + len) % pageLength) == 0) {
+			System.arraycopy(ffBlock, 0, raw_buf, len + 3, 2);
 
-         calcCRC = true;
-      }
+			calcCRC = true;
+		}
 
-      // send block, return result 
-      ib.adapter.dataBlock(raw_buf, 0, len + 3 + ((calcCRC) ? 2
-                                                            : 0));
+		// send block, return result
+		ib.adapter.dataBlock(raw_buf, 0, len + 3 + ((calcCRC) ? 2 : 0));
 
-      // check crc
-      if (calcCRC)
-      {
-         if (CRC16.compute(raw_buf, 0, len + 5, 0) != 0x0000B001)
-         {
-            forceVerify();
+		// check crc
+		if (calcCRC) {
+			if (CRC16.compute(raw_buf, 0, len + 5, 0) != 0x0000B001) {
+				forceVerify();
 
-            throw new OneWireIOException("Invalid CRC16 read from device");
-         }
-      }
-   }
+				throw new OneWireIOException("Invalid CRC16 read from device");
+			}
+		}
+	}
 }

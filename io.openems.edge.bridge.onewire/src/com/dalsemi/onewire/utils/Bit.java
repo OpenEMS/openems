@@ -31,46 +31,42 @@ package com.dalsemi.onewire.utils;
 /**
  * Utilities for bit operations on an array.
  *
- * @version    0.00, 27 August 2000
- * @author     DS
+ * @version 0.00, 27 August 2000
+ * @author DS
  */
-public class Bit
-{
+public class Bit {
 
-   /**
-    * Write the bit state in a byte array.
-    *
-    * @param state new state of the bit 1, 0
-    * @param index bit index into byte array
-    * @param offset byte offset into byte array to start
-    * @param buf byte array to manipulate
-    */
-   public static void arrayWriteBit (int state, int index, int offset,
-                                     byte[] buf)
-   {
-      int nbyt = (index >>> 3);
-      int nbit = index - (nbyt << 3);
+	/**
+	 * Write the bit state in a byte array.
+	 *
+	 * @param state  new state of the bit 1, 0
+	 * @param index  bit index into byte array
+	 * @param offset byte offset into byte array to start
+	 * @param buf    byte array to manipulate
+	 */
+	public static void arrayWriteBit(int state, int index, int offset, byte[] buf) {
+		int nbyt = (index >>> 3);
+		int nbit = index - (nbyt << 3);
 
-      if (state == 1)
-         buf [nbyt + offset] |= (0x01 << nbit);
-      else
-         buf [nbyt + offset] &= ~(0x01 << nbit);
-   }
+		if (state == 1)
+			buf[nbyt + offset] |= (0x01 << nbit);
+		else
+			buf[nbyt + offset] &= ~(0x01 << nbit);
+	}
 
-   /**
-    * Read a bit state in a byte array.
-    *
-    * @param index bit index into byte array
-    * @param offset byte offset into byte array to start
-    * @param buf byte array to read from
-    *
-    * @return bit state 1 or 0
-    */
-   public static int arrayReadBit (int index, int offset, byte[] buf)
-   {
-      int nbyt = (index >>> 3);
-      int nbit = index - (nbyt << 3);
+	/**
+	 * Read a bit state in a byte array.
+	 *
+	 * @param index  bit index into byte array
+	 * @param offset byte offset into byte array to start
+	 * @param buf    byte array to read from
+	 *
+	 * @return bit state 1 or 0
+	 */
+	public static int arrayReadBit(int index, int offset, byte[] buf) {
+		int nbyt = (index >>> 3);
+		int nbit = index - (nbyt << 3);
 
-      return ((buf [nbyt + offset] >>> nbit) & 0x01);
-   }
+		return ((buf[nbyt + offset] >>> nbit) & 0x01);
+	}
 }

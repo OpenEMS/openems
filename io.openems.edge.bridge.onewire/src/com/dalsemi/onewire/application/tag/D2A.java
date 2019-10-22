@@ -34,129 +34,120 @@ import com.dalsemi.onewire.OneWireException;
 import java.util.Vector;
 
 /**
- * This class provides a default object for the D2A type of a tagged 1-Wire device.
+ * This class provides a default object for the D2A type of a tagged 1-Wire
+ * device.
  */
-public class D2A
-   extends    TaggedDevice
-   implements TaggedActuator
-{
-   /**
-    * Creates an object for the device.
-    */
-   public D2A()
-   {
-      super();
-      ActuatorSelections = new Vector<>();
-   }
+public class D2A extends TaggedDevice implements TaggedActuator {
+	/**
+	 * Creates an object for the device.
+	 */
+	public D2A() {
+		super();
+		ActuatorSelections = new Vector<>();
+	}
 
-   /**
-    * Creates an object for the device with the supplied address connected
-    * to the supplied port adapter.
-    * @param adapter The adapter serving the actuator.
-    * @param netAddress The 1-Wire network address of the actuator.
-    */
-   public D2A(DSPortAdapter adapter, String netAddress)
-   {
-      super(adapter, netAddress);
-      ActuatorSelections = new Vector<>();
-   }
+	/**
+	 * Creates an object for the device with the supplied address connected to the
+	 * supplied port adapter.
+	 * 
+	 * @param adapter    The adapter serving the actuator.
+	 * @param netAddress The 1-Wire network address of the actuator.
+	 */
+	public D2A(DSPortAdapter adapter, String netAddress) {
+		super(adapter, netAddress);
+		ActuatorSelections = new Vector<>();
+	}
 
-   /**
-    * Get the possible selection states of this actuator
-    *
-    * @return Vector of Strings representing selection states.
-    */
-   public Vector<String> getSelections()
-   {
-      return ActuatorSelections;
-   }
+	/**
+	 * Get the possible selection states of this actuator
+	 *
+	 * @return Vector of Strings representing selection states.
+	 */
+	public Vector<String> getSelections() {
+		return ActuatorSelections;
+	}
 
-   /**
-    * Set the selection of this actuator
-    *
-    * @param The selection string.
-    *
-    * @throws OneWireException
-    *
-    */
-   public void setSelection(String selection)
-   throws OneWireException
-   {
-      PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();
-      int Index = 0;
-      Index = ActuatorSelections.indexOf(selection);
-      // must first read the device
-      byte[] state = pc.readDevice();
-      // set current wiper number from xml tag "channel"
-      pc.setCurrentWiperNumber(getChannel(), state);
-      // now, write to device to set the wiper number
-      pc.writeDevice(state);
-      
-      if (Index > -1) // means selection is in the vector
-      {
-         // write wiper position to part
-         state = pc.readDevice(); // read it first
-         pc.setWiperPosition(Index); // set wiper position in state variable
-         pc.writeDevice(state);
-      }
-   }
+	/**
+	 * Set the selection of this actuator
+	 *
+	 * @param The selection string.
+	 *
+	 * @throws OneWireException
+	 *
+	 */
+	public void setSelection(String selection) throws OneWireException {
+		PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();
+		int Index = 0;
+		Index = ActuatorSelections.indexOf(selection);
+		// must first read the device
+		byte[] state = pc.readDevice();
+		// set current wiper number from xml tag "channel"
+		pc.setCurrentWiperNumber(getChannel(), state);
+		// now, write to device to set the wiper number
+		pc.writeDevice(state);
 
-   // Selections for the D2A actuator:
-   // element 0 ->   Means change to the first wiper position.
-   //                
-   // element 1 ->   Means change to the second wiper position. 
-   //              
-   //    .
-   //    .
-   //    .
-   // last element 255? -> Means change to the last wiper position.
+		if (Index > -1) // means selection is in the vector
+		{
+			// write wiper position to part
+			state = pc.readDevice(); // read it first
+			pc.setWiperPosition(Index); // set wiper position in state variable
+			pc.writeDevice(state);
+		}
+	}
 
-   /**
-    * Initializes the actuator
-    * @param Init The initialization string.
-    *
-    * @throws OneWireException
-    * 
-    */
-   public void initActuator()
-   throws OneWireException
-   {
-      PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();
-      int numOfWiperSettings;
-      int resistance;
-      double offset = 0.6; // this seems about right...
-      double wiperResistance;
-      String selectionString;
-      // initialize the ActuatorSelections Vector
-      // must first read the device
-      byte[] state = pc.readDevice();
-      // set current wiper number from xml tag "channel"
-      pc.setCurrentWiperNumber(getChannel(), state);
-      // now, write to device to set the wiper number
-      pc.writeDevice(state);
-      // now, extract some values to initialize the ActuatorSelections
-      // get the number of wiper positions
-      numOfWiperSettings = pc.numberOfWiperSettings(state);
-      // get the resistance value in k-Ohms
-      resistance = pc.potentiometerResistance(state);
-      // calculate wiper resistance
-      wiperResistance = (double) ((double) (resistance - offset) / (double)numOfWiperSettings);
-      // add the values to the ActuatorSelections Vector
-      selectionString = resistance + " k-Ohms";       // make sure the first
-      ActuatorSelections.addElement(selectionString); // element is the entire resistance
-      for (int i = (numOfWiperSettings - 2); i > -1; i--)
-      {
-         double newWiperResistance = (double)(wiperResistance * (double)i);
-         // round the values before putting them in drop-down list
-         int roundedWiperResistance = (int) ((newWiperResistance + offset) * 10000);
-         selectionString = (double) ((double)roundedWiperResistance / 10000.0) + " k-Ohms";
-         ActuatorSelections.addElement(selectionString);
-      }
-   }
+	// Selections for the D2A actuator:
+	// element 0 -> Means change to the first wiper position.
+	//
+	// element 1 -> Means change to the second wiper position.
+	//
+	// .
+	// .
+	// .
+	// last element 255? -> Means change to the last wiper position.
 
-   /**
-    * Keeps the selections of this actuator
-    */
-   private Vector<String> ActuatorSelections;
+	/**
+	 * Initializes the actuator
+	 * 
+	 * @param Init The initialization string.
+	 *
+	 * @throws OneWireException
+	 * 
+	 */
+	public void initActuator() throws OneWireException {
+		PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();
+		int numOfWiperSettings;
+		int resistance;
+		double offset = 0.6; // this seems about right...
+		double wiperResistance;
+		String selectionString;
+		// initialize the ActuatorSelections Vector
+		// must first read the device
+		byte[] state = pc.readDevice();
+		// set current wiper number from xml tag "channel"
+		pc.setCurrentWiperNumber(getChannel(), state);
+		// now, write to device to set the wiper number
+		pc.writeDevice(state);
+		// now, extract some values to initialize the ActuatorSelections
+		// get the number of wiper positions
+		numOfWiperSettings = pc.numberOfWiperSettings(state);
+		// get the resistance value in k-Ohms
+		resistance = pc.potentiometerResistance(state);
+		// calculate wiper resistance
+		wiperResistance = (double) ((double) (resistance - offset) / (double) numOfWiperSettings);
+		// add the values to the ActuatorSelections Vector
+		selectionString = resistance + " k-Ohms"; // make sure the first
+		ActuatorSelections.addElement(selectionString); // element is the entire resistance
+		for (int i = (numOfWiperSettings - 2); i > -1; i--) {
+			double newWiperResistance = (double) (wiperResistance * (double) i);
+			// round the values before putting them in drop-down list
+			int roundedWiperResistance = (int) ((newWiperResistance + offset) * 10000);
+			selectionString = (double) ((double) roundedWiperResistance / 10000.0) + " k-Ohms";
+			ActuatorSelections.addElement(selectionString);
+		}
+	}
+
+	/**
+	 * Keeps the selections of this actuator
+	 */
+	private Vector<String> ActuatorSelections;
 }
-  

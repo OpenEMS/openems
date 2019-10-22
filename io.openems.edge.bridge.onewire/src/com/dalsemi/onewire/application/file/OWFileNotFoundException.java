@@ -27,32 +27,33 @@
 package com.dalsemi.onewire.application.file;
 
 /**
- * <P>Signals that an attempt to open the file on a 1-Wire device denoted.</P>
+ * <P>
+ * Signals that an attempt to open the file on a 1-Wire device denoted.
+ * </P>
  *
- * <P> This exception will be thrown by the {@link OWFileInputStream} and
+ * <P>
+ * This exception will be thrown by the {@link OWFileInputStream} and
  * {@link OWFileOutputStream} constructors when a file with the specified
- * pathname does not exist on the 1-Wire memory device.</P>
+ * pathname does not exist on the 1-Wire memory device.
+ * </P>
  */
-public class OWFileNotFoundException extends java.io.IOException
-{
+public class OWFileNotFoundException extends java.io.IOException {
 
-   /**
-    * Constructs a <code>FileNotFoundException</code> with
-    * <code>null</code> as its error detail message.
-    */
-   public OWFileNotFoundException()
-   {
-      super();
-   }
+	/**
+	 * Constructs a <code>FileNotFoundException</code> with <code>null</code> as its
+	 * error detail message.
+	 */
+	public OWFileNotFoundException() {
+		super();
+	}
 
-   /**
-    * Constructs a <code>FileNotFoundException</code> with the
-    * specified detail message.
-    *
-    * @param   s   the detail message.
-    */
-   public OWFileNotFoundException(String s)
-   {
-      super(s);
-   }
+	/**
+	 * Constructs a <code>FileNotFoundException</code> with the specified detail
+	 * message.
+	 *
+	 * @param s the detail message.
+	 */
+	public OWFileNotFoundException(String s) {
+		super(s);
+	}
 }

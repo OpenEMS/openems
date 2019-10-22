@@ -31,124 +31,125 @@ package com.dalsemi.onewire.container;
 // imports
 import com.dalsemi.onewire.adapter.*;
 
-
 /**
- * <P>1-Wire&reg; container that encapsulates the functionality of the 1-Wire
- * family type <B>01</B> (hex), Maxim Integrated Products part number: <B>DS1990A,
- * Serial Number</B>.</P>
+ * <P>
+ * 1-Wire&reg; container that encapsulates the functionality of the 1-Wire
+ * family type <B>01</B> (hex), Maxim Integrated Products part number:
+ * <B>DS1990A, Serial Number</B>.
+ * </P>
  *
- * <P> This 1-Wire device is used as a unique serial number. </P>
+ * <P>
+ * This 1-Wire device is used as a unique serial number.
+ * </P>
  *
- * <H2> Features </H2>
+ * <H2>Features</H2>
  * <UL>
- *   <LI> 64 bit unique serial number
- *   <LI> Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- *        +85@htmlonly &#176C @endhtmlonly
+ * <LI>64 bit unique serial number
+ * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
+ * +85@htmlonly &#176C @endhtmlonly
  * </UL>
  *
- * <H2> Alternate Names </H2>
+ * <H2>Alternate Names</H2>
  * <UL>
- *   <LI> DS2401
- *   <LI> DS1420 (Family 81)
+ * <LI>DS2401
+ * <LI>DS1420 (Family 81)
  * </UL>
  *
- * <H2> DataSheets </H2>
+ * <H2>DataSheets</H2>
  *
- *   <A HREF="http://pdfserv.maxim-ic.com/arpdf/DS1990A.pdf"> http://pdfserv.maxim-ic.com/arpdf/DS1990A.pdf</A><br>
- *   <A HREF="http://pdfserv.maxim-ic.com/arpdf/DS2401.pdf"> http://pdfserv.maxim-ic.com/arpdf/DS2401.pdf</A><br>
- *   <A HREF="http://pdfserv.maxim-ic.com/arpdf/DS1420.pdf"> http://pdfserv.maxim-ic.com/arpdf/DS1420.pdf</A>
+ * <A HREF="http://pdfserv.maxim-ic.com/arpdf/DS1990A.pdf">
+ * http://pdfserv.maxim-ic.com/arpdf/DS1990A.pdf</A><br>
+ * <A HREF="http://pdfserv.maxim-ic.com/arpdf/DS2401.pdf">
+ * http://pdfserv.maxim-ic.com/arpdf/DS2401.pdf</A><br>
+ * <A HREF="http://pdfserv.maxim-ic.com/arpdf/DS1420.pdf">
+ * http://pdfserv.maxim-ic.com/arpdf/DS1420.pdf</A>
  *
- *  @version    0.00, 28 Aug 2000
- *  @author     DS
+ * @version 0.00, 28 Aug 2000
+ * @author DS
  */
-public class OneWireContainer01
-   extends OneWireContainer
-{
-   /**
-    * Create an empty container.  Must call <code>setupContainer</code> before
-    * using this new container.<p>
-    *
-    * This is one of the methods to construct a container.  The others are
-    * through creating a OneWireContainer with parameters.
-    *
-    * @see #OneWireContainer01(DSPortAdapter,byte[])
-    * @see #OneWireContainer01(DSPortAdapter,long)
-    * @see #OneWireContainer01(DSPortAdapter,String)
-    * @see #setupContainer(DSPortAdapter,byte[])
-    * @see #setupContainer(DSPortAdapter,long)
-    * @see #setupContainer(DSPortAdapter,String)
-    */
-   public OneWireContainer01 ()
-   {
-      super();
-   }
+public class OneWireContainer01 extends OneWireContainer {
+	/**
+	 * Create an empty container. Must call <code>setupContainer</code> before using
+	 * this new container.
+	 * <p>
+	 *
+	 * This is one of the methods to construct a container. The others are through
+	 * creating a OneWireContainer with parameters.
+	 *
+	 * @see #OneWireContainer01(DSPortAdapter,byte[])
+	 * @see #OneWireContainer01(DSPortAdapter,long)
+	 * @see #OneWireContainer01(DSPortAdapter,String)
+	 * @see #setupContainer(DSPortAdapter,byte[])
+	 * @see #setupContainer(DSPortAdapter,long)
+	 * @see #setupContainer(DSPortAdapter,String)
+	 */
+	public OneWireContainer01() {
+		super();
+	}
 
-   /**
-    * Create a container with a provided adapter object
-    * and the address of the iButton or 1-Wire device.<p>
-    *
-    * This is one of the methods to construct a container.  The other is
-    * through creating a OneWireContainer with NO parameters.
-    *
-    * @param  sourceAdapter     adapter object required to communicate with
-    * this iButton.
-    * @param  newAddress        address of this 1-Wire device
-    * @see #OneWireContainer01()
-    * @see com.dalsemi.onewire.utils.Address
-    */
-   public OneWireContainer01 (DSPortAdapter sourceAdapter, byte[] newAddress)
-   {
-      super(sourceAdapter, newAddress);
-   }
+	/**
+	 * Create a container with a provided adapter object and the address of the
+	 * iButton or 1-Wire device.
+	 * <p>
+	 *
+	 * This is one of the methods to construct a container. The other is through
+	 * creating a OneWireContainer with NO parameters.
+	 *
+	 * @param sourceAdapter adapter object required to communicate with this
+	 *                      iButton.
+	 * @param newAddress    address of this 1-Wire device
+	 * @see #OneWireContainer01()
+	 * @see com.dalsemi.onewire.utils.Address
+	 */
+	public OneWireContainer01(DSPortAdapter sourceAdapter, byte[] newAddress) {
+		super(sourceAdapter, newAddress);
+	}
 
-   /**
-    * Create a container with a provided adapter object
-    * and the address of the iButton or 1-Wire device.<p>
-    *
-    * This is one of the methods to construct a container.  The other is
-    * through creating a OneWireContainer with NO parameters.
-    *
-    * @param  sourceAdapter     adapter object required to communicate with
-    * this iButton.
-    * @param  newAddress        address of this 1-Wire device
-    * @see #OneWireContainer01()
-    * @see com.dalsemi.onewire.utils.Address
-    */
-   public OneWireContainer01 (DSPortAdapter sourceAdapter, long newAddress)
-   {
-      super(sourceAdapter, newAddress);
-   }
+	/**
+	 * Create a container with a provided adapter object and the address of the
+	 * iButton or 1-Wire device.
+	 * <p>
+	 *
+	 * This is one of the methods to construct a container. The other is through
+	 * creating a OneWireContainer with NO parameters.
+	 *
+	 * @param sourceAdapter adapter object required to communicate with this
+	 *                      iButton.
+	 * @param newAddress    address of this 1-Wire device
+	 * @see #OneWireContainer01()
+	 * @see com.dalsemi.onewire.utils.Address
+	 */
+	public OneWireContainer01(DSPortAdapter sourceAdapter, long newAddress) {
+		super(sourceAdapter, newAddress);
+	}
 
-   /**
-    * Create a container with a provided adapter object
-    * and the address of the iButton or 1-Wire device.<p>
-    *
-    * This is one of the methods to construct a container.  The other is
-    * through creating a OneWireContainer with NO parameters.
-    *
-    * @param  sourceAdapter     adapter object required to communicate with
-    * this iButton.
-    * @param  newAddress        address of this 1-Wire device
-    * @see #OneWireContainer01()
-    * @see com.dalsemi.onewire.utils.Address
-    */
-   public OneWireContainer01 (DSPortAdapter sourceAdapter, String newAddress)
-   {
-      super(sourceAdapter, newAddress);
-   }
+	/**
+	 * Create a container with a provided adapter object and the address of the
+	 * iButton or 1-Wire device.
+	 * <p>
+	 *
+	 * This is one of the methods to construct a container. The other is through
+	 * creating a OneWireContainer with NO parameters.
+	 *
+	 * @param sourceAdapter adapter object required to communicate with this
+	 *                      iButton.
+	 * @param newAddress    address of this 1-Wire device
+	 * @see #OneWireContainer01()
+	 * @see com.dalsemi.onewire.utils.Address
+	 */
+	public OneWireContainer01(DSPortAdapter sourceAdapter, String newAddress) {
+		super(sourceAdapter, newAddress);
+	}
 
-   public String getName ()
-   {
-      return "DS1990A";
-   }
+	public String getName() {
+		return "DS1990A";
+	}
 
-   public String getAlternateNames ()
-   {
-      return "DS2401,DS2411";
-   }
+	public String getAlternateNames() {
+		return "DS2401,DS2411";
+	}
 
-   public String getDescription ()
-   {
-      return "64-bit unique serial number";
-   }
+	public String getDescription() {
+		return "64-bit unique serial number";
+	}
 }

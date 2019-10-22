@@ -33,357 +33,311 @@ import com.dalsemi.onewire.container.*;
 import com.dalsemi.onewire.utils.OWPath;
 import java.util.Vector;
 
-
 /**
  * This class provides a default object for a tagged 1-Wire device.
  */
-public class TaggedDevice
-{
+public class TaggedDevice {
 
-   /**
-    * Creates an object for the device with the supplied address and device type connected
-    * to the supplied port adapter.
-    * @param adapter The adapter serving the sensor.
-    * @param NetAddress The 1-Wire network address of the sensor.
-    * @param netAddress
-    */
-   public TaggedDevice(DSPortAdapter adapter, String netAddress)
-   {
-      this.DeviceContainer = adapter.getDeviceContainer(netAddress);
-   }
+	/**
+	 * Creates an object for the device with the supplied address and device type
+	 * connected to the supplied port adapter.
+	 * 
+	 * @param adapter    The adapter serving the sensor.
+	 * @param NetAddress The 1-Wire network address of the sensor.
+	 * @param netAddress
+	 */
+	public TaggedDevice(DSPortAdapter adapter, String netAddress) {
+		this.DeviceContainer = adapter.getDeviceContainer(netAddress);
+	}
 
-   /**
-    * Creates an object for the device.
-    */
-   public TaggedDevice()
-   {
-   }
+	/**
+	 * Creates an object for the device.
+	 */
+	public TaggedDevice() {
+	}
 
+	/* ********* Setters for this object *********** */
 
-   /* ********* Setters for this object *********** */
+	/**
+	 * Sets the 1-Wire Container for the tagged device.
+	 */
+	public void setDeviceContainer(DSPortAdapter adapter, String netAddress) {
+		DeviceContainer = adapter.getDeviceContainer(netAddress);
+	}
 
+	/**
+	 * Sets the device type for the tagged device.
+	 *
+	 * @param tType
+	 */
+	public void setDeviceType(String tType) {
+		DeviceType = tType;
+	}
 
-   /**
-    * Sets the 1-Wire Container for the tagged device.
-    */
-   public void setDeviceContainer(DSPortAdapter adapter, String netAddress)
-   {
-      DeviceContainer = adapter.getDeviceContainer(netAddress);
-   }
+	/**
+	 * Sets the label for the tagged device.
+	 *
+	 * @param Label
+	 */
+	public void setLabel(String Label) {
+		label = Label;
+	}
 
-   /**
-    * Sets the device type for the tagged device.
-    *
-    * @param tType
-    */
-   public void setDeviceType(String tType)
-   {
-      DeviceType = tType;
-   }
+	/**
+	 * Sets the channel for the tagged device from a String.
+	 *
+	 * @param Channel
+	 */
+	public void setChannelFromString(String Channel) {
+		channel = new Integer(Channel);
+	}
 
-   /**
-    * Sets the label for the tagged device.
-    *
-    * @param Label
-    */
-   public void setLabel(String Label)
-   {
-      label = Label;
-   }
+	/**
+	 * Sets the channel for the tagged device from an int.
+	 *
+	 * @param Channel
+	 */
+	public void setChannel(int Channel) {
+		channel = new Integer(Channel);
+	}
 
-   /**
-    * Sets the channel for the tagged device from a String.
-    *
-    * @param Channel
-    */
-   public void setChannelFromString(String Channel)
-   {
-      channel = new Integer(Channel);
-   }
+	/**
+	 * Sets the init (initialization String) for the tagged device.
+	 *
+	 * @param init
+	 */
+	public void setInit(String Init) {
+		init = Init;
+	}
 
-   /**
-    * Sets the channel for the tagged device from an int.
-    *
-    * @param Channel
-    */
-   public void setChannel(int Channel)
-   {
-      channel = new Integer(Channel);
-   }
+	/**
+	 * Sets the cluster name for the tagged device.
+	 *
+	 * @param cluster
+	 */
+	public void setClusterName(String cluster) {
+		clusterName = cluster;
+	}
 
-   /**
-    * Sets the init (initialization String) for the
-    * tagged device.
-    *
-    * @param init
-    */
-   public void setInit(String Init)
-   {
-      init = Init;
-   }
+	/**
+	 * Sets the vector of branches to get to the tagged device.
+	 *
+	 * @param branches
+	 */
+	public void setBranches(Vector<TaggedDevice> branches) {
+		branchVector = branches;
+	}
 
-   /**
-    * Sets the cluster name for the tagged device.
-    *
-    * @param cluster
-    */
-   public void setClusterName(String cluster)
-   {
-      clusterName = cluster;
-   }
+	/**
+	 * Sets the OWPath for the tagged device. An OWPath is a description of how to
+	 * physically get to a 1-Wire device through a set of nested 1-Wire switches.
+	 *
+	 * @param branchOWPath
+	 */
+	public void setOWPath(OWPath branchOWPath) {
+		branchPath = branchOWPath;
+	}
 
-   /**
-    * Sets the vector of branches to get to the tagged device.
-    *
-    * @param branches
-    */
-   public void setBranches(Vector<TaggedDevice> branches)
-   {
-      branchVector = branches;
-   }
+	/**
+	 * Sets the OWPath for the tagged device. An OWPath is a description of how to
+	 * physically get to a 1-Wire device through a set of nested 1-Wire switches.
+	 *
+	 * @param adapter
+	 * @param Branches
+	 */
+	public void setOWPath(DSPortAdapter adapter, Vector<TaggedDevice> Branches) {
+		branchPath = new OWPath(adapter);
 
-   /**
-    * Sets the OWPath for the tagged device.  An
-    * OWPath is a description of how to
-    * physically get to a 1-Wire device through a
-    * set of nested 1-Wire switches.
-    *
-    * @param branchOWPath
-    */
-   public void setOWPath(OWPath branchOWPath)
-   {
-      branchPath = branchOWPath;
-   }
+		TaggedDevice TDevice;
 
-   /**
-    * Sets the OWPath for the tagged device.  An
-    * OWPath is a description of how to
-    * physically get to a 1-Wire device through a
-    * set of nested 1-Wire switches.
-    *
-    * @param adapter
-    * @param Branches
-    */
-   public void setOWPath(DSPortAdapter adapter, Vector<TaggedDevice> Branches)
-   {
-      branchPath = new OWPath(adapter);
+		for (int i = 0; i < Branches.size(); i++) {
+			TDevice = (TaggedDevice) Branches.elementAt(i);
 
-      TaggedDevice TDevice;
+			branchPath.add(TDevice.getDeviceContainer(), TDevice.getChannel());
+		}
+	}
 
-      for (int i = 0; i < Branches.size(); i++)
-      {
-         TDevice = (TaggedDevice) Branches.elementAt(i);
+	/* ********* Getters for this object *********** */
 
-         branchPath.add(TDevice.getDeviceContainer(), TDevice.getChannel());
-      }
-   }
+	/**
+	 * Gets the 1-Wire Container for the tagged device.
+	 *
+	 * @return The 1-Wire container for the tagged device.
+	 */
+	public OneWireContainer getDeviceContainer() {
+		return DeviceContainer;
+	}
 
+	/**
+	 * Gets the device type for the tagged device.
+	 *
+	 * @return The device type for the tagged device.
+	 */
+	public String getDeviceType() {
+		return DeviceType;
+	}
 
-    /* ********* Getters for this object *********** */
+	/**
+	 * Gets the label for the tagged device.
+	 *
+	 * @return The label for the tagged device.
+	 */
+	public String getLabel() {
+		return label;
+	}
 
+	/**
+	 * Gets the channel for the tagged device as a String.
+	 *
+	 * @return The channel for the tagged device as a String.
+	 */
+	public String getChannelAsString() {
+		return channel.toString();
+	}
 
-   /**
-    * Gets the 1-Wire Container for the tagged device.
-    *
-    * @return The 1-Wire container for the tagged device.
-    */
-   public OneWireContainer getDeviceContainer()
-   {
-      return DeviceContainer;
-   }
+	/**
+	 * Gets the channel for the tagged device as an int.
+	 *
+	 * @return The channel for the tagged device as an int.
+	 */
+	public int getChannel() {
+		return channel.intValue();
+	}
 
-   /**
-    * Gets the device type for the tagged device.
-    *
-    * @return The device type for the tagged device.
-    */
-   public String getDeviceType()
-   {
-      return DeviceType;
-   }
+	/**
+	 * Gets the init (Initialization String) for the tagged device.
+	 *
+	 * @return String init (Initialization String)
+	 */
+	public String getInit() {
+		return init;
+	}
 
-   /**
-    * Gets the label for the tagged device.
-    *
-    * @return The label for the tagged device.
-    */
-   public String getLabel()
-   {
-      return label;
-   }
+	/**
+	 * Gets the max string for the tagged device.
+	 *
+	 * @return String Gets the max string
+	 */
+	public String getMax() {
+		return max;
+	}
 
-   /**
-    * Gets the channel for the tagged device as a String.
-    *
-    * @return The channel for the tagged device as a String.
-    */
-   public String getChannelAsString()
-   {
-      return channel.toString();
-   }
+	/**
+	 * Gets the min string for the tagged device.
+	 *
+	 * @return String Gets the min string
+	 */
+	public String getMin() {
+		return min;
+	}
 
-   /**
-    * Gets the channel for the tagged device as an int.
-    *
-    * @return The channel for the tagged device as an int.
-    */
-   public int getChannel()
-   {
-      return channel.intValue();
-   }
+	/**
+	 * Gets the cluster name for the tagged device.
+	 *
+	 * @return The cluster name for the tagged device.
+	 */
+	public String getClusterName() {
+		return clusterName;
+	}
 
-   /**
-    * Gets the init (Initialization String) for the
-    * tagged device.
-    *
-    * @return String init (Initialization String)
-    */
-   public String getInit()
-   {
-      return init;
-   }
+	/**
+	 * Gets a vector of branches (to get to) the tagged device.
+	 *
+	 * @return The vector of branches to get to the tagged device.
+	 */
+	public Vector<TaggedDevice> getBranches() {
+		return branchVector;
+	}
 
-   /**
-    * Gets the max string for the tagged device.
-    *
-    * @return String  Gets the max string
-    */
-   public String getMax()
-   {
-      return max;
-   }
+	/**
+	 * Gets the OWPath for the tagged device. An OWPath is a description of how to
+	 * physically get to a 1-Wire device through a set of nested 1-Wire switches.
+	 *
+	 * @return The OWPath for the tagged device.
+	 */
+	public OWPath getOWPath() {
+		return branchPath;
+	}
 
-   /**
-    * Gets the min string for the tagged device.
-    *
-    * @return String  Gets the min string
-    */
-   public String getMin()
-   {
-      return min;
-   }
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
 
-   /**
-    * Gets the cluster name for the tagged device.
-    *
-    * @return The cluster name for the tagged device.
-    */
-   public String getClusterName()
-   {
-      return clusterName;
-   }
+		if (o instanceof TaggedDevice) {
+			TaggedDevice td = (TaggedDevice) o;
+			return (td.DeviceContainer.equals(this.DeviceContainer)) && (td.DeviceType.equals(this.DeviceType))
+					&& (td.min.equals(this.min)) && (td.max.equals(this.max)) && (td.init.equals(this.init))
+					&& (td.clusterName.equals(this.clusterName)) && (td.label.equals(this.label));
+		}
+		return false;
+	}
 
-   /**
-    * Gets a vector of branches (to get to) the tagged device.
-    *
-    * @return The vector of branches to get to the tagged device.
-    */
-   public Vector<TaggedDevice> getBranches()
-   {
-      return branchVector;
-   }
+	public int hashCode() {
+		return (getDeviceContainer().toString() + getLabel()).hashCode();
+	}
 
-   /**
-    * Gets the OWPath for the tagged device.  An
-    * OWPath is a description of how to
-    * physically get to a 1-Wire device through a
-    * set of nested 1-Wire switches.
-    *
-    * @return The OWPath for the tagged device.
-    */
-   public OWPath getOWPath()
-   {
-      return branchPath;
-   }
+	public String toString() {
+		return getLabel();
+	}
 
-   public boolean equals(Object o)
-   {
-      if(o==this)
-         return true;
+	/** ********* Properties (fields) for this object ********** */
 
-      if(o instanceof TaggedDevice)
-      {
-         TaggedDevice td = (TaggedDevice)o;
-         return (td.DeviceContainer.equals(this.DeviceContainer))
-             && (td.DeviceType.equals(this.DeviceType))
-             && (td.min.equals(this.min))
-             && (td.max.equals(this.max))
-             && (td.init.equals(this.init))
-             && (td.clusterName.equals(this.clusterName))
-             && (td.label.equals(this.label));
-      }
-      return false;
-   }
+	/**
+	 * 1-Wire Container for the tagged device.
+	 */
+	public OneWireContainer DeviceContainer;
 
-   public int hashCode()
-   {
-      return (getDeviceContainer().toString() + getLabel()).hashCode();
-   }
+	/**
+	 * Device type for the device (i.e., contact, switch, d2a, etc.).
+	 */
+	public String DeviceType;
 
-   public String toString()
-   {
-      return getLabel();
-   }
+	/**
+	 * Label for the "name" of the device.
+	 */
+	public String label;
 
-   /** ********* Properties (fields) for this object ********** */
+	/**
+	 * The channel on which to probe for info.
+	 */
+	public Integer channel;
 
-   /**
-    * 1-Wire Container for the tagged device.
-    */
-   public OneWireContainer DeviceContainer;
+	/**
+	 * A string message representing a high or maximum value.
+	 */
+	public String max;
 
-   /**
-    * Device type for the device (i.e., contact, switch, d2a, etc.).
-    */
-   public String DeviceType;
+	/**
+	 * A string message representing a low or minimum value.
+	 */
+	public String min;
 
-   /**
-    * Label for the "name" of the device.
-    */
-   public String label;
+	/**
+	 * A true or false describing the state of the tagged device.
+	 */
+	public Boolean state;
 
-   /**
-    * The channel on which to probe for info.
-    */
-   public Integer channel;
+	/**
+	 * An initialization parameter for the tagged device.
+	 */
+	public String init;
 
-   /**
-    * A string message representing a high or maximum value.
-    */
-   public String max;
+	/**
+	 * The name of the cluster to which the tagged device is associated. Nested
+	 * clusters will have a forward slash ("/") between each cluster, much like a
+	 * path.
+	 */
+	public String clusterName;
 
-   /**
-    * A string message representing a low or minimum value.
-    */
-   public String min;
+	/**
+	 * A Vector of branches describing how to physically get to the tagged device
+	 * through a set of 1-Wire switches.
+	 */
+	public Vector<TaggedDevice> branchVector;
 
-   /**
-    * A true or false describing the state of the tagged device.
-    */
-   public Boolean state;
-
-   /**
-    * An initialization parameter for the tagged device.
-    */
-   public String init;
-
-   /**
-    * The name of the cluster to which the tagged device is associated.
-    * Nested clusters will have a forward slash ("/") between each
-    * cluster, much like a path.
-    */
-   public String clusterName;
-
-   /**
-    * A Vector of branches describing how to physically get to
-    * the tagged device through a set of 1-Wire switches.
-    */
-   public Vector<TaggedDevice> branchVector;
-
-   /**
-    * This is an OWPath describing how to physically get to
-    * the tagged device through a set of nested 1-Wire branches
-    * (switches).
-    */
-   private OWPath branchPath;
+	/**
+	 * This is an OWPath describing how to physically get to the tagged device
+	 * through a set of nested 1-Wire branches (switches).
+	 */
+	private OWPath branchPath;
 }

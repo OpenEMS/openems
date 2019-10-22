@@ -55,138 +55,127 @@ import java.io.IOException;
 import java.util.Locale;
 import org.xml.sax.*;
 
-
 /**
- * <P>A SAX parser.</P>
+ * <P>
+ * A SAX parser.
+ * </P>
  *
- * <P>This class encapsulates the underlying parser implementation.  We support
- * only the SAX1 interface for now.</P>
- * <P>Specify the SAXParser implementation by adding the property
+ * <P>
+ * This class encapsulates the underlying parser implementation. We support only
+ * the SAX1 interface for now.
+ * </P>
+ * <P>
+ * Specify the SAXParser implementation by adding the property
  * <code>SAXParser.ClassName</code> to the onewire.properties file with the
  * fully qualified classname of an implementation of
- * <code>org.xml.sax.Parser</code>.  The default classname used is
- * for nanoxml's parser: <code>nanoxml.sax.SAXParser</code>.  
+ * <code>org.xml.sax.Parser</code>. The default classname used is for nanoxml's
+ * parser: <code>nanoxml.sax.SAXParser</code>.
  *
  * @author Kelly
  */
-public class SAXParser
-   implements org.xml.sax.Parser
-{
-   /** The parser implementation to which we delegate. */
-   private org.xml.sax.Parser parser;
+public class SAXParser implements org.xml.sax.Parser {
+	/** The parser implementation to which we delegate. */
+	private org.xml.sax.Parser parser;
 
-   /**
-    * Construct the SAX parser.
-    */
-   public SAXParser()
-   {
-      // load the fully-qualified classname of the SAX Parser
-      String className = OneWireAccessProvider.getProperty("SAXParser.ClassName");
-      if(className==null)
-      {
-         // default to NanoXML
-         className = "nanoxml.sax.SAXParser";
-      }
+	/**
+	 * Construct the SAX parser.
+	 */
+	public SAXParser() {
+		// load the fully-qualified classname of the SAX Parser
+		String className = OneWireAccessProvider.getProperty("SAXParser.ClassName");
+		if (className == null) {
+			// default to NanoXML
+			className = "nanoxml.sax.SAXParser";
+		}
 
-      try
-      {
-         Class<?> c = Class.forName(className);
-         parser = (org.xml.sax.Parser)c.newInstance();
-      }
-      catch(Exception e)
-      {
-         throw new RuntimeException("Can't load SAX Parser ("
-            + className + "): " + e.getMessage());
-      }
-   }
+		try {
+			Class<?> c = Class.forName(className);
+			parser = (org.xml.sax.Parser) c.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException("Can't load SAX Parser (" + className + "): " + e.getMessage());
+		}
+	}
 
-   /**
-    * Set the locale for errors and warnings.
-    *
-    * @param locale The locale to use.
-    * @throws SAXException If the <var>locale</var> is not supported.
-    */
-   public void setLocale(Locale locale)
-      throws SAXException
-   {
-      parser.setLocale(locale);
-   }
+	/**
+	 * Set the locale for errors and warnings.
+	 *
+	 * @param locale The locale to use.
+	 * @throws SAXException If the <var>locale</var> is not supported.
+	 */
+	public void setLocale(Locale locale) throws SAXException {
+		parser.setLocale(locale);
+	}
 
-   /**
-    * Register a custom entity resolver.
-    *
-    * If one is not registered, the parser will resolve system identifiers in an
-    * implementation dependent way.
-    *
-    * @param resolver The entity resolver to use.
-    */
-   public void setEntityResolver(EntityResolver resolver)
-   {
-      parser.setEntityResolver(resolver);
-   }
+	/**
+	 * Register a custom entity resolver.
+	 *
+	 * If one is not registered, the parser will resolve system identifiers in an
+	 * implementation dependent way.
+	 *
+	 * @param resolver The entity resolver to use.
+	 */
+	public void setEntityResolver(EntityResolver resolver) {
+		parser.setEntityResolver(resolver);
+	}
 
-   /**
-    * Register a DTD event handler.
-    *
-    * If one is not registered, all DTD events reported by the parser will be ignored.
-    *
-    * @param handler The DTD handler to use.
-    */
-   public void setDTDHandler(DTDHandler handler)
-   {
-      parser.setDTDHandler(handler);
-   }
+	/**
+	 * Register a DTD event handler.
+	 *
+	 * If one is not registered, all DTD events reported by the parser will be
+	 * ignored.
+	 *
+	 * @param handler The DTD handler to use.
+	 */
+	public void setDTDHandler(DTDHandler handler) {
+		parser.setDTDHandler(handler);
+	}
 
-   /**
-    * Register a document event handler.
-    *
-    * If one is not registered, all document events reported by the parser will be ignored.
-    *
-    * @param handler The document handler to use.
-    */
-   public void setDocumentHandler(DocumentHandler handler)
-   {
-      parser.setDocumentHandler(handler);
-   }
+	/**
+	 * Register a document event handler.
+	 *
+	 * If one is not registered, all document events reported by the parser will be
+	 * ignored.
+	 *
+	 * @param handler The document handler to use.
+	 */
+	public void setDocumentHandler(DocumentHandler handler) {
+		parser.setDocumentHandler(handler);
+	}
 
-   /**
-    * Register an error event handler.
-    *
-    * If one is not registered, all error events except for <code>fatalError</code>
-    * are ignored.  A <code>fatalError</code> thorws a {@link org.xml.sax.SAXException}.
-    *
-    * @param handler The error handler to use.
-    */
-   public void setErrorHandler(ErrorHandler handler)
-   {
-      parser.setErrorHandler(handler);
-   }
+	/**
+	 * Register an error event handler.
+	 *
+	 * If one is not registered, all error events except for <code>fatalError</code>
+	 * are ignored. A <code>fatalError</code> thorws a
+	 * {@link org.xml.sax.SAXException}.
+	 *
+	 * @param handler The error handler to use.
+	 */
+	public void setErrorHandler(ErrorHandler handler) {
+		parser.setErrorHandler(handler);
+	}
 
-   /**
-    * Parse an XML document.
-    *
-    * @param source Source of the document to parse.
-    *
-    * @param inputSource
-    * @throws SAXException Any SAX exception, possibly wrapping another exception.
-    * @throws IOException If an I/O error occurred while reading the document.
-    */
-   public void parse(InputSource inputSource)
-      throws SAXException, IOException
-   {
-      parser.parse(inputSource);
-   }
+	/**
+	 * Parse an XML document.
+	 *
+	 * @param source      Source of the document to parse.
+	 *
+	 * @param inputSource
+	 * @throws SAXException Any SAX exception, possibly wrapping another exception.
+	 * @throws IOException  If an I/O error occurred while reading the document.
+	 */
+	public void parse(InputSource inputSource) throws SAXException, IOException {
+		parser.parse(inputSource);
+	}
 
-   /**
-    * Parse an XML document specified by system identifier or URL.
-    *
-    * @param systemID The system ID or URL of the document to parse.
-    * @throws SAXException Any SAX exception, possibly wrapping another exception.
-    * @throws IOException If an I/O error occurred while reading the document.
-    */
-   public void parse(String systemID)
-      throws SAXException, IOException
-   {
-      parser.parse(systemID);
-   }
+	/**
+	 * Parse an XML document specified by system identifier or URL.
+	 *
+	 * @param systemID The system ID or URL of the document to parse.
+	 * @throws SAXException Any SAX exception, possibly wrapping another exception.
+	 * @throws IOException  If an I/O error occurred while reading the document.
+	 */
+	public void parse(String systemID) throws SAXException, IOException {
+		parser.parse(systemID);
+	}
 }

@@ -31,34 +31,30 @@ package com.dalsemi.onewire.adapter;
 // imports
 import com.dalsemi.onewire.OneWireException;
 
-
 /**
- * This exception is thrown when there is an IO error communicating on
- * on the 1-Wire Network.  For instance, when a network error occurs when
- * calling the putBit(boolean) method.
+ * This exception is thrown when there is an IO error communicating on on the
+ * 1-Wire Network. For instance, when a network error occurs when calling the
+ * putBit(boolean) method.
  *
- * @version    0.00, 28 Aug 2000
- * @author     DS
+ * @version 0.00, 28 Aug 2000
+ * @author DS
  */
-public class OneWireIOException
-   extends OneWireException
-{
+public class OneWireIOException extends OneWireException {
 
-   /**
-    * Constructs a <code>OneWireIOException</code> with no detail message.
-    */
-   public OneWireIOException ()
-   {
-      super();
-   }
+	/**
+	 * Constructs a <code>OneWireIOException</code> with no detail message.
+	 */
+	public OneWireIOException() {
+		super();
+	}
 
-   /**
-    * Constructs a <code>OneWireIOException</code> with the specified detail message.
-    *
-    *  @param  desc   the detail message description
-    */
-   public OneWireIOException (String desc)
-   {
-      super(desc);
-   }
+	/**
+	 * Constructs a <code>OneWireIOException</code> with the specified detail
+	 * message.
+	 *
+	 * @param desc the detail message description
+	 */
+	public OneWireIOException(String desc) {
+		super(desc);
+	}
 }

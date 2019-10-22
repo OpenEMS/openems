@@ -32,21 +32,20 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
 
 /**
  */
-public interface TaggedSensor
-{
+public interface TaggedSensor {
 
-   /**
-    * The readSensor
-    *
-    * @return result of sensor reading
-    *
-    * @throws OneWireIOException on a 1-Wire communication error such as 
-    *         reading an incorrect CRC from a 1-Wire device.  This could be
-    *         caused by a physical interruption in the 1-Wire Network due to 
-    *         shorts or a newly arriving 1-Wire device issuing a 'presence pulse'.
-    * @throws OneWireException on a communication or setup error with the 1-Wire 
-    *         adapter
-    */
-   public String readSensor()      
-       throws OneWireIOException, OneWireException;
+	/**
+	 * The readSensor
+	 *
+	 * @return result of sensor reading
+	 *
+	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
+	 *                            incorrect CRC from a 1-Wire device. This could be
+	 *                            caused by a physical interruption in the 1-Wire
+	 *                            Network due to shorts or a newly arriving 1-Wire
+	 *                            device issuing a 'presence pulse'.
+	 * @throws OneWireException   on a communication or setup error with the 1-Wire
+	 *                            adapter
+	 */
+	public String readSensor() throws OneWireIOException, OneWireException;
 }

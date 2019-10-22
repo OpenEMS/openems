@@ -82,13 +82,6 @@ public class OWPathElement
    //--------
 
    /**
-    * Don't allow without OneWireContainer and channel.
-    */
-   private OWPathElement ()
-   {
-   }
-
-   /**
     * Create a new 1-Wire path element.
     *
     * @param  owcInstance device that is the path element. Must implement

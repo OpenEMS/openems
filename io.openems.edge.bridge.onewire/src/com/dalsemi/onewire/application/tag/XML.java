@@ -57,72 +57,65 @@ package com.dalsemi.onewire.application.tag;
  *
  * @author Kelly
  */
-public class XML
-{
+public class XML {
 
-   /**
-    * Create a SAX parser.
-    *
-    * @return A new SAX parser.
-    */
-   public static SAXParser createSAXParser()
-   {
-      return new SAXParser();
-   }
+	/**
+	 * Create a SAX parser.
+	 *
+	 * @return A new SAX parser.
+	 */
+	public static SAXParser createSAXParser() {
+		return new SAXParser();
+	}
 
-   /**
-    * Escape special characters in the given string.
-    *
-    * This method takes a string and escapes special characters so it can be used as
-    * the text content of an element or as an attribute value.  For example, the
-    * ampersand &amp; becomes &amp;amp;.
-    *
-    * @param source The string to escape
-    * @return The escaped string.
-    */
-   public static String escape(String source)
-   {
+	/**
+	 * Escape special characters in the given string.
+	 *
+	 * This method takes a string and escapes special characters so it can be used
+	 * as the text content of an element or as an attribute value. For example, the
+	 * ampersand &amp; becomes &amp;amp;.
+	 *
+	 * @param source The string to escape
+	 * @return The escaped string.
+	 */
+	public static String escape(String source) {
 
-      // Optimistically start with at least as many characters in the source.
-      StringBuffer rc = new StringBuffer(source.length());
+		// Optimistically start with at least as many characters in the source.
+		StringBuffer rc = new StringBuffer(source.length());
 
-      for (int i = 0; i < source.length(); ++i)
-      {
-         char c = source.charAt(i);
+		for (int i = 0; i < source.length(); ++i) {
+			char c = source.charAt(i);
 
-         // Nonprintable characters print as their corresponding char reference.
-         // Thanks to Apache project for specs for these characters.
-         if ((c < ' ' && c != '\t' && c != '\n' && c != '\r') || c > 0x7E
-                 || c == 0xF7)
-            rc.append("&#").append(Integer.toString(c)).append(';');
-         else
-         {
+			// Nonprintable characters print as their corresponding char reference.
+			// Thanks to Apache project for specs for these characters.
+			if ((c < ' ' && c != '\t' && c != '\n' && c != '\r') || c > 0x7E || c == 0xF7)
+				rc.append("&#").append(Integer.toString(c)).append(';');
+			else {
 
-            // Use an entity reference where appropriate
-            switch (c)
-            {
+				// Use an entity reference where appropriate
+				switch (c) {
 
-               case '"' :
-                  rc.append("&quot;");
-                  break;
-               case '\'' :
-                  rc.append("&apos;");
-                  break;
-               case '<' :
-                  rc.append("&lt;");
-                  break;
-               case '>' :
-                  rc.append("&gt;");
-                  break;
-               case '&' :
-                  rc.append("&amp;");
-                  break;
-               default :
-                  rc.append(c);
-            }
-         }
-      }
+				case '"':
+					rc.append("&quot;");
+					break;
+				case '\'':
+					rc.append("&apos;");
+					break;
+				case '<':
+					rc.append("&lt;");
+					break;
+				case '>':
+					rc.append("&gt;");
+					break;
+				case '&':
+					rc.append("&amp;");
+					break;
+				default:
+					rc.append(c);
+				}
+			}
+		}
 
-      return rc.toString();
-   }
+		return rc.toString();
+	}
 }

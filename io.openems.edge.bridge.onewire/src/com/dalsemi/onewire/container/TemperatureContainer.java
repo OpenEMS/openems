@@ -32,46 +32,52 @@ package com.dalsemi.onewire.container;
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 
-
 /**
  * 1-Wire temperature interface class for basic temperature measuring
- * operations. This class should be implemented for each temperature
- * type 1-Wire device.
+ * operations. This class should be implemented for each temperature type 1-Wire
+ * device.
  *
  *
- * <P>The TemperatureContainer methods can be organized into the following categories: </P>
+ * <P>
+ * The TemperatureContainer methods can be organized into the following
+ * categories:
+ * </P>
  * <UL>
- *   <LI> <B> Information </B>
- *     <UL>
- *       <LI> {@link #getMaxTemperature                  getMaxTemperature}
- *       <LI> {@link #getMinTemperature                  getMinTemperature}
- *       <LI> {@link #getTemperature                     getTemperature}
- *       <LI> {@link #getTemperatureAlarm                getTemperatureAlarm}
- *       <LI> {@link #getTemperatureAlarmResolution      getTemperatureAlarmResolution}
- *       <LI> {@link #getTemperatureResolution           getTemperatureResolution}
- *       <LI> {@link #getTemperatureResolutions          getTemperatureResolutions}
- *       <LI> {@link #hasSelectableTemperatureResolution hasSelectableTemperatureResolution}
- *       <LI> {@link #hasTemperatureAlarms               hasTemperatureAlarms}
- *     </UL>
- *   <LI> <B> Options </B>
- *     <UL>
- *       <LI> {@link #doTemperatureConvert     doTemperatureConvert}
- *       <LI> {@link #setTemperatureAlarm      setTemperatureAlarm}
- *       <LI> {@link #setTemperatureResolution setTemperatureResolution}
- *     </UL>
- *   <LI> <B> I/O </B>
- *     <UL>
- *       <LI> {@link #readDevice  readDevice}
- *       <LI> {@link #writeDevice writeDevice}
- *     </UL>
- *  </UL>
+ * <LI><B> Information </B>
+ * <UL>
+ * <LI>{@link #getMaxTemperature getMaxTemperature}
+ * <LI>{@link #getMinTemperature getMinTemperature}
+ * <LI>{@link #getTemperature getTemperature}
+ * <LI>{@link #getTemperatureAlarm getTemperatureAlarm}
+ * <LI>{@link #getTemperatureAlarmResolution getTemperatureAlarmResolution}
+ * <LI>{@link #getTemperatureResolution getTemperatureResolution}
+ * <LI>{@link #getTemperatureResolutions getTemperatureResolutions}
+ * <LI>{@link #hasSelectableTemperatureResolution
+ * hasSelectableTemperatureResolution}
+ * <LI>{@link #hasTemperatureAlarms hasTemperatureAlarms}
+ * </UL>
+ * <LI><B> Options </B>
+ * <UL>
+ * <LI>{@link #doTemperatureConvert doTemperatureConvert}
+ * <LI>{@link #setTemperatureAlarm setTemperatureAlarm}
+ * <LI>{@link #setTemperatureResolution setTemperatureResolution}
+ * </UL>
+ * <LI><B> I/O </B>
+ * <UL>
+ * <LI>{@link #readDevice readDevice}
+ * <LI>{@link #writeDevice writeDevice}
+ * </UL>
+ * </UL>
  *
- * <H3> Usage </H3>
+ * <H3>Usage</H3>
  *
  * <DL>
- * <DD> <H4> Example 1</H4>
- * Display some features of TemperatureContainer instance '<code>tc</code>':
- * <PRE> <CODE>
+ * <DD>
+ * <H4>Example 1</H4> Display some features of TemperatureContainer instance
+ * '<code>tc</code>':
+ * 
+ * <PRE>
+ *  <CODE>
  *   // Read High and Low Alarms
  *   if (!tc.hasTemperatureAlarms())
  *      System.out.println("Temperature alarms not supported");
@@ -82,11 +88,15 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *      double alarmHigh = tc.getTemperatureAlarm(TemperatureContainer.ALARM_HIGH, state);
  *      System.out.println("Alarm: High = " + alarmHigh + ", Low = " + alarmLow);
  *   }             }
- * </CODE> </PRE>
+ * </CODE>
+ * </PRE>
  *
- * <DD> <H4> Example 2</H4>
- * Gets temperature reading from a TemperatureContainer instance '<code>tc</code>':
- * <PRE> <CODE>
+ * <DD>
+ * <H4>Example 2</H4> Gets temperature reading from a TemperatureContainer
+ * instance '<code>tc</code>':
+ * 
+ * <PRE>
+ *  <CODE>
  *   double lastTemperature;
  *
  *   // get the current resolution and other settings of the device (done only once)
@@ -105,14 +115,16 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *      ...
  *
  *   }while (!done);
- * </CODE> </PRE>
+ * </CODE>
+ * </PRE>
  *
- * The reason the conversion and the reading are separated
- * is that one may want to do a conversion without reading
- * the result.  One could take advantage of the alarm features
- * of a device by setting a threshold and doing conversions
- * until the device is alarming.  For example:
- * <PRE> <CODE>
+ * The reason the conversion and the reading are separated is that one may want
+ * to do a conversion without reading the result. One could take advantage of
+ * the alarm features of a device by setting a threshold and doing conversions
+ * until the device is alarming. For example:
+ * 
+ * <PRE>
+ *  <CODE>
  *   // get the current resolution of the device
  *   byte [] state = tc.readDevice();
  *
@@ -125,11 +137,15 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *   {
  *      tc.doTemperatureConvert(state);
  *   } while (!tc.isAlarming());
- *   </CODE> </PRE>
+ *   </CODE>
+ * </PRE>
  *
- * <DD> <H4> Example 3</H4>
- * Sets the temperature resolution of a TemperatureContainer instance '<code>tc</code>':
- * <PRE> <CODE>
+ * <DD>
+ * <H4>Example 3</H4> Sets the temperature resolution of a TemperatureContainer
+ * instance '<code>tc</code>':
+ * 
+ * <PRE>
+ *  <CODE>
  *   byte[] state = tc.readDevice();
  *   if (tc.hasSelectableTemperatureResolution())
  *   {
@@ -137,7 +153,8 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *      tc.setTemperatureResolution(resolution [resolution.length - 1], state);
  *      tc.writeDevice(state);
  *   }
- * </CODE> </PRE>
+ * </CODE>
+ * </PRE>
  * </DL>
  *
  * @see com.dalsemi.onewire.container.OneWireContainer10
@@ -146,202 +163,186 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * @see com.dalsemi.onewire.container.OneWireContainer28
  * @see com.dalsemi.onewire.container.OneWireContainer30
  *
- * @version    0.00, 27 August 2000
- * @author     DS
+ * @version 0.00, 27 August 2000
+ * @author DS
  */
-public interface TemperatureContainer
-   extends OneWireSensor
-{
+public interface TemperatureContainer extends OneWireSensor {
 
-   //--------
-   //-------- Static Final Variables
-   //--------
+	// --------
+	// -------- Static Final Variables
+	// --------
 
-   /** high temperature alarm */
-   public static final int ALARM_HIGH = 1;
+	/** high temperature alarm */
+	public static final int ALARM_HIGH = 1;
 
-   /** low temperature alarm */
-   public static final int ALARM_LOW = 0;
+	/** low temperature alarm */
+	public static final int ALARM_LOW = 0;
 
-   //--------
-   //-------- Temperature Feature methods
-   //--------
+	// --------
+	// -------- Temperature Feature methods
+	// --------
 
-   /**
-    * Checks to see if this temperature measuring device has high/low
-    * trip alarms.
-    *
-    * @return <code>true</code> if this <code>TemperatureContainer</code>
-    *         has high/low trip alarms
-    *
-    * @see    #getTemperatureAlarm
-    * @see    #setTemperatureAlarm
-    */
-   public boolean hasTemperatureAlarms ();
+	/**
+	 * Checks to see if this temperature measuring device has high/low trip alarms.
+	 *
+	 * @return <code>true</code> if this <code>TemperatureContainer</code> has
+	 *         high/low trip alarms
+	 *
+	 * @see #getTemperatureAlarm
+	 * @see #setTemperatureAlarm
+	 */
+	public boolean hasTemperatureAlarms();
 
-   /**
-    * Checks to see if this device has selectable temperature resolution.
-    *
-    * @return <code>true</code> if this <code>TemperatureContainer</code>
-    *         has selectable temperature resolution
-    *
-    * @see    #getTemperatureResolution
-    * @see    #getTemperatureResolutions
-    * @see    #setTemperatureResolution
-    */
-   public boolean hasSelectableTemperatureResolution ();
+	/**
+	 * Checks to see if this device has selectable temperature resolution.
+	 *
+	 * @return <code>true</code> if this <code>TemperatureContainer</code> has
+	 *         selectable temperature resolution
+	 *
+	 * @see #getTemperatureResolution
+	 * @see #getTemperatureResolutions
+	 * @see #setTemperatureResolution
+	 */
+	public boolean hasSelectableTemperatureResolution();
 
-   /**
-    * Get an array of available temperature resolutions in Celsius.
-    *
-    * @return byte array of available temperature resolutions in Celsius with
-    *         minimum resolution as the first element and maximum resolution
-    *         as the last element.
-    *
-    * @see    #hasSelectableTemperatureResolution
-    * @see    #getTemperatureResolution
-    * @see    #setTemperatureResolution
-    */
-   public double[] getTemperatureResolutions ();
+	/**
+	 * Get an array of available temperature resolutions in Celsius.
+	 *
+	 * @return byte array of available temperature resolutions in Celsius with
+	 *         minimum resolution as the first element and maximum resolution as the
+	 *         last element.
+	 *
+	 * @see #hasSelectableTemperatureResolution
+	 * @see #getTemperatureResolution
+	 * @see #setTemperatureResolution
+	 */
+	public double[] getTemperatureResolutions();
 
-   /**
-    * Gets the temperature alarm resolution in Celsius.
-    *
-    * @return temperature alarm resolution in Celsius for this 1-wire device
-    *
-    * @throws OneWireException         Device does not support temperature
-    *                                  alarms
-    *
-    * @see    #hasTemperatureAlarms
-    * @see    #getTemperatureAlarm
-    * @see    #setTemperatureAlarm
-    *
-    */
-   public double getTemperatureAlarmResolution ()
-      throws OneWireException;
+	/**
+	 * Gets the temperature alarm resolution in Celsius.
+	 *
+	 * @return temperature alarm resolution in Celsius for this 1-wire device
+	 *
+	 * @throws OneWireException Device does not support temperature alarms
+	 *
+	 * @see #hasTemperatureAlarms
+	 * @see #getTemperatureAlarm
+	 * @see #setTemperatureAlarm
+	 *
+	 */
+	public double getTemperatureAlarmResolution() throws OneWireException;
 
-   /**
-    * Gets the maximum temperature in Celsius.
-    *
-    * @return maximum temperature in Celsius for this 1-wire device
-    */
-   public double getMaxTemperature ();
+	/**
+	 * Gets the maximum temperature in Celsius.
+	 *
+	 * @return maximum temperature in Celsius for this 1-wire device
+	 */
+	public double getMaxTemperature();
 
-   /**
-    * Gets the minimum temperature in Celsius.
-    *
-    * @return minimum temperature in Celsius for this 1-wire device
-    */
-   public double getMinTemperature ();
+	/**
+	 * Gets the minimum temperature in Celsius.
+	 *
+	 * @return minimum temperature in Celsius for this 1-wire device
+	 */
+	public double getMinTemperature();
 
-   //--------
-   //-------- Temperature I/O Methods
-   //--------
+	// --------
+	// -------- Temperature I/O Methods
+	// --------
 
-   /**
-    * Performs a temperature conversion.
-    *
-    * @param  state byte array with device state information
-    *
-    * @throws OneWireException         Part could not be found [ fatal ]
-    * @throws OneWireIOException       Data wasn't transferred properly [ recoverable ]
-    */
-   public void doTemperatureConvert (byte[] state)
-      throws OneWireIOException, OneWireException;
+	/**
+	 * Performs a temperature conversion.
+	 *
+	 * @param state byte array with device state information
+	 *
+	 * @throws OneWireException   Part could not be found [ fatal ]
+	 * @throws OneWireIOException Data wasn't transferred properly [ recoverable ]
+	 */
+	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException;
 
-   //--------
-   //-------- Temperature 'get' Methods
-   //--------
+	// --------
+	// -------- Temperature 'get' Methods
+	// --------
 
-   /**
-    * Gets the temperature value in Celsius from the <code>state</code>
-    * data retrieved from the <code>readDevice()</code> method.
-    *
-    * @param  state byte array with device state information
-    *
-    * @return temperature in Celsius from the last
-    *                     <code>doTemperatureConvert()</code>
-    *
-    * @throws OneWireIOException In the case of invalid temperature data
-    */
-   public double getTemperature (byte[] state)
-      throws OneWireIOException;
+	/**
+	 * Gets the temperature value in Celsius from the <code>state</code> data
+	 * retrieved from the <code>readDevice()</code> method.
+	 *
+	 * @param state byte array with device state information
+	 *
+	 * @return temperature in Celsius from the last
+	 *         <code>doTemperatureConvert()</code>
+	 *
+	 * @throws OneWireIOException In the case of invalid temperature data
+	 */
+	public double getTemperature(byte[] state) throws OneWireIOException;
 
-   /**
-    * Gets the specified temperature alarm value in Celsius from the
-    * <code>state</code> data retrieved from the
-    * <code>readDevice()</code> method.
-    *
-    * @param  alarmType valid value: <code>ALARM_HIGH</code> or
-    *                   <code>ALARM_LOW</code>
-    * @param  state     byte array with device state information
-    *
-    * @return temperature alarm trip values in Celsius for this 1-wire device
-    *
-    * @throws OneWireException         Device does not support temperature
-    *                                  alarms
-    *
-    * @see    #hasTemperatureAlarms
-    * @see    #setTemperatureAlarm
-    */
-   public double getTemperatureAlarm (int alarmType, byte[] state)
-      throws OneWireException;
+	/**
+	 * Gets the specified temperature alarm value in Celsius from the
+	 * <code>state</code> data retrieved from the <code>readDevice()</code> method.
+	 *
+	 * @param alarmType valid value: <code>ALARM_HIGH</code> or
+	 *                  <code>ALARM_LOW</code>
+	 * @param state     byte array with device state information
+	 *
+	 * @return temperature alarm trip values in Celsius for this 1-wire device
+	 *
+	 * @throws OneWireException Device does not support temperature alarms
+	 *
+	 * @see #hasTemperatureAlarms
+	 * @see #setTemperatureAlarm
+	 */
+	public double getTemperatureAlarm(int alarmType, byte[] state) throws OneWireException;
 
-   /**
-    * Gets the current temperature resolution in Celsius from the
-    * <code>state</code> data retrieved from the <code>readDevice()</code>
-    * method.
-    *
-    * @param  state byte array with device state information
-    *
-    * @return temperature resolution in Celsius for this 1-wire device
-    *
-    * @see    #hasSelectableTemperatureResolution
-    * @see    #getTemperatureResolutions
-    * @see    #setTemperatureResolution
-    */
-   public double getTemperatureResolution (byte[] state);
+	/**
+	 * Gets the current temperature resolution in Celsius from the
+	 * <code>state</code> data retrieved from the <code>readDevice()</code> method.
+	 *
+	 * @param state byte array with device state information
+	 *
+	 * @return temperature resolution in Celsius for this 1-wire device
+	 *
+	 * @see #hasSelectableTemperatureResolution
+	 * @see #getTemperatureResolutions
+	 * @see #setTemperatureResolution
+	 */
+	public double getTemperatureResolution(byte[] state);
 
-   //--------
-   //-------- Temperature 'set' Methods
-   //--------
+	// --------
+	// -------- Temperature 'set' Methods
+	// --------
 
-   /**
-    * Sets the temperature alarm value in Celsius in the provided
-    * <code>state</code> data.
-    * Use the method <code>writeDevice()</code> with
-    * this data to finalize the change to the device.
-    *
-    * @param  alarmType  valid value: <code>ALARM_HIGH</code> or
-    *                    <code>ALARM_LOW</code>
-    * @param  alarmValue alarm trip value in Celsius
-    * @param  state      byte array with device state information
-    *
-    * @throws OneWireException         Device does not support temperature
-    *                                  alarms
-    *
-    * @see    #hasTemperatureAlarms
-    * @see    #getTemperatureAlarm
-    */
-   public void setTemperatureAlarm (int alarmType, double alarmValue,
-                                    byte[] state)
-      throws OneWireException;
+	/**
+	 * Sets the temperature alarm value in Celsius in the provided
+	 * <code>state</code> data. Use the method <code>writeDevice()</code> with this
+	 * data to finalize the change to the device.
+	 *
+	 * @param alarmType  valid value: <code>ALARM_HIGH</code> or
+	 *                   <code>ALARM_LOW</code>
+	 * @param alarmValue alarm trip value in Celsius
+	 * @param state      byte array with device state information
+	 *
+	 * @throws OneWireException Device does not support temperature alarms
+	 *
+	 * @see #hasTemperatureAlarms
+	 * @see #getTemperatureAlarm
+	 */
+	public void setTemperatureAlarm(int alarmType, double alarmValue, byte[] state) throws OneWireException;
 
-   /**
-    * Sets the current temperature resolution in Celsius in the provided
-    * <code>state</code> data.   Use the method <code>writeDevice()</code>
-    * with this data to finalize the change to the device.
-    *
-    * @param  resolution temperature resolution in Celsius
-    * @param  state      byte array with device state information
-    *
-    * @throws OneWireException         Device does not support selectable
-    *                                  temperature resolution
-    *
-    * @see    #hasSelectableTemperatureResolution
-    * @see    #getTemperatureResolution
-    * @see    #getTemperatureResolutions
-    */
-   public void setTemperatureResolution (double resolution, byte[] state)
-      throws OneWireException;
+	/**
+	 * Sets the current temperature resolution in Celsius in the provided
+	 * <code>state</code> data. Use the method <code>writeDevice()</code> with this
+	 * data to finalize the change to the device.
+	 *
+	 * @param resolution temperature resolution in Celsius
+	 * @param state      byte array with device state information
+	 *
+	 * @throws OneWireException Device does not support selectable temperature
+	 *                          resolution
+	 *
+	 * @see #hasSelectableTemperatureResolution
+	 * @see #getTemperatureResolution
+	 * @see #getTemperatureResolutions
+	 */
+	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException;
 }

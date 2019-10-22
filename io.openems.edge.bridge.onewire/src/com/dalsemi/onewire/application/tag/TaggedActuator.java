@@ -33,39 +33,38 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
 
 /**
  */
-public interface TaggedActuator
-{
+public interface TaggedActuator {
 
-   /**
-    * Get the possible selection states of this actuator
-    *
-    * @return result of sensor reading
-    */
-   public Vector<String> getSelections();
+	/**
+	 * Get the possible selection states of this actuator
+	 *
+	 * @return result of sensor reading
+	 */
+	public Vector<String> getSelections();
 
-   /**
-    * Set the selectionof this actuator
-    *
-    * @throws OneWireIOException on a 1-Wire communication error such as 
-    *         reading an incorrect CRC from a 1-Wire device.  This could be
-    *         caused by a physical interruption in the 1-Wire Network due to 
-    *         shorts or a newly arriving 1-Wire device issuing a 'presence pulse'.
-    * @throws OneWireException on a communication or setup error with the 1-Wire 
-    *         adapter
-    */
-   public void setSelection(String selection)      
-       throws OneWireIOException, OneWireException;
+	/**
+	 * Set the selectionof this actuator
+	 *
+	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
+	 *                            incorrect CRC from a 1-Wire device. This could be
+	 *                            caused by a physical interruption in the 1-Wire
+	 *                            Network due to shorts or a newly arriving 1-Wire
+	 *                            device issuing a 'presence pulse'.
+	 * @throws OneWireException   on a communication or setup error with the 1-Wire
+	 *                            adapter
+	 */
+	public void setSelection(String selection) throws OneWireIOException, OneWireException;
 
-   /**
-    * Initialize the actuator
-    *
-    * @throws OneWireIOException on a 1-Wire communication error such as 
-    *         reading an incorrect CRC from a 1-Wire device.  This could be
-    *         caused by a physical interruption in the 1-Wire Network due to 
-    *         shorts or a newly arriving 1-Wire device issuing a 'presence pulse'.
-    * @throws OneWireException on a communication or setup error with the 1-Wire 
-    *         adapter
-    */
-   public void initActuator()
-       throws OneWireIOException, OneWireException;
+	/**
+	 * Initialize the actuator
+	 *
+	 * @throws OneWireIOException on a 1-Wire communication error such as reading an
+	 *                            incorrect CRC from a 1-Wire device. This could be
+	 *                            caused by a physical interruption in the 1-Wire
+	 *                            Network due to shorts or a newly arriving 1-Wire
+	 *                            device issuing a 'presence pulse'.
+	 * @throws OneWireException   on a communication or setup error with the 1-Wire
+	 *                            adapter
+	 */
+	public void initActuator() throws OneWireIOException, OneWireException;
 }

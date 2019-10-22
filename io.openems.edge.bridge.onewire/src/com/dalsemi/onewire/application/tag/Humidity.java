@@ -32,72 +32,63 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.container.*;
 import com.dalsemi.onewire.OneWireException;
 
-
 /**
- * This class provides a default object for the Humidity type 
- * of a tagged 1-Wire device.  
+ * This class provides a default object for the Humidity type of a tagged 1-Wire
+ * device.
  */
-public class Humidity
-   extends    TaggedDevice
-   implements TaggedSensor
-{
+public class Humidity extends TaggedDevice implements TaggedSensor {
 
-   /**
-    * Creates an object for the device.
-    */
-   public Humidity()
-   {
-      super();
-   }
+	/**
+	 * Creates an object for the device.
+	 */
+	public Humidity() {
+		super();
+	}
 
-   /**
-    * Creates an object for the device with the supplied address and device type connected
-    * to the supplied port adapter.
-    * @param adapter The adapter serving the sensor.
-    * @param netAddress The 1-Wire network address of the sensor.
-    */
-   public Humidity(DSPortAdapter adapter, String netAddress)
-   {
-      super(adapter, netAddress);
-   }
+	/**
+	 * Creates an object for the device with the supplied address and device type
+	 * connected to the supplied port adapter.
+	 * 
+	 * @param adapter    The adapter serving the sensor.
+	 * @param netAddress The 1-Wire network address of the sensor.
+	 */
+	public Humidity(DSPortAdapter adapter, String netAddress) {
+		super(adapter, netAddress);
+	}
 
-   /**
-    * The readSensor method returns a relative humidity reading
-    * in %RH 
-    *
-    * @param--none.
-    *
-    * @return String humidity in %RH
-    */
-   public String readSensor()
-      throws OneWireException
-   {
-      HumidityContainer hc = (HumidityContainer) DeviceContainer;
+	/**
+	 * The readSensor method returns a relative humidity reading in %RH
+	 *
+	 * @param--none.
+	 *
+	 *               @return String humidity in %RH
+	 */
+	public String readSensor() throws OneWireException {
+		HumidityContainer hc = (HumidityContainer) DeviceContainer;
 
-      // read the device first to get the state
-      byte[] state = hc.readDevice();
+		// read the device first to get the state
+		byte[] state = hc.readDevice();
 
-      // convert humidity
-      hc.doHumidityConvert(state);
+		// convert humidity
+		hc.doHumidityConvert(state);
 
-      // construct the return string
-      String return_string = (int) roundDouble(hc.getHumidity(state)) + "%";
-      if (hc.isRelative())
-         return_string += "RH";
+		// construct the return string
+		String return_string = (int) roundDouble(hc.getHumidity(state)) + "%";
+		if (hc.isRelative())
+			return_string += "RH";
 
-      return return_string;
-   }
-   /**
-    * The roundDouble method returns a double rounded to the 
-    * nearest digit in the "ones" position. 
-    *
-    * @param--double
-    *
-    * @return double rounded to the nearest digit in the "ones"
-    * position.
-    */
-   private double roundDouble (double d)
-   {
-      return (double)((int)(d+((d > 0)? 0.5 : -0.5)));
-   }
+		return return_string;
+	}
+
+	/**
+	 * The roundDouble method returns a double rounded to the nearest digit in the
+	 * "ones" position.
+	 *
+	 * @param--double
+	 *
+	 * @return double rounded to the nearest digit in the "ones" position.
+	 */
+	private double roundDouble(double d) {
+		return (double) ((int) (d + ((d > 0) ? 0.5 : -0.5)));
+	}
 }

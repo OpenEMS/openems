@@ -27,32 +27,31 @@
 package com.dalsemi.onewire.application.monitor;
 
 /**
- * Interface for classes which will listen to device monitor
- * events such as arrivals, departures, and network exceptions.
+ * Interface for classes which will listen to device monitor events such as
+ * arrivals, departures, and network exceptions.
  *
  * @author SH
  * @version 1.00
  */
-public interface DeviceMonitorEventListener
-{
-   /**
-    * Arrival event
-    *
-    * @param dme arrival event
-    */
-   public void deviceArrival (DeviceMonitorEvent dme);
+public interface DeviceMonitorEventListener {
+	/**
+	 * Arrival event
+	 *
+	 * @param dme arrival event
+	 */
+	public void deviceArrival(DeviceMonitorEvent dme);
 
-   /**
-    * Depart event
-    *
-    * @param dme departure event
-    */
-   public void deviceDeparture (DeviceMonitorEvent dme);
+	/**
+	 * Depart event
+	 *
+	 * @param dme departure event
+	 */
+	public void deviceDeparture(DeviceMonitorEvent dme);
 
-   /**
-    * Exception event
-    *
-    * @param dme an exception generated during search.
-    */
-   public void networkException (DeviceMonitorException dme);
+	/**
+	 * Exception event
+	 *
+	 * @param dme an exception generated during search.
+	 */
+	public void networkException(DeviceMonitorException dme);
 }
