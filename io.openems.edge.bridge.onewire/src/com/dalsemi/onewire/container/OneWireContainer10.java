@@ -29,9 +29,11 @@
 package com.dalsemi.onewire.container;
 
 // imports
-import com.dalsemi.onewire.*;
-import com.dalsemi.onewire.utils.*;
-import com.dalsemi.onewire.adapter.*;
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.utils.CRC8;
+import com.dalsemi.onewire.utils.Convert;
 
 /**
  * <P>
@@ -77,6 +79,7 @@ import com.dalsemi.onewire.adapter.*;
  * @version 1.00, 1 Sep 2000
  * @author DS,JK Converted to use TemperatureContainer interface 9-1-2000 KLA
  */
+@SuppressWarnings({ "unused" })
 public class OneWireContainer10 extends OneWireContainer implements TemperatureContainer {
 	private boolean normalResolution = true;
 

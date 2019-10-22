@@ -28,6 +28,7 @@
 package com.dalsemi.onewire.application.tag;
 
 import java.util.Vector;
+
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 

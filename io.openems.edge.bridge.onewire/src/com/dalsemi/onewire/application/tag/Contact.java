@@ -28,8 +28,8 @@
 
 package com.dalsemi.onewire.application.tag;
 
-import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
 
 /**
  * This class provides a default object for the Contact type of a tagged 1-Wire

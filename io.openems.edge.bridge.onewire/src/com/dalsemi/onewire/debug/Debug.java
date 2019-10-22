@@ -27,9 +27,10 @@
  */
 package com.dalsemi.onewire.debug;
 
+import java.io.PrintStream;
+
 import com.dalsemi.onewire.OneWireAccessProvider;
 import com.dalsemi.onewire.utils.Convert;
-import java.io.PrintStream;
 
 /**
  * <p>

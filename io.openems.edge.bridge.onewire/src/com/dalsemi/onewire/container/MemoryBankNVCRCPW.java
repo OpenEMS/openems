@@ -41,6 +41,7 @@ import com.dalsemi.onewire.utils.CRC16;
  * @version 1.00, 11 Feb 2002
  * @author SH
  */
+@SuppressWarnings({ "unused" })
 public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	/**
 	 * Read Memory (with CRC and Password) Command

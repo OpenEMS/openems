@@ -30,11 +30,12 @@ package com.dalsemi.onewire.adapter;
 
 // imports
 import java.util.Enumeration;
-import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.utils.*;
-import com.dalsemi.onewire.OneWireException;
-import java.util.Vector;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.utils.Address;
 
 /**
  * The abstract base class for all 1-Wire port adapter objects. An

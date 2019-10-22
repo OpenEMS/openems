@@ -28,14 +28,14 @@
 
 package com.dalsemi.onewire.utils;
 
-import java.util.Vector;
 import java.util.Enumeration;
+import java.util.Vector;
+
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.utils.OWPathElement;
-import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.container.SwitchContainer;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.container.SwitchContainer;
 
 /**
  * 1-Wire&reg; Network path. Large 1-Wire networks can be sub-divided into

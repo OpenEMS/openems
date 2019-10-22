@@ -27,12 +27,21 @@
 
 package com.dalsemi.onewire.adapter;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Random;
 
-import com.dalsemi.onewire.*;
-import com.dalsemi.onewire.utils.*;
+import com.dalsemi.onewire.OneWireAccessProvider;
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.utils.CRC16;
+import com.dalsemi.onewire.utils.Convert;
 
 /**
  * <P>

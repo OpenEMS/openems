@@ -26,13 +26,13 @@
  */
 package com.dalsemi.onewire.application.monitor;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.Enumeration;
 
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.utils.Address;
 import com.dalsemi.onewire.utils.OWPath;
@@ -82,6 +82,7 @@ import com.dalsemi.onewire.utils.OWPath;
  * @author SH
  * @version 1.00
  */
+@SuppressWarnings({ "unchecked" })
 public abstract class AbstractDeviceMonitor implements Runnable {
 	// --------
 	// -------- Constants

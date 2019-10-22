@@ -26,10 +26,20 @@
  */
 package com.dalsemi.onewire.adapter;
 
-import java.io.*;
-import java.util.*;
-import gnu.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
 //import javax.comm.*;
+import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
+import gnu.io.UnsupportedCommOperationException;
 
 /**
  * <p>
@@ -41,6 +51,7 @@ import gnu.io.*;
  * @author DS
  *
  */
+@SuppressWarnings({ "unused", "unchecked" })
 public class SerialService implements SerialPortEventListener {
 	private static final boolean DEBUG = false;
 	/** The serial port name of this object (e.g. COM1, /dev/ttyS0) */

@@ -39,6 +39,7 @@ import com.dalsemi.onewire.OneWireException;
  * @version 0.00, 28 Aug 2000
  * @author DS
  */
+@SuppressWarnings({ "serial" })
 public class OneWireIOException extends OneWireException {
 
 	/**

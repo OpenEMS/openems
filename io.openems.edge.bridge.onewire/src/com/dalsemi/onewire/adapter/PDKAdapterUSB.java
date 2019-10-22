@@ -33,8 +33,8 @@ package com.dalsemi.onewire.adapter;
 import java.util.Enumeration;
 
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.adapter.OneWireIOException;
 
+@SuppressWarnings({ "unused" })
 public class PDKAdapterUSB extends DSPortAdapter {
 
 	private int port_handle = -1;

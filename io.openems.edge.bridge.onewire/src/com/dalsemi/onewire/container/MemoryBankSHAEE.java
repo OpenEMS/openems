@@ -29,11 +29,12 @@ package com.dalsemi.onewire.container;
 
 // imports
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
-import com.dalsemi.onewire.utils.*;
-import com.dalsemi.onewire.adapter.*;
 import com.dalsemi.onewire.debug.Debug;
+import com.dalsemi.onewire.utils.CRC16;
 import com.dalsemi.onewire.utils.Convert;
+import com.dalsemi.onewire.utils.IOHelper;
 
 /**
  * Memory bank class for the DS1961S/DS2432.

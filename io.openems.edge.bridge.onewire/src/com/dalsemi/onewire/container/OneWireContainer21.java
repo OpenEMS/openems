@@ -28,10 +28,15 @@
 
 package com.dalsemi.onewire.container;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.utils.Convert;
-import com.dalsemi.onewire.*;
-import com.dalsemi.onewire.adapter.*;
-import java.util.*;
 
 /**
  * <P>
@@ -294,6 +299,7 @@ import java.util.*;
  * @author COlmstea, KLA
  *
  */
+@SuppressWarnings({ "unused" })
 public class OneWireContainer21 extends OneWireContainer implements TemperatureContainer, ClockContainer {
 	private static final byte FAMILY_CODE = (byte) 0x21;
 	private boolean doSpeedEnable = true;

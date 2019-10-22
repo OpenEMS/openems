@@ -29,12 +29,12 @@ package com.dalsemi.onewire.application.monitor;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.dalsemi.onewire.utils.OWPath;
-import com.dalsemi.onewire.utils.*;
-import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.utils.Address;
+import com.dalsemi.onewire.utils.OWPath;
 
 /**
  * <P>

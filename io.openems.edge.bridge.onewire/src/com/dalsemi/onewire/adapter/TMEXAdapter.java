@@ -28,12 +28,12 @@
 
 package com.dalsemi.onewire.adapter;
 
+import java.io.File;
 // imports
 import java.util.Enumeration;
-import com.dalsemi.onewire.OneWireException;
 import java.util.Vector;
-import java.lang.ClassNotFoundException;
-import java.io.File;
+
+import com.dalsemi.onewire.OneWireException;
 
 /**
  * The DSPortAdapter class for all TMEX native adapters.

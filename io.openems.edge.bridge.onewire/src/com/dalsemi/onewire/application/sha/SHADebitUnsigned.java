@@ -27,9 +27,11 @@
 
 package com.dalsemi.onewire.application.sha;
 
-import com.dalsemi.onewire.*;
-import com.dalsemi.onewire.adapter.*;
-import com.dalsemi.onewire.utils.*;
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.utils.CRC16;
+import com.dalsemi.onewire.utils.Convert;
+import com.dalsemi.onewire.utils.IOHelper;
 
 /**
  * <P>
@@ -169,6 +171,7 @@ import com.dalsemi.onewire.utils.*;
  * @version 1.00
  * @author SKH
  */
+@SuppressWarnings({ "unused" })
 public class SHADebitUnsigned extends SHATransaction {
 	/** Used for fast FF copy */
 	private static final byte[] ffBlock = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,

@@ -28,12 +28,14 @@
 
 package com.dalsemi.onewire.container;
 
-// imports
-import com.dalsemi.onewire.utils.Address;
 import java.util.Enumeration;
 import java.util.Vector;
-import com.dalsemi.onewire.adapter.*;
+
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+// imports
+import com.dalsemi.onewire.utils.Address;
 
 /**
  * A <code>OneWireContainer</code> encapsulates the <code>DSPortAdapter</code>,

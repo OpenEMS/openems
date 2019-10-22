@@ -28,10 +28,11 @@
 
 package com.dalsemi.onewire.application.tag;
 
-import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.container.*;
-import com.dalsemi.onewire.utils.OWPath;
 import java.util.Vector;
+
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.utils.OWPath;
 
 /**
  * This class provides a default object for a tagged 1-Wire device.

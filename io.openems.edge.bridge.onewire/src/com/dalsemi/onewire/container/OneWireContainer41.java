@@ -28,12 +28,19 @@
 package com.dalsemi.onewire.container;
 
 // imports
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.GregorianCalendar;
+import java.util.Vector;
 
-import com.dalsemi.onewire.utils.*;
-import com.dalsemi.onewire.*;
-import com.dalsemi.onewire.adapter.*;
-import com.dalsemi.onewire.debug.*;
+import com.dalsemi.onewire.OneWireAccessProvider;
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.debug.Debug;
+import com.dalsemi.onewire.utils.CRC16;
+import com.dalsemi.onewire.utils.Convert;
 
 /**
  * <P>
@@ -240,6 +247,7 @@ import com.dalsemi.onewire.debug.*;
  * @author Maxim Integrated Products
  *
  */
+@SuppressWarnings({ "unused" })
 public class OneWireContainer41 extends OneWireContainer implements PasswordContainer, MissionContainer, ClockContainer,
 		TemperatureContainer, ADContainer, HumidityContainer {
 	// enables/disables debugging

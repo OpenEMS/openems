@@ -28,22 +28,24 @@
 
 package com.dalsemi.onewire.application.tag;
 
+import java.util.EmptyStackException;
+import java.util.Stack;
+import java.util.Vector;
+
+import org.xml.sax.AttributeList;
 import org.xml.sax.DocumentHandler;
 import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.AttributeList;
+import org.xml.sax.SAXParseException;
+
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.utils.OWPath;
-import com.dalsemi.onewire.application.tag.TaggedDevice;
-import java.util.Vector;
-import java.util.Stack;
-import java.util.EmptyStackException;
 
 /**
  * SAX parser handler that handles XML 1-wire tags.
  */
+@SuppressWarnings({ "deprecation", "unchecked" })
 class TAGHandler implements ErrorHandler, DocumentHandler {
 
 	/**

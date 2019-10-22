@@ -38,6 +38,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * @author SH
  * @version 1.00
  */
+@SuppressWarnings({ "serial" })
 public class DeviceMonitorException extends Exception {
 	/** The monitor which generated the event */
 	protected AbstractDeviceMonitor deviceMonitor = null;

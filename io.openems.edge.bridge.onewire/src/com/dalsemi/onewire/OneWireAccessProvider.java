@@ -29,12 +29,16 @@
 // OneWireAccessProvider.java
 package com.dalsemi.onewire;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Enumeration;
+import java.util.Properties;
 // imports
 import java.util.Vector;
-import java.util.Enumeration;
-import com.dalsemi.onewire.adapter.*;
-import java.io.*;
-import java.util.Properties;
+
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.adapter.TMEXAdapter;
 
 /**
  * The OneWireAccessProvider class manages the Maxim adapter class derivatives
@@ -124,6 +128,7 @@ import java.util.Properties;
  * @version 0.00, 30 August 2000
  * @author DS
  */
+@SuppressWarnings({ "unused" })
 public class OneWireAccessProvider {
 
 	/**

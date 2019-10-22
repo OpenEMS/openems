@@ -28,10 +28,11 @@
 
 package com.dalsemi.onewire.application.file;
 
-import java.io.IOException;
 import java.io.FileNotFoundException;
-import com.dalsemi.onewire.container.OneWireContainer;
+import java.io.IOException;
+
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.container.PagedMemoryBank;
 
 /**

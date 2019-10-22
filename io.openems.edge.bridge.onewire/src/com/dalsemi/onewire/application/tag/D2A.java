@@ -28,10 +28,11 @@
 
 package com.dalsemi.onewire.application.tag;
 
-import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.container.*;
-import com.dalsemi.onewire.OneWireException;
 import java.util.Vector;
+
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.container.PotentiometerContainer;
 
 /**
  * This class provides a default object for the D2A type of a tagged 1-Wire

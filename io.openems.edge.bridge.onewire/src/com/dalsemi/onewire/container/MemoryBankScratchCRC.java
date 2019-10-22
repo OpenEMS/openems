@@ -32,7 +32,6 @@ package com.dalsemi.onewire.container;
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.utils.CRC16;
-import com.dalsemi.onewire.container.OneWireContainer;
 
 /**
  * Memory bank class for the Scratchpad section of NVRAM iButtons and 1-Wire

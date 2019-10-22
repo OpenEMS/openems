@@ -30,10 +30,9 @@ package com.dalsemi.onewire.container;
 
 // imports
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.container.OneWireContainer42;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
-import com.dalsemi.onewire.adapter.*;
-import com.dalsemi.onewire.utils.*;
+import com.dalsemi.onewire.utils.CRC8;
 
 /**
  * Memory bank class for the DS28EA00.
@@ -41,6 +40,7 @@ import com.dalsemi.onewire.utils.*;
  * @version 0.00, 15 October 2006
  * @author
  */
+@SuppressWarnings({ "unused" })
 class MemoryBankScratchTemp implements MemoryBank {
 	// --------
 	// --------Static Final Variables

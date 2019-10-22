@@ -27,10 +27,10 @@
 
 package com.dalsemi.onewire.adapter;
 
+import java.io.IOException;
 // imports
-import java.util.*;
-import java.io.*;
-import com.dalsemi.onewire.adapter.OneWireIOException;
+import java.util.Enumeration;
+
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.utils.CRC8;
 
@@ -167,6 +167,7 @@ import com.dalsemi.onewire.utils.CRC8;
  *
  *
  */
+@SuppressWarnings({ "unused" })
 public class LSerialAdapter extends DSPortAdapter {
 
 	// --------

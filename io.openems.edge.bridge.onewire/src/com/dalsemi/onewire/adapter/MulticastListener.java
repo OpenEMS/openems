@@ -26,8 +26,11 @@
  */
 package com.dalsemi.onewire.adapter;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 
 /**
  * Generic Mulitcast broadcast listener. Listens for a specific message and, in

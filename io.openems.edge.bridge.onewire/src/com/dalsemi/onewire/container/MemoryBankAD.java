@@ -30,9 +30,8 @@ package com.dalsemi.onewire.container;
 
 // imports
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.adapter.*;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.utils.CRC16;
-import com.dalsemi.onewire.container.OneWireContainer;
 
 /**
  * Memory bank class for the DS2450.

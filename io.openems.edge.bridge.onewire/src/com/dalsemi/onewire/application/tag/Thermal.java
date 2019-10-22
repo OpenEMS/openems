@@ -28,9 +28,9 @@
 
 package com.dalsemi.onewire.application.tag;
 
-import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.container.*;
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.container.TemperatureContainer;
 
 /**
  * This class provides a default object for the Thermal type of a tagged 1-Wire

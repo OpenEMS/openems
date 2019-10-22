@@ -28,10 +28,10 @@
 
 package com.dalsemi.onewire.container;
 
+import com.dalsemi.onewire.OneWireException;
 // imports
 import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.adapter.*;
-import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 
 /**
  * <P>

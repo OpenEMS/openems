@@ -27,17 +27,18 @@
 
 package com.dalsemi.onewire.application.sha;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.application.file.OWFileInputStream;
+import com.dalsemi.onewire.application.file.OWFileOutputStream;
 import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.container.OneWireContainer18;
 import com.dalsemi.onewire.utils.Address;
 import com.dalsemi.onewire.utils.IOHelper;
 import com.dalsemi.onewire.utils.SHA;
-import com.dalsemi.onewire.application.file.OWFileOutputStream;
-import com.dalsemi.onewire.application.file.OWFileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
 
 /**
  * <P>

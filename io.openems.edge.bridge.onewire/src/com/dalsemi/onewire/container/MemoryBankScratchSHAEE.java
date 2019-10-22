@@ -29,14 +29,12 @@ package com.dalsemi.onewire.container;
 
 // imports
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.adapter.OneWireIOException;
-import com.dalsemi.onewire.utils.CRC16;
-import com.dalsemi.onewire.utils.SHA;
-import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
-
+import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.debug.Debug;
+import com.dalsemi.onewire.utils.CRC16;
 import com.dalsemi.onewire.utils.Convert;
+import com.dalsemi.onewire.utils.SHA;
 
 /**
  * Memory bank class for the Scratchpad section of SHA EEPROM iButtons and
@@ -45,6 +43,7 @@ import com.dalsemi.onewire.utils.Convert;
  * @version 1.00, 11 Aug 2002
  * @author SH
  */
+@SuppressWarnings({ "unused" })
 public class MemoryBankScratchSHAEE extends MemoryBankScratchEx {
 	/** turn on extra debugging output */
 	private static final boolean DEBUG = false;

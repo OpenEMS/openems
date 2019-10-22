@@ -28,10 +28,11 @@
 
 package com.dalsemi.onewire.container;
 
+import java.util.Enumeration;
+import java.util.Vector;
+
 // imports
 import com.dalsemi.onewire.adapter.DSPortAdapter;
-import java.util.Vector;
-import java.util.Enumeration;
 
 /**
  * <P>

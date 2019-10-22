@@ -28,7 +28,7 @@
 
 package com.dalsemi.onewire.container;
 
-import com.dalsemi.onewire.adapter.*;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
 
 //----------------------------------------------------------------------------
 

@@ -28,14 +28,12 @@
 
 package com.dalsemi.onewire.adapter;
 
+import java.util.Enumeration;
 // imports
 import java.util.Vector;
-import java.util.Enumeration;
-import com.dalsemi.onewire.adapter.UAdapterState;
-import com.dalsemi.onewire.adapter.RawSendPacket;
-import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.utils.Address;
+
 import com.dalsemi.onewire.OneWireAccessProvider;
+import com.dalsemi.onewire.utils.Address;
 
 /**
  * UPacketBuilder contains the methods to build a communication packet to the

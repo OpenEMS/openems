@@ -27,12 +27,10 @@
 
 package com.dalsemi.onewire.container;
 
+import com.dalsemi.onewire.OneWireException;
 // imports
 import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.adapter.*;
-import com.dalsemi.onewire.OneWireException;
-import java.util.Vector;
-import java.util.Enumeration;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 
 /**
  * <P>
@@ -62,6 +60,7 @@ import java.util.Enumeration;
  * @version 1.00, 01 Jun 2002
  * @author JPE
  */
+@SuppressWarnings({ "unused" })
 public class OneWireContainer3A extends OneWireContainer implements SwitchContainer {
 	// --------
 	// -------- Variables

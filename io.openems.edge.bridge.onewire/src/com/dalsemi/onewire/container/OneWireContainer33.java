@@ -27,14 +27,13 @@
 
 package com.dalsemi.onewire.container;
 
+import java.util.Enumeration;
 // imports
 import java.util.Vector;
-import java.util.Enumeration;
-import com.dalsemi.onewire.adapter.*;
+
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.container.MemoryBankScratchSHAEE;
-import com.dalsemi.onewire.container.MemoryBankSHAEE;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 
 /**
  * <P>
@@ -168,6 +167,7 @@ import com.dalsemi.onewire.container.MemoryBankSHAEE;
  * @version 0.00, 19 Dec 2000
  * @author JPE
  */
+@SuppressWarnings({ "unused" })
 public class OneWireContainer33 extends OneWireContainer {
 	// turns on extra debugging output in all 1-wire containers
 	private static final boolean DEBUG = false;

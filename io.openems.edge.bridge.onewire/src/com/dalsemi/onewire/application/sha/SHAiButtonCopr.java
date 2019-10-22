@@ -27,17 +27,19 @@
 
 package com.dalsemi.onewire.application.sha;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Calendar;
 
-import com.dalsemi.onewire.container.OneWireContainer18;
-import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.utils.IOHelper;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.application.file.OWFile;
-import com.dalsemi.onewire.application.file.OWFileOutputStream;
 import com.dalsemi.onewire.application.file.OWFileInputStream;
 import com.dalsemi.onewire.application.file.OWFileNotFoundException;
+import com.dalsemi.onewire.application.file.OWFileOutputStream;
+import com.dalsemi.onewire.container.OneWireContainer18;
+import com.dalsemi.onewire.utils.IOHelper;
 
 /**
  * <P>

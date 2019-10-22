@@ -41,6 +41,7 @@ import com.dalsemi.onewire.utils.OWPath;
  * @author SH
  * @version 1.00
  */
+@SuppressWarnings({ "serial" })
 public class DeviceMonitorEvent extends EventObject {
 	/** enum for arrival/departure event types */
 	public static final int ARRIVAL = 0, DEPARTURE = 1;

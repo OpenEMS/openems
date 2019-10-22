@@ -28,14 +28,15 @@
 
 package com.dalsemi.onewire.application.tag;
 
-import org.xml.sax.SAXException;
 import java.io.IOException;
-import org.xml.sax.InputSource;
+import java.io.InputStream;
 import java.util.Vector;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.utils.OWPath;
-
-import java.io.InputStream;
 
 /**
  * The tag parser parses tagging information.

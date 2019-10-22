@@ -30,6 +30,7 @@ package com.dalsemi.onewire.application.file;
 /**
  * Represents a failed 1-Wire memory sync operation.
  */
+@SuppressWarnings({ "serial" })
 public class OWSyncFailedException extends java.io.IOException {
 	/**
 	 * Constructs a SyncFailedException with a the given message.

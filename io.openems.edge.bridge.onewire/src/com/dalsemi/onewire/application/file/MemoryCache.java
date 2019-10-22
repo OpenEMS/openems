@@ -28,18 +28,19 @@
 
 package com.dalsemi.onewire.application.file;
 
+import java.util.Enumeration;
 // imports
 import java.util.Vector;
-import java.util.Enumeration;
-import com.dalsemi.onewire.adapter.DSPortAdapter;
+
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
-import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.container.PagedMemoryBank;
 import com.dalsemi.onewire.container.MemoryBank;
 import com.dalsemi.onewire.container.OTPMemoryBank;
-import com.dalsemi.onewire.utils.CRC16;
+import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.container.PagedMemoryBank;
 import com.dalsemi.onewire.utils.Bit;
+import com.dalsemi.onewire.utils.CRC16;
 
 /**
  * Class to provide read/write cache services to a 1-Wire memory device. Writes

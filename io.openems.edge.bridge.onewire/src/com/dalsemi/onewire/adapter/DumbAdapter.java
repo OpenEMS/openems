@@ -30,11 +30,12 @@ package com.dalsemi.onewire.adapter;
 
 // imports
 import java.util.Enumeration;
-import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.utils.*;
-import com.dalsemi.onewire.OneWireException;
-import java.util.Vector;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.utils.Address;
 
 /**
  * <p>
@@ -59,6 +60,7 @@ import java.util.Hashtable;
  * @version 0.00, 16 Mar 2001
  * @author K
  */
+@SuppressWarnings({ "unused" })
 public class DumbAdapter extends DSPortAdapter {
 	// --------
 	// -------- Variables

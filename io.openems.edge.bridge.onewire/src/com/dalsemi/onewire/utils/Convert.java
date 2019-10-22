@@ -34,6 +34,7 @@ package com.dalsemi.onewire.utils;
  * @version 1.00, 28 December 2001
  * @author SH
  */
+@SuppressWarnings({ "serial" })
 public class Convert {
 	/** returns hex character for each digit, 0-15 */
 	private static final char[] lookup_hex = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',

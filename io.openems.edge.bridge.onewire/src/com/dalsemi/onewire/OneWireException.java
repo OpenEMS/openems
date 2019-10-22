@@ -28,15 +28,13 @@
 
 package com.dalsemi.onewire;
 
-// imports
-import java.lang.Exception;
-
 /**
  * This is the general exception thrown by the iButton and 1-Wire operations.
  *
  * @version 0.00, 21 August 2000
  * @author DS
  */
+@SuppressWarnings({ "serial" })
 public class OneWireException extends Exception {
 
 	// --------

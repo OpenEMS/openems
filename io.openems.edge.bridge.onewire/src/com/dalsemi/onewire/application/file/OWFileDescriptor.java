@@ -28,18 +28,19 @@
 
 package com.dalsemi.onewire.application.file;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.io.IOException;
-import java.lang.NumberFormatException;
-import com.dalsemi.onewire.adapter.DSPortAdapter;
+
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.utils.Address;
-import com.dalsemi.onewire.utils.Convert;
-import com.dalsemi.onewire.utils.Bit;
 import com.dalsemi.onewire.container.PagedMemoryBank;
+import com.dalsemi.onewire.utils.Address;
+import com.dalsemi.onewire.utils.Bit;
+import com.dalsemi.onewire.utils.Convert;
 
 /**
  * Instances of the 1-Wire file descriptor class serve as an opaque handle to
@@ -56,6 +57,7 @@ import com.dalsemi.onewire.container.PagedMemoryBank;
  * @see com.dalsemi.onewire.application.file.OWFileInputStream
  * @see com.dalsemi.onewire.application.file.OWFileOutputStream
  */
+@SuppressWarnings({ "unused" })
 public class OWFileDescriptor {
 	// --------
 	// -------- Static Variables

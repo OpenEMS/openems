@@ -27,14 +27,14 @@
 
 package com.dalsemi.onewire.application.sha;
 
-import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.adapter.OneWireIOException;
-import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.application.file.OWFile;
-import com.dalsemi.onewire.utils.Address;
-
 import java.io.IOException;
+
+import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.application.file.OWFile;
+import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.utils.Address;
 
 /**
  * <P>

@@ -30,9 +30,10 @@ package com.dalsemi.onewire.container;
 
 // imports
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.adapter.*;
-import com.dalsemi.onewire.utils.*;
-import com.dalsemi.onewire.container.OneWireContainer;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.utils.CRC16;
+import com.dalsemi.onewire.utils.CRC8;
 
 /**
  * Memory bank class for the EPROM section of iButtons and 1-Wire devices.

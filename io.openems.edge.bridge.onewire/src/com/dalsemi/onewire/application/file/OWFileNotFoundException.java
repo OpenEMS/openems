@@ -37,6 +37,7 @@ package com.dalsemi.onewire.application.file;
  * pathname does not exist on the 1-Wire memory device.
  * </P>
  */
+@SuppressWarnings({ "serial" })
 public class OWFileNotFoundException extends java.io.IOException {
 
 	/**

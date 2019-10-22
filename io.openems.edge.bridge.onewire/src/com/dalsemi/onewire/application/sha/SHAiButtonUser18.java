@@ -27,10 +27,10 @@
 
 package com.dalsemi.onewire.application.sha;
 
-import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.container.OneWireContainer18;
-import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.adapter.DSPortAdapter;
+import com.dalsemi.onewire.adapter.OneWireIOException;
+import com.dalsemi.onewire.container.OneWireContainer18;
 import com.dalsemi.onewire.utils.IOHelper;
 
 /**

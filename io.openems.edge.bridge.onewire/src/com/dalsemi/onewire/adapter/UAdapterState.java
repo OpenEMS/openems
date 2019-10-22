@@ -28,10 +28,6 @@
 
 package com.dalsemi.onewire.adapter;
 
-// imports
-import com.dalsemi.onewire.adapter.UParameterSettings;
-import com.dalsemi.onewire.adapter.OneWireState;
-
 /**
  * UAdapterState contains the communication state of the DS2480 based COM port
  * adapter. //\\//\\ This class is very preliminary and not all functionality is

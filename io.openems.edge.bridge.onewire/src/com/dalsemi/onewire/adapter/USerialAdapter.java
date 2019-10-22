@@ -28,16 +28,15 @@
 
 package com.dalsemi.onewire.adapter;
 
+import java.io.IOException;
 // imports
-import java.util.*;
-import java.io.*;
-import java.lang.Integer;
+import java.util.Enumeration;
+
 import com.dalsemi.onewire.OneWireAccessProvider;
-import com.dalsemi.onewire.container.OneWireContainer;
-import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.OneWireException;
-import com.dalsemi.onewire.utils.CRC8;
+import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.utils.Bit;
+import com.dalsemi.onewire.utils.CRC8;
 
 /**
  * The USerialAdapter class implememts the DSPortAdapter interface for a DS2480
@@ -169,6 +168,7 @@ import com.dalsemi.onewire.utils.Bit;
  * @author DS
  *
  */
+@SuppressWarnings({ "unused" })
 public class USerialAdapter extends DSPortAdapter {
 
 	// --------

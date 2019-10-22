@@ -50,10 +50,17 @@
 // $Id: SAXParser.java,v 1.1.1.1 2001/06/20 18:21:11 seankelly Exp $
 package com.dalsemi.onewire.application.tag;
 
-import com.dalsemi.onewire.OneWireAccessProvider;
 import java.io.IOException;
 import java.util.Locale;
-import org.xml.sax.*;
+
+import org.xml.sax.DTDHandler;
+import org.xml.sax.DocumentHandler;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.dalsemi.onewire.OneWireAccessProvider;
 
 /**
  * <P>
@@ -73,6 +80,7 @@ import org.xml.sax.*;
  *
  * @author Kelly
  */
+@SuppressWarnings({ "deprecation" })
 public class SAXParser implements org.xml.sax.Parser {
 	/** The parser implementation to which we delegate. */
 	private org.xml.sax.Parser parser;
