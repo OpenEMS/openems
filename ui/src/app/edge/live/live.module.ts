@@ -27,6 +27,7 @@ import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
+import { OfflineComponent } from './offline/offline.component';
 
 @NgModule({
   imports: [
@@ -73,6 +74,7 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
     EvcsPopoverComponent,
+    OfflineComponent
   ]
 })
 export class LiveModule { }
