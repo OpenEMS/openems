@@ -62,27 +62,36 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
             return value / 1000; // convert to kW
           }
         });
-        datasets.push({
-          label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
-          data: data
-        });
         if (this.config.components[address['componentId']].factoryId == 'Evcs.Cluster') {
+          datasets.push({
+            label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (Cluster)' : ''),
+            data: data
+          });
           this.colors.push({
-            backgroundColor: 'rgba(102,102,102,0.1)',
-            borderColor: 'rgba(102,102,102,1)',
-          })
+            backgroundColor: 'rgba(0,0,0,0.1)',
+            borderColor: 'rgba(0,0,0,1)',
+          });
         } else {
           switch (index % 2) {
             case 0:
+              datasets.push({
+                label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                data: data
+              });
               this.colors.push({
-                backgroundColor: 'rgba(255,0,0,0.1)',
-                borderColor: 'rgba(255,0,0,1)',
+                backgroundColor: 'rgba(255,165,0,0.1)',
+                borderColor: 'rgba(255,165,0,1)',
               });
               break;
-            case 1: this.colors.push({
-              backgroundColor: 'rgba(0,0,255,0.1)',
-              borderColor: 'rgba(0,0,255,1)',
-            });
+            case 1:
+              datasets.push({
+                label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                data: data
+              });
+              this.colors.push({
+                backgroundColor: 'rgba(255,255,0,0.1)',
+                borderColor: 'rgba(255,255,0,1)',
+              });
               break;
           }
         }
@@ -97,16 +106,14 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
-      this.service.getConfig().then(config => {
-        let channeladdresses = [];
-        // find all EVCS components
-        for (let componentId of config.getComponentIdsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
-          channeladdresses.push(new ChannelAddress(componentId, 'ChargePower'));
-        }
-        resolve(channeladdresses);
-      }).catch(reason => reject(reason));
+      let channeladdresses = [];
+      // find all EVCS components
+      for (let componentId of config.getComponentIdsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
+        channeladdresses.push(new ChannelAddress(componentId, 'ChargePower'));
+      }
+      resolve(channeladdresses);
     });
   }
 

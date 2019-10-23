@@ -37,7 +37,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(() => {
-                this.service.getConfig().then(() => {
+                this.service.getConfig().then((config) => {
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -49,11 +49,12 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                     // convert datasets
                     let datasets = [];
 
-                    if ('_sum/EssSoc' in result.data) {
-                        /*
-                         * State-of-charge
-                         */
-                        let data = result.data['_sum/EssSoc'].map(value => {
+                    // show Component-ID if there is more than one Channel
+                    let showComponentId = Object.keys(result.data).length > 1 ? true : false;
+
+                    Object.keys(result.data).forEach((channel, index) => {
+                        let address = ChannelAddress.fromString(channel);
+                        let data = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
                             } else if (value > 100 || value < 0) {
@@ -61,21 +62,43 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             } else {
                                 return value;
                             }
-                        })
-
-                        datasets.push({
-                            label: this.translate.instant('General.Soc'),
-                            data: data,
-                            hidden: false
                         });
-                        this.colors.push({
-                            backgroundColor: 'rgba(0,223,0,0.05)',
-                            borderColor: 'rgba(0,223,0,1)'
-                        })
-                    };
+                        if (config.components[address['componentId']].factoryId == 'Ess.Cluster') {
+                            datasets.push({
+                                label: this.translate.instant('General.Soc') + (showComponentId ? ' (' + this.translate.instant('General.Total') + ')' : ''),
+                                data: data
+                            })
+                            this.colors.push({
+                                backgroundColor: 'rgba(0,0,0,0.1)',
+                                borderColor: 'rgba(0,0,0,1)',
+                            });
+                        } else {
+                            switch (index % 2) {
+                                case 0:
+                                    datasets.push({
+                                        label: this.translate.instant('General.Soc') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                                        data: data
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(255,165,0,0.1)',
+                                        borderColor: 'rgba(255,165,0,1)',
+                                    });
+                                    break;
+                                case 1:
+                                    datasets.push({
+                                        label: this.translate.instant('General.Soc') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                                        data: data
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(255,255,0,0.1)',
+                                        borderColor: 'rgba(255,255,0,1)',
+                                    });
+                                    break;
+                            }
+                        }
+                    })
                     this.datasets = datasets;
                     this.loading = false;
-
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -95,10 +118,16 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc'),
-            ];
-            resolve(result);
+            let channeladdresses: ChannelAddress[] = [];
+            if (config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 1) {
+                // find all Ess
+                for (let componentid of config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss')) {
+                    channeladdresses.push(new ChannelAddress(componentid, 'Soc'))
+                }
+            } else {
+                channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'))
+            }
+            resolve(channeladdresses);
         })
     }
 

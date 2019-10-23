@@ -21,6 +21,4 @@ export class ProductionModalComponent {
         public service: Service,
         public modalCtrl: ModalController,
     ) { }
-
-    ngOnInit() { }
 }
