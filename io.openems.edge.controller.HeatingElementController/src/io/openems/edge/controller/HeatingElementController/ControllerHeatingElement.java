@@ -95,7 +95,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				.text("Configured Mode")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")),
-		NO_OF_RELAIS_ON(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)),
+		NO_OF_RELAIS_ON(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
+		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)),
 		PHASE1_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
 		PHASE2_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
 		PHASE3_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
@@ -222,6 +223,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.totalPhasePower = this.totalPhaseOnePower + this.totalPhaseThreePower + this.totalPhaseTwoPower;
 		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
 		this.channel(ChannelId.TOTAL_PHASE_POWER).setNextValue(this.totalPhasePower);
+	
+		
 	}
 
 	/**
@@ -248,11 +251,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		LocalDate nextDay = LocalDate.now();
 		if (this.today.equals(nextDay)) {
 			//no change in the day
-			System.out.println("no change in the day");
+			//System.out.println("no change in the day");
 			return changeInDay;
 		}else {
 			// change in the day
-			System.out.println("In change in the day");
+			//System.out.println(" change in the day");
 			changeInDay = true;
 			this.today = nextDay;
 			return changeInDay;
@@ -272,8 +275,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			excessPower = Math.abs(gridActivePower);
 			excessPower += noRelaisSwitchedOn * 2000;
 		}
-		System.out.println("Grid active power :"+ gridActivePower);
-		System.out.println("Excess power : " + excessPower);
+//		System.out.println("Grid active power :"+ gridActivePower);
+//		System.out.println("Excess power : " + excessPower);
 
 		// resetting the variables if there is change in the day.
 		if(checkChangeInDay()) {
@@ -301,11 +304,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			 currentEndtime = LocalTime.parse(this.config.endTime());
 		}
 		
-		System.out.println("local time" + LocalTime.parse(formatter.format(LocalTime.now())));
-		System.out.println("curent endtime : "+ currentEndtime);
+//		System.out.println("local time" + LocalTime.parse(formatter.format(LocalTime.now())));
+//		System.out.println("curent endtime : "+ currentEndtime);
 		
 		// checking the end time, during checking of the endtime, state machine is stopped
-		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime)) {
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) ) {
 			System.out.println("REadched the end time ");
 			if (this.isEndTime) {
 			switch (this.priority) {
@@ -434,7 +437,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			System.out.println("mintime : " + minTime);
 	
 			if (this.totalPhaseTime < minTime) {
-				this.isEndTime = false;
+				this.isEndTime = true;
 				System.out.println("inside if in chkmintime, isEndtime is set to false");
 				long deltaTime = (long) (minTime - this.totalPhaseTime);
 				// Switch-On all the 3 Phases
@@ -444,12 +447,12 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				noRelaisSwitchedOn = 3;
 				
 				// update the endtime
-				currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.SECONDS);
+				currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
 				// update the minTime
 				this.minTime = 0;
 			}else
 			 {
-				this.isEndTime = true;
+				this.isEndTime = false;
 				computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
 				computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
 				computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
@@ -556,14 +559,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		} else {
 			throw new OpenemsException("Wrong phase number");
 		}
-
-//		System.out.println("totalPhaseOneTime : " + totalPhaseOneTime);
-//		System.out.println("totalPhaseOnePower : " + totalPhaseOnePower);
-//		System.out.println("totalPhaseTwoTime : " + totalPhaseTwoTime);
-//		System.out.println("totalPhaseTwoPower : " + totalPhaseTwoPower);
-//		System.out.println("totalPhaseThreeTime : " + totalPhaseThreeTime);
-//		System.out.println("totalPhaseThreePower : " + totalPhaseThreePower);
-
 	}
 
 
