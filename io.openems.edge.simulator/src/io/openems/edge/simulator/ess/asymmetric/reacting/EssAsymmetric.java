@@ -138,11 +138,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		/*
 		 * Calculate Active Power
 		 */
-		int gridActivePower = simulatedGridActivePower/ 10000;
-		
-		System.out.println(gridActivePower);
-		
-		
+		int gridActivePower = simulatedGridActivePower/ 10000;		
 
 	}
 

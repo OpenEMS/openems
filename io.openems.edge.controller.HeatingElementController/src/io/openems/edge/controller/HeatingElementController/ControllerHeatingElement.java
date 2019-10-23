@@ -60,7 +60,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	LocalDate today = LocalDate.now();
 	LocalTime currentEndtime;
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-	boolean isEndTime = true;
+	boolean isEndTime = false;
 	
 	public static final int PHASE_ONE = 1;
 	public static final int PHASE_TWO = 2;
@@ -224,7 +224,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
 		this.channel(ChannelId.TOTAL_PHASE_POWER).setNextValue(this.totalPhasePower);
 	
-		
+		System.out.println(this.isEndTime);
 	}
 
 	/**
@@ -250,12 +250,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		boolean changeInDay = false;
 		LocalDate nextDay = LocalDate.now();
 		if (this.today.equals(nextDay)) {
-			//no change in the day
-			//System.out.println("no change in the day");
 			return changeInDay;
 		}else {
-			// change in the day
-			//System.out.println(" change in the day");
 			changeInDay = true;
 			this.today = nextDay;
 			return changeInDay;
@@ -275,8 +271,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			excessPower = Math.abs(gridActivePower);
 			excessPower += noRelaisSwitchedOn * 2000;
 		}
-//		System.out.println("Grid active power :"+ gridActivePower);
-//		System.out.println("Excess power : " + excessPower);
 
 		// resetting the variables if there is change in the day.
 		if(checkChangeInDay()) {
@@ -303,14 +297,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			 minKwh = this.config.minkwh();
 			 currentEndtime = LocalTime.parse(this.config.endTime());
 		}
+	
 		
-//		System.out.println("local time" + LocalTime.parse(formatter.format(LocalTime.now())));
-//		System.out.println("curent endtime : "+ currentEndtime);
-		
-		// checking the end time, during checking of the endtime, state machine is stopped
-		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) ) {
-			System.out.println("REadched the end time ");
-			if (this.isEndTime) {
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) && !this.isEndTime) {
 			switch (this.priority) {
 			case TIME:
 				this.checkMinTime(excessPower);
@@ -318,11 +307,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			case KILO_WATT_HOUR:
 				this.checkMinKwh(excessPower);
 				break;
-			}}
-			
+			}
 		} else {
 			if (this.isEndTime) {
-
 				boolean stateChanged;
 				do {
 
@@ -370,7 +357,39 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				this.channel(ChannelId.NO_OF_RELAIS_ON).setNextValue(noRelaisSwitchedOn);
 			}
 		}
+	}
+	
+	/**
+	 * Check the total time running of the heating element at the end of ENDTIME
+	 * case 1: if the totalTimePhase is less than the minTime -> force switch-on the
+	 * all three phases for the difference period, and update the totalTimePhase,
+	 * case 2: if the totalTimePhase is equal to and more than minTime -> Do not
+	 * force switch-on
+	 * 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
 
+	private void checkMinTime(long excessPower) throws IllegalArgumentException, OpenemsNamedException {	
+			if (this.totalPhaseTime < minTime) {
+				long deltaTime = (long) (minTime - this.totalPhaseTime);
+				// Switch-On all the 3 Phases
+				computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
+				computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
+				computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
+				noRelaisSwitchedOn = 3;				
+				// update the endtime
+				currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
+				// update the minTime
+				this.minTime = 0;
+			}else
+			 {
+				this.isEndTime = true;
+				computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
+				computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
+				computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
+				noRelaisSwitchedOn = 0;
+			 }			
 	}
 	
 
@@ -386,9 +405,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 
 	private void checkMinKwh(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
-
 		if (this.totalPhasePower < minKwh) {
-			this.isEndTime = false;
 			//double deltaPower = minKwh - totalPhasePower;
 			long deltaTime = (long) (minTime - this.totalPhaseTime);
 			computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
@@ -396,12 +413,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
 			noRelaisSwitchedOn = 3;
 			// update the endtime
-			currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.SECONDS);
+			currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
 			// update the minTime
 			this.minTime = 0;
 			// update the minKwh
 			this.minKwh = 0;
-
 		} else {
 			this.isEndTime = true;
 			computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
@@ -420,47 +436,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		float kiloWattHour = ((float)(time)/3600) * this.powerOfPhase;
 		return kiloWattHour;
 	}
-
-	/**
-	 * Check the total time running of the heating element at the end of ENDTIME
-	 * case 1: if the totalTimePhase is less than the minTime -> force switch-on the
-	 * all three phases for the difference period, and update the totalTimePhase,
-	 * case 2: if the totalTimePhase is equal to and more than minTime -> Do not
-	 * force switch-on
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-
-	private void checkMinTime(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
-			System.out.println("total phase time :" + this.totalPhaseTime);
-			System.out.println("mintime : " + minTime);
-	
-			if (this.totalPhaseTime < minTime) {
-				this.isEndTime = true;
-				System.out.println("inside if in chkmintime, isEndtime is set to false");
-				long deltaTime = (long) (minTime - this.totalPhaseTime);
-				// Switch-On all the 3 Phases
-				computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
-				computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
-				computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
-				noRelaisSwitchedOn = 3;
-				
-				// update the endtime
-				currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
-				// update the minTime
-				this.minTime = 0;
-			}else
-			 {
-				this.isEndTime = false;
-				computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
-				computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
-				computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
-				noRelaisSwitchedOn = 0;
-			 }			
-		
-	}
-
 
 	private void computeTime(boolean isSwitchOn, ChannelAddress outputChannelAddress, int phaseNumber, long excessPower)
 			throws IllegalArgumentException, OpenemsNamedException {
@@ -616,11 +591,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @return whether the state was changed
 	 */
 	private boolean changeState(State nextState) {
-		System.out.println("From " + this.state + " to " + nextState);
+		//System.out.println("From " + this.state + " to " + nextState);
 		if (this.state != nextState) {
 			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
-				System.out.println("Not Awaiting the hysterisis : "
-						+ this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock)));
+				//System.out.println("Not Awaiting the hysterisis : "
+						//+ this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock)));
 				this.state = nextState;
 				this.lastStateChange = LocalDateTime.now(this.clock);
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
