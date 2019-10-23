@@ -202,10 +202,20 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 				setChaMaxA.setNextWriteValue(chaMaxA * 10);
 			}
 		}
-		{
-			IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
-			setDisMaxA.setNextWriteValue(disMaxA * 10);
+		
+		if (disMaxA > 90){
+			{
+				IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
+				setDisMaxA.setNextWriteValue(900);
+			}
+		}else{
+			{
+				IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
+				setDisMaxA.setNextWriteValue(disMaxA * 10);
+			}
 		}
+		
+		
 		{
 			IntegerWriteChannel setDisMinV = this.channel(SinexcelChannelId.DISCHARGE_MIN_V);
 			setDisMinV.setNextWriteValue(disMinV * 10);
