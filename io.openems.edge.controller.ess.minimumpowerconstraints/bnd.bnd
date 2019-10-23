@@ -1,13 +1,18 @@
-Bundle-Name: OpenEMS Edge Controller Symmetric self-consumption-optimization
+Bundle-Name: OpenEMS Edge Controller Ess Minimum Power-Constraints
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version:	1.0.0.${tstamp}
 
 Export-Package:  \
-	io.openems.edge.controller.api;-provide=true
+	io.openems.edge.controller.ess.minimumpowerconstraints.api;-provide=true
 
 Private-Package:  \
-	io.openems.edge.controller.symmetric.selfconsumptionoptimization
+	io.openems.edge.controller.ess.minimumpowerconstraints,\
+	io.openems.edge.controller.ess.acminimumpowerconstraints,\
+	io.openems.edge.controller.ess.dcminimumpowerconstraints
+	
+
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
@@ -22,4 +27,3 @@ Private-Package:  \
 
 javac.source: 1.8
 javac.target: 1.8
-

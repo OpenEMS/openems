@@ -76,7 +76,6 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 				this.logError(this.log, e.getMessage());
 				this.channel(PredictorChannelId.UNABLE_TO_PREDICT).setNextValue(true);
 			}
-
 		}
 	}
 

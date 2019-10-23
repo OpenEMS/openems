@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.selfconsumptionoptimization;
+package io.openems.edge.controller.ess.minimumpowerconstraints;
 
 import io.openems.common.types.OptionsEnum;
 

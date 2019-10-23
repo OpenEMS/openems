@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>io.openems.edge.controller.symmetric.selfconsumptionoptimization</name>
+	<name>io.openems.edge.controller.ess.minimumpowerconstraints</name>
 	<comment></comment>
 	<projects>
 	</projects>
