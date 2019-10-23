@@ -158,7 +158,7 @@ export class StorageSectionComponent extends AbstractSection {
             return "storage_70_monitor.png"
         } else if (this.socValue < 81) {
             return "storage_80_monitor.png"
-        } else if (this.socValue < 88) {
+        } else if (this.socValue < 91) {
             return "storage_90_monitor.png"
         } else if (this.socValue < 101) {
             return "storage_100_monitor.png"
