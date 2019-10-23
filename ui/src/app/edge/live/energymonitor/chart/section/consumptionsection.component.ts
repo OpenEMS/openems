@@ -96,8 +96,7 @@ export class ConsumptionSectionComponent extends AbstractSection {
         return this.unitpipe.transform(value, 'kW')
     }
 
-    protected initEnergyFlow(radius: number, animationSpeed: number): EnergyFlow {
-        this.animationSpeed = animationSpeed;
+    protected initEnergyFlow(radius: number): EnergyFlow {
         return new EnergyFlow(radius, { x1: "0%", y1: "50%", x2: "100%", y2: "50%" });
     }
 

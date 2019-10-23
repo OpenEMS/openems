@@ -155,8 +155,7 @@ export class GridSectionComponent extends AbstractSection {
         return this.unitpipe.transform(value, 'kW');
     }
 
-    protected initEnergyFlow(radius: number, animationSpeed: number): EnergyFlow {
-        this.animationSpeed = animationSpeed;
+    protected initEnergyFlow(radius: number): EnergyFlow {
         return new EnergyFlow(radius, { x1: "100%", y1: "50%", x2: "0%", y2: "50%" });
     }
 

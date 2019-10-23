@@ -100,8 +100,7 @@ export class ProductionSectionComponent extends AbstractSection {
         return this.unitpipe.transform(value, 'kW');
     }
 
-    protected initEnergyFlow(radius: number, animationSpeed: number): EnergyFlow {
-        this.animationSpeed = animationSpeed;
+    protected initEnergyFlow(radius: number): EnergyFlow {
         return new EnergyFlow(radius, { x1: "50%", y1: "100%", x2: "50%", y2: "0%" });
     }
 
