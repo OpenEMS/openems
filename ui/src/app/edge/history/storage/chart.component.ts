@@ -40,8 +40,7 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
+                    let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
                     for (let timestamp of result.timestamps) {
@@ -51,60 +50,144 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
 
                     // convert datasets
                     let datasets = [];
+                    // calculate total charge and discharge
+                    let effectivePower;
+                    // show Component-ID if there is more than one Channel
+                    let showComponentId = Object.keys(result.data).length > 3 ? true : false;
+                    if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
+                        effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                            return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                        });
+                    } else {
+                        effectivePower = result.data['_sum/EssActivePower'];
+                    }
 
-
-                    if ('_sum/EssActivePower' in result.data) {
-                        /*
-                         * Storage Charge
-                         */
-                        let effectivePower;
-                        if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
-                            effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
-                                return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
-                            });
+                    let chargeDataTotal = effectivePower.map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value < 0) {
+                            return value / -1000; // convert to kW;
                         } else {
-                            effectivePower = result.data['_sum/EssActivePower'];
+                            return 0;
                         }
-                        let chargeData = effectivePower.map(value => {
+                    })
+
+                    let dischargeDataTotal = effectivePower.map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value > 0) {
+                            return value / 1000; // convert to kW
+                        } else {
+                            return 0;
+                        }
+                    })
+
+                    Object.keys(result.data).forEach((channel, index) => {
+                        let address = ChannelAddress.fromString(channel);
+                        let component = config.getComponent(address.componentId)
+                        let data = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
+                            } else if (value > 0) {
+                                return value / 1000; // convert to kW
                             } else if (value < 0) {
                                 return value / -1000; // convert to kW;
                             } else {
                                 return 0;
                             }
                         });
-                        datasets.push({
-                            label: this.translate.instant('General.ChargePower'),
-                            data: chargeData,
-                            hidden: false
-                        });
-                        this.colors.push({
-                            backgroundColor: 'rgba(0,223,0,0.05)',
-                            borderColor: 'rgba(0,223,0,1)',
-                        })
-                        /*
-                         * Storage Discharge
-                         */
-                        let dischargeData = effectivePower.map(value => {
-                            if (value == null) {
-                                return null
-                            } else if (value > 0) {
-                                return value / 1000; // convert to kW
-                            } else {
-                                return 0;
+
+                        // more than one production unit
+                        if (showComponentId) {
+                            if (address.channelId == "ActivePower") {
+                                switch (index % 2) {
+                                    case 0:
+                                        datasets.push({
+                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(255,165,0,0.1)',
+                                            borderColor: 'rgba(255,165,0,1)',
+                                        });
+                                        break;
+                                    case 1:
+                                        datasets.push({
+                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(255,255,0,0.1)',
+                                            borderColor: 'rgba(255,255,0,1)',
+                                        });
+                                        break;
+                                }
+                            } else if (address.channelId == "ActualPower") {
+                                switch (index % 2) {
+                                    case 0:
+                                        datasets.push({
+                                            label: this.translate.instant('General.ChargePower') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(255,165,0,0.1)',
+                                            borderColor: 'rgba(255,165,0,1)',
+                                        });
+                                        break;
+                                    case 1:
+                                        datasets.push({
+                                            label: this.translate.instant('General.ChargePower') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(255,255,0,0.1)',
+                                            borderColor: 'rgba(255,255,0,1)',
+                                        });
+                                        break;
+                                }
+                            } else if (address.channelId == "EssActivePower") {
+                                datasets.push({
+                                    label: this.translate.instant('General.DischargePower') + ' (' + this.translate.instant('General.Total') + ')',
+                                    data: dischargeDataTotal,
+                                    hidden: false
+                                });
+                                this.colors.push({
+                                    backgroundColor: 'rgba(200,0,0,0.05)',
+                                    borderColor: 'rgba(200,0,0,1)',
+                                });
+                                datasets.push({
+                                    label: this.translate.instant('General.ChargePower') + ' (' + this.translate.instant('General.Total') + ')',
+                                    data: chargeDataTotal,
+                                    hidden: false
+                                });
+                                this.colors.push({
+                                    backgroundColor: 'rgba(0,223,0,0.05)',
+                                    borderColor: 'rgba(0,223,0,1)',
+                                })
+
                             }
-                        });
-                        datasets.push({
-                            label: this.translate.instant('General.DischargePower'),
-                            data: dischargeData,
-                            hidden: false
-                        });
-                        this.colors.push({
-                            backgroundColor: 'rgba(200,0,0,0.05)',
-                            borderColor: 'rgba(200,0,0,1)',
-                        })
-                    }
+                        } else if (!showComponentId && index == 0) {
+                            //one production unit
+                            datasets.push({
+                                label: this.translate.instant('General.DischargePower'),
+                                data: dischargeDataTotal,
+                                hidden: false
+                            });
+                            this.colors.push({
+                                backgroundColor: 'rgba(200,0,0,0.05)',
+                                borderColor: 'rgba(200,0,0,1)',
+                            });
+                            datasets.push({
+                                label: this.translate.instant('General.ChargePower'),
+                                data: chargeDataTotal,
+                                hidden: false
+                            });
+                            this.colors.push({
+                                backgroundColor: 'rgba(0,223,0,0.05)',
+                                borderColor: 'rgba(0,223,0,1)',
+                            })
+                        }
+                    })
                     this.datasets = datasets;
                     this.loading = false;
                 }).catch(reason => {
@@ -125,11 +208,27 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        let channeladdresses: ChannelAddress[] = [];
+        config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
+            channeladdresses.push(new ChannelAddress(charger.id, 'ActualPower'))
+        })
+        config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").forEach(ess => {
+            channeladdresses.push(new ChannelAddress(ess.id, 'ActivePower'))
+        })
+
         return new Promise((resolve, reject) => {
-            let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssActivePower')
-            ];
-            resolve(result);
+            if (channeladdresses.length > 1) {
+                channeladdresses.push(new ChannelAddress('_sum', 'EssActivePower'))
+                channeladdresses.push(new ChannelAddress('_sum', 'ProductionDcActualPower'))
+                resolve(channeladdresses);
+            } else {
+                let result: ChannelAddress[] = [
+                    new ChannelAddress('_sum', 'EssActivePower'),
+                    new ChannelAddress('_sum', 'ProductionActivePower'),
+                    new ChannelAddress('_sum', 'ProductionDcActualPower')
+                ];
+                resolve(result);
+            }
         })
     }
 

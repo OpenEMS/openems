@@ -52,8 +52,10 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                     // show Component-ID if there is more than one Channel
                     let showComponentId = Object.keys(result.data).length > 1 ? true : false;
 
+
                     Object.keys(result.data).forEach((channel, index) => {
                         let address = ChannelAddress.fromString(channel);
+                        let component = config.getComponent(address.componentId);
                         let data = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
@@ -63,11 +65,11 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                         });
                         //more than one Production Unit
                         if (showComponentId) {
-                            if (address.channelId == 'ActivePower' || address.channelId == 'ActualPower') {
+                            if (address.channelId == 'ActivePower') {
                                 switch (index % 2) {
                                     case 0:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
                                             data: data
                                         });
                                         this.colors.push({
@@ -77,7 +79,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                                         break;
                                     case 1:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
                                             data: data
                                         });
                                         this.colors.push({
@@ -86,10 +88,33 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                                         });
                                         break;
                                 }
-                                // different color + label for total production data
+                            } else if (address.channelId == 'ActualPower') {
+                                switch (index % 2) {
+                                    case 0:
+                                        datasets.push({
+                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(255,165,0,0.1)',
+                                            borderColor: 'rgba(255,165,0,1)',
+                                        });
+                                        break;
+                                    case 1:
+                                        datasets.push({
+                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            data: data
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(255,255,0,0.1)',
+                                            borderColor: 'rgba(255,255,0,1)',
+                                        });
+                                        break;
+                                }
                             } else if (address.channelId == 'ProductionActivePower') {
+                                // different color + label for total production data
                                 datasets.push({
-                                    label: this.translate.instant('General.Production') + (showComponentId ? ' (Gesamt)' : ''),
+                                    label: this.translate.instant('General.Production') + (showComponentId ? ' (' + this.translate.instant('General.Total') + ')' : ''),
                                     data: data
                                 });
                                 this.colors.push({
@@ -151,11 +176,10 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                 if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
                     result.push(new ChannelAddress('_sum', 'ProductionDcActualPower'))
                 };
-                config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").forEach(meter => {
-                    if (config.isProducer(meter)) {
-                        result.push(new ChannelAddress('_sum', 'ProductionActivePower'));
-                    }
-                });
+                if (config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").length > 0
+                    && config.isProducer(config.getComponent("io.openems.edge.meter.api.SymmetricMeter"))) {
+                    result.push(new ChannelAddress('_sum', 'ProductionActivePower'));
+                }
                 resolve(result);
             }
         })
