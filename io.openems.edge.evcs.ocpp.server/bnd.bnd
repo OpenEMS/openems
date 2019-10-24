@@ -38,7 +38,8 @@ Private-Package:  \
 	io.openems.edge.evcs.ocpp.unmanaged;version=latest,\
 	org.ops4j.pax.logging.pax-logging-api,\
 	osgi.enroute.logger.simple.provider,\
-	slf4j.api
+	slf4j.api,\
+	io.openems.edge.evcs.api;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
