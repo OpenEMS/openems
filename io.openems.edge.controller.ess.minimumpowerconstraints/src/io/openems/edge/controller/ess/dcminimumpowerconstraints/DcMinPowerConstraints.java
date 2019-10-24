@@ -9,13 +9,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.minimumpowerconstraints.AbstractMinPowerConstraints;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -31,8 +29,7 @@ import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Ess.DcMinPowerConstraints", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
+		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class DcMinPowerConstraints extends AbstractMinPowerConstraints
 		implements Controller, OpenemsComponent, HourlyPredictor {
 

@@ -70,8 +70,11 @@ public abstract class AbstractMinPowerConstraints extends AbstractOpenemsCompone
 
 	protected AbstractMinPowerConstraints(Clock clock, String componentId,
 			io.openems.edge.common.channel.ChannelId channelId) {
-		super(OpenemsComponent.ChannelId.values(), //
-				ChannelId.values());
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values()//
+		);
 		this.clock = clock;
 	}
 
