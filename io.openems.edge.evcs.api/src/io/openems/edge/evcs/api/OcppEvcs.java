@@ -10,7 +10,7 @@ import io.openems.edge.common.channel.StringReadChannel;
 public interface OcppEvcs extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		
+
 		/**
 		 * Session Id.
 		 * 
@@ -56,7 +56,7 @@ public interface OcppEvcs extends Evcs {
 
 		/**
 		 * Current to EV (import).
-		 *  
+		 * 
 		 * Instantaneous current flow to EV
 		 * 
 		 * <ul>
@@ -71,7 +71,7 @@ public interface OcppEvcs extends Evcs {
 
 		/**
 		 * Current to grid (export).
-		 *  
+		 * 
 		 * Instantaneous current flow from EV
 		 * 
 		 * <ul>
@@ -240,7 +240,7 @@ public interface OcppEvcs extends Evcs {
 		 * </ul>
 		 */
 		FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ).accessMode(AccessMode.READ_ONLY).text("Frequency")),
-		
+
 		/**
 		 * Active power to grid (export)
 		 * 
@@ -257,7 +257,7 @@ public interface OcppEvcs extends Evcs {
 				.text("Power.Active.Export")),
 
 		// Import is in CHARGE_POWER in Evcs
-		
+
 		/**
 		 * Power factor.
 		 * 
@@ -270,7 +270,7 @@ public interface OcppEvcs extends Evcs {
 		 * </ul>
 		 */
 		POWER_FACTOR(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY).text("Power.Factor")),
-		
+
 		/**
 		 * Power offered.
 		 * 
@@ -328,7 +328,7 @@ public interface OcppEvcs extends Evcs {
 		 * </ul>
 		 */
 		RPM(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY).text("Fan speed")),
-		
+
 		/**
 		 * State of charge.
 		 * 
@@ -341,7 +341,7 @@ public interface OcppEvcs extends Evcs {
 		 * </ul>
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY).text("SoC")),
-		
+
 		/**
 		 * Temperature.
 		 * 
@@ -370,7 +370,7 @@ public interface OcppEvcs extends Evcs {
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY).text("Voltage"));
-		
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -382,7 +382,7 @@ public interface OcppEvcs extends Evcs {
 			return this.doc;
 		}
 	}
-	
+
 	/**
 	 * Session Id.
 	 * 
@@ -402,7 +402,7 @@ public interface OcppEvcs extends Evcs {
 	public default StringReadChannel getOcppId() {
 		return this.channel(ChannelId.OCPP_ID);
 	}
-	
+
 	/**
 	 * Ocpp connector id.
 	 * 
@@ -415,22 +415,22 @@ public interface OcppEvcs extends Evcs {
 
 	/**
 	 * Current to EV (import).
-	 *  
+	 * 
 	 * Instantaneous current flow to EV.
 	 */
 	public default IntegerReadChannel getCurrentToEV() {
 		return this.channel(ChannelId.CURRENT_TO_EV);
 	}
-	
+
 	/**
 	 * Current to grid (export).
-	 *  
+	 * 
 	 * Instantaneous current flow from EV.
 	 */
 	public default IntegerReadChannel getCurrentToGrid() {
 		return this.channel(ChannelId.CURRENT_TO_GRID);
 	}
-	
+
 	/**
 	 * Current offered.
 	 * 
@@ -439,7 +439,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getCurrentOffered() {
 		return this.channel(ChannelId.CURRENT_OFFERED);
 	}
-	
+
 	/**
 	 * Active energy to grid (export).
 	 * 
@@ -450,7 +450,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getActiveEnergyToGrid() {
 		return this.channel(ChannelId.ENERGY_ACTIVE_TO_GRID_REGISTER);
 	}
-	
+
 	/**
 	 * Reactive energy to grid (export).
 	 * 
@@ -461,7 +461,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getReactiveEnergyToGrid() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_GRID_REGISTER);
 	}
-	
+
 	/**
 	 * Reactive energy to EV (import).
 	 * 
@@ -472,7 +472,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getReactiveEnergyToEV() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_EV_REGISTER);
 	}
-	
+
 	/**
 	 * Active energy to grid (export) in an interval.
 	 * 
@@ -484,7 +484,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getActiveEnergyToGridInInterval() {
 		return this.channel(ChannelId.ENERGY_ACTIVE_TO_GRID_INTERVAL);
 	}
-	
+
 	/**
 	 * Active energy to EV (import) in an interval.
 	 * 
@@ -496,7 +496,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getActiveEnergyToEVInInterval() {
 		return this.channel(ChannelId.ENERGY_ACTIVE_TO_EV_INTERVAL);
 	}
-	
+
 	/**
 	 * Reactive energy to grid (export) in an interval.
 	 * 
@@ -508,7 +508,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getReactiveEnergyToGridInInterval() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_GRID_INTERVAL);
 	}
-	
+
 	/**
 	 * Reactive energy to EV (import) in an interval.
 	 * 
@@ -520,7 +520,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getReactiveEnergyToEvInInterval() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_EV_INTERVAL);
 	}
-	
+
 	/**
 	 * Frequency.
 	 * 
@@ -531,7 +531,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getFrequency() {
 		return this.channel(ChannelId.FREQUENCY);
 	}
-	
+
 	/**
 	 * Active power to grid (export)
 	 * 
@@ -549,7 +549,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getPowerFactor() {
 		return this.channel(ChannelId.POWER_FACTOR);
 	}
-	
+
 	/**
 	 * Power offered.
 	 * 
@@ -558,7 +558,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getPowerOffered() {
 		return this.channel(ChannelId.POWER_OFFERED);
 	}
-	
+
 	/**
 	 * Reactive power to grid (export).
 	 * 
@@ -567,7 +567,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getReactivePowerToGrid() {
 		return this.channel(ChannelId.POWER_REACTIVE_TO_GRID);
 	}
-	
+
 	/**
 	 * Reactive power to EV (import).
 	 * 
@@ -576,7 +576,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getReactivePowerToEV() {
 		return this.channel(ChannelId.POWER_REACTIVE_TO_EV);
 	}
-	
+
 	/**
 	 * Fan speed.
 	 * 
@@ -585,7 +585,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getFanSpeed() {
 		return this.channel(ChannelId.RPM);
 	}
-	
+
 	/**
 	 * State of charge.
 	 * 
@@ -594,7 +594,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getSoC() {
 		return this.channel(ChannelId.SOC);
 	}
-	
+
 	/**
 	 * Temperature.
 	 * 
@@ -603,7 +603,7 @@ public interface OcppEvcs extends Evcs {
 	public default IntegerReadChannel getTemperature() {
 		return this.channel(ChannelId.TEMPERATURE);
 	}
-	
+
 	/**
 	 * Voltage.
 	 * 
@@ -611,5 +611,5 @@ public interface OcppEvcs extends Evcs {
 	 */
 	public default IntegerReadChannel getVoltage() {
 		return this.channel(ChannelId.VOLTAGE);
-	}	
+	}
 }
