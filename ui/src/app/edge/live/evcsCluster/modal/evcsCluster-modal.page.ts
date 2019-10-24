@@ -232,8 +232,10 @@ export class ModalComponentEvcsCluster implements OnInit {
      * @param plug 
      */
     getState(power: Number, state: number, plug: number, currentController: EdgeConfig.Component) {
-        if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
-            return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+        if (currentController != null) {
+            if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
+                return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+            }
         }
 
         if (power == null || power == 0) {

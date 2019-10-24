@@ -69,8 +69,10 @@ export class EvcsComponent {
    * 
    */
   getState(state: number, plug: number) {
-    if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+    if (this.controller != null) {
+      if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+      }
     }
     let chargeState = state;
     let chargePlug = plug;
