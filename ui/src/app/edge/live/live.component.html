@@ -88,7 +88,7 @@
   </ion-row>
 </ion-grid>
 
-<ion-grid *ngIf="!edge.isOnline">
+<ion-grid *ngIf="edge && !edge.isOnline">
   <ion-row class="ion-justify-content-center">
     <ion-col size-xl="8" size-lg="10" size-md="11" size-sm="12">
       <offline></offline>
