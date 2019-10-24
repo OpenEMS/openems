@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -39,8 +42,12 @@ import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
@@ -372,6 +379,12 @@ public class RestHandler extends AbstractHandler {
 			throws OpenemsException, OpenemsNamedException {
 		switch (request.getMethod()) {
 
+		case QueryHistoricTimeseriesDataRequest.METHOD:
+			return this.handleQueryHistoricDataRequest(user, QueryHistoricTimeseriesDataRequest.from(request));
+
+		case QueryHistoricTimeseriesEnergyRequest.METHOD:
+			return this.handleQueryHistoricEnergyRequest(user, QueryHistoricTimeseriesEnergyRequest.from(request));
+
 		case GetEdgeConfigRequest.METHOD:
 			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
 
@@ -391,6 +404,44 @@ public class RestHandler extends AbstractHandler {
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
+	}
+
+	/**
+	 * Handles a QueryHistoricDataRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the QueryHistoricDataRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(User user,
+			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.getTimedata()
+				.queryHistoricData(//
+						null, /* ignore Edge-ID */
+						request.getFromDate(), //
+						request.getToDate(), //
+						request.getChannels());
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
+	}
+
+	/**
+	 * Handles a QueryHistoricEnergyRequest.
+	 * 
+	 * @param request the QueryHistoricEnergyRequest
+	 * @return the Future JSPN-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(User user,
+			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement> data = this.parent.getTimedata().queryHistoricEnergy(//
+				null, /* ignore Edge-ID */
+				request.getFromDate(), request.getToDate(), request.getChannels());
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
 	}
 
 	/**
