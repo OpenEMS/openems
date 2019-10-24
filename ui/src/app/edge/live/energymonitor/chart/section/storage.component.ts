@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
@@ -37,14 +37,16 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         ])
     ]
 })
-export class StorageSectionComponent extends AbstractSection {
+export class StorageSectionComponent extends AbstractSection implements OnDestroy {
 
-    public socValue: number
+    private socValue: number
     private unitpipe: UnitvaluePipe;
-    private showCharge: boolean = false;
-    private showDischarge: boolean = false;
-    public charge: boolean = false;
-    public discharge: boolean = false;
+    // animation variable to stop animation on destroy
+    private startAnimation = null;
+    private showChargeAnimation: boolean = false;
+    private showDischargeAnimation: boolean = false;
+    public chargeAnimationTrigger: boolean = false;
+    public dischargeAnimationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
@@ -56,27 +58,27 @@ export class StorageSectionComponent extends AbstractSection {
     }
 
     toggleCharge() {
-        setInterval(() => {
-            this.showCharge = !this.showCharge;
+        this.startAnimation = setInterval(() => {
+            this.showChargeAnimation = !this.showChargeAnimation;
         }, this.animationSpeed);
-        this.charge = true;
-        this.discharge = false;
+        this.chargeAnimationTrigger = true;
+        this.dischargeAnimationTrigger = false;
     }
 
     toggleDischarge() {
         setInterval(() => {
-            this.showDischarge = !this.showDischarge;
+            this.showDischargeAnimation = !this.showDischargeAnimation;
         }, this.animationSpeed);
-        this.charge = false;
-        this.discharge = true;
+        this.chargeAnimationTrigger = false;
+        this.dischargeAnimationTrigger = true;
     }
 
     get stateNameCharge() {
-        return this.showCharge ? 'show' : 'hide'
+        return this.showChargeAnimation ? 'show' : 'hide'
     }
 
     get stateNameDischarge() {
-        return this.showDischarge ? 'show' : 'hide'
+        return this.showDischargeAnimation ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -94,8 +96,9 @@ export class StorageSectionComponent extends AbstractSection {
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
         if (sum.storage.effectiveChargePower != null) {
             let arrowIndicate: number;
+            // only reacts to kW values (50 W => 0.1 kW rounded)
             if (sum.storage.effectiveChargePower > 49) {
-                if (!this.charge) {
+                if (!this.chargeAnimationTrigger) {
                     this.toggleCharge();
                 }
                 arrowIndicate = Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower);
@@ -111,7 +114,7 @@ export class StorageSectionComponent extends AbstractSection {
         } else if (sum.storage.effectiveDischargePower != null) {
             let arrowIndicate: number;
             if (sum.storage.effectiveDischargePower > 49) {
-                if (!this.discharge) {
+                if (!this.dischargeAnimationTrigger) {
                     this.toggleDischarge();
                 }
                 arrowIndicate = Utils.multiplySafely(
@@ -178,15 +181,18 @@ export class StorageSectionComponent extends AbstractSection {
         return new EnergyFlow(radius, { x1: "50%", y1: "0%", x2: "50%", y2: "100%" });
     }
 
+    // no adjustments needed
+    protected setElementHeight() { }
+
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
         let p = {
             topLeft: { x: v * -1, y: v },
-            bottomLeft: { x: v * -1, y: r * 1.2 },
+            bottomLeft: { x: v * -1, y: r },
             topRight: { x: v, y: v },
-            bottomRight: { x: v, y: r * 1.2 },
-            middleBottom: { x: 0, y: (r * 1.2) - v },
+            bottomRight: { x: v, y: r },
+            middleBottom: { x: 0, y: r - v },
             middleTop: { x: 0, y: 0 }
         }
         if (ratio > 0) {
@@ -202,13 +208,13 @@ export class StorageSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        let animationWidth = (r * 1.2) - v;
+        let animationWidth = r - v;
         let p = {
             topLeft: { x: v * -1, y: v },
-            bottomLeft: { x: v * -1, y: r * 1.2 },
+            bottomLeft: { x: v * -1, y: r },
             topRight: { x: v, y: v },
-            bottomRight: { x: v, y: r * 1.2 },
-            middleBottom: { x: 0, y: (r * 1.2) - v },
+            bottomRight: { x: v, y: r },
+            middleBottom: { x: 0, y: r - v },
             middleTop: { x: 0, y: 0 }
         }
         if (ratio < 0) {
@@ -226,5 +232,9 @@ export class StorageSectionComponent extends AbstractSection {
             p = null;
         }
         return p;
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 }

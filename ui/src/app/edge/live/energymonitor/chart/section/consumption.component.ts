@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
@@ -25,11 +25,13 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         ])
     ]
 })
-export class ConsumptionSectionComponent extends AbstractSection {
+export class ConsumptionSectionComponent extends AbstractSection implements OnDestroy {
 
     private unitpipe: UnitvaluePipe;
-    private show: boolean = false;
-    public consumption: boolean = false;
+    private showAnimation: boolean = false;
+    private consumptionAnimationTrigger: boolean = false;
+    // animation variable to stop animation on destroy
+    private startAnimation = null;
 
     constructor(
         unitpipe: UnitvaluePipe,
@@ -41,14 +43,14 @@ export class ConsumptionSectionComponent extends AbstractSection {
     }
 
     toggleAnimation() {
-        setInterval(() => {
-            this.show = !this.show;
+        this.startAnimation = setInterval(() => {
+            this.showAnimation = !this.showAnimation;
         }, this.animationSpeed);
-        this.consumption = true;
+        this.consumptionAnimationTrigger = true;
     }
 
     get stateName() {
-        return this.show ? 'show' : 'hide'
+        return this.showAnimation ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -65,8 +67,9 @@ export class ConsumptionSectionComponent extends AbstractSection {
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
         let arrowIndicate: number;
+        // only reacts to kW values (50 W => 0.1 kW rounded)
         if (sum.consumption.activePower > 49) {
-            if (!this.consumption) {
+            if (!this.consumptionAnimationTrigger) {
                 this.toggleAnimation();
             }
             arrowIndicate = Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower);
@@ -84,7 +87,6 @@ export class ConsumptionSectionComponent extends AbstractSection {
         let y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
-
     protected getImagePath(): string {
         return "consumption.png";
     }
@@ -100,6 +102,11 @@ export class ConsumptionSectionComponent extends AbstractSection {
         return new EnergyFlow(radius, { x1: "0%", y1: "50%", x2: "100%", y2: "50%" });
     }
 
+    protected setElementHeight() {
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+    }
+
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
@@ -107,9 +114,9 @@ export class ConsumptionSectionComponent extends AbstractSection {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
-            topRight: { x: r * 1.2, y: v * -1 },
-            bottomRight: { x: r * 1.2, y: v },
-            middleRight: { x: r * 1.2 - v, y: 0 }
+            topRight: { x: r, y: v * -1 },
+            bottomRight: { x: r, y: v },
+            middleRight: { x: r - v, y: 0 }
         }
         if (ratio > 0) {
             // towards right
@@ -124,14 +131,14 @@ export class ConsumptionSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        let animationWidth = (r * -1.2) - v;
+        let animationWidth = (r * -1) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
-            topRight: { x: r * 1.2, y: v * -1 },
-            bottomRight: { x: r * 1.2, y: v },
-            middleRight: { x: r * 1.2 - v, y: 0 }
+            topRight: { x: r, y: v * -1 },
+            bottomRight: { x: r, y: v },
+            middleRight: { x: r - v, y: 0 }
         }
         if (ratio > 0) {
             // towards right
@@ -143,5 +150,11 @@ export class ConsumptionSectionComponent extends AbstractSection {
             p = null;
         }
         return p;
+    }
+
+    ngOnDestroy() {
+        console.log("DESTROYED1", this.startAnimation)
+        clearInterval(this.startAnimation);
+        console.log("DESTROYED2", this.startAnimation)
     }
 }

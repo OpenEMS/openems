@@ -10,7 +10,6 @@ import { Edges } from '../jsonrpc/shared';
 import { LanguageTag, Language } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
-import { Widget, WidgetNature, WidgetFactory, Widgets } from '../type/widget';
 import { ToastController } from '@ionic/angular';
 
 @Injectable()
@@ -19,8 +18,6 @@ export class Service implements ErrorHandler {
   public static readonly TIMEOUT = 15_000;
 
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
-
-  public colored: boolean = false;
 
   /**
    * Holds the currenty selected Page Title.

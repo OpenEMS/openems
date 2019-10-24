@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
@@ -36,13 +36,15 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         ])
     ]
 })
-export class GridSectionComponent extends AbstractSection {
+export class GridSectionComponent extends AbstractSection implements OnDestroy {
 
     private unitpipe: UnitvaluePipe;
-    private showBuy = false;
-    private showSell = false;
-    public buy: boolean = false;
-    public sell: boolean = false;
+    // animation variable to stop animation on destroy
+    private startAnimation = null;
+    private showBuyAnimation = false;
+    private showSellAnimation = false;
+    public buyAnimationTrigger: boolean = false;
+    public sellAnimationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
@@ -53,28 +55,28 @@ export class GridSectionComponent extends AbstractSection {
         this.unitpipe = unitpipe;
     }
 
-    toggleBuy() {
-        setInterval(() => {
-            this.showBuy = !this.showBuy;
+    toggleBuyAnimation() {
+        this.startAnimation = setInterval(() => {
+            this.showBuyAnimation = !this.showBuyAnimation;
         }, this.animationSpeed);
-        this.buy = true;
-        this.sell = false;
+        this.buyAnimationTrigger = true;
+        this.sellAnimationTrigger = false;
     }
 
-    toggleSell() {
-        setInterval(() => {
-            this.showSell = !this.showSell;
+    toggleSellAnimation() {
+        this.startAnimation = setInterval(() => {
+            this.showSellAnimation = !this.showSellAnimation;
         }, this.animationSpeed);
-        this.buy = false;
-        this.sell = true;
+        this.buyAnimationTrigger = false;
+        this.sellAnimationTrigger = true;
     }
 
     get stateNameBuy() {
-        return this.showBuy ? 'show' : 'hide'
+        return this.showBuyAnimation ? 'show' : 'hide'
     }
 
     get stateNameSell() {
-        return this.showSell ? 'show' : 'hide'
+        return this.showSellAnimation ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -90,9 +92,10 @@ export class GridSectionComponent extends AbstractSection {
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-        if (sum.grid.buyActivePower && sum.grid.buyActivePower > 0) {
-            if (!this.buy) {
-                this.toggleBuy();
+        // only reacts to kW values (50 W => 0.1 kW rounded)
+        if (sum.grid.buyActivePower && sum.grid.buyActivePower > 49) {
+            if (!this.buyAnimationTrigger) {
+                this.toggleBuyAnimation();
             }
             let arrowIndicate: number;
             if (sum.grid.buyActivePower > 49) {
@@ -106,9 +109,10 @@ export class GridSectionComponent extends AbstractSection {
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
                 arrowIndicate);
+            // only reacts to kW values (50 W => 0.1 kW rounded)
         } else if (sum.grid.sellActivePower && sum.grid.sellActivePower > 49) {
-            if (!this.sell) {
-                this.toggleSell();
+            if (!this.sellAnimationTrigger) {
+                this.toggleSellAnimation();
             }
             let arrowIndicate: number;
             if (sum.grid.sellActivePower > 49) {
@@ -159,15 +163,20 @@ export class GridSectionComponent extends AbstractSection {
         return new EnergyFlow(radius, { x1: "100%", y1: "50%", x2: "0%", y2: "50%" });
     }
 
+    protected setElementHeight() {
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+    }
+
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
         let p = {
             bottomRight: { x: v * -1, y: v },
-            bottomLeft: { x: r * -1.2, y: v },
+            bottomLeft: { x: r * -1, y: v },
             topRight: { x: v * -1, y: v * -1 },
-            topLeft: { x: r * -1.2, y: v * -1 },
-            middleLeft: { x: r * -1.2 + v, y: 0 },
+            topLeft: { x: r * -1, y: v * -1 },
+            middleLeft: { x: r * -1 + v, y: 0 },
             middleRight: { x: 0, y: 0 }
         }
         if (ratio > 0) {
@@ -183,13 +192,13 @@ export class GridSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        let animationWidth = r * -1.2 + v;
+        let animationWidth = r * -1 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },
-            bottomLeft: { x: r * -1.2, y: v },
+            bottomLeft: { x: r * -1, y: v },
             topRight: { x: v * -1, y: v * -1 },
-            topLeft: { x: r * -1.2, y: v * -1 },
-            middleLeft: { x: r * -1.2 + v, y: 0 },
+            topLeft: { x: r * -1, y: v * -1 },
+            middleLeft: { x: r * -1 + v, y: 0 },
             middleRight: { x: 0, y: 0 }
         }
 
@@ -208,5 +217,9 @@ export class GridSectionComponent extends AbstractSection {
             p = null;
         }
         return p;
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 }

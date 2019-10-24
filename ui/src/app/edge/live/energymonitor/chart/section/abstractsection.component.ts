@@ -135,7 +135,6 @@ export abstract class AbstractSection {
     public animationSpeed: number = 500;
 
     protected valueText: string = "";
-    protected valueText2: string = "";
     protected innerRadius: number = 0;
     protected outerRadius: number = 0;
     protected height: number = 0;
@@ -259,8 +258,9 @@ export abstract class AbstractSection {
         }
         sumRatio *= 10;
 
-        let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius);
-        let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius);
+        //radius * 1.2 for longer arrows
+        let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+        let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
         this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
     }
 
@@ -282,7 +282,6 @@ export abstract class AbstractSection {
          */
         this.square = this.getSquare(innerRadius);
         this.squarePosition = this.getSquarePosition(this.square, innerRadius);
-
         /**
          * energy flow rectangle
          */
@@ -293,6 +292,9 @@ export abstract class AbstractSection {
         if (this.lastCurrentData) {
             this.updateCurrentData(this.lastCurrentData);
         }
+
+        // update correct positioning for Image + Text
+        this.setElementHeight();
     }
 
     /**
@@ -329,6 +331,7 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
+    protected abstract setElementHeight();
 
     protected getArc(): any {
         return d3.arc()

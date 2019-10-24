@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
@@ -25,11 +25,13 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         ])
     ]
 })
-export class ProductionSectionComponent extends AbstractSection {
+export class ProductionSectionComponent extends AbstractSection implements OnDestroy {
 
     private unitpipe: UnitvaluePipe;
-    private show: boolean = false;
-    public production: boolean = false;
+    // animation variable to stop animation on destroy
+    private startAnimation = null;
+    private showAnimation: boolean = false;
+    private productionAnimationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
@@ -40,18 +42,15 @@ export class ProductionSectionComponent extends AbstractSection {
         this.unitpipe = unitpipe;
     }
 
-    ngOnInit() {
-    }
-
     toggleAnimation() {
-        setInterval(() => {
-            this.show = !this.show;
+        this.startAnimation = setInterval(() => {
+            this.showAnimation = !this.showAnimation;
         }, this.animationSpeed);
-        this.production = true;
+        this.productionAnimationTrigger = true;
     }
 
     get stateName() {
-        return this.show ? 'show' : 'hide'
+        return this.showAnimation ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -68,8 +67,9 @@ export class ProductionSectionComponent extends AbstractSection {
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
         let arrowIndicate: number;
+        // only reacts to kW values (50 W => 0.1 kW rounded)
         if (sum.production.activePower > 49) {
-            if (!this.production) {
+            if (!this.productionAnimationTrigger) {
                 this.toggleAnimation();
             }
             arrowIndicate = Utils.divideSafely(sum.production.activePower, sum.system.totalPower);
@@ -104,16 +104,21 @@ export class ProductionSectionComponent extends AbstractSection {
         return new EnergyFlow(radius, { x1: "50%", y1: "100%", x2: "50%", y2: "0%" });
     }
 
+    protected setElementHeight() {
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.4)
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.45)
+    }
+
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
         let p = {
-            topLeft: { x: v * -1, y: r * -1.2 },
+            topLeft: { x: v * -1, y: r * -1 },
             bottomLeft: { x: v * -1, y: v * -1 },
-            topRight: { x: v, y: r * -1.2 },
+            topRight: { x: v, y: r * -1 },
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
-            middleTop: { x: 0, y: r * -1.2 + v }
+            middleTop: { x: 0, y: r * -1 + v }
         }
         if (ratio < 0) {
             // towards top
@@ -127,14 +132,14 @@ export class ProductionSectionComponent extends AbstractSection {
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         let v = Math.abs(ratio);
         let r = radius;
-        let animationWidth = r * -1.2 + v;
+        let animationWidth = r * -1 + v;
         let p = {
-            topLeft: { x: v * -1, y: r * -1.2 },
+            topLeft: { x: v * -1, y: r * -1 },
             bottomLeft: { x: v * -1, y: v * -1 },
-            topRight: { x: v, y: r * -1.2 },
+            topRight: { x: v, y: r * -1 },
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
-            middleTop: { x: 0, y: r * -1.2 + v }
+            middleTop: { x: 0, y: r * -1 + v }
         }
         if (ratio > 0) {
             // towards bottom
@@ -145,5 +150,9 @@ export class ProductionSectionComponent extends AbstractSection {
             p = null;
         }
         return p;
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 }
