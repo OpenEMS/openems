@@ -24,4 +24,18 @@ public class CircularTreeMapTest {
 		assertEquals("4", i.next());
 	}
 
+	@Test
+	public void testAnotherOrder() {
+		CircularTreeMap<String, String> m = new CircularTreeMap<>(3);
+		m.put("4", "four");
+		m.put("3", "three");
+		m.put("2", "two");
+		m.put("1", "one");
+		
+		Set<String> ks = m.keySet();
+		Iterator<String> i = ks.iterator();
+		assertEquals("2", i.next());
+		assertEquals("3", i.next());
+		assertEquals("4", i.next());
+	}
 }

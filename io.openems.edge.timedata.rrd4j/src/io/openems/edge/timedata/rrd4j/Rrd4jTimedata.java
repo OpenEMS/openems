@@ -58,6 +58,7 @@ import io.openems.edge.timedata.api.Timedata;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata, OpenemsComponent, EventHandler {
 
+	private static final String OPENEMS_DATA_PROPERTY = "openems.data.dir";
 	private final static String RRD4J_PATH = "rrd4j";
 	private final static String DEFAULT_DATASOURCE_NAME = "value";
 	private final static int DEFAULT_STEP_SECONDS = 60;
@@ -240,7 +241,7 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 
 	private File getDbFile(ChannelAddress channelAddress) {
 		File file = Paths.get(//
-				Optional.ofNullable(System.getProperty("openems.data.dir")).orElse(""), //
+				Optional.ofNullable(System.getProperty(OPENEMS_DATA_PROPERTY)).orElse(""), //
 				RRD4J_PATH, //
 				this.id(), //
 				channelAddress.getComponentId(), //
