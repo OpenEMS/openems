@@ -1,0 +1,5 @@
+= Symmetric Peak-Shaving
+
+Applies peak-shaving at the grid using a symmetric energy storage system.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.peakshaving[Source Code icon:github[]]

@@ -1,0 +1,8 @@
+# io.openems.edge.controller.symmetric.selfconsumptionoptimization Provider
+
+${Bundle-Description}
+
+## Example
+
+## References
+
