@@ -69,6 +69,7 @@ export class EvcsComponent {
    * 
    */
   getState(state: number, plug: number) {
+
     if (this.controller != null) {
       if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
         return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
@@ -90,7 +91,6 @@ export class EvcsComponent {
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
         return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
-      // if the car is not charging but would be ready to charge, the car is fully charged (keba logic dependency)
       case ChargeState.READY_FOR_CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.ReadyForCharging');
       case ChargeState.NOT_READY_FOR_CHARGING:
