@@ -92,20 +92,8 @@ public class MeterABBB23Mbus extends AbstractOpenemsMbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.primaryAddress(), this.cm, "mbus",
-				config.mbus_id(), config.service_pid());
-
-		channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.TOTAL_CONSUMED_ENERGY), 0));
-		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1), 1));
-		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2), 2));
-		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 3));
-		channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.MANUFACTURER_ID), DataType.Manufacturer));
-		channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.DEVICE_ID), DataType.DeviceId));
-
-		// update filter for 'mbus'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "mbus", config.mbus_id())) {
-			return;
-		}
-
+				config.mbus_id());
+		//register into mbus bridge task list
 		this.mbus.addTask(config.id(), new MbusTask(this.mbus, this));
 	}
 
@@ -117,6 +105,19 @@ public class MeterABBB23Mbus extends AbstractOpenemsMbusComponent
 	@Override
 	public MeterType getMeterType() {
 		return this.meterType;
+	}
+	
+	@Override
+	protected void addChannelDataRecords() {
+		channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.TOTAL_CONSUMED_ENERGY), 0));
+		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1), 1));
+		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2), 2));
+		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 3));
+		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 4));
+		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 5));
+		channelDataRecordsList.add(new ChannelRecord(channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 6));
+		channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.MANUFACTURER_ID), DataType.Manufacturer));
+		channelDataRecordsList.add(new ChannelRecord(channel(ChannelId.DEVICE_ID), DataType.DeviceId));
 	}
 
 }

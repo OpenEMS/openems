@@ -41,10 +41,11 @@ public class ChannelDataRecordMapper {
 	protected void mapDataToChannel(VariableDataStructure data, int index, Channel<?> channel, DataType dataType) {
 		
 		if(dataType == null) {
+			
 			if(data.getDataRecords().size() > index && index >= 0) {
 				channel.setNextValue(data.getDataRecords().get(index).getScaledDataValue());
+				//System.out.println("[mbus_bridge] writing onto channel "+channel.toString()+", value: "+data.getDataRecords().get(index).getScaledDataValue());
 			}
-			
 			return;
 		}
 		switch(dataType) {

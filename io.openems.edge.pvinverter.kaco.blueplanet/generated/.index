@@ -1,28 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.kaco.blueplanet" increment="1571670472341">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.kaco.blueplanet" increment="1571906404456">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.pvinverter.kaco.blueplanet"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="version" value="1.0.0.201910240840" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240840" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.pvinverter.kaco.blueplanet"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240840" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.pvinverter.kaco.blueplanet"/>
     </capability>
     <capability namespace="osgi.service">
       <attribute name="objectClass" value="io.openems.edge.common.component.OpenemsComponent,io.openems.edge.meter.api.SymmetricMeter,io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter,org.osgi.service.event.EventHandler" type="List&lt;String&gt;"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="size" value="9354" type="Long"/>
+      <attribute name="size" value="9355" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.pvinverter.kaco.blueplanet.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="E1E72497C311317F17443B34D717327F84F96FCB5A35087941C2114A099CBB69"/>
+      <attribute name="osgi.content" value="879E7F8C8CB995B8E0F9B571DA089C12416C0561176ADFA7E0D4A754EE54F842"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>

@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.predictor.persistencemodel" increment="1571670470265">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.predictor.persistencemodel" increment="1571902510588">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.predictor.persistencemodel"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="version" value="1.0.0.201910240735" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240735" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.predictor.persistencemodel"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240735" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.predictor.persistencemodel"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -30,7 +30,7 @@
       <attribute name="size" value="25821" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.predictor.persistencemodel.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="4E2B65BCBA2145ADD0FDFBEFBB2E481821DE177FF3BA3A3878E03929811A7C30"/>
+      <attribute name="osgi.content" value="C2D1B4D47E34BE9363A6FDACB79E244DAEA6AAE75D113EC0F196AE4E86F97DD7"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>

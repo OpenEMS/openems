@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.evcs.cluster" increment="1571670475579">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.evcs.cluster" increment="1571902521338">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.evcs.cluster"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="version" value="1.0.0.201910240735" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240735" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.evcs.cluster"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240735" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.evcs.cluster"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -27,7 +27,7 @@
       <attribute name="size" value="24617" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.evcs.cluster.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="E8C621B6540841BCF50B117E16BC45EA74FB858B3BEDB420FDD1A53608F1D55D"/>
+      <attribute name="osgi.content" value="824DB8577C9D6623ED6A61CC07F73C721D2DDBA118A0D0D002F458177E3251BF"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>

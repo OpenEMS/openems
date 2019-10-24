@@ -18,10 +18,10 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Serial-Device", description = "Serial Device Name")
-	String device() default "/dev/ttyUSB0";
+	String portName() default "/dev/ttyUSB0";
 
-	@AttributeDefinition(name = "Serial-Speed", description = "Serial Device Speed")
-	int baud() default 2400;
+	@AttributeDefinition(name = "Baudrate", description = "Serial Device Speed")
+	int baudrate() default 2400;
 
 	String webconsole_configurationFactory_nameHint() default "Bridge M-Bus [{id}]";
 }

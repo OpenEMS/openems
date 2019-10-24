@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.meter.discovergy" increment="1571670471292">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.meter.discovergy" increment="1571902512779">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.meter.discovergy"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="version" value="1.0.0.201910240735" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240735" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.meter.discovergy"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201910211507" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201910240735" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.meter.discovergy"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -35,7 +35,7 @@
       <attribute name="size" value="44148" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.meter.discovergy.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="7F6AE78E5F6F882077160790EC5F45B73D4FC8897770A1B82DE61C7F132BFDF8"/>
+      <attribute name="osgi.content" value="47303FBCEA3E2E1619D067D5C2A7ABA0AC60B8795A40B0DD9A405108C1D6FF8C"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/home/de424/erik/openems-workspace2"/>
