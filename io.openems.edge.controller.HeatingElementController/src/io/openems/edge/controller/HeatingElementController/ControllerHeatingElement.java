@@ -8,6 +8,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -48,7 +50,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	@Reference
 	protected Sum sum;
-	
+
 	public Config config;
 
 	int noRelaisSwitchedOn = 0;
@@ -60,8 +62,20 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	LocalDate today = LocalDate.now();
 	LocalTime currentEndtime;
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-	boolean isEndTime = false;
+	boolean isEndTimeCheck = false;
 	
+	/**
+	 * Length of hysteresis in seconds. States are not changed quicker than this.
+	 */
+	private final TemporalAmount hysteresis = Duration.ofMinutes(5);
+	private LocalDateTime lastStateChange = LocalDateTime.MIN;
+
+	private ChannelAddress inputChannelAddress;
+	private ChannelAddress outputChannelAddress1;
+	private ChannelAddress outputChannelAddress2;
+	private ChannelAddress outputChannelAddress3;
+	private int powerOfPhase = 0;
+
 	public static final int PHASE_ONE = 1;
 	public static final int PHASE_TWO = 2;
 	public static final int PHASE_THREE = 3;
@@ -85,6 +99,119 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	double totalPhaseThreePower = 0;
 	double totalPhasePower = 0;
 
+	private static enum Phase {
+		ONE, TWO, THREE
+	}
+
+	private static class PhaseDef {
+		LocalDateTime phaseTimeOn = null;
+		LocalDateTime phaseTimeOff = null;
+		long totalPhaseTime = 0;
+		long totalPhasePower = 0;
+		ChannelAddress outputChannelAddress;
+		int powerOfPhase = 0;
+		
+		PhaseDef(){
+			
+		}
+		
+		
+		private void computeTime(boolean isSwitchOn, ChannelAddress outputChannelAddress, long excessPower)
+				throws IllegalArgumentException, OpenemsNamedException {
+			if (!isSwitchOn) {
+				// If the Phase one is not switched-On do not record the PhasetimeOff
+				if (phaseTimeOn == null) {
+					phaseTimeOff = null;
+				} else {
+					phaseTimeOff = LocalDateTime.now();
+				}
+
+				this.off(outputChannelAddress);
+			} else {
+				// phase one is running
+				if (phaseTimeOn != null) {
+					// do not take the current time
+				} else {
+					phaseTimeOn = LocalDateTime.now();
+				}
+				this.on(outputChannelAddress);
+			}
+			if (phaseTimeOn != null && phaseTimeOff != null) {
+				// cycle of turning phase one On and off is complete
+				totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
+				totalPhasePower += calculatePower(this.totalPhaseTime);
+				// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
+				// calculate the time for the next cycle of switch On and Off
+				phaseTimeOn = null;
+			} else if (totalPhaseTime != 0) {
+				// reserve the calculated totalPhaseTime
+			} else {
+				// phase one is not started, or still running
+				totalPhaseTime = 0;
+			}
+		}
+		
+		/**
+		 * function to calculates the Kilowatthour, using the power of each phase
+		 * 
+		 * @param time Long values of time in seconds
+		 * 
+		 */
+		private float calculatePower(long time) {
+			float kiloWattHour = ((float) (time) / 3600) * this.powerOfPhase;
+			return kiloWattHour;
+		}
+		
+		/**
+		 * Switch the output ON.
+		 * 
+		 * @param outputChannelAddress address of the channel which must set to ON
+		 * 
+		 * @throws OpenemsNamedException
+		 * @throws IllegalArgumentException
+		 */
+		private void on(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
+			this.setOutput(true, outputChannelAddress);
+		}
+
+		/**
+		 * Switch the output OFF.
+		 * 
+		 * @param outputChannelAddress address of the channel which must set to OFF
+		 * 
+		 * @throws OpenemsNamedException
+		 * @throws IllegalArgumentException
+		 */
+		private void off(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
+			this.setOutput(false, outputChannelAddress);
+		}
+		
+		/**
+		 * Helper function to switch an output if it was not switched before.
+		 *
+		 * @param value                The boolean value which must set on the output
+		 *                             channel address
+		 * @param outputChannelAddress The address of the channel
+		 * @throws OpenemsNamedException    on error
+		 * @throws IllegalArgumentException on error
+		 */
+		private void setOutput(boolean value, ChannelAddress outputChannelAddress)
+				throws IllegalArgumentException, OpenemsNamedException {
+			try {
+				WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(outputChannelAddress);
+				Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+				if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
+					this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
+					outputChannel.setNextWriteValue(value);
+				}
+			} catch (OpenemsException e) {
+				this.logError(this.log, "Unable to set output: [" + outputChannelAddress + "] " + e.getMessage());
+			}
+		}
+		
+	}
+
+	private final Map<Phase, PhaseDef> phases = new HashMap<>();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		MODE(Doc.of(Mode.values()) //
@@ -96,8 +223,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")),
 		NO_OF_RELAIS_ON(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)),
-		PHASE1_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
+		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)), PHASE1_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
 		PHASE2_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
 		PHASE3_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
 		PHASE1_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
@@ -105,9 +231,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		PHASE3_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
 		TOTAL_PHASE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
 		TOTAL_PHASE_TIME(Doc.of(OpenemsType.LONG).unit(Unit.NONE)),; //
-
-//		CURRENT_L2(Doc.of(OpenemsType.INTEGER)//
-//				.unit(Unit.AMPERE)), //
 
 		private final Doc doc;
 
@@ -128,23 +251,16 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				ChannelId.values() //
 		);
 		this.clock = clock;
+		for (Phase phase : Phase.values()) {
+			this.phases.put(phase, new PhaseDef());
+		}
 	}
 
 	public ControllerHeatingElement() {
 		this(Clock.systemDefaultZone());
 	}
 
-	/**
-	 * Length of hysteresis in seconds. States are not changed quicker than this.
-	 */
-	private final TemporalAmount hysteresis = Duration.ofSeconds(2);
-	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
-	private ChannelAddress inputChannelAddress;
-	private ChannelAddress outputChannelAddress1;
-	private ChannelAddress outputChannelAddress2;
-	private ChannelAddress outputChannelAddress3;
-	private int powerOfPhase = 0;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -159,12 +275,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.priority = config.priority();
 		this.channel(ChannelId.PRIORITY).setNextValue(config.priority());
 
-		this.minTime =  this.getSeconds(config.minTime());
-		
+		this.minTime = this.getSeconds(config.minTime());
 		this.minKwh = config.minkwh();
 		this.endTime = config.endTime();
 		currentEndtime = LocalTime.parse(this.endTime);
-		
+
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}
@@ -217,14 +332,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.channel(ChannelId.PHASE1_POWER).setNextValue(this.totalPhaseOnePower);
 		this.channel(ChannelId.PHASE2_POWER).setNextValue(this.totalPhaseTwoPower);
 		this.channel(ChannelId.PHASE3_POWER).setNextValue(this.totalPhaseThreePower);
-		
-		
+
 		this.totalPhaseTime = this.totalPhaseOneTime + this.totalPhaseThreeTime + this.totalPhaseTwoTime;
 		this.totalPhasePower = this.totalPhaseOnePower + this.totalPhaseThreePower + this.totalPhaseTwoPower;
 		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
 		this.channel(ChannelId.TOTAL_PHASE_POWER).setNextValue(this.totalPhasePower);
-	
-		System.out.println(this.isEndTime);
 	}
 
 	/**
@@ -242,21 +354,23 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	/**
-	 * Function to check change in the day and reset all the Time and power on each phases if the day changes to a new day
+	 * Function to check change in the day and reset all the Time and power on each
+	 * phases if the day changes to a new day
 	 * 
-	 * @return changeInDay    boolean values represent a change in day
+	 * @return changeInDay boolean values represent a change in day
 	 */
 	private boolean checkChangeInDay() {
 		boolean changeInDay = false;
 		LocalDate nextDay = LocalDate.now();
 		if (this.today.equals(nextDay)) {
 			return changeInDay;
-		}else {
+		} else {
 			changeInDay = true;
 			this.today = nextDay;
 			return changeInDay;
-		}		
+		}
 	}
+
 	protected void automaticMode() throws IllegalArgumentException, OpenemsNamedException {
 
 		// Get the input channel addresses
@@ -273,33 +387,32 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 
 		// resetting the variables if there is change in the day.
-		if(checkChangeInDay()) {
-			
-			 phaseTimeOn = null;
-			 phaseTimeOff = null;
-			 phaseOneTimeOn = null;
-			 phaseOneTimeOff = null;
-			 phaseTwoTimeOn = null;
-			 phaseTwoTimeOff = null;
-			 phaseThreeTimeOn = null;
-			 phaseThreeTimeOff = null;
+		if (checkChangeInDay()) {
 
-			 totalPhaseOneTime = 0;
-			 totalPhaseTwoTime = 0;
-			 totalPhaseThreeTime = 0;
-			 totalPhaseTime = 0;
-			 totalPhaseOnePower = 0;
-			 totalPhaseTwoPower = 0;
-			 totalPhaseThreePower = 0;
-			 totalPhasePower = 0;
-			 
-			 minTime = this.config.minTime();
-			 minKwh = this.config.minkwh();
-			 currentEndtime = LocalTime.parse(this.config.endTime());
+			phaseTimeOn = null;
+			phaseTimeOff = null;
+			phaseOneTimeOn = null;
+			phaseOneTimeOff = null;
+			phaseTwoTimeOn = null;
+			phaseTwoTimeOff = null;
+			phaseThreeTimeOn = null;
+			phaseThreeTimeOff = null;
+
+			totalPhaseOneTime = 0;
+			totalPhaseTwoTime = 0;
+			totalPhaseThreeTime = 0;
+			totalPhaseTime = 0;
+			totalPhaseOnePower = 0;
+			totalPhaseTwoPower = 0;
+			totalPhaseThreePower = 0;
+			totalPhasePower = 0;
+
+			minTime = this.config.minTime();
+			minKwh = this.config.minkwh();
+			currentEndtime = LocalTime.parse(this.config.endTime());
 		}
-	
-		
-		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) && !this.isEndTime) {
+
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) && !this.isEndTimeCheck) {
 			switch (this.priority) {
 			case TIME:
 				this.checkMinTime(excessPower);
@@ -309,7 +422,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				break;
 			}
 		} else {
-			if (this.isEndTime) {
+			if (this.isEndTimeCheck) {
 				boolean stateChanged;
 				do {
 
@@ -358,7 +471,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			}
 		}
 	}
-	
+
 	/**
 	 * Check the total time running of the heating element at the end of ENDTIME
 	 * case 1: if the totalTimePhase is less than the minTime -> force switch-on the
@@ -370,28 +483,26 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @throws IllegalArgumentException
 	 */
 
-	private void checkMinTime(long excessPower) throws IllegalArgumentException, OpenemsNamedException {	
-			if (this.totalPhaseTime < minTime) {
-				long deltaTime = (long) (minTime - this.totalPhaseTime);
-				// Switch-On all the 3 Phases
-				computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
-				computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
-				computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
-				noRelaisSwitchedOn = 3;				
-				// update the endtime
-				currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
-				// update the minTime
-				this.minTime = 0;
-			}else
-			 {
-				this.isEndTime = true;
-				computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
-				computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
-				computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
-				noRelaisSwitchedOn = 0;
-			 }			
+	private void checkMinTime(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
+		if (this.totalPhaseTime < minTime) {
+			long deltaTime = (long) (minTime - this.totalPhaseTime);
+			// Switch-On all the 3 Phases
+			computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
+			computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
+			computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
+			noRelaisSwitchedOn = 3;
+			// update the endtime
+			currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
+			// update the minTime
+			this.minTime = 0;
+		} else {
+			this.isEndTimeCheck = true;
+			computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
+			computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
+			computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
+			noRelaisSwitchedOn = 0;
+		}
 	}
-	
 
 	/**
 	 * Check the total time running of the heating element at the end of ENDTIME
@@ -406,7 +517,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	private void checkMinKwh(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
 		if (this.totalPhasePower < minKwh) {
-			//double deltaPower = minKwh - totalPhasePower;
+			// double deltaPower = minKwh - totalPhasePower;
 			long deltaTime = (long) (minTime - this.totalPhaseTime);
 			computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
 			computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
@@ -419,7 +530,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			// update the minKwh
 			this.minKwh = 0;
 		} else {
-			this.isEndTime = true;
+			this.isEndTimeCheck = true;
 			computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
 			computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
 			computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
@@ -427,18 +538,22 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	/**
-	 * function to calculates the Kilowatthour, using the power of each phase 
+	 * function to calculates the Kilowatthour, using the power of each phase
 	 * 
-	 * @param time   Long values of time in seconds
+	 * @param time Long values of time in seconds
 	 * 
 	 */
-	private float calculatePower(long time) {		
-		float kiloWattHour = ((float)(time)/3600) * this.powerOfPhase;
+	private float calculatePower(long time) {
+		float kiloWattHour = ((float) (time) / 3600) * this.powerOfPhase;
 		return kiloWattHour;
 	}
 
 	private void computeTime(boolean isSwitchOn, ChannelAddress outputChannelAddress, int phaseNumber, long excessPower)
 			throws IllegalArgumentException, OpenemsNamedException {
+		for(PhaseDef p : this.phases.values()) {
+			p.computeTime(isSwitchOn, outputChannelAddress, excessPower);
+		}
+		
 		if (phaseNumber == 1) {
 			if (!isSwitchOn) {
 				// If the Phase one is not switched-On do not record the PhasetimeOff
@@ -536,7 +651,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 	}
 
-
 	/**
 	 * Switch the output ON.
 	 * 
@@ -591,11 +705,12 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @return whether the state was changed
 	 */
 	private boolean changeState(State nextState) {
-		//System.out.println("From " + this.state + " to " + nextState);
+		// System.out.println("From " + this.state + " to " + nextState);
 		if (this.state != nextState) {
 			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
-				//System.out.println("Not Awaiting the hysterisis : "
-						//+ this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock)));
+				// System.out.println("Not Awaiting the hysterisis : "
+				// +
+				// this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock)));
 				this.state = nextState;
 				this.lastStateChange = LocalDateTime.now(this.clock);
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
