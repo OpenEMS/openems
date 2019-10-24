@@ -55,9 +55,9 @@ import com.dalsemi.onewire.utils.Convert;
  * <LI>Chain function sharing the IO pins to detect physical sequence of devices
  * in network
  * <LI>Can be powered from data line. Power supply range is 3.0V to 5.5V
- * <LI>Measures temperatures from –40°C to +85°C
- * <LI>@htmlonly &#177 @endhtmlonly 0.5°C accuracy from –10°C to +85°C
- * <LI>@htmlonly &#177 @endhtmlonly 2°C accuracy from –40°C to +85°C
+ * <LI>Measures temperatures from -40 C to +85 C
+ * <LI>@htmlonly &#177 @endhtmlonly 0.5 C accuracy from -10 C to +85 C
+ * <LI>@htmlonly &#177 @endhtmlonly 2 C accuracy from -40 C to +85 C
  * <LI>Thermometer resolution is user-selectable from 9 to 12 bits
  * <LI>Converts temperature to 12-bit digital word in 750ms (max.)
  * <LI>User-definable nonvolatile (NV) alarm threshold settings/user bytes
@@ -305,9 +305,9 @@ public class OneWireContainer42 extends OneWireContainer implements TemperatureC
 	public String getDescription() {
 		return "Programmable resolution digital thermometer with "
 				+ "'sequence detect' and 2 PIO channels. It measures "
-				+ "temperature from -40°C to +85°C in 0.75 seconds (max). "
-				+ "Its accuracy is ±0.5°C between -10°C and 85°C and "
-				+ "±2°C accuracy from –40°C to +85°C. Thermometer " + "resolution is programmable at 9, 10, 11, and 12 "
+				+ "temperature from -40 C to +85 C in 0.75 seconds (max). "
+				+ "Its accuracy is +/-0.5 C between -10 C and 85 C and "
+				+ "+/-2 C accuracy from -40 C to +85 C. Thermometer " + "resolution is programmable at 9, 10, 11, and 12 "
 				+ "bits. PIO channels can be used as generic channels "
 				+ "or used in 'Chain' mode to detect the physical " + "sequence of devices in a 1-Wire network.";
 	}

@@ -83,7 +83,7 @@ public class Thermal extends TaggedDevice implements TaggedSensor {
 		// Math for TINI?
 		theTemperature = roundDouble(theTemperature * 100) / 100;
 		// make string out of results
-		returnString = theTemperature + " °C";
+		returnString = theTemperature + " C";
 
 		return returnString;
 	}

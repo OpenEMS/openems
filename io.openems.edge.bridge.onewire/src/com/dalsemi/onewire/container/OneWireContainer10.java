@@ -49,7 +49,7 @@ import com.dalsemi.onewire.utils.Convert;
  * +100@htmlonly &#176C @endhtmlonly in typically 0.2 seconds
  * <LI>Zero standby power
  * <LI>0.5@htmlonly &#176C @endhtmlonly resolution, digital temperature reading
- * in two’s complement
+ * in two's complement
  * <LI>Increased resolution through interpolation in internal counters
  * <LI>8-bit device-generated CRC for data integrity
  * <LI>Special command set allows user to skip ROM section and do temperature

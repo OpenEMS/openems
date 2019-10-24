@@ -593,7 +593,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 
 	private static final String DESCRIPTION_DS2422 = "The DS2422 temperature/datalogger combines the core functions of a "
 			+ "fully featured datalogger in a single chip. It includes a temperature "
-			+ "sensor, realtime clock (RTC), memory, 1-Wire® interface, and serial "
+			+ "sensor, realtime clock (RTC), memory, 1-Wire(R) interface, and serial "
 			+ "interface for an analog-to-digital converter (ADC) as well as control "
 			+ "circuitry for a charge pump. The ADC and the charge pump are "
 			+ "peripherals that can be added to build application-specific "
