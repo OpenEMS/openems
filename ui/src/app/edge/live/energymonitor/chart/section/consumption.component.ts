@@ -29,7 +29,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
 
     private unitpipe: UnitvaluePipe;
     private showAnimation: boolean = false;
-    private consumptionAnimationTrigger: boolean = false;
+    private animationTrigger: boolean = false;
     // animation variable to stop animation on destroy
     private startAnimation = null;
 
@@ -46,7 +46,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
         this.startAnimation = setInterval(() => {
             this.showAnimation = !this.showAnimation;
         }, this.animationSpeed);
-        this.consumptionAnimationTrigger = true;
+        this.animationTrigger = true;
     }
 
     get stateName() {
@@ -69,7 +69,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
         let arrowIndicate: number;
         // only reacts to kW values (50 W => 0.1 kW rounded)
         if (sum.consumption.activePower > 49) {
-            if (!this.consumptionAnimationTrigger) {
+            if (!this.animationTrigger) {
                 this.toggleAnimation();
             }
             arrowIndicate = Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower);
@@ -153,8 +153,6 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
     }
 
     ngOnDestroy() {
-        console.log("DESTROYED1", this.startAnimation)
         clearInterval(this.startAnimation);
-        console.log("DESTROYED2", this.startAnimation)
     }
 }

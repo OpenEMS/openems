@@ -31,7 +31,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
     // animation variable to stop animation on destroy
     private startAnimation = null;
     private showAnimation: boolean = false;
-    private productionAnimationTrigger: boolean = false;
+    private animationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
@@ -46,7 +46,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
         this.startAnimation = setInterval(() => {
             this.showAnimation = !this.showAnimation;
         }, this.animationSpeed);
-        this.productionAnimationTrigger = true;
+        this.animationTrigger = true;
     }
 
     get stateName() {
@@ -69,7 +69,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
         let arrowIndicate: number;
         // only reacts to kW values (50 W => 0.1 kW rounded)
         if (sum.production.activePower > 49) {
-            if (!this.productionAnimationTrigger) {
+            if (!this.animationTrigger) {
                 this.toggleAnimation();
             }
             arrowIndicate = Utils.divideSafely(sum.production.activePower, sum.system.totalPower);
