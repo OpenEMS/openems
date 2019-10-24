@@ -128,6 +128,8 @@ export const TRANSLATION = {
                     ClusterConfigError: "An error has occurred in the configuration of the Evcs cluster",
                     EnergyLimit: "Energy Limit",
                     MaxEnergyRestriction: "Limit maximum energy per charge",
+                    CapacityOrientedCharging: "Capacity-oriented charging",
+                    CapacityOrientedChargingDescription: "Set the maximum energy for this charge in Wh. The charging station charges only up to this limit. '0' corresponds to no limit",
                     NoConnection: {
                         Description: "No connection to the charging station.",
                         Help1: "Check if the charging station is switched on and can be reached via the network.",

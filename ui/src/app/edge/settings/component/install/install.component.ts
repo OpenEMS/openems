@@ -55,6 +55,15 @@ export class ComponentInstallComponent implements OnInit {
         fields.push(field);
         if (property.defaultValue != null) {
           model[property_id] = property.defaultValue;
+
+          // Set the next free Component-ID as defaultValue
+          if (property_id == 'id') {
+            let suffix = property.defaultValue.match(/\d+$/);
+            if (suffix) {
+              var newSuffix = parseInt(suffix[0], 10) + 1;
+              model[property_id] = property.defaultValue.replace(/\d+$/i, newSuffix);
+            }
+          }
         }
       }
       this.form = new FormGroup({});

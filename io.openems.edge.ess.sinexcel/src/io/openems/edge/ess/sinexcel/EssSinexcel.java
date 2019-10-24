@@ -56,7 +56,8 @@ import io.openems.edge.ess.power.api.Relationship;
 		name = "Ess.Sinexcel", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE) //
+		property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE , //
+		EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE}) //
 public class EssSinexcel extends AbstractOpenemsModbusComponent
 		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent {
 
@@ -70,15 +71,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	private Battery battery;
 	public LocalDateTime timeForSystemInitialization = null;
 
-	// Slow and Float Charge Voltage must be the same for the Lithium Ionbattery.
-	// Slow charge voltage = Float Charge Voltage = MAX_CELL_VOLT * NO_OF_CELLS *
-	// num of memories
-	protected int SLOW_CHARGE_VOLTAGE = 4370; // default for 10 memories
-	protected int FLOAT_CHARGE_VOLTAGE = 4370; // default for 10 memories
-
-	// private static final double MAX_CELL_VOLT = 36.5; // Max voltage of the cell
-	// protected static final int NO_OF_CELLS = 12; // Each memory contains 12 cells
-	// protected int numberOfSlaves = 10; // default 10 memories
+	protected int SLOW_CHARGE_VOLTAGE = 4370; // for new batteries - 3940
+	protected int FLOAT_CHARGE_VOLTAGE = 4370; // for new batteries - 3940 
 
 	private int a = 0;
 	private int counterOn = 0;
@@ -116,7 +110,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.inverterState = config.InverterState();
 
 		// initialize the connection to the battery
-		this.initializeBattery(config.battery_id());
+		this.initializeBattery(config.battery_id());		
+		
+		this.SLOW_CHARGE_VOLTAGE = config.toppingCharge();
+		this.FLOAT_CHARGE_VOLTAGE = config.toppingCharge();
 
 		// this.getNoOfCells();
 		this.resetDcAcEnergy();
@@ -164,6 +161,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.battery.getVoltage().onChange((oldValue, newValue) -> {
 			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
+		
+		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
+			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
+		});
 	}
 
 	/**
@@ -181,13 +182,29 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
 		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
 
-		{
-			IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
-			setDisMaxA.setNextWriteValue(disMaxA * 10);
+		// Sinexcel range for Max charge/discharge current is 0A to 90A,
+		if (chaMaxA > 90) {
+			{
+				IntegerWriteChannel setChaMaxA = this.channel(SinexcelChannelId.CHARGE_MAX_A);
+				setChaMaxA.setNextWriteValue(900);
+			}
+		} else {
+			{
+				IntegerWriteChannel setChaMaxA = this.channel(SinexcelChannelId.CHARGE_MAX_A);
+				setChaMaxA.setNextWriteValue(chaMaxA * 10);
+			}
 		}
-		{
-			IntegerWriteChannel setChaMaxA = this.channel(SinexcelChannelId.CHARGE_MAX_A);
-			setChaMaxA.setNextWriteValue(chaMaxA * 10);
+
+		if (disMaxA > 90) {
+			{
+				IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
+				setDisMaxA.setNextWriteValue(900);
+			}
+		} else {
+			{
+				IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DISCHARGE_MAX_A);
+				setDisMaxA.setNextWriteValue(disMaxA * 10);
+			}
 		}
 		{
 			IntegerWriteChannel setDisMinV = this.channel(SinexcelChannelId.DISCHARGE_MIN_V);
@@ -197,7 +214,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			IntegerWriteChannel setChaMaxV = this.channel(SinexcelChannelId.CHARGE_MAX_V);
 			setChaMaxV.setNextWriteValue(chaMaxV * 10);
 		}
-
 		final double EFFICIENCY_FACTOR = 0.9;
 		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
 		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
@@ -285,15 +301,12 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		setdataGridOnCmd.setNextWriteValue(1); // Start
 	}
 
-	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {
-
-		// this.SLOW_CHARGE_VOLTAGE = this.FLOAT_CHARGE_VOLTAGE = (int) (numberOfSlaves
-		// * MAX_CELL_VOLT * NO_OF_CELLS);
-
+	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {		
+		//System.out.println("Upper voltage : " + this.channel(SinexcelChannelId.UPPER_VOLTAGE_LIMIT).value().asStringWithoutUnit());
 		IntegerWriteChannel setSlowChargeVoltage = this.channel(SinexcelChannelId.SET_SLOW_CHARGE_VOLTAGE);
-		setSlowChargeVoltage.setNextWriteValue(SLOW_CHARGE_VOLTAGE);
+		setSlowChargeVoltage.setNextWriteValue(this.SLOW_CHARGE_VOLTAGE);
 		IntegerWriteChannel setFloatChargeVoltage = this.channel(SinexcelChannelId.SET_FLOAT_CHARGE_VOLTAGE);
-		setFloatChargeVoltage.setNextWriteValue(FLOAT_CHARGE_VOLTAGE);
+		setFloatChargeVoltage.setNextWriteValue(this.FLOAT_CHARGE_VOLTAGE);
 	}
 
 	public boolean faultIslanding() {
@@ -731,6 +744,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			} catch (OpenemsNamedException e) {
 				this.logError(this.log, "EventHandler failed: " + e.getMessage());
 			}
+
 
 //			if(island = true) {
 //				islandingOn();

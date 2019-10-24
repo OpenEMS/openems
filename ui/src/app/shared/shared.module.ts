@@ -35,12 +35,14 @@ import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
 import { Language } from './translate/language';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
+import { BrowserModule } from '@angular/platform-browser';
 
 
 @NgModule({
   imports: [
-    BrowserAnimationsModule,
     CommonModule,
+    BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     IonicModule,
     ReactiveFormsModule,

@@ -128,6 +128,8 @@ export const TRANSLATION = {
                     ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
                     EnergyLimit: "Energielimit",
                     MaxEnergyRestriction: "Maximale Energie pro Ladevorgang begrenzen",
+                    CapacityOrientedCharging: "Kapazitätsorientierte Beladung",
+                    CapacityOrientedChargingDescription: "Stellen Sie die maximale Energie für diesen Ladevorgang in Wh ein. Die Ladestation lädt nur bis zu dieser Grenze auf. '0' entspricht keinem Limit",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
