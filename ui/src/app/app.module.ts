@@ -32,6 +32,7 @@ import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 @NgModule({
@@ -61,6 +62,7 @@ import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.comp
       loader: { provide: TranslateLoader, useClass: Language }
     }),
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
+    BrowserAnimationsModule
   ],
   providers: [
     StatusBar,
