@@ -1,7 +1,11 @@
 package io.openems.edge.evcs.ocpp.server;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.chargetime.ocpp.feature.profile.ServerCoreEventHandler;
 import eu.chargetime.ocpp.model.core.AuthorizationStatus;
@@ -12,6 +16,7 @@ import eu.chargetime.ocpp.model.core.BootNotificationRequest;
 import eu.chargetime.ocpp.model.core.ChargePointStatus;
 import eu.chargetime.ocpp.model.core.DataTransferConfirmation;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
+import eu.chargetime.ocpp.model.core.DataTransferStatus;
 import eu.chargetime.ocpp.model.core.HeartbeatConfirmation;
 import eu.chargetime.ocpp.model.core.HeartbeatRequest;
 import eu.chargetime.ocpp.model.core.IdTagInfo;
@@ -32,6 +37,7 @@ import io.openems.edge.evcs.api.Status;
 
 public class OcppEventHandler implements ServerCoreEventHandler {
 
+	private final Logger log = LoggerFactory.getLogger(OcppEventHandler.class);
 	private OcppServer parent;
 
 	public OcppEventHandler(OcppServer parent) {
@@ -41,9 +47,8 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 	@Override
 	public AuthorizeConfirmation handleAuthorizeRequest(UUID sessionIndex, AuthorizeRequest request) {
 
-		System.out.println("handleAuthorizeRequest: " + request);
-		
-		// ... handle event
+		parent.logInfo(this.log, "Handle AuthorizeRequest: " + request);
+
 		AuthorizeConfirmation response = new AuthorizeConfirmation();
 		IdTagInfo tag = new IdTagInfo();
 
@@ -58,47 +63,30 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 	public StartTransactionConfirmation handleStartTransactionRequest(UUID sessionIndex,
 			StartTransactionRequest request) {
 
-		System.out.println("handleStartTransactionRequest: " + request);
+		parent.logInfo(this.log, "Handle StartRransactionRequest: " + request);
 
 		StartTransactionConfirmation response = new StartTransactionConfirmation();
 		IdTagInfo tag = new IdTagInfo();
 		tag.setStatus(AuthorizationStatus.Accepted);
-		// tag.setParentIdTag(authorizeRequest.getIdTag());
 		tag.validate();
 		response.setIdTagInfo(tag);
-		/*
-		 * 
-		 * // ... handle event
-		 * System.out.println("ID Tag Authorisation: "+this.authorizeRequest.getIdTag())
-		 * ;
-		 * 
-		 * IdTagInfo tag = new IdTagInfo(); tag.setStatus(AuthorizationStatus.Accepted);
-		 * tag.setParentIdTag("abc"); tag.validate(); response.setIdTagInfo(tag);
-		 * response.setTransactionId(11);
-		 * 
-		 * System.out.println(response.getIdTagInfo());
-		 * System.out.println(response.getTransactionId());
-		 * System.out.println(response);
-		 * 
-		 * return response;
-		 */
 		return response;
 	}
 
 	@Override
 	public DataTransferConfirmation handleDataTransferRequest(UUID sessionIndex, DataTransferRequest request) {
 
-		System.out.println("handleDataTransferRequest: " + request);
-		// ... handle event
+		parent.logInfo(this.log, "Handle DataTransferRequest: " + request);
+		DataTransferConfirmation response = new DataTransferConfirmation();
+		response.setStatus(DataTransferStatus.Accepted);
 
-		return null; // returning null means unsupported feature
+		return response;
 	}
 
 	@Override
 	public HeartbeatConfirmation handleHeartbeatRequest(UUID sessionIndex, HeartbeatRequest request) {
 
-		System.out.println("handleHeartbeatRequest: " + request);
-		// ... handle event
+		parent.logInfo(this.log, "Handle HeartbeatRequest: " + request);
 
 		return new HeartbeatConfirmation();
 	}
@@ -106,9 +94,9 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 	@Override
 	public MeterValuesConfirmation handleMeterValuesRequest(UUID sessionIndex, MeterValuesRequest request) {
 
-		System.out.println("handleMeterValuesRequest: " + request);
+		parent.logInfo(this.log, "Handle MeterValuesRequest: " + request);
 
-		OcppEvcs evcs = getEvcsBySessionIndex(sessionIndex);
+		OcppEvcs evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new MeterValuesConfirmation();
 		}
@@ -119,22 +107,21 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 			SampledValue[] sampledValues = meterValue.getSampledValue();
 			for (SampledValue value : sampledValues) {
 
-				// value.getLocation(); Not really needed
-
+				// value.getLocation(); Not needed
 				String phases = value.getPhase();
 				String unitString = value.getUnit();
 				Unit unit = Unit.valueOf(unitString.toUpperCase());
 				String val = value.getValue();
 
+				/**
+				 * Value is formated in RAW data (integer/decimal) or in SignedData (binary data
+				 * block, encoded as hex data)
+				 */
 				if (val != null) {
-					// Value is formated in RAW data (integer/decimal) or in SignedData (binary data
-					// block, encoded as hex data)
+
 					ValueFormat format = value.getFormat();
 					if (format.equals(ValueFormat.SignedData)) {
-						
-						System.out.println("Signed data: " + val);
 						val = fromHexToDezString(val);
-						System.out.println("Raw data: " + val);
 					}
 
 					String measurandString = value.getMeasurand();
@@ -249,7 +236,7 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 						evcs.getVoltage().setNextValue(Math.round(Double.valueOf(val)));
 						break;
 					}
-					System.out.println(measurandString+": "+val+" "+unitString);
+					parent.logInfo(this.log, measurandString + ": " + val + " " + unitString + " Phases: " + phases);
 				}
 			}
 		}
@@ -260,8 +247,8 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 	public StatusNotificationConfirmation handleStatusNotificationRequest(UUID sessionIndex,
 			StatusNotificationRequest request) {
 
-		System.out.println("handleStatusNotificationRequest: " + request);
-		OcppEvcs evcs = getEvcsBySessionIndex(sessionIndex);
+		parent.logInfo(this.log, "Handle StatusNotificationRequest: " + request);
+		OcppEvcs evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new StatusNotificationConfirmation();
 		}
@@ -285,7 +272,7 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 			evcsStatus = Status.READY_FOR_CHARGING;
 			break;
 		case Reserved:
-			System.out.println("Reservation currently not supported");
+			parent.logInfo(this.log, "Reservation currently not supported");
 			break;
 		case SuspendedEV:
 			evcsStatus = Status.CHARGING_REJECTED;
@@ -294,7 +281,7 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 			evcsStatus = Status.CHARGING_REJECTED;
 			break;
 		case Unavailable:
-			System.out.println("Charging Station is Unavailable.");
+			parent.logInfo(this.log, "Charging Station is Unavailable.");
 			evcs.getChargingstationCommunicationFailed().setNextValue(true);
 			evcsStatus = Status.ERROR;
 			break;
@@ -308,8 +295,7 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 	@Override
 	public StopTransactionConfirmation handleStopTransactionRequest(UUID sessionIndex, StopTransactionRequest request) {
 
-		System.out.println("handleStopTransactionRequest: " + request);
-		// ... handle event
+		parent.logInfo(this.log, "Handle StopTransactionRequest: " + request);
 
 		StopTransactionConfirmation response = new StopTransactionConfirmation();
 		IdTagInfo tag = new IdTagInfo();
@@ -325,9 +311,13 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 	public BootNotificationConfirmation handleBootNotificationRequest(UUID sessionIndex,
 			BootNotificationRequest request) {
 
-		System.out.println("handleBootNotificationRequest: " + request);
+		parent.logInfo(this.log, "Handle BootNotificationRequest: " + request);
+		List<OcppEvcs> evcss = getEvcssBySessionIndex(sessionIndex);
+		for (OcppEvcs ocppEvcs : evcss) {
+			ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
+			ocppEvcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
+		}
 
-		// ... handle event
 		BootNotificationConfirmation response = new BootNotificationConfirmation();
 		response.setInterval(100);
 		response.setStatus(RegistrationStatus.Accepted);
@@ -336,13 +326,21 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 		return response;
 	}
 
-	private OcppEvcs getEvcsBySessionIndex(UUID sessionIndex) {
-		OcppEvcs evcs = this.parent.sessionMap.get(sessionIndex);
-		if (evcs == null) {
-			System.out.println("No Chargingstation for session " + sessionIndex + " found.");
-			return null;
+	private List<OcppEvcs> getEvcssBySessionIndex(UUID sessionIndex) {
+		return this.parent.sessionMap.get(sessionIndex);
+	}
+
+	private OcppEvcs getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
+
+		List<OcppEvcs> evcss = this.parent.sessionMap.get(sessionIndex);
+		for (OcppEvcs ocppEvcs : evcss) {
+			if (ocppEvcs.getConnectorId().value().orElse(0) == connectorId) {
+				return ocppEvcs;
+			}
 		}
-		return evcs;
+		parent.logInfo(this.log,
+				"No Chargingstation for session " + sessionIndex + " and connector " + connectorId + " found.");
+		return null;
 	}
 
 	public String fromHexToDezString(String hex) {
@@ -356,5 +354,4 @@ public class OcppEventHandler implements ServerCoreEventHandler {
 		}
 		return String.valueOf((Double.parseDouble(val) / 1000.0));
 	}
-
 }

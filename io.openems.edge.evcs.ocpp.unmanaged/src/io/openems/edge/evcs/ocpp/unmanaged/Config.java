@@ -19,6 +19,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "OCPP chargepoint identifier", description = "The OCPP identifier of the charging station.", required = true)
 	String ocpp_id() default "";
+	
+	@AttributeDefinition(name = "OCPP charger identifier", description = "The chargerid of the chargepoint (e.g. ABL with thwo chargers has two chargerid's 1 and 2).", required = true)
+	String chargerId() default "0";
 
 	String webconsole_configurationFactory_nameHint() default "EVCS OCPP Unmanaged [{id}]";
 }

@@ -55,6 +55,7 @@ public class EvcsOcppUnmanaged extends AbstractOpenemsComponent implements Evcs,
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		
 		this.channel(OcppEvcs.ChannelId.OCPP_ID).setNextValue(config.ocpp_id());
+		this.channel(OcppEvcs.ChannelId.CONNECTOR_ID).setNextValue(config.chargerId());
 	}
 
 	@Deactivate
