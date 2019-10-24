@@ -1,5 +1,6 @@
 package io.openems.edge.common.channel.internal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -17,8 +18,15 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.CircularTreeMap;
 
 public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implements Channel<T> {
+
+	/**
+	 * Holds the number of past values for this Channel that are kept in the
+	 * 'pastValues' variable.
+	 */
+	public final static int NO_OF_PAST_VALUES = 100;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
@@ -30,6 +38,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
 	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
+	private final CircularTreeMap<LocalDateTime, Value<T>> pastValues = new CircularTreeMap<>(NO_OF_PAST_VALUES);
 
 	private volatile Value<T> nextValue = null;
 	private volatile Value<T> activeValue = null;
@@ -103,6 +112,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		if (valueHasChanged) {
 			this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
 		}
+		this.pastValues.put(oldValue.getTimestamp(), oldValue);
 	}
 
 	@Override
@@ -207,5 +217,15 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Gets the past values for this Channel.
+	 * 
+	 * @return a map of recording time and historic value at that time
+	 */
+	@Override
+	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues() {
+		return this.pastValues;
 	}
 }
