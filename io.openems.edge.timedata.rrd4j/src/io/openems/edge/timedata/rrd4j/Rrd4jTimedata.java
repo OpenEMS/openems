@@ -31,17 +31,20 @@ import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.RrdRandomAccessFileBackendFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -60,11 +63,15 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 	private final static int DEFAULT_STEP_SECONDS = 60;
 	private final static int DEFAULT_HEARTBEAT_SECONDS = DEFAULT_STEP_SECONDS;
 
+	private final Logger log = LoggerFactory.getLogger(Rrd4jTimedata.class);
+
 	private final RecordWorker worker;
 	private final RrdRandomAccessFileBackendFactory factory;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
+		QUEUE_IS_FULL(Doc.of(Level.WARNING)), //
+		UNABLE_TO_INSERT_SAMPLE(Doc.of(Level.WARNING));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -226,7 +233,7 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 					.setPath(file.toURI()) //
 					.build();
 		} catch (IOException e) {
-			e.printStackTrace();
+			this.logError(this.log, "Unable to open existing RrdDb: " + e.getMessage());
 			return null;
 		}
 	}
@@ -329,5 +336,13 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 			this.worker.collectData();
 			break;
 		}
+	}
+
+	public StateChannel getQueueIsFullChannel() {
+		return this.channel(ChannelId.QUEUE_IS_FULL);
+	}
+
+	public StateChannel getUnableToInsertSample() {
+		return this.channel(ChannelId.UNABLE_TO_INSERT_SAMPLE);
 	}
 }

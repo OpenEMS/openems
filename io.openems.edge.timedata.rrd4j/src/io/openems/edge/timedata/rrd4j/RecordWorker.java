@@ -1,7 +1,5 @@
 package io.openems.edge.timedata.rrd4j;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.OptionalDouble;
@@ -96,10 +94,13 @@ public class RecordWorker extends AbstractImmediateWorker {
 					continue;
 				}
 
-				if (!this.records.offer(//
+				if (this.records.offer(//
 						new Record(timestamp, channel.address(), channel.channelDoc().getUnit(),
 								value.getAsDouble()))) {
+					this.parent.getQueueIsFullChannel().setNextValue(false);
+				} else {
 					this.log.warn("Unable to add record [" + channel.address() + "]. Queue is full!");
+					this.parent.getQueueIsFullChannel().setNextValue(true);
 				}
 			}
 		}
@@ -121,14 +122,12 @@ public class RecordWorker extends AbstractImmediateWorker {
 			// Close file
 			db.close();
 
-		} catch (IOException | URISyntaxException e) {
+			this.parent.getUnableToInsertSample().setNextValue(false);
+
+		} catch (Throwable e) {
+			this.parent.getUnableToInsertSample().setNextValue(true);
 			this.parent.logWarn(this.log, "Unable to insert Sample [" + record.address + "] "
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
-			e.printStackTrace();
-		} catch (Throwable e) {
-			this.parent.logWarn(this.log, "Unhandled error on insert Sample [" + record.address + "]. "
-					+ e.getClass().getSimpleName() + ": " + e.getMessage());
-			e.printStackTrace();
 		}
 	}
 
