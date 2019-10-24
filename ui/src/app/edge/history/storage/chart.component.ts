@@ -83,14 +83,17 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
                     })
 
                     Object.keys(result.data).forEach((channel, index) => {
+                        let isCharge: boolean = null;
                         let address = ChannelAddress.fromString(channel);
                         let component = config.getComponent(address.componentId)
                         let data = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
                             } else if (value > 0) {
+                                isCharge = false;
                                 return value / 1000; // convert to kW
                             } else if (value < 0) {
+                                isCharge = true;
                                 return value / -1000; // convert to kW;
                             } else {
                                 return 0;
@@ -103,7 +106,7 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
                                 switch (index % 2) {
                                     case 0:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: (isCharge ? this.translate.instant('General.ChargePower') : this.translate.instant('General.DischargePower')) + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
                                             data: data
                                         });
                                         this.colors.push({
@@ -113,7 +116,7 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
                                         break;
                                     case 1:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: (isCharge ? this.translate.instant('General.ChargePower') : this.translate.instant('General.DischargePower')) + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
                                             data: data
                                         });
                                         this.colors.push({
@@ -126,7 +129,7 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
                                 switch (index % 2) {
                                     case 0:
                                         datasets.push({
-                                            label: this.translate.instant('General.ChargePower') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: (isCharge ? this.translate.instant('General.ChargePower') : this.translate.instant('General.DischargePower')) + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
                                             data: data
                                         });
                                         this.colors.push({
@@ -136,7 +139,7 @@ export class StorageChartComponent extends AbstractHistoryChart implements OnIni
                                         break;
                                     case 1:
                                         datasets.push({
-                                            label: this.translate.instant('General.ChargePower') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: (isCharge ? this.translate.instant('General.ChargePower') : this.translate.instant('General.DischargePower')) + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
                                             data: data
                                         });
                                         this.colors.push({
