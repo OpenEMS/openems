@@ -69,7 +69,6 @@ public class DcMinPowerConstraints extends AbstractMinPowerConstraints
 		super.meterId = config.meter_id();
 		super.essId = config.ess_id();
 		super.bufferHour = config.Buffer_hours();
-		super.startHour = config.Start_hour();
 		this.config = config;
 	}
 

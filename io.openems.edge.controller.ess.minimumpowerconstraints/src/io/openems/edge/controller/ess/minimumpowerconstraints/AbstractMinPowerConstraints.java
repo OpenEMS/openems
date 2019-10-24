@@ -25,7 +25,6 @@ public abstract class AbstractMinPowerConstraints extends AbstractOpenemsCompone
 	protected String essId;
 	protected String chargerId;
 	protected int bufferHour;
-	protected int startHour;
 
 	private boolean executed = false;
 	private int targetHour = 0;
@@ -86,7 +85,7 @@ public abstract class AbstractMinPowerConstraints extends AbstractOpenemsCompone
 		this.calculatedPower = null;
 
 		// resets during midnight.
-		if (now.getHour() == this.startHour && !executed) {
+		if (now.getHour() == 0 && !executed) {
 			this.hourlyProduction = production;
 			this.hourlyConsumption = consumption;
 

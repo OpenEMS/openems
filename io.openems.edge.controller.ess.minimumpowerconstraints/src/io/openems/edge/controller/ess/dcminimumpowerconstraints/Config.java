@@ -26,9 +26,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Charger-ID", description = "ID of Charger.")
 	String charger_id() default "charger0";
 
-	@AttributeDefinition(name = "Start hour", description = "Defines when to start the controller in a day.")
-	int Start_hour() default 6;
-
 	@AttributeDefinition(name = "buffer hour", description = "number of hours before the final hour.")
 	int Buffer_hours() default 2;
 
