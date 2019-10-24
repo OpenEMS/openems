@@ -4,13 +4,18 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'evcs-popover',
-    templateUrl: './popover.page.html'
+    templateUrl: './evcs-popover.page.html'
 })
 export class EvcsPopoverComponent {
 
-    @Input() public controller: EdgeConfig.Component;
+    @Input() isPrioritization: boolean;
+    @Input() isCapacity: boolean;
+    @Input() controller: EdgeConfig.Component;
 
     constructor(
         protected translate: TranslateService,
     ) { }
+
+    ngOnInit() {
+    }
 }

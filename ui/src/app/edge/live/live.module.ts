@@ -29,6 +29,7 @@ import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { OfflineComponent } from './offline/offline.component';
 
 @NgModule({
   imports: [
@@ -77,6 +78,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
     EvcsPopoverComponent,
+    OfflineComponent
   ]
 })
 export class LiveModule { }

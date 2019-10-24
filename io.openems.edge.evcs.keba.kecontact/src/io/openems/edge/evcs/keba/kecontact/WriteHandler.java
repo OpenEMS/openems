@@ -157,13 +157,15 @@ public class WriteHandler implements Runnable {
 			if (!energyTarget.equals(this.lastEnergySession)
 					|| this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
 				this.parent.logInfo(this.log, "Setting KEBA " + this.parent.alias()
-						+ " Energy Limit in this Session to [" + energyTarget + " Wh]");
+						+ " Energy Limit in this Session to [" + energyTarget / 10 + " Wh]");
 
 				boolean sentSuccessfully = parent.send("setenergy " + energyTarget);
 				if (sentSuccessfully) {
 					
 					try {
-						this.parent.setDisplayText().setNextWriteValue("Max: " + energyTarget / 10000 + "kWh");
+						if (energyTarget > 0) {
+							this.parent.setDisplayText().setNextWriteValue("Max: " + energyTarget / 10 + "Wh");
+						}
 					} catch (OpenemsNamedException e) {
 						e.printStackTrace();
 					}

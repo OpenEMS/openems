@@ -99,10 +99,33 @@
                                         </ion-toolbar>
                                     </ion-header>
                                     <ion-label class="normalFontSize" *ngIf="currentData[evcs_id + '/State'] != 3">
+
+                                        <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
+                                            <table class="full_width">
+                                                <tr>
+                                                    <td style="width:50%" translate>
+                                                        Edge.Index.Widgets.EVCS.ChargingPower
+                                                    </td>
+                                                    <td style="width:50%" class="align_right">
+                                                        {{ getState(currentData[evcs_id + "/ChargePower"] | number:'1.0-0',
+                                                            currentData[evcs_id + "/Status"], 
+                                                            currentData[evcs_id + "/Plug"], evcsCtrl)}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 50%" translate>
+                                                        Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+                                                    <td style="width:50%" class="align_right">
+                                                        {{ (currentData[evcs_id + "/EnergySession"] * 0.1) | number:'1.0-0' }}
+                                                        Wh
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </ion-item>
                                         <!--Controllable Evcs-->
                                         <ng-container *ngIf="evcsMap[evcs_id] as evcsCtrl">
-                                            <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
-                                                <table class="full_width">
+                                            <ion-item class="normalFontSize" lines="none">
+                                                <table class="full_width" class="ion-text-wrap">
                                                     <tr>
                                                         <td style="width:50%" translate>
                                                             Edge.Index.Widgets.EVCS.ActivateCharging
@@ -114,28 +137,6 @@
                                                             </ion-toggle>
                                                         </td>
                                                     </tr>
-                                                    <tr>
-                                                        <td style="width:50%" translate>
-                                                            Edge.Index.Widgets.EVCS.ChargingPower
-                                                        </td>
-                                                        <td style="width:50%" class="align_right">
-                                                            {{ getState(currentData[evcs_id + "/ChargePower"] | number:'1.0-0',
-                                                            currentData[evcs_id + "/Status"], 
-                                                            currentData[evcs_id + "/Plug"], evcsCtrl)}}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="width: 50%" translate>
-                                                            Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
-                                                        <td style="width:50%" class="align_right">
-                                                            {{ (currentData[evcs_id + "/EnergySession"] * 0.1) | number:'1.0-0' }}
-                                                            Wh
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </ion-item>
-                                            <ion-item class="normalFontSize" lines="none">
-                                                <table class="full_width" class="ion-text-wrap">
                                                     <tr>
                                                         <td colspan="3" style="width: 90%">
                                                             <ion-segment
@@ -287,21 +288,6 @@
                                         </ng-container>
                                         <!--Uncontrollable Evcs-->
                                         <ng-container *ngIf="!evcsMap[evcs_id]">
-                                            <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
-                                                <table class="full_width">
-                                                    <tr>
-                                                        <td style="width:50%" translate>
-                                                            Edge.Index.Widgets.EVCS.ChargingPower
-                                                        </td>
-                                                        <td style="width:50%" class="align_right">
-                                                            {{ getState(currentData[evcs_id + "/ChargePower"],
-                                                                    currentData[evcs_id + "/Status"], 
-                                                                    currentData[evcs_id + "/Plug"], 
-                                                                    null)}}
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </ion-item>
                                             <ion-item>
                                                 <ion-label translate>
                                                     Diese Ladesäule kann nicht gesteuert werden
