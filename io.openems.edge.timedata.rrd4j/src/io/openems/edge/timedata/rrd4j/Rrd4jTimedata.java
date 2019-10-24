@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -37,6 +36,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -58,7 +58,6 @@ import io.openems.edge.timedata.api.Timedata;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata, OpenemsComponent, EventHandler {
 
-	private static final String OPENEMS_DATA_PROPERTY = "openems.data.dir";
 	private final static String RRD4J_PATH = "rrd4j";
 	private final static String DEFAULT_DATASOURCE_NAME = "value";
 	private final static int DEFAULT_STEP_SECONDS = 60;
@@ -160,7 +159,8 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-		return new TreeMap<>();
+		// TODO implement Energy calculation
+		throw new OpenemsException("This method is not implemented");
 	}
 
 	/**
@@ -241,7 +241,7 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 
 	private File getDbFile(ChannelAddress channelAddress) {
 		File file = Paths.get(//
-				Optional.ofNullable(System.getProperty(OPENEMS_DATA_PROPERTY)).orElse(""), //
+				OpenemsConstants.getOpenemsDataDir(), //
 				RRD4J_PATH, //
 				this.id(), //
 				channelAddress.getComponentId(), //
