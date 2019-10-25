@@ -92,7 +92,7 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 			/*
 			 * set result
 			 */			 
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(this.calculatedPower * -1);
+			ess.getSetActivePowerLessOrEquals().setNextWriteValue(this.calculatedPower);
 		}
 	}
 
