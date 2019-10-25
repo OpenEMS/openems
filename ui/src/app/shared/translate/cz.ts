@@ -128,6 +128,8 @@ export const TRANSLATION = {
                     ClusterConfigError: "V konfiguraci clusteru Evcs došlo k chybě",
                     EnergyLimit: "Limit energie",
                     MaxEnergyRestriction: "Omezte maximální energii na jedno nabití",
+                    CapacityOrientedCharging: "Nabíjení podle kapacity",
+                    CapacityOrientedChargingDescription: "Nastavte maximální energii pro tento náboj v Wh. Nabíjecí stanice se nabíjí pouze do výše uvedeného limitu. '0' odpovídá žádnému limitu",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",

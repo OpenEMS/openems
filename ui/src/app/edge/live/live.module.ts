@@ -27,11 +27,16 @@ import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { OfflineComponent } from './offline/offline.component';
 
 @NgModule({
   imports: [
     SharedModule,
     EnergymonitorModule,
+    BrowserModule,
+    BrowserAnimationsModule
   ],
   entryComponents: [
     StorageModalComponent,
@@ -73,6 +78,7 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
     EvcsPopoverComponent,
+    OfflineComponent
   ]
 })
 export class LiveModule { }

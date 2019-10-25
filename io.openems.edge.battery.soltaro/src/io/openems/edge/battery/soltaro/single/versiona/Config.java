@@ -43,7 +43,7 @@ import io.openems.edge.battery.soltaro.BatteryState;
 	@AttributeDefinition(name = "Minimal Cell Voltage Millivolt", description = "Minimal cell voltage in milli volt when system does not allow further discharging")
 	int minimalCellVoltage() default 2800;
 	
-	@AttributeDefinition(name = "Capacity [Wh]", description = "The capacity of the Battery Rack.")
+	@AttributeDefinition(name = "Capacity [kWh]", description = "The capacity of the Battery Rack.")
 	int capacity() default 50;
 
 	@AttributeDefinition(name = "Battery state", description = "Switches the battery into the given state, if default is used, battery state is set automatically")
