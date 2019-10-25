@@ -27,7 +27,7 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Symmetric.SelfConsmptionOptimization", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "Controller.Symmetric.SelfConsmption", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class SelfConsumption extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	@Reference

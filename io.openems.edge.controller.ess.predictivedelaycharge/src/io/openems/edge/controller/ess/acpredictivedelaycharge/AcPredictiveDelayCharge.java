@@ -82,17 +82,17 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 		// Get required variables
 		ManagedSymmetricEss ess = this.getComponentManager().getComponent(this.config.ess_id());
 
-		this.calculatedPower = getCalculatedPower() * -1;
+		this.calculatedPower = getCalculatedPower();
 
 		// checking if power per second is calculated
 		if (this.calculatedPower != null) {
 			// Set limitation for ChargePower
 			Power power = ess.getPower();
-			calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+			calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, (calculatedPower * -1));
 			/*
 			 * set result
 			 */			 
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(this.calculatedPower);
+			ess.getSetActivePowerLessOrEquals().setNextWriteValue(this.calculatedPower * -1);
 		}
 	}
 
