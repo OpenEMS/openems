@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Controller Symmetric Self-Consumption Optmization", //
+		name = "Controller Symmetric Self-Consumption", //
 		description = "controller which optimizes the charging from PV")
 @interface Config {
 
@@ -26,5 +26,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-Id", description = "ID of the Grid-Meter.")
 	String meter_id() default "meter0";
 
-	String webconsole_configurationFactory_nameHint() default "Controller Symmetric Self-Consumption Optmization [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Controller Symmetric Self-Consumption[{id}]";
 }
