@@ -6,17 +6,18 @@ import io.openems.edge.raspberrypi.circuitboard.api.boardtypes.TemperatureBoard;
 
 import io.openems.edge.raspberrypi.spi.task.Task;
 
+import java.text.SimpleDateFormat;
 
 
 //Only for one Pin
 public class TemperatureDigitalReadTask extends Task {
 
-
     private final Channel<Integer> channel;
     private double regressionValueA;
-    private  double regressionValueB;
-    private  double regressionValueC;
+    private double regressionValueB;
+    private double regressionValueC;
     private int lastValue = -666;
+    private long lastTimestamp = 0;
 
 
     private long pinValue;
@@ -69,6 +70,9 @@ public class TemperatureDigitalReadTask extends Task {
     //to avoid to big temperature Fluctuations (measured within sec)
     private void compareLastValueWithCurrent(int value) {
 
+        if (lastTimestamp == 0) {
+            lastTimestamp = System.currentTimeMillis();
+        }
         if (lastValue == -666) {
             if (value == 0) {
                 return;
@@ -76,10 +80,11 @@ public class TemperatureDigitalReadTask extends Task {
             lastValue = value;
 
         }
-        if (Math.abs(lastValue) - Math.abs(value) > 10 || Math.abs(lastValue) - Math.abs(value) < -10) {
+        if (Math.abs(lastValue) - Math.abs(value) > 5 || Math.abs(lastValue) - Math.abs(value) < -5 && lastTimestamp - System.currentTimeMillis() < 30000) {
             return;
         }
-            lastValue = value;
+        lastTimestamp = System.currentTimeMillis();
+        lastValue = value;
     }
 
 }

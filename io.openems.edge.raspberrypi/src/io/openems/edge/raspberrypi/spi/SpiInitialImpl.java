@@ -1,15 +1,11 @@
 package io.openems.edge.raspberrypi.spi;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.pi4j.wiringpi.Spi;
-import io.openems.common.types.EdgeConfig;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
