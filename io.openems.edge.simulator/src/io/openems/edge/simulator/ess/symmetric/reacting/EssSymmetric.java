@@ -22,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -61,7 +63,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	private int maxApparentPower = 0;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
+		BMS_AMPERE_HOURS(Doc.of(OpenemsType.LONG).unit(Unit.AMPERE_HOURS));
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -230,6 +232,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
 				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
 			}
+			this.channel(ChannelId.BMS_AMPERE_HOURS).setNextValue((accumulatedChargeEnergy + accumulatedDischargeEnergy) / 110);
 
 			this.logDebug(this.log, "accumulated charge energy :" + accumulatedChargeEnergy);
 			this.logDebug(this.log, "accumulated discharge energy :" + accumulatedDischargeEnergy);
