@@ -16,14 +16,14 @@ public class TemperatureDigitalReadTask extends Task {
     private double regressionValueA;
     private  double regressionValueB;
     private  double regressionValueC;
-    private int calculator;
+    private int lastValue = -666;
+
 
     private long pinValue;
 
     public TemperatureDigitalReadTask(Channel<Integer> channel, String version, Adc adc, int pin)  {
         super(adc.getSpiChannel());
         this.channel = channel;
-        calculator = 20 - adc.getInputType();
         pinValue = adc.getPins().get(pin).getValue();
         allocateRegressionValues(version);
     }
@@ -56,7 +56,30 @@ public class TemperatureDigitalReadTask extends Task {
         digit &= 0xFFF;
         int value = (int) (((this.regressionValueA * digit * digit)
                 + (this.regressionValueB * digit)
-                + (this.regressionValueC ))*10);
-        this.channel.setNextValue(value);
+                + (this.regressionValueC)) * 10);
+        compareLastValueWithCurrent(value);
+        if (lastValue == value) {
+            this.channel.setNextValue(value);
+        } else {
+            this.channel.setNextValue(lastValue);
+        }
+
     }
+
+    //to avoid to big temperature Fluctuations (measured within sec)
+    private void compareLastValueWithCurrent(int value) {
+
+        if (lastValue == -666) {
+            if (value == 0) {
+                return;
+            }
+            lastValue = value;
+
+        }
+        if (Math.abs(lastValue) - Math.abs(value) > 10 || Math.abs(lastValue) - Math.abs(value) < -10) {
+            return;
+        }
+            lastValue = value;
+    }
+
 }

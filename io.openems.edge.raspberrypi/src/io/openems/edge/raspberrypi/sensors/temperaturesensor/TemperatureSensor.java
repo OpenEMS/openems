@@ -118,6 +118,7 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
     public void deactivate() {
         spiInitial.removeTask(this.id);
         adcForTemperature.getPins().get(this.pinPosition).setUsed(false);
+        adcForTemperature = null;
         super.deactivate();
     }
 
