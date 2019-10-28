@@ -1,7 +1,10 @@
 package io.openems.edge.controller.evcs;
 
+import java.io.IOException;
 import java.time.Clock;
+import java.util.Dictionary;
 
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -43,6 +46,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final static int CHARGE_POWER_BUFFER = 100;
+	private final static double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.05; // 5%
 
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 
@@ -132,10 +136,17 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	public void run() throws OpenemsNamedException {
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
-
+		int maxHW = evcs.getMaximumHardwarePower().value().orElse(0);
+		maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
+		if (config.defaultChargeMinPower() > maxHW) {
+			configUpdate("defaultChargeMinPower", maxHW);
+		}
+		if (config.forceChargeMinPower() > maxHW) {
+			configUpdate("forceChargeMinPower", maxHW);
+		}
 
 		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
-		
+
 		/*
 		 * Sets a fixed request of 0 if the Charger is not ready
 		 */
@@ -154,6 +165,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case CHARGING_REJECTED:
 			case READY_FOR_CHARGING:
 			case CHARGING:
+			case CHARGING_FINISHED:
 				break;
 			}
 		}
@@ -162,6 +174,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 * Stop early if charging is disabled
 		 */
 		if (!config.enabledCharging()) {
+			if (isClustered) {
+				evcs.setChargePowerRequest().setNextWriteValue(0);
+			}
 			evcs.setChargePowerLimit().setNextWriteValue(0);
 			return;
 		}
@@ -210,21 +225,26 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 * Distribute next charge power on EVCS.
 		 */
 		if (isClustered) {
-			int chargePower = evcs.getChargePower().value().orElse(0);
-			if (chargePower != 0) {
+			// int chargePower = evcs.getChargePower().value().orElse(0);
+			if (nextChargePower != 0) {
+
+				int chargePower = evcs.getChargePower().value().orElse(0);
+
 				// Check difference of the current charging and the previous charging target
 				if (this.chargingLowerThanTargetHandler.isLower(evcs)) {
-					nextChargePower = (evcs.getChargePower().value().orElse(0) + CHARGE_POWER_BUFFER)
-							/ evcs.getPhases().value().orElse(3);
-					evcs.getMaximumPower().setNextValue(nextChargePower);
+					if (chargePower <= 0) {
+						nextChargePower = 0;
+					} else {
+						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
+						evcs.getMaximumPower().setNextValue(nextChargePower); 
+					}
 					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
-				}
+				} else {
+					int currMax = evcs.getMaximumPower().value().orElse(0);
 
-				// If a maximum charge power is defined.
-				// The calculated charge power must be lower then this
-				int maxChargePower = evcs.getMaximumPower().value().orElse(Integer.MAX_VALUE);
-				if (nextChargePower > maxChargePower) {
-					nextChargePower = maxChargePower;
+					if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
+						evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().getOrError());
+					}
 				}
 			}
 
@@ -252,8 +272,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		int excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 
-		nextChargePower = evcsCharge + excessPower;
-		
+		nextChargePower = excessPower;
 
 		Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) { /* charging under 6A isn't possible */
@@ -280,7 +299,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		int essActivePower = this.sum.getEssActivePower().value().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
-		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower-essActivePowerDC));
+		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower - essActivePowerDC));
 		result = result > 0 ? result : 0;
 
 		return result;
@@ -301,5 +320,22 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Controller.getModbusSlaveNatureTable(accessMode));
+	}
+
+	public void configUpdate(String targetProperty, Object requiredValue) {
+		// final String targetProperty = property + ".target";
+		Configuration c;
+		try {
+			c = cm.getConfiguration(this.servicePid(), "?");
+			Dictionary<String, Object> properties = c.getProperties();
+			Object target = properties.get(targetProperty);
+			String existingTarget = target.toString();
+			if (!existingTarget.isEmpty()) {
+				properties.put(targetProperty, requiredValue);
+				c.update(properties);
+			}
+		} catch (IOException | SecurityException e) {
+			this.logError(log, "ERROR: " + e.getMessage());
+		}
 	}
 }

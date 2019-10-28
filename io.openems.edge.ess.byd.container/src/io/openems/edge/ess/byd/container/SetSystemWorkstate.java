@@ -4,8 +4,8 @@ import io.openems.common.types.OptionsEnum;
 
 public enum SetSystemWorkstate implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), 
-	STOP(4, "Stop"),
-	RUN(64, "Run");
+	STOP(2, "Stop"),
+	RUN(6, "Run");
 	
 	private final int value;
 	private final String name;

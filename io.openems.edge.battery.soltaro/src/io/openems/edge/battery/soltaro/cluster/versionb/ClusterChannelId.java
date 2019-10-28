@@ -29,6 +29,9 @@ public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId
 			.accessMode(AccessMode.READ_WRITE)), //
 
 	// IntegerWriteChannels
+	RESET(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.NONE) //
+			.accessMode(AccessMode.READ_WRITE)), //
 	EMS_ADDRESS(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_WRITE)), //
