@@ -139,5 +139,36 @@
 			<accessrule ignoreifbetter="true" kind="discouraged" pattern="**"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="/io.openems.edge.common/generated/io.openems.edge.common.jar" sourcepath="/io.openems.edge.common/generated/io.openems.edge.common.jar">
+		<attributes>
+			<attribute name="bsn" value="io.openems.edge.common.jar"/>
+			<attribute name="type" value="PROJECT"/>
+			<attribute name="project" value="io.openems.edge.common"/>
+			<attribute name="version" value="latest"/>
+			<attribute name="index_location" value="platform:/plugin/bndtools.builder/org/bndtools/builder/classpath/empty.index"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/component/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/event/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/channel/calculate/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/converter/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/channel/internal/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/channel/value/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/channel/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/user/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/type/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/type/slidingvalue/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/taskmanager/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/modbusslave/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/meta/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/jsonapi/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/test/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/sum/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/bridge/modbus/api/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/common/channel/doc/*"/>
+			<accessrule kind="accessible" pattern="io/openems/edge/api/user/*"/>
+			<accessrule ignoreifbetter="true" kind="discouraged" pattern="**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
