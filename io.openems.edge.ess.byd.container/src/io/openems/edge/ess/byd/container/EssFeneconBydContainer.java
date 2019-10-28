@@ -11,6 +11,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -30,7 +32,6 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
@@ -53,7 +54,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	//private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
 
-	private static final int MAX_APPARENT_POWER = 100_000;
+	private static final int MAX_APPARENT_POWER = 480_000;
+
 	private static final int UNIT_ID = 100;
 	private boolean readonly = false;	
 
@@ -166,18 +168,24 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
 		
-		if (systemWorkstate != SystemWorkstate.RUNNING) {
-			//this.logInfo(this.log, "System is currently in ["+systemWorkstate.getName() 
-			//+ "] state. Setting it to RUNNING. Not applying Power.");
-			EnumWriteChannel setSystemWorkstateChannel = this.channel(ChannelId.SET_SYSTEM_WORKSTATE);
-			setSystemWorkstateChannel.setNextWriteValue(SetSystemWorkstate.RUN);
-
+		switch (systemWorkstate) {
+		case FAULT:
+		case STOP:			
 			return new Constraint[] { //
 					this.createPowerConstraint("WorkState invalid", //
 							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("WorkState invalid", //
 							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
-		}
+		case DEBUG:
+		case RUNNING:
+		case UNDEFINED:
+		case INITIAL:
+		case STANDBY:
+		case GRID_MONITORING:
+		case READY:			
+			break;
+		}		
+
 
 		// TODO set the positive and negative power limit in Constraints
 		// IntegerReadChannel posReactivePowerLimit =

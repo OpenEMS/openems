@@ -83,7 +83,7 @@
         <ion-list lines="full">
 
           <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
-            [routerLink]="edge.isOnline ? ['/device', edge.id] : null" [color]="edge.isOnline ? null : 'light'">
+            [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
             <ion-label>
               <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
               <p *ngIf="!edge.isOnline" class="ion-text-wrap">Das Gerät ist nicht verbunden!</p>
@@ -95,8 +95,7 @@
               </ng-container>
               <p class="ion-text-wrap">Angemeldet als: {{ edge.getRoleString() }}.</p>
             </ion-label>
-            <ion-icon *ngIf="edge.isOnline" slot="end" name="play" color="primary"></ion-icon>
-            <ion-icon *ngIf="!edge.isOnline" slot="end" name="square" color="primary"></ion-icon>
+            <ion-icon slot="end" name="play" color="primary"></ion-icon>
           </ion-item>
 
           <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
