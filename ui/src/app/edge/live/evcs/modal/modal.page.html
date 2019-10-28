@@ -16,6 +16,7 @@
     </ion-header>
     <ion-content>
         <ng-container *ngIf="currentData[componentId + '/State'] != 3">
+
             <ion-card-content class="underline">
                 <table class="full_width">
                     <tr>
@@ -53,8 +54,8 @@
                     </tr>
                 </table>
             </ion-card-content>
-            <!--Controllable Evcs-->
             <ng-container *ngIf="controller">
+                <!--Controllable Evcs-->
                 <ion-card-content>
                     <table class="full_width">
                         <tr>
@@ -164,6 +165,7 @@
                                 </td>
                             </tr>
                         </table>
+
                     </ion-card-content>
                 </ng-container>
                 <ng-container *ngIf="chargeMode == 'FORCE_CHARGE'">
@@ -241,20 +243,6 @@
             </ng-container>
             <!--Uncontrollable Evcs-->
             <ng-container *ngIf="!controller">
-                <!-- Valid for all
-                <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
-                <table class="full_width">
-                    <tr>
-                        <td style="width:50%" translate>
-                            Edge.Index.Widgets.EVCS.ChargingPower
-                        </td>
-                        <td style="width:50%" class="align_right">
-
-                            {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"]) }}
-                        </td>
-                    </tr>
-                </table>
-            </ion-item>-->
                 <ion-item>
                     <ion-label translate>
                         Diese Ladesäule kann nicht gesteuert werden
@@ -262,6 +250,7 @@
                 </ion-item>
             </ng-container>
         </ng-container>
+
         <ion-item class="normalFontSize" style="padding-top: 20px" *ngIf="currentData[componentId + '/State'] == 3">
             <tr>
                 <td translate>

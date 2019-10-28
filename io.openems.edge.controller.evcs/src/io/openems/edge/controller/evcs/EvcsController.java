@@ -335,7 +335,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				c.update(properties);
 			}
 		} catch (IOException | SecurityException e) {
-			System.out.println("ERROR: " + e.getMessage());
+			this.logError(log, "ERROR: " + e.getMessage());
 		}
 	}
 }

@@ -232,6 +232,29 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
 			CreateComponentConfigRequest request) throws OpenemsNamedException {
+		// Get Component-ID from Request
+		String componentId = null;
+		for (Property property : request.getProperties()) {
+			if (property.getName().equals("id")) {
+				componentId = JsonUtils.getAsString(property.getValue());
+			}
+		}
+		if (componentId == null) {
+			throw new OpenemsException("Component-ID is missing in " + request.toString());
+		}
+
+		// Check that there is currently no Component with the same ID.
+		Configuration[] configs;
+		try {
+			configs = this.cm.listConfigurations("(id=" + componentId + ")");
+		} catch (IOException | InvalidSyntaxException e) {
+			throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
+					+ e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+		if (configs != null && configs.length > 0) {
+			throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
+		}
+
 		Configuration config;
 		try {
 			config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
