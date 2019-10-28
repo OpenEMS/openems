@@ -125,7 +125,7 @@
 			<!-- https://mvnrepository.com/artifact/org.influxdb/influxdb-java/2.15 -->
 			<groupId>org.influxdb</groupId>
 			<artifactId>influxdb-java</artifactId>
-			<version>2.15</version>
+			<version>2.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
