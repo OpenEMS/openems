@@ -30,8 +30,12 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.ProductionMeter.Acting", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				"type=PRODUCTION" //
+		})
 public class ProductionMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
