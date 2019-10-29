@@ -12,7 +12,7 @@ export class AutarchyComponent {
 
   private static readonly SELECTOR = "autarchy";
 
-  public edge: Edge = null;
+  private edge: Edge = null;
 
   constructor(
     public service: Service,
@@ -42,9 +42,6 @@ export class AutarchyComponent {
   async presentModal() {
     const modal = await this.modalCtrl.create({
       component: AutarchyModalComponent,
-      componentProps: {
-        edge: this.edge
-      }
     });
     return await modal.present();
   }

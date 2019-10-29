@@ -130,7 +130,6 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		DatagramSocket dSocket = null;
 		try {
 			dSocket = new DatagramSocket();
-			this.logInfo(this.log, "Sending message to KEBA KeContact [" + s + "]");
 			dSocket.send(packet);
 			return true;
 		} catch (SocketException e) {
