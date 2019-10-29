@@ -13,6 +13,7 @@
 -runsystempackages: sun.misc, com.sun.net.httpserver
 <
 -runrequires: \
+ osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.simulated)',\
 	bnd.identity;id='org.apache.felix.http.jetty',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\

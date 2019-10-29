@@ -216,7 +216,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 					.toMillis();
 			this.lastPowerValuesTimestamp = LocalDateTime.now();
 
-			this.logDebug(this.log, "time elpsed in ms: " + passedTimeInMilliSeconds);
+			this.logDebug(this.log, "time elapsed in ms: " + passedTimeInMilliSeconds);
 			this.logDebug(this.log, "last power value :" + this.lastPowerValue);
 			double energy = this.lastPowerValue * (passedTimeInMilliSeconds / 1000) / 3600;
 			// calculate energy in watt hours
