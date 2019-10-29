@@ -179,4 +179,8 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
         options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 2.5;
+    }
 }

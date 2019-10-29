@@ -71,4 +71,9 @@ export abstract class AbstractHistoryChart {
         this.labels = [];
         this.loading = false;
     }
+
+    /**
+     * Sets Chart Height
+     */
+    protected abstract getChartHeight()
 }

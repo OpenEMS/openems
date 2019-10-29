@@ -124,8 +124,11 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                             }
                             // only one production unit
                         } else {
+                            console.log("COMPONENT", component)
+                            console.log("ADDRESS", address)
+
                             datasets.push({
-                                label: this.translate.instant('General.Production'),
+                                label: this.translate.instant('General.Production') + (address.componentId == component.alias ? '' : ' (' + component.alias + ')'),
                                 data: data,
                                 hidden: false
                             });
@@ -166,20 +169,20 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
         config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').forEach(charger => {
             channeladdresses.push(new ChannelAddress(charger.id, 'ActualPower'))
         })
-
         return new Promise((resolve) => {
             if (channeladdresses.length > 1) {
                 channeladdresses.push(new ChannelAddress('_sum', 'ProductionActivePower'));
                 resolve(channeladdresses);
             } else {
                 let result: ChannelAddress[] = [];
-                if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
-                    result.push(new ChannelAddress('_sum', 'ProductionDcActualPower'))
-                };
-                if (config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").length > 0
-                    && config.isProducer(config.getComponent("io.openems.edge.meter.api.SymmetricMeter"))) {
-                    result.push(new ChannelAddress('_sum', 'ProductionActivePower'));
-                }
+                config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').forEach(charger => {
+                    channeladdresses.push(new ChannelAddress(charger.id, 'ActualPower'))
+                })
+                config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").forEach(meter => {
+                    if (config.isProducer(meter)) {
+                        result.push(new ChannelAddress(meter.id, 'ActivePower'))
+                    }
+                })
                 resolve(result);
             }
         })
@@ -202,5 +205,9 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
         this.options = options;
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 4;
     }
 }

@@ -127,5 +127,9 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
     }
     this.options = options;
   }
+
+  public getChartHeight(): number {
+    return window.innerHeight / 2.5;
+  }
 }
 

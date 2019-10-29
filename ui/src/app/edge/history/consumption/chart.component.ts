@@ -118,4 +118,8 @@ export class ConsumptionChartComponent extends AbstractHistoryChart implements O
         }
         this.options = options;
     }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 2.5;
+    }
 }

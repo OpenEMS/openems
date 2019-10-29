@@ -348,4 +348,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
 
   }
 
+  public getChartHeight(): number {
+    return window.innerHeight / 4;
+  }
 }

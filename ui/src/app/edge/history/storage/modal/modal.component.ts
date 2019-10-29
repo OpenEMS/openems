@@ -17,4 +17,8 @@ export class StorageModalComponent {
 
     ngOnInit() {
     }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 2.5;
+    }
 }

@@ -202,6 +202,9 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
         data['_sum/EssSoc'] = sumEssSoc.map((value, index) => {
             return Utils.divideSafely(sumEssSoc[index], Object.keys(data).length);
         });
+    }
 
+    public getChartHeight(): number {
+        return window.innerHeight / 2.5;
     }
 }
