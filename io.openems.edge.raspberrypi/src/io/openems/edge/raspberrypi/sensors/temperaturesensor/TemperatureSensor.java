@@ -31,8 +31,6 @@ import java.util.stream.Stream;
 public class TemperatureSensor extends AbstractOpenemsComponent implements OpenemsComponent, TemperatureSensoric {
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     private SpiInitial spiInitial;
-    @Reference
-    private ConfigurationAdmin cm;
 
     private String id;
     private String circuitBoardId;
@@ -41,18 +39,13 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
     private int pinPosition;
     private String servicePid;
     private String alias;
-    private final String sensorType = "Temperature";
+    //private final String sensorType = "Temperature";
     private Adc adcForTemperature;
     private final Logger log = LoggerFactory.getLogger(TemperatureSensor.class);
 
 
     public TemperatureSensor() {
         super(OpenemsComponent.ChannelId.values(), TemperatureSensoric.ChannelId.values());
-
-        //this.addChannels(TemperatureSensoric.ChannelId.values());
-        //Stream<? extends AbstractReadChannel<?, ?>> stream = Utils.initializeChannels(this);
-        //stream.forEach(channel -> super.addChannel(channel.channelId()));
-
     }
 
 
@@ -81,7 +74,7 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
                                 + wantToUse.getUsedBy());
                     } else {
                         TemperatureDigitalReadTask task = new TemperatureDigitalReadTask(this.getTemperature(),
-                                this.versionId, adcForTemperature, this.pinPosition);
+                                this.versionId, adcForTemperature, this.pinPosition, this.circuitBoardId);
                         spiInitial.addTask(this.id, task);
                         wantToUse.setUsedBy(this.id);
                         return;
@@ -116,49 +109,18 @@ public class TemperatureSensor extends AbstractOpenemsComponent implements Opene
 
     @Deactivate
     public void deactivate() {
+        super.deactivate();
         spiInitial.removeTask(this.id);
         adcForTemperature.getPins().get(this.pinPosition).setUsed(false);
         adcForTemperature = null;
-        super.deactivate();
     }
 
     @Override
     public String debugLog() {
-        return "T:" + this.getTemperature().value().asString() + " of TemperatureSensor: " + this.id + this.alias;
+        if (spiInitial.checkIfBoardIsPresent(this.circuitBoardId)) {
+            return "T:" + this.getTemperature().value().asString() + " of TemperatureSensor: " + this.id + this.alias;
+        } else {
+            return null;
+        }
     }
-
-
-        //                if (adcForTemperature.getPins().get(this.pinPosition) != null) {
- //    for (CircuitBoard fromConsolinno : spiInitial.getCircuitBoards()) {
-//            if (fromConsolinno.getCircuitBoardId().equals(this.circuitBoardId)) {
-//                this.versionId = fromConsolinno.getVersionId();
-//                for (Adc adc : fromConsolinno.getAdcList()) {
-//                    if (adc.getSpiChannel() == this.spiChannel) {
-//                        adcForTemperature = adc;
-//                        if (adc.getPins().get(this.pinPosition) != null) {
-//                            Optional<Pin> opt = adc.getPins().stream().filter(pin -> pin.getPosition() == this.pinPosition).findFirst();
-//                            if (opt.isPresent()) {
-//                                Pin wantToUse = opt.get();
-//                                if (wantToUse.isUsed() && !wantToUse.getUsedBy().equals(this.id)) {
-//                                    throw new ConfigurationException(
-//                                            "Pin is already used", "Pin is already used by "
-//                                            + wantToUse.getUsedBy());
-//                                } else {
-//                                    spiInitial.addTask(this.id, new TemperatureDigitalReadTask(getTemperature(),
-//                                            this.versionId, adcForTemperature, this.pinPosition));
-//                                    wantToUse.setUsedBy(this.id);
-//                                    return;
-//                                }
-
-//                            Pin wantToUse = adc.getPins().get(this.pinPosition);
-//                            if (wantToUse.isUsed() && !wantToUse.getUsedBy().equals(this.id)) {
-//                                throw new ConfigurationException(
-//                                        "Pin is already used", "Pin is already used by "
-//                                        + wantToUse.getUsedBy());
-//                            } else {
-//                                spiInitial.addTask(this.id, new TemperatureDigitalReadTask(getTemperature(),
-//                                        this.versionId, adcForTemperature, this.pinPosition));
-//                                wantToUse.setUsedBy(this.id);
-//                                return;
-//                            }
 }

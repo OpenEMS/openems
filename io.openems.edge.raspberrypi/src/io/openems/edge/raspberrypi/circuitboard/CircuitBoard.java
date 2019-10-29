@@ -99,11 +99,11 @@ public class CircuitBoard extends AbstractOpenemsComponent implements Consolinno
 
     @Deactivate
     public void deactivate() {
+        super.deactivate();
         for (Adc adc : this.adcList) {
             this.adcList.remove(adc);
         }
         spiInitial.removeCircuitBoard(this);
-        super.deactivate();
     }
 
     public String getCircuitBoardId() {
