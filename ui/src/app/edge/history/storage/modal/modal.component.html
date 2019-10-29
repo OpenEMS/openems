@@ -11,15 +11,12 @@
 
 <ion-content>
     <ion-card-content class="underline">
-        <!-- <ion-row> -->
-        <!-- <ion-col size="12"> -->
         <socStorageChart [period]="service.historyPeriod"></socStorageChart>
-        <!-- </ion-col> -->
-        <!-- </ion-row> -->
-        <!-- <ion-row> -->
-        <!-- <ion-col size="12"> -->
-        <storageChart [period]="service.historyPeriod"></storageChart>
-        <!-- </ion-col> -->
-        <!-- </ion-row> -->
+        <storageTotalChart [period]="service.historyPeriod">
+        </storageTotalChart>
+        <ng-container *ngIf="config.getComponentsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 1">
+            <storageESSChart [period]="service.historyPeriod">
+            </storageESSChart>
+        </ng-container>
     </ion-card-content>
 </ion-content>

@@ -19,6 +19,7 @@ export class StorageComponent {
     public data: Cumulated = null;
     public values: any;
     public edge: Edge = null;
+    private config: EdgeConfig = null;
 
     constructor(
         public service: Service,
@@ -28,6 +29,7 @@ export class StorageComponent {
     ) { }
 
     ngOnInit() {
+        this.service.getConfig().then(config => { this.config = config })
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
@@ -56,6 +58,9 @@ export class StorageComponent {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: StorageModalComponent,
+            componentProps: {
+                config: this.config
+            }
         });
         return await modal.present();
     }

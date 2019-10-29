@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Service } from '../../../../shared/shared';
+import { Component, Input } from '@angular/core';
+import { Service, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -7,6 +7,8 @@ import { ModalController } from '@ionic/angular';
     templateUrl: './modal.component.html'
 })
 export class StorageModalComponent {
+
+    @Input() public config: EdgeConfig;
 
     private static readonly SELECTOR = "storage-modal";
 
@@ -16,6 +18,7 @@ export class StorageModalComponent {
     ) { }
 
     ngOnInit() {
+        console.log("ALOHAOHOAHOAHOA", this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss"))
     }
 
     public getChartHeight(): number {

@@ -27,11 +27,13 @@ import { ChanneltresholdWidgetComponent } from './channelthreshold/widget.compon
 import { AutarchyChartComponent } from './autarchy/chart.component';
 import { SelfconsumptionChartComponent } from './selfconsumption/chart.component';
 import { ProductionChartComponent } from './production/chart.component';
-import { StorageChartComponent } from './storage/chart.component';
+import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { GridChartComponent } from './grid/chart.component';
 import { ConsumptionChartComponent } from './consumption/chart.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
 import { EnergyModalComponent } from './energy/modal/modal.component';
+import { StorageESSChartComponent } from './storage/esschart';
+import { StorageChargerChartComponent } from './storage/chargerchart';
 
 @NgModule({
   imports: [
@@ -75,13 +77,15 @@ import { EnergyModalComponent } from './energy/modal/modal.component';
     ChpSocModalComponent,
     ChannelthresholdModalComponent,
     AutarchyModalComponent,
-    StorageChartComponent,
+    StorageESSChartComponent,
     SelfconsumptionChartComponent,
     ProductionChartComponent,
     GridChartComponent,
     ConsumptionChartComponent,
     SocStorageChartComponent,
-    EnergyModalComponent
+    EnergyModalComponent,
+    StorageTotalChartComponent,
+    StorageChargerChartComponent
   ]
 })
 export class HistoryModule { }

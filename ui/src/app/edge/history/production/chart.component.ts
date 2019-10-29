@@ -15,6 +15,7 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 export class ProductionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
+    private moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -49,8 +50,6 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                     // convert datasets
                     let datasets = [];
 
-                    // show Component-ID if there is more than one Channel
-                    let showComponentId = Object.keys(result.data).length > 1 ? true : false;
 
 
                     Object.keys(result.data).forEach((channel, index) => {
@@ -63,13 +62,14 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                                 return value / 1000; // convert to kW
                             }
                         });
+                        console.log("RESULT", result.data)
                         //more than one Production Unit
-                        if (showComponentId) {
+                        if (this.moreThanOneProducer == true) {
                             if (address.channelId == 'ActivePower') {
                                 switch (index % 2) {
                                     case 0:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
                                             data: data
                                         });
                                         this.colors.push({
@@ -79,7 +79,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                                         break;
                                     case 1:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
                                             data: data
                                         });
                                         this.colors.push({
@@ -92,7 +92,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                                 switch (index % 2) {
                                     case 0:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
                                             data: data
                                         });
                                         this.colors.push({
@@ -102,7 +102,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                                         break;
                                     case 1:
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + (showComponentId ? ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')' : ''),
+                                            label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
                                             data: data
                                         });
                                         this.colors.push({
@@ -114,7 +114,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                             } else if (address.channelId == 'ProductionActivePower') {
                                 // different color + label for total production data
                                 datasets.push({
-                                    label: this.translate.instant('General.Production') + (showComponentId ? ' (' + this.translate.instant('General.Total') + ')' : ''),
+                                    label: this.translate.instant('General.Production') + ' (' + this.translate.instant('General.Total') + ')',
                                     data: data
                                 });
                                 this.colors.push({
@@ -123,10 +123,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
                                 });
                             }
                             // only one production unit
-                        } else {
-                            console.log("COMPONENT", component)
-                            console.log("ADDRESS", address)
-
+                        } else if (this.moreThanOneProducer == false) {
                             datasets.push({
                                 label: this.translate.instant('General.Production') + (address.componentId == component.alias ? '' : ' (' + component.alias + ')'),
                                 data: data,
@@ -171,19 +168,14 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
         })
         return new Promise((resolve) => {
             if (channeladdresses.length > 1) {
+                console.log("CHANNELADDRESS", channeladdresses)
+                this.moreThanOneProducer = true;
                 channeladdresses.push(new ChannelAddress('_sum', 'ProductionActivePower'));
                 resolve(channeladdresses);
             } else {
-                let result: ChannelAddress[] = [];
-                config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').forEach(charger => {
-                    channeladdresses.push(new ChannelAddress(charger.id, 'ActualPower'))
-                })
-                config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").forEach(meter => {
-                    if (config.isProducer(meter)) {
-                        result.push(new ChannelAddress(meter.id, 'ActivePower'))
-                    }
-                })
-                resolve(result);
+                console.log("ELSECHANNELADDRESS", channeladdresses)
+                this.moreThanOneProducer = false;
+                resolve(channeladdresses);
             }
         })
     }
