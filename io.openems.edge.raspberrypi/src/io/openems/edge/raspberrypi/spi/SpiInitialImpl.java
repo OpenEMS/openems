@@ -1,6 +1,7 @@
 package io.openems.edge.raspberrypi.spi;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
         property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiInitial, EventHandler, OpenemsComponent, SpiBridge {
 
-
     private final Logger log = LoggerFactory.getLogger(SpiInitialImpl.class);
 
     private List<CircuitBoard> circuitBoards = new ArrayList<>();
@@ -48,6 +48,7 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
     @Deactivate
     public void deactivate() {
+        super.deactivate();
         for (CircuitBoard circuitBoard : circuitBoards
         ) {
             circuitBoard.deactivate();
@@ -101,13 +102,22 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
         public void forever() throws Throwable {
 
             for (Task task : tasks.values()) {
-                byte[] data = task.getRequest();
-                int channelInput = task.getSpiChannel();
-                Spi.wiringPiSPIDataRW(channelInput, data);
-                task.setResponse(data);
+                if (checkIfBoardIsPresent(task.getParentCircuitBoard())) {
+                    byte[] data = task.getRequest();
+                    int channelInput = task.getSpiChannel();
+                    Spi.wiringPiSPIDataRW(channelInput, data);
+                    task.setResponse(data);
+                }
             }
 
         }
+    }
+
+    @Override
+    public boolean checkIfBoardIsPresent(String circuitBoardId) {
+        return getCircuitBoards().stream().anyMatch(
+                circuitBoard -> circuitBoard.getCircuitBoardId()
+                        .equals(circuitBoardId));
     }
 
 
@@ -140,14 +150,16 @@ public class SpiInitialImpl extends AbstractOpenemsComponent implements SpiIniti
 
     @Override
     public void removeCircuitBoard(CircuitBoard circuitBoard) {
-        for (CircuitBoard rbToRemove : this.circuitBoards) {
-            if (rbToRemove.getCircuitBoardId().equals(circuitBoard.getCircuitBoardId())) {
-                this.circuitBoards.remove(rbToRemove);
+        Iterator<CircuitBoard> iter = this.circuitBoards.iterator();
+        while (iter.hasNext()) {
+            CircuitBoard toRemove = iter.next();
+            if (toRemove.getCircuitBoardId().equals(circuitBoard.getCircuitBoardId())) {
+                iter.remove();
                 break;
             }
         }
+        int size = this.circuitBoards.size();
     }
-
 
 }
 

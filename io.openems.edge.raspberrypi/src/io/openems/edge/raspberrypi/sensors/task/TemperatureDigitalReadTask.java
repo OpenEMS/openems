@@ -18,12 +18,14 @@ public class TemperatureDigitalReadTask extends Task {
     private double regressionValueC;
     private int lastValue = -666;
     private long lastTimestamp = 0;
+    private int temperatureChange = 100;
+    private int timestamp = 3000;
 
 
     private long pinValue;
 
-    public TemperatureDigitalReadTask(Channel<Integer> channel, String version, Adc adc, int pin)  {
-        super(adc.getSpiChannel());
+    public TemperatureDigitalReadTask(Channel<Integer> channel, String version, Adc adc, int pin, String parentCircuitBoard)  {
+        super(adc.getSpiChannel(), parentCircuitBoard);
         this.channel = channel;
         pinValue = adc.getPins().get(pin).getValue();
         allocateRegressionValues(version);
@@ -80,7 +82,8 @@ public class TemperatureDigitalReadTask extends Task {
             lastValue = value;
 
         }
-        if (Math.abs(lastValue) - Math.abs(value) > 5 || Math.abs(lastValue) - Math.abs(value) < -5 && lastTimestamp - System.currentTimeMillis() < 30000) {
+
+        if (Math.abs(lastValue) - Math.abs(value) > temperatureChange || Math.abs(lastValue) - Math.abs(value) < -(temperatureChange) && lastTimestamp - System.currentTimeMillis() < timestamp) {
             return;
         }
         lastTimestamp = System.currentTimeMillis();
