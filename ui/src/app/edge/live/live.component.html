@@ -1,10 +1,9 @@
-<ion-grid *ngIf="edge">
+<ion-grid *ngIf="edge && edge.isOnline">
   <ion-row class="ion-justify-content-center">
     <!-- Energymonitor -->
-    <ion-col size="12" size-md="8" size-lg="4" class="ion-no-padding">
+    <ion-col size="12" size-md="8" size-lg="3" class="ion-no-padding">
       <energymonitor></energymonitor>
     </ion-col>
-
 
     <!-- Widgets -->
     <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
@@ -88,6 +87,14 @@
 
         </ion-row>
       </ion-grid>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+
+<ion-grid *ngIf="edge && !edge.isOnline">
+  <ion-row class="ion-justify-content-center">
+    <ion-col size-xl="8" size-lg="10" size-md="11" size-sm="12">
+      <offline></offline>
     </ion-col>
   </ion-row>
 </ion-grid>

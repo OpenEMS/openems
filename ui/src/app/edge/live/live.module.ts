@@ -25,18 +25,20 @@ import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.com
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
-<<<<<<< HEAD
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
-=======
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
->>>>>>> develop
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { OfflineComponent } from './offline/offline.component';
 
 @NgModule({
   imports: [
     SharedModule,
     EnergymonitorModule,
+    BrowserModule,
+    BrowserAnimationsModule
   ],
   entryComponents: [
     StorageModalComponent,
@@ -47,12 +49,9 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
-<<<<<<< HEAD
-    HeatingElementModalComponent
-=======
+    HeatingElementModalComponent,
     EvcsPopoverComponent,
     ChpsocModalComponent,
->>>>>>> develop
   ],
   declarations: [
     LiveComponent,
@@ -82,11 +81,9 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
     AutarchyModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
-<<<<<<< HEAD
-    HeatingElementModalComponent
-=======
+    HeatingElementModalComponent,
     EvcsPopoverComponent,
->>>>>>> develop
+    OfflineComponent
   ]
 })
 export class LiveModule { }

@@ -1,0 +1,23 @@
+Bundle-Name: OpenEMS Edge Timedata RRD4J
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: io.openems.edge.timedata.api
+Private-Package: io.openems.edge.timedata.rrd4j
+
+-includeresource: {readme.adoc}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.timedata.api;version=latest,\
+	com.google.gson,\
+	com.google.guava,\
+	slf4j.api,\
+	rrd4j
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
