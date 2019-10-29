@@ -70,26 +70,27 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * 
 	 * <pre>
 	 * AbstractOpenemsComponent(ChannelId[]... channelIds)
-	 * </pre>
-	 * 
-	 * @param firstInitialChannelIds   the Channel-IDs to initialize.
-	 * @param furtherInitialChannelIds the Channel-IDs to initialize.
-	 */
-	protected AbstractOpenemsComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
-		this.addChannels(firstInitialChannelIds);
-		this.addChannels(furtherInitialChannelIds);
-	}
+     * </pre>
+     *
+     * @param firstInitialChannelIds   the Channel-IDs to initialize.
+     * @param furtherInitialChannelIds the Channel-IDs to initialize.
+     */
+    protected AbstractOpenemsComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+                                       io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+        this.addChannels(firstInitialChannelIds);
+        this.addChannels(furtherInitialChannelIds);
+    }
 
-	/**
-	 * Handles @Activate of implementations. Prints log output.
-	 * 
-	 * @param context the OSGi ComponentContext
-	 * @param id      the unique OpenEMS Component ID
-	 * @param alias   Human-readable name of this Component. Typically
-	 *                'config.alias()'. Defaults to 'id' if empty
-	 * @param enabled is the Component enabled?
-	 */
+
+    /**
+     * Handles @Activate of implementations. Prints log output.
+     *
+     * @param context the OSGi ComponentContext
+     * @param id      the unique OpenEMS Component ID
+     * @param alias   Human-readable name of this Component. Typically
+     *                'config.alias()'. Defaults to 'id' if empty
+     * @param enabled is the Component enabled?
+     */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		if (id == null || id.trim().isEmpty()) {
 			this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
