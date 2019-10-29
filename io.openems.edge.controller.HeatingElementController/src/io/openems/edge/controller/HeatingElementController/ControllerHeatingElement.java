@@ -62,8 +62,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	LocalDate today = LocalDate.now();
 	LocalTime currentEndtime;
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-	boolean isEndTimeCheck = false;
-	
+	boolean isEndTime = false;
+	boolean isNoEndTime = true;
+
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
@@ -74,7 +75,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private ChannelAddress outputChannelAddress1;
 	private ChannelAddress outputChannelAddress2;
 	private ChannelAddress outputChannelAddress3;
-	private int powerOfPhase = 0;
+	protected int powerOfPhase = 0;
 
 	public static final int PHASE_ONE = 1;
 	public static final int PHASE_TWO = 2;
@@ -101,114 +102,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	private static enum Phase {
 		ONE, TWO, THREE
-	}
-
-	private static class PhaseDef {
-		LocalDateTime phaseTimeOn = null;
-		LocalDateTime phaseTimeOff = null;
-		long totalPhaseTime = 0;
-		long totalPhasePower = 0;
-		ChannelAddress outputChannelAddress;
-		int powerOfPhase = 0;
-		
-		PhaseDef(){
-			
-		}
-		
-		
-		private void computeTime(boolean isSwitchOn, ChannelAddress outputChannelAddress, long excessPower)
-				throws IllegalArgumentException, OpenemsNamedException {
-			if (!isSwitchOn) {
-				// If the Phase one is not switched-On do not record the PhasetimeOff
-				if (phaseTimeOn == null) {
-					phaseTimeOff = null;
-				} else {
-					phaseTimeOff = LocalDateTime.now();
-				}
-
-				this.off(outputChannelAddress);
-			} else {
-				// phase one is running
-				if (phaseTimeOn != null) {
-					// do not take the current time
-				} else {
-					phaseTimeOn = LocalDateTime.now();
-				}
-				this.on(outputChannelAddress);
-			}
-			if (phaseTimeOn != null && phaseTimeOff != null) {
-				// cycle of turning phase one On and off is complete
-				totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
-				totalPhasePower += calculatePower(this.totalPhaseTime);
-				// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
-				// calculate the time for the next cycle of switch On and Off
-				phaseTimeOn = null;
-			} else if (totalPhaseTime != 0) {
-				// reserve the calculated totalPhaseTime
-			} else {
-				// phase one is not started, or still running
-				totalPhaseTime = 0;
-			}
-		}
-		
-		/**
-		 * function to calculates the Kilowatthour, using the power of each phase
-		 * 
-		 * @param time Long values of time in seconds
-		 * 
-		 */
-		private float calculatePower(long time) {
-			float kiloWattHour = ((float) (time) / 3600) * this.powerOfPhase;
-			return kiloWattHour;
-		}
-		
-		/**
-		 * Switch the output ON.
-		 * 
-		 * @param outputChannelAddress address of the channel which must set to ON
-		 * 
-		 * @throws OpenemsNamedException
-		 * @throws IllegalArgumentException
-		 */
-		private void on(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
-			this.setOutput(true, outputChannelAddress);
-		}
-
-		/**
-		 * Switch the output OFF.
-		 * 
-		 * @param outputChannelAddress address of the channel which must set to OFF
-		 * 
-		 * @throws OpenemsNamedException
-		 * @throws IllegalArgumentException
-		 */
-		private void off(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
-			this.setOutput(false, outputChannelAddress);
-		}
-		
-		/**
-		 * Helper function to switch an output if it was not switched before.
-		 *
-		 * @param value                The boolean value which must set on the output
-		 *                             channel address
-		 * @param outputChannelAddress The address of the channel
-		 * @throws OpenemsNamedException    on error
-		 * @throws IllegalArgumentException on error
-		 */
-		private void setOutput(boolean value, ChannelAddress outputChannelAddress)
-				throws IllegalArgumentException, OpenemsNamedException {
-			try {
-				WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(outputChannelAddress);
-				Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
-				if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
-					this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
-					outputChannel.setNextWriteValue(value);
-				}
-			} catch (OpenemsException e) {
-				this.logError(this.log, "Unable to set output: [" + outputChannelAddress + "] " + e.getMessage());
-			}
-		}
-		
 	}
 
 	private final Map<Phase, PhaseDef> phases = new HashMap<>();
@@ -252,15 +145,13 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		);
 		this.clock = clock;
 		for (Phase phase : Phase.values()) {
-			this.phases.put(phase, new PhaseDef());
+			this.phases.put(phase, new PhaseDef(this));
 		}
 	}
 
 	public ControllerHeatingElement() {
 		this(Clock.systemDefaultZone());
 	}
-
-
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -326,15 +217,24 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		} while (modeChanged);
 
 		this.channel(ChannelId.MODE).setNextValue(this.mode);
-		this.channel(ChannelId.PHASE1_TIME).setNextValue(this.totalPhaseOneTime);
-		this.channel(ChannelId.PHASE2_TIME).setNextValue(this.totalPhaseTwoTime);
-		this.channel(ChannelId.PHASE3_TIME).setNextValue(this.totalPhaseThreeTime);
-		this.channel(ChannelId.PHASE1_POWER).setNextValue(this.totalPhaseOnePower);
-		this.channel(ChannelId.PHASE2_POWER).setNextValue(this.totalPhaseTwoPower);
-		this.channel(ChannelId.PHASE3_POWER).setNextValue(this.totalPhaseThreePower);
 
-		this.totalPhaseTime = this.totalPhaseOneTime + this.totalPhaseThreeTime + this.totalPhaseTwoTime;
-		this.totalPhasePower = this.totalPhaseOnePower + this.totalPhaseThreePower + this.totalPhaseTwoPower;
+		for (Phase p : phases.keySet()) {
+			if (p == Phase.ONE) {
+				this.channel(ChannelId.PHASE1_TIME).setNextValue(phases.get(p).totalPhaseTime);
+				this.channel(ChannelId.PHASE1_POWER).setNextValue(phases.get(p).totalPhasePower);
+			} else if (p == Phase.TWO) {
+				this.channel(ChannelId.PHASE2_TIME).setNextValue(phases.get(p).totalPhaseTime);
+				this.channel(ChannelId.PHASE2_POWER).setNextValue(phases.get(p).totalPhasePower);
+			} else {
+				this.channel(ChannelId.PHASE3_TIME).setNextValue(phases.get(p).totalPhaseTime);
+				this.channel(ChannelId.PHASE3_POWER).setNextValue(phases.get(p).totalPhasePower);
+			}
+		}
+
+		for (PhaseDef p : phases.values()) {
+			this.totalPhaseTime += p.totalPhaseTime;
+			this.totalPhasePower += p.totalPhasePower;
+		}
 		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
 		this.channel(ChannelId.TOTAL_PHASE_POWER).setNextValue(this.totalPhasePower);
 	}
@@ -412,7 +312,19 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			currentEndtime = LocalTime.parse(this.config.endTime());
 		}
 
-		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) && !this.isEndTimeCheck) {
+		// Setting the outputchannel for each phases
+		for (Phase p : phases.keySet()) {
+			if (p == Phase.ONE) {
+				phases.get(p).outputChannelAddress = this.outputChannelAddress1;
+			} else if (p == Phase.TWO) {
+				phases.get(p).outputChannelAddress = this.outputChannelAddress2;
+			} else {
+				phases.get(p).outputChannelAddress = this.outputChannelAddress3;
+			}
+		}
+
+		// boolean isEndTimeCheck = false;
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) && !this.isEndTime) {
 			switch (this.priority) {
 			case TIME:
 				this.checkMinTime(excessPower);
@@ -422,7 +334,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				break;
 			}
 		} else {
-			if (this.isEndTimeCheck) {
+			if (this.isNoEndTime) {
 				boolean stateChanged;
 				do {
 
@@ -440,27 +352,39 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 				switch (this.state) {
 				case UNDEFINED:
-					computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
-					computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
-					computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
+					for (PhaseDef p : phases.values()) {
+						p.isSwitchOn = false;
+					}
+					this.computeTime(phases);
 					noRelaisSwitchedOn = 0;
 					break;
 				case FIRST_PHASE:
-					computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
-					computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
-					computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
+					for (Phase p : phases.keySet()) {
+						if (p == Phase.ONE) {
+							phases.get(p).isSwitchOn = true;
+						} else {
+							phases.get(p).isSwitchOn = false;
+						}
+					}
+					this.computeTime(phases);
 					noRelaisSwitchedOn = 1;
 					break;
 				case SECOND_PHASE:
-					computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
-					computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
-					computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
+					for (Phase p : phases.keySet()) {
+						if (p == Phase.THREE) {
+							phases.get(p).isSwitchOn = false;
+						} else {
+							phases.get(p).isSwitchOn = true;
+						}
+					}
+					this.computeTime(phases);
 					noRelaisSwitchedOn = 2;
 					break;
 				case THIRD_PHASE:
-					computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
-					computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
-					computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
+					for (PhaseDef p : phases.values()) {
+						p.isSwitchOn = true;
+					}
+					this.computeTime(phases);
 					noRelaisSwitchedOn = 3;
 					break;
 				}
@@ -485,21 +409,25 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	private void checkMinTime(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
 		if (this.totalPhaseTime < minTime) {
+			this.isNoEndTime = false;
 			long deltaTime = (long) (minTime - this.totalPhaseTime);
 			// Switch-On all the 3 Phases
-			computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
-			computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
-			computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
+			for (PhaseDef p : phases.values()) {
+				p.isSwitchOn = true;
+			}
+			this.computeTime(phases);
 			noRelaisSwitchedOn = 3;
 			// update the endtime
 			currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
 			// update the minTime
 			this.minTime = 0;
 		} else {
-			this.isEndTimeCheck = true;
-			computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
-			computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
-			computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
+			this.isEndTime = true;
+			this.isNoEndTime = true;
+			for (PhaseDef p : phases.values()) {
+				p.isSwitchOn = false;
+			}
+			this.computeTime(phases);
 			noRelaisSwitchedOn = 0;
 		}
 	}
@@ -517,11 +445,14 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	private void checkMinKwh(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
 		if (this.totalPhasePower < minKwh) {
+			this.isNoEndTime = false;
 			// double deltaPower = minKwh - totalPhasePower;
 			long deltaTime = (long) (minTime - this.totalPhaseTime);
-			computeTime(true, outputChannelAddress1, PHASE_ONE, excessPower);
-			computeTime(true, outputChannelAddress2, PHASE_TWO, excessPower);
-			computeTime(true, outputChannelAddress3, PHASE_THREE, excessPower);
+
+			for (PhaseDef p : phases.values()) {
+				p.isSwitchOn = true;
+			}
+			this.computeTime(phases);
 			noRelaisSwitchedOn = 3;
 			// update the endtime
 			currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
@@ -530,124 +461,19 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			// update the minKwh
 			this.minKwh = 0;
 		} else {
-			this.isEndTimeCheck = true;
-			computeTime(false, outputChannelAddress1, PHASE_ONE, excessPower);
-			computeTime(false, outputChannelAddress2, PHASE_TWO, excessPower);
-			computeTime(false, outputChannelAddress3, PHASE_THREE, excessPower);
+			this.isEndTime = true;
+			this.isNoEndTime = true;
+			for (PhaseDef p : phases.values()) {
+				p.isSwitchOn = false;
+			}
+			this.computeTime(phases);
+			noRelaisSwitchedOn = 0;
 		}
 	}
 
-	/**
-	 * function to calculates the Kilowatthour, using the power of each phase
-	 * 
-	 * @param time Long values of time in seconds
-	 * 
-	 */
-	private float calculatePower(long time) {
-		float kiloWattHour = ((float) (time) / 3600) * this.powerOfPhase;
-		return kiloWattHour;
-	}
-
-	private void computeTime(boolean isSwitchOn, ChannelAddress outputChannelAddress, int phaseNumber, long excessPower)
-			throws IllegalArgumentException, OpenemsNamedException {
-		for(PhaseDef p : this.phases.values()) {
-			p.computeTime(isSwitchOn, outputChannelAddress, excessPower);
-		}
-		
-		if (phaseNumber == 1) {
-			if (!isSwitchOn) {
-				// If the Phase one is not switched-On do not record the PhasetimeOff
-				if (phaseOneTimeOn == null) {
-					phaseOneTimeOff = null;
-				} else {
-					phaseOneTimeOff = LocalDateTime.now();
-				}
-
-				this.off(outputChannelAddress);
-			} else {
-				// phase one is running
-				if (phaseOneTimeOn != null) {
-					// do not take the current time
-				} else {
-					phaseOneTimeOn = LocalDateTime.now();
-				}
-				this.on(outputChannelAddress);
-			}
-			if (phaseOneTimeOn != null && phaseOneTimeOff != null) {
-				// cycle of turning phase one On and off is complete
-				totalPhaseOneTime += ChronoUnit.SECONDS.between(phaseOneTimeOn, phaseOneTimeOff);
-				totalPhaseOnePower += calculatePower(this.totalPhaseOneTime);
-				// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
-				// calculate the time for the next cycle of switch On and Off
-				phaseOneTimeOn = null;
-			} else if (totalPhaseOneTime != 0) {
-				// reserve the calculated totalPhaseTime
-			} else {
-				// phase one is not started, or still running
-				totalPhaseOneTime = 0;
-			}
-		} else if (phaseNumber == 2) {
-			if (!isSwitchOn) {
-
-				// If the Phase two is not switched-On do not record the PhasetimeOff
-				if (phaseTwoTimeOn == null) {
-					phaseTwoTimeOff = null;
-				} else {
-					phaseTwoTimeOff = LocalDateTime.now();
-				}
-				this.off(outputChannelAddress);
-			} else {
-				// phase two is running
-				if (phaseTwoTimeOn != null) {
-					// do not take the current time
-				} else {
-					phaseTwoTimeOn = LocalDateTime.now();
-				}
-				this.on(outputChannelAddress);
-			}
-			if (phaseTwoTimeOn != null && phaseTwoTimeOff != null) {
-				// cycle of turning phase two On and off is complete
-				totalPhaseTwoTime += ChronoUnit.SECONDS.between(phaseTwoTimeOn, phaseTwoTimeOff);
-				totalPhaseTwoPower += calculatePower(this.totalPhaseTwoTime);
-				phaseTwoTimeOn = null;
-			} else if (totalPhaseTwoTime != 0) {
-				// reserve the calculated totalPhaseTime
-			} else {
-				// phase two is not started, or still running
-				totalPhaseTwoTime = 0;
-			}
-		} else if (phaseNumber == 3) {
-			if (!isSwitchOn) {
-
-				// If the Phase three is not switched-On do not record the PhasetimeOff
-				if (phaseThreeTimeOn == null) {
-					phaseThreeTimeOff = null;
-				} else {
-					phaseThreeTimeOff = LocalDateTime.now();
-				}
-				this.off(outputChannelAddress);
-			} else {
-				// phase three is running
-				if (phaseThreeTimeOn != null) {
-					// do not take the current time
-				} else {
-					phaseThreeTimeOn = LocalDateTime.now();
-				}
-				this.on(outputChannelAddress);
-			}
-			if (phaseThreeTimeOn != null && phaseThreeTimeOff != null) {
-				// cycle of turning phase three On and off is complete
-				totalPhaseThreeTime += ChronoUnit.SECONDS.between(phaseThreeTimeOn, phaseThreeTimeOff);
-				totalPhaseThreePower += calculatePower(this.totalPhaseThreeTime);
-				phaseThreeTimeOn = null;
-			} else if (totalPhaseThreeTime != 0) {
-				// reserve the calculated totalPhaseTime
-			} else {
-				// phase two is not started, or still running
-				totalPhaseThreeTime = 0;
-			}
-		} else {
-			throw new OpenemsException("Wrong phase number");
+	private void computeTime(Map<Phase, PhaseDef> phases) throws IllegalArgumentException, OpenemsNamedException {
+		for (PhaseDef phaseDef : this.phases.values()) {
+			phaseDef.computeTime();
 		}
 	}
 

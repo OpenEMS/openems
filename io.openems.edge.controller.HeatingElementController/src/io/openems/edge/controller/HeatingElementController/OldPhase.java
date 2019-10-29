@@ -13,7 +13,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 
-public class Phase {
+public class OldPhase {
 
 	private ChannelAddress outputChannelAddress;
 	LocalDateTime switchedOnTime = null;
@@ -22,9 +22,9 @@ public class Phase {
 	
 	ComponentManager componentManager;
 	
-	private final Logger log = LoggerFactory.getLogger(Phase.class);
+	private final Logger log = LoggerFactory.getLogger(OldPhase.class);
 	
-	Phase(ChannelAddress outputChannelAddress, ComponentManager componentManager){
+	OldPhase(ChannelAddress outputChannelAddress, ComponentManager componentManager){
 		this.outputChannelAddress = outputChannelAddress;
 		this.componentManager = componentManager;
 	}
