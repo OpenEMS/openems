@@ -200,8 +200,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 				}
 			}
 
-			this.logInfo(this.log, "Maximum Total Power of the whole system: " + this.totalPowerLimit);
-
 			// Total Power that can be distributed to EVCSs minus the guaranteed power
 			int totalPowerLeftMinusGuarantee = this.totalPowerLimit;
 			
@@ -241,14 +239,12 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			// If one ore more EVCSs no longer active, than change the preferred Evcs
 			lastPreferredEvcsCounter = (activeEvcss.size() - 1) < lastPreferredEvcsCounter ? 0 : lastPreferredEvcsCounter;
 
-			this.logInfo(this.log, "Total Power to distribute: " + totalPowerLeftMinusGuarantee);
-
 			// Distributes the available Power to the active EVCSs
 			for (int index = 0; index < activeEvcss.size(); index++) {
 				ManagedEvcs evcs = activeEvcss.get(index);
 
-				int guarantee = evcs.getMinimumPower().value().orElse(0);
-
+				int guarantee = evcs.getMinimumPower().getNextValue().orElse(0);
+				
 				// Power left for the single EVCS including their guarantee
 				int powerLeft = totalPowerLeftMinusGuarantee + guarantee;
 
@@ -257,7 +253,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 				// Power requested by the controller
 				if (requestedPower.isPresent()) {
-					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
 					nextChargePower = requestedPower.get();
 				} else {
 					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT);
@@ -274,11 +269,8 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 				if (nextChargePower < powerLeft) {
 					evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
 					totalPowerLeftMinusGuarantee = totalPowerLeftMinusGuarantee - (nextChargePower - guarantee);
-					this.logInfo(this.log,
-							"Power Left: " + totalPowerLeftMinusGuarantee + " ; Charge power: " + nextChargePower);
 				} else {
 					evcs.setChargePowerLimit().setNextWriteValue(powerLeft);
-					this.logInfo(this.log, "Power Left: " + powerLeft + " ; Charge power: " + powerLeft);
 					totalPowerLeftMinusGuarantee = 0;
 				}
 			}

@@ -133,8 +133,7 @@ export const TRANSLATION = {
                     CapacityOrientedChargingDescription: "Stellen Sie die maximale Energie für diesen Ladevorgang in Wh ein. Die Ladestation lädt nur bis zu dieser Grenze auf. '0' entspricht keinem Limit",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
-                        Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
-                        Help1_1: "Die IP der Ladesäule erscheint beim erneuten einschalten"
+                        Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist"
                     },
                     OptimizedChargeMode: {
                         Name: "Optimierte Beladung",

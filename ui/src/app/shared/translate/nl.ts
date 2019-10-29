@@ -130,8 +130,7 @@ export const TRANSLATION = {
                     CapacityOrientedChargingDescription: "Stel de maximale energie voor deze lading in Wh. Het laadstation laadt alleen tot deze limiet op. '0' komt overeen met geen limiet",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
-                        Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
-                        Help1_1: "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen"
+                        Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt"
                     },
                     OptimizedChargeMode: {
                         Name: "Geoptimaliseerd laden",

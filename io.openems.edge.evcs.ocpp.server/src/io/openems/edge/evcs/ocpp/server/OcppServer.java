@@ -33,13 +33,8 @@ import eu.chargetime.ocpp.feature.profile.ServerReservationProfile;
 import eu.chargetime.ocpp.feature.profile.ServerSmartChargingProfile;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.SessionInformation;
-import eu.chargetime.ocpp.model.core.ChargingProfile;
-import eu.chargetime.ocpp.model.core.ChargingProfileKindType;
-import eu.chargetime.ocpp.model.core.ChargingProfilePurposeType;
-import eu.chargetime.ocpp.model.core.ChargingRateUnitType;
-import eu.chargetime.ocpp.model.core.ChargingSchedule;
-import eu.chargetime.ocpp.model.core.ChargingSchedulePeriod;
-import eu.chargetime.ocpp.model.smartcharging.SetChargingProfileRequest;
+import eu.chargetime.ocpp.model.core.AvailabilityType;
+import eu.chargetime.ocpp.model.core.ChangeAvailabilityRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -64,15 +59,15 @@ public class OcppServer extends AbstractOpenemsComponent
 	 * Responsible for sending and receiving OCPP JSON commands
 	 */
 	private JSONServer server;
-	
+
 	// All implemented Profiles
 	private ServerCoreProfile coreProfile;
 	private ServerFirmwareManagementProfile firmwareProfile;
 	private ServerLocalAuthListProfile localAuthListProfile = new ServerLocalAuthListProfile();
 	private ServerRemoteTriggerProfile remoteTriggerProfile = new ServerRemoteTriggerProfile();
-	private ServerReservationProfile reservationProfile =  new ServerReservationProfile();
+	private ServerReservationProfile reservationProfile = new ServerReservationProfile();
 	private ServerSmartChargingProfile smartChargingProfile = new ServerSmartChargingProfile();
-	
+
 	// Currently connected sessions (Communications with each charging station)
 	protected List<EvcsSession> activeSessions = new ArrayList<EvcsSession>();
 
@@ -92,7 +87,7 @@ public class OcppServer extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		startServer();
-		
+
 	}
 
 	@Deactivate
@@ -108,7 +103,7 @@ public class OcppServer extends AbstractOpenemsComponent
 		server.addFeatureProfile(remoteTriggerProfile);
 		server.addFeatureProfile(reservationProfile);
 		server.addFeatureProfile(smartChargingProfile);
-		
+
 		server.open("0.0.0.0", 8887, new ServerEvents() {
 
 			@Override
@@ -134,10 +129,18 @@ public class OcppServer extends AbstractOpenemsComponent
 				List<OcppEvcs> evcssWithThisId = searchForComponentWithThatIdentifier(information.getIdentifier(),
 						sessionIndex);
 				activeSessions.add(new EvcsSession(sessionIndex, information, evcssWithThisId));
+
+				ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest();
+				for (OcppEvcs ocppEvcs : evcssWithThisId) {
+					logInfo(log, "Setting EVCS "+ ocppEvcs.alias() +" availability to operative");
+					changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
+					changeAvailabilityRequest.setType(AvailabilityType.Operative);
+					send(sessionIndex, changeAvailabilityRequest);
+				}
 			}
 		});
 	}
-	
+
 	/**
 	 * Send message to EVCS. Returns true if sent successfully
 	 *
@@ -216,7 +219,6 @@ public class OcppServer extends AbstractOpenemsComponent
 			} else {
 				this.logInfo(this.log, "No EVCS component found for Session " + evcsSession.getSessionId()
 						+ " and OCPP Identifier " + evcsSession.getSessionInformation().getIdentifier() + ".");
-
 			}
 		}
 	}

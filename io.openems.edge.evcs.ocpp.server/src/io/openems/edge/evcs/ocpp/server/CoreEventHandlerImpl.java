@@ -2,6 +2,7 @@ package io.openems.edge.evcs.ocpp.server;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -100,6 +101,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		if (evcs == null) {
 			return new MeterValuesConfirmation();
 		}
+		evcs.status().setNextValue(Status.CHARGING);
 
 		MeterValue[] meterValueArr = request.getMeterValue();
 		for (MeterValue meterValue : meterValueArr) {
@@ -193,7 +195,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						if (unit.equals(Unit.KW)) {
 							val = divideByThousand(val);
 						}
-						evcs.getActivePowerToGrid();
+						evcs.getActivePowerToGrid().setNextValue(val);
 						break;
 					case POWER_ACTIVE_IMPORT:
 						if (unit.equals(Unit.KW)) {
@@ -315,8 +317,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		List<OcppEvcs> evcss = getEvcssBySessionIndex(sessionIndex);
 		for (OcppEvcs ocppEvcs : evcss) {
 			ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
-			if (ocppEvcs.status().getNextValue().asEnum().equals(Status.UNDEFINED)
-					|| ocppEvcs.status().getNextValue() == null) {
+			Status state = ocppEvcs.status().getNextValue().asEnum();
+			if (state == null || state.equals(Status.UNDEFINED) || state.equals(Status.CHARGING_FINISHED)) {
 				ocppEvcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
 			}
 		}
@@ -324,7 +326,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		BootNotificationConfirmation response = new BootNotificationConfirmation();
 		response.setInterval(100);
 		response.setStatus(RegistrationStatus.Accepted);
-		response.setCurrentTime(Calendar.getInstance());
+		response.setCurrentTime(Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin")));
+		server.logInfo(this.log, "Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
 	}

@@ -132,8 +132,7 @@ export const TRANSLATION = {
                     CapacityOrientedChargingDescription: "Nastavte maximální energii pro tento náboj v Wh. Nabíjecí stanice se nabíjí pouze do výše uvedeného limitu. '0' odpovídá žádnému limitu",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
-                        Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
-                        Help1_1: "Při opětovném zapnutí se objeví IP nabíjecí stanice"
+                        Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě"
                     },
                     OptimizedChargeMode: {
                         Name: "Optimalizované zatížení",

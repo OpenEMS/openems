@@ -133,8 +133,7 @@ export const TRANSLATION = {
                     CapacityOrientedChargingDescription: "Establezca la energía máxima para esta carga en Wh. La estación de carga solo carga hasta este límite. '0' no corresponde a límite",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
-                        Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
-                        Help1_1: "La IP de la estación de carga aparece cuando se enciende nuevamente"
+                        Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red"
                     },
                     OptimizedChargeMode: {
                         Name: "Carga optimizada",
