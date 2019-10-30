@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -127,7 +128,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 				try {
 					switch (channel.getType()) {
 					case BOOLEAN:
-						point.addField(address, ((Boolean) value ? 1: 0));
+						point.addField(address, ((Boolean) value ? 1 : 0));
 						break;
 					case SHORT:
 						point.addField(address, (Short) value);
@@ -144,7 +145,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case DOUBLE:
 						point.addField(address, (Double) value);
 						break;
-					case STRING:						
+					case STRING:
 						point.addField(address, (String) value);
 						break;
 					}
@@ -180,5 +181,11 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
 		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
+	}
+
+	@Override
+	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
+		// TODO implement this method
+		return CompletableFuture.completedFuture(Optional.empty());
 	}
 }
