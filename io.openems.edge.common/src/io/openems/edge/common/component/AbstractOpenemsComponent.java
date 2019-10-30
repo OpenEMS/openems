@@ -127,7 +127,9 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			this.logMessage("Activate DISABLED");
 		}
 
-		this.addChannelsForProperties(context.getProperties());
+//	TODO fix type of property channels to avoid errors like 
+//		[backend.timedata.influx.Influx] [Timedata.InfluxDB] Unable to write to InfluxDB: partial write: field type conflict: input field "ctrlApiRest0/_PropertyApiTimeout" on measurement "
+//		this.addChannelsForProperties(context.getProperties());
 	}
 
 	/**
