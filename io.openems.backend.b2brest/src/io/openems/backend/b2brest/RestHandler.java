@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -134,8 +135,7 @@ public class RestHandler extends AbstractHandler {
 		}
 	}
 
-	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex)
-			throws OpenemsNamedException {
+	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {
 		try {
 			response.setContentType("application/json");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -150,7 +150,7 @@ public class RestHandler extends AbstractHandler {
 			}
 			response.getWriter().write(message.toString());
 		} catch (IOException e) {
-			throw new OpenemsException("Unable to send Ok-Response: " + e.getMessage());
+			this.parent.logWarn(this.log, "Unable to send Error-Response: " + e.getMessage());
 		}
 	}
 
@@ -178,72 +178,67 @@ public class RestHandler extends AbstractHandler {
 	 * @param baseRequest  the {@link Request}
 	 * @param httpRequest  the {@link HttpServletRequest}
 	 * @param httpResponse the {@link HttpServletResponse}
-	 * @throws OpenemsNamedException on error
 	 */
 	private void handleJsonRpc(BackendUser user, Request baseRequest, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws OpenemsNamedException {
-		// call handler methods
-		if (!httpRequest.getMethod().equals("POST")) {
-			throw new OpenemsException(
-					"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
-		}
-
-		// parse json and add "jsonrpc" and "id" properties if missing
-		JsonObject json = RestHandler.parseJson(baseRequest);
-		if (!json.has("jsonrpc")) {
-			json.addProperty("jsonrpc", "2.0");
-		}
-		if (!json.has("id")) {
-			json.addProperty("id", UUID.randomUUID().toString());
-		}
-		if (json.has("params")) {
-			JsonObject params = JsonUtils.getAsJsonObject(json, "params");
-			if (params.has("payload")) {
-				JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
-				if (!payload.has("jsonrpc")) {
-					payload.addProperty("jsonrpc", "2.0");
-				}
-				if (!payload.has("id")) {
-					payload.addProperty("id", UUID.randomUUID().toString());
-				}
-				params.add("payload", payload);
-			}
-			json.add("params", params);
-		}
-		// parse JSON-RPC Request
-		JsonrpcMessage message = JsonrpcMessage.from(json);
-		if (!(message instanceof JsonrpcRequest)) {
-			throw new OpenemsException("Only JSON-RPC Request is supported here.");
-		}
-		JsonrpcRequest request = (JsonrpcRequest) message;
-
-		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture;
+			HttpServletResponse httpResponse) {
+		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
+			// call handler methods
+			if (!httpRequest.getMethod().equals("POST")) {
+				throw new OpenemsException(
+						"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
+			}
+
+			// parse json and add "jsonrpc" and "id" properties if missing
+			JsonObject json = RestHandler.parseJson(baseRequest);
+			if (!json.has("jsonrpc")) {
+				json.addProperty("jsonrpc", "2.0");
+			}
+			if (!json.has("id")) {
+				json.addProperty("id", UUID.randomUUID().toString());
+			}
+			if (json.has("params")) {
+				JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+				if (params.has("payload")) {
+					JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+					if (!payload.has("jsonrpc")) {
+						payload.addProperty("jsonrpc", "2.0");
+					}
+					if (!payload.has("id")) {
+						payload.addProperty("id", UUID.randomUUID().toString());
+					}
+					params.add("payload", payload);
+				}
+				json.add("params", params);
+			}
+			// parse JSON-RPC Request
+			JsonrpcMessage message = JsonrpcMessage.from(json);
+			if (!(message instanceof JsonrpcRequest)) {
+				throw new OpenemsException("Only JSON-RPC Request is supported here.");
+			}
+			JsonrpcRequest request = (JsonrpcRequest) message;
+
 			// handle the request
-			responseFuture = this.handleJsonRpcRequest(user, request);
+			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user,
+					request);
+
+			// wait for response
+			JsonrpcResponseSuccess response;
+			try {
+				response = responseFuture.get();
+			} catch (InterruptedException | ExecutionException e) {
+				this.sendErrorResponse(baseRequest, httpResponse, request.getId(),
+						new OpenemsException("Unable to get Response: " + e.getMessage()));
+				return;
+			}
+
+			// send response
+			this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
 
 		} catch (OpenemsNamedException e) {
-			// Get Named Exception error response
-			this.sendErrorResponse(baseRequest, httpResponse, request.getId(), e);
-			return;
+			this.sendErrorResponse(baseRequest, httpResponse, requestId,
+					new OpenemsException("Unable to get Response: " + e.getMessage()));
 		}
-
-		// wait for response
-		responseFuture.whenComplete((r, ex) -> {
-			try {
-				// convert response to http response
-				if (ex != null) {
-					this.sendErrorResponse(baseRequest, httpResponse, request.getId(), ex);
-				} else if (r != null) {
-					this.sendOkResponse(baseRequest, httpResponse, r.toJsonObject());
-				} else {
-					this.sendErrorResponse(baseRequest, httpResponse, request.getId(),
-							new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, request.getMethod()));
-				}
-			} catch (OpenemsNamedException e) {
-				this.parent.logWarn(this.log, "Unable to handle JSON-RPC result: " + e.getMessage());
-			}
-		});
 	}
 
 	/**
