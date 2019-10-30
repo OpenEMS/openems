@@ -44,7 +44,7 @@ public class GenericJsonrpcRequest extends JsonrpcRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static GenericJsonrpcRequest fromIgnoreId(String json) throws OpenemsNamedException {
-		return from(JsonUtils.parseToJsonObject(json));
+		return fromIgnoreId(JsonUtils.parseToJsonObject(json));
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class GenericJsonrpcRequest extends JsonrpcRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static GenericJsonrpcRequest fromIgnoreId(JsonObject j) throws OpenemsNamedException {
-		UUID id = JsonUtils.getAsOptionalUUID(j, "id").orElse(UUID.randomUUID());
+		UUID id = JsonUtils.getAsOptionalUUID(j, "id").orElse(new UUID(0L, 0L) /* dummy UUID */);
 		String method = JsonUtils.getAsString(j, "method");
 		JsonObject params = JsonUtils.getAsJsonObject(j, "params");
 		return new GenericJsonrpcRequest(id, method, params);
