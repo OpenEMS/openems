@@ -60,12 +60,10 @@ public class EnergyValuesHandler {
 				// no Timedata service available: fill lastEnergyValues map with nulls.
 				for (Sum.ChannelId channelId : ENERGY_CHANNEL_IDS) {
 					this.lastEnergyValues.put(channelId, null);
-					System.out.println("NO LAST ENERGY VALUE FOR [" + channelId.id() + "]");
 				}
 			} else {
 				// Fill lastEnergyValues map with values from Timedata service
 				for (Sum.ChannelId channelId : ENERGY_CHANNEL_IDS) {
-					System.out.println("GETTING LAST ENERGY VALUE FOR [" + channelId.id() + "]");
 					ChannelAddress channelAddress = new ChannelAddress("_sum", channelId.id());
 					Long value = null;
 					try {
@@ -76,7 +74,6 @@ public class EnergyValuesHandler {
 					} catch (Exception e) {
 						// ignore
 					}
-					System.out.println("LAST ENERGY VALUE FOR [" + channelId.id() + "] WAS " + value);
 					this.lastEnergyValues.put(channelId, value);
 				}
 			}
@@ -98,16 +95,11 @@ public class EnergyValuesHandler {
 	public void setValue(Sum.ChannelId channelId, Long value) {
 		if (!this.lastEnergyValues.containsKey(channelId)) {
 			// lastValue was not initialized yet -> abort
-			System.out.println("NOT SETTING YET " + value + " FOR [" + channelId.id() + "]");
 			return;
 		}
 		Long lastValue = this.lastEnergyValues.get(channelId);
 		if (value == null || (lastValue != null && lastValue > value)) {
 			this.parent.channel(channelId).setNextValue(null);
-			if (value != null) {
-				System.out.println(
-						"NOT SETTING " + value + " FOR [" + channelId.id() + "], IT IS LOWER THAN " + lastValue);
-			}
 		} else {
 			this.parent.channel(channelId).setNextValue(value);
 			this.lastEnergyValues.put(channelId, value);
