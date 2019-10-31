@@ -58,10 +58,21 @@ export class ComponentInstallComponent implements OnInit {
 
           // Set the next free Component-ID as defaultValue
           if (property_id == 'id') {
-            let suffix = property.defaultValue.match(/\d+$/);
-            if (suffix) {
-              var newSuffix = parseInt(suffix[0], 10) + 1;
-              model[property_id] = property.defaultValue.replace(/\d+$/i, newSuffix);
+            let thisMatch = property.defaultValue.match(/^(.*)(\d+)$/);
+            if (thisMatch) {
+              let thisPrefix = thisMatch[1];
+              let highestSuffix = Number.parseInt(thisMatch[2]);
+              for (let componentId of Object.keys(config.components)) {
+                let componentMatch = componentId.match(/^(.*)(\d+)$/);
+                if (componentMatch) {
+                  let componentPrefix = componentMatch[1];
+                  if (componentPrefix === thisPrefix) {
+                    let componentSuffix = Number.parseInt(componentMatch[2]);
+                    highestSuffix = Math.max(highestSuffix, componentSuffix + 1);
+                  }
+                }
+              }
+              model[property_id] = thisPrefix + highestSuffix;
             }
           }
         }
