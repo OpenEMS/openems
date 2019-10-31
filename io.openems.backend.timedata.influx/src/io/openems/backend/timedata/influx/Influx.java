@@ -187,7 +187,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 					.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, TimeUnit.MILLISECONDS);
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
-				Influx.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
+				this.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
 			if (builder.hasFields()) {
 				this.influxConnector.write(builder.build());
@@ -234,9 +234,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param element the value
 	 * @return
 	 */
-	private static void addValue(Builder builder, String field, JsonElement element) {
+	private void addValue(Builder builder, String field, JsonElement element) {
 		if (element == null || element.isJsonNull()) {
 			// do not add
+			return;
+		}
+		if (this.specialCaseFieldHandling(builder, field, element)) {
+			// already handled by special case handling
 			return;
 		}
 		if (element.isJsonPrimitive()) {
@@ -261,6 +265,38 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		} else {
 			builder.addField(field, element.toString());
 		}
+	}
+
+	/**
+	 * Handles some special cases for fields.
+	 * 
+	 * <p>
+	 * E.g. to avoid errors like "field type conflict: input field XYZ on
+	 * measurement "data" is type integer, already exists as type string"
+	 * 
+	 * @param builder the InfluxDB Builder
+	 * @param field   the fieldName, i.e. the ChannelAddress
+	 * @param value   the value, guaranteed to be not-null and not JsonNull.
+	 * @return true if field was handled; false otherwise
+	 */
+	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
+		switch (field) {
+		// convert to string
+		case "io0/_PropertyModbusUnitId":
+			builder.addField(field, value.toString());
+			return true;
+
+		// convert to integer/long
+		case "ctrlApiRest0/_PropertyApiTimeout":
+			try {
+				builder.addField(field, Long.parseLong(value.toString()));
+			} catch (NumberFormatException e1) {
+				this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to integer");
+			}
+			return true;
+
+		}
+		return false;
 	}
 
 	/**
