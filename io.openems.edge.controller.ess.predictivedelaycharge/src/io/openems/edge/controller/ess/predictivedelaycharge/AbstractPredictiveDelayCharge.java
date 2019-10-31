@@ -27,7 +27,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	protected int bufferHour;
 
 	private boolean executed = false;
-	private int targetHour = 0;
+	private int targetHour;
 	private LocalDateTime predictionStartHour;
 	private Integer calculatedPower;
 
