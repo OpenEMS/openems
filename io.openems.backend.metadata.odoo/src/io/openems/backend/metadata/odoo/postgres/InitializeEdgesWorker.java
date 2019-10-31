@@ -90,11 +90,8 @@ public class InitializeEdgesWorker {
 	private PreparedStatement psQueryAllEdges(MyConnection connection) throws SQLException {
 		return connection.get().prepareStatement(//
 				"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
-						+ " FROM " + EdgeDevice.ODOO_TABLE + " WHERE name = 'fems5'"
-
-						+ ";"
-
-		);
+						+ " FROM " + EdgeDevice.ODOO_TABLE //
+						+ ";");
 	}
 
 }
