@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -99,8 +98,6 @@ public class PostgresHandler {
 		return Optional.ofNullable(this.edgeCache.getEdgeForApikey(apikey));
 	}
 
-	private final Map<MyEdge, LocalDateTime> lastWriteDeviceStates = new HashMap<>();
-
 	/**
 	 * Updates the Device States table.
 	 * 
@@ -108,13 +105,6 @@ public class PostgresHandler {
 	 * @param activeStateChannels the active State-Channels
 	 */
 	public synchronized void updateDeviceStates(MyEdge edge, Map<ChannelAddress, Channel> activeStateChannels) {
-		LocalDateTime lastWriteDeviceStates = this.lastWriteDeviceStates.get(edge);
-		if (lastWriteDeviceStates != null && lastWriteDeviceStates.isAfter(LocalDateTime.now().minusMinutes(1))) {
-			// do not write more often than once per minute
-			return;
-		}
-		this.lastWriteDeviceStates.put(edge, LocalDateTime.now());
-
 		try {
 			/*
 			 * Update the EdgeDeviceState table
