@@ -104,8 +104,8 @@ public class UpdateEdgeStatesSum implements DatabaseTask {
 						+ " FROM " + EdgeDeviceStatus.ODOO_TABLE //
 						+ " WHERE device_id = ?" //
 						+ " AND (" //
-						+ " (acknowledge_days > 0 AND last_appearance > last_acknowledge + interval '1 day' * acknowledge_days)" //
-						+ " OR (acknowledge_days < 1 AND last_acknowledge IS NULL)" //
+						+ " last_acknowledge IS NULL"
+						+ " OR (acknowledge_days > 0 AND last_appearance > last_acknowledge + interval '1 day' * acknowledge_days)" //
 						+ ")");
 	}
 
