@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStatesSum;
 
 public class InitializeEdgesWorker {
 
@@ -53,6 +55,15 @@ public class InitializeEdgesWorker {
 	}
 
 	private BiConsumer<PostgresHandler, MyConnection> task = (parent, connection) -> {
+		// First: mark all Edges as offline
+		try {
+			this.psUpdateAllEdgesOffline(connection).execute();
+		} catch (SQLException e) {
+			parent.logError(this.log,
+					"Unable to mark Edges offline. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			e.printStackTrace();
+		}
+
 		/**
 		 * Reads all Edges from Postgres and puts them in a local Cache.
 		 */
@@ -64,7 +75,10 @@ public class InitializeEdgesWorker {
 					parent.logInfo(this.log, "Caching Edges from Postgres. Finished [" + i + "]");
 				}
 				try {
-					parent.edgeCache.addOrUpate(rs);
+					MyEdge edge = parent.edgeCache.addOrUpate(rs);
+
+					// Trigger update to Edge States Sum
+					parent.getQueueWriteWorker().addTask(new UpdateEdgeStatesSum(edge.getOdooId()));
 				} catch (Exception e) {
 					parent.logError(this.log,
 							"Unable to read Edge: " + e.getClass().getSimpleName() + ". " + e.getMessage());
@@ -91,6 +105,19 @@ public class InitializeEdgesWorker {
 		return connection.get().prepareStatement(//
 				"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
 						+ " FROM " + EdgeDevice.ODOO_TABLE //
+						+ ";");
+	}
+
+	/**
+	 * UPDATE {} SET openems_is_connected = FALSE;
+	 * 
+	 * @return the PreparedStatement
+	 * @throws SQLException on error
+	 */
+	private PreparedStatement psUpdateAllEdgesOffline(MyConnection connection) throws SQLException {
+		return connection.get().prepareStatement(//
+				"UPDATE " + EdgeDevice.ODOO_TABLE //
+						+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
 						+ ";");
 	}
 

@@ -19,13 +19,13 @@ import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
 
-public class UpdateEdgeStates implements DatabaseTask {
+public class UpdateEdgeStatesSum implements DatabaseTask {
 
-	private final Logger log = LoggerFactory.getLogger(UpdateEdgeStates.class);
+	private final Logger log = LoggerFactory.getLogger(UpdateEdgeStatesSum.class);
 
 	private final int odooId;
 
-	public UpdateEdgeStates(int odooId) {
+	public UpdateEdgeStatesSum(int odooId) {
 		this.odooId = odooId;
 	}
 

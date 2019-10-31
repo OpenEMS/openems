@@ -74,70 +74,11 @@ public class PeriodicWriteWorker {
 
 	private Consumer<MyConnection> task = (connection) -> {
 		try {
-			synchronized (this.lastMessageOdooIds) {
-				if (!this.lastMessageOdooIds.isEmpty()) {
-					StringBuilder sql = new StringBuilder(//
-							"UPDATE " + EdgeDevice.ODOO_TABLE //
-									+ " SET " + Field.EdgeDevice.LAST_MESSAGE.id() + " = (now() at time zone 'UTC')" //
-									+ " WHERE id IN (");
-					sql.append(//
-							this.lastMessageOdooIds.stream() //
-									.map(String::valueOf) //
-									.collect(Collectors.joining(",")));
-					this.lastMessageOdooIds.clear();
-					sql.append(")");
-					Statement s = connection.get().createStatement();
-					s.executeUpdate(sql.toString());
-				}
-			}
-			synchronized (this.lastUpdateOdooIds) {
-				if (!this.lastUpdateOdooIds.isEmpty()) {
-					StringBuilder sql = new StringBuilder(//
-							"UPDATE " + EdgeDevice.ODOO_TABLE //
-									+ " SET " + Field.EdgeDevice.LAST_UPDATE.id() + " = (now() at time zone 'UTC')" //
-									+ " WHERE id IN (");
-					sql.append(//
-							this.lastUpdateOdooIds.stream() //
-									.map(String::valueOf) //
-									.collect(Collectors.joining(",")));
-					this.lastUpdateOdooIds.clear();
-					sql.append(")");
-					Statement s = connection.get().createStatement();
-					s.executeUpdate(sql.toString());
-				}
-			}
-			synchronized (this.isOnlineOdooIds) {
-				if (!this.isOnlineOdooIds.isEmpty()) {
-					StringBuilder sql = new StringBuilder(//
-							"UPDATE " + EdgeDevice.ODOO_TABLE //
-									+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = TRUE" //
-									+ " WHERE id IN (");
-					sql.append(//
-							this.isOnlineOdooIds.stream() //
-									.map(String::valueOf) //
-									.collect(Collectors.joining(",")));
-					this.isOnlineOdooIds.clear();
-					sql.append(")");
-					Statement s = connection.get().createStatement();
-					s.executeUpdate(sql.toString());
-				}
-			}
-			synchronized (this.isOfflineOdooIds) {
-				if (!this.isOfflineOdooIds.isEmpty()) {
-					StringBuilder sql = new StringBuilder(//
-							"UPDATE " + EdgeDevice.ODOO_TABLE //
-									+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
-									+ " WHERE id IN (");
-					sql.append(//
-							this.isOfflineOdooIds.stream() //
-									.map(String::valueOf) //
-									.collect(Collectors.joining(",")));
-					this.isOfflineOdooIds.clear();
-					sql.append(")");
-					Statement s = connection.get().createStatement();
-					s.executeUpdate(sql.toString());
-				}
-			}
+			this.writeLastMessage(connection);
+			this.writeLastUpdate(connection);
+			this.writeIsOnline(connection);
+			this.writeIsOffline(connection);
+
 		} catch (SQLException e) {
 			this.log.error("Unable to execute WriteWorker task: " + e.getMessage());
 		}
@@ -151,6 +92,82 @@ public class PeriodicWriteWorker {
 	public void onLastMessage(MyEdge edge) {
 		synchronized (this.lastMessageOdooIds) {
 			this.lastMessageOdooIds.add(edge.getOdooId());
+		}
+	}
+
+	private void writeIsOffline(MyConnection connection) throws SQLException {
+		synchronized (this.isOfflineOdooIds) {
+			if (!this.isOfflineOdooIds.isEmpty()) {
+				StringBuilder sql = new StringBuilder(//
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
+								+ " WHERE id IN (");
+				sql.append(//
+						this.isOfflineOdooIds.stream() //
+								.map(String::valueOf) //
+								.collect(Collectors.joining(",")));
+				this.isOfflineOdooIds.clear();
+				sql.append(")");
+				Statement s = connection.get().createStatement();
+				s.executeUpdate(sql.toString());
+			}
+		}
+	}
+
+	private void writeIsOnline(MyConnection connection) throws SQLException {
+		synchronized (this.isOnlineOdooIds) {
+			if (!this.isOnlineOdooIds.isEmpty()) {
+				StringBuilder sql = new StringBuilder(//
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = TRUE" //
+								+ " WHERE id IN (");
+				sql.append(//
+						this.isOnlineOdooIds.stream() //
+								.map(String::valueOf) //
+								.collect(Collectors.joining(",")));
+				this.isOnlineOdooIds.clear();
+				sql.append(")");
+				Statement s = connection.get().createStatement();
+				s.executeUpdate(sql.toString());
+			}
+		}
+	}
+
+	private void writeLastUpdate(MyConnection connection) throws SQLException {
+		synchronized (this.lastUpdateOdooIds) {
+			if (!this.lastUpdateOdooIds.isEmpty()) {
+				StringBuilder sql = new StringBuilder(//
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.LAST_UPDATE.id() + " = (now() at time zone 'UTC')" //
+								+ " WHERE id IN (");
+				sql.append(//
+						this.lastUpdateOdooIds.stream() //
+								.map(String::valueOf) //
+								.collect(Collectors.joining(",")));
+				this.lastUpdateOdooIds.clear();
+				sql.append(")");
+				Statement s = connection.get().createStatement();
+				s.executeUpdate(sql.toString());
+			}
+		}
+	}
+
+	private void writeLastMessage(MyConnection connection) throws SQLException {
+		synchronized (this.lastMessageOdooIds) {
+			if (!this.lastMessageOdooIds.isEmpty()) {
+				StringBuilder sql = new StringBuilder(//
+						"UPDATE " + EdgeDevice.ODOO_TABLE //
+								+ " SET " + Field.EdgeDevice.LAST_MESSAGE.id() + " = (now() at time zone 'UTC')" //
+								+ " WHERE id IN (");
+				sql.append(//
+						this.lastMessageOdooIds.stream() //
+								.map(String::valueOf) //
+								.collect(Collectors.joining(",")));
+				this.lastMessageOdooIds.clear();
+				sql.append(")");
+				Statement s = connection.get().createStatement();
+				s.executeUpdate(sql.toString());
+			}
 		}
 	}
 

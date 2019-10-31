@@ -14,7 +14,7 @@ import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceState;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStates;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStatesSum;
 import io.openems.common.channel.Level;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig.Component.Channel;
@@ -91,7 +91,7 @@ public class PostgresHandler {
 		}
 
 		// Add "UpdateEdgeStates" task to write queue
-		this.queueWriteWorker.addTask(new UpdateEdgeStates(edge.getOdooId()));
+		this.queueWriteWorker.addTask(new UpdateEdgeStatesSum(edge.getOdooId()));
 	}
 
 	public PeriodicWriteWorker getPeriodicWriteWorker() {
