@@ -93,6 +93,7 @@
 	bnd.identity;id='io.openems.edge.raspberrypi.circuitboard,\
 	bnd.identity;id='io.openems.edge.raspberrypi.sensors,\
 	bnd.identity;id='io.openems.edge.raspberrypi.spi,\
+	bnd.identity;id='io.openems.edge.bridgei2c,\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\
