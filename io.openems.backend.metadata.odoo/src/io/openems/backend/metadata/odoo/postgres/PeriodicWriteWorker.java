@@ -22,11 +22,11 @@ import io.openems.backend.metadata.odoo.MyEdge;
  * This worker combines writes to lastMessage and lastUpdate fields, to avoid
  * DDOSing Odoo/Postgres by writing too often.
  */
-public class WriteWorker {
+public class PeriodicWriteWorker {
 
 	private static final int UPDATE_INTERVAL_IN_SECONDS = 60;
 
-	private final Logger log = LoggerFactory.getLogger(WriteWorker.class);
+	private final Logger log = LoggerFactory.getLogger(PeriodicWriteWorker.class);
 	private final PostgresHandler parent;
 	private final MyConnection connection;
 
@@ -40,15 +40,15 @@ public class WriteWorker {
 	 */
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-	public WriteWorker(PostgresHandler parent, MyConnection connection) {
+	public PeriodicWriteWorker(PostgresHandler parent, Credentials credentials) {
 		this.parent = parent;
-		this.connection = connection;
+		this.connection = new MyConnection(credentials);
 	}
 
 	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
 				() -> task.accept(this.connection), //
-				0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+				UPDATE_INTERVAL_IN_SECONDS, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 
 	public synchronized void stop() {
@@ -62,10 +62,10 @@ public class WriteWorker {
 				executor.shutdown();
 				executor.awaitTermination(5, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
-				this.parent.parent.logWarn(this.log, "tasks interrupted");
+				this.parent.logWarn(this.log, "tasks interrupted");
 			} finally {
 				if (!executor.isTerminated()) {
-					this.parent.parent.logWarn(this.log, "cancel non-finished tasks");
+					this.parent.logWarn(this.log, "cancel non-finished tasks");
 				}
 				executor.shutdownNow();
 			}
@@ -106,6 +106,38 @@ public class WriteWorker {
 					s.executeUpdate(sql.toString());
 				}
 			}
+			synchronized (this.isOnlineOdooIds) {
+				if (!this.isOnlineOdooIds.isEmpty()) {
+					StringBuilder sql = new StringBuilder(//
+							"UPDATE " + EdgeDevice.ODOO_TABLE //
+									+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = TRUE" //
+									+ " WHERE id IN (");
+					sql.append(//
+							this.isOnlineOdooIds.stream() //
+									.map(String::valueOf) //
+									.collect(Collectors.joining(",")));
+					this.isOnlineOdooIds.clear();
+					sql.append(")");
+					Statement s = connection.get().createStatement();
+					s.executeUpdate(sql.toString());
+				}
+			}
+			synchronized (this.isOfflineOdooIds) {
+				if (!this.isOfflineOdooIds.isEmpty()) {
+					StringBuilder sql = new StringBuilder(//
+							"UPDATE " + EdgeDevice.ODOO_TABLE //
+									+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
+									+ " WHERE id IN (");
+					sql.append(//
+							this.isOfflineOdooIds.stream() //
+									.map(String::valueOf) //
+									.collect(Collectors.joining(",")));
+					this.isOfflineOdooIds.clear();
+					sql.append(")");
+					Statement s = connection.get().createStatement();
+					s.executeUpdate(sql.toString());
+				}
+			}
 		} catch (SQLException e) {
 			this.log.error("Unable to execute WriteWorker task: " + e.getMessage());
 		}
@@ -113,6 +145,8 @@ public class WriteWorker {
 
 	private final Set<Integer> lastMessageOdooIds = new HashSet<>();
 	private final Set<Integer> lastUpdateOdooIds = new HashSet<>();
+	private final Set<Integer> isOnlineOdooIds = new HashSet<>();
+	private final Set<Integer> isOfflineOdooIds = new HashSet<>();
 
 	public void onLastMessage(MyEdge edge) {
 		synchronized (this.lastMessageOdooIds) {
@@ -123,6 +157,26 @@ public class WriteWorker {
 	public void onLastUpdate(MyEdge edge) {
 		synchronized (this.lastUpdateOdooIds) {
 			this.lastUpdateOdooIds.add(edge.getOdooId());
+		}
+	}
+
+	public void isOnline(MyEdge edge) {
+		synchronized (this.isOnlineOdooIds) {
+			synchronized (this.isOfflineOdooIds) {
+				int odooId = edge.getOdooId();
+				this.isOfflineOdooIds.remove(odooId);
+				this.isOnlineOdooIds.add(edge.getOdooId());
+			}
+		}
+	}
+
+	public void isOffline(MyEdge edge) {
+		synchronized (this.isOnlineOdooIds) {
+			synchronized (this.isOfflineOdooIds) {
+				int odooId = edge.getOdooId();
+				this.isOnlineOdooIds.remove(odooId);
+				this.isOfflineOdooIds.add(edge.getOdooId());
+			}
 		}
 	}
 

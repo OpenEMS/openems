@@ -342,7 +342,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				// convert channel ids to old identifiers
 				if (channel.equals("ess0/Soc")) {
 					fields.put("Stack_SOC", value);
-					edge.setSoc((int) value);
 				} else if (channel.equals("meter0/ActivePower")) {
 					fields.put("PCS_Grid_Power_Total", value * -1);
 				} else if (channel.equals("meter1/ActivePower")) {

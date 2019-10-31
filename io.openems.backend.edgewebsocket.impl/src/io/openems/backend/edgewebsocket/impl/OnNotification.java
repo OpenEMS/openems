@@ -122,14 +122,6 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			}
 
 			// set specific Edge values
-			if (data.has("ess0/Soc") && data.get("ess0/Soc").isJsonPrimitive()) {
-				int soc = JsonUtils.getAsPrimitive(data, "ess0/Soc").getAsInt();
-				edge.setSoc(soc);
-			}
-			if (data.has("system0/PrimaryIpAddress") && data.get("system0/PrimaryIpAddress").isJsonPrimitive()) {
-				String ipv4 = JsonUtils.getAsPrimitive(data, "system0/PrimaryIpAddress").getAsString();
-				edge.setIpv4(ipv4);
-			}
 			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));

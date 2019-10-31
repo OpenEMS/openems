@@ -7,7 +7,8 @@ Private-Package: \
 	io.openems.backend.metadata.odoo,\
 	io.openems.backend.metadata.odoo.odoo,\
 	io.openems.backend.metadata.odoo.postgres,\
-	io.openems.backend.metadata.odoo.odoo.jsonrpc
+	io.openems.backend.metadata.odoo.odoo.jsonrpc,\
+	io.openems.backend.metadata.odoo.postgres.task
 
 -includeresource: {readme.md}
 

@@ -34,20 +34,15 @@ public class Edge {
 	private EdgeConfig config;
 	private ZonedDateTime lastMessage = null;
 	private ZonedDateTime lastUpdate = null;
-	private Integer soc = null;
-	private String ipv4 = null;
 	private boolean isOnline = false;
 
-	public Edge(String id, String comment, State state, String version, String producttype, EdgeConfig config,
-			Integer soc, String ipv4) {
+	public Edge(String id, String comment, State state, String version, String producttype, EdgeConfig config) {
 		this.id = id;
 		this.comment = comment;
 		this.state = state;
 		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
 		this.config = config;
-		this.soc = soc;
-		this.ipv4 = ipv4;
 	}
 
 	public String getId() {
@@ -92,7 +87,7 @@ public class Edge {
 		return "Edge [id=" + id + ", comment=" + comment + ", state=" + state + ", version=" + version
 				+ ", producttype=" + producttype + ", deprecatedConfig="
 				+ (config.toString().isEmpty() ? "NOT_SET" : "set") + ", lastMessage=" + lastMessage + ", lastUpdate="
-				+ lastUpdate + ", soc=" + soc + ", ipv4=" + ipv4 + ", isOnline=" + isOnline + "]";
+				+ lastUpdate + ", isOnline=" + isOnline + "]";
 	}
 
 	/*
@@ -268,73 +263,6 @@ public class Edge {
 				this.onSetVersion.forEach(listener -> listener.accept(version));
 			}
 			this.version = version;
-		}
-	}
-
-	/*
-	 * State of Charge (SoC)
-	 */
-	private final List<Consumer<Integer>> onSetSoc = new CopyOnWriteArrayList<>();
-
-	public void onSetSoc(Consumer<Integer> listener) {
-		this.onSetSoc.add(listener);
-	}
-
-	/**
-	 * Sets the State-of-Charge and calls the SetSoc-Listeners.
-	 * 
-	 * @param soc the State-of-Charge
-	 */
-	public synchronized void setSoc(Integer soc) {
-		this.setSoc(soc, true);
-	}
-
-	/**
-	 * Sets the State-of-Charge.
-	 * 
-	 * @param soc           the soc
-	 * @param callListeners whether to call the SetSoc-Listeners
-	 */
-	public synchronized void setSoc(Integer soc, boolean callListeners) {
-		if (!Objects.equal(this.soc, soc)) { // on change
-			if (callListeners) {
-				this.onSetSoc.forEach(listener -> listener.accept(soc));
-			}
-			this.soc = soc;
-		}
-	}
-
-	/*
-	 * IPv4
-	 */
-	// TODO rename to "onUpdateIpv4"
-	private final List<Consumer<String>> onSetIpv4 = new CopyOnWriteArrayList<>();
-
-	public void onSetIpv4(Consumer<String> listener) {
-		this.onSetIpv4.add(listener);
-	}
-
-	/**
-	 * Sets the IPv4 address and calls the SetIpv4-Listeners.
-	 * 
-	 * @param ipv4 the IPv4 address
-	 */
-	public synchronized void setIpv4(String ipv4) {
-		this.setIpv4(ipv4, true);
-	}
-
-	/**
-	 * Sets the IPv4 address and calls the SetIpv4-Listeners.
-	 * 
-	 * @param ipv4          the IPv4 address
-	 * @param callListeners whether to call the SetIpv4-Listeners
-	 */
-	public synchronized void setIpv4(String ipv4, boolean callListeners) {
-		if (!Objects.equal(this.ipv4, ipv4)) { // on change
-			if (callListeners) {
-				this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
-			}
-			this.ipv4 = ipv4;
 		}
 	}
 

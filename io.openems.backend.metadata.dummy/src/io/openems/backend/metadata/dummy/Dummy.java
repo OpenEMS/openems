@@ -99,21 +99,16 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			id = this.nextEdgeId.incrementAndGet();
 			edgeId = "edge" + id;
 		}
-		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null,
-				null, null);
+		MyEdge edge = new MyEdge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig());
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
 					+ StringUtils.toShortString(EdgeConfigDiff.diff(config, edge.getConfig()).getAsHtml(), 100));
 		});
-		edge.onSetSoc(soc -> {
-			this.logInfo(this.log, "Edge [" + edgeId + "]. Set SoC: " + soc);
-		});
-		edge.onSetIpv4(ipv4 -> {
-			this.logInfo(this.log, "Edge [" + edgeId + "]. Set IPv4: " + ipv4);
-		});
 		edge.onSetComponentState(activeStateChannels -> {
 			String states = Metadata.activeStateChannelsToString(activeStateChannels);
-			this.logInfo(this.log, "Edge [" + edgeId + "]. Set State: " + states);
+			if (!states.isEmpty()) {
+				this.logInfo(this.log, "Edge [" + edgeId + "]. Set State: " + states);
+			}
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
