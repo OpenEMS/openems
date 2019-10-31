@@ -48,11 +48,14 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
+import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 
 public class RestHandler extends AbstractHandler {
@@ -292,6 +295,10 @@ public class RestHandler extends AbstractHandler {
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 
+		case GetEdgeConfigRequest.METHOD:
+			resultFuture = this.handleGetEdgeConfigRequest(edgeId, user, GetEdgeConfigRequest.from(request));
+			break;
+
 		case ComponentJsonApiRequest.METHOD:
 			resultFuture = this.handleComponentJsonApiRequest(edgeId, user, ComponentJsonApiRequest.from(request));
 			break;
@@ -313,6 +320,23 @@ public class RestHandler extends AbstractHandler {
 			}
 		});
 		return result;
+	}
+
+	/**
+	 * Handles a GetEdgeConfigRequest.
+	 * 
+	 * @param edgeId  the Edge-ID
+	 * @param user    the User - no specific level required
+	 * @param request the GetEdgeConfigRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, User user,
+			GetEdgeConfigRequest request) throws OpenemsNamedException {
+		EdgeConfig config = this.parent.metadata.getEdgeOrError(edgeId).getConfig();
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new GetEdgeConfigResponse(request.getId(), config));
 	}
 
 	/**
