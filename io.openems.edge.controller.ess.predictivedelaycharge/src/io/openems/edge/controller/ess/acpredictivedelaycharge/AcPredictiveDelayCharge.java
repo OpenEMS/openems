@@ -20,6 +20,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
 import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.HourlyPredictor;
@@ -47,7 +48,8 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 		super();
 	}
 
-	public AcPredictiveDelayCharge(Clock clock, String componentId, io.openems.edge.common.channel.ChannelId channelId) {
+	public AcPredictiveDelayCharge(Clock clock, String componentId,
+			io.openems.edge.common.channel.ChannelId channelId) {
 		super(clock, componentId, channelId);
 	}
 
@@ -88,11 +90,13 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 		if (this.calculatedPower != null) {
 			// Set limitation for ChargePower
 			Power power = ess.getPower();
-			calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, (calculatedPower * -1));
+			this.calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+					(this.calculatedPower * -1));
 			/*
 			 * set result
-			 */			 
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(this.calculatedPower);
+			 */
+			ess.addPowerConstraintAndValidate("AcPredictiveDelayCharge", Phase.ALL, Pwr.ACTIVE,
+					Relationship.GREATER_OR_EQUALS, this.calculatedPower);
 		}
 	}
 

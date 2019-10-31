@@ -33,7 +33,6 @@ import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 		implements Controller, OpenemsComponent, HourlyPredictor {
 
-
 	private Config config;
 
 	@Reference
@@ -51,7 +50,8 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 		super();
 	}
 
-	public DcPredictiveDelayCharge(Clock clock, String componentId, io.openems.edge.common.channel.ChannelId channelId) {
+	public DcPredictiveDelayCharge(Clock clock, String componentId,
+			io.openems.edge.common.channel.ChannelId channelId) {
 		super(clock, componentId, channelId);
 	}
 
@@ -94,18 +94,19 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 		// checking if power per second is calculated
 		if (calculatedPower != null) {
 
-			int calculatedMinPower = productionPower - calculatedPower;
+			int calculatedMinPower = productionPower - this.calculatedPower;
 
 			// avoiding buying power from grid to charge the battery.
 			if (calculatedMinPower > 0) {
 				// Set limitation for ChargePower
 				Power power = ess.getPower();
-				calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+				this.calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+						calculatedMinPower);
 				/*
 				 * set result
 				 */
-				ess.addPowerConstraintAndValidate("DcMinPowerConstraints", Phase.ALL, Pwr.ACTIVE,
-						Relationship.GREATER_OR_EQUALS, calculatedMinPower);
+				ess.addPowerConstraintAndValidate("DcPredictiveDelayCharge", Phase.ALL, Pwr.ACTIVE,
+						Relationship.GREATER_OR_EQUALS, this.calculatedPower);
 			}
 		}
 	}
