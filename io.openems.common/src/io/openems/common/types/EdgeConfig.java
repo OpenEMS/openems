@@ -295,6 +295,39 @@ public class EdgeConfig {
 		}
 
 		/**
+		 * Is the given Channel-ID a StateChannel?.
+		 * 
+		 * @param channelId the Channel-ID
+		 * @return true if it is a StateChannel
+		 */
+		public boolean isStateChannel(String channelId) {
+			return this.channels.entrySet().stream() //
+					.anyMatch(entry ->
+					/* find Channel-ID */
+					entry.getKey().equals(channelId)
+							/* is of type StateChannel */
+							&& entry.getValue().getDetail().getCategory() == ChannelCategory.STATE);
+		}
+
+		/**
+		 * Get the StateChannel with the given Channel-ID.
+		 * 
+		 * @param channelId the Channel-ID
+		 * @return the Channel; or empty if the Channel does not exist or is not a
+		 *         StateChannel.
+		 */
+		public Optional<Component.Channel> getStateChannel(String channelId) {
+			return this.channels.entrySet().stream() //
+					.filter(entry ->
+					/* find Channel-ID */
+					entry.getKey().equals(channelId)
+							/* is of type StateChannel */
+							&& entry.getValue().getDetail().getCategory() == ChannelCategory.STATE) //
+					.map(entry -> entry.getValue()) //
+					.findFirst();
+		}
+
+		/**
 		 * Returns the Component configuration as a JSON Object.
 		 * 
 		 * <pre>
@@ -887,6 +920,35 @@ public class EdgeConfig {
 			factories.add(entry.getKey(), entry.getValue().toJson());
 		}
 		return factories;
+	}
+
+	/**
+	 * Is the given Channel-Address a StateChannel?.
+	 * 
+	 * @param channelAddress the {@link ChannelAddress}
+	 * @return true if it is a StateChannel
+	 */
+	public boolean isStateChannel(ChannelAddress channelAddress) {
+		Component component = this.components.get(channelAddress.getComponentId());
+		if (component == null) {
+			return false;
+		}
+		return component.isStateChannel(channelAddress.getChannelId());
+	}
+
+	/**
+	 * Get the StateChannel with the given Channel-Address.
+	 * 
+	 * @param channelAddress the {@link ChannelAddress}
+	 * @return the Channel; or empty if the Channel does not exist or is not a
+	 *         StateChannel.
+	 */
+	public Optional<Component.Channel> getStateChannel(ChannelAddress channelAddress) {
+		Component component = this.components.get(channelAddress.getComponentId());
+		if (component == null) {
+			return Optional.empty();
+		}
+		return component.getStateChannel(channelAddress.getChannelId());
 	}
 
 	/**
