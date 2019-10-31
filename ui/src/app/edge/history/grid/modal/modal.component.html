@@ -1,10 +1,18 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title class="ion-text-start ion-padding-left" translate>General.Grid</ion-title>
+    <ion-toolbar color="primary">
+        <ion-title translate>General.Grid</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
             </ion-button>
+            <ion-button>
+                <pickdate></pickdate>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>

@@ -9,9 +9,14 @@
         <table class="full_width">
             <tr>
                 <td style="width:65%"></td>
-                <td style="width:35%" class="align_right">
+                <td style="width:35%" class="align_right" *ngIf="data;else noData">
                     {{1337000 | unitvalue:'kWh'}}
                 </td>
+                <ng-template #noData>
+                    <td style="width:35%" class="align_right">
+                        NA
+                    </td>
+                </ng-template>
             </tr>
         </table>
     </ion-card-content>

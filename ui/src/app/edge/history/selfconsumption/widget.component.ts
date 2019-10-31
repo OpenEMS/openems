@@ -41,7 +41,6 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
 
     updateValues() {
         let channels: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
         ];
 
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
@@ -54,6 +53,7 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: SelfconsumptionModalComponent,
+            cssClass: 'wide-modal'
         });
         return await modal.present();
     }

@@ -24,6 +24,12 @@ ion-label {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+// used in history for better chart visibility
+.wide-modal .modal-wrapper {
+    width: 101%;
+    height: 101%;
+}
+
 mat-card.single {
     margin: 20px;
 }

@@ -57,6 +57,7 @@ export class EvcsWidgetComponent {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: EvcsModalComponent,
+            cssClass: 'wide-modal'
         });
         return await modal.present();
     }

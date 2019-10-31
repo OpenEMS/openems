@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Service, EdgeConfig } from '../../../../shared/shared';
+import { Service, EdgeConfig, Utils } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -12,13 +12,22 @@ export class StorageModalComponent {
 
     private static readonly SELECTOR = "storage-modal";
 
+    public essComponents: EdgeConfig.Component[] = null;
+    public chargerComponents: EdgeConfig.Component[] = null;
+
+    // referene to the Utils method to access via html
+    public isLastElement = Utils.isLastElement;
+
     constructor(
         public service: Service,
         public modalCtrl: ModalController
     ) { }
 
     ngOnInit() {
-        console.log("ALOHAOHOAHOAHOA", this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss"))
+        this.service.getConfig().then(config => {
+            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster"));
+            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
+        })
     }
 
     public getChartHeight(): number {

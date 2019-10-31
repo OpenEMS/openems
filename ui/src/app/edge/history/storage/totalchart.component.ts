@@ -102,176 +102,80 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                 return 0;
                             }
                         });
-                        // if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data) {
-                        //     // Phases
-                        //     if (address.channelId == 'EssActivePowerL1') {
-                        //         //Charge
-                        //         datasets.push({
-                        //             label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                        //             data: chargeData
-                        //         });
-                        //         this.colors.push({
-                        //             backgroundColor: 'rgba(255,165,0,0.1)',
-                        //             borderColor: 'rgba(255,165,0,1)',
-                        //         });
-                        //         //Discharge
-                        //         datasets.push({
-                        //             label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                        //             data: dischargeData
-                        //         });
-                        //         this.colors.push({
-                        //             backgroundColor: 'rgba(255,165,0,0.1)',
-                        //             borderColor: 'rgba(255,165,0,1)',
-                        //         });
-                        //     }
-                        //     if (address.channelId == 'EssActivePowerL2') {
-                        //         //Charge
-                        //         datasets.push({
-                        //             label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                        //             data: chargeData
-                        //         });
-                        //         this.colors.push({
-                        //             backgroundColor: 'rgba(255,165,0,0.1)',
-                        //             borderColor: 'rgba(255,165,0,1)',
-                        //         });
-                        //         //Discharge
-                        //         datasets.push({
-                        //             label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                        //             data: dischargeData
-                        //         });
-                        //         this.colors.push({
-                        //             backgroundColor: 'rgba(255,165,0,0.1)',
-                        //             borderColor: 'rgba(255,165,0,1)',
-                        //         });
-                        //     }
-                        //     if (address.channelId == 'EssActivePowerL3') {
-                        //         //Charge
-                        //         datasets.push({
-                        //             label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                        //             data: chargeData
-                        //         });
-                        //         this.colors.push({
-                        //             backgroundColor: 'rgba(255,165,0,0.1)',
-                        //             borderColor: 'rgba(255,165,0,1)',
-                        //         });
-                        //         //Discharge
-                        //         datasets.push({
-                        //             label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                        //             data: dischargeData
-                        //         });
-                        //         this.colors.push({
-                        //             backgroundColor: 'rgba(255,165,0,0.1)',
-                        //             borderColor: 'rgba(255,165,0,1)',
-                        //         });
-                        //     }
-                        // }
-                        let chargerData = result.data[channel].map(value => {
-                            if (value == null) {
-                                return null
-                            } else {
-                                return value / 1000; // convert to kW
-                            }
-                        });
-                        // more than one charging unit
-                        if (this.moreThanOneProducer == true) {
-                            if (address.channelId == "EssActivePower") {
+                        if (address.channelId == "EssActivePower") {
+                            datasets.push({
+                                label: this.translate.instant('General.ChargePower') + ' (' + this.translate.instant('General.Total') + ')',
+                                data: chargeDataTotal
+                            });
+                            this.colors.push({
+                                backgroundColor: 'rgba(0,223,0,0.05)',
+                                borderColor: 'rgba(0,223,0,1)',
+                            })
+                            datasets.push({
+                                label: this.translate.instant('General.DischargePower') + ' (' + this.translate.instant('General.Total') + ')',
+                                data: dischargeDataTotal
+                            });
+                            this.colors.push({
+                                backgroundColor: 'rgba(200,0,0,0.05)',
+                                borderColor: 'rgba(200,0,0,1)',
+                            });
+                        } if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data) {
+                            if (address.channelId == 'EssActivePowerL1') {
+                                //Charge
                                 datasets.push({
-                                    label: this.translate.instant('General.ChargePower'),
+                                    label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
                                     data: chargeData
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(255,165,0,0.1)',
                                     borderColor: 'rgba(255,165,0,1)',
                                 });
+                                //Discharge
                                 datasets.push({
-                                    label: this.translate.instant('General.DischargePower'),
+                                    label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
                                     data: dischargeData
                                 });
                                 this.colors.push({
-                                    backgroundColor: 'rgba(255,255,0,0.1)',
-                                    borderColor: 'rgba(255,255,0,1)',
+                                    backgroundColor: 'rgba(255,165,0,0.1)',
+                                    borderColor: 'rgba(255,165,0,1)',
                                 });
-                            } if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data) {
-                                if (address.channelId == 'EssActivePowerL1') {
-                                    //Charge
-                                    datasets.push({
-                                        label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                                        data: chargeData
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(255,165,0,0.1)',
-                                        borderColor: 'rgba(255,165,0,1)',
-                                    });
-                                    //Discharge
-                                    datasets.push({
-                                        label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                                        data: dischargeData
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(255,165,0,0.1)',
-                                        borderColor: 'rgba(255,165,0,1)',
-                                    });
-                                } if (address.channelId == 'EssActivePowerL2') {
-                                    //Charge
-                                    datasets.push({
-                                        label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                                        data: chargeData
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(255,165,0,0.1)',
-                                        borderColor: 'rgba(255,165,0,1)',
-                                    });
-                                    //Discharge
-                                    datasets.push({
-                                        label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                                        data: dischargeData
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(255,165,0,0.1)',
-                                        borderColor: 'rgba(255,165,0,1)',
-                                    });
-                                } if (address.channelId == 'EssActivePowerL3') {
-                                    //Charge
-                                    datasets.push({
-                                        label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                                        data: chargeData
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(255,165,0,0.1)',
-                                        borderColor: 'rgba(255,165,0,1)',
-                                    });
-                                    //Discharge
-                                    datasets.push({
-                                        label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                                        data: dischargeData
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(255,165,0,0.1)',
-                                        borderColor: 'rgba(255,165,0,1)',
-                                    });
-                                }
-                            }
-                        } else if (this.moreThanOneProducer == false) {
-                            //one charging unit
-                            if (address.channelId == "ActivePower") {
-                                console.log("address.cid", address.componentId, "component.ali", component.alias, "component.id", component.id)
+                            } if (address.channelId == 'EssActivePowerL2') {
+                                //Charge
                                 datasets.push({
-                                    label: this.translate.instant('General.ChargePower') + (address.componentId == component.alias ? '' : ' (' + component.alias + ')'),
-                                    data: chargeDataTotal,
-                                    hidden: false
+                                    label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                    data: chargeData
                                 });
                                 this.colors.push({
-                                    backgroundColor: 'rgba(0,223,0,0.05)',
-                                    borderColor: 'rgba(0,223,0,1)',
-                                })
+                                    backgroundColor: 'rgba(255,165,0,0.1)',
+                                    borderColor: 'rgba(255,165,0,1)',
+                                });
+                                //Discharge
                                 datasets.push({
-                                    label: this.translate.instant('General.DischargePower') + (address.componentId == component.alias ? '' : ' (' + component.alias + ')'),
-                                    data: dischargeDataTotal,
-                                    hidden: false
+                                    label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                    data: dischargeData
                                 });
                                 this.colors.push({
-                                    backgroundColor: 'rgba(200,0,0,0.05)',
-                                    borderColor: 'rgba(200,0,0,1)',
+                                    backgroundColor: 'rgba(255,165,0,0.1)',
+                                    borderColor: 'rgba(255,165,0,1)',
+                                });
+                            } if (address.channelId == 'EssActivePowerL3') {
+                                //Charge
+                                datasets.push({
+                                    label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                    data: chargeData
+                                });
+                                this.colors.push({
+                                    backgroundColor: 'rgba(255,165,0,0.1)',
+                                    borderColor: 'rgba(255,165,0,1)',
+                                });
+                                //Discharge
+                                datasets.push({
+                                    label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                    data: dischargeData
+                                });
+                                this.colors.push({
+                                    backgroundColor: 'rgba(255,165,0,0.1)',
+                                    borderColor: 'rgba(255,165,0,1)',
                                 });
                             }
                         }
@@ -296,41 +200,15 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        let channeladdresses: ChannelAddress[] = [];
-        config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
-            channeladdresses.push(new ChannelAddress(charger.id, 'ActualPower'))
-        })
-        config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").forEach(ess => {
-            channeladdresses.push(new ChannelAddress(ess.id, 'ActivePower'))
-        })
-
         return new Promise((resolve, reject) => {
-            if (channeladdresses.length > 1) {
-                this.moreThanOneProducer = true;
-                channeladdresses.push(new ChannelAddress('_sum', 'EssActivePower'));
-                channeladdresses.push(new ChannelAddress('_sum', 'ProductionDcActualPower'));
-                channeladdresses.push(new ChannelAddress('_sum', 'EssActivePowerL1'));
-                channeladdresses.push(new ChannelAddress('_sum', 'EssActivePowerL2'));
-                channeladdresses.push(new ChannelAddress('_sum', 'EssActivePowerL3'));
-                resolve(channeladdresses);
-            } else {
-                this.moreThanOneProducer = false;
-                let result: ChannelAddress[] = [
-                    new ChannelAddress('_sum', 'EssActivePower'),
-                    new ChannelAddress('_sum', 'ProductionActivePower'),
-                    new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                    new ChannelAddress('_sum', 'EssActivePowerL1'),
-                    new ChannelAddress('_sum', 'EssActivePowerL1'),
-                    new ChannelAddress('_sum', 'EssActivePowerL1'),
-                ];
-                config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
-                    result.push(new ChannelAddress(charger.id, 'ActualPower'))
-                })
-                config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
-                    result.push(new ChannelAddress(charger.id, 'ActualPower'))
-                })
-                resolve(result);
-            }
+            let result: ChannelAddress[] = [
+                new ChannelAddress('_sum', 'EssActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'),
+                new ChannelAddress('_sum', 'EssActivePowerL1'),
+                new ChannelAddress('_sum', 'EssActivePowerL2'),
+                new ChannelAddress('_sum', 'EssActivePowerL3'),
+            ];
+            resolve(result);
         })
     }
 

@@ -279,6 +279,6 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 2.5;
+        return window.innerHeight / 1.6;
     }
 }

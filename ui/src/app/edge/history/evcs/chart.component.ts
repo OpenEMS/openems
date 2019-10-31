@@ -55,6 +55,7 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
       // convert datasets
       Object.keys(result.data).forEach((channel, index) => {
         let address = ChannelAddress.fromString(channel);
+        let component = this.config.getComponent(address.componentId)
         let data = result.data[channel].map(value => {
           if (value == null) {
             return null
@@ -75,7 +76,7 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
           switch (index % 2) {
             case 0:
               datasets.push({
-                label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + component.alias + ')' : ''),
                 data: data
               });
               this.colors.push({
@@ -85,7 +86,7 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
               break;
             case 1:
               datasets.push({
-                label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + component.alias + ')' : ''),
                 data: data
               });
               this.colors.push({

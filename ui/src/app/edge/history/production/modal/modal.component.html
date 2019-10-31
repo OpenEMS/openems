@@ -10,11 +10,73 @@
 </ion-header>
 
 <ion-content>
-    <ion-card-content class="underline">
-        <ion-row>
-            <ion-col size="12">
-                <productionChart [period]="service.historyPeriod"></productionChart>
-            </ion-col>
-        </ion-row>
-    </ion-card-content>
+    <!-- total summary of AC + DC -->
+    <ng-container
+        *ngIf="productionMeterComponents != null && productionMeterComponents.length > 0 && chargerComponents != null && chargerComponents.length > 0">
+        <ion-card-content class="underline">
+            <productionTotalChart [period]="service.historyPeriod"></productionTotalChart>
+        </ion-card-content>
+    </ng-container>
+    <!-- One Production Meter -->
+    <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1">
+        <ng-container *ngFor="let component of productionMeterComponents">
+            <ion-card-content [class.underline]="chargerComponents.length > 0">
+                <productionMeterChart [period]="service.historyPeriod" [componentId]="component.id">
+                </productionMeterChart>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
+    <!-- more than one Production Meter -->
+    <!-- summary of Production Meters -->
+    <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+        <ion-card-content class="underline"
+            *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+            <table class="full_width">
+                <tr>
+                    <ng-container *ngIf="chargerComponents.length > 0; else onlyProductionMeters">
+                        <td style="width:100%"><span translate>General.Total</span> AC</td>
+                    </ng-container>
+                    <ng-template #onlyProductionMeters>
+                        <td style="width:100%" translate>General.Total</td>
+                    </ng-template>
+                </tr>
+            </table>
+            <productionTotalAcChart></productionTotalAcChart>
+        </ion-card-content>
+    </ng-container>
+
+    <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+        <ng-container *ngFor="let component of productionMeterComponents">
+            <ng-container *ngIf="config.factories[component.factoryId] as factory">
+                <ion-card-content
+                    [class.underline]="chargerComponents.length > 0 || !isLastElement(component, productionMeterComponents)">
+                    <ng-container *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter')">
+                        <productionMeterChart [period]="service.historyPeriod" [componentId]="component.id">
+                        </productionMeterChart>
+                    </ng-container>
+                </ion-card-content>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+
+    <!-- one DC Charger -->
+    <ng-container *ngIf="chargerComponents != null && chargerComponents.length == 1">
+        <ng-container *ngFor="let component of chargerComponents">
+            <productionChargerChart [period]="service.historyPeriod" [componentId]="component.id">
+            </productionChargerChart>
+        </ng-container>
+    </ng-container>
+    <!-- more than one DC Charger -->
+    <ng-container *ngIf="chargerComponents != null && chargerComponents.length > 1">
+        <!-- summary of DC Charger -->
+        <ion-card-content class="underline">
+            <productionTotalDcChart [period]="service.historyPeriod"></productionTotalDcChart>
+        </ion-card-content>
+        <ng-container *ngFor="let component of chargerComponents">
+            <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
+                <productionChargerChart [period]="service.historyPeriod" [componentId]="component.id">
+                </productionChargerChart>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
 </ion-content>

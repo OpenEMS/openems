@@ -47,7 +47,6 @@ export class StorageComponent {
             new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
             new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
         ];
-
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
             this.data = response.result.data;
         }).catch(reason => {
@@ -58,6 +57,7 @@ export class StorageComponent {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: StorageModalComponent,
+            cssClass: 'wide-modal',
             componentProps: {
                 config: this.config
             }

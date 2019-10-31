@@ -34,8 +34,9 @@ export const TRANSLATION = {
         ChargePower: "Beladung",
         DischargePower: "Entladung",
         ActualPower: "E-Auto Beladung",
-        PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
+        PeriodFromTo: "{{value1}} - {{value2}}", // value1 = start date, value2 = end date
         DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
+        DateFormatShort: "dd.MM",
         Search: "Suchen",
         Week: {
             Monday: "Montag",
@@ -45,6 +46,20 @@ export const TRANSLATION = {
             Friday: "Freitag",
             Saturday: "Samstag",
             Sunday: "Sonntag"
+        },
+        Month: {
+            January: "Januar",
+            February: "Februar",
+            March: "März",
+            April: "April",
+            May: "Mai",
+            June: "Juni",
+            July: "Juli",
+            August: "August",
+            September: "September",
+            October: "Oktober",
+            November: "November",
+            December: "Dezember"
         },
         ReportValue: "Fehlerhafte Daten melden",
         Capacity: "Kapazität"

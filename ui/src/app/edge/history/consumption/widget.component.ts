@@ -54,6 +54,7 @@ export class ConsumptionComponent implements OnInit, OnChanges {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: ConsumptionModalComponent,
+            cssClass: 'wide-modal'
         });
         return await modal.present();
     }

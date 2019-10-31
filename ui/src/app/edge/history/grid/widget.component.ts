@@ -52,6 +52,7 @@ export class GridComponent {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: GridModalComponent,
+            cssClass: 'wide-modal'
         });
         return await modal.present();
     }

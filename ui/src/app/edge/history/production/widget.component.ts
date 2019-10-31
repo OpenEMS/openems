@@ -54,6 +54,7 @@ export class ProductionComponent {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: ProductionModalComponent,
+            cssClass: 'wide-modal'
         });
         return await modal.present();
     }
