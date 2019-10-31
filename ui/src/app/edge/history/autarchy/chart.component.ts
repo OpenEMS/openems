@@ -205,6 +205,6 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 2.5;
+        return window.innerWidth / 21 * 9;
     }
 }

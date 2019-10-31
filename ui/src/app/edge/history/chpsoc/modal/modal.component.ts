@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Service } from '../../../../shared/shared';
+import { Component, Input } from '@angular/core';
+import { Service, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -7,6 +7,8 @@ import { ModalController } from '@ionic/angular';
     templateUrl: './modal.component.html'
 })
 export class ChpSocModalComponent {
+
+    @Input() public controller: EdgeConfig.Component;
 
     private static readonly SELECTOR = "chpsoc-modal";
 

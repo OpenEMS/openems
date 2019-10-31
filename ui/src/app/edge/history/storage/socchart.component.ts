@@ -152,6 +152,6 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 4;
+        return window.innerHeight / 21 * 9;
     }
 }

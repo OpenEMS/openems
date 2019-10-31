@@ -1,22 +1,5 @@
 <ion-grid *ngIf="isTimedataAvailable && widgets">
   <ion-row>
-
-    <!-- <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
-      <kwh [period]="service.historyPeriod"></kwh>
-    </ion-col> -->
-
-    <!-- <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label class="ion-text-wrap" *ngIf="translate"><span translate>Edge.History.SelectedPeriod</span>
-            {{ service.historyPeriod.getText(translate) }}</ion-label>
-        </ion-item> -->
-    <!-- <ng-container class="ion-no-padding" *ngIf="widgets"> -->
-    <!-- <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-        <ion-col *ngSwitchCase="'Autarchy' || 'Storage' || 'Selfconsumption'" size="12">
-          <soc [period]="service.historyPeriod" [style.height]="socChartHeight"></soc>
-        </ion-col>
-      </ng-container> -->
-
     <!-- Energymonitor Chart -->
     <ion-col size="12">
       <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
@@ -43,15 +26,18 @@
         <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
       </ion-col>
     </ng-container>
-    <ion-col size="12" size-lg="2">
-      <channelthresholdWidget [period]="service.historyPeriod"></channelthresholdWidget>
-    </ion-col>
-    <ion-col size="12" size-lg="2">
-      <chpsocWidget [period]="service.historyPeriod"></chpsocWidget>
-    </ion-col>
-    <ion-col size="12" size-lg="2">
-      <evcsWidget [period]="service.historyPeriod"></evcsWidget>
-    </ion-col>
+    <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+
+      <ion-col size="12" size-lg="2">
+        <channelthresholdWidget [period]="service.historyPeriod"></channelthresholdWidget>
+      </ion-col>
+      <ion-col size="12" size-lg="2" *ngSwitchCase="'Controller.CHP.SoC'">
+        <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod"></chpsocWidget>
+      </ion-col>
+      <!-- <ion-col size="12" size-lg="2">
+        <evcsWidget [period]="service.historyPeriod"></evcsWidget>
+      </ion-col> -->
+    </ng-container>
     <!-- <ng-container *ngFor="let name of widgets.names" [ngSwitch]="name"> -->
     <!-- <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px" size="12">
           <evcs [period]="service.historyPeriod"></evcs>

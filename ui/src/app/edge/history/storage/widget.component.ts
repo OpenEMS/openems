@@ -58,9 +58,6 @@ export class StorageComponent {
         const modal = await this.modalCtrl.create({
             component: StorageModalComponent,
             cssClass: 'wide-modal',
-            componentProps: {
-                config: this.config
-            }
         });
         return await modal.present();
     }

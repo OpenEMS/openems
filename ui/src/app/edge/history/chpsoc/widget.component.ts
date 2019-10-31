@@ -13,8 +13,11 @@ import { ChpSocModalComponent } from './modal/modal.component';
 export class ChpSocWidgetComponent implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() private componentId: string;
 
     private static readonly SELECTOR = "chpsocWidget";
+
+    public controller: EdgeConfig.Component = null;
 
     public data: Cumulated = null;
     public values: any;
@@ -30,6 +33,9 @@ export class ChpSocWidgetComponent implements OnInit, OnChanges {
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
+        this.service.getConfig().then(config => {
+            this.controller = config.components[this.componentId];
+        })
     }
 
     ngOnDestroy() {
@@ -53,7 +59,10 @@ export class ChpSocWidgetComponent implements OnInit, OnChanges {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: ChpSocModalComponent,
-            cssClass: 'wide-modal'
+            cssClass: 'wide-modal',
+            componentProps: {
+                controller: this.controller,
+            }
         });
         return await modal.present();
     }

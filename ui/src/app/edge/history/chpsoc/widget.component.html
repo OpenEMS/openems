@@ -1,10 +1,8 @@
 <ion-card button (click)="presentModal()">
     <ion-item lines="full" color="light">
-        <!-- <ion-avatar slot="start">
-            <img src="assets/img/consumption.png">
-        </ion-avatar> -->
         <ion-icon slot="start" size="large" color="primary" name="flame"></ion-icon>
-        <ion-label>BHKW</ion-label>
+        <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
+        <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
     </ion-item>
     <ion-card-content>
         <table class="full_width">
@@ -15,7 +13,7 @@
                 </td>
                 <ng-template #noData>
                     <td style="width:35%" class="align_right">
-                        NA
+                        &nbsp;
                     </td>
                 </ng-template>
             </tr>
