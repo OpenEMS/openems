@@ -1,82 +1,108 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
         <ion-title class="ion-text-start ion-padding-left" translate>General.Production</ion-title>
+        <ng-container *ngIf="showTotal != null">
+            <ion-buttons slot="start">
+                <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
+                    [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
+            </ion-buttons>
+        </ng-container>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <!-- total summary of AC + DC -->
-    <ng-container
-        *ngIf="productionMeterComponents != null && productionMeterComponents.length > 0 && chargerComponents != null && chargerComponents.length > 0">
-        <ion-card-content class="underline">
-            <productionTotalChart [period]="service.historyPeriod"></productionTotalChart>
+    <ng-container *ngIf="showTotal">
+        <ion-card-content>
+            <productionTotalChart [showPhases]="showPhases" [period]="service.historyPeriod"></productionTotalChart>
         </ion-card-content>
     </ng-container>
-    <!-- One Production Meter -->
-    <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1">
-        <ng-container *ngFor="let component of productionMeterComponents">
-            <ion-card-content [class.underline]="chargerComponents.length > 0">
-                <productionMeterChart [period]="service.historyPeriod" [componentId]="component.id">
-                </productionMeterChart>
+    <ng-container *ngIf="!showTotal">
+        <!-- total summary of AC + DC -->
+        <ng-container
+            *ngIf="productionMeterComponents != null && productionMeterComponents.length > 0 && chargerComponents != null && chargerComponents.length > 0">
+            <ion-card-content class="underline">
+                <productionSingleChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                </productionSingleChart>
             </ion-card-content>
         </ng-container>
-    </ng-container>
-    <!-- more than one Production Meter -->
-    <!-- summary of Production Meters -->
-    <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
-        <ion-card-content class="underline"
-            *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
-            <table class="full_width">
-                <tr>
-                    <ng-container *ngIf="chargerComponents.length > 0; else onlyProductionMeters">
-                        <td style="width:100%"><span translate>General.Total</span> AC</td>
-                    </ng-container>
-                    <ng-template #onlyProductionMeters>
-                        <td style="width:100%" translate>General.Total</td>
-                    </ng-template>
-                </tr>
-            </table>
-            <productionTotalAcChart></productionTotalAcChart>
-        </ion-card-content>
-    </ng-container>
-
-    <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
-        <ng-container *ngFor="let component of productionMeterComponents">
-            <ng-container *ngIf="config.factories[component.factoryId] as factory">
-                <ion-card-content
-                    [class.underline]="chargerComponents.length > 0 || !isLastElement(component, productionMeterComponents)">
-                    <ng-container *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter')">
-                        <productionMeterChart [period]="service.historyPeriod" [componentId]="component.id">
-                        </productionMeterChart>
-                    </ng-container>
+        <!-- One Production Meter -->
+        <ng-container
+            *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && (chargerComponents.length == 0 || chargerComponents == null)">
+            <ng-container *ngFor="let component of productionMeterComponents">
+                <ion-card-content [class.underline]="chargerComponents.length > 0">
+                    <productionMeterChart [showPhases]="showPhases" [isOnlyChart]="isOnlyChart"
+                        [period]="service.historyPeriod" [componentId]="component.id">
+                    </productionMeterChart>
                 </ion-card-content>
             </ng-container>
         </ng-container>
-    </ng-container>
-
-    <!-- one DC Charger -->
-    <ng-container *ngIf="chargerComponents != null && chargerComponents.length == 1">
-        <ng-container *ngFor="let component of chargerComponents">
-            <productionChargerChart [period]="service.historyPeriod" [componentId]="component.id">
-            </productionChargerChart>
+        <!-- disable Phases if Total AC + DC Chart is shown -->
+        <ng-container
+            *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && chargerComponents.length > 0">
+            <ng-container *ngFor="let component of productionMeterComponents">
+                <ion-card-content [class.underline]="chargerComponents.length > 0">
+                    <productionMeterChart [isOnlyChart]="isOnlyChart" [period]="service.historyPeriod"
+                        [componentId]="component.id">
+                    </productionMeterChart>
+                </ion-card-content>
+            </ng-container>
         </ng-container>
-    </ng-container>
-    <!-- more than one DC Charger -->
-    <ng-container *ngIf="chargerComponents != null && chargerComponents.length > 1">
-        <!-- summary of DC Charger -->
-        <ion-card-content class="underline">
-            <productionTotalDcChart [period]="service.historyPeriod"></productionTotalDcChart>
-        </ion-card-content>
-        <ng-container *ngFor="let component of chargerComponents">
-            <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
-                <productionChargerChart [period]="service.historyPeriod" [componentId]="component.id">
-                </productionChargerChart>
+        <!-- more than one Production Meter -->
+        <!-- summary of Production Meters -->
+        <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+            <ion-card-content class="underline"
+                *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+                <productionTotalAcChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                </productionTotalAcChart>
             </ion-card-content>
+        </ng-container>
+
+        <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+            <ng-container *ngFor="let component of productionMeterComponents">
+                <ng-container *ngIf="config.factories[component.factoryId] as factory">
+                    <ion-card-content
+                        [class.underline]="chargerComponents.length > 0 || !isLastElement(component, productionMeterComponents)">
+                        <ng-container *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter')">
+                            <productionMeterChart [period]="service.historyPeriod" [componentId]="component.id">
+                            </productionMeterChart>
+                        </ng-container>
+                    </ion-card-content>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+
+        <!-- one DC Charger -->
+        <ng-container *ngIf="chargerComponents != null && chargerComponents.length == 1">
+            <ng-container *ngFor="let component of chargerComponents">
+                <ion-card-content>
+                    <productionChargerChart [isOnlyChart]="isOnlyChart" [period]="service.historyPeriod"
+                        [componentId]="component.id">
+                    </productionChargerChart>
+                </ion-card-content>
+            </ng-container>
+        </ng-container>
+        <!-- more than one DC Charger -->
+        <ng-container *ngIf="chargerComponents != null && chargerComponents.length > 1">
+            <!-- summary of DC Charger -->
+            <ion-card-content class="underline">
+                <productionTotalDcChart [period]="service.historyPeriod"></productionTotalDcChart>
+            </ion-card-content>
+            <ng-container *ngFor="let component of chargerComponents">
+                <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
+                    <productionChargerChart [period]="service.historyPeriod" [componentId]="component.id">
+                    </productionChargerChart>
+                </ion-card-content>
+            </ng-container>
         </ng-container>
     </ng-container>
 </ion-content>

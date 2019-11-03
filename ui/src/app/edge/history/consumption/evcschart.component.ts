@@ -2,19 +2,20 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
-    selector: 'productionTotalDcChart',
+    selector: 'consumptionEvcsChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ProductionTotalDcChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private componentId: string;
 
     ngOnChanges() {
         this.updateChart();
@@ -37,45 +38,44 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
-                    let result = response.result;
+            this.service.getCurrentEdge().then(() => {
+                this.service.getConfig().then((config) => {
+                    let result = (response as QueryHistoricTimeseriesDataResponse).result;
+
                     // convert labels
                     let labels: Date[] = [];
                     for (let timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
+
                     // convert datasets
                     let datasets = [];
-
-
 
                     Object.keys(result.data).forEach((channel, index) => {
                         let address = ChannelAddress.fromString(channel);
                         let component = config.getComponent(address.componentId);
-                        let data = result.data[channel].map(value => {
+                        let chargeData = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
                             } else {
                                 return value / 1000; // convert to kW
                             }
                         });
-                        //more than one Production Unit
-                        if (address.channelId == 'ProductionDcActualPower') {
+                        if (address.channelId == "ChargePower") {
                             datasets.push({
-                                label: this.translate.instant('General.Production') + ' (' + this.translate.instant('General.Total') + ' DC)',
-                                data: data
+                                label: this.translate.instant('General.Consumption') + ' (' + (component.id == component.alias ? component.id : component.alias) + ')',
+                                data: chargeData,
+                                hidden: false
                             });
                             this.colors.push({
-                                backgroundColor: 'rgba(255,165,0,0.1)',
-                                borderColor: 'rgba(255,165,0,1)',
-                            });
+                                backgroundColor: 'rgba(253,197,7,0.05)',
+                                borderColor: 'rgba(253,197,7,1)',
+                            })
                         }
                     })
                     this.datasets = datasets;
                     this.loading = false;
-
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -94,13 +94,11 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'ProductionDcActualPower'),
+                new ChannelAddress(this.componentId, 'ChargePower'),
             ];
             resolve(result);
-
         })
     }
 

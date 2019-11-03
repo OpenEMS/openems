@@ -12,6 +12,32 @@ export abstract class AbstractHistoryChart {
     protected colors = []
     protected loading: boolean = true;
 
+    // Colors for Phase 1-3 (additional color is for GridBuy/Sell etc.)
+    protected phase1Color = {
+        backgroundColor: 'rgba(139,69,19,0.05)',
+        borderColor: 'rgba(139,69,19,1)',
+    }
+    protected phase1AdditionalColor = {
+        backgroundColor: 'rgba(255,127,36,0.05)',
+        borderColor: 'rgba(255,127,36,1)',
+    }
+    protected phase2Color = {
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        borderColor: 'rgba(0,0,0,1)',
+    }
+    protected phase2AdditionalColor = {
+        backgroundColor: 'rgba(255,222,173,0.1)',
+        borderColor: 'rgba(255,222,173,1)',
+    }
+    protected phase3Color = {
+        backgroundColor: 'rgba(112,128,144,0.1)',
+        borderColor: 'rgba(112,128,144,1)',
+    }
+    protected phase3AdditionalColor = {
+        backgroundColor: 'rgba(198,226,255,0.1)',
+        borderColor: 'rgba(198,226,255,1)',
+    }
+
 
     constructor(
         protected service: Service

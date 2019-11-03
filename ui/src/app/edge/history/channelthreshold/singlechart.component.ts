@@ -2,19 +2,23 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
+import { ChannelAddress, Edge, Service, Utils, EdgeConfig } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { TranslateService } from '@ngx-translate/core';
+import { getTime, differenceInMinutes } from 'date-fns/esm';
 
 @Component({
-  selector: 'channelthresholdChart',
+  selector: 'channelthresholdSingleChart',
   templateUrl: '../abstracthistorychart.html'
 })
-export class ChannelthresholdComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
   @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() private controllerId: string;
+  @Input() private isOnlyChart: boolean;
+
 
   ngOnChanges() {
     this.updateChart();
@@ -37,16 +41,23 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
+      let periodTime = getTime(this.period.to) - getTime(this.period.to);
       // convert labels
       let labels: Date[] = [];
       for (let timestamp of result.timestamps) {
         labels.push(new Date(timestamp));
       }
       this.labels = labels;
-
       // show Channel-ID if there is more than one Channel
       let showChannelId = Object.keys(result.data).length > 1 ? true : false;
+
+      // CALCULCATE TIME ACTIVE IN %&
+      // Object.values(result.timestamps).forEach(timestamp => {
+      //   let newDate = new Date(timestamp);
+      // })
+
+      // Object.values(result.data).forEach(data => {
+      // })
 
       // convert datasets
       let datasets = [];
@@ -79,19 +90,11 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
-      this.service.getConfig().then(config => {
-        let channeladdresses = [];
-        // find all ChannelThresholdControllers
-        for (let controllerId of
-          config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
-            .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)['outputChannelAddress']);
-          channeladdresses.push(outputChannel);
-        }
-        resolve(channeladdresses);
-      }).catch(reason => reject(reason));
+      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+      let channeladdresses = [outputChannel];
+      resolve(channeladdresses);
     });
   }
 
@@ -116,6 +119,10 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
   }
 
   public getChartHeight(): number {
-    return window.innerHeight / 2.5;
+    if (this.isOnlyChart == true) {
+      return window.innerHeight / 1.2;
+    } else if (this.isOnlyChart == false) {
+      return window.innerHeight / 21 * 9;
+    }
   }
 }

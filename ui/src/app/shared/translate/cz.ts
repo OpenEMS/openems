@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Neaktivní",
         Manually: "Ruční",
         Phase: "Fáze",
+        Phases: "Fáze",
         Autarchy: "Soběstačnost",
         SelfConsumption: "Vlastní spotřeba",
         Cumulative: "Kumulativní Hodnoty",

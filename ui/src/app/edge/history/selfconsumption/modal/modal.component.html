@@ -7,14 +7,15 @@
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-card-content class="underline">
-        <ion-row>
-            <ion-col size="12">
-                <selfconsumptionChart [period]="service.historyPeriod"></selfconsumptionChart>
-            </ion-col>
-        </ion-row>
+    <ion-card-content>
+        <selfconsumptionChart [period]="service.historyPeriod"></selfconsumptionChart>
     </ion-card-content>
 </ion-content>

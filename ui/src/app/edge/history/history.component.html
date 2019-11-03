@@ -27,16 +27,12 @@
       </ion-col>
     </ng-container>
     <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
-
-      <ion-col size="12" size-lg="2">
+      <ion-col size="12" size-lg="2" *ngSwitchCase="'Controller.ChannelThreshold'">
         <channelthresholdWidget [period]="service.historyPeriod"></channelthresholdWidget>
       </ion-col>
       <ion-col size="12" size-lg="2" *ngSwitchCase="'Controller.CHP.SoC'">
         <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod"></chpsocWidget>
       </ion-col>
-      <!-- <ion-col size="12" size-lg="2">
-        <evcsWidget [period]="service.historyPeriod"></evcsWidget>
-      </ion-col> -->
     </ng-container>
     <!-- <ng-container *ngFor="let name of widgets.names" [ngSwitch]="name"> -->
     <!-- <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px" size="12">

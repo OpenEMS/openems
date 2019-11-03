@@ -181,6 +181,6 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 2.5;
+        return window.innerHeight / 1.2;
     }
 }

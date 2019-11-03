@@ -5,6 +5,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ModalController } from '@ionic/angular';
 import { AutarchyModalComponent } from './modal/modal.component';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
 
 @Component({
     selector: AutarchyWidgetComponent.SELECTOR,
@@ -16,8 +17,7 @@ export class AutarchyWidgetComponent implements OnInit, OnChanges {
 
     private static readonly SELECTOR = "autarchyWidget";
 
-    public data: Cumulated = null;
-    public values: any;
+    public autarchyValue: number = null;
     public edge: Edge = null;
 
     constructor(
@@ -41,14 +41,20 @@ export class AutarchyWidgetComponent implements OnInit, OnChanges {
 
     updateValues() {
         let channels: ChannelAddress[] = [
+            new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+            new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
         ];
-
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-            this.data = response.result.data;
+            this.service.getConfig().then(config => {
+                let result = response.result;
+                this.autarchyValue = CurrentData.calculateAutarchy(result.data['_sum/GridBuyActiveEnergy'], result.data['_sum/ConsumptionActiveEnergy'])
+            }).catch(reason => {
+                console.error(reason); // TODO error message
+            });
         }).catch(reason => {
             console.error(reason); // TODO error message
         });
-    };
+    }
 
     async presentModal() {
         const modal = await this.modalCtrl.create({

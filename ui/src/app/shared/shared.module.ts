@@ -35,6 +35,7 @@ import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
 import { Language } from './translate/language';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
+import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 
 
 @NgModule({
@@ -64,7 +65,8 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     // components
     SocComponent,
     PickDateComponent,
-    PercentageBarComponent
+    PercentageBarComponent,
+    ChartOptionsComponent
   ],
   exports: [
     // pipes
@@ -91,7 +93,8 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
     // components
     SocComponent,
     PickDateComponent,
-    PercentageBarComponent
+    PercentageBarComponent,
+    ChartOptionsComponent
   ],
   providers: [
     Utils,

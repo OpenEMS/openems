@@ -2,20 +2,36 @@
     <ion-toolbar color="primary">
         <ion-title translate>Edge.Index.Widgets.Channeltreshold.Output
         </ion-title>
+        <ion-buttons slot="start">
+            <chartOptions (setShowTotal)='onNotifyTotal($event)' [showTotal]="showTotal"></chartOptions>
+        </ion-buttons>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-card-content class="underline">
-        <ion-row>
-            <ion-col>
-                <channelthresholdChart [period]="service.historyPeriod"></channelthresholdChart>
-            </ion-col>
-        </ion-row>
-    </ion-card-content>
+    <ng-container *ngIf="showTotal">
+        <ion-card-content>
+            <channelthresholdTotalChart [period]="service.historyPeriod">
+            </channelthresholdTotalChart>
+        </ion-card-content>
+    </ng-container>
+    <ng-container *ngIf="!showTotal || showTotal == null">
+        <ng-container *ngFor="let controllerId of channelthresholdComponents">
+            <ion-card-content [class.underline]="!isOnlyChart && !isLastElement(component, channelthresholdComponents)">
+                <channelthresholdSingleChart [controllerId]="controllerId" [isOnlyChart]="isOnlyChart"
+                    [period]="service.historyPeriod">
+                </channelthresholdSingleChart>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
 </ion-content>

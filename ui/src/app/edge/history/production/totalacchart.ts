@@ -15,6 +15,7 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 export class ProductionTotalAcChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -72,6 +73,30 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
                                 borderColor: 'rgba(255,165,0,1)',
                             });
                         }
+                        if ('_sum/ActivePowerL1' && '_sum/ActivePowerL2' && '_sum/ActivePowerL3' in result.data && this.showPhases == true) {
+                            // Phases
+                            if (address.channelId == 'ActivePowerL1') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                    data: data
+                                });
+                                this.colors.push(this.phase1Color);
+                            }
+                            if (address.channelId == 'ActivePowerL2') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                    data: data
+                                });
+                                this.colors.push(this.phase2Color);
+                            }
+                            if (address.channelId == 'ActivePowerL3') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                    data: data
+                                });
+                                this.colors.push(this.phase3Color);
+                            }
+                        }
                     })
                     this.datasets = datasets;
                     this.loading = false;
@@ -127,6 +152,6 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 4;
+        return window.innerHeight / 21 * 9;
     }
 }

@@ -16,6 +16,8 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
 
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
+    @Input() private isOnlyChart: boolean;
+    @Input() private showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -62,7 +64,6 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
                                 return value / 1000; // convert to kW
                             }
                         });
-                        //more than one Production Unit
                         if (address.channelId == 'ActivePower') {
                             datasets.push({
                                 label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
@@ -72,6 +73,30 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
                                 backgroundColor: 'rgba(255,165,0,0.1)',
                                 borderColor: 'rgba(255,165,0,1)',
                             });
+                        }
+                        if ('_sum/ActivePowerL1' && '_sum/ActivePowerL2' && '_sum/ActivePowerL3' in result.data && this.showPhases == true) {
+                            // Phases
+                            if (address.channelId == 'ActivePowerL1') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                    data: data
+                                });
+                                this.colors.push(this.phase1Color);
+                            }
+                            if (address.channelId == 'ActivePowerL2') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                    data: data
+                                });
+                                this.colors.push(this.phase2Color);
+                            }
+                            if (address.channelId == 'ActivePowerL3') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                    data: data
+                                });
+                                this.colors.push(this.phase3Color);
+                            }
                         }
                     })
                     this.datasets = datasets;
@@ -97,7 +122,10 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower')
+                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             ];
             resolve(result);
         })
@@ -123,6 +151,10 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 4;
+        if (this.isOnlyChart == true) {
+            return window.innerHeight / 1.2;
+        } else {
+            return window.innerHeight / 21 * 9;
+        }
     }
 }

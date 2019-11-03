@@ -12,6 +12,9 @@ export class ProductionModalComponent {
 
     public productionMeterComponents: EdgeConfig.Component[] = null;
     public chargerComponents: EdgeConfig.Component[] = null;
+    public showTotal: boolean = null;
+    public showPhases: boolean = false;
+    public isOnlyChart: boolean = null;
 
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
@@ -25,6 +28,25 @@ export class ProductionModalComponent {
         this.service.getConfig().then(config => {
             this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => config.isProducer(component));
             this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+            if ((this.productionMeterComponents != null && this.productionMeterComponents.length > 0 && this.chargerComponents != null && this.chargerComponents.length > 0)
+                || (this.productionMeterComponents != null && this.productionMeterComponents.length == 0 && this.chargerComponents != null && this.chargerComponents.length > 1)
+                || (this.productionMeterComponents != null && this.productionMeterComponents.length > 1 && this.chargerComponents != null && this.chargerComponents.length == 0)) {
+                this.showTotal = false;
+            }
+            if (((this.chargerComponents != null && this.chargerComponents.length == 1) && (this.productionMeterComponents != null && this.productionMeterComponents.length == 0))
+                || ((this.productionMeterComponents != null && this.productionMeterComponents.length == 1) && (this.chargerComponents != null && this.chargerComponents.length == 1))) {
+                this.isOnlyChart = true;
+            } else {
+                this.isOnlyChart = false;
+            }
         })
+    }
+
+    onNotifyPhases(showPhases: boolean): void {
+        this.showPhases = showPhases;
+    }
+
+    onNotifyTotal(showTotal: boolean): void {
+        this.showTotal = showTotal;
     }
 }

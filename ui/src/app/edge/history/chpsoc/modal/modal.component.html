@@ -2,20 +2,35 @@
     <ion-toolbar color="primary">
         <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
         <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
+        <ion-buttons slot="start">
+            <chartOptions (setShowTotal)='onNotifyTotal($event)' [showTotal]="showTotal"></chartOptions>
+        </ion-buttons>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-card-content class="underline">
-        <ion-row>
-            <ion-col>
-                <chpsocChart [period]="service.historyPeriod"></chpsocChart>
-            </ion-col>
-        </ion-row>
-    </ion-card-content>
+    <ng-container *ngIf="showTotal">
+        <ion-card-content>
+            <chpsocTotalChart [period]="service.historyPeriod">
+            </chpsocTotalChart>
+        </ion-card-content>
+    </ng-container>
+    <ng-container *ngIf="!showTotal || showToal == null">
+        <ng-container *ngFor="let controllerId of chpSocComponents">
+            <ion-card-content [class.underline]="!isLastElement(component, chpSocComponents)">
+                <chpsocSingleChart [isOnlyChart]="isOnlyChart" [controllerId]="controllerId"
+                    [period]="service.historyPeriod"></chpsocSingleChart>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
 </ion-content>

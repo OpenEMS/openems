@@ -4,17 +4,23 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
+import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
-    selector: 'autarchychart',
+    selector: 'storageChargerChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class AutarchyChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+
+    private static readonly SELECTOR = "storageChargerChart";
 
     @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private componentId: string;
+
+    moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -23,7 +29,8 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     constructor(
         protected service: Service,
         private route: ActivatedRoute,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private websocket: Websocket,
     ) {
         super(service);
     }
@@ -50,65 +57,30 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
                     // convert datasets
                     let datasets = [];
 
-                    // required data for autarchy and self consumption
-                    let buyFromGridData: number[] = [];
-                    let consumptionData: number[] = [];
-
-                    if (!edge.isVersionAtLeast('2018.8')) {
-                        this.convertDeprecatedData(config, result.data); // TODO deprecated
-                    }
-
-                    if ('_sum/ConsumptionActivePower' in result.data) {
-                        /*
-                         * Consumption
-                         */
-                        consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+                    Object.keys(result.data).forEach((channel, index) => {
+                        let address = ChannelAddress.fromString(channel);
+                        let component = config.getComponent(address.componentId);
+                        let chargerData = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
                             } else {
-                                return value;
+                                return value / 1000; // convert to kW
                             }
                         });
-                    }
-
-                    if ('_sum/GridActivePower' in result.data) {
-                        /*
-                         * Buy From Grid
-                         */
-                        buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
-                            if (value == null) {
-                                return null
-                            } else if (value > 0) {
-                                return value;
-                            } else {
-                                return 0;
-                            }
-                        })
-                    };
-
-                    /*
-                    * Autarchy
-                    */
-                    let autarchy = consumptionData.map((value, index) => {
-                        if (value == null) {
-                            return null
-                        } else {
-                            return CurrentData.calculateAutarchy(buyFromGridData[index], value);
+                        if (address.channelId == "ActualPower") {
+                            datasets.push({
+                                label: this.translate.instant('General.ChargePower') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
+                                data: chargerData,
+                                hidden: false
+                            });
+                            this.colors.push({
+                                backgroundColor: 'rgba(0,223,0,0.05)',
+                                borderColor: 'rgba(0,223,0,1)',
+                            })
                         }
-                    })
-
-                    datasets.push({
-                        label: this.translate.instant('General.Autarchy'),
-                        data: autarchy,
-                        hidden: false
-                    })
-                    this.colors.push({
-                        backgroundColor: 'rgba(0,152,204,0.05)',
-                        borderColor: 'rgba(0,152,204,1)'
                     })
                     this.datasets = datasets;
                     this.loading = false;
-
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -129,8 +101,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve, reject) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'GridActivePower'),
-                new ChannelAddress('_sum', 'ConsumptionActivePower')
+                new ChannelAddress(this.componentId, 'ActualPower'),
             ];
             resolve(result);
         })
@@ -138,7 +109,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
 
     protected setLabel() {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+        options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
@@ -150,9 +121,8 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
                     label = this.gridSell;
                 }
             }
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
-        options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }
 
@@ -167,12 +137,6 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
             ]);
         }
         return result;
-    }
-
-    protected initializeChart() {
-        this.datasets = EMPTY_DATASET;
-        this.labels = [];
-        this.loading = false;
     }
 
     /**
@@ -202,9 +166,10 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
         data['_sum/EssSoc'] = sumEssSoc.map((value, index) => {
             return Utils.divideSafely(sumEssSoc[index], Object.keys(data).length);
         });
+
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 1.2;
+        return window.innerHeight / 21 * 9;
     }
 }

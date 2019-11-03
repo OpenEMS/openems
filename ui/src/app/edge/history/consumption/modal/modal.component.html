@@ -1,20 +1,47 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title class="ion-text-start ion-padding-left" translate>General.Consumption</ion-title>
+    <ion-toolbar color="primary">
+        <ion-title translate>General.Consumption</ion-title>
+        <ion-buttons slot="start">
+            <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
+                [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
+        </ion-buttons>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-card-content class="underline">
-        <ion-row>
-            <ion-col size="12">
-                <consumptionChart [period]="service.historyPeriod"></consumptionChart>
-            </ion-col>
-        </ion-row>
-    </ion-card-content>
+    <ng-container *ngIf="showTotal">
+        <ion-card-content>
+            <consumptionTotalChart [showPhases]="showPhases" [period]="service.historyPeriod">
+            </consumptionTotalChart>
+        </ion-card-content>
+    </ng-container>
+    <ng-container *ngIf="!showTotal || showTotal == null">
+        <ion-card-content [class.underline]="!isOnlyChart">
+            <consumptionSingleChart [isOnlyChart]="isOnlyChart" [showPhases]="showPhases"
+                [period]="service.historyPeriod">
+            </consumptionSingleChart>
+        </ion-card-content>
+        <ng-container *ngIf="evcsComponents.length > 0 && evcsComponents != null">
+            <ng-container *ngFor="let component of evcsComponents">
+                <ion-card-content class="underline">
+                    <consumptionEvcsChart [period]="service.historyPeriod" [componentId]="component.id">
+                    </consumptionEvcsChart>
+                </ion-card-content>
+            </ng-container>
+            <ion-card-content>
+                <consumptionOtherChart [period]="service.historyPeriod">
+                </consumptionOtherChart>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
 </ion-content>

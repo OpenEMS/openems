@@ -1,23 +1,21 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
-    selector: 'storageESSChart',
+    selector: 'storageSingleChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
-
-
+export class StorageSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
     @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-
-    moreThanOneProducer: boolean = null;
+    @Input() private showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -26,8 +24,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     constructor(
         protected service: Service,
         private route: ActivatedRoute,
-        private translate: TranslateService,
-        private websocket: Websocket,
+        private translate: TranslateService
     ) {
         super(service);
     }
@@ -41,9 +38,10 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(() => {
+            this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     let result = response.result;
+                    this.colors = [];
                     // convert labels
                     let labels: Date[] = [];
                     for (let timestamp of result.timestamps) {
@@ -53,8 +51,37 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
                     // convert datasets
                     let datasets = [];
+                    // calculate total charge and discharge
+                    let effectivePower;
+                    if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
+                        effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                            return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                        });
+                    } else {
+                        effectivePower = result.data['_sum/EssActivePower'];
+                    }
 
-                    Object.keys(result.data).forEach((channel) => {
+                    let chargeDataTotal = effectivePower.map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value < 0) {
+                            return value / -1000; // convert to kW;
+                        } else {
+                            return 0;
+                        }
+                    })
+
+                    let dischargeDataTotal = effectivePower.map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value > 0) {
+                            return value / 1000; // convert to kW
+                        } else {
+                            return 0;
+                        }
+                    })
+
+                    Object.keys(result.data).forEach((channel, index) => {
                         let address = ChannelAddress.fromString(channel);
                         let component = config.getComponent(address.componentId);
                         let dischargeData = result.data[channel].map(value => {
@@ -75,87 +102,63 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                 return 0;
                             }
                         });
-                        if (address.channelId == "ActivePower") {
+                        if (address.channelId == "EssActivePower") {
                             datasets.push({
-                                label: this.translate.instant('General.ChargePower') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
-                                data: chargeData,
-                                hidden: false
+                                label: this.translate.instant('General.ChargePower') + ' (' + this.translate.instant('General.Total') + ')',
+                                data: chargeDataTotal
                             });
                             this.colors.push({
                                 backgroundColor: 'rgba(0,223,0,0.05)',
                                 borderColor: 'rgba(0,223,0,1)',
                             })
                             datasets.push({
-                                label: this.translate.instant('General.DischargePower') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
-                                data: dischargeData,
-                                hidden: false
+                                label: this.translate.instant('General.DischargePower') + ' (' + this.translate.instant('General.Total') + ')',
+                                data: dischargeDataTotal
                             });
                             this.colors.push({
                                 backgroundColor: 'rgba(200,0,0,0.05)',
                                 borderColor: 'rgba(200,0,0,1)',
                             });
-                        }
-                        if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data) {
-                            // Phases
-                            if (address.channelId == 'ActivePowerL1') {
+                        } if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
+                            if (address.channelId == 'EssActivePowerL1') {
                                 //Charge
                                 datasets.push({
                                     label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
                                     data: chargeData
                                 });
-                                this.colors.push({
-                                    backgroundColor: 'rgba(255,165,0,0.1)',
-                                    borderColor: 'rgba(255,165,0,1)',
-                                });
+                                this.colors.push(this.phase1Color);
                                 //Discharge
                                 datasets.push({
                                     label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
                                     data: dischargeData
                                 });
-                                this.colors.push({
-                                    backgroundColor: 'rgba(255,165,0,0.1)',
-                                    borderColor: 'rgba(255,165,0,1)',
-                                });
-                            }
-                            if (address.channelId == 'ActivePowerL2') {
+                                this.colors.push(this.phase1AdditionalColor);
+                            } if (address.channelId == 'EssActivePowerL2') {
                                 //Charge
                                 datasets.push({
                                     label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
                                     data: chargeData
                                 });
-                                this.colors.push({
-                                    backgroundColor: 'rgba(255,165,0,0.1)',
-                                    borderColor: 'rgba(255,165,0,1)',
-                                });
+                                this.colors.push(this.phase2Color);
                                 //Discharge
                                 datasets.push({
                                     label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
                                     data: dischargeData
                                 });
-                                this.colors.push({
-                                    backgroundColor: 'rgba(255,165,0,0.1)',
-                                    borderColor: 'rgba(255,165,0,1)',
-                                });
-                            }
-                            if (address.channelId == 'ActivePowerL3') {
+                                this.colors.push(this.phase2AdditionalColor);
+                            } if (address.channelId == 'EssActivePowerL3') {
                                 //Charge
                                 datasets.push({
                                     label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
                                     data: chargeData
                                 });
-                                this.colors.push({
-                                    backgroundColor: 'rgba(255,165,0,0.1)',
-                                    borderColor: 'rgba(255,165,0,1)',
-                                });
+                                this.colors.push(this.phase3Color);
                                 //Discharge
                                 datasets.push({
                                     label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
                                     data: dischargeData
                                 });
-                                this.colors.push({
-                                    backgroundColor: 'rgba(255,165,0,0.1)',
-                                    borderColor: 'rgba(255,165,0,1)',
-                                });
+                                this.colors.push(this.phase3AdditionalColor);
                             }
                         }
                     })
@@ -179,20 +182,14 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        let component = config.getComponent(this.componentId);
-        let factoryID = component.factoryId;
-        let factory = config.factories[factoryID];
         return new Promise((resolve, reject) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress('_sum', 'EssActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'),
+                new ChannelAddress('_sum', 'EssActivePowerL1'),
+                new ChannelAddress('_sum', 'EssActivePowerL2'),
+                new ChannelAddress('_sum', 'EssActivePowerL3'),
             ];
-            if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
-                result.push(
-                    new ChannelAddress(component.id, 'ActivePowerL1'),
-                    new ChannelAddress(component.id, 'ActivePowerL2'),
-                    new ChannelAddress(component.id, 'ActivePowerL3')
-                );
-            }
             resolve(result);
         })
     }
@@ -216,9 +213,50 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         this.options = options;
     }
 
+    private getSoc(ids: string[], ignoreIds: string[]): ChannelAddress[] {
+        let result: ChannelAddress[] = [];
+        for (let id of ids) {
+            if (ignoreIds.includes(id)) {
+                continue;
+            }
+            result.push.apply(result, [
+                new ChannelAddress(id, 'Soc'),
+            ]);
+        }
+        return result;
+    }
 
+    /**
+   * Calculates '_sum' values.
+   * 
+   * @param data 
+   */
+    private convertDeprecatedData(config: EdgeConfig, data: { [channelAddress: string]: any[] }) {
+        let sumEssSoc = [];
+
+        for (let channel of Object.keys(data)) {
+            let channelAddress = ChannelAddress.fromString(channel)
+            let componentId = channelAddress.componentId;
+            let channelId = channelAddress.channelId;
+            let natureIds = config.getNatureIdsByComponentId(componentId);
+
+            if (natureIds.includes('EssNature') && channelId == 'Soc') {
+                if (sumEssSoc.length == 0) {
+                    sumEssSoc = data[channel];
+                } else {
+                    sumEssSoc = data[channel].map((value, index) => {
+                        return Utils.addSafely(sumEssSoc[index], value);
+                    });
+                }
+            }
+        }
+        data['_sum/EssSoc'] = sumEssSoc.map((value, index) => {
+            return Utils.divideSafely(sumEssSoc[index], Object.keys(data).length);
+        });
+
+    }
 
     public getChartHeight(): number {
-        return window.innerHeight / 4;
+        return window.innerHeight / 21 * 9;
     }
 }

@@ -7,15 +7,16 @@
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-card-content class="underline">
-        <ion-row>
-            <ion-col>
-                <autarchychart [period]="service.historyPeriod">
-                </autarchychart>
-            </ion-col>
-        </ion-row>
+    <ion-card-content>
+        <autarchychart [period]="service.historyPeriod">
+        </autarchychart>
     </ion-card-content>
 </ion-content>

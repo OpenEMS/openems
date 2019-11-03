@@ -15,6 +15,7 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 export class ProductionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -61,7 +62,6 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                                 return value / 1000; // convert to kW
                             }
                         });
-                        //more than one Production Unit
                         if (address.channelId == 'ProductionActivePower') {
                             datasets.push({
                                 label: this.translate.instant('General.Production') + ' (' + this.translate.instant('General.Total') + ')',
@@ -71,6 +71,50 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                                 backgroundColor: 'rgba(255,165,0,0.1)',
                                 borderColor: 'rgba(255,165,0,1)',
                             });
+                        }
+                        if (address.channelId == 'ActivePower') {
+                            datasets.push({
+                                label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
+                                data: data
+                            });
+                            this.colors.push({
+                                backgroundColor: 'rgba(255,165,0,0.1)',
+                                borderColor: 'rgba(255,165,0,1)',
+                            });
+                        }
+                        if (address.channelId == 'ActualPower') {
+                            datasets.push({
+                                label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
+                                data: data
+                            });
+                            this.colors.push({
+                                backgroundColor: 'rgba(255,165,0,0.1)',
+                                borderColor: 'rgba(255,165,0,1)',
+                            });
+                        }
+                        if ('_sum/ActivePowerL1' && '_sum/ActivePowerL2' && '_sum/ActivePowerL3' in result.data && this.showPhases == true) {
+                            // Phases
+                            if (address.channelId == 'ActivePowerL1') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                    data: data
+                                });
+                                this.colors.push(this.phase1Color);
+                            }
+                            if (address.channelId == 'ActivePowerL2') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                    data: data
+                                });
+                                this.colors.push(this.phase2Color);
+                            }
+                            if (address.channelId == 'ActivePowerL3') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                    data: data
+                                });
+                                this.colors.push(this.phase3Color);
+                            }
                         }
                     })
                     this.datasets = datasets;
@@ -98,6 +142,12 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'ProductionActivePower'),
             ];
+            config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
+                result.push(new ChannelAddress(charger.id, 'ActualPower'))
+            })
+            config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => config.isProducer(component)).forEach(productionMeter => {
+                result.push(new ChannelAddress(productionMeter.id, 'ActivePower'))
+            })
             resolve(result);
         })
     }
@@ -122,6 +172,6 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 4;
+        return window.innerHeight / 1.2;
     }
 }

@@ -1,12 +1,12 @@
 <ion-header>
     <ion-toolbar color="primary">
         <ion-title translate>General.Grid</ion-title>
+        <ion-buttons slot="start">
+            <chartOptions (setShowPhases)='onNotifyPhases($event)' [showPhases]="showPhases"></chartOptions>
+        </ion-buttons>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
-            </ion-button>
-            <ion-button>
-                <pickdate></pickdate>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -19,10 +19,6 @@
 
 <ion-content>
     <ion-card-content class="underline">
-        <ion-row>
-            <ion-col size="12">
-                <gridChart [period]="service.historyPeriod"></gridChart>
-            </ion-col>
-        </ion-row>
+        <gridChart [showPhases]="showPhases" [period]="service.historyPeriod"></gridChart>
     </ion-card-content>
 </ion-content>

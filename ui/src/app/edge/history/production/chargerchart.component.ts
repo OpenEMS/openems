@@ -7,6 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { isNullOrUndefined } from 'util';
 
 @Component({
     selector: 'productionChargerChart',
@@ -16,6 +17,7 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
 
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
+    @Input() private isOnlyChart: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -60,7 +62,6 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
                                 return value / 1000; // convert to kW
                             }
                         });
-                        //more than one Production Unit
                         if (address.channelId == 'ActualPower') {
                             datasets.push({
                                 label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
@@ -93,7 +94,6 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ActualPower'),
@@ -122,6 +122,10 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 4;
+        if (this.isOnlyChart == true) {
+            return window.innerHeight / 1.2;
+        } else {
+            return window.innerHeight / 21 * 9;
+        }
     }
 }

@@ -5,6 +5,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ModalController } from '@ionic/angular';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
+import { CurrentData } from 'src/app/shared/edge/currentdata';
 
 @Component({
     selector: SelfconsumptionWidgetComponent.SELECTOR,
@@ -16,8 +17,7 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
 
     private static readonly SELECTOR = "selfconsumptionWidget";
 
-    public data: Cumulated = null;
-    public values: any;
+    public selfconsumptionValue: number = null;
     public edge: Edge = null;
 
     constructor(
@@ -41,10 +41,18 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
 
     updateValues() {
         let channels: ChannelAddress[] = [
+            new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+            new ChannelAddress('_sum', 'ProductionActiveEnergy'),
+            new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
         ];
-
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-            this.data = response.result.data;
+            this.service.getConfig().then(config => {
+                let result = response.result;
+                this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
+                    result.data['_sum/ProductionActiveEnergy'], result.data['_sum/EssActiveDischargeEnergy']);
+            }).catch(reason => {
+                console.error(reason); // TODO error message
+            });
         }).catch(reason => {
             console.error(reason); // TODO error message
         });

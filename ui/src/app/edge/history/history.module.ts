@@ -3,9 +3,9 @@ import { SharedModule } from '../../shared/shared.module';
 import { HistoryComponent } from './history.component';
 import { EnergyComponent } from './energy/energy.component';
 import { KwhComponent } from './kwh/kwh.component';
-import { ChannelthresholdComponent } from './channelthreshold/chart.component';
+import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
 import { EvcsChartComponent } from './evcs/chart.component';
-import { ChpSocChartComponent } from './chpsoc/chart.component';
+import { ChpSocTotalChartComponent } from './chpsoc/totalchart.component';
 import { GridComponent } from './grid/widget.component';
 import { ConsumptionComponent } from './consumption/widget.component';
 import { StorageComponent } from './storage/widget.component';
@@ -26,18 +26,26 @@ import { ChannelthresholdModalComponent } from './channelthreshold/modal/modal.c
 import { ChanneltresholdWidgetComponent } from './channelthreshold/widget.component';
 import { AutarchyChartComponent } from './autarchy/chart.component';
 import { SelfconsumptionChartComponent } from './selfconsumption/chart.component';
-import { StorageTotalChartComponent } from './storage/totalchart.component';
+import { StorageSingleChartComponent } from './storage/singlechart.component';
 import { GridChartComponent } from './grid/chart.component';
-import { ConsumptionChartComponent } from './consumption/chart.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
 import { EnergyModalComponent } from './energy/modal/modal.component';
-import { StorageESSChartComponent } from './storage/esschart';
-import { StorageChargerChartComponent } from './storage/chargerchart';
+import { StorageESSChartComponent } from './storage/esschart.component';
+import { StorageChargerChartComponent } from './storage/chargerchart.component';
+import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { ProductionTotalAcChartComponent } from './production/totalacchart';
 import { ProductionTotalDcChartComponent } from './production/totaldcchart';
-import { ProductionTotalChartComponent } from './production/totalchart';
 import { ProductionMeterChartComponent } from './production/productionmeterchart';
 import { ProductionChargerChartComponent } from './production/chargerchart.component';
+import { ProductionSingleChartComponent } from './production/singlechart';
+import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
+import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
+import { ConsumptionOtherChartComponent } from './consumption/otherchart.component';
+import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
+import { ProductionTotalChartComponent } from './production/totalchart';
+import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
+import { ChpSocSingleChartComponent } from './chpsoc/singlechart.component';
+
 
 @NgModule({
   imports: [
@@ -57,8 +65,10 @@ import { ProductionChargerChartComponent } from './production/chargerchart.compo
   ],
   declarations: [
     AutarchyChartComponent,
-    ChannelthresholdComponent,
-    ChpSocChartComponent,
+    ChpSocTotalChartComponent,
+    ChpSocSingleChartComponent,
+    ChannelthresholdTotalChartComponent,
+    ChannelthresholdSingleChartComponent,
     ConsumptionComponent,
     EnergyComponent,
     EvcsChartComponent,
@@ -84,16 +94,21 @@ import { ProductionChargerChartComponent } from './production/chargerchart.compo
     StorageESSChartComponent,
     SelfconsumptionChartComponent,
     GridChartComponent,
-    ConsumptionChartComponent,
     SocStorageChartComponent,
     EnergyModalComponent,
-    StorageTotalChartComponent,
+    StorageSingleChartComponent,
     StorageChargerChartComponent,
+    StorageTotalChartComponent,
+    ProductionSingleChartComponent,
     ProductionTotalAcChartComponent,
     ProductionTotalDcChartComponent,
-    ProductionTotalChartComponent,
     ProductionMeterChartComponent,
-    ProductionChargerChartComponent
+    ProductionChargerChartComponent,
+    ProductionTotalChartComponent,
+    ConsumptionTotalChartComponent,
+    ConsumptionSingleChartComponent,
+    ConsumptionEvcsChartComponent,
+    ConsumptionOtherChartComponent
   ]
 })
 export class HistoryModule { }

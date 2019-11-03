@@ -15,6 +15,10 @@ export class StorageModalComponent {
     public essComponents: EdgeConfig.Component[] = null;
     public chargerComponents: EdgeConfig.Component[] = null;
 
+    public showPhases: boolean = false;
+    public showTotal: boolean = null;
+    public isOnlyChart = null;
+
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
@@ -27,10 +31,23 @@ export class StorageModalComponent {
         this.service.getConfig().then(config => {
             this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster"));
             this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
+            if (this.essComponents != null && this.essComponents.length == 1) {
+                this.isOnlyChart = true;
+            } else if (this.essComponents.length > 1) {
+                // initialize total view only if more than one ess component
+                this.showTotal = false;
+                this.isOnlyChart = false;
+            } else {
+                this.isOnlyChart = false;
+            }
         })
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 2.5;
+    onNotifyPhases(showPhases: boolean): void {
+        this.showPhases = showPhases;
+    }
+
+    onNotifyTotal(showTotal: boolean): void {
+        this.showTotal = showTotal;
     }
 }

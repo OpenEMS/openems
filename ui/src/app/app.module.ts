@@ -32,6 +32,8 @@ import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
+import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 @NgModule({
@@ -40,10 +42,12 @@ import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.comp
     RepeatTypeComponent,
     SystemLogComponent,
     PickDatePopoverComponent,
+    ChartOptionsPopoverComponent
   ],
-  entryComponents: [PickDatePopoverComponent],
+  entryComponents: [PickDatePopoverComponent, ChartOptionsPopoverComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     IonicModule.forRoot(),
     FormlyModule.forRoot({
       types: [

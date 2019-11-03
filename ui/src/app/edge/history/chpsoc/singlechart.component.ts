@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, Input } from "@angular/core";
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Service, Edge, ChannelAddress, Utils } from 'src/app/shared/shared';
+import { Service, Edge, ChannelAddress, Utils, EdgeConfig } from 'src/app/shared/shared';
 import { ActivatedRoute } from '@angular/router';
 import { Dataset, EMPTY_DATASET, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Data } from '../shared';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -8,11 +8,14 @@ import { formatNumber } from '@angular/common';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
-    selector: 'chpsocChart',
+    selector: 'chpsocSingleChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ChpSocSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+
     @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private controllerId: string;
+    @Input() private isOnlyChart: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -78,18 +81,15 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         this.setLabel();
     }
 
-    protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve, reject) => {
-            this.service.getConfig().then(config => {
+            for (let componentId of config.getComponentsByFactory("Controller.CHP.SoC")) {
                 let channeladdresses = [];
-                // find all chpsoc components
-
-                for (let componentId of config.getComponentsByFactory("Controller.CHP.SoC")) {
+                if (this.controllerId == componentId.toString()) {
                     channeladdresses.push(ChannelAddress.fromString(componentId.properties.outputChannelAddress));
-
                 }
                 resolve(channeladdresses);
-            }).catch(reason => reject(reason));
+            }
         });
     }
 
@@ -110,6 +110,10 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 2.5;
+        if (this.isOnlyChart == true) {
+            return window.innerHeight / 1.2;
+        } else if (this.isOnlyChart == false) {
+            return window.innerHeight / 21 * 9;
+        }
     }
 }

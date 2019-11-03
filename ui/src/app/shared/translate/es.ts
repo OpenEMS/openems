@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Inactivo",
         Manually: "a mano",
         Phase: "Fase",
+        Phases: "Fases",
         Autarchy: "Autosuficiencia",
         SelfConsumption: "Autoconsumo",
         Cumulative: "Valores Acumulativos",

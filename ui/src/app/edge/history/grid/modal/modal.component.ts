@@ -10,11 +10,14 @@ export class GridModalComponent {
 
     private static readonly SELECTOR = "grid-modal";
 
+    public showPhases: boolean = false;
+
     constructor(
         public service: Service,
         public modalCtrl: ModalController
     ) { }
 
-    ngOnInit() {
+    onNotifyPhases(showPhases: boolean): void {
+        this.showPhases = showPhases;
     }
 }

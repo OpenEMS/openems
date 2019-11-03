@@ -54,6 +54,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
                     Object.keys(result.data).forEach((channel, index) => {
                         let address = ChannelAddress.fromString(channel);
+                        let component = config.getComponent(address.componentId);
                         let data = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
@@ -69,30 +70,30 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 data: data
                             })
                             this.colors.push({
-                                backgroundColor: 'rgba(0,0,0,0.1)',
-                                borderColor: 'rgba(0,0,0,1)',
-                            });
+                                backgroundColor: 'rgba(0,223,0,0.05)',
+                                borderColor: 'rgba(0,223,0,1)',
+                            })
                         } else {
                             switch (index % 2) {
                                 case 0:
                                     datasets.push({
-                                        label: this.translate.instant('General.Soc') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                                        label: this.translate.instant('General.Soc') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
                                         data: data
                                     });
                                     this.colors.push({
-                                        backgroundColor: 'rgba(255,165,0,0.1)',
-                                        borderColor: 'rgba(255,165,0,1)',
-                                    });
+                                        backgroundColor: 'rgba(32,178,170,0.05)',
+                                        borderColor: 'rgba(32,178,170,1)',
+                                    })
                                     break;
                                 case 1:
                                     datasets.push({
-                                        label: this.translate.instant('General.Soc') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+                                        label: this.translate.instant('General.Soc') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
                                         data: data
                                     });
                                     this.colors.push({
-                                        backgroundColor: 'rgba(255,255,0,0.1)',
-                                        borderColor: 'rgba(255,255,0,1)',
-                                    });
+                                        backgroundColor: 'rgba(128,128,0,0.05)',
+                                        borderColor: 'rgba(128,128,0,1)',
+                                    })
                                     break;
                             }
                         }
