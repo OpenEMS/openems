@@ -141,6 +141,9 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'ProductionActivePower'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             ];
             config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
                 result.push(new ChannelAddress(charger.id, 'ActualPower'))

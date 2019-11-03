@@ -8,6 +8,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { TranslateService } from '@ngx-translate/core';
 import { getTime, differenceInMinutes } from 'date-fns/esm';
+import { differenceInHours } from 'date-fns';
 
 @Component({
   selector: 'channelthresholdSingleChart',
@@ -18,7 +19,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   @Input() private period: DefaultTypes.HistoryPeriod;
   @Input() private controllerId: string;
   @Input() private isOnlyChart: boolean;
-
 
   ngOnChanges() {
     this.updateChart();
@@ -38,26 +38,25 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected updateChart() {
+    this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
-      let periodTime = getTime(this.period.to) - getTime(this.period.to);
+      let periodTime = differenceInHours(this.period.from, this.period.to);
       // convert labels
       let labels: Date[] = [];
       for (let timestamp of result.timestamps) {
         labels.push(new Date(timestamp));
       }
       this.labels = labels;
+
       // show Channel-ID if there is more than one Channel
-      let showChannelId = Object.keys(result.data).length > 1 ? true : false;
-
-      // CALCULCATE TIME ACTIVE IN %&
-      // Object.values(result.timestamps).forEach(timestamp => {
-      //   let newDate = new Date(timestamp);
-      // })
-
-      // Object.values(result.data).forEach(data => {
-      // })
+      let showChannelId: boolean;
+      if (this.isOnlyChart == true) {
+        showChannelId = false;
+      } else if (this.isOnlyChart == false) {
+        showChannelId = true;
+      }
 
       // convert datasets
       let datasets = [];
@@ -67,6 +66,11 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
           if (value == null) {
             return null
           } else {
+            if (value * 100 > 50) {
+              value = 1;
+            } else if (value * 100 < 50) {
+              value = 0;
+            }
             return value * 100; // convert to % [0,100]
           }
         });
@@ -75,14 +79,23 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
           data: data
         });
         this.colors.push({
-          backgroundColor: 'rgba(204,204,204,0.1)',
-          borderColor: 'rgba(204,204,204,1)',
+          backgroundColor: 'rgba(0,191,255,0.05)',
+          borderColor: 'rgba(0,191,255,1)',
         })
       }
       this.datasets = datasets;
-
       this.loading = false;
 
+      // calculate the effective active time in percent for widget (TODO!!)
+      let compareArray = []
+      this.datasets.forEach(dataset => {
+        Object.values(dataset.data).forEach(data => {
+          if (data == 100) {
+            compareArray.push(data)
+          }
+        })
+      })
+      let timeActiveEffective = (compareArray.length / (result.timestamps.length / 100));
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();

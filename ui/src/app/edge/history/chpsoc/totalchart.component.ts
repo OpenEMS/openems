@@ -28,6 +28,7 @@ export class ChpSocTotalChartComponent extends AbstractHistoryChart implements O
     }
 
     protected updateChart() {
+        this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
@@ -44,27 +45,39 @@ export class ChpSocTotalChartComponent extends AbstractHistoryChart implements O
 
             // convert datasets
             let datasets = [];
-
-            for (let channel in result.data) {
-
+            Object.keys(result.data).forEach((channel, index) => {
                 let address = ChannelAddress.fromString(channel);
                 let data = result.data[channel].map(value => {
-
                     if (value == null) {
                         return null
                     } else {
                         return Math.floor(parseInt(value)); //  Rounding up the mean values to integer value 
                     }
                 });
-                datasets.push({
-                    label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
-                    data: data
-                });
-                this.colors.push({
-                    backgroundColor: 'rgba(255,0,0,0.1)',
-                    borderColor: 'rgba(255,0,0,1)',
-                })
-            }
+
+                switch (index % 2) {
+                    case 0:
+                        datasets.push({
+                            label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
+                            data: data
+                        });
+                        this.colors.push({
+                            backgroundColor: 'rgba(0,191,255,0.05)',
+                            borderColor: 'rgba(0,191,255,1)',
+                        })
+                        break;
+                    case 1:
+                        datasets.push({
+                            label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
+                            data: data
+                        });
+                        this.colors.push({
+                            backgroundColor: 'rgba(0,0,139,0.05)',
+                            borderColor: 'rgba(0,0,139,1)',
+                        })
+                        break;
+                }
+            })
             this.datasets = datasets;
             this.loading = false;
 

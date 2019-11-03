@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Service, EdgeConfig } from '../../../../shared/shared';
+import { Service, EdgeConfig, Utils } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -13,6 +13,9 @@ export class ChannelthresholdModalComponent {
     public showTotal: boolean = null;
     public isOnlyChart: boolean = null;
     public channelthresholdComponents: string[] = [];
+
+    // referene to the Utils method to access via html
+    public isLastElement = Utils.isLastElement;
 
     constructor(
         public service: Service,

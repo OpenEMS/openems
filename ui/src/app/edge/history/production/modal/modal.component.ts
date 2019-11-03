@@ -39,6 +39,9 @@ export class ProductionModalComponent {
             } else {
                 this.isOnlyChart = false;
             }
+            if (this.productionMeterComponents.length == 0) {
+                this.showPhases = null;
+            }
         })
     }
 

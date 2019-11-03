@@ -41,7 +41,12 @@ export class ChpSocSingleChartComponent extends AbstractHistoryChart implements 
             this.labels = labels;
 
             // show Channel-ID if there is more than one Channel
-            let showChannelId = Object.keys(result.data).length > 1 ? true : false;
+            let showChannelId: boolean;
+            if (this.isOnlyChart == true) {
+                showChannelId = false;
+            } else if (this.isOnlyChart == false) {
+                showChannelId = true;
+            }
 
             // convert datasets
             let datasets = [];
@@ -62,8 +67,8 @@ export class ChpSocSingleChartComponent extends AbstractHistoryChart implements 
                     data: data
                 });
                 this.colors.push({
-                    backgroundColor: 'rgba(255,0,0,0.1)',
-                    borderColor: 'rgba(255,0,0,1)',
+                    backgroundColor: 'rgba(0,191,255,0.05)',
+                    borderColor: 'rgba(0,191,255,1)',
                 })
             }
             this.datasets = datasets;

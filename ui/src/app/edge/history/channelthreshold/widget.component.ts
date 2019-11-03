@@ -39,6 +39,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
         this.updateValues();
     };
 
+
     updateValues() {
         let channels: ChannelAddress[] = [
         ];

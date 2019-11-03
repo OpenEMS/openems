@@ -35,6 +35,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
   }
 
   protected updateChart() {
+    this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
@@ -56,30 +57,42 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
       // Object.values(result.data).forEach(data => {
       // })
 
-      // convert datasets
       let datasets = [];
-      for (let channel in result.data) {
+      // convert datasets
+      Object.keys(result.data).forEach((channel, index) => {
         let address = ChannelAddress.fromString(channel);
-        let data = result.data[channel].map(value => {
+        let data = result.data[channel].map((value, index) => {
           if (value == null) {
             return null
           } else {
             return value * 100; // convert to % [0,100]
           }
-        });
-        datasets.push({
-          label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
-          data: data
-        });
-        this.colors.push({
-          backgroundColor: 'rgba(204,204,204,0.1)',
-          borderColor: 'rgba(204,204,204,1)',
         })
-      }
-      this.datasets = datasets;
-
-      this.loading = false;
-
+        switch (index % 2) {
+          case 0:
+            datasets.push({
+              label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
+              data: data
+            });
+            this.colors.push({
+              backgroundColor: 'rgba(0,191,255,0.05)',
+              borderColor: 'rgba(0,191,255,1)',
+            })
+            break;
+          case 1:
+            datasets.push({
+              label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
+              data: data
+            });
+            this.colors.push({
+              backgroundColor: 'rgba(0,0,139,0.05)',
+              borderColor: 'rgba(0,0,139,1)',
+            })
+            break;
+        }
+        this.datasets = datasets;
+        this.loading = false;
+      })
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();

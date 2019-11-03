@@ -15,6 +15,7 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 export class ProductionSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -72,6 +73,30 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                                 borderColor: 'rgba(255,165,0,1)',
                             });
                         }
+                        if ('_sum/ActivePowerL1' && '_sum/ActivePowerL2' && '_sum/ActivePowerL3' in result.data && this.showPhases == true) {
+                            // Phases
+                            if (address.channelId == 'ActivePowerL1') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                    data: data
+                                });
+                                this.colors.push(this.phase1Color);
+                            }
+                            if (address.channelId == 'ActivePowerL2') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                    data: data
+                                });
+                                this.colors.push(this.phase2Color);
+                            }
+                            if (address.channelId == 'ActivePowerL3') {
+                                datasets.push({
+                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                    data: data
+                                });
+                                this.colors.push(this.phase3Color);
+                            }
+                        }
                     })
                     this.datasets = datasets;
                     this.loading = false;
@@ -97,6 +122,9 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'ProductionActivePower'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
+                new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             ];
             resolve(result);
         })
