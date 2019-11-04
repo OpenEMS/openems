@@ -8,6 +8,10 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.evcs.api.OcppEvcs;
+import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.api.OcppInformations;
 import eu.chargetime.ocpp.feature.profile.ServerCoreEventHandler;
 import eu.chargetime.ocpp.model.core.AuthorizationStatus;
 import eu.chargetime.ocpp.model.core.AuthorizeConfirmation;
@@ -33,8 +37,6 @@ import eu.chargetime.ocpp.model.core.StatusNotificationRequest;
 import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
-import io.openems.edge.evcs.api.OcppEvcs;
-import io.openems.edge.evcs.api.Status;
 
 public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
@@ -97,10 +99,11 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		server.logInfo(this.log, "Handle MeterValuesRequest: " + request);
 
-		OcppEvcs evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
+		AbstractOcppEvcsComponent evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new MeterValuesConfirmation();
 		}
+		// TODO: Handle Event
 		evcs.status().setNextValue(Status.CHARGING);
 
 		MeterValue[] meterValueArr = request.getMeterValue();
@@ -127,118 +130,70 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 					}
 
 					String measurandString = value.getMeasurand();
-					SampleValueMeasurand measurand = SampleValueMeasurand
-							.valueOf(measurandString.replace(".", "_").toUpperCase());
+					// SampleValueMeasurand measurand = SampleValueMeasurand
+					// .valueOf(measurandString.replace(".", "_").toUpperCase());
 
-					switch (measurand) {
-					case CURRENT_IMPORT:
-						evcs.getCurrentToEV().setNextValue(Double.valueOf(val) * 1000);
-						break;
-					case CURRENT_EXPORT:
-						evcs.getCurrentToGrid().setNextValue(Double.valueOf(val) * 1000);
-						break;
-					case CURRENT_OFFERED:
-						evcs.getCurrentOffered().setNextValue(Double.valueOf(val) * 1000);
-						break;
-					case ENERGY_ACTIVE_EXPORT_REGISTER:
-						if (unit.equals(Unit.KWH)) {
-							val = divideByThousand(val);
+					OcppInformations measurand = OcppInformations
+							.valueOf("CORE_METER_VALUES_" + measurandString.replace(".", "_").toUpperCase());
+					
+					if (evcs.getSupportedMeasurements().contains(measurand)) {
+
+						Object correctValue = val;
+						switch (measurand) {
+						case CORE_METER_VALUES_CURRENT_EXPORT:
+						case CORE_METER_VALUES_CURRENT_IMPORT:
+						case CORE_METER_VALUES_CURRENT_OFFERED:
+							correctValue = Double.valueOf(val) * 1000;
+							break;
+							
+						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER:
+						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER:
+						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL:
+						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_INTERVAL:
+							if (unit.equals(Unit.KWH)) {
+								val = divideByThousand(val);
+							}
+							break;
+							
+						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
+						case CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_REGISTER:
+						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_INTERVAL:
+						case CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_INTERVAL:
+							if (unit.equals(Unit.KVARH)) {
+								val = divideByThousand(val);
+							}
+							break;
+							
+						case CORE_METER_VALUES_POWER_ACTIVE_EXPORT:
+						case CORE_METER_VALUES_POWER_ACTIVE_IMPORT:
+						case CORE_METER_VALUES_POWER_OFFERED:
+							if (unit.equals(Unit.KW)) {
+								val = divideByThousand(val);
+							}
+							break;
+							
+						case CORE_METER_VALUES_POWER_REACTIVE_EXPORT:
+						case CORE_METER_VALUES_POWER_REACTIVE_IMPORT:
+							if (unit.equals(Unit.KVAR)) {
+								val = divideByThousand(val);
+							}
+							break;
+							
+						case CORE_METER_VALUES_VOLTAGE:
+							evcs.getVoltage().setNextValue(Math.round(Double.valueOf(val)));
+							break;
+
+						case CORE_METER_VALUES_RPM:
+						case CORE_METER_VALUES_SOC:
+						case CORE_METER_VALUES_TEMPERATURE:
+						case CORE_METER_VALUES_POWER_FACTOR:
+						case CORE_METER_VALUES_FREQUENCY:
+							break;
 						}
-						evcs.getActiveEnergyToGrid().setNextValue(val);
-						break;
-					case ENERGY_ACTIVE_IMPORT_REGISTER:
-						if (unit.equals(Unit.KWH)) {
-							val = divideByThousand(val);
-						}
-						evcs.getEnergySession().setNextValue(val);
-						break;
-					case ENERGY_REACTIVE_EXPORT_REGISTER:
-						if (unit.equals(Unit.KVARH)) {
-							val = divideByThousand(val);
-						}
-						evcs.getReactiveEnergyToGrid().setNextValue(val);
-						break;
-					case ENERGY_REACTIVE_IMPORT_REGISTER:
-						if (unit.equals(Unit.KVARH)) {
-							val = divideByThousand(val);
-						}
-						evcs.getReactiveEnergyToEV().setNextValue(val);
-						break;
-					case ENERGY_ACTIVE_IMPORT_INTERVAL:
-						if (unit.equals(Unit.KWH)) {
-							val = divideByThousand(val);
-						}
-						evcs.getActiveEnergyToEVInInterval().setNextValue(val);
-						break;
-					case ENERGY_ACTIVE_EXPORT_INTERVAL:
-						if (unit.equals(Unit.KWH)) {
-							val = divideByThousand(val);
-						}
-						evcs.getActiveEnergyToGridInInterval().setNextValue(val);
-						break;
-					case ENERGY_REACTIVE_IMPORT_INTERVAL:
-						if (unit.equals(Unit.KVARH)) {
-							val = divideByThousand(val);
-						}
-						evcs.getReactiveEnergyToEvInInterval().setNextValue(val);
-						break;
-					case ENERGY_REACTIVE_EXPORT_INTERVAL:
-						if (unit.equals(Unit.KVARH)) {
-							val = divideByThousand(val);
-						}
-						evcs.getReactiveEnergyToGridInInterval().setNextValue(val);
-						break;
-					case FREQUENCY:
-						evcs.getFrequency().setNextValue(val);
-						break;
-					case POWER_ACTIVE_EXPORT:
-						if (unit.equals(Unit.KW)) {
-							val = divideByThousand(val);
-						}
-						evcs.getActivePowerToGrid().setNextValue(val);
-						break;
-					case POWER_ACTIVE_IMPORT:
-						if (unit.equals(Unit.KW)) {
-							val = divideByThousand(val);
-						}
-						evcs.getChargePower().setNextValue(val);
-						break;
-					case POWER_FACTOR:
-						evcs.getPowerFactor().setNextValue(val);
-						break;
-					case POWER_OFFERED:
-						if (unit.equals(Unit.KW)) {
-							val = divideByThousand(val);
-						}
-						evcs.getPowerOffered().setNextValue(val);
-						break;
-					case POWER_REACTIVE_EXPORT:
-						if (unit.equals(Unit.KVAR)) {
-							val = divideByThousand(val);
-						}
-						evcs.getReactivePowerToGrid().setNextValue(val);
-						break;
-					case POWER_REACTIVE_IMPORT:
-						if (unit.equals(Unit.KVAR)) {
-							val = divideByThousand(val);
-						}
-						evcs.getReactivePowerToEV().setNextValue(val);
-						break;
-					case RPM:
-						evcs.getFanSpeed().setNextValue(val);
-						;
-						break;
-					case SOC:
-						evcs.getSoC().setNextValue(val);
-						break;
-					case TEMPERATURE:
-						evcs.getTemperature().setNextValue(val);
-						break;
-					case VOLTAGE:
-						evcs.getVoltage().setNextValue(Math.round(Double.valueOf(val)));
-						break;
+						evcs.channel(measurand.getChannelId()).setNextValue(correctValue);
+						server.logInfo(this.log,
+								measurandString + ": " + val + " " + unitString + " Phases: " + phases);
 					}
-					server.logInfo(this.log, measurandString + ": " + val + " " + unitString + " Phases: " + phases);
 				}
 			}
 		}
@@ -314,10 +269,10 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			BootNotificationRequest request) {
 
 		server.logInfo(this.log, "Handle BootNotificationRequest: " + request);
-		List<OcppEvcs> evcss = getEvcssBySessionIndex(sessionIndex);
-		for (OcppEvcs ocppEvcs : evcss) {
+		List<AbstractOcppEvcsComponent> evcss = getEvcssBySessionIndex(sessionIndex);
+		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
 			ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
-			Status state = ocppEvcs.status().getNextValue().asEnum();
+			Status state = ocppEvcs.status().value().asEnum();
 			if (state == null || state.equals(Status.UNDEFINED) || state.equals(Status.CHARGING_FINISHED)) {
 				ocppEvcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
 			}
@@ -332,14 +287,14 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		return response;
 	}
 
-	private List<OcppEvcs> getEvcssBySessionIndex(UUID sessionIndex) {
+	private List<AbstractOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
 		int index = this.server.getActiveSessions().indexOf(new EvcsSession(sessionIndex));
 		return this.server.getActiveSessions().get(index).getOcppEvcss();
 	}
 
-	private OcppEvcs getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
-		List<OcppEvcs> evcss = getEvcssBySessionIndex(sessionIndex);
-		for (OcppEvcs ocppEvcs : evcss) {
+	private AbstractOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
+		List<AbstractOcppEvcsComponent> evcss = getEvcssBySessionIndex(sessionIndex);
+		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
 			if (ocppEvcs.getConnectorId().value().orElse(0) == connectorId) {
 				return ocppEvcs;
 			}

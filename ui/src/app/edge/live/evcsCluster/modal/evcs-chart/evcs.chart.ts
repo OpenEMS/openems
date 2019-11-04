@@ -85,13 +85,13 @@ export class EvcsChart implements OnInit, OnChanges {
     let minPower = 22;
     let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
     let chargePower = this.currentData[this.componentId + '/ChargePower'];
-
+    console.log("Maximale HW: " + maxHW);
+    console.log("Ladeleistung: " + chargePower);
     maxHW = maxHW == null ? minPower : maxHW / 1000;
     chargePower = chargePower == null ? 0 : chargePower / 1000;
-
+    
     maxPower = chargePower < minPower || maxPower < minPower ? minPower : maxHW;
-    maxPower = maxPower < minPower ? minPower : maxPower;
-
+    console.log("Chart größe: "+ maxPower);
     return Math.round(maxPower);
   }
 }

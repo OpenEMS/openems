@@ -152,6 +152,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 */
 		boolean isClustered = evcs.isClustered().value().orElse(false);
 		if (isClustered) {
+
 			Status status = evcs.status().value().asEnum();
 			switch (status) {
 			case ERROR:
@@ -236,7 +237,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 						nextChargePower = 0;
 					} else {
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
-						evcs.getMaximumPower().setNextValue(nextChargePower); 
+						evcs.getMaximumPower().setNextValue(nextChargePower);
 					}
 					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
 				} else {

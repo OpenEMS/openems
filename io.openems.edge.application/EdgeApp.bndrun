@@ -70,7 +70,8 @@
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
-	bnd.identity;id='io.openems.edge.evcs.ocpp.unmanaged',\
+	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
+	bnd.identity;id='io.openems.edge.evcs.ocpp.keywatt.singleccs',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.server',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -154,8 +155,9 @@
 	io.openems.edge.ess.sma;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
+	io.openems.edge.evcs.ocpp.abl;version=snapshot,\
+	io.openems.edge.evcs.ocpp.keywatt.singleccs;version=snapshot,\
 	io.openems.edge.evcs.ocpp.server;version=snapshot,\
-	io.openems.edge.evcs.ocpp.unmanaged;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
@@ -222,4 +224,5 @@
 	com.github.scribejava.core;version='[6.9.0,6.9.1)',\
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.timedata.rrd4j;version=snapshot,\
-	rrd4j;version='[3.5.0,3.5.1)'
+	rrd4j;version='[3.5.0,3.5.1)',\
+	io.openems.edge.evcs.ocpp.api;version=snapshot

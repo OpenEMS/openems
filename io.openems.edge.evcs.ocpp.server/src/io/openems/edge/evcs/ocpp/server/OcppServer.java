@@ -41,6 +41,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.OcppEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -126,12 +127,12 @@ public class OcppServer extends AbstractOpenemsComponent
 				logInfo(log, "New session " + sessionIndex + ": Chargepoint: " + information.getIdentifier() + ", IP: "
 						+ information.getAddress());
 
-				List<OcppEvcs> evcssWithThisId = searchForComponentWithThatIdentifier(information.getIdentifier(),
+				List<AbstractOcppEvcsComponent> evcssWithThisId = searchForComponentWithThatIdentifier(information.getIdentifier(),
 						sessionIndex);
 				activeSessions.add(new EvcsSession(sessionIndex, information, evcssWithThisId));
 
 				ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest();
-				for (OcppEvcs ocppEvcs : evcssWithThisId) {
+				for (AbstractOcppEvcsComponent ocppEvcs : evcssWithThisId) {
 					logInfo(log, "Setting EVCS "+ ocppEvcs.alias() +" availability to operative");
 					changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
 					changeAvailabilityRequest.setType(AvailabilityType.Operative);
@@ -184,20 +185,20 @@ public class OcppServer extends AbstractOpenemsComponent
 		}
 	}
 
-	private List<OcppEvcs> searchForComponentWithThatIdentifier(String identifier, UUID sessionIndex) {
-		List<OcppEvcs> evcssWithThisId = new ArrayList<OcppEvcs>();
+	private List<AbstractOcppEvcsComponent> searchForComponentWithThatIdentifier(String identifier, UUID sessionIndex) {
+		List<AbstractOcppEvcsComponent> evcssWithThisId = new ArrayList<AbstractOcppEvcsComponent>();
 		List<OpenemsComponent> components = componentManager.getEnabledComponents();
 
 		for (OpenemsComponent openemsComponent : components) {
-			if (openemsComponent instanceof OcppEvcs) {
-				OcppEvcs ocppEvcs = (OcppEvcs) openemsComponent;
+			if (openemsComponent instanceof AbstractOcppEvcsComponent) {
+				AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) openemsComponent;
 				String ocppId = ocppEvcs.getOcppId().value().orElse("");
 
 				if (identifier.equals("/" + ocppId)) {
 					ocppEvcs.getChargingSessionId().setNextValue(sessionIndex.toString());
 					ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
 					ocppEvcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
-					evcssWithThisId.add((OcppEvcs) openemsComponent);
+					evcssWithThisId.add(ocppEvcs);
 				}
 			}
 		}
@@ -212,7 +213,7 @@ public class OcppServer extends AbstractOpenemsComponent
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
 		for (EvcsSession evcsSession : activeSessions) {
-			List<OcppEvcs> evcss = searchForComponentWithThatIdentifier(
+			List<AbstractOcppEvcsComponent> evcss = searchForComponentWithThatIdentifier(
 					evcsSession.getSessionInformation().getIdentifier(), evcsSession.getSessionId());
 			if (!evcss.isEmpty()) {
 				evcsSession.setOcppEvcss(evcss);

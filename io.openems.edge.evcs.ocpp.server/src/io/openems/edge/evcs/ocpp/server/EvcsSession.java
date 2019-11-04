@@ -5,15 +5,15 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.chargetime.ocpp.model.SessionInformation;
-import io.openems.edge.evcs.api.OcppEvcs;
+import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
 
 public class EvcsSession {
 
 	private UUID sessionId;
 	private SessionInformation sessionInformation = new SessionInformation();
-	private List<OcppEvcs> ocppEvcss = new ArrayList<OcppEvcs>();
+	private List<AbstractOcppEvcsComponent> ocppEvcss = new ArrayList<AbstractOcppEvcsComponent>();
 
-	public EvcsSession(UUID sessionId, SessionInformation sessionInformation, List<OcppEvcs> ocppEvcss) {
+	public EvcsSession(UUID sessionId, SessionInformation sessionInformation, List<AbstractOcppEvcsComponent> ocppEvcss) {
 		this.setSessionId(sessionId);
 		this.setSessionInformation(sessionInformation);
 		this.setOcppEvcss(ocppEvcss);
@@ -40,11 +40,11 @@ public class EvcsSession {
 		}
 	}
 
-	public List<OcppEvcs> getOcppEvcss() {
+	public List<AbstractOcppEvcsComponent> getOcppEvcss() {
 		return ocppEvcss;
 	}
 
-	public void setOcppEvcss(List<OcppEvcs> ocppEvcss) {
+	public void setOcppEvcss(List<AbstractOcppEvcsComponent> ocppEvcss) {
 		if (ocppEvcss != null) {
 			this.ocppEvcss = ocppEvcss;
 		}
