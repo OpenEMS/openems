@@ -5,18 +5,21 @@ import com.pi4j.io.i2c.I2CDevice;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class Mcp23008 extends Mcp {
+public class Mcp23008 extends Mcp implements McpChannelRegister {
 
     private final int address;
     private final int length = 8;
     private final I2CDevice device;
-
+    Map<Integer, Boolean> valuesPerDefault = new ConcurrentHashMap<>();
     private final boolean[] shifters;
 
     public Mcp23008(int address, I2CBus device) throws IOException {
         this.address = address;
         this.shifters = new boolean[length];
+
         for (int i = 0; i < length; i++) {
             this.shifters[i] = false;
         }
@@ -43,11 +46,18 @@ public class Mcp23008 extends Mcp {
             }
         }
         try {
-
             device.write(0x09, (byte) data);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
+    @Override
+    public void addToDefault(int position, boolean activate) {
+        this.valuesPerDefault.put(position, activate);
+    }
+
+    public Map<Integer, Boolean> getValuesPerDefault() {
+        return valuesPerDefault;
+    }
 }

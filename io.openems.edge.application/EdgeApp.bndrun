@@ -90,10 +90,12 @@
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
-	bnd.identity;id='io.openems.edge.raspberrypi.circuitboard,\
-	bnd.identity;id='io.openems.edge.raspberrypi.sensors,\
-	bnd.identity;id='io.openems.edge.raspberrypi.spi,\
-	bnd.identity;id='io.openems.edge.bridgei2c,\
+	bnd.identity;id='io.openems.edge.raspberrypi.circuitboard',\
+	bnd.identity;id='io.openems.edge.raspberrypi.sensors',\
+	bnd.identity;id='io.openems.edge.raspberrypi.spi',\
+	bnd.identity;id='io.openems.edge.bridgei2c',\
+	bnd.identity;id='io.openems.edge.relais,'\
+	bind.identity;id='io.openems.edge.relaisBoard',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\
@@ -168,6 +170,9 @@
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	pi4j-core;version='[1.0,1.4)',\
 	io.openems.edge.raspberrypi;version=snapshot,\
+	io.openems.edge.relaisBoard;version=snapshot,\
+	io.openems.edge.bridgei2c;version=snapshot,\
+	io.openems.edge.relais;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\

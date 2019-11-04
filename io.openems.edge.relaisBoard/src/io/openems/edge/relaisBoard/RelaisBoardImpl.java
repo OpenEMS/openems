@@ -8,18 +8,19 @@ import io.openems.edge.relaisBoard.api.Mcp;
 import io.openems.edge.relaisBoard.api.Mcp23008;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;;
+import java.util.Map;
 
 
-@Designate( ocd= Config.class, factory=true)
-@Component(name="Relais Board")
-public class RelaisBoardImpl extends AbstractOpenemsComponent implements OpenemsComponent /* implements SomeApi */ {
+@Designate(ocd = Config.class, factory = true)
+@Component(name = "Relais Board",
+		configurationPolicy = ConfigurationPolicy.REQUIRE,
+		immediate = true)
+public class RelaisBoardImpl extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	private String id;
 	private String alias;
@@ -27,7 +28,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
 	private I2CBus bus;
 	private short address;
 	private String i2cBridge;
-	private List<Mcp> mcpList = new ArrayList<>();
+	private Mcp mcp;
 
 	public RelaisBoardImpl() {
 		super(OpenemsComponent.ChannelId.values());
@@ -44,23 +45,26 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
 		try {
 			switch (config.version()) {
 				case "1":
-					this.mcpList.add(new Mcp23008(address, bus));
+					this.mcp = new Mcp23008(address, bus);
+					break;
 			}
-		}catch (Exception e){e.printStackTrace();}
-
-
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-
-
+	}
 
 	@Deactivate
 	public void deactivate() {
 		super.deactivate();
+		if (mcp instanceof Mcp23008) {
+			for (Map.Entry<Integer, Boolean> entry : ((Mcp23008) mcp).getValuesPerDefault().entrySet()) {
+				((Mcp23008) mcp).setPosition(entry.getKey(), entry.getValue());
 
+			}
+		}
 	}
 
-	public void allocateBus(int bus){
+	private void allocateBus(int bus) {
 		try {
 
 			switch (bus) {
@@ -115,4 +119,11 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
 
 	}
 
+	public String getId() {
+		return id;
+	}
+
+	public Mcp getMcp() {
+		return this.mcp;
+	}
 }

@@ -4,6 +4,7 @@ import io.openems.common.channel.Unit;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -20,7 +21,6 @@ public interface ActuatorRelais extends OpenemsComponent {
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
         ON_OFF(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)); //
-
         private final Doc doc;
 
         private ChannelId(Doc doc) {
@@ -42,7 +42,10 @@ public interface ActuatorRelais extends OpenemsComponent {
      *
      * @return
      */
-    default Boolean isActive() {
-        return (Boolean) this.channel(ChannelId.ON_OFF).value().get();
+  //  default Boolean isActive() {
+    //    return (Boolean) this.channel(ChannelId.ON_OFF).value().get();
+    //}
+    public default Channel<Boolean> isOnOrOff() {
+        return this.channel(ChannelId.ON_OFF);
     }
 }

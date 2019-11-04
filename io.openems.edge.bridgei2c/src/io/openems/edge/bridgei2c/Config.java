@@ -17,13 +17,10 @@ import org.osgi.service.metatype.annotations.Option;
 
     @AttributeDefinition(name = "I2CBridge-ID", description = "ID of Shiftregister brige.")
     String id() default "I2C0";
+    @AttributeDefinition(name = "Alias", description = "Human readable Name")
+            String alias() default "";
 
 
-    @AttributeDefinition(name = "Position", description = "The position. Starting by 0")
-    int position();
-
-    @AttributeDefinition(name = "IsOpener", description = "Is the relais an opener or closer")
-    boolean isOpener();
 
     String webconsole_configurationFactory_nameHint() default "Actuator Relais Shiftregister[{id}]";
 }
