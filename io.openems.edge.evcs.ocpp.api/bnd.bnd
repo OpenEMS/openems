@@ -7,21 +7,10 @@ Bundle-Description: \
 	\
 
 Export-Package:  \
-	io.openems.edge.evcs.ocpp.server.api;-provide=true, \
-	eu.chargetime.ocpp, \
-	eu.chargetime.ocpp.feature, \
-	eu.chargetime.ocpp.feature.profile, \
-	eu.chargetime.ocpp.model, \
-	eu.chargetime.ocpp.model.core, \
-	eu.chargetime.ocpp.model.firmware, \
-	eu.chargetime.ocpp.model.localauthlist, \
-	eu.chargetime.ocpp.model.remotetrigger, \
-	eu.chargetime.ocpp.model.reservation, \
-	eu.chargetime.ocpp.model.smartcharging, \
-	eu.chargetime.ocpp.model.validation, \
-	eu.chargetime.ocpp.utilities, \
-	eu.chargetime.ocpp.wss, \
-	io.openems.edge.evcs.ocpp.api 
+	io.openems.edge.evcs.ocpp.api.api;-provide=true
+
+Private-Package:  \
+	io.openems.edge.evcs.ocpp.api
 
 -includeresource: {readme.md}
 
