@@ -26,12 +26,9 @@
         </ion-card-content>
     </ng-container>
     <ng-container *ngIf="!showTotal || showTotal == null">
-        <ng-container *ngFor="let controllerId of channelthresholdComponents">
-            <ion-card-content [class.underline]="!isOnlyChart && !isLastElement(component, channelthresholdComponents)">
-                <channelthresholdSingleChart [controllerId]="controllerId" [isOnlyChart]="isOnlyChart"
-                    [period]="service.historyPeriod">
-                </channelthresholdSingleChart>
-            </ion-card-content>
-        </ng-container>
+        <ion-card-content>
+            <channelthresholdSingleChart [controllerId]="controllerId" [period]="service.historyPeriod">
+            </channelthresholdSingleChart>
+        </ion-card-content>
     </ng-container>
 </ion-content>

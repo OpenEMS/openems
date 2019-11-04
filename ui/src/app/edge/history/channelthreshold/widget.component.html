@@ -9,15 +9,12 @@
   <ion-card-content>
     <table class="full_width">
       <tr>
-        <td style="width:65%"></td>
-        <td style="width:35%" class="align_right" *ngIf="data;else noData">
-          {{1337000 | unitvalue:'kWh'}}
+        <td style="width: 100%">
+          <ng-container *ngIf="timeActiveOverPeriod != null">
+            <percentagebar [value]="timeActiveOverPeriod">
+            </percentagebar>
+          </ng-container>
         </td>
-        <ng-template #noData>
-          <td style="width:35%" class="align_right">
-            &nbsp;
-          </td>
-        </ng-template>
       </tr>
     </table>
   </ion-card-content>

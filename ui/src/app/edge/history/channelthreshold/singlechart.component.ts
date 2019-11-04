@@ -18,7 +18,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   @Input() private period: DefaultTypes.HistoryPeriod;
   @Input() private controllerId: string;
-  @Input() private isOnlyChart: boolean;
 
   ngOnChanges() {
     this.updateChart();
@@ -50,14 +49,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
       }
       this.labels = labels;
 
-      // show Channel-ID if there is more than one Channel
-      let showChannelId: boolean;
-      if (this.isOnlyChart == true) {
-        showChannelId = false;
-      } else if (this.isOnlyChart == false) {
-        showChannelId = true;
-      }
-
       // convert datasets
       let datasets = [];
       for (let channel in result.data) {
@@ -75,7 +66,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
           }
         });
         datasets.push({
-          label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
+          label: "Ausgang" + ' (' + address.channelId + ')',
           data: data
         });
         this.colors.push({
@@ -132,10 +123,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   }
 
   public getChartHeight(): number {
-    if (this.isOnlyChart == true) {
-      return window.innerHeight / 1.2;
-    } else if (this.isOnlyChart == false) {
-      return window.innerHeight / 21 * 9;
-    }
+    return window.innerHeight / 1.2;
   }
 }

@@ -23,6 +23,9 @@ export class HistoryComponent implements OnInit {
   // holds the current Edge
   public edge: Edge = null;
 
+  // holds Channelthreshold Components to display effective active time in %
+  // public channelthresholdComponents: string[] = [];
+
   public config: EdgeConfig = null;
 
   constructor(
@@ -36,6 +39,12 @@ export class HistoryComponent implements OnInit {
       this.edge = edge;
     });
     this.service.getConfig().then(config => {
+      // gather ControllerIds of Channeltreshold Components
+      // for (let controllerId of
+      //   config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
+      //     .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
+      //   this.channelthresholdComponents.push(controllerId)
+      // }
       this.config = config;
       config.hasStorage()
       this.widgets = config.widgets;

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Service, EdgeConfig, Utils } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
@@ -8,10 +8,11 @@ import { ModalController } from '@ionic/angular';
 })
 export class ChannelthresholdModalComponent {
 
+    @Input() private controllerId: string;
+
     private static readonly SELECTOR = "channelthreshold-modal";
 
     public showTotal: boolean = null;
-    public isOnlyChart: boolean = null;
     public channelthresholdComponents: string[] = [];
 
     // referene to the Utils method to access via html
@@ -31,9 +32,6 @@ export class ChannelthresholdModalComponent {
             }
             if (this.channelthresholdComponents.length > 1) {
                 this.showTotal = false;
-                this.isOnlyChart = false;
-            } else if (this.channelthresholdComponents.length == 1) {
-                this.isOnlyChart = true;
             }
         })
     }
