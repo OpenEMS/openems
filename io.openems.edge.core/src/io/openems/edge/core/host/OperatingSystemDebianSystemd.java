@@ -337,13 +337,13 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 							proc.destroy();
 						}
 
-						List<String> stdout = stdoutFuture.get(0, TimeUnit.SECONDS);
-						stderr.addAll(stderrFuture.get(request.getTimeoutSeconds(), TimeUnit.SECONDS));
-
+						List<String> stdout = stdoutFuture.get(1, TimeUnit.SECONDS);
+						stderr.addAll(stderrFuture.get(1, TimeUnit.SECONDS));
 						result.complete(new ExecuteSystemCommandResponse(request.getId(), //
 								stdout.toArray(new String[stdout.size()]), //
 								stderr.toArray(new String[stderr.size()]) //
 						));
+
 					} catch (Throwable e) {
 						result.completeExceptionally(e);
 					}

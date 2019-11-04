@@ -111,15 +111,9 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 		edge.onSetIpv4(ipv4 -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Set IPv4: " + ipv4);
 		});
-		edge.onSetSumState((sumState, activeStateChannels) -> {
-			String sumStateString;
-			if (sumState != null) {
-				sumStateString = sumState.getName().toLowerCase();
-			} else {
-				sumStateString = "";
-			}
+		edge.onSetComponentState(activeStateChannels -> {
 			String states = Metadata.activeStateChannelsToString(activeStateChannels);
-			this.logInfo(this.log, "Edge [" + edgeId + "]. Set State \"" + sumStateString + "\". Long-Text: " + states);
+			this.logInfo(this.log, "Edge [" + edgeId + "]. Set State: " + states);
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);

@@ -35,9 +35,9 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 @Component(name = "Simulator.Evcs", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+public class SimulatedEvcs extends AbstractOpenemsComponent
+		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
-	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT));
 
@@ -51,7 +51,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 			return this.doc;
 		}
 	}
-	
+
 	public SimulatedEvcs() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -76,20 +76,18 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
-		
+
 		this.getMaximumHardwarePower().setNextValue(22800);
 		this.getMinimumHardwarePower().setNextValue(6000);
 		this.getPhases().setNextValue(3);
 		this.status().setNextValue(Status.CHARGING);
-	
-		
+
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
-
 
 	@Override
 	public void handleEvent(Event event) {
@@ -99,12 +97,14 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 			break;
 		}
 	}
+
 	private LocalDateTime lastUpdate = LocalDateTime.now();
 	private double exactEnergySession = 0;
+
 	private void updateChannels() {
-		
+
 		Optional<Integer> chargePowerLimitOpt = this.setChargePowerLimit().getNextWriteValueAndReset();
-		
+
 		// copy write value to read value
 		this.setChargePowerLimit().setNextValue(chargePowerLimitOpt);
 
@@ -117,14 +117,13 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements ManagedEv
 			int chargePowerLimit = chargePowerLimitOpt.get();
 			simulatedChargePower = Math.min(simulatedChargePower, chargePowerLimit);
 		}
-		
 
 		this.getChargePower().setNextValue(simulatedChargePower);
-		
+
 		long timeDiff = ChronoUnit.MILLIS.between(lastUpdate, LocalDateTime.now());
-		double energieTransfered = (timeDiff / 1000.0/60/60) * this.getChargePower().getNextValue().orElse(0);
+		double energieTransfered = (timeDiff / 1000.0 / 60 / 60) * this.getChargePower().getNextValue().orElse(0);
 		this.exactEnergySession = this.exactEnergySession + energieTransfered;
-		this.getEnergySession().setNextValue((int) exactEnergySession);	
+		this.getEnergySession().setNextValue((int) exactEnergySession);
 
 		lastUpdate = LocalDateTime.now();
 	}

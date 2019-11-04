@@ -211,7 +211,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.channel(22, ChannelId.CURRENT_L3, ModbusType.FLOAT32) //
 				.build();
 	}
-	
+
 	/**
 	 * Gets the Active Power for L1 in [W]. Negative values for Consumption;
 	 * positive for Production
@@ -270,6 +270,33 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 */
 	default Channel<Integer> getReactivePowerL3() {
 		return this.channel(ChannelId.REACTIVE_POWER_L3);
+	}
+
+	/**
+	 * Gets the Channel for Voltage on L1 in [mV].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getVoltageL1() {
+		return this.channel(ChannelId.VOLTAGE_L1);
+	}
+
+	/**
+	 * Gets the Channel for Voltage on L2 in [mV].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getVoltageL2() {
+		return this.channel(ChannelId.VOLTAGE_L2);
+	}
+
+	/**
+	 * Gets the Channel for Voltage on L3 in [mV].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getVoltageL3() {
+		return this.channel(ChannelId.VOLTAGE_L3);
 	}
 
 	/**
