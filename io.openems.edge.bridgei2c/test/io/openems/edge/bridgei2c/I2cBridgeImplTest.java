@@ -4,14 +4,12 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import io.openems.edge.bridgei2c.ProviderImpl;
-
 /*
  * Example JUNit test case
  *
  */
 
-public class ProviderImplTest {
+public class I2cBridgeImplTest {
 
 	/*
 	 * Example test method
@@ -19,7 +17,7 @@ public class ProviderImplTest {
 
 	@Test
 	public void simple() {
-		ProviderImpl impl = new ProviderImpl();
+		I2cBridgeImpl impl = new I2cBridgeImpl();
 		assertNotNull(impl);
 	}
 

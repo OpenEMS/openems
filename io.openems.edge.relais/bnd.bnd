@@ -1,23 +1,24 @@
-Bundle-Name: OpenEMS Edge BridgeI2c
+Bundle-Name: OpenEMS Edge RaspberryPi
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
 
-Export-Package:  \
-	io.openems.edge.bridgei2c,\
-	io.openems.edge.bridgei2c.task,\
 
-Private-Package:  \
-	io.openems.edge.bridgei2c
+Export-Package:  \
+	io.openems.edge.relais
+
+
 
 -includeresource: {readme.md}
 
 -buildpath:  \
 	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
-    io.openems.edge.relaisBoard;version=latest,\
+		io.openems.edge.common;version=latest,\
+    	io.openems.common;version=latest,\
+    	io.openems.edge.bridgei2c;version=latest,\
+    	io.openems.edge.bridgei2c.I2cBridge,\
+    	pi4j-core,\
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

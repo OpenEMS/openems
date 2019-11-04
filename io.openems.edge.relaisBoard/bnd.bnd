@@ -1,0 +1,25 @@
+#
+# io.openems.edge.relaisBoard PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for io.openems.edge.relaisBoard. \
+	\
+	${warning;Please update this Bundle-Description in io.openems.edge.relaisBoard/api.bnd}
+
+Export-Package:  \
+	io.openems.edge.relaisBoard.api;-provide=true
+
+Private-Package:  \
+	io.openems.edge.relaisBoard
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
