@@ -29,7 +29,8 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+				"type=PRODUCTION" //
 		})
 public class SunSpecPvInverter extends AbstractSunSpecPvInverter
 		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {

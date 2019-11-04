@@ -1,3 +1,45 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
+        <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-card-content class="underline">
+        <table class="full_width">
+            <tr>
+                <td translate>
+                    General.Mode
+                </td>
+            </tr>
+        </table>
+        <ion-segment (ionChange)="updateMode($event)" value="{{controller.properties['isOn']}}" scrollable="false">
+            <ion-segment-button value="true">
+                <ion-label translate>
+                    General.On
+                </ion-label>
+                <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="false">
+                <ion-label translate>
+                    General.Off
+                </ion-label>
+                <ion-icon name="power" style="width: 40px"></ion-icon>
+            </ion-segment-button>
+        </ion-segment>
+    </ion-card-content>
+</ion-content>
+
+<!-- 
+
+
+
 <ng-container *ngIf="state">
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
@@ -31,4 +73,4 @@
             </ion-radio-group>
         </ion-list>
     </ion-content>
-</ng-container>
+</ng-container> -->

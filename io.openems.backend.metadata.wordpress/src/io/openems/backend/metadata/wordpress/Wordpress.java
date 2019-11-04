@@ -200,7 +200,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 
 				Role role = Role.getRole("ADMIN");
 				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION.toString(), producttype,
-						config, role, 0, "", null);
+						config, role, 0, "");
 
 				this.addListeners(edge);
 

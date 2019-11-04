@@ -11,8 +11,8 @@ public class MyEdge extends Edge {
 	private final String apikey;
 
 	public MyEdge(String id, String apikey, String name, String comment, State state, String version, String producttype,
-			EdgeConfig config, Role role, Integer soc, String ipv4, Level sumState) {
-		super(id, comment, state, version, producttype, config, soc, ipv4, sumState);
+			EdgeConfig config, Role role, Integer soc, String ipv4) {
+		super(id, comment, state, version, producttype, config, soc, ipv4);
 		this.role = role;
 		this.apikey = apikey;
 	}

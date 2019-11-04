@@ -69,6 +69,16 @@ public class JsonUtils {
 		}
 	}
 
+	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement)
+			throws OpenemsNamedException {
+		String element = getAsString(jElement);
+		try {
+			return (E) Enum.valueOf(enumType, element);
+		} catch (IllegalArgumentException e) {
+			throw OpenemsError.JSON_NO_ENUM.exception(element);
+		}
+	}
+
 	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement,
 			String memberName) {
 		Optional<String> elementOpt = getAsOptionalString(jElement, memberName);
