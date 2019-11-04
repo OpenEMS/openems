@@ -317,7 +317,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		List<OcppEvcs> evcss = getEvcssBySessionIndex(sessionIndex);
 		for (OcppEvcs ocppEvcs : evcss) {
 			ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
-			Status state = ocppEvcs.status().getNextValue().asEnum();
+			Status state = ocppEvcs.status().value().asEnum();
 			if (state == null || state.equals(Status.UNDEFINED) || state.equals(Status.CHARGING_FINISHED)) {
 				ocppEvcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
 			}
