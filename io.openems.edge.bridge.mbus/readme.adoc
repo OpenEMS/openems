@@ -1,7 +1,8 @@
 = M-Bus
 
-M-Bus is a widely used standard for fieldbus communication. It enables connection to M-Bus devices like meters.
+M-Bus is a widely used standard for fieldbus communication. It enables connection to M-Bus devices like meters.																										
 
+ 
 
 This bridge depends on jMbus, a user guide for it can be found at https://www.openmuc.org/m-bus/user-guide/.
 
