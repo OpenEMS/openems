@@ -3,8 +3,8 @@ package io.openems.edge.relais;
 import io.openems.edge.bridgei2c.task.I2cTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.relaisBoard.api.Mcp;
-import io.openems.edge.relaisBoard.api.Mcp23008;
+import io.openems.edge.relaisboardmcp.Mcp;
+import io.openems.edge.relaisboardmcp.Mcp23008;
 
 
 public class RelaisActuatorTask extends I2cTask {

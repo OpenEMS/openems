@@ -1,7 +1,6 @@
-package io.openems.edge.relaisBoard.api;
+package io.openems.edge.relaisboardmcp;
 
 public interface McpChannelRegister {
-
     void setPosition(int position, boolean activate);
 
     void shift();

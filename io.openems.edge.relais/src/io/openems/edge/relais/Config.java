@@ -19,11 +19,10 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "Alias", description = "Human readable name for this Component.")
     String alias() default "";
 
-    @AttributeDefinition(name = "Relais Type", description = "Is the Relais an Opener or closer Opener",
+    @AttributeDefinition(name = "Relais Type", description = "Is the Relais an Opener or closer.",
             options = {
                     @Option(label = "Opener", value = "Opener"),
-                    @Option(label = "Closer", value = "Closer"),
-                    @Option(label = "Reverse", value = "Reverse")
+                    @Option(label = "Closer", value = "Closer")
             })
     String relaisType() default "Opener";
 

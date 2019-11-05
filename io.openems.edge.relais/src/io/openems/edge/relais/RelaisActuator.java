@@ -5,8 +5,8 @@ import io.openems.edge.bridgei2c.I2cBridge;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.relaisBoard.RelaisBoardImpl;
-import io.openems.edge.relaisBoard.api.Mcp;
-import io.openems.edge.relaisBoard.api.Mcp23008;
+import io.openems.edge.relaisboardmcp.Mcp;
+import io.openems.edge.relaisboardmcp.Mcp23008;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -15,7 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Consolinno Relais",
+@Component(name = "ConsolinnoRelais",
 		configurationPolicy = ConfigurationPolicy.REQUIRE,
 immediate = true)
 public class RelaisActuator extends AbstractOpenemsComponent implements ActuatorRelais, OpenemsComponent {
@@ -38,9 +38,9 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 	@Activate
 	void activate(ComponentContext context, Config config) {
 			super.activate(context, config.service_pid(), config.id(), config.enabled());
-			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
-				return;
-			}
+//			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
+//				return;
+//			}
 			allocateRelaisValue(config.relaisType());
 
 		setPositionOfMcp(config.relaisBoard_id());
@@ -56,11 +56,11 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 	}
 
 	private void setPositionOfMcp(String boardId) {
-		for (RelaisBoardImpl relais : i2cBridge.getRelaisBoardList()) {
-			if (relais.getId().equals(boardId)) {
-				Mcp mcp = relais.getMcp();
-				if (mcp instanceof Mcp23008) {
-					this.allocatedMcp = mcp;
+		for (Mcp existingMcp : i2cBridge.getMcpList()) {
+				if (existingMcp instanceof Mcp23008) {
+					if (((Mcp23008) existingMcp).getParentCircuitBoard().equals(boardId)) {
+					this.allocatedMcp = existingMcp;
+					break;
 				}
 				return;
 			}

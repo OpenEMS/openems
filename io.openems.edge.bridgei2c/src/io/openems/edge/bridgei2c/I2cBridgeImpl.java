@@ -2,17 +2,20 @@ package io.openems.edge.bridgei2c;
 
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridgei2c.task.I2cTask;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.relaisBoard.RelaisBoardImpl;
-import io.openems.edge.relaisBoard.api.Mcp23008;
+import io.openems.edge.relaisboardmcp.Mcp;
+import io.openems.edge.relaisboardmcp.Mcp23008;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.util.ArrayList;
@@ -23,20 +26,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "I2C Bridge",
+@Component(name = "I2CBridge",
 immediate = true,
 configurationPolicy = ConfigurationPolicy.REQUIRE,
 property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsComponent, I2cBridge {
+public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsComponent, I2cBridge, EventHandler {
 
     private final I2cWorker worker = new I2cWorker();
-    private List<RelaisBoardImpl> relaisBoards = new ArrayList<>();
+    private List<Mcp> mcpList = new ArrayList<>();
     private final Map<String, I2cTask> tasks = new ConcurrentHashMap<>();
 
-    public I2cBridgeImpl() {
-        super(OpenemsComponent.ChannelId.values());
-
-    }
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -59,12 +58,38 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
                 return;
             }
         }
-        for (RelaisBoardImpl relais : this.relaisBoards) {
-            relais.deactivate();
+        for (Mcp mcp : this.mcpList) {
+            if (mcp instanceof Mcp23008) {
+                for (Map.Entry<Integer, Boolean> entry : ((Mcp23008) mcp).getValuesPerDefault().entrySet()) {
+                    ((Mcp23008) mcp).setPosition(entry.getKey(), entry.getValue());
+                }
+                ((Mcp23008) mcp).shift();
+            }
         }
         this.worker.deactivate();
 
     }
+    public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+        ;
+
+        private final Doc doc;
+
+        private ChannelId(Doc doc) {
+            this.doc = doc;
+        }
+
+        @Override
+        public Doc doc() {
+            return this.doc;
+        }
+    }
+
+
+    public I2cBridgeImpl() {
+        super(OpenemsComponent.ChannelId.values());
+
+    }
+
 
     @Override
     public void addTask(String id, I2cTask task) {
@@ -77,21 +102,23 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     @Override
-    public void addRelaisBoard(RelaisBoardImpl relaisBoard) {
-        if (relaisBoard != null) {
-            for (RelaisBoardImpl relais : this.relaisBoards) {
-                if (relais.getId().equals(relaisBoard.getId())) {
-                    return;
+    public void addMcp(Mcp mcp) {
+        if (mcp != null) {
+            for (Mcp existingMcp : this.mcpList) {
+                if (existingMcp instanceof Mcp23008 && mcp instanceof Mcp23008) {
+                    if (((Mcp23008) existingMcp).getParentCircuitBoard().equals(((Mcp23008) mcp).getParentCircuitBoard())) {
+                        return;
+                    }
                 }
             }
-            this.relaisBoards.add(relaisBoard);
+            this.mcpList.add(mcp);
         }
 
     }
 
     @Override
-    public List<RelaisBoardImpl> getRelaisBoardList() {
-        return this.relaisBoards;
+    public List<Mcp> getMcpList() {
+        return this.mcpList;
     }
 
     private class I2cWorker extends AbstractCycleWorker {
@@ -115,15 +142,31 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
                 } while (optional.isPresent());
 
                 boolean high = task.isReverse() != task.isActive();
-				for (RelaisBoardImpl relais : getRelaisBoardList()) {
-					if (task.getRelaisBoard().equals(relais.getId())) {
-						if (relais.getMcp() instanceof Mcp23008) {
-							((Mcp23008) relais.getMcp()).setPosition(task.getPosition(), high);
-						}
-					}
-				}
-			}
-		}
+                for (Mcp existingMcp : getMcpList()) {
+
+                    if (existingMcp instanceof Mcp23008) {
+                        if (((Mcp23008) existingMcp).getParentCircuitBoard().equals(task.getRelaisBoard())) {
+                            ((Mcp23008) existingMcp).setPosition(task.getPosition(), high);
+                            break;
+                        }
+                    }
+                }
+            }
+            for (Mcp mcp : getMcpList()) {
+                if (mcp instanceof Mcp23008) {
+                    ((Mcp23008) mcp).shift();
+                }
+            }
+        }
+    }
+
+
+
+    @Override
+    public void handleEvent(Event event) {
+        if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)) {
+            this.worker.triggerNextRun();
+        }
     }
 
 

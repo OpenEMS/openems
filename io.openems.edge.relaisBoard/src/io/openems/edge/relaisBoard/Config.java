@@ -25,11 +25,11 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "I2CBridge Id", description = "Id of previously activated I2C Bridge.")
             String bridge() default "I2C0";
 
-    @AttributeDefinition(name = "Address", description = "Address you want to use between 0x20-0x60")
-            short address() default 0x20;
+    @AttributeDefinition(name = "Address", description = "Address you want to use between 0x20/22/24/26")
+            String address() default "0x20";
 
      @AttributeDefinition(name = "Bus Device", description = "What Channel you want to use.")
-             int bus() default 0;
+             int bus() default 1;
 
     String webconsole_configurationFactory_nameHint() default "Relais Board [{id}]";
 }
