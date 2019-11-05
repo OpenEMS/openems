@@ -3,6 +3,7 @@ package io.openems.backend.metadata.odoo.postgres;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.common.exceptions.OpenemsException;
@@ -44,7 +45,7 @@ public class PgUtils {
 	 * @throws SQLException     on error
 	 * @throws OpenemsException on null
 	 */
-	public static String getAsString(ResultSet rs, EdgeDevice field) throws SQLException, OpenemsException {
+	public static String getAsString(ResultSet rs, Field field) throws SQLException, OpenemsException {
 		String result = rs.getString(field.index());
 		if (result != null) {
 			return result;

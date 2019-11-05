@@ -7,9 +7,11 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -161,6 +163,26 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// TODO implement Energy calculation
 		throw new OpenemsException("This method is not implemented");
+	}
+
+	@Override
+	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
+		// Prepare result
+		final CompletableFuture<Optional<Object>> result = new CompletableFuture<>();
+
+		CompletableFuture.runAsync(() -> {
+			RrdDb database = this.getExistingRrdDb(channelAddress);
+			if (database == null) {
+				result.complete(Optional.empty());
+			}
+			try {
+				result.complete(Optional.of(database.getLastDatasourceValues()[0]));
+			} catch (IOException | ArrayIndexOutOfBoundsException e) {
+				result.complete(Optional.empty());
+			}
+		});
+
+		return result;
 	}
 
 	/**

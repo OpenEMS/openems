@@ -173,7 +173,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 						}
 					}
 				}
-				edge.setSumState(levelOpt.orElse(null), activeStateChannels);
+				edge.setComponentState(activeStateChannels);
 			}
 		}
 	}
