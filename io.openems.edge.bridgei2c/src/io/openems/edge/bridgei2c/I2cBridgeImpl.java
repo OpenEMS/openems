@@ -1,9 +1,6 @@
 package io.openems.edge.bridgei2c;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -99,6 +96,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     @Override
     public void removeTask(String id) {
+        this.tasks.get(id).deactivate();
         this.tasks.remove(id);
     }
 
@@ -120,6 +118,20 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     @Override
     public List<Mcp> getMcpList() {
         return this.mcpList;
+    }
+
+    @Override
+    public void removeMcp(Mcp toRemove) {
+        Iterator<Mcp> iter = this.mcpList.iterator();
+        while (iter.hasNext()) {
+            Mcp willBeRemoved = iter.next();
+            if (willBeRemoved instanceof Mcp23008 && toRemove instanceof Mcp23008) {
+                if (((Mcp23008) willBeRemoved).getParentCircuitBoard().equals(((Mcp23008) toRemove).getParentCircuitBoard())) {
+                    iter.remove();
+                    break;
+                }
+            }
+        }
     }
 
     private class I2cWorker extends AbstractCycleWorker {

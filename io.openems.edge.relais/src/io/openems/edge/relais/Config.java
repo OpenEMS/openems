@@ -33,7 +33,7 @@ import org.osgi.service.metatype.annotations.Option;
     String relaisBoard_id() default "relaisBoard0";
 
     @AttributeDefinition(name = "Position", description = "The position of the Relais. Starting with 0")
-    int position();
+    int position() default 0;
 
     boolean enabled() default true;
 

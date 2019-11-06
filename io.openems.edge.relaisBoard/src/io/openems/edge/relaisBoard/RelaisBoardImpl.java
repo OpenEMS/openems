@@ -38,12 +38,12 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
         super(OpenemsComponent.ChannelId.values());
     }
 
-    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     private I2cBridge refI2cBridge;
 
     @Activate
     public void activate(ComponentContext context, Config config) {
-        super.activate(context,config.service_pid(), config.id(), config.enabled());
+        super.activate(context,config.id(), config.alias(), config.enabled());
         this.id = config.id();
         this.alias = config.alias();
         this.VersionNumber = config.version();
@@ -55,7 +55,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
             switch (config.version()) {
                 case "1":
                     this.mcp = new Mcp23008(address, this.bus, this.id);
-                    refI2cBridge.addMcp(this.mcp);
+                    this.refI2cBridge.addMcp(this.mcp);
                     break;
             }
         } catch (Exception e) {
@@ -71,6 +71,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
                 ((Mcp23008) mcp).setPosition(entry.getKey(), entry.getValue());
             }
             ((Mcp23008) mcp).shift();
+            this.refI2cBridge.removeMcp(this.mcp);
         }
     }
 

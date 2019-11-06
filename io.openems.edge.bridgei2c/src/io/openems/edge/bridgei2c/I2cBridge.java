@@ -14,4 +14,5 @@ public interface I2cBridge {
     void addMcp(Mcp mcp);
 
     List<Mcp> getMcpList();
+    void removeMcp(Mcp mcp);
 }

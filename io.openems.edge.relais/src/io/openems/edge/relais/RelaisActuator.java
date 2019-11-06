@@ -20,16 +20,17 @@ immediate = true)
 public class RelaisActuator extends AbstractOpenemsComponent implements ActuatorRelais, OpenemsComponent {
 
 	private Mcp allocatedMcp;
+	private int position;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	protected RelaisActuator() {
-		super(ActuatorRelais.ChannelId.values(),
-				OpenemsComponent.ChannelId.values());
+	public RelaisActuator() {
+		super(OpenemsComponent.ChannelId.values(),
+				ActuatorRelais.ChannelId.values());
 	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected I2cBridge i2cBridge;
 
 	private boolean relaisValue = false;
@@ -37,10 +38,10 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-			super.activate(context, config.service_pid(), config.id(), config.enabled());
-//			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
-//				return;
-//			}
+		super.activate(context,config.id(), config.alias(), config.enabled());
+			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
+				return;
+			}
 			allocateRelaisValue(config.relaisType());
 
 		setPositionOfMcp(config.relaisBoard_id());
@@ -51,6 +52,7 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 				this.i2cBridge.addTask(config.id(), new RelaisActuatorTask(allocatedMcp,config.position(),
 										!relaisValue, this.isOnOrOff(),this.getRelaisChannel(),
 												config.relaisBoard_id()));
+				this.position = config.position();
 			}
 		}
 	}
@@ -82,7 +84,6 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 	@Deactivate
 	public void deactivate() {
 		super.deactivate();
-		this.isOnOrOff().setNextValue(relaisValue);
 		i2cBridge.removeTask(this.id());
 	}
 
