@@ -54,8 +54,9 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 					allocatedMcp = mcp;
 						mcp.setPosition(config.position(), this.relaisValue);
 						mcp.addToDefault(config.position(), this.relaisValue);
+						mcp.shift();
 							mcp.addTask(config.id(), new RelaisActuatorTask(mcp, config.position(),
-									this.relaisValue, this.getRelaisChannel(),
+									!this.relaisValue, this.getRelaisChannel(),
 									config.relaisBoard_id()));
 					}
 				}

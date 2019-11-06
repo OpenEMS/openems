@@ -2,6 +2,7 @@ package io.openems.edge.relaisboardmcp;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.relaisboardmcp.task.McpTask;
 
 import java.io.IOException;
@@ -64,9 +65,18 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 			Optional<Boolean> optional;
 			do {
 				optional = task.getWriteChannel().getNextWriteValueAndReset();
-				optional.ifPresent(aBoolean -> task.getWriteChannel().setNextValue(aBoolean));
-				setPosition(task.getPosition(), optional.get());
-			} while (optional.isPresent());
+				optional.ifPresent(aBoolean -> {
+					try {
+						task.getWriteChannel().setNextWriteValue(aBoolean);
+					} catch (OpenemsError.OpenemsNamedException e) {
+						e.printStackTrace();
+					}
+
+				});
+				if(!optional.equals(Optional.empty())) {
+					setPosition(task.getPosition(), optional.get());
+				}
+			} while (optional.isPresent() && !optional.equals(Optional.empty()));
 		}
 
 		byte data = 0x00;
