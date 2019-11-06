@@ -104,7 +104,7 @@ public class HeatingElementTest2 {
 	public void test() throws OpenemsNamedException {
 		// initialize the controller
 		TimeLeapClock clock = new TimeLeapClock(ZoneOffset.UTC);
-		System.out.println("clock in test : "+ LocalDateTime.now(clock));
+		System.out.println("clock in test : " + LocalDateTime.now(clock));
 		ControllerHeatingElement controller = new ControllerHeatingElement(clock);
 		// Add referenced services
 		DummyComponentManager componentManager = new DummyComponentManager();
@@ -128,7 +128,7 @@ public class HeatingElementTest2 {
 			new ControllerTest(controller, componentManager, ess, io)//
 					.next(new TestCase() //
 							.input(ess0, 0) //
-							.output(output1, false))//			
+							.output(output1, false))//
 					.next(new TestCase() //
 							.timeleap(clock, 6, ChronoUnit.MINUTES)//
 							.input(ess0, -2000) //

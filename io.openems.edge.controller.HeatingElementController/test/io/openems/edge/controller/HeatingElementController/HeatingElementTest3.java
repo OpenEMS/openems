@@ -16,7 +16,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.io.test.DummyInputOutput;
 
-public class HeatingElementTestSecond {
+public class HeatingElementTest3 {
 
 	@SuppressWarnings("all")
 	private static class MyConfig extends AbstractComponentConfig implements Config {
@@ -124,44 +124,52 @@ public class HeatingElementTestSecond {
 		// Build and run test
 		try {
 			new ControllerTest(controller, componentManager, ess, io)//
-.next(new TestCase() //
+					.next(new TestCase() //
 							.input(ess0, -2000) //
 							.output(output1, false) //
-) // Grid active power : -2000, Excess power : 2000, from -> UNDEFINED --to--> FIRST_PHASE, no of relais = 1
+					) // Grid active power : -2000, Excess power : 2000, from -> UNDEFINED --to-->
+						// FIRST_PHASE, no of relais = 1
 					.next(new TestCase() //
 							.timeleap(clock, 15, ChronoUnit.MINUTES)//
 							.input(ess0, -4000) //
 							.output(output1, true) //
-) // Grid active power : -4000, Excess power : 6000, from ->FIRST_PHASE --to--> THIRD_PHASE, no of relais = 3
+					) // Grid active power : -4000, Excess power : 6000, from ->FIRST_PHASE --to-->
+						// THIRD_PHASE, no of relais = 3
 					.next(new TestCase() //
 							.timeleap(clock, 15, ChronoUnit.MINUTES)//
 							.input(ess0, -6000) //
 							.output(output1, true) //
-) // Grid active power : -6000, Excess power : 12000, from -> THIRD_PHASE --to--> THIRD_PHASE, no of relais = 3
+					) // Grid active power : -6000, Excess power : 12000, from -> THIRD_PHASE --to-->
+						// THIRD_PHASE, no of relais = 3
 					.next(new TestCase() //
 							.input(ess0, -7000) //
 							.output(output1, true) //
-) // Grid active power : -7000, Excess power : 13000, from -> THIRD_PHASE --to--> THIRD_PHASE, no of relais = 3
+					) // Grid active power : -7000, Excess power : 13000, from -> THIRD_PHASE --to-->
+						// THIRD_PHASE, no of relais = 3
 					.next(new TestCase() //
 							.timeleap(clock, 15, ChronoUnit.MINUTES)//
 							.input(ess0, 0) //
 							.output(output1, true) //
-) // Grid active power : 0, Excess power : 6000, from -> THIRD_PHASE --to--> THIRD_PHASE, no of relais = 3
+					) // Grid active power : 0, Excess power : 6000, from -> THIRD_PHASE --to-->
+						// THIRD_PHASE, no of relais = 3
 					.next(new TestCase() //
 							.timeleap(clock, 15, ChronoUnit.MINUTES)//
 							.input(ess0, 1) //
 							.output(output1, true) //
-) // Grid active power : 1, Excess power : 0, from -> THIRD_PHASE --to--> UNDEFINED, no of relais = 0
+					) // Grid active power : 1, Excess power : 0, from -> THIRD_PHASE --to-->
+						// UNDEFINED, no of relais = 0
 					.next(new TestCase() //
 							.timeleap(clock, 6, ChronoUnit.MINUTES)//
 							.input(ess0, 20000) //
 							.output(output1, true) //
-) // Grid active power : 20000, Excess power : 0, from -> UNDEFINED--to--> UNDEFINED, no of relais = 0
+					) // Grid active power : 20000, Excess power : 0, from -> UNDEFINED--to-->
+						// UNDEFINED, no of relais = 0
 					.next(new TestCase() //
 							.timeleap(clock, 6, ChronoUnit.MINUTES)//
 							.input(ess0, -4000) //
 							.output(output1, true) //
-) // Grid active power : -4000, Excess power : 10000, from ->FIRST_PHASE --to--> THIRD_PHASE, no of relais = 3
+					) // Grid active power : -4000, Excess power : 10000, from ->FIRST_PHASE --to-->
+						// THIRD_PHASE, no of relais = 3
 
 					.run();
 		} catch (Exception e) {

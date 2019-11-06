@@ -16,7 +16,7 @@ Export-Package: io.openems.edge.controller.api
 Private-Package:  \
 	io.openems.edge.controller.HeatingElementController
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	osgi.enroute.base.api;version=latest,\

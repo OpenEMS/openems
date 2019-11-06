@@ -3,8 +3,6 @@ package io.openems.edge.controller.HeatingElementController;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-
-
 @ObjectClassDefinition( //
 		name = "Controller Heating Element", //
 		description = "This controller will dynamically switches one of the three coils of the heating element(heizstab)")
@@ -17,7 +15,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 
@@ -32,19 +30,18 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
 	String outputChannelAddress3();
-	
+
 	@AttributeDefinition(name = "End Time", description = "End time to check the minmum run time")
 	String endTime() default "17:00:00";
-	
+
 	@AttributeDefinition(name = "Priority of running the heating element", description = "Decide the priority, time or the Kilo watt hour")
 	Priority priority() default Priority.TIME;
-	
+
 	@AttributeDefinition(name = "Minimum time", description = "Minimum time for heating element to run in hours")
-	double minTime()  default  1.0;
+	double minTime() default 1.0;
 
 	@AttributeDefinition(name = "Min Kwh", description = "Minimun Kilo watt hour for heating element to run in kwh")
 	int minkwh() default 4;
-	
 
 	@AttributeDefinition(name = "Power of Phase", description = "Power of the single phase")
 	int powerOfPhase() default 2000;
