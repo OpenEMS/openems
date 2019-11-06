@@ -1,5 +1,12 @@
 package io.openems.edge.bridgei2c;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridgei2c.task.I2cTask;
 import io.openems.edge.common.channel.Doc;
@@ -17,12 +24,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 @Designate(ocd = Config.class, factory = true)

@@ -12,15 +12,12 @@ import org.osgi.service.metatype.annotations.Option;
 @interface Config {
     String service_pid();
 
-
-    boolean enabled() default true;
-
     @AttributeDefinition(name = "I2CBridge-ID", description = "ID of Shiftregister brige.")
     String id() default "I2C0";
     @AttributeDefinition(name = "Alias", description = "Human readable Name")
             String alias() default "";
 
-
+    boolean enabled() default true;
 
     String webconsole_configurationFactory_nameHint() default "Actuator Relais Shiftregister[{id}]";
 }

@@ -1,11 +1,17 @@
 package io.openems.edge.relaisboardmcp;
 
+
+
+
+
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
+import sun.misc.SharedSecrets;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class Mcp23008 extends Mcp implements McpChannelRegister {
 
@@ -39,7 +45,13 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 				break;
 		}
 
-		this.device.write(0x00, (byte) 0x00);
+		int zero = 0x00;
+		int data = 0x00;
+		try {
+			this.device.write(0x00, (byte) data);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 
 	}
 

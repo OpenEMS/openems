@@ -1,7 +1,8 @@
 package io.openems.edge.raspberrypi.circuitboard.api.adc;
 
-import io.openems.edge.raspberrypi.circuitboard.api.adc.pins.Pin;
 import com.pi4j.wiringpi.Spi;
+import io.openems.edge.raspberrypi.circuitboard.api.adc.pins.Pin;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -6,7 +6,8 @@
 
 -runproperties: \
 	org.osgi.service.http.port=8080,\
-	felix.cm.dir=c:/openems-config
+	felix.cm.dir=c:/openems-config,\
+	org.osgi.framework.bootdelegation="sun.misc"
 
 -runee: JavaSE-1.8
 

@@ -31,5 +31,7 @@ import org.osgi.service.metatype.annotations.Option;
      @AttributeDefinition(name = "Bus Device", description = "What Channel you want to use.")
              int bus() default 1;
 
+    boolean enabled() default true;
+
     String webconsole_configurationFactory_nameHint() default "Relais Board [{id}]";
 }

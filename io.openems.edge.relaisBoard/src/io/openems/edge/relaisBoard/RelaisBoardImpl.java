@@ -1,17 +1,19 @@
 package io.openems.edge.relaisBoard;
 
+
+
+
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.io.i2c.impl.I2CProviderImpl;
 import io.openems.edge.bridgei2c.I2cBridge;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
-
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,15 +33,17 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
     private String i2cBridge;
     private Mcp mcp;
 
+
     public RelaisBoardImpl() {
         super(OpenemsComponent.ChannelId.values());
     }
 
-    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
     private I2cBridge refI2cBridge;
 
     @Activate
-    void activate(Config config) {
+    public void activate(ComponentContext context, Config config) {
+        super.activate(context,config.service_pid(), config.id(), config.enabled());
         this.id = config.id();
         this.alias = config.alias();
         this.VersionNumber = config.version();
@@ -50,7 +54,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
         try {
             switch (config.version()) {
                 case "1":
-                    this.mcp = new Mcp23008(address, bus, this.id);
+                    this.mcp = new Mcp23008(address, this.bus, this.id);
                     refI2cBridge.addMcp(this.mcp);
                     break;
             }
@@ -70,10 +74,13 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
         }
     }
 
-    private void allocateBus(int bus) {
+
+
+
+    private void allocateBus(int config) {
         try {
 
-            switch (bus) {
+            switch (config) {
 
                 case 0:
                     this.bus = I2CFactory.getInstance(I2CBus.BUS_0);
