@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { ModalComponent } from './modal/modal.component';
+import { FixDigitalOutputModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'fixdigitaloutput',
@@ -47,9 +47,10 @@ export class FixDigitalOutputComponent {
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: ModalComponent,
+      component: FixDigitalOutputModalComponent,
       componentProps: {
-        controllerId: this.controller.id
+        controller: this.controller,
+        edge: this.edge
       }
     });
     return await modal.present();

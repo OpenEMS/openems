@@ -6,7 +6,9 @@ Export-Package: \
 	io.openems.edge.meter.api,\
 	io.openems.edge.meter.asymmetric.api,\
 	io.openems.edge.meter.symmetric.api
-Private-Package: io.openems.edge.meter.discovergy
+Private-Package: \
+	io.openems.edge.meter.discovergy,\
+	io.openems.edge.meter.discovergy.jsonrpc
 
 -includeresource: {readme.adoc}
 

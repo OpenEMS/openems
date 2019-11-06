@@ -153,22 +153,23 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private void handleBatteryState() {
 		switch (this.batteryState) {
 		case DEFAULT:
-			handleStateMachine();
+			this.handleStateMachine();
 			break;
 		case OFF:
-			stopSystem();
+			this.stopSystem();
 			break;
 		case ON:
-			startSystem();
+			this.startSystem();
 			break;
 		case CONFIGURE:
-			System.out.println("Cluster cannot be configured currently!");
+			this.logWarn(this.log, "Cluster cannot be configured currently!");
 			break;
 		}
 	}
 
 	private void handleStateMachine() {
-		log.info("Cluster.doNormalHandling(): State: " + this.getStateMachineState());
+		// log.info("Cluster.doNormalHandling(): State: " +
+		// this.getStateMachineState());
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
@@ -301,22 +302,22 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 	private boolean isError() {
 		// still TODO define what is exactly an error
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
 			return true;
 		}
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
 			return true;
 		}
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
 			return true;
 		}
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
 			return true;
 		}
 
 		// Check for communication errors
 		for (int key : this.racks.keySet()) {
-			if (readValueFromStateChannel(RACK_INFO.get(key).subMasterCommunicationAlarmChannelId)) {
+			if (this.readValueFromStateChannel(RACK_INFO.get(key).subMasterCommunicationAlarmChannelId)) {
 				return true;
 			}
 		}
@@ -382,7 +383,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			try {
 				sleepChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
-				log.error("Error while trying to sleep the system!");
+				this.logError(this.log, "Error while trying to sleep the system!");
 			}
 			this.setStateMachineState(State.UNDEFINED);
 		}
@@ -390,20 +391,20 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 	private void resetSystem() {
 		// Write reset to all racks and the master
-		
+
 		IntegerWriteChannel resetMasterChannel = (IntegerWriteChannel) this.channel(ClusterChannelId.RESET);
 		try {
 			resetMasterChannel.setNextWriteValue(0x1);
 		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to reset the master!");
+			this.logError(this.log, "Error while trying to reset the master!");
 		}
-		
+
 		for (SingleRack rack : this.racks.values()) {
 			IntegerWriteChannel resetChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_RESET);
 			try {
 				resetChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
-				log.error("Error while trying to reset the system!");
+				this.logError(this.log, "Error while trying to reset the system!");
 			}
 		}
 	}
@@ -422,7 +423,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				}
 			}
 		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to start system\n" + e.getMessage());
+			this.logError(this.log, "Error while trying to start system\n" + e.getMessage());
 		}
 	}
 
@@ -436,7 +437,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
 			}
 		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to stop system\n" + e.getMessage());
+			this.logError(this.log, "Error while trying to stop system\n" + e.getMessage());
 		}
 	}
 
@@ -651,7 +652,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		int soc = 0;
 
 		for (SingleRack rack : this.racks.values()) {
-			this.log.info("Rack " + rack.getRackNumber() + " has a SoC of " + rack.getSoC() + " %!");
+			this.logInfo(this.log, "Rack " + rack.getRackNumber() + " has a SoC of " + rack.getSoC() + " %!");
 			soc = soc + rack.getSoC();
 			i++;
 		}
@@ -660,7 +661,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			soc = soc / i;
 		}
 
-		this.log.info("Calculated SoC: " + soc);
+		// this.log.info("Calculated SoC: " + soc);
 
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
 	}
