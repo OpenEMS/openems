@@ -47,6 +47,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
@@ -65,8 +66,9 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-)
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		})
 public class SingleRack extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -130,7 +132,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
-		initializeCallbacks();
 
 		setWatchdog(config.watchdog());
 		setSoCLowAlarm(config.SoCLowAlarm());
@@ -201,6 +202,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				this.setStateMachineState(State.UNDEFINED);
 			} else {
 				this.setStateMachineState(State.RUNNING);
+				this.checkAllowedCurrent();
 				readyForWorking = true;
 			}
 			break;
@@ -252,6 +254,29 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
+	}
+
+	private void checkAllowedCurrent() {
+		if (isPoleTemperatureTooHot() ) {
+			this.limitMaxCurrent();
+		}
+		
+	}
+
+	private void limitMaxCurrent() {
+		// TODO limit current		
+	}
+
+	private boolean isPoleTemperatureTooHot() {		
+		@SuppressWarnings("unchecked")
+		Optional<Boolean> poleTempTooHighOpt = (Optional<Boolean>) this.channel(SingleRackChannelId.ALARM_LEVEL_1_POLE_TEMPERATURE_TOO_HIGH).value().asOptional();
+		
+		if (!poleTempTooHighOpt.isPresent()) {
+			return false;
+		} else {				
+			boolean poleTempTooHot = poleTempTooHighOpt.get(); 
+			return poleTempTooHot;
+		}
 	}
 
 	private void handleErrorsWithReset() {
@@ -352,78 +377,60 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	private void initializeCallbacks() {
+	private void writeValuesInApiChannels() {
 
-		this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
-			if (!vOpt.isPresent()) {
-				return;
-			}
-			int voltage_volt = (int) (vOpt.get() * 0.001);
-			log.debug("callback voltage, value: " + voltage_volt);
+		@SuppressWarnings("unchecked")
+		Optional<Integer> clusterVoltageOpt = (Optional<Integer>) this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE)
+				.value().asOptional();
+		if (clusterVoltageOpt.isPresent()) {
+			int voltage_volt = (int) (clusterVoltageOpt.get() * 0.001);
 			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_volt);
-		});
+		}
 
-		this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
-			if (!vOpt.isPresent()) {
-				return;
-			}
-			int voltage_millivolt = vOpt.get();
-			log.debug("callback min cell voltage, value: " + voltage_millivolt);
+		@SuppressWarnings("unchecked")
+		Optional<Integer> minCellVoltageOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).value().asOptional();
+		if (minCellVoltageOpt.isPresent()) {
+			int voltage_millivolt = minCellVoltageOpt.get();
 			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltage_millivolt);
-		});
+		}
 
 		// write battery ranges to according channels in battery api
 		// MAX_VOLTAGE x2082
-		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
-			if (!vOpt.isPresent()) {
-				return;
-			}
-			int max_charge_voltage = (int) (vOpt.get() * 0.001);
-			log.debug("callback battery range, max charge voltage, value: " + max_charge_voltage);
+		@SuppressWarnings("unchecked")
+		Optional<Integer> overVoltAlarmOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).value().asOptional();
+		if (overVoltAlarmOpt.isPresent()) {
+			int max_charge_voltage = (int) (overVoltAlarmOpt.get() * 0.001);
 			this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(max_charge_voltage);
-		});
+		}
 
 		// DISCHARGE_MIN_VOLTAGE 0x2088
-		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
-			if (!vOpt.isPresent()) {
-				return;
-			}
-			int min_discharge_voltage = (int) (vOpt.get() * 0.001);
-			log.debug("callback battery range, min discharge voltage, value: " + min_discharge_voltage);
+		@SuppressWarnings("unchecked")
+		Optional<Integer> underVoltAlarmOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).value().asOptional();
+		if (underVoltAlarmOpt.isPresent()) {
+			int min_discharge_voltage = (int) (underVoltAlarmOpt.get() * 0.001);
 			this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(min_discharge_voltage);
-		});
+		}
 
 		// CHARGE_MAX_CURRENT 0x2160
-		this.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
-			if (!cOpt.isPresent()) {
-				return;
-			}
-			int max_current = (int) (cOpt.get() * 0.001);
-			log.debug("callback battery range, max charge current, value: " + max_current);
+		@SuppressWarnings("unchecked")
+		Optional<Integer> maxChargeCurrentOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).value().asOptional();
+		if (maxChargeCurrentOpt.isPresent()) {
+			int max_current = (int) (maxChargeCurrentOpt.get() * 0.001);
 			this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(max_current);
-		});
+		}
 
 		// DISCHARGE_MAX_CURRENT 0x2161
-		this.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
-			if (!cOpt.isPresent()) {
-				return;
-			}
-			int max_current = (int) (cOpt.get() * 0.001);
-			log.debug("callback battery range, max discharge current, value: " + max_current);
+		@SuppressWarnings("unchecked")
+		Optional<Integer> maxDischargeCurrentOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).value().asOptional();
+		if (maxDischargeCurrentOpt.isPresent()) {
+			int max_current = (int) (maxDischargeCurrentOpt.get() * 0.001);
 			this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(max_current);
-		});
+		}
 
 	}
 
@@ -434,8 +441,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.writeValuesInApiChannels();
+			break;
+
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			handleBatteryState();
+			this.handleBatteryState();
 			break;
 		}
 	}
