@@ -32,6 +32,9 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
@@ -291,8 +294,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 */
 	private int calculateExcessPowerAfterEss(ManagedEvcs evcs, SymmetricEss ess) {
 		int maxEssCharge;
-		if (ess instanceof ManagedEvcs) {
-			maxEssCharge = ((ManagedSymmetricEss) ess).getAllowedCharge().value().orElse(0);
+		if (ess instanceof ManagedSymmetricEss) {
+			ManagedSymmetricEss e = (ManagedSymmetricEss)ess;
+			Power power = ((ManagedSymmetricEss)ess).getPower();
+			maxEssCharge = power.getMinPower(e, Phase.ALL, Pwr.ACTIVE);
+			maxEssCharge = Math.abs(maxEssCharge);
 		} else {
 			maxEssCharge = ess.getMaxApparentPower().value().orElse(0);
 		}

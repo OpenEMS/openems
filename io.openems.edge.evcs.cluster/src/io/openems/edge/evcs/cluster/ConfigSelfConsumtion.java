@@ -4,9 +4,9 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "EVCS Cluster", //
-		description = "Limits the maximum charging power of all electric vehicle charging stations, depending on the maximum ecxess power.")
-@interface Config {
+		name = "EVCS Cluster Self Consumtion", //
+		description = "Limits the maximum charging power of all electric vehicle charging stations, depending on the ecxess power.")
+@interface ConfigSelfConsumtion {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "evcsCluster0";
@@ -17,9 +17,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Hardware current limit", description = "The maximum current in Ampere that can be used by the Cable.", required = true)
-	int hardwareCurrentLimit() default 30;
-
 	@AttributeDefinition(name = "Evcs-IDs", description = "IDs of EVCS devices ordered by the priority. (Only Managed Evcss)")
 	String[] evcs_ids() default { "evcs0", "evcs1" };
 
@@ -29,6 +26,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id() default "ess0";
 
-	String webconsole_configurationFactory_nameHint() default "EVCS Cluster [{id}]";
+	String webconsole_configurationFactory_nameHint() default "EVCS Cluster Self Consumtion [{id}]";
 
 }

@@ -17,48 +17,56 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
-@Designate(ocd = ConfigSelfConsumtion.class, factory = true)
+@Designate(ocd = ConfigPeakShaving.class, factory = true)
 @Component(//
-		name = "Evcs.Cluster", //
+		name = "Evcs.Cluster.PeakShaving", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		})
-public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent, Evcs {
+public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements OpenemsComponent, Evcs, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(EvcsCluster.class);
+	private final Logger log = LoggerFactory.getLogger(EvcsClusterPeakShaving.class);
 
 	// Used EVCSs
 	private String[] evcsIds = new String[0];
 	private final List<Evcs> sortedEvcss = new ArrayList<>();
 	private Map<String, Evcs> _evcss = new ConcurrentHashMap<>();
 
+    // Total power limit for the whole cluster
+	private int totalHardwarePowerLimit = 0;
+	
+	private ConfigPeakShaving config;
+	
 	@Reference
 	protected ConfigurationAdmin cm;
+	
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Reference
 	protected Sum sum;
 
-
-	public EvcsCluster() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Evcs.ChannelId.values());
-	}
-	
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
 		if (evcs == this) {
@@ -78,20 +86,29 @@ public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent
 		this.updateSortedEvcss();
 	}
 
-	@Activate
-	void activate(ComponentContext context, ConfigSelfConsumtion configSelfConsumtion) throws OpenemsNamedException {
-		this.evcsIds = configSelfConsumtion.evcs_ids();
-		updateSortedEvcss();
-		super.activate(context, configSelfConsumtion.id(), configSelfConsumtion.alias(),
-				configSelfConsumtion.enabled());
+	public EvcsClusterPeakShaving() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Evcs.ChannelId.values());
+	}
 
+	@Activate
+	void activate(ComponentContext context, ConfigPeakShaving config) throws OpenemsNamedException {
+		this.evcsIds = config.evcs_ids();
+		updateSortedEvcss();
+		super.activate(context, config.id(), config.alias(),
+				config.enabled());
+		
+		this.config = config;
+        this.totalHardwarePowerLimit = config.hardwareCurrentLimit() * 230 * 3;
+		
 		// update filter for 'evcss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss",
-				configSelfConsumtion.evcs_ids())) {
+				config.evcs_ids())) {
 			return;
 		}
 	}
-		
+
 	@Deactivate
 	protected void deactivate() {
 		for (Evcs evcs : this.sortedEvcss) {
@@ -123,7 +140,7 @@ public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent
 		}
 		evcs.getMaximumPower().setNextValue(null);
 	}
-	
+
 	private void setClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
 			((ManagedEvcs) evcs).isClustered().setNextValue(true);
@@ -140,22 +157,42 @@ public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent
 		return this.sortedEvcss;
 	}
 
-	@Override
+	@Override 
 	public int getMaximumPowerToDistribute() {
-		int excessPower = 0;
-
+		try {
+		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		int allowedChargePower = 0;
+		int maxEssDischarge = 0;
+		// -Grid + (Allowed discharge-Current Discharge) + grid limit
+		
+		if (ess instanceof ManagedSymmetricEss) {
+			ManagedSymmetricEss e = (ManagedSymmetricEss)ess;
+			Power power = ((ManagedSymmetricEss)ess).getPower();
+			maxEssDischarge = power.getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+			maxEssDischarge = Math.abs(maxEssDischarge);
+		} else {
+			maxEssDischarge = ess.getMaxApparentPower().value().orElse(0);
+		}
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
-		int essDischarge = this.sum.getEssActivePower().value().orElse(0);
+		long essDischargePower = this.sum.getEssActiveDischargeEnergy().value().orElse(new Long(0));
 		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
-		int evcsCharge = this.getChargePower().getNextValue().orElse(0);
-		excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
-
-		return excessPower;
+		int evcsCharge = this.getChargePower().value().orElse(0);
+		
+		
+		long maxAvailableStoragePower =  maxEssDischarge + (essDischargePower - essActivePowerDC);
+		
+		allowedChargePower =(int)( evcsCharge + maxAvailableStoragePower + this.totalHardwarePowerLimit - buyFromGrid );
+		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
+		return allowedChargePower;
+		
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+			return 0;
+		}
 	}
 
 	@Override
 	public int getMinimumChargePowerGuarantee() {
-		return 0;
+		return 4500;
 	}
-
 }
