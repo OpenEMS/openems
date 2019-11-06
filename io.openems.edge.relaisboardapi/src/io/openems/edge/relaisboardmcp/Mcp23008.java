@@ -1,15 +1,12 @@
 package io.openems.edge.relaisboardmcp;
 
-
-
-
-
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-import sun.misc.SharedSecrets;
+import io.openems.edge.relaisboardmcp.task.McpTask;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -19,8 +16,9 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 	private String parentCircuitBoard;
 	private final int length = 8;
 	private final I2CDevice device;
-	Map<Integer, Boolean> valuesPerDefault = new ConcurrentHashMap<>();
+	private Map<Integer, Boolean> valuesPerDefault = new ConcurrentHashMap<>();
 	private final boolean[] shifters;
+	private final Map<String, McpTask> tasks= new ConcurrentHashMap<>();
 
 	public Mcp23008(String address, I2CBus device, String parentCircuitBoard) throws IOException {
 		this.address = address;
@@ -44,7 +42,6 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 				this.device = device.getDevice(0x20);
 				break;
 		}
-
 		int zero = 0x00;
 		int data = 0x00;
 		try {
@@ -52,9 +49,7 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-
 	}
-
 
 	public void setPosition(int position, boolean activate) {
 		if (position < this.length) {
@@ -65,6 +60,15 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 	}
 
 	public void shift() {
+		for (McpTask task : tasks.values()) {
+			Optional<Boolean> optional;
+			do {
+				optional = task.getWriteChannel().getNextWriteValueAndReset();
+				optional.ifPresent(aBoolean -> task.getWriteChannel().setNextValue(aBoolean));
+				setPosition(task.getPosition(), optional.get());
+			} while (optional.isPresent());
+		}
+
 		byte data = 0x00;
 		for (int i = length - 1; i >= 0; i--) {
 			data = (byte) (data << 1);
@@ -90,5 +94,17 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 
 	public String getParentCircuitBoard() {
 		return parentCircuitBoard;
+	}
+
+	@Override
+	public void addTask(String id, McpTask mcpTask) {
+		this.tasks.put(id, mcpTask);
+	}
+
+	@Override
+	public void removeTask(String id) {
+		setPosition(this.tasks.get(id).getPosition(), valuesPerDefault.get(this.tasks.get(id).getPosition()));
+		this.tasks.get(id);
+		this.tasks.remove(id);
 	}
 }

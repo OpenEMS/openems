@@ -1,8 +1,5 @@
 package io.openems.edge.relaisBoard;
 
-
-
-
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CFactory;
 import io.openems.edge.bridgei2c.I2cBridge;
@@ -39,7 +36,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
     }
 
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-    private I2cBridge refI2cBridge;
+    public I2cBridge refI2cBridge;
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -74,9 +71,6 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements Openems
             this.refI2cBridge.removeMcp(this.mcp);
         }
     }
-
-
-
 
     private void allocateBus(int config) {
         try {

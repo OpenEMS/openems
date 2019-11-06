@@ -3,7 +3,7 @@ package io.openems.edge.raspberrypi.circuitboard;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition(name = "Consolinno Circuit Boards",
+@ObjectClassDefinition(name = "Consolinno Temperature Board",
         description = "Consolinno Circuit Boards, connected to the Leaflet. Communicating with Sensors")
 @interface Config {
     @AttributeDefinition(name = "CircuitBoardId", description = "Unique ID of SensorComponent")

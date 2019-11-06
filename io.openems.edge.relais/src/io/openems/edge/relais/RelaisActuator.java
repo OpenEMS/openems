@@ -1,11 +1,14 @@
 package io.openems.edge.relais;
 
 
-import io.openems.edge.bridgei2c.I2cBridge;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.relaisBoard.RelaisBoardImpl;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
+import io.openems.edge.relaisboardmcp.McpChannelRegister;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -25,49 +28,41 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference
+    protected ComponentManager cpm;
+
 	public RelaisActuator() {
 		super(OpenemsComponent.ChannelId.values(),
 				ActuatorRelais.ChannelId.values());
 	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected I2cBridge i2cBridge;
-
 	private boolean relaisValue = false;
 
-
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsError.OpenemsNamedException {
 		super.activate(context,config.id(), config.alias(), config.enabled());
-			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
-				return;
-			}
+//			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
+//				return;
+//			}
 			allocateRelaisValue(config.relaisType());
-
-		setPositionOfMcp(config.relaisBoard_id());
-		if (allocatedMcp != null) {
-			if (allocatedMcp instanceof Mcp23008) {
-				((Mcp23008) allocatedMcp).setPosition(config.position(), this.relaisValue);
-				((Mcp23008) allocatedMcp).addToDefault(config.position(), this.relaisValue);
-				this.i2cBridge.addTask(config.id(), new RelaisActuatorTask(allocatedMcp,config.position(),
-										!relaisValue, this.isOnOrOff(),this.getRelaisChannel(),
-												config.relaisBoard_id()));
-				this.position = config.position();
-			}
-		}
-	}
-
-	private void setPositionOfMcp(String boardId) {
-		for (Mcp existingMcp : i2cBridge.getMcpList()) {
-				if (existingMcp instanceof Mcp23008) {
-					if (((Mcp23008) existingMcp).getParentCircuitBoard().equals(boardId)) {
-					this.allocatedMcp = existingMcp;
-					break;
+			this.position = config.position();
+			if (cpm.getComponent(config.relaisBoard_id()) instanceof RelaisBoardImpl) {
+				RelaisBoardImpl relaisBoard = cpm.getComponent(config.relaisBoard_id());
+				if (relaisBoard.getId().equals(config.relaisBoard_id())) {
+					if (relaisBoard.getMcp() instanceof Mcp23008) {
+					Mcp23008 mcp = (Mcp23008) relaisBoard.getMcp();
+					allocatedMcp = mcp;
+						mcp.setPosition(config.position(), this.relaisValue);
+						mcp.addToDefault(config.position(), this.relaisValue);
+							mcp.addTask(config.id(), new RelaisActuatorTask(mcp, config.position(),
+									this.relaisValue, this.getRelaisChannel(),
+									config.relaisBoard_id()));
+					}
 				}
-				return;
+
 			}
-		}
 	}
+
 
 	private void allocateRelaisValue(String relaisType) {
 		switch (relaisType) {
@@ -84,11 +79,13 @@ public class RelaisActuator extends AbstractOpenemsComponent implements Actuator
 	@Deactivate
 	public void deactivate() {
 		super.deactivate();
-		i2cBridge.removeTask(this.id());
+		if(allocatedMcp instanceof Mcp23008) {
+			((Mcp23008) allocatedMcp).removeTask(this.id());
+		}
 	}
 
 	@Override
 	public String debugLog() {
-		return "Status of " + super.id() + " alias: " + super.alias() + " is " + this.isOnOrOff().value().asString();
+		return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
 	}
 }

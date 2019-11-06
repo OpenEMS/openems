@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package:  \
 	io.openems.edge.relaisboardmcp.api,\
 	io.openems.edge.relaisboardmcp,\
+	io.openems.edge.relaisboardmcp.task,\
 
 Private-Package:  \
 	io.openems.edge.relaisboardmcp
@@ -16,6 +17,8 @@ Private-Package:  \
 
 -buildpath:  \
 	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.common;version=latest,\
+	io.openems.common;version=latest,\
 	pi4j-core;version=1.2,\
 
 -testpath: \

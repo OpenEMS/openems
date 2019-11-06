@@ -1,11 +1,8 @@
 package io.openems.edge.bridgei2c;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 
 import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.edge.bridgei2c.task.I2cTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -32,8 +29,6 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     private final I2cWorker worker = new I2cWorker();
     private List<Mcp> mcpList = new ArrayList<>();
-    private final Map<String, I2cTask> tasks = new ConcurrentHashMap<>();
-
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -42,37 +37,18 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             this.worker.activate(super.id());
         }
     }
-
     @Deactivate
     public void deactivate() {
         super.deactivate();
-        for (I2cTask task : tasks.values()) {
-
-            if (task.isActive()) {
-                task.deactivate();
-                return;
-            } else {
-                task.deactivate();
-                return;
-            }
+            this.worker.deactivate();
         }
-        for (Mcp mcp : this.mcpList) {
-            if (mcp instanceof Mcp23008) {
-                for (Map.Entry<Integer, Boolean> entry : ((Mcp23008) mcp).getValuesPerDefault().entrySet()) {
-                    ((Mcp23008) mcp).setPosition(entry.getKey(), entry.getValue());
-                }
-                ((Mcp23008) mcp).shift();
-            }
-        }
-        this.worker.deactivate();
 
-    }
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         ;
 
         private final Doc doc;
 
-        private ChannelId(Doc doc) {
+        ChannelId(Doc doc) {
             this.doc = doc;
         }
 
@@ -82,22 +58,8 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         }
     }
 
-
     public I2cBridgeImpl() {
         super(OpenemsComponent.ChannelId.values());
-
-    }
-
-
-    @Override
-    public void addTask(String id, I2cTask task) {
-        this.tasks.put(id, task);
-    }
-
-    @Override
-    public void removeTask(String id) {
-        this.tasks.get(id).deactivate();
-        this.tasks.remove(id);
     }
 
     @Override
@@ -112,7 +74,6 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             }
             this.mcpList.add(mcp);
         }
-
     }
 
     @Override
@@ -147,24 +108,6 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
         @Override
         public void forever() throws Throwable {
-            for (I2cTask task : tasks.values()) {
-                Optional<Boolean> optional;
-                do {
-                    optional = task.getWriteChannel().getNextWriteValueAndReset();
-                    optional.ifPresent(aBoolean -> task.getReadChannel().setNextValue(aBoolean));
-                } while (optional.isPresent());
-
-                boolean high = task.isReverse() != task.isActive();
-                for (Mcp existingMcp : getMcpList()) {
-
-                    if (existingMcp instanceof Mcp23008) {
-                        if (((Mcp23008) existingMcp).getParentCircuitBoard().equals(task.getRelaisBoard())) {
-                            ((Mcp23008) existingMcp).setPosition(task.getPosition(), high);
-                            break;
-                        }
-                    }
-                }
-            }
             for (Mcp mcp : getMcpList()) {
                 if (mcp instanceof Mcp23008) {
                     ((Mcp23008) mcp).shift();
@@ -173,14 +116,11 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         }
     }
 
-
-
     @Override
     public void handleEvent(Event event) {
         if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)) {
             this.worker.triggerNextRun();
         }
     }
-
 
 }

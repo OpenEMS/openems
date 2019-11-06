@@ -7,7 +7,6 @@ Bundle-Version: 1.0.0.${tstamp}
 
 Export-Package:  \
 	io.openems.edge.relaisBoard,\
-	io.openems.edge.relaisBoard.api,\
 
 Private-Package:  \
 	io.openems.edge.relaisBoard,\
