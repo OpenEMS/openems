@@ -13,7 +13,7 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
-import { ModalComponent as FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
+import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
 import { InfoComponent } from './info/info.component';
@@ -52,6 +52,7 @@ import { OfflineComponent } from './offline/offline.component';
     HeatingElementModalComponent,
     EvcsPopoverComponent,
     ChpsocModalComponent,
+    FixDigitalOutputModalComponent,
   ],
   declarations: [
     LiveComponent,

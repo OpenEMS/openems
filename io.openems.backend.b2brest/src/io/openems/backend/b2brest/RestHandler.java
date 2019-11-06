@@ -44,9 +44,12 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
+import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
+import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
@@ -132,11 +135,30 @@ public class RestHandler extends AbstractHandler {
 		}
 	}
 
+	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {
+		try {
+			response.setContentType("application/json");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			baseRequest.setHandled(true);
+			JsonrpcResponseError message;
+			if (ex instanceof OpenemsNamedException) {
+				// Get Named Exception error response
+				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
+			} else {
+				// Get GENERIC error response
+				message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+			}
+			response.getWriter().write(message.toString());
+		} catch (IOException e) {
+			this.parent.logWarn(this.log, "Unable to send Error-Response: " + e.getMessage());
+		}
+	}
+
 	/**
 	 * Parses a Request to JSON.
 	 * 
 	 * @param baseRequest the Request
-	 * @return
+	 * @return the {@link JsonObject}
 	 * @throws OpenemsException on error
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
@@ -152,77 +174,87 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles an http request to 'jsonrpc' endpoint.
 	 * 
-	 * @param user           the User
-	 * @param edgeRpcRequest the EdgeRpcRequest
-	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param user         the User
+	 * @param baseRequest  the {@link Request}
+	 * @param httpRequest  the {@link HttpServletRequest}
+	 * @param httpResponse the {@link HttpServletResponse}
 	 */
 	private void handleJsonRpc(BackendUser user, Request baseRequest, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws OpenemsNamedException {
-		// call handler methods
-		if (!httpRequest.getMethod().equals("POST")) {
-			throw new OpenemsException(
-					"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
-		}
-
-		// parse json and add "jsonrpc" and "id" properties if missing
-		JsonObject json = RestHandler.parseJson(baseRequest);
-		if (!json.has("jsonrpc")) {
-			json.addProperty("jsonrpc", "2.0");
-		}
-		if (!json.has("id")) {
-			json.addProperty("id", UUID.randomUUID().toString());
-		}
-		if (json.has("params")) {
-			JsonObject params = JsonUtils.getAsJsonObject(json, "params");
-			if (params.has("payload")) {
-				JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
-				if (!payload.has("jsonrpc")) {
-					payload.addProperty("jsonrpc", "2.0");
-				}
-				if (!payload.has("id")) {
-					payload.addProperty("id", UUID.randomUUID().toString());
-				}
-				params.add("payload", payload);
-			}
-			json.add("params", params);
-		}
-
-		// parse JSON-RPC Request
-		JsonrpcMessage message = JsonrpcMessage.from(json);
-		if (!(message instanceof JsonrpcRequest)) {
-			throw new OpenemsException("Only JSON-RPC Request is supported here.");
-		}
-		JsonrpcRequest request = (JsonrpcRequest) message;
-
-		// handle the request
-		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user, request);
-
-		// wait for response
-		JsonrpcResponseSuccess response;
+			HttpServletResponse httpResponse) {
+		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
-			response = responseFuture.get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new OpenemsException("Unable to get Response: " + e.getMessage());
-		}
+			// call handler methods
+			if (!httpRequest.getMethod().equals("POST")) {
+				throw new OpenemsException(
+						"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
+			}
 
-		// send response
-		this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
+			// parse json and add "jsonrpc" and "id" properties if missing
+			JsonObject json = RestHandler.parseJson(baseRequest);
+			if (!json.has("jsonrpc")) {
+				json.addProperty("jsonrpc", "2.0");
+			}
+			if (!json.has("id")) {
+				json.addProperty("id", UUID.randomUUID().toString());
+			}
+			if (json.has("params")) {
+				JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+				if (params.has("payload")) {
+					JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+					if (!payload.has("jsonrpc")) {
+						payload.addProperty("jsonrpc", "2.0");
+					}
+					if (!payload.has("id")) {
+						payload.addProperty("id", UUID.randomUUID().toString());
+					}
+					params.add("payload", payload);
+				}
+				json.add("params", params);
+			}
+			// parse JSON-RPC Request
+			JsonrpcMessage message = JsonrpcMessage.from(json);
+			if (!(message instanceof JsonrpcRequest)) {
+				throw new OpenemsException("Only JSON-RPC Request is supported here.");
+			}
+			JsonrpcRequest request = (JsonrpcRequest) message;
+
+			// handle the request
+			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user,
+					request);
+
+			// wait for response
+			JsonrpcResponseSuccess response;
+			try {
+				response = responseFuture.get();
+			} catch (InterruptedException | ExecutionException e) {
+				this.sendErrorResponse(baseRequest, httpResponse, request.getId(),
+						new OpenemsException("Unable to get Response: " + e.getMessage()));
+				return;
+			}
+
+			// send response
+			this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
+
+		} catch (OpenemsNamedException e) {
+			this.sendErrorResponse(baseRequest, httpResponse, requestId,
+					new OpenemsException("Unable to get Response: " + e.getMessage()));
+		}
 	}
 
 	/**
 	 * Handles an JSON-RPC Request.
 	 * 
-	 * @param user           the User
-	 * @param edgeRpcRequest the EdgeRpcRequest
+	 * @param user    the User
+	 * @param request the JsonrpcRequest
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonRpcRequest(BackendUser user,
-			JsonrpcRequest request) throws OpenemsException, OpenemsNamedException {
+			JsonrpcRequest request) throws OpenemsNamedException {
 		switch (request.getMethod()) {
+
+		case EdgeRpcRequest.METHOD:
+			return this.handleEdgeRpcRequest(user, request.getId(), EdgeRpcRequest.from(request));
 
 		case GetEdgesStatusRequest.METHOD:
 			return this.handleGetStatusOfEdgesRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
@@ -239,6 +271,64 @@ public class RestHandler extends AbstractHandler {
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
+	}
+
+	/**
+	 * Handles an EdgeRpcRequest.
+	 * 
+	 * @param backendUser    the {@link BackendUser}
+	 * @param edgeRpcRequest the {@link EdgeRpcRequest}
+	 * @param messageId      the JSON-RPC Message-ID
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<EdgeRpcResponse> handleEdgeRpcRequest(BackendUser backendUser, UUID messageId,
+			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
+		String edgeId = edgeRpcRequest.getEdgeId();
+		JsonrpcRequest request = edgeRpcRequest.getPayload();
+		User user = backendUser.getAsCommonUser(edgeId);
+		user.assertRoleIsAtLeast(EdgeRpcRequest.METHOD, Role.GUEST);
+
+		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
+		switch (request.getMethod()) {
+
+		case ComponentJsonApiRequest.METHOD:
+			resultFuture = this.handleComponentJsonApiRequest(edgeId, user, ComponentJsonApiRequest.from(request));
+			break;
+
+		default:
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		}
+
+		// Wrap reply in EdgeRpcResponse
+		CompletableFuture<EdgeRpcResponse> result = new CompletableFuture<EdgeRpcResponse>();
+		resultFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				result.completeExceptionally(ex);
+			} else if (r != null) {
+				result.complete(new EdgeRpcResponse(edgeRpcRequest.getId(), r));
+			} else {
+				result.completeExceptionally(
+						new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, request.getMethod()));
+			}
+		});
+		return result;
+	}
+
+	/**
+	 * Handles a ComponentJsonApiRequest.
+	 * 
+	 * @param edgeId                  the Edge-ID
+	 * @param user                    the User - Installer-level required
+	 * @param componentJsonApiRequest the ComponentJsonApiRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(String edgeId, User user,
+			ComponentJsonApiRequest componentJsonApiRequest) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast(ComponentJsonApiRequest.METHOD, Role.GUEST);
+
+		return this.parent.edgeWebsocket.send(edgeId, user, componentJsonApiRequest);
 	}
 
 	/**

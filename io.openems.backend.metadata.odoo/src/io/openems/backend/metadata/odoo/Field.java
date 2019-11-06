@@ -7,6 +7,27 @@ public interface Field {
 
 	public String id();
 
+	public int index();
+
+	public String name();
+
+	public boolean isQuery();
+
+	/**
+	 * Gets all fields that should be queried as a comma separated string.
+	 * 
+	 * @return the String
+	 */
+	public static String getSqlQueryFields(Field[] fields) {
+		return Stream.of(fields) //
+				.filter(f -> f.isQuery()) //
+				.map(f -> f.id()) //
+				.collect(Collectors.joining(","));
+	}
+
+	/**
+	 * The EdgeDevice-Model.
+	 */
 	public enum EdgeDevice implements Field {
 		ID("id", true), //
 		APIKEY("apikey", true), //
@@ -24,6 +45,9 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state", false), //
 		OPENEMS_SUM_STATE_TEXT("openem_sum_state_text", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
+
+		public final static String ODOO_MODEL = "edge.device";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -57,17 +81,56 @@ public interface Field {
 		public boolean isQuery() {
 			return query;
 		}
+	}
 
+	/**
+	 * The EdgeDeviceStatus-Model.
+	 */
+	public enum EdgeDeviceStatus implements Field {
+		DEVICE_ID("device_id", false), //
+		CHANNEL_ADDRESS("channel_address", false), //
+		LEVEL("level", true), //
+		COMPONENT_ID("component_id", true), //
+		CHANNEL_NAME("channel_name", true), //
+		LAST_APPEARANCE("last_appearance", false), //
+		LAST_ACKNOWLEDGE("last_acknowledge", false), //
+		ACKNOWLEDGE_DAYS("acknowledge_days", false);
+
+		public final static String ODOO_MODEL = "edge.device_status";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
 		/**
-		 * Gets all fields that should be queried as a comma separated string.
-		 * 
-		 * @return the String
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
 		 */
-		public static final String getSqlQueryFields() {
-			return Stream.of(EdgeDevice.values()) //
-					.filter(f -> f.isQuery()) //
-					.map(f -> f.id()) //
-					.collect(Collectors.joining(","));
+		private final boolean query;
+
+		private EdgeDeviceStatus(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		public String id() {
+			return this.id;
+		}
+
+		public int index() {
+			return queryIndex;
+		}
+
+		public boolean isQuery() {
+			return query;
 		}
 	}
 }
