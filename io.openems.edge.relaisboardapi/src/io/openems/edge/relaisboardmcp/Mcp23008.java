@@ -64,20 +64,11 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 		for (McpTask task : tasks.values()) {
 			Optional<Boolean> optional;
 			do {
-                optional = task.getWriteChannel().getNextWriteValueAndReset();
-                optional.ifPresent(aBoolean -> {
-                    try {
-                        task.getWriteChannel().setNextWriteValue(aBoolean);
-                    } catch (OpenemsError.OpenemsNamedException e) {
-                        e.printStackTrace();
-                    }
-
-                });
-                if (!optional.equals(Optional.empty()) && optional.isPresent()) {
-                    setPosition(task.getPosition(), optional.get());
-                }
-            } while (optional.isPresent() && !optional.equals(Optional.empty()));
-        }
+				optional = task.getWriteChannel().getNextWriteValueAndReset();
+			} while (!optional.isPresent() );
+			// value changed
+			setPosition(task.getPosition(), optional.get());
+		}
 
         byte data = 0x00;
         for (int i = length - 1; i >= 0; i--) {

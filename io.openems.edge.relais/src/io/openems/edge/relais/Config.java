@@ -14,7 +14,7 @@ import org.osgi.service.metatype.annotations.Option;
     String service_pid();
 
     @AttributeDefinition(name = "Relais Name", description = "")
-    String id() default "relais0";
+    String id() default "Relais0";
 
     @AttributeDefinition(name = "Alias", description = "Human readable name for this Component.")
     String alias() default "";

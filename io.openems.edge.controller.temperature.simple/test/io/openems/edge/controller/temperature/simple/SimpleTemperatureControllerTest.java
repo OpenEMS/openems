@@ -1,4 +1,4 @@
-package io.openems.edge.relais;
+package io.openems.edge.controller.temperature.simple;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -9,7 +9,7 @@ import org.junit.Test;
  *
  */
 
-public class RelaisActuatorTest {
+public class SimpleTemperatureControllerTest {
 
 	/*
 	 * Example test method
@@ -17,7 +17,7 @@ public class RelaisActuatorTest {
 
 	@Test
 	public void simple() {
-		RelaisActuator impl = new RelaisActuator();
+		SimpleTemperatureController impl = new SimpleTemperatureController();
 		assertNotNull(impl);
 	}
 

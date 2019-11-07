@@ -1,4 +1,4 @@
-package io.openems.edge.raspberrypi.sensors;
+package io.openems.edge.relais;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -9,7 +9,7 @@ import org.junit.Test;
  *
  */
 
-public class TemperatureSensor {
+public class RelaisActuatorImplTest {
 
 	/*
 	 * Example test method
@@ -17,7 +17,7 @@ public class TemperatureSensor {
 
 	@Test
 	public void simple() {
-		TemperatureSensor impl = new TemperatureSensor();
+		RelaisActuatorImpl impl = new RelaisActuatorImpl();
 		assertNotNull(impl);
 	}
 

@@ -3,7 +3,7 @@ package io.openems.edge.raspberrypi.sensors.temperaturesensor;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition(name = "Temperature Sensor", description = "TemperatureSensors for the PT1000_16IN Module")
+@ObjectClassDefinition(name = "Consolinno Temperature Sensor", description = "TemperatureSensors for the PT1000_16IN Module")
 @interface Config {
     String service_pid();
 

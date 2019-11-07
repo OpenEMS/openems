@@ -9,7 +9,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface ActuatorRelais extends OpenemsComponent {
+public interface ActuatorRelaisChannel extends OpenemsComponent {
     /**
      * Is active or not
      *
