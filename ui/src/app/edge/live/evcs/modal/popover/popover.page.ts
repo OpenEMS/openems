@@ -13,7 +13,4 @@ export class EvcsPopoverComponent {
     constructor(
         protected translate: TranslateService,
     ) { }
-
-    ngOnInit() {
-    }
 }

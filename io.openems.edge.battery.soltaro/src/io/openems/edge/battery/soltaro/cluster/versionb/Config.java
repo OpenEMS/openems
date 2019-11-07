@@ -4,6 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.battery.soltaro.BatteryState;
+import io.openems.edge.battery.soltaro.ModuleType;
 
 @ObjectClassDefinition( //
 		name = "BMS Soltaro Cluster Version B", //
@@ -30,6 +31,9 @@ import io.openems.edge.battery.soltaro.BatteryState;
 
 	@AttributeDefinition(name = "Number of slaves", description = "The number of slaves in this battery rack (max. 20)", min = "1", max = "20")
 	int numberOfSlaves() default 20;
+	
+	@AttributeDefinition(name = "Module type", description = "The type of modules in the rack")
+	ModuleType moduleType() default ModuleType.MODULE_3_KWH;
 
 	@AttributeDefinition(name = "Racks Used", description = "Determines what racks are used")
 	int[] racks();
