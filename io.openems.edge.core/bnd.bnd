@@ -6,9 +6,11 @@ Private-Package: \
 	io.openems.edge.core.meta,\
 	io.openems.edge.core.sum,\
 	io.openems.edge.core.cycle,\
-	io.openems.edge.core.componentmanager
+	io.openems.edge.core.componentmanager,\
+	io.openems.edge.core.host
 	
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\

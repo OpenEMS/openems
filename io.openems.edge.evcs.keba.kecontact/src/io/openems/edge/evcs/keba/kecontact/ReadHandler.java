@@ -13,6 +13,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.Status;
 
 /**
  * Handles replys to Report Querys sent by {@link ReadWorker}
@@ -32,7 +33,7 @@ public class ReadHandler implements Consumer<String> {
 
 	@Override
 	public void accept(String message) {
-		
+
 		if (message.startsWith("TCH-OK")) {
 			log.debug("KEBA confirmed reception of command: TCH-OK");
 			this.parent.triggerQuery();
@@ -70,37 +71,82 @@ public class ReadHandler implements Consumer<String> {
 					 * Reply to report 2
 					 */
 					receiveReport2 = true;
-					setInt(KebaChannelId.STATUS, jMessage, "State");
+					setInt(KebaChannelId.STATUS_KEBA, jMessage, "State");
+
+					// The setenergy value of KEBA is not used because it is reset by the currtime 0 1 command
+
+					// Set STATUS and Warning STATE Channel
+					Channel<Status> stateChannel = this.parent.channel(KebaChannelId.STATUS_KEBA);
+					Channel<Status> plugChannel = this.parent.channel(KebaChannelId.PLUG);
+
+					Plug plug = plugChannel.value().asEnum();
+					Status status = stateChannel.value().asEnum();
+					if (status == Status.NOT_READY_FOR_CHARGING) {
+						if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
+							status = Status.CHARGING_REJECTED;
+						}
+					}
+
+					/*
+					 * Check if the maximum energy limit is reached, informs the user and sets the
+					 * status
+					 */
+					int limit = this.parent.setEnergyLimit().value().orElse(0);
+					int energy = this.parent.getEnergySession().value().orElse(0);
+					if (energy >= limit && limit != 0) {
+						try {
+
+							this.parent.setDisplayText().setNextWriteValue(limit + "Wh erreicht");
+							status = Status.ENERGY_LIMIT_REACHED;
+							this.parent.logInfo(log, "Status: "+ status.getName());
+						} catch (OpenemsNamedException e) {
+							e.printStackTrace();
+						}
+					}
+
+					this.parent.channel(Evcs.ChannelId.STATUS).setNextValue(status);
+
+					if (status == Status.ERROR) {
+						this.parent.channel(KebaChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(true);
+					} else {
+						this.parent.channel(KebaChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(false);
+					}
+
 					setInt(KebaChannelId.ERROR_1, jMessage, "Error1");
 					setInt(KebaChannelId.ERROR_2, jMessage, "Error2");
 					setInt(KebaChannelId.PLUG, jMessage, "Plug");
 					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
 					setBoolean(KebaChannelId.ENABLE_USER, jMessage, "Enable user");
 					setInt(KebaChannelId.MAX_CURR_PERCENT, jMessage, "Max curr %");
-					setInt(KebaChannelId.CURR_USER, jMessage, "Curr user");
 					setInt(KebaChannelId.CURR_FAILSAFE, jMessage, "Curr FS");
 					setInt(KebaChannelId.TIMEOUT_FAILSAFE, jMessage, "Tmo FS");
 					setInt(KebaChannelId.CURR_TIMER, jMessage, "Curr timer");
 					setInt(KebaChannelId.TIMEOUT_CT, jMessage, "Tmo CT");
-					setInt(KebaChannelId.ENERGY_LIMIT, jMessage, "Setenergy");
 					setBoolean(KebaChannelId.OUTPUT, jMessage, "Output");
 					setBoolean(KebaChannelId.INPUT, jMessage, "Input");
-					
-					
+					setInt(KebaChannelId.CURR_USER, jMessage, "Curr user");
+
+					Optional<Integer> curr_user = JsonUtils.getAsOptionalInt(jMessage, "Curr user"); // in [mA]
+					if (curr_user.isPresent()) {
+						int chargingTarget = (curr_user.get() / 1000) * 230 * this.parent.getPhases().value().orElse(3);
+						this.parent.setChargePowerLimit().setNextValue(chargingTarget);
+					}
+
 					// Set the maximum Power valid by the Hardware
-					// The default value will be 32 A, because an older Keba charging station sets the value to 0 if the car is unplugged
+					// The default value will be 32 A, because an older Keba charging station sets
+					// the value to 0 if the car is unplugged
 					Optional<Integer> hwPower_ma = JsonUtils.getAsOptionalInt(jMessage, "Curr HW"); // in [mA]
 					Integer hwPower = null;
 					if (hwPower_ma.isPresent()) {
-						if(hwPower_ma.get() == 0) {
+						if (hwPower_ma.get() == 0) {
 							hwPower = 32000 * 230 / 1000; // [W]
-						}else {
+						} else {
 							hwPower = hwPower_ma.get() * 230 / 1000; // [W]
 						}
 					}
-					
-					this.parent.channel(Evcs.ChannelId.HARDWARE_POWER_LIMIT).setNextValue(hwPower);
-					
+
+					this.parent.channel(KebaChannelId.MAX_CURR).setNextValue(hwPower);
+
 				} else if (id.equals("3")) {
 					/*
 					 * Reply to report 3
@@ -114,7 +160,6 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.CURRENT_L3, jMessage, "I3");
 					setInt(KebaChannelId.ACTUAL_POWER, jMessage, "P");
 					setInt(KebaChannelId.COS_PHI, jMessage, "PF");
-					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
 					setInt(KebaChannelId.ENERGY_TOTAL, jMessage, "E total");
 
 					// Set the count of the Phases that are currently used
@@ -122,35 +167,39 @@ public class ReadHandler implements Consumer<String> {
 					Channel<Integer> currentL2 = parent.channel(KebaChannelId.CURRENT_L2);
 					Channel<Integer> currentL3 = parent.channel(KebaChannelId.CURRENT_L3);
 
-					if (currentL1.value().orElse(0) > 10){
+					if (currentL1.value().orElse(0) > 10) {
 
 						if (currentL3.value().orElse(0) > 100) {
-							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
-							set(KebaChannelId.PHASES, 3);
-							
-							
-						} else if (currentL2.value().orElse(0) > 100) {
-							this.parent.logInfo(this.log, "KEBA is loading on two ladder"); 
-							set(KebaChannelId.PHASES, 2);
-							
-						} else{
-							this.parent.logInfo(this.log, "KEBA is loading on one ladder"); 
-							set(KebaChannelId.PHASES, 1);
-						}
-						Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
-						this.parent.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * phases.value().orElse(3));
-						this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * phases.value().orElse(3));
-					}else {
+							this.parent.logInfo(this.log, "KEBA is loading on three ladder");
+							this.parent.getPhases().setNextValue(3);
 
-						// set Min & Max Power to Default values that allows the User a power setting between those values
-						Channel<Integer> min = this.parent.channel(Evcs.ChannelId.MINIMUM_POWER);
-						Channel<Integer> max = this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER);
-						if(min.value().orElse(null)==null || max.value().orElse(null) == null) {
-							this.parent.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * 3);
-							this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * 3);
+						} else if (currentL2.value().orElse(0) > 100) {
+							this.parent.logInfo(this.log, "KEBA is loading on two ladder");
+							this.parent.getPhases().setNextValue(2);
+
+						} else {
+							this.parent.logInfo(this.log, "KEBA is loading on one ladder");
+							this.parent.getPhases().setNextValue(1);
+						}
+						Channel<Integer> phases = this.parent.getPhases();
+						this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
+								.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * phases.value().orElse(3));
+						this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
+								.setNextValue(230 /* Spannung */ * 32 /* max Strom */ * phases.value().orElse(3));
+					} else {
+
+						// set Min & Max Power to Default values that allows the User a power setting
+						// between those values
+						Channel<Integer> min = this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
+						Channel<Integer> max = this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER);
+						if (min.value().get() == null || max.value().get() == null) {
+							Channel<Integer> maxHW = this.parent.channel(KebaChannelId.MAX_CURR);
+							this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
+									.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * 3);
+							this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
+									.setNextValue(230 /* Spannung */ * maxHW.value().orElse(32) /* max Strom */ * 3);
 						}
 					}
-					
 
 					// Set CHARGE_POWER
 					Optional<Integer> power_mw = JsonUtils.getAsOptionalInt(jMessage, "P"); // in [mW]
@@ -159,6 +208,10 @@ public class ReadHandler implements Consumer<String> {
 						power = power_mw.get() / 1000; // convert to [W]
 					}
 					this.parent.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power);
+
+					// Set ENERGY_SESSION
+					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
+							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(0)) * 0.1);
 				}
 
 			} else {
@@ -166,7 +219,7 @@ public class ReadHandler implements Consumer<String> {
 				 * message without ID -> UDP broadcast
 				 */
 				if (jMessage.has("State")) {
-					setInt(KebaChannelId.STATUS, jMessage, "State");
+					setInt(KebaChannelId.STATUS_KEBA, jMessage, "State");
 				}
 				if (jMessage.has("Plug")) {
 					setInt(KebaChannelId.PLUG, jMessage, "Plug");
@@ -178,7 +231,8 @@ public class ReadHandler implements Consumer<String> {
 					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
 				}
 				if (jMessage.has("E pres")) {
-					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
+					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
+							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(0)) * 0.1);
 				}
 			}
 		}
@@ -206,8 +260,8 @@ public class ReadHandler implements Consumer<String> {
 	}
 
 	/**
-	 * returns true or false, if the requested report answered or not 
-	 * and set that value to false
+	 * returns true or false, if the requested report answered or not and set that
+	 * value to false
 	 * 
 	 * @param report
 	 * @return

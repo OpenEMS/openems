@@ -13,19 +13,20 @@ import { StorageSectionComponent } from './section/storagesection.component';
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
-  @ViewChild(ConsumptionSectionComponent)
+  @ViewChild(ConsumptionSectionComponent, { static: true })
   public consumptionSection: ConsumptionSectionComponent;
 
-  @ViewChild(GridSectionComponent)
+  @ViewChild(GridSectionComponent, { static: true })
   public gridSection: GridSectionComponent;
 
-  @ViewChild(ProductionSectionComponent)
+  @ViewChild(ProductionSectionComponent, { static: true })
   public productionSection: ProductionSectionComponent;
 
-  @ViewChild(StorageSectionComponent)
+  @ViewChild(StorageSectionComponent, { static: true })
   public storageSection: StorageSectionComponent;
 
-  @ViewChild('energymonitorChart') private chartDiv: ElementRef;
+  @ViewChild('energymonitorChart', { static: true })
+  private chartDiv: ElementRef;
 
   @Input()
   set currentData(currentData: CurrentData) {
@@ -78,7 +79,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   private updateOnWindowResize(): void {
     let size = 300;
     if (this.chartDiv.nativeElement.offsetParent) {
-      size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 10;
+      size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
     }
     if (size > window.innerHeight) {
       size = window.innerHeight;

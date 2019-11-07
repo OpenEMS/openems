@@ -1,47 +1,119 @@
-<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
-  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge && evcsComponent">
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-item lines="full" color="light">
-      <ion-avatar slot="start">
-        <img src="assets/img/evcs.png">
+      <ion-avatar>
+        <ion-img src="assets/img/evcs.png"></ion-img>
       </ion-avatar>
-      <!-- TODO Fix formatting -->
-      <ion-label translate>
+      <ion-label *ngIf="evcsComponent.alias == evcsComponent.id" style="padding-left: 20px;" translate>
         Edge.Index.Widgets.EVCS.ChargingStation
       </ion-label>
+      <ion-label *ngIf="evcsComponent.alias != evcsComponent.id" style="padding-left: 20px;">
+        {{evcsComponent.alias}}
+      </ion-label>
     </ion-item>
-    <ion-label *ngIf="currentData[componentId + '/State'] != 3">
-      <ion-card-content>
+
+    <ng-container *ngIf="currentData[componentId + '/State'] != 3">
+      <ion-card-content *ngIf="controller">
         <table class="full_width">
           <tr>
-            <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingPower</td>
-            <td style="width:15%"></td>
-            <td style="width:45%" class="align_right">
-              {{ outputPowerOrState(currentData[componentId + "/ChargePower"] | number:'1.0-0',
-                   currentData[componentId + "/Status"], 
-                   currentData[componentId + "/Plug"]) }}
+            <td style="width:20%" translate>
+              Edge.Index.Widgets.EVCS.Status
+            </td>
+            <td style="width:80%" class="align_right">
+              {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"])}}
             </td>
           </tr>
+          <tr *ngIf="currentData[componentId + '/ChargePower'] > 0 || currentData[componentId + '/Status'] == 2">
+            <td style="width:65%" translate>
+              Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+            <td style="width:35%" class="align_right">
+              {{ currentData[componentId + "/EnergySession"] | unitvalue:'kWh' }}
+            </td>
+          </tr>
+        </table>
+        <table class="full_width">
           <tr>
-            <td style="width: 50%" translate>Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
-            <td style="width:15%"></td>
-            <td style="width:45%" class="align_right">
-              {{ (currentData[componentId + "/EnergySession"] * 0.1) | number:'1.0-0' }} Wh
+            <td style="width: 50%" *ngIf="controller.properties['enabledCharging'] == true" translate>
+              General.Mode
+            </td>
+            <td style="width: 50%" class="align_right" translate
+              *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE' && controller.properties['enabledCharging'] == true">
+              General.Manually
+            </td>
+            <td style="width: 50%" class="align_right" translate
+              *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
+              Edge.Index.Widgets.EVCS.OptimizedChargeMode.ShortName
+            </td>
+          </tr>
+        </table>
+        <ng-container
+          *ngIf="controller.properties['chargeMode'] == 'EXCESS_POWER' && controller.properties['enabledCharging'] == true">
+          <table class="full_width">
+            <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
+              </td>
+              <td style="width: 35%" class="align_right" translate>
+                General.Active
+              </td>
+            </tr>
+            <tr *ngIf="controller.properties['defaultChargeMinPower'] > 0">
+              <td style=" width: 50%" translate>
+                Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinChargePower
+              </td>
+              <td style="width: 50%" class="align_right">
+                {{controller.properties['defaultChargeMinPower'] | unitvalue:'kW'}}
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 50%" translate>
+                Edge.Index.Widgets.EVCS.Prioritization
+              </td>
+              <td style="width: 50%" class="align_right" *ngIf="controller.properties['priority'] == 'CAR'" translate>
+                Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Car
+              </td>
+              <td style="width: 50%" class="align_right" *ngIf="controller.properties['priority'] == 'STORAGE'"
+                translate>
+                Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Storage
+              </td>
+            </tr>
+          </table>
+        </ng-container>
+        <ng-container
+          *ngIf="controller.properties['chargeMode'] == 'FORCE_CHARGE' && controller.properties['enabledCharging'] == true">
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%" translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</td>
+              <td style="width: 35%" class="align_right">
+                {{controller.properties['forceChargeMinPower'] | unitvalue:'kW'}}</td>
+            </tr>
+          </table>
+        </ng-container>
+        <table class="full_width"
+          *ngIf="controller.properties['enabledCharging'] == true && controller.properties['energySessionLimit'] != 0">
+          <tr>
+            <td style="width: 35%">
+              Energielimit
+            </td>
+            <td style="width: 65%" class="align_right">
+              {{(controller.properties['energySessionLimit']) | unitvalue:'kWh'}}
             </td>
           </tr>
         </table>
       </ion-card-content>
-    </ion-label>
-    <ion-card-content *ngIf="currentData[componentId + '/State'] == 3">
-      <ion-label translate>
-        Edge.Index.Widgets.EVCS.NoConnection.Description
-        <ul>
-          <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
-          <ul>
-            <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1</li>
-          </ul>
-        </ul>
-      </ion-label>
-    </ion-card-content>
+    </ng-container>
+    <ng-container *ngIf="currentData[componentId + '/State'] == 3">
+      <ion-card-content>
+        <ion-grid>
+          <table class="full_width">
+            <tr>
+              <td translate>
+                Edge.Index.Widgets.EVCS.NoConnection.Description
+              </td>
+            </tr>
+          </table>
+        </ion-grid>
+      </ion-card-content>
+    </ng-container>
   </ng-container>
 </ion-card>

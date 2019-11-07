@@ -485,7 +485,7 @@ public class RestHandler extends AbstractHandler {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
+		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
 				request.getPayload());
 
 		// handle null response
@@ -495,8 +495,15 @@ public class RestHandler extends AbstractHandler {
 
 		// Wrap reply in EdgeRpcResponse
 		CompletableFuture<JsonrpcResponseSuccess> edgeRpcResponse = new CompletableFuture<>();
-		responseFuture.thenAccept(response -> {
-			edgeRpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		responseFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				edgeRpcResponse.completeExceptionally(ex);
+			} else if (r != null) {
+				edgeRpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), r.getResult()));
+			} else {
+				edgeRpcResponse.completeExceptionally(new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD,
+						request.getPayload().getMethod()));
+			}
 		});
 
 		return edgeRpcResponse;

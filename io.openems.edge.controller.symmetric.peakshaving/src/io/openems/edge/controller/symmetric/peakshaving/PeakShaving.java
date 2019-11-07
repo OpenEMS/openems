@@ -123,22 +123,19 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
 						* this.config.maxPowerAdjustmentRate())) {
 			if (this.lastSetActivePower > calculatedPower) {
-				int newPower = this.lastSetActivePower
+				calculatedPower = this.lastSetActivePower
 						- (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-				this.logInfo(log, "Adjust [-] Last [" + this.lastSetActivePower + "] Calculated [" + calculatedPower
-						+ "] Corrected to [" + newPower + "]");
-				calculatedPower = newPower;
 			} else {
-				int newPower = this.lastSetActivePower
+				calculatedPower = this.lastSetActivePower
 						+ (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-				this.logInfo(log, "Adjust [+] Last [" + this.lastSetActivePower + "] Calculated [" + calculatedPower
-						+ "] Corrected to [" + newPower + "]");
-				calculatedPower = newPower;
 			}
 		}
 
 		Power power = ess.getPower();
-		calculatedPower = power.fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+
+		// store lastSetActivePower
+		this.lastSetActivePower = calculatedPower;
 
 		/*
 		 * set result

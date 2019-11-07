@@ -32,10 +32,11 @@ public class EmergencyModeTest {
 		private final String ess1_id;
 		private final String ess2_id;
 		private final int pvSufficientPower;
+		private final int threshold;
 
 		public MyConfig(String id, String ess1_id, String ess2_id, String q1ChannelAddress, String q2ChannelAddress,
 				String q3ChannelAddress, String q4ChannelAddress, String pvInverter_id, String pvMeter_id,
-				int pvSufficientPower) {
+				int pvSufficientPower,int threshold) {
 			super(Config.class, id);
 			this.q1ChannelAddress = q1ChannelAddress;
 			this.q2ChannelAddress = q2ChannelAddress;
@@ -46,6 +47,7 @@ public class EmergencyModeTest {
 			this.ess1_id = ess1_id;
 			this.ess2_id = ess2_id;
 			this.pvSufficientPower = pvSufficientPower;
+			this.threshold = threshold;
 		}
 
 		@Override
@@ -95,16 +97,18 @@ public class EmergencyModeTest {
 
 		@Override
 		public int offGridPvLimit() {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		@Override
 		public int offGridPvLimitFault() {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
+		@Override
+		public int threshold() {
+			return this.threshold;
+		}
 	}
 
 	@Test
@@ -143,58 +147,58 @@ public class EmergencyModeTest {
 		ChannelAddress io0Q4 = new ChannelAddress("io0", "InputOutput4");
 
 		MyConfig myconfig = new MyConfig("ctrl1", ess1.id(), ess2.id(), io0Q1.toString(), io0Q2.toString(),
-				io0Q3.toString(), io0Q4.toString(), pvInverter0.id(), meter1.id(), 20000);
+				io0Q3.toString(), io0Q4.toString(), pvInverter0.id(), meter1.id(), 20000, 85);
 		controller.activate(null, myconfig);
 
 		// Build and run test
 		new ControllerTest(controller, componentManager, pvInverter0, meter1, ess1, ess2, io0) //
-				/*
-				 * ESS1_FULL__ESS2_FULL__PV_SUFFICIENT //
-				 */
-				.next(new TestCase()//
-						.input(ess1GridMode, GridMode.OFF_GRID)//
-						.input(ess1Soc, 100)//
-						.input(ess1AllowedChargePower, 0)//
-						.input(ess1AllowedDischargePower, 10_000)//
-						.input(ess2GridMode, GridMode.OFF_GRID)//
-						.input(ess2Soc, 100)//
-						.input(ess2AllowedChargePower, 0)//
-						.input(ess2AllowedDischargePower, 10_000)//
-						.input(pvInverterActivePower, 30_000)//
-//						.input(io0Q1, true)//
-//						.input(io0Q2, true)//
-//						.input(io0Q3, false)//
-//						.input(io0Q4, false)//
-						.output(io0Q1, false))//
-				.next(new TestCase()//
-						.timeleap(clock, 11, ChronoUnit.SECONDS) //
-						.output(io0Q2, false)//
-						.output(io0Q3, false) //
-						.output(io0Q4, false))//
-
-				/*
-				 * ESS1_FULL__ESS2_NORMAL__PV_UNKNOWN //
-				 */
-				.next(new TestCase()//
-						.input(ess1GridMode, GridMode.OFF_GRID)//
-						.input(ess1Soc, 100)//
-						.input(ess1AllowedChargePower, 0)//
-						.input(ess1AllowedDischargePower, 10000)//
-						.input(ess2GridMode, GridMode.OFF_GRID)//
-						.input(ess2Soc, 50)//
-						.input(ess2AllowedChargePower, 10000)//
-						.input(ess2AllowedDischargePower, 10000)//
-						.input(pvInverterActivePower, 5000)//
-//						.input(io0Q1, true)//
-//						.input(io0Q2, true)//
-//						.input(io0Q3, false)//
-//						.input(io0Q4, false)//
-						.output(io0Q1, false)//
-						.output(io0Q4, false))//
-				.next(new TestCase()//
-						.timeleap(clock, 11, ChronoUnit.SECONDS) //
-						.output(io0Q2, false)//
-						.output(io0Q3, true)) //
+//				/*
+//				 * ESS1_FULL__ESS2_FULL__PV_SUFFICIENT //
+//				 */
+//				.next(new TestCase()//
+//						.input(ess1GridMode, GridMode.OFF_GRID)//
+//						.input(ess1Soc, 100)//
+//						.input(ess1AllowedChargePower, 0)//
+//						.input(ess1AllowedDischargePower, 10_000)//
+//						.input(ess2GridMode, GridMode.OFF_GRID)//
+//						.input(ess2Soc, 100)//
+//						.input(ess2AllowedChargePower, 0)//
+//						.input(ess2AllowedDischargePower, 10_000)//
+//						.input(pvInverterActivePower, 30_000)//
+////						.input(io0Q1, true)//
+////						.input(io0Q2, true)//
+////						.input(io0Q3, false)//
+////						.input(io0Q4, false)//
+//						.output(io0Q1, false))//
+//				.next(new TestCase()//
+//						.timeleap(clock, 11, ChronoUnit.SECONDS) //
+//						.output(io0Q2, false)//
+//						.output(io0Q3, false) //
+//						.output(io0Q4, false))//
+//
+//				/*
+//				 * ESS1_FULL__ESS2_NORMAL__PV_UNKNOWN //
+//				 */
+//				.next(new TestCase()//
+//						.input(ess1GridMode, GridMode.OFF_GRID)//
+//						.input(ess1Soc, 100)//
+//						.input(ess1AllowedChargePower, 0)//
+//						.input(ess1AllowedDischargePower, 10000)//
+//						.input(ess2GridMode, GridMode.OFF_GRID)//
+//						.input(ess2Soc, 50)//
+//						.input(ess2AllowedChargePower, 10000)//
+//						.input(ess2AllowedDischargePower, 10000)//
+//						.input(pvInverterActivePower, 5000)//
+////						.input(io0Q1, true)//
+////						.input(io0Q2, true)//
+////						.input(io0Q3, false)//
+////						.input(io0Q4, false)//
+//						.output(io0Q1, false)//
+//						.output(io0Q4, false))//
+//				.next(new TestCase()//
+//						.timeleap(clock, 11, ChronoUnit.SECONDS) //
+//						.output(io0Q2, false)//
+//						.output(io0Q3, true)) //
 
 //
 				/*
@@ -202,7 +206,7 @@ public class EmergencyModeTest {
 				 */
 				.next(new TestCase()//
 						.input(ess1GridMode, GridMode.OFF_GRID)//
-						.input(ess1Soc, 5)//
+						.input(ess1Soc, 2)//
 						.input(ess1AllowedChargePower, 10_000)//
 						.input(ess1AllowedDischargePower, 0)//
 						.input(ess2GridMode, GridMode.OFF_GRID)//
@@ -214,32 +218,56 @@ public class EmergencyModeTest {
 //						.input(io0Q2, true)//
 //						.input(io0Q3, true)//
 //						.input(io0Q4, false)//
-						.output(io0Q1, false)//
-						.output(io0Q2, false))//
-				.next(new TestCase()//
-						.timeleap(clock, 11, ChronoUnit.SECONDS) //
-						.output(io0Q3, false) //
-						.output(io0Q4, false))//
-
-				/*
-				 * ESS1_FULL__ESS2_LOW__PV_UNKNOWN //
-				 */
+						.output(io0Q1, true)//
+						.output(io0Q2, true))//
 				.next(new TestCase()//
 						.input(ess1GridMode, GridMode.OFF_GRID)//
-						.input(ess1Soc, 100)//
-						.input(ess1AllowedChargePower, 0)//
-						.input(ess1AllowedDischargePower, 10_000)//
+						.input(ess1Soc, 2)//
+						.input(ess1AllowedChargePower, 10_000)//
+						.input(ess1AllowedDischargePower, 0)//
 						.input(ess2GridMode, GridMode.OFF_GRID)//
-						.input(ess2Soc, 5)//
-						.input(ess2AllowedChargePower, 5000)//
-						.input(ess2AllowedDischargePower, 200)//
-						.input(pvInverterActivePower, 800)//
+						.input(ess2Soc, 90)//
+						.input(ess2AllowedChargePower, 10_000)//
+						.input(ess2AllowedDischargePower, 10_000)//
+						.input(pvInverterActivePower, 60_000)//
+						.output(io0Q1, true)//
+						.output(io0Q2, true))//
+				.next(new TestCase()//
+						.input(ess1GridMode, GridMode.OFF_GRID)//
+						.input(ess1Soc, 2)//
+						.input(ess1AllowedChargePower, 10_000)//
+						.input(ess1AllowedDischargePower, 0)//
+						.input(ess2GridMode, GridMode.OFF_GRID)//
+						.input(ess2Soc, 80)//
+						.input(ess2AllowedChargePower, 10_000)//
+						.input(ess2AllowedDischargePower, 10_000)//
+						.input(pvInverterActivePower, 60_000)//
+						.output(io0Q1, true)//
 						.output(io0Q2, true))//
 				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.SECONDS) //
-						.output(io0Q1, true)//
-						.output(io0Q3, false) //
-						.output(io0Q4, false)) //
+						.output(io0Q1, false) //
+						.output(io0Q2, false))//
+
+//				/*
+//				 * ESS1_FULL__ESS2_LOW__PV_UNKNOWN //
+//				 */
+//				.next(new TestCase()//
+//						.input(ess1GridMode, GridMode.OFF_GRID)//
+//						.input(ess1Soc, 100)//
+//						.input(ess1AllowedChargePower, 0)//
+//						.input(ess1AllowedDischargePower, 10_000)//
+//						.input(ess2GridMode, GridMode.OFF_GRID)//
+//						.input(ess2Soc, 5)//
+//						.input(ess2AllowedChargePower, 5000)//
+//						.input(ess2AllowedDischargePower, 200)//
+//						.input(pvInverterActivePower, 800)//
+//						.output(io0Q2, true))//
+//				.next(new TestCase()//
+//						.timeleap(clock, 11, ChronoUnit.SECONDS) //
+//						.output(io0Q1, true)//
+//						.output(io0Q3, false) //
+//						.output(io0Q4, false)) //
 
 				.run();
 	}

@@ -54,6 +54,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Off Grid Pv Limit Fault", description = "If PV power is above OFFGRID_PV_LIMIT_FAULT in Off-Grid -> disconnect PV.")
 	int offGridPvLimitFault() default 37000;
 
+	@AttributeDefinition(name = "Threshold", description = " Threshold")
+	int threshold();
+
 	/*
 	 * Ess
 	 */

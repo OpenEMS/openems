@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -110,6 +111,14 @@ public class JsonUtils {
 			return Float.parseFloat(string);
 		}
 		throw OpenemsError.JSON_NO_FLOAT_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
+		try {
+			return (Inet4Address) Inet4Address.getByName(getAsString(jElement));
+		} catch (UnknownHostException e) {
+			throw OpenemsError.JSON_NO_INET4ADDRESS.exception(jElement.toString().replaceAll("%", "%%"));
+		}
 	}
 
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsNamedException {
@@ -279,7 +288,8 @@ public class JsonUtils {
 	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonElement subElement = getSubElement(jElement, memberName);
 		if (!subElement.isJsonObject()) {
-			throw OpenemsError.JSON_NO_OBJECT_MEMBER.exception(memberName, subElement.toString().replaceAll("%", "%%"));
+			throw OpenemsError.JSON_NO_OBJECT_MEMBER.exception(memberName,
+					StringUtils.toShortString(subElement, 100).replaceAll("%", "%%"));
 		}
 		return subElement.getAsJsonObject();
 	}
@@ -347,6 +357,14 @@ public class JsonUtils {
 		try {
 			return Optional.of(getAsString(jElement, memberName));
 		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
+		try {
+			return Optional.ofNullable((Inet4Address) Inet4Address.getByName(getAsString(jElement, memberName)));
+		} catch (OpenemsNamedException | UnknownHostException e) {
 			return Optional.empty();
 		}
 	}
@@ -580,7 +598,8 @@ public class JsonUtils {
 	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonObject jObject = getAsJsonObject(jElement);
 		if (!jObject.has(memberName)) {
-			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(jElement.toString().replaceAll("%", "%%"), memberName);
+			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(memberName,
+					StringUtils.toShortString(jElement, 100).replaceAll("%", "%%"));
 		}
 		return jObject.get(memberName);
 	}

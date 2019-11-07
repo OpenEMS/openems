@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -364,8 +365,8 @@ public class SingleRack {
 		this.addEntry(map, KEY_FAILURE_CONNECTOR_WIRE, Doc.of(Level.FAULT).text("connector wire fault")); // Bit 1
 		this.addEntry(map, KEY_FAILURE_SAMPLING_WIRE, Doc.of(Level.FAULT).text("sampling wire fault")); // Bit 0
 		
-		this.addEntry(map, KEY_SLEEP, Doc.of(OpenemsType.INTEGER)); 
-		this.addEntry(map, KEY_RESET, Doc.of(OpenemsType.INTEGER)); 
+		this.addEntry(map, KEY_SLEEP, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)); 
+		this.addEntry(map, KEY_RESET, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)); 
 
 		// Cell voltages formatted like: "RACK_1_BATTERY_000_VOLTAGE"
 		for (int i = 0; i < this.numberOfSlaves; i++) {

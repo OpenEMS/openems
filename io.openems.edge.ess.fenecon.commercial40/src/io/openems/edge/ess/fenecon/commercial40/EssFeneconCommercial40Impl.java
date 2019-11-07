@@ -21,9 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -42,6 +44,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -64,8 +67,9 @@ import io.openems.edge.ess.power.api.Relationship;
 		name = "Ess.Fenecon.Commercial40", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
-)
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		})
 public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent implements EssFeneconCommercial40,
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -157,19 +161,16 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_PV_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		// IntegerReadChannels
 		ORIGINAL_ALLOWED_CHARGE_POWER(new IntegerDoc() //
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
 					// delta of max 500
-					channel.onChange(originalValueChannel -> {
+					channel.onChange((oldValue, newValue) -> {
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> originalValue = newValue.asOptional();
 						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
 						int value;
 						if (!originalValue.isPresent() && !currentValue.isPresent()) {
@@ -188,10 +189,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
-					channel.onChange(originalValueChannel -> {
+					channel.onChange((oldValue, newValue) -> {
+
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> originalValue = newValue.asOptional();
 						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
 						int value;
 						if (!originalValue.isPresent() && !currentValue.isPresent()) {
@@ -955,6 +957,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		STATE_104(Doc.of(Level.WARNING) //
 				.text("BatteryCurrentOverLimit")), //
 		STATE_105(Doc.of(Level.WARNING) //
+				.debounce(5 * 60 /* 5 minutes with a cycle time of 1 sec */,
+						Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)
 				.text("PowerDecreaseCausedByOvertemperature")), //
 		STATE_106(Doc.of(Level.WARNING) //
 				.text("InverterGeneralOvertemperature")), //
@@ -1055,6 +1059,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		public Doc doc() {
 			return this.doc;
 		}
+
 	}
 
 	@Override
@@ -1298,8 +1303,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40Impl.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40Impl.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40Impl.ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xA000, Priority.LOW, //
 						m(EssFeneconCommercial40Impl.ChannelId.BMS_DCDC_WORK_STATE, new UnsignedWordElement(0xA000)), //
@@ -1629,6 +1632,9 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.applyPowerLimitOnPowerDecreaseCausedByOvertemperatureError();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.defineWorkState();
 			break;
@@ -1700,6 +1706,44 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
+	}
+
+	private void applyPowerLimitOnPowerDecreaseCausedByOvertemperatureError() {
+		if (this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() != 0) {
+			StateChannel powerDecreaseCausedByOvertemperatureChannel = this
+					.channel(EssFeneconCommercial40Impl.ChannelId.STATE_105);
+			if (powerDecreaseCausedByOvertemperatureChannel.value().orElse(false)) {
+				/*
+				 * Apply limit on ESS charge/discharge power
+				 */
+				try {
+					this.power.addConstraintAndValidate(
+							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
+									Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
+									config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
+					this.power.addConstraintAndValidate(
+							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
+									Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+									config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
+				} catch (OpenemsException e) {
+					this.logError(this.log, e.getMessage());
+				}
+				/*
+				 * Apply limit on Charger
+				 */
+				if (this.charger != null) {
+					IntegerWriteChannel setPvPowerLimit = charger
+							.channel(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT);
+					try {
+						setPvPowerLimit.setNextWriteValue(
+								this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel());
+					} catch (OpenemsNamedException e) {
+						this.logError(this.log, e.getMessage());
+					}
+				}
+
+			}
+		}
 	}
 
 }

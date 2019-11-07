@@ -9,8 +9,8 @@ import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
 public class Fieldbus501DO2Ch extends FieldbusModule {
 
-	private final static String ID_TEMPLATE = "DIGITAL_OUTPUT_M";
 
+	private static final String ID_TEMPLATE = "DIGITAL_OUTPUT_M";
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
 	private final BooleanReadChannel[] readChannels;

@@ -10,8 +10,8 @@ import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
 public class Fieldbus523RO1Ch extends FieldbusModule {
 
-	private final static String ID_TEMPLATE = "RELAY_M";
 
+	private static final String ID_TEMPLATE = "RELAY_M";
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
 	private final BooleanReadChannel[] readChannels;

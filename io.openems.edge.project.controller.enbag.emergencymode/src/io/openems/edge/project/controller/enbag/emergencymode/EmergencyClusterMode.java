@@ -49,6 +49,9 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	private ChannelAddress q3PvOffGrid;
 	private ChannelAddress q4PvOnGrid;
 
+	private Battery lastUsedBattery = Battery.UNDEFINED;
+	private PvConnected lastQ3State = PvConnected.YES;
+
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -64,8 +67,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ThisChannelId.values(), //
-				ChannelId.values()
-		);
+				ChannelId.values());
 		this.clock = clock;
 	}
 
@@ -149,8 +151,21 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		case ESS1_EMPTY__ESS2_EMPTY__PV_SUFFICIENT:
 		case ESS1_EMPTY__ESS2_EMPTY__PV_NOT_SUFFICIENT:
 		case ESS1_EMPTY__ESS2_EMPTY__PV_UNKNOWN:
+			ManagedSymmetricEss ess2 = this.componentManager.getComponent(this.config.ess2_id());
+			Optional<Integer> essSoc2 = ess2.getSoc().value().asOptional();
+			// Apply threshold in order to avoid if last used battery changes often
+			if (this.lastUsedBattery == Battery.ESS1 && essSoc2.get() > this.config.threshold()) {
+				break;
+			}
+			// Avoid switch operation around pv sufficent range
+			if (this.lastUsedBattery == Battery.ESS2 && this.lastQ3State == PvConnected.NO
+					&& this.getPvState().equals(PvState.SUFFICIENT)) {
+				break;
+			}
 			this.useBattery(Battery.ESS2);
 			this.offgridPv(PvConnected.YES);
+			this.lastUsedBattery = Battery.ESS2;
+			this.lastQ3State = PvConnected.YES;
 			break;
 
 		case ESS1_FULL__ESS2_FULL__PV_SUFFICIENT:
@@ -164,6 +179,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		case UNDEFINED:
 			this.useBattery(Battery.ESS2);
 			this.offgridPv(PvConnected.NO);
+			this.lastUsedBattery = Battery.ESS2;
+			this.lastQ3State = PvConnected.NO;
 			break;
 
 		case ESS1_FULL__ESS2_LOW__PV_NOT_SUFFICIENT:
@@ -179,18 +196,21 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		case ESS1_EMPTY__ESS2_FULL__PV_SUFFICIENT:
 			this.useBattery(Battery.ESS1);
 			this.offgridPv(PvConnected.YES);
+			this.lastUsedBattery = Battery.ESS1;
+			this.lastQ3State = PvConnected.YES;
 			break;
 
 		case ESS1_FULL__ESS2_LOW__PV_UNKNOWN:
 		case ESS1_FULL__ESS2_EMPTY__PV_UNKNOWN:
 			this.useBattery(Battery.ESS1);
 			this.offgridPv(PvConnected.NO);
+			this.lastUsedBattery = Battery.ESS1;
+			this.lastQ3State = PvConnected.NO;
 			break;
 		}
 
 		// Limit PV production
 		this.limitPvInOffgrid();
-
 		return batteryAndPvState;
 	}
 
@@ -638,7 +658,6 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		Optional<Integer> allowedChargePower = ess.getAllowedCharge().value().asOptional();
 		Optional<Integer> allowedDischargePower = ess.getAllowedDischarge().value().asOptional();
 		Optional<Integer> soc = ess.getSoc().value().asOptional();
-
 		if (allowedChargePower.isPresent() && allowedChargePower.get() == 0) {
 			return OneBatteryState.FULL;
 		} else if (allowedDischargePower.isPresent() && allowedDischargePower.get() == 0) {

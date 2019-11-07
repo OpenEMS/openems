@@ -21,7 +21,9 @@
 ** xref:backend/build.adoc[Build OpenEMS Backend]
 ** xref:backend/deploy.adoc[Deploy OpenEMS Backend]
 * xref:component-communication/index.adoc[Component Communication]
-* xref:simulation.adoc[Simulation]
+* Simulation
+** xref:simulation/realtime.adoc[Real-Time Simulation]
+** xref:simulation/ui-history.adoc[UI History Simulation]
 * xref:documentation.adoc[Documentation]
 * xref:randd.adoc[Research and Development]
 * https://openems.github.io/openems.io/javadoc/[Javadoc]

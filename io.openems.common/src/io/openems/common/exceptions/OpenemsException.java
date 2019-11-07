@@ -14,4 +14,8 @@ public class OpenemsException extends OpenemsNamedException {
 		super(OpenemsError.GENERIC, message + ": " + cause.getMessage());
 	}
 
+	public OpenemsException(Throwable cause) {
+		this(cause.getClass().getSimpleName() + ": " + cause.getMessage());
+	}
+
 }
