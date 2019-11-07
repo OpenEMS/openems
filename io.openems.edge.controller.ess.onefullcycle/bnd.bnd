@@ -12,7 +12,9 @@ Private-Package: io.openems.edge.controller.ess.onefullcycle
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
-	slf4j.api
+	slf4j.api,\
+	com.google.guava,\
+	com.google.gson
 
 -testpath: ${testpath}
 

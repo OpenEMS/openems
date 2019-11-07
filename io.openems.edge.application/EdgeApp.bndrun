@@ -55,7 +55,6 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
@@ -94,7 +93,8 @@
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
-	bnd.identity;id='io.openems.edge.tesla.powerwall2'
+	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.powervoltagecharacteristic'
 
 -runbundles: \
 	com.google.gson;version='[2.8.5,2.8.6)',\
@@ -132,8 +132,8 @@
 	io.openems.edge.controller.symmetric.limitactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
+	io.openems.edge.controller.symmetric.powervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
-	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
@@ -207,4 +207,6 @@
 	com.google.guava;version='[28.1.0,28.1.1)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
-	com.fazecast.jSerialComm;version='[2.5.2,2.5.3)'
+	com.fazecast.jSerialComm;version='[2.5.2,2.5.3)',\
+	io.openems.edge.meter.sunspec;version=snapshot,\
+	io.openems.edge.solaredge;version=snapshot
