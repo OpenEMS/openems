@@ -18,6 +18,7 @@ public class TemperatureDigitalReadTask extends Task {
     private double regressionValueC;
     private int lastValue = -666;
     private long lastTimestamp = 0;
+    //10 °C
     private int temperatureChange = 100;
     private int timestamp = 3000;
 
@@ -80,7 +81,6 @@ public class TemperatureDigitalReadTask extends Task {
                 return;
             }
             lastValue = value;
-
         }
 
         if (Math.abs(lastValue) - Math.abs(value) > temperatureChange || Math.abs(lastValue) - Math.abs(value) < -(temperatureChange) && lastTimestamp - System.currentTimeMillis() < timestamp) {
