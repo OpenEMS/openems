@@ -14,6 +14,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 
+import java.util.Optional;
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -89,7 +90,11 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 
 	@Override
 	public String debugLog() {
-		return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
+		if (this.getRelaisChannelValue().getNextWriteValue().isPresent() && !this.getRelaisChannelValue().getNextWriteValue().equals(Optional.empty())) {
+			return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
+		} else {
+			return "Status of " + super.id() + " alias: " + super.alias() + "is " + this.getRelaisChannelValue().value();
+		}
 	}
 
 	//For Controller

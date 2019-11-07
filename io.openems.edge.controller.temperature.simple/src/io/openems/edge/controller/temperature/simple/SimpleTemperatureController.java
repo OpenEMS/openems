@@ -33,7 +33,7 @@ public class SimpleTemperatureController extends AbstractOpenemsComponent implem
 
 
 	public SimpleTemperatureController() {
-		super(OpenemsComponent.ChannelId.values());
+		super(OpenemsComponent.ChannelId.values(), Controller.ChannelId.values());
 	}
 
 	@Activate
@@ -66,7 +66,8 @@ public class SimpleTemperatureController extends AbstractOpenemsComponent implem
 	public void run() throws OpenemsError.OpenemsNamedException {
 
 		//TODO There has to be a better way
-		if (Integer.parseInt(temperatureSensor.getTemperatureOfSensor().value().toString()) + toleranceTemperature < wantedTemperature) {
+		String temperature = temperatureSensor.getTemperatureOfSensor().value().toString().replaceAll("[a-zA-Z _]", "").trim();
+		if (Integer.parseInt(temperature) + toleranceTemperature < wantedTemperature) {
 			//increase Temperature
 			if (relaisActuator.isCloser()) {
 				//for warming purposes a closer relais has to be closed --> closed circuit default
@@ -75,7 +76,7 @@ public class SimpleTemperatureController extends AbstractOpenemsComponent implem
 				//same as above; relais is a opener --> so it has to be deactivated for closed circuit
 				relaisActuator.getRelaisChannelValue().setNextWriteValue(false);
 			}
-		} else if (Integer.parseInt(temperatureSensor.getTemperatureOfSensor().value().toString()) - toleranceTemperature < wantedTemperature) {
+		} else if (Integer.parseInt(temperature) - toleranceTemperature < wantedTemperature) {
 			if (relaisActuator.isCloser()) {
 				//logic is Vice Versa here: | | <-- inactive |_| <---active
 				relaisActuator.getRelaisChannelValue().setNextWriteValue(false);

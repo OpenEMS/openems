@@ -3,7 +3,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(
-        name = "Spi Initial",
+        name = "Bridge Spi",
         description = "Initial Spi, opens Ch 0 and handles Events etc"
 )
 
