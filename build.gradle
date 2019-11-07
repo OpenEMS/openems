@@ -53,11 +53,11 @@ task buildComponents(dependsOn: updateVersion) {
 task buildEdge(dependsOn: buildComponents) {
     dependsOn ":io.openems.edge.application:export.EdgeApp"
     doLast {
-        file("${buildDir}/openems-edge.jar").delete()
+        file("${buildDir}/hy-control.jar").delete()
         copy {
             from file("${project(":io.openems.edge.application").distsDir}/executable/EdgeApp.jar")
             into file("${buildDir}")
-            rename ("EdgeApp.jar", "openems-edge.jar")
+            rename ("EdgeApp.jar", "hy-control.jar")
         }
     }
 }

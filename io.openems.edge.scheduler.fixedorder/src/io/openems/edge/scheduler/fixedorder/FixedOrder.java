@@ -45,7 +45,7 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 		}
 	}
 
-	protected FixedOrder() {
+	public FixedOrder() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Scheduler.ChannelId.values(), //
@@ -56,6 +56,7 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.cycleTime());
+		this.config = config;
 	}
 
 	@Deactivate
