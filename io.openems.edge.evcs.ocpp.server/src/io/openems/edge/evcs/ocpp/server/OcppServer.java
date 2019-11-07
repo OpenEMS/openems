@@ -39,7 +39,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.evcs.api.OcppEvcs;
+import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
 
@@ -112,10 +112,10 @@ public class OcppServer extends AbstractOpenemsComponent
 				logInfo(log, "Session " + sessionIndex + " lost connection");
 
 				for (EvcsSession evcsSession : activeSessions) {
-					for (OcppEvcs ocppEvcs : evcsSession.getOcppEvcss()) {
+					for (MeasuringEvcs measuringEvcs : evcsSession.getOcppEvcss()) {
 						if (evcsSession.getSessionId().equals(sessionIndex)) {
-							ocppEvcs.channel(OcppEvcs.ChannelId.CHARGING_SESSION_ID).setNextValue(null);
-							ocppEvcs.getChargingstationCommunicationFailed().setNextValue(true);
+							measuringEvcs.channel(AbstractOcppEvcsComponent.ChannelId.CHARGING_SESSION_ID).setNextValue(null);
+							measuringEvcs.getChargingstationCommunicationFailed().setNextValue(true);
 							activeSessions.remove(evcsSession);
 						}
 					}
@@ -174,8 +174,8 @@ public class OcppServer extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			for (EvcsSession evcsSession : activeSessions) {
-				for (OcppEvcs ocppEvcs : evcsSession.getOcppEvcss()) {
-					if (ocppEvcs != null) {
+				for (MeasuringEvcs measuringEvcs : evcsSession.getOcppEvcss()) {
+					if (measuringEvcs != null) {
 						// handle writes
 						// this.writeHandler.run();
 					}

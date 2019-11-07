@@ -7,52 +7,9 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 
-public interface OcppEvcs extends Evcs {
+public interface MeasuringEvcs extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-		/**
-		 * Session Id.
-		 * 
-		 * Id is set if there is a new Session between - the EVCS implemented by this
-		 * Component and the Server. If this value is empty, no communication was
-		 * established
-		 * 
-		 * <ul>
-		 * <li>Interface: OcppEvcs
-		 * <li>Readable
-		 * <li>Type: String
-		 * </ul>
-		 */
-		CHARGING_SESSION_ID(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY)
-				.text("Identifies a current Session set by the server")), //
-
-		/**
-		 * Ocpp id.
-		 * 
-		 * Id that is defined in every EVCS which implements OCPP
-		 * 
-		 * <ul>
-		 * <li>Interface: OcppEvcs
-		 * <li>Readable
-		 * <li>Type: String
-		 * </ul>
-		 */
-		OCPP_ID(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY).text("OCPP Id of the Charging Station")), //
-
-		/**
-		 * Ocpp connector id.
-		 * 
-		 * Id that is defined for every connector on an EVCS that implements OCPP.
-		 * Defines which plug is used (Like two plugs/connectors in ABL).
-		 * 
-		 * <ul>
-		 * <li>Interface: OcppEvcs
-		 * <li>Readable
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		CONNECTOR_ID(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY).text("Connector id of the charger")), //
 
 		/**
 		 * Current to EV (import).
@@ -330,19 +287,6 @@ public interface OcppEvcs extends Evcs {
 		RPM(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY).text("Fan speed")),
 
 		/**
-		 * State of charge.
-		 * 
-		 * State of charge of charging vehicle in percentage
-		 * 
-		 * <ul>
-		 * <li>Interface: OcppEvcs
-		 * <li>Readable
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		SOC(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY).text("SoC")),
-
-		/**
 		 * Temperature.
 		 * 
 		 * Temperature reading inside Charge Point.
@@ -381,36 +325,6 @@ public interface OcppEvcs extends Evcs {
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	/**
-	 * Session Id.
-	 * 
-	 * Id is set if there is a new Session between - the EVCS implemented by this
-	 * Component and the Server. If this value is empty, no communication was
-	 * established.
-	 */
-	public default StringReadChannel getChargingSessionId() {
-		return this.channel(ChannelId.CHARGING_SESSION_ID);
-	}
-
-	/**
-	 * Ocpp id.
-	 * 
-	 * Id that is defined in every EVCS which implements OCPP.
-	 */
-	public default StringReadChannel getOcppId() {
-		return this.channel(ChannelId.OCPP_ID);
-	}
-
-	/**
-	 * Ocpp connector id.
-	 * 
-	 * Id that is defined for every connector on an EVCS that implements OCPP.
-	 * Defines which plug is used (Like two plugs/connectors in ABL).
-	 */
-	public default IntegerReadChannel getConnectorId() {
-		return this.channel(ChannelId.CONNECTOR_ID);
 	}
 
 	/**
@@ -584,15 +498,6 @@ public interface OcppEvcs extends Evcs {
 	 */
 	public default IntegerReadChannel getFanSpeed() {
 		return this.channel(ChannelId.RPM);
-	}
-
-	/**
-	 * State of charge.
-	 * 
-	 * State of charge of charging vehicle in percentage.
-	 */
-	public default IntegerReadChannel getSoC() {
-		return this.channel(ChannelId.SOC);
 	}
 
 	/**

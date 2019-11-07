@@ -11,11 +11,10 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.OcppEvcs;
+import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.api.OcppInformations;
 import io.openems.edge.evcs.ocpp.api.OcppProfileType;
@@ -26,7 +25,7 @@ import io.openems.edge.evcs.ocpp.api.OcppProfileType;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent implements Evcs, OcppEvcs, OpenemsComponent{
+public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent implements Evcs, MeasuringEvcs, OpenemsComponent{
 
 	// Profiles that a Ies KeyWatt is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
@@ -44,8 +43,7 @@ public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent implements Ev
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				OcppEvcs.ChannelId.values(), //
-				ChannelId.values() //
+				MeasuringEvcs.ChannelId.values() //
 		);
 	}
 
@@ -78,20 +76,5 @@ public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent implements Ev
 	@Override
 	public Integer getConfiguredMinimumHardwarePower() {
 		return this.config.minHwPower();
-	}
-	
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
 	}
 }
