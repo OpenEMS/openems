@@ -29,8 +29,7 @@
             Edge.History.OtherPeriod
         </ion-label>
     </ion-item>
-    <ng-container *ngIf="showCustomDate">
-        <my-date-range-picker [options]="dateRangePickerOptions" (dateRangeChanged)="onDateRangeChanged($event)">
-        </my-date-range-picker>
-    </ng-container>
 </ion-list>
+<my-date-range-picker *ngIf="showCustomDate" [options]="dateRangePickerOptions"
+    (dateRangeChanged)="onDateRangeChanged($event)">
+</my-date-range-picker>

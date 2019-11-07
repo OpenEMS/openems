@@ -18,6 +18,8 @@
 .pickdate-popover .popover-content{
     width: 251px;
     position: center;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 ion-label {
