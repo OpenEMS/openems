@@ -23,8 +23,8 @@ import org.osgi.service.metatype.annotations.Designate;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "I2CBridge",
 immediate = true,
-configurationPolicy = ConfigurationPolicy.REQUIRE,
-property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+            configurationPolicy = ConfigurationPolicy.REQUIRE,
+            property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsComponent, I2cBridge, EventHandler {
 
     private final I2cWorker worker = new I2cWorker();
