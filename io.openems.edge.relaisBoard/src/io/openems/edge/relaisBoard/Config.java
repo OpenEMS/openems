@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(
-        name = "Consolinno RelaisBoard",
+        name = "Consolinno Board Relais",
         description = "Depending on VersionId you can activate up to X Relais on this CircuitBoard"
 )
 

@@ -41,6 +41,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     public void deactivate() {
         super.deactivate();
             this.worker.deactivate();
+            //TODO What to do with Mcp --> Set to default?
         }
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

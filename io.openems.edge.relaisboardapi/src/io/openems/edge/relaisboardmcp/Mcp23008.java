@@ -19,7 +19,7 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 	private final I2CDevice device;
 	private Map<Integer, Boolean> valuesPerDefault = new ConcurrentHashMap<>();
 	private final boolean[] shifters;
-	private final Map<String, McpTask> tasks= new ConcurrentHashMap<>();
+	private final Map<String, McpTask> tasks = new ConcurrentHashMap<>();
 
 	public Mcp23008(String address, I2CBus device, String parentCircuitBoard) throws IOException {
 		this.address = address;
@@ -64,24 +64,24 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 		for (McpTask task : tasks.values()) {
 			Optional<Boolean> optional;
 			do {
-				optional = task.getWriteChannel().getNextWriteValueAndReset();
-				optional.ifPresent(aBoolean -> {
-					try {
-						task.getWriteChannel().setNextWriteValue(aBoolean);
-					} catch (OpenemsError.OpenemsNamedException e) {
-						e.printStackTrace();
-					}
+                optional = task.getWriteChannel().getNextWriteValueAndReset();
+                optional.ifPresent(aBoolean -> {
+                    try {
+                        task.getWriteChannel().setNextWriteValue(aBoolean);
+                    } catch (OpenemsError.OpenemsNamedException e) {
+                        e.printStackTrace();
+                    }
 
-				});
-				if(!optional.equals(Optional.empty())) {
-					setPosition(task.getPosition(), optional.get());
-				}
-			} while (optional.isPresent() && !optional.equals(Optional.empty()));
-		}
+                });
+                if (!optional.equals(Optional.empty()) && optional.isPresent()) {
+                    setPosition(task.getPosition(), optional.get());
+                }
+            } while (optional.isPresent() && !optional.equals(Optional.empty()));
+        }
 
-		byte data = 0x00;
-		for (int i = length - 1; i >= 0; i--) {
-			data = (byte) (data << 1);
+        byte data = 0x00;
+        for (int i = length - 1; i >= 0; i--) {
+            data = (byte) (data << 1);
 			if (this.shifters[i]) {
 				data += 1;
 			}

@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.Option;
                     @Option(label = "Opener", value = "Opener"),
                     @Option(label = "Closer", value = "Closer")
             })
-    String relaisType() default "Opener";
+    String relaisType() default "Closer";
 
     @AttributeDefinition(name = "I2C Bridge - ID", description = "ID of I2C Bridge - ID.")
     String spiI2c_id() default "I2C0";

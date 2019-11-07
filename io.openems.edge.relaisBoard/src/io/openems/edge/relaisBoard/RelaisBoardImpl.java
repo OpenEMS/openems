@@ -20,7 +20,7 @@ import java.util.Map;
 @Component(name = "RelaisBoard",
         configurationPolicy = ConfigurationPolicy.REQUIRE,
         immediate = true)
-public class RelaisBoardImpl extends AbstractOpenemsComponent implements OpenemsComponent {
+public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisBoard, OpenemsComponent {
 
     private String id;
     private String alias;
