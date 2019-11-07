@@ -9,7 +9,7 @@ import org.junit.Test;
  *
  */
 
-public class TemperatureSensor {
+public class TemperatureSensorImpl {
 
 	/*
 	 * Example test method
@@ -17,7 +17,7 @@ public class TemperatureSensor {
 
 	@Test
 	public void simple() {
-		TemperatureSensor impl = new TemperatureSensor();
+		TemperatureSensorImpl impl = new TemperatureSensorImpl();
 		assertNotNull(impl);
 	}
 
