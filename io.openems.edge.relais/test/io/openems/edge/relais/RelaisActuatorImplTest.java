@@ -9,7 +9,7 @@ import org.junit.Test;
  *
  */
 
-public class RelaisActuatorTest {
+public class RelaisActuatorImplTest {
 
 	/*
 	 * Example test method
@@ -17,7 +17,7 @@ public class RelaisActuatorTest {
 
 	@Test
 	public void simple() {
-		RelaisActuator impl = new RelaisActuator();
+		RelaisActuatorImpl impl = new RelaisActuatorImpl();
 		assertNotNull(impl);
 	}
 
