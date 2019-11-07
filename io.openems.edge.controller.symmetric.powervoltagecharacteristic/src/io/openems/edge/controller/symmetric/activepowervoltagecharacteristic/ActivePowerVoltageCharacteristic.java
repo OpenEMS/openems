@@ -53,6 +53,7 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 	private static final int WAIT_FOR_HYSTERESIS = 20;
 	private final Map<Float, Float> voltagePowerMap = new HashMap<>();
 
+	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 	private final Clock clock;
 
 	/**
@@ -75,7 +76,6 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 	@Reference
 	protected ComponentManager componentManager;
 
-	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -218,7 +218,6 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 		case ess1:
 			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L1);
 			this.voltageRatio = gridLineVoltage.value().orElse(0) / this.nominalVoltage;
-			System.out.println("====voltage Ratio L1 ==== " + voltageRatio);
 			break;
 		case ess2:
 			gridLineVoltage = gridMeter.channel(AsymmetricMeter.ChannelId.VOLTAGE_L2);
@@ -242,6 +241,8 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 			return;
 		}
 		lastSetPowerTime = LocalDateTime.now(this.clock);
+		System.out.println("========refreshing ============= " + lastSetPowerTime);
+
 		if (linePowerValue == 0) {
 			log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
 			this.channel(ChannelId.CALCULATED_POWER).setNextValue(0);
