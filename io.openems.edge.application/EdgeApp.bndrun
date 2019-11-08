@@ -1,4 +1,4 @@
--runfw: org.eclipse.osgi
+-runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
 
 -runprovidedcapabilities: ${native_capability}
 
@@ -8,7 +8,7 @@
 	org.osgi.service.http.port=8080,\
 	felix.cm.dir=c:/openems-config
 
--runee: JavaSE-1.8
+-runee: JavaSE/compact3-1.8
 
 -runsystempackages: sun.misc, com.sun.net.httpserver
 
