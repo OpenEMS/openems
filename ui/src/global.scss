@@ -16,6 +16,12 @@
     position: center;
 }
 
+// use for fullscreen modal
+.wide-modal .modal-wrapper {
+    width: 101%;
+    height: 101%;
+}
+
 ion-label {
     font-family: Arial, Helvetica, sans-serif;
 }
