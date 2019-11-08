@@ -77,11 +77,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private ChannelAddress outputChannelAddress3;
 	protected int powerOfPhase = 0;
 
-	public static final int PHASE_ONE = 1;
-	public static final int PHASE_TWO = 2;
-	public static final int PHASE_THREE = 3;
-
-	boolean checkOnceFlag = true;
 	LocalDateTime phaseTimeOn = null;
 	LocalDateTime phaseTimeOff = null;
 	LocalDateTime phaseOneTimeOn = null;
@@ -115,15 +110,25 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				.text("Configured Mode")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")),
-		NO_OF_RELAIS_ON(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)), PHASE1_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		PHASE2_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		PHASE3_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		PHASE1_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		PHASE2_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		PHASE3_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		TOTAL_PHASE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		TOTAL_PHASE_TIME(Doc.of(OpenemsType.LONG).unit(Unit.NONE)),; //
+		NO_OF_RELAIS_ON(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)), //
+		PHASE1_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		PHASE2_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		PHASE3_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		PHASE1_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		PHASE2_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		PHASE3_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		TOTAL_PHASE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		TOTAL_PHASE_TIME(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.NONE)),; //
 
 		private final Doc doc;
 
@@ -254,8 +259,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	/**
-	 * Function to check change in the day and reset all the Time and power on each
-	 * phases if the day changes to a new day
+	 * Function to check change in the day 
 	 * 
 	 * @return changeInDay boolean values represent a change in day
 	 */
