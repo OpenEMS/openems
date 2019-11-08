@@ -32,7 +32,10 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.PvInverter", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				"type=PRODUCTION" //
+		})
 public class PvInverter extends AbstractOpenemsComponent
 		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 

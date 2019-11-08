@@ -1,5 +1,6 @@
 package io.openems.edge.common.channel.value;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import com.google.gson.JsonElement;
@@ -15,7 +16,7 @@ import io.openems.edge.common.type.TypeUtils;
  * This wraps a 'value' information for a Channel and provides convenience
  * methods for retrieving it.
  * 
- * @param <T>
+ * @param <T> the type of the value
  */
 public class Value<T> {
 
@@ -23,10 +24,12 @@ public class Value<T> {
 
 	private final Channel<T> parent;
 	private final T value;
+	private final LocalDateTime timestamp;
 
 	public Value(Channel<T> parent, T value) {
 		this.parent = parent;
 		this.value = value;
+		this.timestamp = LocalDateTime.now();
 	}
 
 	/**
@@ -199,5 +202,14 @@ public class Value<T> {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Gets the timestamp when the value was created.
+	 * 
+	 * @return the timestamp
+	 */
+	public LocalDateTime getTimestamp() {
+		return this.timestamp;
 	}
 }

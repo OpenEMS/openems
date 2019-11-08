@@ -30,7 +30,6 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
@@ -51,11 +50,10 @@ import io.openems.edge.ess.power.api.Relationship;
 public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
-	//private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
+	private static final int MAX_APPARENT_POWER = 480_000;
 
-	private static final int MAX_APPARENT_POWER = 100_000;
 	private static final int UNIT_ID = 100;
-	private boolean readonly = false;	
+	private boolean readonly = false;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -85,7 +83,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BridgeModbus modbus2;
 
-	@Activate	
+	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id0());
@@ -158,25 +156,30 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		SystemWorkmode systemWorkmode = this.channel(ChannelId.SYSTEM_WORKMODE).value().asEnum(); //
 		SystemWorkstate systemWorkstate = this.channel(ChannelId.SYSTEM_WORKSTATE).value().asEnum();//
 
-		if (systemWorkmode != SystemWorkmode.PQ_MODE) {			
+		if (systemWorkmode != SystemWorkmode.PQ_MODE) {
 			return new Constraint[] { //
 					this.createPowerConstraint("WorkMode invalid", //
 							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("WorkMode invalid", //
 							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
-		
-		if (systemWorkstate != SystemWorkstate.RUNNING) {
-			//this.logInfo(this.log, "System is currently in ["+systemWorkstate.getName() 
-			//+ "] state. Setting it to RUNNING. Not applying Power.");
-			EnumWriteChannel setSystemWorkstateChannel = this.channel(ChannelId.SET_SYSTEM_WORKSTATE);
-			setSystemWorkstateChannel.setNextWriteValue(SetSystemWorkstate.RUN);
 
+		switch (systemWorkstate) {
+		case FAULT:
+		case STOP:
 			return new Constraint[] { //
 					this.createPowerConstraint("WorkState invalid", //
 							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("WorkState invalid", //
 							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
+		case DEBUG:
+		case RUNNING:
+		case UNDEFINED:
+		case INITIAL:
+		case STANDBY:
+		case GRID_MONITORING:
+		case READY:
+			break;
 		}
 
 		// TODO set the positive and negative power limit in Constraints
