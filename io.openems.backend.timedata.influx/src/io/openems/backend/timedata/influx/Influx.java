@@ -304,7 +304,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		case "integer":
 			handler = (builder, value) -> {
 				try {
-					builder.addField(field, Long.parseLong(value.toString()));
+					builder.addField(field, Long.parseLong(value.toString().replace("\"", "")));
 				} catch (NumberFormatException e1) {
 					this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to integer");
 				}
