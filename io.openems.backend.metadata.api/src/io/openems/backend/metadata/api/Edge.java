@@ -2,12 +2,9 @@ package io.openems.backend.metadata.api;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -16,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.gson.JsonObject;
 
-import io.openems.common.channel.Level;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SemanticVersion;
@@ -40,11 +36,10 @@ public class Edge {
 	private ZonedDateTime lastUpdate = null;
 	private Integer soc = null;
 	private String ipv4 = null;
-	private Level sumState = null;
 	private boolean isOnline = false;
 
 	public Edge(String id, String comment, State state, String version, String producttype, EdgeConfig config,
-			Integer soc, String ipv4, Level sumState) {
+			Integer soc, String ipv4) {
 		this.id = id;
 		this.comment = comment;
 		this.state = state;
@@ -53,7 +48,6 @@ public class Edge {
 		this.config = config;
 		this.soc = soc;
 		this.ipv4 = ipv4;
-		this.sumState = sumState;
 	}
 
 	public String getId() {
@@ -313,6 +307,7 @@ public class Edge {
 	/*
 	 * IPv4
 	 */
+	// TODO rename to "onUpdateIpv4"
 	private final List<Consumer<String>> onSetIpv4 = new CopyOnWriteArrayList<>();
 
 	public void onSetIpv4(Consumer<String> listener) {
@@ -344,24 +339,16 @@ public class Edge {
 	}
 
 	/*
-	 * _sum/State
+	 * Component States
 	 */
-	private final List<BiConsumer<Level, Map<ChannelAddress, EdgeConfig.Component.Channel>>> onSetSumState = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Map<ChannelAddress, EdgeConfig.Component.Channel>>> onSetComponentStates = new CopyOnWriteArrayList<>();
 
-	public void onSetSumState(BiConsumer<Level, Map<ChannelAddress, EdgeConfig.Component.Channel>> listener) {
-		this.onSetSumState.add(listener);
+	public void onSetComponentState(Consumer<Map<ChannelAddress, EdgeConfig.Component.Channel>> listener) {
+		this.onSetComponentStates.add(listener);
 	}
 
-	private Set<ChannelAddress> lastActiveStateChannelsKeys = new HashSet<>();
-
-	public synchronized void setSumState(Level sumState,
-			Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
-		if (!Objects.equal(this.sumState, sumState) // on change
-				|| !this.lastActiveStateChannelsKeys.equals(activeStateChannels.keySet())) { // on change
-			this.lastActiveStateChannelsKeys = activeStateChannels.keySet();
-			this.onSetSumState.forEach(listener -> listener.accept(sumState, activeStateChannels));
-			this.sumState = sumState;
-		}
+	public synchronized void setComponentState(Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
+		this.onSetComponentStates.forEach(listener -> listener.accept(activeStateChannels));
 	}
 
 }

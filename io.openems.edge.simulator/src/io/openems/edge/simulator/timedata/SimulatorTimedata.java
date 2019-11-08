@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -144,6 +145,12 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 	 */
 	private File getPath() {
 		return new File(System.getProperty("user.home"), config.filename());
+	}
+
+	@Override
+	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
+		// TODO implement this method
+		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
 }

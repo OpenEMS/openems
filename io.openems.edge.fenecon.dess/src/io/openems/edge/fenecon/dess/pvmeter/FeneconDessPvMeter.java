@@ -30,7 +30,10 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component( //
 		name = "Fenecon.Dess.PvMeter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				"type=PRODUCTION" //
+		})
 public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
 
