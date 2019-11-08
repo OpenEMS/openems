@@ -30,7 +30,10 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component( //
 		name = "Fenecon.Dess.GridMeter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				"type=GRID" //
+		})
 public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
 

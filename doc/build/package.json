@@ -2,8 +2,8 @@
   "name": "openems-doc",
   "version": "1.0.0",
   "dependencies": {
-    "@antora/cli": "^2.0.0",
-    "@antora/site-generator-default": "^2.0.0"
+    "@antora/cli": "^2.2.0",
+    "@antora/site-generator-default": "^2.2.0"
   },
   "devDependencies": {}
 }
