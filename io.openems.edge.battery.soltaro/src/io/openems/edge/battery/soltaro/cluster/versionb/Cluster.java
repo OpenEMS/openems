@@ -458,7 +458,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
-				new FC16WriteRegistersTask(0x1017, //
+				new FC16WriteRegistersTask(0x1004, //
 						m(ClusterChannelId.RESET, new UnsignedWordElement(0x1004)) //
 				), //
 
