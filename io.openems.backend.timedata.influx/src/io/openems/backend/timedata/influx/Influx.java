@@ -280,14 +280,22 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @return true if field was handled; false otherwise
 	 */
 	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
-		switch (field) {
+		ChannelAddress channelAddress;
+		try {
+			channelAddress = ChannelAddress.fromString(field);
+		} catch (OpenemsNamedException e) {
+			this.logWarn(this.log, "Unable to parse Channel-Address from [" + field + "]");
+			return false;
+		}
+		switch (channelAddress.getChannelId()) {
 		// convert to string
-		case "io0/_PropertyModbusUnitId":
+		case "_PropertyModbusUnitId":
+		case "_PropertyWatchdog":
 			builder.addField(field, value.toString());
 			return true;
 
 		// convert to integer/long
-		case "ctrlApiRest0/_PropertyApiTimeout":
+		case "_PropertyApiTimeout":
 			try {
 				builder.addField(field, Long.parseLong(value.toString()));
 			} catch (NumberFormatException e1) {
