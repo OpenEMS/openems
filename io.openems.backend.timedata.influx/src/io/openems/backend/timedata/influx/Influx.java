@@ -81,8 +81,8 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				(failedPoints, throwable) -> {
 					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
 							.map(Point::lineProtocol).collect(Collectors.joining(","));
-					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
-							+ StringUtils.toShortString(pointsString, 100));
+					this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
+							+ ": " + throwable.getMessage() + " for " + StringUtils.toShortString(pointsString, 100));
 				});
 	}
 
@@ -280,22 +280,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @return true if field was handled; false otherwise
 	 */
 	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
-		ChannelAddress channelAddress;
-		try {
-			channelAddress = ChannelAddress.fromString(field);
-		} catch (OpenemsNamedException e) {
-			this.logWarn(this.log, "Unable to parse Channel-Address from [" + field + "]");
-			return false;
-		}
-		switch (channelAddress.getChannelId()) {
+		switch (field) {
 		// convert to string
-		case "_PropertyModbusUnitId":
-		case "_PropertyWatchdog":
+		case "io0/_PropertyModbusUnitId":
+		case "bms0/_PropertyWatchdog":
 			builder.addField(field, value.toString());
 			return true;
 
 		// convert to integer/long
-		case "_PropertyApiTimeout":
+		case "ctrlApiRest0/_PropertyApiTimeout":
+		case "bms0/_PropertyModbusUnitId":
 			try {
 				builder.addField(field, Long.parseLong(value.toString()));
 			} catch (NumberFormatException e1) {
