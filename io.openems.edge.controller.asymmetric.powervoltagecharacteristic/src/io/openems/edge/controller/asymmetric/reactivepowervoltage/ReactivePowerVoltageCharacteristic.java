@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
+package io.openems.edge.controller.asymmetric.reactivepowervoltage;
 
 import java.util.HashMap;
 import java.util.Map;

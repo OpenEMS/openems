@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.activepowervoltagecharacteristic;
+package io.openems.edge.controller.asymmetric.reactivepowervoltage;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,17 +12,16 @@ public class Utils {
 
     public static float getValueOfLine(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
         float m = 0;
-        // find to place of grid voltage ratio
         Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
         Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         List<Float> voltageList = new ArrayList<Float>(map.keySet());
-        List<Float> powerList = new ArrayList<Float>(map.values());
-        // if the grid voltage ratio in the list, return that point
+        List<Float> percentOrPowerList = new ArrayList<Float>(map.values());
+        // find to place of grid voltage ratio
         for (int i = 0; i < voltageList.size(); i++) {
             if (voltageList.get(i) == gridVoltageRatio) {
-                int power = (int) powerList.get(i).intValue();
-                return power;
+                int percentOrPower = (int) percentOrPowerList.get(i).intValue();
+                return percentOrPower;
             }
         }
         Point smaller = getSmallerPoint(qCharacteristic, gridVoltageRatio);
@@ -39,6 +38,7 @@ public class Utils {
     public static Point getSmallerPoint(Map<Float, Float> qCharacteristic, float gridVoltageRatio) {
         Point p;
         int i = 0;
+
         // bubble sort outer loop
         qCharacteristic.put(gridVoltageRatio, (float) 0);
         Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
@@ -51,7 +51,7 @@ public class Utils {
         }
         qCharacteristic.remove(gridVoltageRatio, (float) 0);
 
-        // if its the first element; it will be equal to "0"
+        // if its the first element; i will be equal to "0"
         if (i == 0) {
             p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
             return p;
@@ -63,6 +63,7 @@ public class Utils {
     public static Point getGreaterPoint(Map<Float, Float> qCharacteristic, float voltageRatio) {
         Point p;
         int i = 0;
+        
         // bubble sort outer loop
         // 0 random number, just to fill value
         qCharacteristic.put(voltageRatio, (float) 0);
@@ -74,11 +75,9 @@ public class Utils {
         while (voltageList.get(i) != voltageRatio) {
             i++;
         }
-
         // if its the last element it will be equal the size of list
         if ((i + 1) >= voltageList.size()) {
             p = new Point(voltageList.get(voltageList.size() - 2), percentList.get((percentList.size() - 2)));
-            qCharacteristic.remove(voltageRatio, (float) 0);
             return p;
         }
         qCharacteristic.remove(voltageRatio, (float) 0);

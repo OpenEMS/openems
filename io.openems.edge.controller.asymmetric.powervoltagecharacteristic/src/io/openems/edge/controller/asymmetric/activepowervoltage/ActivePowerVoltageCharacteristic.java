@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.activepowervoltagecharacteristic;
+package io.openems.edge.controller.asymmetric.activepowervoltage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-        name = "Controller.Symmetric.ActivePowerVoltageCharacteristic", //
+        name = "Controller.Asymmetric.ActivePowerVoltage", //
         immediate = true, //
         configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
