@@ -30,6 +30,9 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
+import { AwattarComponent } from './awattar/awattar.component';
+import { AwattarModalComponent } from './awattar/modal/modal.component';
+import { AwattarChartComponent } from './awattar/modal/chart.component';
 
 @NgModule({
   imports: [
@@ -39,6 +42,7 @@ import { OfflineComponent } from './offline/offline.component';
     BrowserAnimationsModule
   ],
   entryComponents: [
+    AwattarModalComponent,
     StorageModalComponent,
     GridModalComponent,
     ConsumptionModalComponent,
@@ -52,6 +56,9 @@ import { OfflineComponent } from './offline/offline.component';
     FixDigitalOutputModalComponent,
   ],
   declarations: [
+    AwattarComponent,
+    AwattarModalComponent,
+    AwattarChartComponent,
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,
