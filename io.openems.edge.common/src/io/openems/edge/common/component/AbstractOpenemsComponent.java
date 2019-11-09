@@ -164,9 +164,13 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * If the Property key is "enabled" then a Channel with the ID
 	 * "_PropertyEnabled" is generated.
 	 * 
-	 * @param properties the {@link ComponentContext} properties
+	 * @param context the {@link ComponentContext}
 	 */
-	private void addChannelsForProperties(Dictionary<String, Object> properties) {
+	private void addChannelsForProperties(ComponentContext context) {
+		if (context == null) {
+			return;
+		}
+		Dictionary<String, Object> properties = context.getProperties();
 		if (properties == null) {
 			return;
 		}
