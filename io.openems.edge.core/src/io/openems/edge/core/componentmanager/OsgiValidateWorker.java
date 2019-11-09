@@ -114,7 +114,8 @@ public class OsgiValidateWorker extends AbstractWorker {
 						defectiveComponent.updateLastTryToRestart();
 
 					} catch (OpenemsNamedException | IOException e) {
-						this.parent.logError(this.log, e.getMessage());
+						this.parent.logError(this.log, "Unable to restart Component [" + entry.getKey() + "]. "
+								+ e.getClass().getSimpleName() + ": " + e.getMessage());
 						e.printStackTrace();
 					}
 				}
