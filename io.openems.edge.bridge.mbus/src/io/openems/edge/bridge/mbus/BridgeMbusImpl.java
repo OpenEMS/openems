@@ -16,7 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.event.EventConstants;
-import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants; 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridge.mbus.api.BridgeMbus;
 import io.openems.edge.bridge.mbus.api.task.MbusTask;
@@ -24,6 +25,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
+import org.openmuc.jmbus.DecodingException;
 import org.openmuc.jmbus.MBusConnection;
 import org.openmuc.jmbus.MBusConnection.MBusSerialBuilder;
 import org.openmuc.jmbus.VariableDataStructure;
@@ -66,6 +68,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 
 	private final MbusWorker worker = new MbusWorker();
 	private MBusSerialBuilder builder;
+	private String portName;
 
 	public MBusConnection getmBusConnection() {
 		return mBusConnection;
@@ -74,24 +77,22 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.portName = config.portName();
 
 		this.worker.activate(config.id());
 
-		this.builder = MBusConnection.newSerialBuilder(config.device()).setBaudrate(config.baud());
+		this.builder = MBusConnection.newSerialBuilder(this.portName).setBaudrate(config.baudrate());
 
-		try {
+		/*try {
 			mBusConnection = builder.build();
 
 			isConnected = true;
 			mBusConnection.close();
 			System.out.println("Connection established");
 		} catch (Exception e) {
-			log.debug("Connection could not be established {0}", e.getMessage());
-			// logger.log(Level.ALL, "Connection could not be established {0}",
-			// e.getMessage());
-			System.out.println(e.getMessage());
 			isConnected = false;
-		}
+			log.error("Connection via [" + this.portName + "] failed. : " + e.getMessage());
+		}*/
 	}
 
 	@Deactivate
@@ -123,7 +124,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		}
 
 		@Override
-		protected void forever() {
+		protected void forever() throws OpenemsException, DecodingException {
 			// Check if time passed by, if not, do nothing
 			try {
 				mBusConnection = builder.build();
@@ -132,6 +133,19 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 					VariableDataStructure data = null;
 					try {
 						data = task.getRequest();
+						System.out.println("[mbus_bridge] status of data: "+data.getStatus());
+						System.out.println("[mbus_bridge] size of data_records: "+data.getDataRecords().size());
+						
+						for(int i=0;i<data.getDataRecords().size();i++) {
+							System.out.println("[mbus_bridge] data_records["+i+"]: "+data.getDataRecords().get(i));
+						}
+						
+						data.decode(); //"Before accessing elements of a variable data structure it has to be decoded using the decode method." ??
+						
+						for(int i=0;i<data.getDataRecords().size();i++) {
+							System.out.println("[mbus_bridge] data_records["+i+"]: "+data.getDataRecords().get(i));
+						}
+						
 						task.setResponse(data);
 					} catch (InterruptedIOException e) {
 						// TODO Auto-generated catch block
@@ -143,9 +157,8 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 				}
 				
 				mBusConnection.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (IOException e) {
+				log.error("Connection via [" + portName + "] failed: " + e.getMessage());
 			}
 			
 		}

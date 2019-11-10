@@ -11,7 +11,7 @@ import io.openems.edge.bridge.mbus.api.ChannelDataRecordMapper;
 
 public class MbusTask {
 
-	protected AbstractOpenemsMbusComponent openemsMbusComponent;
+	protected AbstractOpenemsMbusComponent openemsMbusComponent; //creator of this task instance
 	protected BridgeMbus bridgeMbus;
 
 	public MbusTask(BridgeMbus bridgeMbus, AbstractOpenemsMbusComponent openemsMbusComponent ) {
