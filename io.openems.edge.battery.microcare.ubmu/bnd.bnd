@@ -1,19 +1,15 @@
-#
-# io.openems.edge.battery.microcare.ubmu PROVIDER BUNDLE
-#
-
-Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: \
-	The provider bundle for io.openems.edge.battery.microcare.ubmu. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.edge.battery.microcare.ubmu/api.bnd}
-
-
+Bundle-Name: OpenEMS Edge Battery Microcare UBMU
+Bundle-Vendor: Microcare
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: io.openems.edge.controller.api
+Private-Package:  \
+	io.openems.edge.battery.microcare.ubmu
+	
 Export-Package: \
-    io.openems.edge.battery.microcare.ubmu,\
     io.openems.edge.battery.api
 
--includeresource:
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	${buildpath},\

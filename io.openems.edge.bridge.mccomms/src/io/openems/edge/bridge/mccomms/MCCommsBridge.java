@@ -30,15 +30,16 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Component factory class to create a comms bridge between devices using MC Comms (a proprietary protocol used by Microcare devices) and OpenEMS
+ * Component factory class to create a comms bridge between devices using MC
+ * Comms (a proprietary protocol used by Microcare devices) and OpenEMS
  */
-@Designate( ocd=Config.class, factory=true)
-@Component(
-		name="Bridge.MCComms",
-		immediate=true,
-		configurationPolicy=ConfigurationPolicy.REQUIRE
+@Designate(ocd = Config.class, factory = true)
+@Component(//
+		name = "Bridge.Microcare.MC-Comms", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsBridge, OpenemsComponent{
+public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsBridge, OpenemsComponent {
 	/**
 	 * {@link ScheduledExecutorService} used to repeat task execution
 	 */
@@ -69,6 +70,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	private LinkedBlockingQueue<AbstractMap.SimpleEntry<Long, Byte>> RXTimedByteQueue;
 	/**
 	 * Queue for outgoing packet buffers waiting to be written to the bus
+	 * 
 	 * @see WriteTask
 	 */
 	private ConcurrentLinkedQueue<WriteTask> writeTaskQueue;
@@ -77,40 +79,44 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	 */
 	private ConcurrentLinkedQueue<QueryTask> queryTaskQueue;
 	/**
-	 * Queue for constructed packets awaiting distribution by the {@link PacketPicker} to {@link ListenTask}s
+	 * Queue for constructed packets awaiting distribution by the
+	 * {@link PacketPicker} to {@link ListenTask}s
 	 */
 	private LinkedBlockingQueue<ByteBuffer> RXBufferQueue;
 	/**
-	 * Set of {@link ListenTask}s that are currently being served incoming packet by this bridge instance
+	 * Set of {@link ListenTask}s that are currently being served incoming packet by
+	 * this bridge instance
 	 */
 	private HashSet<ListenTask> listenTasks;
 	/**
-	 * Nanoseconds a packet has to complete its frame as per the {@link Config#packetWindowMS()} multiplied by 1 000 000
+	 * Nanoseconds a packet has to complete its frame as per the
+	 * {@link Config#packetWindowMS()} multiplied by 1 000 000
 	 */
 	private long packetWindowNs;
 	/**
-	 * Logger, the beer that built America {@see https://gta.fandom.com/wiki/Logger_Beer}
+	 * Logger, the beer that built America
+	 * {@see https://gta.fandom.com/wiki/Logger_Beer}
 	 */
 	private Logger logger;
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
-		
+
 		private final Doc doc;
-		
+
 		ChannelId(Doc doc) {
 			this.doc = doc;
 		}
-		
+
 		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
-	
+
 	/**
 	 * Constructor. Instantiates all necessary members.
 	 */
@@ -125,47 +131,47 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		RXBufferQueue = new LinkedBlockingQueue<>();
 		listenTasks = new HashSet<>();
 	}
-	
+
 	@Override
 	public void logInfo(String message) {
 		logInfo(logger, message);
 	}
-	
+
 	@Override
 	public void addListenTask(ListenTask listenTask) {
 		listenTasks.add(listenTask);
 	}
-	
+
 	@Override
 	public void removeListenTask(ListenTask listenTask) {
 		listenTasks.remove(listenTask);
 	}
-	
+
 	@Override
 	public void addWriteTask(WriteTask writeTask) {
 		writeTaskQueue.add(writeTask);
 	}
-	
+
 	@Override
 	public void addQueryTask(QueryTask queryTask) {
 		queryTaskQueue.add(queryTask);
 	}
-	
+
 	@Override
 	public ScheduledExecutorService getScheduledExecutorService() {
 		return scheduledExecutorService;
 	}
-	
+
 	@Override
 	public ExecutorService getSingleThreadExecutor() {
 		return singleThreadExecutor;
 	}
-	
+
 	@Override
 	public void logError(Throwable cause) {
 		logError(logger, cause.getMessage());
 	}
-	
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
@@ -175,7 +181,10 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		serialPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
 		if (!serialPort.openPort() && !serialPort.isOpen()) {
 			logger.error("Unable to open serial port: " + config.serialPortDescriptor());
-			throw new OpenemsException("Unable to open serial port: " + config.serialPortDescriptor()); //TODO test if exception can be thrown here
+			throw new OpenemsException("Unable to open serial port: " + config.serialPortDescriptor()); // TODO test if
+																										// exception can
+																										// be thrown
+																										// here
 		}
 		packetPicker = new PacketPicker();
 		packetPicker.start();
@@ -192,10 +201,10 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		serialByteHandler.interrupt();
 		super.deactivate();
 	}
-	
+
 	/**
-	 * Thread that handles raw serial IO.
-	 * Runs perpetually until interrupted; see {@link MCCommsBridge#deactivate()}
+	 * Thread that handles raw serial IO. Runs perpetually until interrupted; see
+	 * {@link MCCommsBridge#deactivate()}
 	 */
 	private class SerialByteHandler extends Thread {
 		@Override
@@ -206,23 +215,25 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 			while (!isInterrupted()) {
 				try {
 					while (inputStream.available() > 0) {
-						RXTimedByteQueue.put(new AbstractMap.SimpleEntry<>(System.nanoTime(), ((byte) inputStream.read())));
+						RXTimedByteQueue
+								.put(new AbstractMap.SimpleEntry<>(System.nanoTime(), ((byte) inputStream.read())));
 					}
 					while (!writeTaskQueue.isEmpty() && !writeLockBool.get()) {
 						singleThreadExecutor.execute(() -> {
 							writeLockBool.set(true);
 							try {
-								//noinspection ConstantConditions
+								// noinspection ConstantConditions
 								outputStream.write(writeTaskQueue.poll().getBytes());
-								Thread.sleep(25); //ensure 10ms gap between packets on the bus
+								Thread.sleep(25); // ensure 10ms gap between packets on the bus
 							} catch (IOException e) {
 								logError(e);
-							} catch (InterruptedException ignored) {}
+							} catch (InterruptedException ignored) {
+							}
 							writeLockBool.set(false);
 						});
 					}
 					while (!queryTaskQueue.isEmpty() && !writeLockBool.get()) {
-						//noinspection ConstantConditions
+						// noinspection ConstantConditions
 						queryTaskQueue.poll().doWriteWithReplyWriteLock(outputStream, writeLockBool);
 					}
 				} catch (IOException e) {
@@ -231,17 +242,20 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 					interrupt();
 				}
 				try {
-					sleep(5); //prevent CPU maxout
+					sleep(5); // prevent CPU maxout
 				} catch (InterruptedException e) {
 					interrupt();
 				}
 			}
 		}
 	}
-	
+
 	/**
-	 * Thread that dequeues incoming bytes (see {@link SerialByteHandler} and {@link MCCommsBridge#RXTimedByteQueue}) and attempts to construct packets according to various timing and length rules; see embedded comments for more details
-	 * Runs perpetually until interrupted; see {@link MCCommsBridge#deactivate()}
+	 * Thread that dequeues incoming bytes (see {@link SerialByteHandler} and
+	 * {@link MCCommsBridge#RXTimedByteQueue}) and attempts to construct packets
+	 * according to various timing and length rules; see embedded comments for more
+	 * details Runs perpetually until interrupted; see
+	 * {@link MCCommsBridge#deactivate()}
 	 */
 	private class PacketBuilder extends Thread {
 		@Override
@@ -251,52 +265,59 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 			long packetStartTime;
 			long byteTimeDelta;
 			AbstractMap.SimpleEntry<Long, Byte> polledTimedByte;
-			
-			//forever loop
+
+			// forever loop
 			while (!isInterrupted()) {
 				try {
-					//blocking queue will block until a value is present in the queue
+					// blocking queue will block until a value is present in the queue
 					polledTimedByte = RXTimedByteQueue.take();
 					boolean endByteReceived = false;
-					if (UnsignedBytes.toInt(polledTimedByte.getValue()) == 83) {//don't start constructing packets until start character 'S' is received
-						//record packet start time
+					if (UnsignedBytes.toInt(polledTimedByte.getValue()) == 83) {// don't start constructing packets
+																				// until start character 'S' is received
+						// record packet start time
 						packetStartTime = polledTimedByte.getKey();
 						previousByteTime = polledTimedByte.getKey();
-						//byte consumer loop
-						while ((polledTimedByte.getKey() - packetStartTime) < packetWindowNs && packetBuffer.position() < 25) { //while packet window period has not closed and packet is not full
-							//getUnsignedByte time difference between current and last byte
+						// byte consumer loop
+						while ((polledTimedByte.getKey() - packetStartTime) < packetWindowNs
+								&& packetBuffer.position() < 25) { // while packet window period has not closed and
+																	// packet is not full
+							// getUnsignedByte time difference between current and last byte
 							byteTimeDelta = polledTimedByte.getKey() - previousByteTime;
-							//put byte in buffer, record byte rx time
+							// put byte in buffer, record byte rx time
 							previousByteTime = polledTimedByte.getKey();
 							packetBuffer.put(polledTimedByte.getValue());
 							if (packetBuffer.position() == 25) {
-								continue; //escape inner while loop if buffer full
+								continue; // escape inner while loop if buffer full
 							}
-							if (endByteReceived && (byteTimeDelta > 10000000L)){
-								//if endByte has been received and a pause of more than 10ms has elapsed, discard packet
-								break; //... and break out of byte consumer loop
-							} else if(endByteReceived && packetBuffer.position() <= 24) {
-								endByteReceived = false; //if payload byte is coincidentally 'E', prevent packet truncation
+							if (endByteReceived && (byteTimeDelta > 10000000L)) {
+								// if endByte has been received and a pause of more than 10ms has elapsed,
+								// discard packet
+								break; // ... and break out of byte consumer loop
+							} else if (endByteReceived && packetBuffer.position() <= 24) {
+								endByteReceived = false; // if payload byte is coincidentally 'E', prevent packet
+															// truncation
 							}
-							//calculate time remaining in packet window
-							long remainingPacketWindowPeriod = packetWindowNs - (polledTimedByte.getKey() - packetStartTime);
-							//get next timed-byte
+							// calculate time remaining in packet window
+							long remainingPacketWindowPeriod = packetWindowNs
+									- (polledTimedByte.getKey() - packetStartTime);
+							// get next timed-byte
 							// ...or time out polling operation if window closes
 							polledTimedByte = RXTimedByteQueue.poll(remainingPacketWindowPeriod, TimeUnit.NANOSECONDS);
 							if (polledTimedByte != null) {
 								if (UnsignedBytes.toInt(polledTimedByte.getValue()) == 69) {
-									endByteReceived = true; //test if packet has truly ended on next byte consumer loop
+									endByteReceived = true; // test if packet has truly ended on next byte consumer loop
 								}
 							} else {
-								break; //if packet window closes, discard packet buffer and break out of inner while loop
+								break; // if packet window closes, discard packet buffer and break out of inner while
+										// loop
 							}
 						}
-						if (packetBuffer.position() == 25 //if the packet has reached position 25
-								&& endByteReceived //...the end byte has been received
-								&& MCCommsPacket.checkCRC(packetBuffer)) { //...and the CRC passes
-							RXBufferQueue.add(packetBuffer); //add the buffer to the rx buffer queue for picking
+						if (packetBuffer.position() == 25 // if the packet has reached position 25
+								&& endByteReceived // ...the end byte has been received
+								&& MCCommsPacket.checkCRC(packetBuffer)) { // ...and the CRC passes
+							RXBufferQueue.add(packetBuffer); // add the buffer to the rx buffer queue for picking
 						}
-						//reset buffer
+						// reset buffer
 						packetBuffer = ByteBuffer.allocate(25);
 					}
 				} catch (InterruptedException e) {
@@ -305,26 +326,28 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 			}
 		}
 	}
-	
+
 	/**
-	 * Thread that dequeues constructed packet buffers from {@link MCCommsBridge#RXBufferQueue} and distributes them to listen tasks
+	 * Thread that dequeues constructed packet buffers from
+	 * {@link MCCommsBridge#RXBufferQueue} and distributes them to listen tasks
+	 * 
 	 * @see MCCommsBridge#listenTasks
 	 * @see PacketBuilder
 	 */
 	private class PacketPicker extends Thread {
 		private ByteBuffer byteBuffer;
-		
+
 		@Override
 		public void run() {
-			while (!interrupted()) { //forever
+			while (!interrupted()) { // forever
 				try {
-					byteBuffer = RXBufferQueue.take(); //blocks until element available
+					byteBuffer = RXBufferQueue.take(); // blocks until element available
 				} catch (InterruptedException e) {
 					interrupt();
 				}
 				for (ListenTask listenTask : listenTasks) {
 					try {
-						listenTask.acceptBuffer(byteBuffer); //feed buffer to all available listen tasks
+						listenTask.acceptBuffer(byteBuffer); // feed buffer to all available listen tasks
 					} catch (OpenemsException e) {
 						logError(e);
 					}

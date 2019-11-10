@@ -1,23 +1,18 @@
-#
-# io.openems.edge.bridge.mccomms PROVIDER BUNDLE
-#
-
-Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: \
-	The provider bundle for io.openems.edge.bridge.mccomms. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.edge.bridge.mccomms/api.bnd}
-
+Bundle-Name: OpenEMS Edge Bridge Microcare MC-Comms
+Bundle-Vendor: Microcare
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: io.openems.edge.controller.api
+Private-Package:  \
+	io.openems.edge.bridge.mccomms
+	
 Export-Package: \
 	io.openems.edge.bridge.mccomms,\
 	io.openems.edge.bridge.mccomms.api,\
 	io.openems.edge.bridge.mccomms.packet,\
 	io.openems.edge.bridge.mccomms.task
-
-Private-Package:  \
-	io.openems.edge.bridge.mccomms
-
--includeresource: {readme.md}
+	
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	${buildpath},\
