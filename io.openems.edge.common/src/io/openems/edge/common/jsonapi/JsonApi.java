@@ -21,7 +21,7 @@ public interface JsonApi {
 	 *         OpenemsError.JSONRPC_UNHANDLED_METHOD
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException;
 
 }

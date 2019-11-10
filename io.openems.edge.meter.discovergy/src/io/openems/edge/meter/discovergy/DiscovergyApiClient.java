@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.meter.discovergy.jsonrpc.Field;
 
 /**
  * Client for the Discovergy API (<a href=
@@ -75,10 +76,12 @@ public class DiscovergyApiClient {
 	 * @return the Meters as a JsonArray.
 	 * @throws OpenemsNamedException on error
 	 */
-	public JsonObject getLastReading(String meterId, String... fields) throws OpenemsNamedException {
+	public JsonObject getLastReading(String meterId, Field... fields) throws OpenemsNamedException {
 		String endpoint = String.format("/last_reading?meterId=%s&fields=%s", //
 				meterId, //
-				Arrays.stream(fields).collect(Collectors.joining(",")));
+				Arrays.stream(fields) //
+						.map(field -> field.getName()) //
+						.collect(Collectors.joining(",")));
 		return JsonUtils.getAsJsonObject(//
 				this.sendGetRequest(endpoint));
 	}

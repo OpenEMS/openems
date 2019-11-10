@@ -27,6 +27,8 @@ include::io.openems.edge.fenecon.mini.adoc[leveloffset=+1]
 
 include::io.openems.edge.fenecon.pro.adoc[leveloffset=+1]
 
+include::io.openems.edge.goodwe.et.adoc[leveloffset=+1]
+
 include::io.openems.edge.io.kmtronic.adoc[leveloffset=+1]
 
 include::io.openems.edge.io.wago.adoc[leveloffset=+1]
@@ -70,3 +72,5 @@ include::io.openems.edge.solaredge.adoc[leveloffset=+1]
 include::io.openems.edge.tesla.powerwall2.adoc[leveloffset=+1]
 
 include::io.openems.edge.timedata.influxdb.adoc[leveloffset=+1]
+
+include::io.openems.edge.timedata.rrd4j.adoc[leveloffset=+1]

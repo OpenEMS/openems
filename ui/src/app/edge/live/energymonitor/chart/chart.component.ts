@@ -2,10 +2,10 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { fromEvent, Subject } from 'rxjs';
 import { debounceTime, delay, takeUntil } from 'rxjs/operators';
 import { CurrentData } from '../../../../shared/edge/currentdata';
-import { ConsumptionSectionComponent } from './section/consumptionsection.component';
-import { GridSectionComponent } from './section/gridsection.component';
-import { ProductionSectionComponent } from './section/productionsection.component';
-import { StorageSectionComponent } from './section/storagesection.component';
+import { ConsumptionSectionComponent } from './section/consumption.component';
+import { GridSectionComponent } from './section/grid.component';
+import { ProductionSectionComponent } from './section/production.component';
+import { StorageSectionComponent } from './section/storage.component';
 
 @Component({
   selector: 'energymonitor-chart',
@@ -79,7 +79,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   private updateOnWindowResize(): void {
     let size = 300;
     if (this.chartDiv.nativeElement.offsetParent) {
-      size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 10;
+      size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
     }
     if (size > window.innerHeight) {
       size = window.innerHeight;

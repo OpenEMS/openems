@@ -1,12 +1,11 @@
-import { Component, Input, HostListener } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
-import { EvcsModalComponent } from './evcs-modal/evcs-modal.page';
+import { EvcsModalComponent } from './modal/modal.page';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
-type Priority = 'CAR' | 'STORAGE';
 
 @Component({
   selector: 'evcs',
@@ -16,10 +15,12 @@ export class EvcsComponent {
 
   private static readonly SELECTOR = "evcs";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   public edge: Edge = null;
   public controller: EdgeConfig.Component = null;
+  public evcsComponent: EdgeConfig.Component = null;
+  public chargeMode: ChargeMode = null;
 
   constructor(
     private service: Service,
@@ -30,7 +31,6 @@ export class EvcsComponent {
   ) { }
 
   ngOnInit() {
-
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
@@ -47,10 +47,10 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'MaximumHardwarePower')
       ]);
 
-      // Gets the Controller for the given EVCS-Component.
+      // Gets the Controller & Component for the given EVCS-Component.
       this.service.getConfig().then(config => {
         let controllers = config.getComponentsByFactory("Controller.Evcs");
-
+        this.evcsComponent = config.getComponent(this.componentId);
         for (let controller of controllers) {
           let properties = controller.properties;
           if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
@@ -61,9 +61,48 @@ export class EvcsComponent {
     });
   }
 
-  ngOnDestroy() {
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId);
+  /**
+   * Returns the state of the EVCS
+   * 
+   * @param state 
+   * @param plug 
+   * 
+   */
+  getState(state: number, plug: number) {
+
+    if (this.controller != null) {
+      if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+      }
+    }
+    let chargeState = state;
+    let chargePlug = plug;
+
+    if (chargePlug == null) {
+      if (chargeState == null) {
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+      }
+    } else if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+      return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
+    }
+    switch (chargeState) {
+      case ChargeState.STARTING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
+      case ChargeState.UNDEFINED:
+      case ChargeState.ERROR:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+      case ChargeState.READY_FOR_CHARGING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ReadyForCharging');
+      case ChargeState.NOT_READY_FOR_CHARGING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
+      case ChargeState.AUTHORIZATION_REJECTED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+      case ChargeState.CHARGING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
+      case ChargeState.ENERGY_LIMIT_REACHED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
+      case ChargeState.CHARGING_FINISHED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
     }
   }
 
@@ -73,49 +112,18 @@ export class EvcsComponent {
       componentProps: {
         controller: this.controller,
         edge: this.edge,
-        componentId: this.componentId
+        componentId: this.componentId,
+        evcsComponent: this.evcsComponent,
+        getState: this.getState
       }
     });
     return await modal.present();
   }
 
-
-  /**
-   * Gets the output for the current state or the current charging power
-   * 
-   * @param power 
-   * @param state 
-   * @param plug 
-   */
-  getState(power: Number, state: number, plug: number) {
-    if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+  ngOnDestroy() {
+    if (this.edge != null) {
+      this.edge.unsubscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId);
     }
-
-    if (power == null || power == 0) {
-
-      let chargeState: ChargeState = state;
-      let chargePlug: ChargePlug = plug;
-
-      if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)
-        return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
-
-      switch (chargeState) {
-        case ChargeState.STARTING:
-          return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
-        case ChargeState.UNDEFINED:
-        case ChargeState.ERROR:
-          return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
-        case ChargeState.READY_FOR_CHARGING:
-          return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
-        case ChargeState.NOT_READY_FOR_CHARGING:
-          return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
-        case ChargeState.AUTHORIZATION_REJECTED:
-          return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
-      }
-    }
-    return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
-
   }
 }
 
@@ -126,7 +134,9 @@ enum ChargeState {
   READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
   CHARGING,                 //Charging
   ERROR,                    //Error
-  AUTHORIZATION_REJECTED    //Authorization rejected
+  AUTHORIZATION_REJECTED,   //Authorization rejected
+  ENERGY_LIMIT_REACHED,     //Energy limit reached
+  CHARGING_FINISHED         //Charging has finished
 }
 
 enum ChargePlug {
