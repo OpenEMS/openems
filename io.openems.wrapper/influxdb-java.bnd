@@ -25,6 +25,11 @@ Import-Package: \
 	kotlin;resolution:=optional, \
 	kotlin.jvm.internal;resolution:=optional, \
 	sun.security.ssl;resolution:=optional, \
+	kotlin.coroutines;resolution:=optional, \
+	kotlin.coroutines.intrinsics;resolution:=optional, \
+	kotlin.coroutines.jvm.internal;resolution:=optional, \
+	kotlin.jvm.functions;resolution:=optional, \
+	kotlinx.coroutines;resolution:=optional, \
 	*
 	
 -dsannotations: *
