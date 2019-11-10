@@ -1,6 +1,3 @@
-/**
- * 
- */
 package io.openems.edge.bridge.mbus.api;
 
 import org.openmuc.jmbus.MBusConnection;
@@ -11,10 +8,6 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.mbus.api.task.MbusTask;
 import io.openems.edge.common.channel.Doc;
 
-/**
- * @author Leonid Verhovskij
- *
- */
 public interface BridgeMbus {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -35,11 +28,9 @@ public interface BridgeMbus {
 			return this.doc;
 		}
 	}
-	
-	
 
 	public void addTask(String sourceId, MbusTask task);
-	
+
 	public MBusConnection getmBusConnection();
 
 	public void removeTask(String sourceId);

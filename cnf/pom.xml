@@ -138,6 +138,11 @@
 			<version>0.8.18</version>
 		</dependency>
 		<dependency>
+			<groupId>org.openmuc</groupId>
+			<artifactId>jmbus</artifactId>
+			<version>3.2.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
 			<version>1.11.2</version>
@@ -163,11 +168,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.8.0-beta4</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.openmuc</groupId>
-		    <artifactId>jmbus</artifactId>
-		    <version>3.2.0</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -9,19 +9,19 @@ import io.openems.edge.common.channel.Channel;
 
 public class ChannelDataRecordMapper {
 	protected VariableDataStructure data;
-	
+
 	protected List<ChannelRecord> channelDataRecordsList;
-	
+
 	public ChannelDataRecordMapper(VariableDataStructure data, List<ChannelRecord> channelDataRecordsList) {
 		this.data = data;
 		this.channelDataRecordsList = channelDataRecordsList;
-		
-		for(ChannelRecord channelRecord: channelDataRecordsList) {
-			mapDataToChannel(data, channelRecord.getdataRecordPosition(), channelRecord.getChannel(), channelRecord.getDataType());
+
+		for (ChannelRecord channelRecord : channelDataRecordsList) {
+			mapDataToChannel(data, channelRecord.getdataRecordPosition(), channelRecord.getChannel(),
+					channelRecord.getDataType());
 		}
-		
 	}
-	
+
 	public VariableDataStructure getData() {
 		return data;
 	}
@@ -39,16 +39,14 @@ public class ChannelDataRecordMapper {
 	}
 
 	protected void mapDataToChannel(VariableDataStructure data, int index, Channel<?> channel, DataType dataType) {
-		
-		if(dataType == null) {
-			
-			if(data.getDataRecords().size() > index && index >= 0) {
+
+		if (dataType == null) {
+			if (data.getDataRecords().size() > index && index >= 0) {
 				channel.setNextValue(data.getDataRecords().get(index).getScaledDataValue());
-				//System.out.println("[mbus_bridge] writing onto channel "+channel.toString()+", value: "+data.getDataRecords().get(index).getScaledDataValue());
 			}
 			return;
 		}
-		switch(dataType) {
+		switch (dataType) {
 		case Manufacturer:
 			channel.setNextValue(data.getSecondaryAddress().getManufacturerId());
 			break;
@@ -58,9 +56,7 @@ public class ChannelDataRecordMapper {
 		case MeterType:
 			channel.setNextValue(data.getSecondaryAddress().getDeviceType());
 			break;
-		default:
-			break;
 		}
 	}
-	
+
 }

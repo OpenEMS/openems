@@ -1,9 +1,9 @@
 package io.openems.edge.bridge.mbus;
 
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Bridge M-Bus", //
 		description = "Provides a service for connecting to, reading and writing an M-Bus device.")
 @interface Config {

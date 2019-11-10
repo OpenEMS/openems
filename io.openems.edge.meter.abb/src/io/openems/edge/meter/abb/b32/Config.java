@@ -5,14 +5,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
-		name = "Meter ABB B23 Mbus", //
+@ObjectClassDefinition(//
+		name = "Meter ABB B23 M-Bus", //
 		description = "Implements the ABB B23 M-Bus meter.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "meter0";
-	
+
 	@AttributeDefinition(name = "Mbus PrimaryAddress", description = "PrimaryAddress of the M-Bus device.")
 	int primaryAddress() default 10;
 
@@ -23,11 +23,11 @@ import io.openems.edge.meter.api.MeterType;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
-	MeterType type() default MeterType.GRID;
+	MeterType type() default MeterType.PRODUCTION;
 
 	@AttributeDefinition(name = "Mbus-ID", description = "ID of M-Bus brige.")
 	String mbus_id() default "mbus0";
 
-	String webconsole_configurationFactory_nameHint() default "Meter ABB B23 Mbus [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Meter ABB B23 M-Bus [{id}]";
 
 }

@@ -11,7 +11,6 @@ Export-Package: \
 -includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
-	osgi.enroute.base.api;version=2.1,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	org.openmuc.jmbus;version=3.2,\

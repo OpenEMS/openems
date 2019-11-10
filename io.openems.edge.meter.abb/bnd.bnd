@@ -1,7 +1,3 @@
-#
-# io.openems.edge.meter.abb PROVIDER BUNDLE
-#
-
 Bundle-Name: OpenEMS Edge Meter ABB
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
@@ -13,7 +9,7 @@ Export-Package: \
 	io.openems.edge.meter.asymmetric.api,\
 	io.openems.edge.meter.symmetric.api
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	${buildpath},\
@@ -23,7 +19,7 @@ Export-Package: \
 	io.openems.edge.meter.api;version=latest,\
 	io.openems.edge.bridge.mbus;version=latest
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+-testpath: ${testpath}
 
+javac.source: 1.8
+javac.target: 1.8
