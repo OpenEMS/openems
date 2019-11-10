@@ -1,33 +1,39 @@
 package io.openems.edge.bridge.mccomms;
 
-import com.fazecast.jSerialComm.SerialPort;
-import com.google.common.primitives.UnsignedBytes;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
-import io.openems.edge.bridge.mccomms.task.ListenTask;
-import io.openems.edge.bridge.mccomms.task.QueryTask;
-import io.openems.edge.bridge.mccomms.task.WriteTask;
-import io.openems.edge.common.channel.Doc;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.metatype.annotations.Designate;
-
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.AbstractMap;
 import java.util.HashSet;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fazecast.jSerialComm.SerialPort;
+import com.google.common.primitives.UnsignedBytes;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
+import io.openems.edge.bridge.mccomms.task.ListenTask;
+import io.openems.edge.bridge.mccomms.task.QueryTask;
+import io.openems.edge.bridge.mccomms.task.WriteTask;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Component factory class to create a comms bridge between devices using MC
