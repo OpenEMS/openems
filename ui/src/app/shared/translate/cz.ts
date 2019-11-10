@@ -1,12 +1,27 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Režim",
+        Automatic: "Automaticky",
+        On: "zapnutý",
+        Off: "Pryč",
+        State: "Stát",
+        Active: "aktivně",
+        Inactive: "Neaktivní",
+        Manually: "Ruční",
+        Phase: "Fáze",
+        Autarchy: "Soběstačnost",
+        SelfConsumption: "Vlastní spotřeba",
         Cumulative: "Kumulativní Hodnoty",
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
+        GridBuyAdvanced: "Nákup",
+        GridSellAdvanced: "Prodej",
         OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
+        otherConsumption: "jiná spotřeba",
+        Total: "celková spotřeba",
         Load: "nálož",
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
@@ -36,9 +51,9 @@ export const TRANSLATION = {
         Index: "Přehled",
         AboutUI: "About OpenEMS UI",
         GeneralSettings: 'Obecné Nastavení',
-        EdgeSettings: 'FEMS Obecné Nastavení',
+        EdgeSettings: 'FEMS Předvolby',
         Menu: 'Menu',
-        Overview: 'FEMS Overvire',
+        Overview: 'FEMS Přehled',
         Logout: 'Odhlásit'
     },
     Index: {
@@ -57,7 +72,9 @@ export const TRANSLATION = {
                 ReactivePower: "Jalový výkon",
                 ActivePower: "Činný výkon",
                 GridMeter: "Elektroměr - Odběr",
-                ProductionMeter: "Elektroměr - Výroba"
+                ProductionMeter: "Elektroměr - Výroba",
+                StorageDischarge: "baterie výtok",
+                StorageCharge: "baterie nakládání"
             },
             Energytable: {
                 Title: "Tabulka hodnot",
@@ -65,31 +82,54 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
+                Channeltreshold: {
+                    Output: "Výstup"
+                },
+                phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
+                autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
+                selfconsumptionInfo: "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
+                CHP: {
+                    LowThreshold: "Nízký práh",
+                    HighThreshold: "vysoký práh"
+                },
                 EVCS: {
                     ChargingStation: "Nabíjecí stanice",
+                    ChargingStationCluster: "Klastr nabíjecí stanice",
+                    OverviewChargingStations: "Přehled nabíjecích stanic",
+                    ChargingStationDeactivated: "Nabíjecí stanice byla deaktivována",
+                    Prioritization: "Stanovení priorit",
                     Status: "Postavení",
                     Starting: "Začínající",
                     NotReadyForCharging: "Není připraven k nabíjení",
                     ReadyForCharging: "Připraven k nabíjení",
                     Charging: "Se nabíjí",
+                    NotCharging: "Nenabíjí se",
                     Error: "Chyba",
                     NotAuthorized: "Neautorizovaný",
                     Unplugged: "Odpojena",
+                    ChargeLimitReached: "Bylo dosaženo limitu nabíjení",
                     ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
                     ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
                     ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",
                     ChargingStationPluggedInEVLocked: "Nabíjecí stanice + e-car připojené + uzamčena",
                     ChargingLimit: "Omezení nabíjení",
                     ChargingPower: "Nabíjecí výkon",
+                    AmountOfChargingStations: "Počet nabíjecích stanic",
+                    TotalChargingPower: "Celkový nabíjecí výkon",
                     CurrentCharge: "Aktuální nabíjení",
                     TotalCharge: "Celkový poplatek",
                     EnforceCharging: "Prosazování poplatků",
                     Cable: "Kabel",
                     CableNotConnected: "Kabel není připojen",
                     CarFull: "Auto je plné",
-                    EnergieSinceBeginning: "Energie od začátku nabíjení",
+                    EnergieSinceBeginning: "Energie od posledního začátku nabíjení",
                     ChargeMode: "režim načítání",
                     ActivateCharging: "Aktivujte nabíjecí stanici",
+                    ClusterConfigError: "V konfiguraci clusteru Evcs došlo k chybě",
+                    EnergyLimit: "Limit energie",
+                    MaxEnergyRestriction: "Omezte maximální energii na jedno nabití",
+                    CapacityOrientedCharging: "Nabíjení podle kapacity",
+                    CapacityOrientedChargingDescription: "Nastavte maximální energii pro tento náboj v Wh. Nabíjecí stanice se nabíjí pouze do výše uvedeného limitu. '0' odpovídá žádnému limitu",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
@@ -97,10 +137,11 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimalizované zatížení",
-                        ShortName: "optimalizované",
+                        ShortName: "automaticky",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
                         MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
-                        MinCharging: "Garance minimálního poplatku?",
+                        MinCharging: "Garance minimálního poplatku",
+                        MinChargePower: "nakládací sazba",
                         ChargingPriority: {
                             Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
                             Car: "Car",
@@ -109,7 +150,7 @@ export const TRANSLATION = {
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
-                        ShortName: "vynucený",
+                        ShortName: "Ruční",
                         Info: "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
                         MaxCharging: "Maximální síla náboje",
                         MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."
@@ -121,12 +162,14 @@ export const TRANSLATION = {
             SelectedPeriod: "Zvolené období: ",
             OtherPeriod: "Další období",
             Period: "Období",
+            SelectedDay: "{{value}}",
             Today: "Dnes",
             Yesterday: "Včera",
             LastWeek: "Poslední týden",
             LastMonth: "Poslední měsíc",
             LastYear: "Poslední rok",
-            Go: "Jdi!"
+            Go: "Jdi!",
+            Export: "stáhnout jako soubor programu Excel"
         },
         Config: {
             Index: {
@@ -140,7 +183,8 @@ export const TRANSLATION = {
                 AddComponents: "Komponenten installieren",
                 AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuální ovládání",
-                DataStorage: "Ukládání dat"
+                DataStorage: "Ukládání dat",
+                SystemExecute: "Spusťte příkaz systému"
             },
             More: {
                 ManualCommand: "Manuální příkaz ",

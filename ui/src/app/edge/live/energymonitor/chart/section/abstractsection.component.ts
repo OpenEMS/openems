@@ -1,6 +1,7 @@
 import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
+import { Service } from 'src/app/shared/shared';
 
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
@@ -56,6 +57,7 @@ export interface SvgEnergyFlow {
 
 export class EnergyFlow {
     public points: string = "0,0 0,0";
+    public animationPoints: string = "0,0 0,0";
 
     constructor(
         public radius: number,
@@ -67,11 +69,25 @@ export class EnergyFlow {
         }
     ) { }
 
-    public update(p: SvgEnergyFlow) {
-        if (p == null) {
-            this.points = "0,0 0,0";
+    public update(energyFlow: SvgEnergyFlow, animationEnergyFlow: SvgEnergyFlow) {
+        if (energyFlow == null) {
+            this.points = "0,0 0,0"
         } else {
+            let p = energyFlow;
             this.points = p.topLeft.x + "," + p.topLeft.y
+                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+                + " " + p.topRight.x + "," + p.topRight.y
+                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+                + " " + p.bottomRight.x + "," + p.bottomRight.y
+                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        }
+        if (animationEnergyFlow == null) {
+            this.animationPoints = "0,0 0,0"
+        } else {
+            let p = animationEnergyFlow;
+            this.animationPoints = p.topLeft.x + "," + p.topLeft.y
                 + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
                 + " " + p.topRight.x + "," + p.topRight.y
                 + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
@@ -115,9 +131,10 @@ export abstract class AbstractSection {
     public squarePosition: SvgSquarePosition;
     public name: string = "";
     public sectionId: string = "";
+    public isEnabled: boolean = false;
+    public animationSpeed: number = 500;
 
     protected valueText: string = "";
-    protected valueText2: string = "";
     protected innerRadius: number = 0;
     protected outerRadius: number = 0;
     protected height: number = 0;
@@ -131,10 +148,19 @@ export abstract class AbstractSection {
         protected direction: "left" | "right" | "down" | "up" = "left",
         public color: string,
         protected translate: TranslateService,
+        service: Service,
+        widgetClass: string
     ) {
         this.sectionId = translateName;
         this.name = translate.instant(translateName);
         this.energyFlow = this.initEnergyFlow(0);
+        service.getConfig().then(config => {
+            config.widgets.classes.forEach(clazz => {
+                if (clazz.toString() === widgetClass) {
+                    this.isEnabled = true;
+                }
+            });
+        });
     }
 
     /**
@@ -161,6 +187,14 @@ export abstract class AbstractSection {
     protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
 
     /**
+     * Gets the SVG for EnergyFlowAnimation
+     * 
+     * @param ratio  the ratio of the value [-1,1] * scale factor
+     * @param radius the available radius
+     */
+    protected abstract getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+
+    /**
      * Updates the Values for this Section.
      * 
      * @param sum the CurrentData.Summary
@@ -185,6 +219,10 @@ export abstract class AbstractSection {
      * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
      */
     protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
+        if (!this.isEnabled) {
+            return;
+        }
+
         // TODO smoothly resize the arc
         this.valueText = this.getValueText(valueAbsolute);
 
@@ -220,8 +258,10 @@ export abstract class AbstractSection {
         }
         sumRatio *= 10;
 
-        let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius);
-        this.energyFlow.update(svgEnergyFlow);
+        //radius * 1.2 for longer arrows
+        let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+        let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+        this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
     }
 
     /**
@@ -242,7 +282,6 @@ export abstract class AbstractSection {
          */
         this.square = this.getSquare(innerRadius);
         this.squarePosition = this.getSquarePosition(this.square, innerRadius);
-
         /**
          * energy flow rectangle
          */
@@ -253,6 +292,9 @@ export abstract class AbstractSection {
         if (this.lastCurrentData) {
             this.updateCurrentData(this.lastCurrentData);
         }
+
+        // update correct positioning for Image + Text
+        this.setElementHeight();
     }
 
     /**
@@ -289,6 +331,7 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
+    protected abstract setElementHeight();
 
     protected getArc(): any {
         return d3.arc()

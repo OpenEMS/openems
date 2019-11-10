@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -226,14 +227,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private void calculateBatteryData() {
 		int allowedCharge = 0;
 		int allowedDischarge = 0;
+		int capacity = 0;
 		for (Battery battery : this.getBatteries()) {
 			allowedCharge += battery.getVoltage().value().orElse(0) * battery.getChargeMaxCurrent().value().orElse(0)
 					* -1;
 			allowedDischarge += battery.getVoltage().value().orElse(0)
 					* battery.getDischargeMaxCurrent().value().orElse(0);
+			capacity += battery.getCapacity().value().orElse(0);
 		}
 		this.getAllowedCharge().setNextValue(allowedCharge);
 		this.getAllowedDischarge().setNextValue(allowedDischarge);
+		this.getCapacity().setNextValue(capacity);
 	}
 
 	/**
@@ -312,7 +316,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		if (this.stateMachine.getState() != StateMachine.State.ONGRID) {
 			return new Constraint[] {
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
@@ -682,7 +686,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(32572).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.COMMAND_TIME_SYNC_TIME,
 								new UnsignedDoublewordElement(32574).wordOrder(WordOrder.LSWMSW)) //
-				).debug(),
+				),
 				/*
 				 * Commands Mirror
 				 */
@@ -756,7 +760,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32620).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE,
 								new FloatDoublewordElement(32622).wordOrder(WordOrder.LSWMSW)) //
-				).debug(),
+				),
 				/*
 				 * Control Parameters Mirror
 				 */
@@ -846,7 +850,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(32636).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE,
 									new FloatDoublewordElement(32638).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * IPU 1 Mirror Control
 					 */
@@ -929,7 +933,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(32668).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE,
 									new FloatDoublewordElement(32670).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * IPU 2 Mirror Control
 					 */
@@ -1011,7 +1015,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(32700).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE,
 									new FloatDoublewordElement(32702).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * IPU 3 Mirror Control
 					 */
@@ -1082,7 +1086,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 											.wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE,
 									new FloatDoublewordElement(startAddressIpuControl + 14).wordOrder(WordOrder.LSWMSW)) //
-					).debug(),
+					),
 					/*
 					 * DCDC Control Mirror
 					 */

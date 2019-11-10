@@ -52,7 +52,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 			} catch (ModbusException e2) {
 				for (ModbusElement<?> elem : this.getElements()) {
 					if (!elem.isIgnored()) {
-						elem.invalidate();
+						elem.invalidate(bridge);
 					}
 				}
 				throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
@@ -79,8 +79,6 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
-			;
-
 			bridge.logInfo(this.log, this.getActiondescription() //
 					+ " [" + unitId + ":" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
 					+ "]: " //

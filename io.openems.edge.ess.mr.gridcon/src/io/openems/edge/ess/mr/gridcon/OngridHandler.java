@@ -28,7 +28,6 @@ public class OngridHandler {
 	}
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
-		System.out.println("OngridHandler.run");
 		// Verify that we are still On-Grid -> otherwise switch to "Going Off-Grid"
 		GridMode gridMode = this.parent.parent.getGridMode().getNextValue().asEnum();
 		switch (gridMode) {
@@ -102,7 +101,7 @@ public class OngridHandler {
 		if (ccuState != CCUState.IDLE) {
 			return State.UNDEFINED;
 		}
-		
+
 		// If no battery is ready inverter cannot start
 		if (!this.parent.parent.isAtLeastOneBatteryReady()) {
 			return State.IDLE;
@@ -112,7 +111,8 @@ public class OngridHandler {
 		new CommandControlRegisters() //
 				.play(true) // Start system
 				.syncApproval(true) //
-				.blackstartApproval(false).shortCircuitHandling(true) //
+				.blackstartApproval(false) //
+				.shortCircuitHandling(true) //
 				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //

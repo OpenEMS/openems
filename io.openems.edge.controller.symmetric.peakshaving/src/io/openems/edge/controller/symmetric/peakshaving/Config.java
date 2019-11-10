@@ -29,5 +29,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Recharge power", description = "If grid purchase power is below this value battery is recharged.")
 	int rechargePower();
 
+	@AttributeDefinition(name = "Max power adjustment rate", description = "The maximum rate of power adjustments within one Cycle.")
+	double maxPowerAdjustmentRate() default PeakShaving.DEFAULT_MAX_ADJUSTMENT_RATE;
+	
 	String webconsole_configurationFactory_nameHint() default "Controller Peak-Shaving Symmetric [{id}]";
 }

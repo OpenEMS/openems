@@ -63,6 +63,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 				SinglePhaseEss.ChannelId.values(), //
 				EssChannelId.values() //
 		);
+		this.getCapacity().setNextValue(3_000);
 	}
 
 	@Activate
@@ -330,8 +331,6 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 											.channel(EssChannelId.BECU1_CHARGE_CURRENT_LIMIT);
 									IntegerReadChannel allowedDischarge = this
 											.channel(EssChannelId.BECU1_DISCHARGE_CURRENT_LIMIT);
-									System.out.println(allowedCharge.value().toString() + ", "
-											+ allowedDischarge.value().toString());
 									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
 											&& allowedDischarge.value().orElse(0) != 0) {
 										return 100;

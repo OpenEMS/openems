@@ -1,0 +1,5 @@
+= ESS Delay Charge
+
+This Controller delays full charing of an energy storage system (ESS) to a certain hour of the day. If for example configured to delay till 4 pm, the allowed charge power is limited in a way, that 100 % State-of-Charge is reached only at 4 pm. The Controller therefor constantly watches the remaining time and remaining capacity of the ESS.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.delaycharge[Source Code icon:github[]]

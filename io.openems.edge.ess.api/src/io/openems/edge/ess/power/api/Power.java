@@ -3,6 +3,7 @@ package io.openems.edge.ess.power.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public interface Power {
@@ -23,8 +24,9 @@ public interface Power {
 	 * 
 	 * @param constraint
 	 * @throws PowerException
+	 * @throws OpenemsException
 	 */
-	public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException;
+	public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException;
 
 	/**
 	 * Creates a simple constraint
@@ -36,9 +38,10 @@ public interface Power {
 	 * @param relationship
 	 * @param value
 	 * @return
+	 * @throws OpenemsException
 	 */
 	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			Relationship relationship, double value);
+			Relationship relationship, double value) throws OpenemsException;
 
 	/**
 	 * Removes a Constraint.
@@ -65,36 +68,39 @@ public interface Power {
 	 * @param phase
 	 * @param pwr
 	 * @return
+	 * @throws OpenemsException
 	 */
-	Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
+	Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) throws OpenemsException;
 
 	/**
 	 * Adjusts the given value so that it fits into Min/MaxPower.
 	 * 
-	 * @param value the target value
+	 * @param componentId Component-ID of the calling component for the log message
+	 * @param value       the target value
 	 * @return a value that fits into Min/MaxPower
 	 */
-	public default int fitValueIntoMinMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr, int value) {
+	public default int fitValueIntoMinMaxPower(String componentId, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			int value) {
 		/*
 		 * Discharge
 		 */
 		// fit into max possible discharge power
-		int maxDischargePower = this.getMaxPower(ess, phase, pwr);
-		if (value > maxDischargePower) {
-			Power.log.info("Reducing power from [" + value + "] to [" + maxDischargePower + "] for [" + ess.id()
-					+ pwr.getSymbol() + phase.getSymbol() + "]");
-			value = maxDischargePower;
+		int maxPower = this.getMaxPower(ess, phase, pwr);
+		if (value > maxPower) {
+			Power.log.info("[" + componentId + "] reducing requested [" + value + " W] to maximum power [" + maxPower
+					+ " W] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
+			value = maxPower;
 		}
 
 		/*
 		 * Charge
 		 */
-		// fit into max possible discharge power
-		int maxChargePower = this.getMinPower(ess, phase, pwr);
-		if (value < maxChargePower) {
-			Power.log.info("Reducing power from [" + value + "] to [" + (maxChargePower * -1) + "] for [" + ess.id()
-					+ pwr.getSymbol() + phase.getSymbol() + "]");
-			value = maxChargePower;
+		// fit into max possible charge power
+		int minPower = this.getMinPower(ess, phase, pwr);
+		if (value < minPower) {
+			Power.log.info("[" + componentId + "] increasing requested [" + value + " W] to minimum power [" + minPower
+					+ " W] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
+			value = minPower;
 		}
 		return value;
 	}

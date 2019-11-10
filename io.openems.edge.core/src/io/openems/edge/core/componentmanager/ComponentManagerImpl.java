@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -98,6 +98,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(ComponentManagerImpl.class);
 
 	private final OsgiValidateWorker osgiValidateWorker;
+	private final OutOfMemoryHeapDumpWorker outOfMemoryHeapDumpWorker;
 
 	private BundleContext bundleContext;
 
@@ -111,7 +112,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))")
-	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	private volatile List<OpenemsComponent> enabledComponents = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(!(service.factoryPid=Core.ComponentManager))")
+	private volatile List<OpenemsComponent> allComponents = new CopyOnWriteArrayList<>();
 
 	public ComponentManagerImpl() {
 		super(//
@@ -119,6 +126,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				ComponentManager.ChannelId.values() //
 		);
 		this.osgiValidateWorker = new OsgiValidateWorker(this);
+		this.outOfMemoryHeapDumpWorker = new OutOfMemoryHeapDumpWorker(this);
 	}
 
 	@Activate
@@ -129,6 +137,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Start OSGi Validate Worker
 		this.osgiValidateWorker.activate(this.id());
+
+		// Start the Out-Of-Memory Worker
+		this.outOfMemoryHeapDumpWorker.activate(this.id());
 	}
 
 	@Deactivate
@@ -137,15 +148,28 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Stop OSGi Validate Worker
 		this.osgiValidateWorker.deactivate();
+
+		// Stop the Out-Of-Memory Worker
+		this.outOfMemoryHeapDumpWorker.deactivate();
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
-		return Collections.unmodifiableList(this.components);
+	public List<OpenemsComponent> getEnabledComponents() {
+		return Collections.unmodifiableList(this.enabledComponents);
+	}
+
+	@Override
+	public List<OpenemsComponent> getAllComponents() {
+		return Collections.unmodifiableList(this.allComponents);
 	}
 
 	protected StateChannel configNotActivatedChannel() {
 		return this.channel(ComponentManager.ChannelId.CONFIG_NOT_ACTIVATED);
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override
@@ -207,6 +231,29 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
 			CreateComponentConfigRequest request) throws OpenemsNamedException {
+		// Get Component-ID from Request
+		String componentId = null;
+		for (Property property : request.getProperties()) {
+			if (property.getName().equals("id")) {
+				componentId = JsonUtils.getAsString(property.getValue());
+			}
+		}
+		if (componentId == null) {
+			throw new OpenemsException("Component-ID is missing in " + request.toString());
+		}
+
+		// Check that there is currently no Component with the same ID.
+		Configuration[] configs;
+		try {
+			configs = this.cm.listConfigurations("(id=" + componentId + ")");
+		} catch (IOException | InvalidSyntaxException e) {
+			throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
+					+ e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+		if (configs != null && configs.length > 0) {
+			throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
+		}
+
 		Configuration config;
 		try {
 			config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
@@ -249,7 +296,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		Dictionary<String, Object> properties = config.getProperties();
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
-			if (!this.ignorePropertyKey(property.getName())) {
+			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
 				Object value = JsonUtils.getAsBestType(property.getValue());
 				if (value instanceof Object[] && ((Object[]) value).length == 0) {
 					value = new String[0];
@@ -316,7 +363,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Configuration
 	 * @throws OpenemsNamedException on error
 	 */
-	private Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
+	protected Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
 		Configuration[] configs;
 		try {
 			configs = this.cm.listConfigurations("(id=" + componentId + ")");
@@ -340,116 +387,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		EdgeConfig result = new EdgeConfig();
 
 		/*
-		 * Create Components-Map with Component-ID -> Configuration
+		 * Read Factories
 		 */
-		Map<String, Configuration> componentsMap = new HashMap<>();
-
-		try {
-			// get configurations that have an 'id' property -> OpenEMS Components
-			Configuration[] configurations = this.cm.listConfigurations("(id=*)");
-
-			// Add configurations from ConfigurationAdmin
-			for (Configuration config : configurations) {
-				Dictionary<String, Object> properties = config.getProperties();
-				String componentId = properties.get("id").toString();
-				componentsMap.put(componentId, config);
-			}
-		} catch (IOException | InvalidSyntaxException e) {
-			this.logWarn(this.log,
-					"Unable to list configurations " + e.getClass().getSimpleName() + ": " + e.getMessage());
-		}
-		// Add all remaining components, like singletons without ConfigurationAdmin
-		// configuration (=null)
-		for (OpenemsComponent component : this.components) {
-			String componentId = component.id();
-			if (!componentsMap.containsKey(componentId)) {
-				componentsMap.put(component.id(), null);
-			}
-		}
-		// Add myself
-		componentsMap.put(this.id(), null);
-
-		/*
-		 * Create EdgeConfig from Components-Map
-		 */
-		for (Entry<String, Configuration> componentEntry : componentsMap.entrySet()) {
-			String componentId = componentEntry.getKey();
-			String alias = componentId;
-			boolean isEnabled = false; // defaults to true
-			TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
-			String factoryPid = "";
-
-			Configuration config = componentEntry.getValue();
-			if (config != null) {
-				Dictionary<String, Object> properties = config.getProperties();
-				// get Factory-PID
-				if (config.getFactoryPid() != null) {
-					factoryPid = config.getFactoryPid().toString();
-				}
-
-				// get Alias
-				if (properties.get("alias") != null) {
-					alias = properties.get("alias").toString();
-				}
-
-				// get configuration properties
-				Enumeration<String> keys = properties.keys();
-				while (keys.hasMoreElements()) {
-					String key = keys.nextElement();
-					if (!this.ignorePropertyKey(key)) {
-						propertyMap.put(key, getPropertyAsJsonElement(properties.get(key)));
-					}
-				}
-			}
-
-			// get Alias and Channels
-			TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
-			try {
-				OpenemsComponent component = this.getComponent(componentId);
-				isEnabled = component.isEnabled();
-				alias = component.alias();
-				for (Channel<?> channel : component.channels()) {
-					io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
-					Doc doc = channelId.doc();
-					ChannelDetail detail = null;
-					switch (doc.getChannelCategory()) {
-					case ENUM: {
-						Map<String, JsonElement> values = new HashMap<>();
-						EnumDoc d = (EnumDoc) doc;
-						for (OptionsEnum option : d.getOptions()) {
-							values.put(option.getName(), new JsonPrimitive(option.getValue()));
-						}
-						detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values);
-						break;
-					}
-					case OPENEMS_TYPE:
-						detail = new ChannelDetailOpenemsType();
-						break;
-					case STATE:
-						StateChannelDoc d = (StateChannelDoc) doc;
-						Level level = d.getLevel();
-						detail = new ChannelDetailState(level);
-						break;
-					}
-					channelMap.put(channelId.id(), new EdgeConfig.Component.Channel(//
-							channelId.id(), //
-							doc.getType(), //
-							doc.getAccessMode(), //
-							doc.getText(), //
-							doc.getUnit(), //
-							detail //
-					));
-				}
-			} catch (OpenemsNamedException e) {
-				// Component not found. Ignore and return empty Channel-Map
-				this.logWarn(this.log, e.getMessage());
-			}
-
-			// Create EdgeConfig.Component and add it to Result
-			result.addComponent(componentId,
-					new EdgeConfig.Component(componentId, alias, isEnabled, factoryPid, propertyMap, channelMap));
-		}
-
 		final Bundle[] bundles = this.bundleContext.getBundles();
 		for (Bundle bundle : bundles) {
 			final MetaTypeInformation mti = this.metaTypeService.getMetaTypeInformation(bundle);
@@ -482,7 +421,84 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				}
 			}
 		}
+
+		/*
+		 * Create Components-Map with Component-ID -> Configuration
+		 */
+		Map<String, Map<String, JsonElement>> componentsMap = new HashMap<>();
+		for (OpenemsComponent component : this.allComponents) {
+			String componentId = component.id();
+			TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
+			String factoryPid = component.serviceFactoryPid();
+			Dictionary<String, Object> properties = component.getComponentContext().getProperties();
+
+			// get configuration properties
+			EdgeConfig.Factory factory = result.getFactories().get(factoryPid);
+			Enumeration<String> keys = properties.keys();
+			while (keys.hasMoreElements()) {
+				String key = keys.nextElement();
+
+				if (!EdgeConfig.ignorePropertyKey(key)) {
+
+					JsonElement value = getPropertyAsJsonElement(properties.get(key));
+					if (factory != null) {
+						Optional<EdgeConfig.Factory.Property> propertyOpt = factory.getProperty(key);
+						if (propertyOpt.isPresent()) {
+							EdgeConfig.Factory.Property property = propertyOpt.get();
+							// hide Password fields
+							if (property.isPassword()) {
+								value = new JsonPrimitive("xxx");
+							}
+						}
+					}
+
+					propertyMap.put(key, value);
+				}
+			}
+
+			// get Alias and Channels
+			TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
+			for (Channel<?> channel : component.channels()) {
+				io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
+				Doc doc = channelId.doc();
+				ChannelDetail detail = null;
+				switch (doc.getChannelCategory()) {
+				case ENUM: {
+					Map<String, JsonElement> values = new HashMap<>();
+					EnumDoc d = (EnumDoc) doc;
+					for (OptionsEnum option : d.getOptions()) {
+						values.put(option.getName(), new JsonPrimitive(option.getValue()));
+					}
+					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values);
+					break;
+				}
+				case OPENEMS_TYPE:
+					detail = new ChannelDetailOpenemsType();
+					break;
+				case STATE:
+					StateChannelDoc d = (StateChannelDoc) doc;
+					Level level = d.getLevel();
+					detail = new ChannelDetailState(level);
+					break;
+				}
+				channelMap.put(channelId.id(), new EdgeConfig.Component.Channel(//
+						channelId.id(), //
+						doc.getType(), //
+						doc.getAccessMode(), //
+						doc.getText(), //
+						doc.getUnit(), //
+						detail //
+				));
+			}
+			// Create EdgeConfig.Component and add it to Result
+			result.addComponent(componentId, new EdgeConfig.Component(componentId, component.alias(),
+					component.isEnabled(), factoryPid, propertyMap, channelMap));
+		}
+		// Add myself
+		componentsMap.put(this.id(), null);
+
 		return result;
+
 	}
 
 	/**
@@ -560,29 +576,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	public void configurationEvent(ConfigurationEvent event) {
 		// trigger immediate validation on configuration event
 		this.osgiValidateWorker.triggerNextRun();
-	}
-
-	/**
-	 * Internal Method to decide whether a configuration property should be ignored.
-	 * 
-	 * @param key the property key
-	 * @return true if it should get ignored
-	 */
-	private boolean ignorePropertyKey(String key) {
-		if (key.endsWith(".target")) {
-			return true;
-		}
-		switch (key) {
-		case OpenemsConstants.PROPERTY_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME:
-		case OpenemsConstants.PROPERTY_FACTORY_PID:
-		case OpenemsConstants.PROPERTY_PID:
-		case "webconsole.configurationFactory.nameHint":
-			return true;
-		default:
-			return false;
-		}
 	}
 
 	/**

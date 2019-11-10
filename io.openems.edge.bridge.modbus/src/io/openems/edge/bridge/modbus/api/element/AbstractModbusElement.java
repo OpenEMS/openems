@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
 /**
@@ -26,6 +27,9 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	private final OpenemsType type;
 	private final int startAddress;
 	private final boolean isIgnored;
+
+	// Counts for how many cycles no valid value was
+	private int invalidValueCounter = 0;
 
 	protected AbstractTask abstractTask = null;
 
@@ -89,14 +93,23 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 		if (this.isDebug) {
 			log.info("Element [" + this + "] set value to [" + value + "].");
 		}
+		if (value != null) {
+			this.invalidValueCounter = 0;
+		}
 		for (Consumer<T> callback : this.onUpdateCallbacks) {
 			callback.accept(value);
 		}
 	}
 
 	@Override
-	public void invalidate() {
-		this.setValue(null);
+	public boolean invalidate(AbstractModbusBridge bridge) {
+		this.invalidValueCounter++;
+		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
+			this.setValue(null);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/*

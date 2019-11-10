@@ -3,7 +3,7 @@ package io.openems.edge.wago;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "IO WAGO Fieldbus Coupler 750-352", //
 		description = "Implements the WAGO Fieldbus Coupler 750-352")
 @interface Config {

@@ -313,7 +313,7 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	INSULATION_SENSOR_FUNCTION(Doc.of(OpenemsType.INTEGER)), //
 	TRANSPARENT_MASTER(Doc.of(OpenemsType.INTEGER)), //
 	SET_EMS_ADDRESS(Doc.of(OpenemsType.INTEGER)), //
-	SLEEP(Doc.of(OpenemsType.INTEGER)), //
+	SLEEP(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //), //
 	VOLTAGE_LOW_PROTECTION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIVOLT)), //
 	WORK_PARAMETER_CURRENT_FIX_COEFFICIENT(Doc.of(OpenemsType.INTEGER)), //
@@ -443,124 +443,126 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE)), //
 
-	// StateChannels
-	ALARM_FLAG_STATUS_DISCHARGE_TEMPERATURE_LOW(Doc.of(Level.OK) //
+	// Config Channels
+	ALARM_FLAG_STATUS_DISCHARGE_TEMPERATURE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status discharge temperature low")), //
-	ALARM_FLAG_STATUS_DISCHARGE_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_DISCHARGE_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status discharge temperature high")), //
-	ALARM_FLAG_STATUS_VOLTAGE_DIFFERENCE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status voltage difference")), //
-	ALARM_FLAG_STATUS_INSULATION_LOW(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_INSULATION_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status insulation low")), //
-	ALARM_FLAG_STATUS_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status cell voltage difference")), //
-	ALARM_FLAG_STATUS_ELECTRODE_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_ELECTRODE_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status electrode temperature high")), //
-	ALARM_FLAG_STATUS_TEMPERATURE_DIFFERENCE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_TEMPERATURE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status temperature difference")), //
-	ALARM_FLAG_STATUS_SOC_LOW(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status soc low")), //
-	ALARM_FLAG_STATUS_CELL_OVER_TEMPERATURE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_CELL_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status cell over temperature")), //
-	ALARM_FLAG_STATUS_CELL_LOW_TEMPERATURE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_CELL_LOW_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status cell low temperature")), //
-	ALARM_FLAG_STATUS_DISCHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_DISCHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status discharge over current")), //
-	ALARM_FLAG_STATUS_SYSTEM_LOW_VOLTAGE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_SYSTEM_LOW_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status system low voltage")), //
-	ALARM_FLAG_STATUS_CELL_LOW_VOLTAGE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_CELL_LOW_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status cell low voltage")), //
-	ALARM_FLAG_STATUS_CHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_CHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status charge over current")), //
-	ALARM_FLAG_STATUS_SYSTEM_OVER_VOLTAGE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_SYSTEM_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status system over voltage")), //
-	ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(Level.OK) //
+	ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Alarm flag status cell over voltage")), //
-	PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status discharge temperature low")), //
-	PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status discharge temperature high")), //
-	PROTECT_FLAG_STATUS_VOLTAGE_DIFFERENCE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status voltage difference")), //
-	PROTECT_FLAG_STATUS_INSULATION_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_INSULATION_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status insulation low")), //
-	PROTECT_FLAG_STATUS_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status cell voltage difference")), //
-	PROTECT_FLAG_STATUS_ELECTRODE_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_ELECTRODE_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status electrode temperature high")), //
-	PROTECT_FLAG_STATUS_TEMPERATURE_DIFFERENCE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_TEMPERATURE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status temperature difference")), //
-	PROTECT_FLAG_STATUS_SOC_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status soc low")), //
-	PROTECT_FLAG_STATUS_CELL_OVER_TEMPERATURE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_CELL_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status cell over temperature")), //
-	PROTECT_FLAG_STATUS_CELL_LOW_TEMPERATURE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_CELL_LOW_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status cell low temperature")), //
-	PROTECT_FLAG_STATUS_DISCHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_DISCHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status discharge over current")), //
-	PROTECT_FLAG_STATUS_SYSTEM_LOW_VOLTAGE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_SYSTEM_LOW_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status system low voltage")), //
-	PROTECT_FLAG_STATUS_CELL_LOW_VOLTAGE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_CELL_LOW_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status cell low voltage")), //
-	PROTECT_FLAG_STATUS_CHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_CHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status charge over current")), //
-	PROTECT_FLAG_STATUS_SYSTEM_OVER_VOLTAGE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_SYSTEM_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status system over voltage")), //
-	PROTECT_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(Level.OK) //
+	PROTECT_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Protect flag status cell over voltage")), //
-	ALARM_FLAG_REGISTER_1_TEMPERATURE_LOW(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_TEMPERATURE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm temperature low")), //
-	ALARM_FLAG_REGISTER_1_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm temperature high")), //
-	ALARM_FLAG_REGISTER_1_DISCHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_DISCHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm discharge over current")), //
-	ALARM_FLAG_REGISTER_1_SYSTEM_VOLTAGE_LOW(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_SYSTEM_VOLTAGE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm system voltage low")), //
-	ALARM_FLAG_REGISTER_1_CELL_VOLTAGE_LOW(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_CELL_VOLTAGE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm cell voltage low")), //
-	ALARM_FLAG_REGISTER_1_CHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_CHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm charge over current")), //
-	ALARM_FLAG_REGISTER_1_SYSTEM_OVER_VOLTAGE(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_SYSTEM_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm system over voltage")), //
-	ALARM_FLAG_REGISTER_1_CELL_OVER_VOLTAGE(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_1_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm cell over voltage")), //
-	ALARM_FLAG_REGISTER_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm cell voltage difference")), //
-	ALARM_FLAG_REGISTER_2_POLE_TEMPERATURE_LOW(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_2_POLE_TEMPERATURE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm pole temperature low")), //
-	ALARM_FLAG_REGISTER_2_POLE_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_2_POLE_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm pole temperature high")), //
-	ALARM_FLAG_REGISTER_2_SOC_HIGH(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_2_SOC_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm soc high")), //
-	ALARM_FLAG_REGISTER_2_SOC_LOW(Doc.of(Level.OK) //
+	ALARM_FLAG_REGISTER_2_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable alarm soc low")), //
-	PROTECT_FLAG_REGISTER_1_TEMPERATURE_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_TEMPERATURE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect temperature low")), //
-	PROTECT_FLAG_REGISTER_1_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect temperature high")), //
-	PROTECT_FLAG_REGISTER_1_DISCHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_DISCHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect discharge over current")), //
-	PROTECT_FLAG_REGISTER_1_SYSTEM_VOLTAGE_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_SYSTEM_VOLTAGE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect system voltage low")), //
-	PROTECT_FLAG_REGISTER_1_CELL_VOLTAGE_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_CELL_VOLTAGE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect cell voltage low")), //
-	PROTECT_FLAG_REGISTER_1_CHARGE_OVER_CURRENT(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_CHARGE_OVER_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect charge over current")), //
-	PROTECT_FLAG_REGISTER_1_SYSTEM_OVER_VOLTAGE(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_SYSTEM_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect system over voltage")), //
-	PROTECT_FLAG_REGISTER_1_CELL_OVER_VOLTAGE(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_1_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect cell over voltage")), //
-	PROTECT_FLAG_REGISTER_2(Doc.of(Level.OK)),
-	PROTECT_FLAG_REGISTER_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_2(Doc.of(OpenemsType.BOOLEAN)),
+	PROTECT_FLAG_REGISTER_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect cell voltage difference")), //
-	PROTECT_FLAG_REGISTER_2_POLE_TEMPERATURE_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_2_POLE_TEMPERATURE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect pole temperature low")), //
-	PROTECT_FLAG_REGISTER_2_POLE_TEMPERATURE_HIGH(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_2_POLE_TEMPERATURE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect pole temperature high")), //
-	PROTECT_FLAG_REGISTER_2_SOC_HIGH(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_2_SOC_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect soc high")), //
-	PROTECT_FLAG_REGISTER_2_SOC_LOW(Doc.of(Level.OK) //
+	PROTECT_FLAG_REGISTER_2_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect soc low")), //
+	
+	//Faults and warnings
 	ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(Doc.of(Level.FAULT) //
 			.text("Cell Discharge Temperature Low Alarm Level 2")), //
 	ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.FAULT) //
@@ -676,7 +678,7 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 			.text("Intranet communication fault")), //
 	FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.FAULT) //
 			.text("Temperature sampling line fault")), //
-	FAILURE_BALANCING_MODULE(Doc.of(Level.INFO) //
+	FAILURE_BALANCING_MODULE(Doc.of(Level.OK) //
 			.text("Balancing module fault")), //
 	FAILURE_PCB(Doc.of(Level.FAULT) //
 			.text("PCB error")), //

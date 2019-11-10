@@ -1,7 +1,5 @@
 package io.openems.edge.wago;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.channel.BooleanDoc;
@@ -11,15 +9,14 @@ import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
 public class Fieldbus501DO2Ch extends FieldbusModule {
 
-	private final static AtomicInteger count = new AtomicInteger(0);
-	private final static String ID_TEMPLATE = "DIGITAL_OUTPUT_M";
+	private static final String ID_TEMPLATE = "DIGITAL_OUTPUT_M";
 
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus501DO2Ch(Wago parent, int inputOffset, int outputOffset) {
-		String id = ID_TEMPLATE + count.incrementAndGet();
+	public Fieldbus501DO2Ch(Wago parent, int moduleCount, int inputOffset, int outputOffset) {
+		String id = ID_TEMPLATE + moduleCount;
 
 		BooleanWriteChannel channel1;
 		{

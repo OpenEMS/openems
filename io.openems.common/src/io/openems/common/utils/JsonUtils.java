@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class JsonUtils {
@@ -63,6 +66,16 @@ public class JsonUtils {
 			return (E) Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
+		}
+	}
+
+	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement)
+			throws OpenemsNamedException {
+		String element = getAsString(jElement);
+		try {
+			return (E) Enum.valueOf(enumType, element);
+		} catch (IllegalArgumentException e) {
+			throw OpenemsError.JSON_NO_ENUM.exception(element);
 		}
 	}
 
@@ -112,6 +125,14 @@ public class JsonUtils {
 		throw OpenemsError.JSON_NO_FLOAT_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
+	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
+		try {
+			return (Inet4Address) Inet4Address.getByName(getAsString(jElement));
+		} catch (UnknownHostException e) {
+			throw OpenemsError.JSON_NO_INET4ADDRESS.exception(jElement.toString().replaceAll("%", "%%"));
+		}
+	}
+
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsNamedException {
 		if (!jElement.isJsonArray()) {
 			throw OpenemsError.JSON_NO_ARRAY.exception(jElement.toString().replaceAll("%", "%%"));
@@ -151,7 +172,7 @@ public class JsonUtils {
 		// optional
 		if (value instanceof Optional<?>) {
 			if (!((Optional<?>) value).isPresent()) {
-				return null;
+				return JsonNull.INSTANCE;
 			} else {
 				value = ((Optional<?>) value).get();
 			}
@@ -181,13 +202,58 @@ public class JsonUtils {
 			 * JsonElement
 			 */
 			return (JsonElement) value;
-		} else if (value instanceof Long[]) {
+		} else if (value instanceof boolean[]) {
 			/*
-			 * Long-Array
+			 * boolean-Array
 			 */
 			JsonArray js = new JsonArray();
-			for (Long l : (Long[]) value) {
-				js.add(new JsonPrimitive((Long) l));
+			for (boolean b : (boolean[]) value) {
+				js.add(new JsonPrimitive(b));
+			}
+			return js;
+		} else if (value instanceof short[]) {
+			/*
+			 * short-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (short s : (short[]) value) {
+				js.add(new JsonPrimitive(s));
+			}
+			return js;
+		} else if (value instanceof int[]) {
+			/*
+			 * int-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (int i : (int[]) value) {
+				js.add(new JsonPrimitive(i));
+			}
+			return js;
+		} else if (value instanceof long[]) {
+			/*
+			 * long-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (long l : (long[]) value) {
+				js.add(new JsonPrimitive(l));
+			}
+			return js;
+		} else if (value instanceof float[]) {
+			/*
+			 * float-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (float f : (float[]) value) {
+				js.add(new JsonPrimitive(f));
+			}
+			return js;
+		} else if (value instanceof double[]) {
+			/*
+			 * double-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (double d : (double[]) value) {
+				js.add(new JsonPrimitive(d));
 			}
 			return js;
 		} else if (value instanceof String[]) {
@@ -234,7 +300,8 @@ public class JsonUtils {
 	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonElement subElement = getSubElement(jElement, memberName);
 		if (!subElement.isJsonObject()) {
-			throw OpenemsError.JSON_NO_OBJECT_MEMBER.exception(memberName, subElement.toString().replaceAll("%", "%%"));
+			throw OpenemsError.JSON_NO_OBJECT_MEMBER.exception(memberName,
+					StringUtils.toShortString(subElement, 100).replaceAll("%", "%%"));
 		}
 		return subElement.getAsJsonObject();
 	}
@@ -302,6 +369,14 @@ public class JsonUtils {
 		try {
 			return Optional.of(getAsString(jElement, memberName));
 		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
+		try {
+			return Optional.ofNullable((Inet4Address) Inet4Address.getByName(getAsString(jElement, memberName)));
+		} catch (OpenemsNamedException | UnknownHostException e) {
 			return Optional.empty();
 		}
 	}
@@ -478,6 +553,23 @@ public class JsonUtils {
 		return jPrimitive.getAsString();
 	}
 
+	public static UUID getAsUUID(JsonElement jElement, String memberName) throws OpenemsNamedException {
+		try {
+			return UUID.fromString(getAsString(jElement, memberName));
+		} catch (IllegalArgumentException e) {
+			throw new OpenemsException("Unable to parse UUID: " + e.getMessage());
+		}
+	}
+
+	public static Optional<UUID> getAsOptionalUUID(JsonElement jElement, String memberName) {
+		Optional<String> uuid = getAsOptionalString(jElement, memberName);
+		if (uuid.isPresent()) {
+			return Optional.ofNullable(UUID.fromString(uuid.get()));
+		} else {
+			return Optional.empty();
+		}
+	}
+
 	/**
 	 * Takes a JSON in the form 'YYYY-MM-DD' and converts it to a ZonedDateTime with
 	 * hour, minute and second set to zero.
@@ -535,7 +627,8 @@ public class JsonUtils {
 	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonObject jObject = getAsJsonObject(jElement);
 		if (!jObject.has(memberName)) {
-			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(jElement.toString().replaceAll("%", "%%"), memberName);
+			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(memberName,
+					StringUtils.toShortString(jElement, 100).replaceAll("%", "%%"));
 		}
 		return jObject.get(memberName);
 	}
@@ -643,6 +736,71 @@ public class JsonUtils {
 	 */
 	public static JsonObjectBuilder buildJsonObject(JsonObject j) {
 		return new JsonObjectBuilder(j);
+	}
+
+	/**
+	 * A temporary builder class for JsonArrays.
+	 */
+	public static class JsonArrayBuilder {
+
+		private final JsonArray j;
+
+		protected JsonArrayBuilder() {
+			this(new JsonArray());
+		}
+
+		protected JsonArrayBuilder(JsonArray j) {
+			this.j = j;
+		}
+
+		public JsonArrayBuilder add(String value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(int value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(long value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(boolean value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(JsonElement value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArray build() {
+			return this.j;
+		}
+
+	}
+
+	/**
+	 * Creates a JsonArray using a Builder.
+	 * 
+	 * @return the Builder
+	 */
+	public static JsonArrayBuilder buildJsonArray() {
+		return new JsonArrayBuilder();
+	}
+
+	/**
+	 * Creates a JsonArray using a Builder. Initialized from an existing JsonArray.
+	 * 
+	 * @param j the initial JsonArray
+	 * @return the Builder
+	 */
+	public static JsonArrayBuilder buildJsonArray(JsonArray j) {
+		return new JsonArrayBuilder(j);
 	}
 
 	/**

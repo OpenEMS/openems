@@ -1,22 +1,19 @@
 package io.openems.edge.wago;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 
 public class Fieldbus400DI extends FieldbusModule {
 
-	private final static AtomicInteger count = new AtomicInteger(0);
-	private final static String ID_TEMPLATE = "DIGITAL_INPUT_M";
+	private static final String ID_TEMPLATE = "DIGITAL_INPUT_M";
 
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus400DI(Wago parent, int inputOffset, int outputOffset, int channelsCount) {
-		String id = ID_TEMPLATE + count.incrementAndGet();
+	public Fieldbus400DI(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
+		String id = ID_TEMPLATE + moduleCount;
 
 		this.readChannels = new BooleanReadChannel[channelsCount];
 		this.inputElements = new AbstractModbusElement<?>[channelsCount];

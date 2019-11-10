@@ -30,16 +30,19 @@ import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
+import { InputTypeComponent } from './edge/settings/component/shared/input';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
-import { EvcsModalPageModule } from './edge/live/evcs/evcs-modal/evcs-modal.module';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 @NgModule({
   declarations: [
     AppComponent,
+    InputTypeComponent,
     RepeatTypeComponent,
     SystemLogComponent,
-    PickDatePopoverComponent
+    PickDatePopoverComponent,
   ],
   entryComponents: [PickDatePopoverComponent],
   imports: [
@@ -47,6 +50,7 @@ import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.comp
     IonicModule.forRoot(),
     FormlyModule.forRoot({
       types: [
+        { name: 'input', component: InputTypeComponent },
         { name: 'repeat', component: RepeatTypeComponent },
       ],
     }),
@@ -57,11 +61,11 @@ import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.comp
     EdgeModule,
     EdgeSettingsModule,
     IndexModule,
-    EvcsModalPageModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
+    BrowserAnimationsModule
   ],
   providers: [
     StatusBar,

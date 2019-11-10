@@ -25,6 +25,9 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Meter IDs", description = "Ids of the meters to be summed up")
 	String[] meterIds();
 
+	@AttributeDefinition(name = "Add to Sum?", description = "Should the data of this meter be added to the Sum?")
+	boolean addToSum() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Meter Virtual Symmetric Add [{id}]";
 
 }

@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -40,7 +41,6 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -126,7 +126,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsException {
 		/*
 		 * Get the current grid connection setpoint from the schedule
 		 */
@@ -153,18 +153,14 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		int calculatedPower = this.calculateRequiredPower(gridConnSetPoint);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 
 		/*
 		 * set result
 		 */
-		try {
-			this.ess.addPowerConstraintAndValidate("Balancing P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-					calculatedPower); //
-			this.ess.addPowerConstraintAndValidate("Balancing Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
-		} catch (PowerException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		this.ess.addPowerConstraintAndValidate("Balancing P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
+				calculatedPower); //
+		this.ess.addPowerConstraintAndValidate("Balancing Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 	}
 
 	@Override

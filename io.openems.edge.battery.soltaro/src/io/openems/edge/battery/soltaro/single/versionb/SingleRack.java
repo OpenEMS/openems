@@ -30,6 +30,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
+import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactorControl;
@@ -66,8 +67,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class SingleRack extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler, ModbusSlave
-{ // , // JsonApi // TODO
+public class SingleRack extends AbstractOpenemsModbusComponent
+		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
+
+	// , // JsonApi // TODO
 
 	protected static final int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
@@ -76,9 +79,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	private static final String KEY_VOLTAGE = "_VOLTAGE";
 	private static final Integer SYSTEM_RESET = 0x1;
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
-	private static final double MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT = 50;
-	private static final double MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT = 400;
-	
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -100,9 +101,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	private int DELAY_AUTO_ID_SECONDS = 5;
 	private int DELAY_AFTER_CONFIGURING_FINISHED = 5;
 
-	private double lastMinCellVoltage = Double.MIN_VALUE;
-	private double lastMaxCellVoltage = Double.MIN_VALUE;
-	
+	private ResetState resetState = ResetState.NONE;
+	private boolean resetDone;
+
 	private LocalDateTime pendingTimestamp;
 
 	public SingleRack() {
@@ -137,28 +138,34 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	}
 
 	private void setCapacity() {
-		int capacity = this.config.numberOfSlaves() * ModuleParameters.CAPACITY_WH.getValue() / 1000;
+		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
 		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
 	}
 
 	private void handleStateMachine() {
-		log.info("SingleRack.handleStateMachine(): State: " + this.getStateMachineState());
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
-			stopSystem();
+			// handle errors with resetting the system
+			this.stopSystem();
+
 			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
 			setStateMachineState(State.ERRORDELAY);
 			break;
 
 		case ERRORDELAY:
+			// If we are in the error delay time, the system is resetted, this can help
+			// handling the rrors
 			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
 				errorDelayIsOver = null;
+				resetDone = false;
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
 				} else {
-					this.setStateMachineState(State.OFF);
+					this.setStateMachineState(State.UNDEFINED);
 				}
+			} else if (!resetDone) {
+				this.handleErrorsWithReset();
 			}
 			break;
 		case INIT:
@@ -191,22 +198,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (!this.isSystemRunning()) {
-				this.setStateMachineState(State.UNDEFINED);				
-			} else if (this.isCellVoltagesDrift()) {				
-				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);				
-			}
-			else {
-//				// if minimal cell voltage is lower than configured minimal cell voltage, then force system to charge
-//				IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
-//				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
-//				if (minCellVoltageOpt.isPresent()) {
-//					int minCellVoltage =  minCellVoltageOpt.get();
-//					if (minCellVoltage < this.config.minimalCellVoltage()) {
-//						// set the discharge current negative to force the system to charge
-//						// TODO check if this is working!
-//						this.getDischargeMaxCurrent().setNextValue( (-1) * this.getChargeMaxCurrent().value().get() );
-//					}
-//				}		
+				this.setStateMachineState(State.UNDEFINED);
+			} else {
 				this.setStateMachineState(State.RUNNING);
 				readyForWorking = true;
 			}
@@ -236,7 +229,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 				this.pendingTimestamp = LocalDateTime.now();
 			}
 			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
-				// System state could not be determined, stop and start it 
+				// System state could not be determined, stop and start it
 				this.pendingTimestamp = null;
 				this.stopSystem();
 				this.setStateMachineState(State.OFF);
@@ -253,78 +246,55 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 				}
 			}
 			break;
-		case ERROR_CELL_VOLTAGES_DRIFT:
-			// Reset the system
-			IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
-			try {
-				resetChannel.setNextWriteValue(SYSTEM_RESET);				
-			} catch (OpenemsNamedException e) {
-				System.out.println("Error while trying to reset the system!");
-			}
-			this.setStateMachineState(State.UNDEFINED);				
+		case ERROR_HANDLING:
+			this.handleErrorsWithReset();
 			break;
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
 	}
 
-	/*
-	 * This function tries to find out if cell voltages has been drifted away see
-	 * \doc\cell_drift.png If this phenomenon has happened, a system reset is
-	 * necessary
-	 */
-	private boolean isCellVoltagesDrift() {
+	private void handleErrorsWithReset() {
+		// To reset , first sleep and then reset the system
+		switch (this.resetState) {
+		case NONE:
+			this.resetState = ResetState.SLEEP;
+			break;
+		case SLEEP:
+			this.sleepSystem();
+			this.resetState = ResetState.RESET;
+			break;
+		case RESET:
+			this.resetSystem();
+			this.resetState = ResetState.FINISHED;
+			break;
+		case FINISHED:
+			this.resetState = ResetState.NONE;
+			this.setStateMachineState(State.ERRORDELAY);
+			resetDone = true;
+			break;
+		}
+	}
 
-		Optional<Integer> maxCellVoltageOpt = this.getMaxCellVoltage().getNextValue().asOptional();
-		Optional<Integer> minCellVoltageOpt = this.getMinCellVoltage().getNextValue().asOptional();
+	private void resetSystem() {
 
-		if (!maxCellVoltageOpt.isPresent() || !minCellVoltageOpt.isPresent()) {
-			return false; // no new values, comparison not possible
+		IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
+		try {
+			resetChannel.setNextWriteValue(SYSTEM_RESET);
+		} catch (OpenemsNamedException e) {
+			System.out.println("Error while trying to reset the system!");
+		}
+	}
+
+	private void sleepSystem() {
+
+		IntegerWriteChannel sleepChannel = this.channel(SingleRackChannelId.SLEEP);
+		try {
+			sleepChannel.setNextWriteValue(0x1);
+		} catch (OpenemsNamedException e) {
+			System.out.println("Error while trying to sleep the system!");
 		}
 
-		double currentMaxCellVoltage = maxCellVoltageOpt.get();
-		double currentMinCellVoltage = minCellVoltageOpt.get();
-
-		if (lastMaxCellVoltage == Double.MIN_VALUE || lastMinCellVoltage == Double.MIN_VALUE) {
-			// Not all values has been set yet, check is not possible
-			lastMaxCellVoltage = currentMaxCellVoltage;
-			lastMinCellVoltage = currentMinCellVoltage;
-
-			return false;
-		}
-		double deltaMax = lastMaxCellVoltage - currentMaxCellVoltage;
-		double deltaMin = lastMinCellVoltage - currentMinCellVoltage;
-		double deltaMinMax = currentMaxCellVoltage - currentMinCellVoltage;
-
-		lastMaxCellVoltage = currentMaxCellVoltage;
-		lastMinCellVoltage = currentMinCellVoltage;
-
-		if (deltaMax < 0 && deltaMin > 0) { // max cell rises, min cell falls
-			// at least one of them changes faster than typically
-			if (deltaMinMax > MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT && //
-					(Math.abs(deltaMax) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT
-							|| Math.abs(deltaMin) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT)) {
-
-				// If cells are neighbours then there is a drift error
-				Optional<Integer> minCellVoltageIdOpt = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID);
-				Optional<Integer> maxCellVoltageIdOpt = this.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID);
-
-				if (!minCellVoltageIdOpt.isPresent() || !maxCellVoltageIdOpt.isPresent()) {
-					return false;
-				}
-
-				int minCellVoltageId = minCellVoltageIdOpt.get();
-				int maxCellVoltageId = maxCellVoltageIdOpt.get();
-
-				if (Math.abs(minCellVoltageId - maxCellVoltageId) == 1) {
-					return true;
-				}
-
-			}
-
-		}
-
-		return false;
 	}
 
 	/*
@@ -384,9 +354,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 
 	private void initializeCallbacks() {
 
-		this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE).onChange(value -> {
+		this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -395,9 +365,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_volt);
 		});
 
-		this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
+		this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -408,9 +378,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 
 		// write battery ranges to according channels in battery api
 		// MAX_VOLTAGE x2082
-		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange(value -> {
+		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -420,9 +390,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 		});
 
 		// DISCHARGE_MIN_VOLTAGE 0x2088
-		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).onChange(value -> {
+		this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
@@ -432,9 +402,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 		});
 
 		// CHARGE_MAX_CURRENT 0x2160
-		this.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).onChange(value -> {
+		this.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
 			if (!cOpt.isPresent()) {
 				return;
 			}
@@ -444,9 +414,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 		});
 
 		// DISCHARGE_MAX_CURRENT 0x2161
-		this.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).onChange(value -> {
+		this.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) value.asOptional();
+			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
 			if (!cOpt.isPresent()) {
 				return;
 			}
@@ -800,8 +770,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
 				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() + "|State:"
-				+ this.getStateMachineState();
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() //
+				+ "|State:" + this.getStateMachineState();
 	}
 
 	private void startSystem() {
@@ -1459,5 +1429,5 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
-	}	
+	}
 }

@@ -1,8 +1,10 @@
 package io.openems.edge.common.channel.internal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -16,8 +18,15 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.CircularTreeMap;
 
 public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implements Channel<T> {
+
+	/**
+	 * Holds the number of past values for this Channel that are kept in the
+	 * 'pastValues' variable.
+	 */
+	public final static int NO_OF_PAST_VALUES = 100;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
@@ -28,7 +37,8 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final D channelDoc;
 	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
-	private final List<Consumer<Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
+	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
+	private final CircularTreeMap<LocalDateTime, Value<T>> pastValues = new CircularTreeMap<>(NO_OF_PAST_VALUES);
 
 	private volatile Value<T> nextValue = null;
 	private volatile Value<T> activeValue = null;
@@ -95,12 +105,14 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public void nextProcessImage() {
-		boolean valueHasChanged = !Objects.equals(this.activeValue, this.nextValue);
+		Value<T> oldValue = this.activeValue;
+		boolean valueHasChanged = !Objects.equals(oldValue, this.nextValue);
 		this.activeValue = this.nextValue;
 		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
 		if (valueHasChanged) {
-			this.onChangeCallbacks.forEach(callback -> callback.accept(this.activeValue));
+			this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
 		}
+		this.pastValues.put(oldValue.getTimestamp(), oldValue);
 	}
 
 	@Override
@@ -153,7 +165,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	}
 
 	@Override
-	public void onChange(Consumer<Value<T>> callback) {
+	public void onChange(BiConsumer<Value<T>, Value<T>> callback) {
 		this.onChangeCallbacks.add(callback);
 	}
 
@@ -205,5 +217,15 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Gets the past values for this Channel.
+	 * 
+	 * @return a map of recording time and historic value at that time
+	 */
+	@Override
+	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues() {
+		return this.pastValues;
 	}
 }

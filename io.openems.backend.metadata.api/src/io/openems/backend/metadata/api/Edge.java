@@ -2,20 +2,17 @@ package io.openems.backend.metadata.api;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
 import com.google.gson.JsonObject;
 
-import io.openems.common.channel.Level;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SemanticVersion;
@@ -29,8 +26,7 @@ public class Edge {
 		ACTIVE, INACTIVE, TEST, INSTALLED_ON_STOCK, OFFLINE;
 	}
 
-	private final String apikey;
-	private String id;
+	private final String id;
 	private String comment;
 	private State state;
 	private SemanticVersion version;
@@ -40,13 +36,11 @@ public class Edge {
 	private ZonedDateTime lastUpdate = null;
 	private Integer soc = null;
 	private String ipv4 = null;
-	private Level sumState = null;
 	private boolean isOnline = false;
 
-	public Edge(String id, String apikey, String comment, State state, String version, String producttype,
-			EdgeConfig config, Integer soc, String ipv4, Level sumState) {
+	public Edge(String id, String comment, State state, String version, String producttype, EdgeConfig config,
+			Integer soc, String ipv4) {
 		this.id = id;
-		this.apikey = apikey;
 		this.comment = comment;
 		this.state = state;
 		this.version = SemanticVersion.fromStringOrZero(version);
@@ -54,31 +48,33 @@ public class Edge {
 		this.config = config;
 		this.soc = soc;
 		this.ipv4 = ipv4;
-		this.sumState = sumState;
-	}
-
-	public String getApikey() {
-		return apikey;
 	}
 
 	public String getId() {
-		return id;
+		return this.id;
 	}
 
+	/*
+	 * Comment
+	 */
 	public String getComment() {
-		return comment;
+		return this.comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	public EdgeConfig getConfig() {
-		return config;
-	}
-
-	public SemanticVersion getVersion() {
-		return version;
+		return this.config;
 	}
 
 	public String getProducttype() {
-		return producttype;
+		return this.producttype;
+	}
+
+	public void setProducttype(String producttype) {
+		this.producttype = producttype;
 	}
 
 	public JsonObject toJsonObject() {
@@ -138,12 +134,24 @@ public class Edge {
 	}
 
 	/**
-	 * Sets the configuration for this Edge.
+	 * Sets the configuration for this Edge and calls the SetConfig-Listeners.
 	 * 
 	 * @param config the configuration
 	 */
 	public synchronized void setConfig(EdgeConfig config) {
-		this.onSetConfig.forEach(listener -> listener.accept(config));
+		this.setConfig(config, true);
+	}
+
+	/**
+	 * Sets the configuration for this Edge.
+	 * 
+	 * @param config        the configuration
+	 * @param callListeners whether to call the SetConfig-Listeners
+	 */
+	public synchronized void setConfig(EdgeConfig config, boolean callListeners) {
+		if (callListeners) {
+			this.onSetConfig.forEach(listener -> listener.accept(config));
+		}
 		this.config = config;
 	}
 
@@ -155,7 +163,7 @@ public class Edge {
 	}
 
 	public State getState() {
-		return state;
+		return this.state;
 	}
 
 	/*
@@ -167,14 +175,28 @@ public class Edge {
 		this.onSetLastMessageTimestamp.add(listener);
 	}
 
+	/**
+	 * Sets the Last-Message-Timestamp and calls the SetLastMessage-Listeners.
+	 */
 	public synchronized void setLastMessageTimestamp() {
-		this.onSetLastMessageTimestamp.forEach(listener -> listener.run());
+		this.setLastMessageTimestamp(true);
+	}
+
+	/**
+	 * Sets the Last-Message-Timestamp.
+	 * 
+	 * @param callListeners whether to call the SetLastMessage-Listeners
+	 */
+	public synchronized void setLastMessageTimestamp(boolean callListeners) {
+		if (callListeners) {
+			this.onSetLastMessageTimestamp.forEach(listener -> listener.run());
+		}
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastMessage = now;
 	}
 
 	public ZonedDateTime getLastMessageTimestamp() {
-		return lastMessage;
+		return this.lastMessage;
 	}
 
 	/*
@@ -186,30 +208,65 @@ public class Edge {
 		this.onSetLastUpdateTimestamp.add(listener);
 	}
 
+	/**
+	 * Sets the Last-Message-Timestamp and calls the SetLastUpdate-Listeners.
+	 */
 	public synchronized void setLastUpdateTimestamp() {
-		this.onSetLastUpdateTimestamp.forEach(listener -> listener.run());
+		this.setLastUpdateTimestamp(true);
+	}
+
+	/**
+	 * Sets the Last-Update-Timestamp.
+	 * 
+	 * @param callListeners whether to call the SetLastUpdate-Listeners
+	 */
+	public synchronized void setLastUpdateTimestamp(boolean callListeners) {
+		if (callListeners) {
+			this.onSetLastUpdateTimestamp.forEach(listener -> listener.run());
+		}
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastUpdate = now;
 	}
 
 	public ZonedDateTime getLastUpdateTimestamp() {
-		return lastUpdate;
+		return this.lastUpdate;
 	}
 
 	/*
 	 * Version
 	 */
+	public SemanticVersion getVersion() {
+		return this.version;
+	}
+
 	private final List<Consumer<SemanticVersion>> onSetVersion = new CopyOnWriteArrayList<>();
 
 	public void onSetVersion(Consumer<SemanticVersion> listener) {
 		this.onSetVersion.add(listener);
 	}
 
+	/**
+	 * Sets the version and calls the SetVersion-Listeners.
+	 * 
+	 * @param version the version
+	 */
 	public synchronized void setVersion(SemanticVersion version) {
-		if (this.version == null || !version.equals(this.version)) { // on change
-			this.log.info(
-					"Edge [" + this.getId() + "]: Update version to [" + version + "]. It was [" + this.version + "]");
-			this.onSetVersion.forEach(listener -> listener.accept(version));
+		this.setVersion(version, true);
+	}
+
+	/**
+	 * Sets the version.
+	 * 
+	 * @param version       the version
+	 * @param callListeners whether to call the SetVersion-Listeners
+	 */
+	public synchronized void setVersion(SemanticVersion version, boolean callListeners) {
+		if (!Objects.equal(this.version, version)) { // on change
+			if (callListeners) {
+				this.log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was ["
+						+ this.version + "]");
+				this.onSetVersion.forEach(listener -> listener.accept(version));
+			}
 			this.version = version;
 		}
 	}
@@ -223,10 +280,26 @@ public class Edge {
 		this.onSetSoc.add(listener);
 	}
 
-	public synchronized void setSoc(int soc) {
-		if (this.soc == null || this.soc.intValue() != soc) { // on change
-			this.log.debug("Edge [" + this.getId() + "]: Update SoC to [" + soc + "]. It was [" + this.soc + "]");
-			this.onSetSoc.forEach(listener -> listener.accept(soc));
+	/**
+	 * Sets the State-of-Charge and calls the SetSoc-Listeners.
+	 * 
+	 * @param soc the State-of-Charge
+	 */
+	public synchronized void setSoc(Integer soc) {
+		this.setSoc(soc, true);
+	}
+
+	/**
+	 * Sets the State-of-Charge.
+	 * 
+	 * @param soc           the soc
+	 * @param callListeners whether to call the SetSoc-Listeners
+	 */
+	public synchronized void setSoc(Integer soc, boolean callListeners) {
+		if (!Objects.equal(this.soc, soc)) { // on change
+			if (callListeners) {
+				this.onSetSoc.forEach(listener -> listener.accept(soc));
+			}
 			this.soc = soc;
 		}
 	}
@@ -234,39 +307,48 @@ public class Edge {
 	/*
 	 * IPv4
 	 */
+	// TODO rename to "onUpdateIpv4"
 	private final List<Consumer<String>> onSetIpv4 = new CopyOnWriteArrayList<>();
 
 	public void onSetIpv4(Consumer<String> listener) {
 		this.onSetIpv4.add(listener);
 	}
 
+	/**
+	 * Sets the IPv4 address and calls the SetIpv4-Listeners.
+	 * 
+	 * @param ipv4 the IPv4 address
+	 */
 	public synchronized void setIpv4(String ipv4) {
-		if (this.ipv4 == null || !ipv4.equals(this.ipv4)) { // on change
-			this.log.debug("Edge [" + this.getId() + "]: Update IPv4 to [" + ipv4 + "]. It was [" + this.ipv4 + "]");
-			this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
+		this.setIpv4(ipv4, true);
+	}
+
+	/**
+	 * Sets the IPv4 address and calls the SetIpv4-Listeners.
+	 * 
+	 * @param ipv4          the IPv4 address
+	 * @param callListeners whether to call the SetIpv4-Listeners
+	 */
+	public synchronized void setIpv4(String ipv4, boolean callListeners) {
+		if (!Objects.equal(this.ipv4, ipv4)) { // on change
+			if (callListeners) {
+				this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
+			}
 			this.ipv4 = ipv4;
 		}
 	}
 
 	/*
-	 * _sum/State
+	 * Component States
 	 */
-	private final List<BiConsumer<Level, Map<ChannelAddress, EdgeConfig.Component.Channel>>> onSetSumState = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Map<ChannelAddress, EdgeConfig.Component.Channel>>> onSetComponentStates = new CopyOnWriteArrayList<>();
 
-	public void onSetSumState(BiConsumer<Level, Map<ChannelAddress, EdgeConfig.Component.Channel>> listener) {
-		this.onSetSumState.add(listener);
+	public void onSetComponentState(Consumer<Map<ChannelAddress, EdgeConfig.Component.Channel>> listener) {
+		this.onSetComponentStates.add(listener);
 	}
 
-	private Set<ChannelAddress> lastActiveStateChannelsKeys = new HashSet<>();
-
-	public synchronized void setSumState(Level sumState,
-			Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
-		if (this.sumState == null || !this.sumState.equals(sumState)
-				|| !this.lastActiveStateChannelsKeys.equals(activeStateChannels.keySet())) { // on change
-			this.lastActiveStateChannelsKeys = activeStateChannels.keySet();
-			this.onSetSumState.forEach(listener -> listener.accept(sumState, activeStateChannels));
-			this.sumState = sumState;
-		}
+	public synchronized void setComponentState(Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
+		this.onSetComponentStates.forEach(listener -> listener.accept(activeStateChannels));
 	}
 
 }

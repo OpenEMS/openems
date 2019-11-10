@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 
 /**
  * Represents a JSON-RPC Response.
@@ -35,7 +36,7 @@ public abstract class JsonrpcResponse extends JsonrpcMessage {
 		} else if (j.has("error")) {
 			return JsonrpcResponseError.from(j);
 		}
-		throw new OpenemsException("Unable to parse JsonrpcResponse");
+		throw new OpenemsException("Unable to parse JsonrpcResponse from " + StringUtils.toShortString(j, 100));
 	}
 
 	private final UUID id;

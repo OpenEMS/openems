@@ -28,7 +28,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -133,7 +132,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void run() throws PowerException {
+	public void run() throws OpenemsException {
 		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
 		float valueOfLine = Utils.getValueOfLine(this.qCharacteristic, voltageRatio);
 		if (valueOfLine == 0) {
@@ -146,7 +145,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		}
 
 		this.power = (int) (apparentPower.orElse(0) * valueOfLine);
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.REACTIVE, this.power);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, this.power);
 		this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL, Pwr.REACTIVE,
 				Relationship.EQUALS, calculatedPower);
 	}

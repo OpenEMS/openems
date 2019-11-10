@@ -71,7 +71,8 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	@Activate
 	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors());
 		this.setIpAddress(InetAddress.getByName(config.ip()));
 	}
 
@@ -112,7 +113,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 				this._connection.connect();
 			} catch (Exception e) {
 				throw new OpenemsException(
-						"Connection to [" + this.getIpAddress().getHostAddress() + "] failed: " + e.getMessage(), e);
+						"Connection to [" + this.getIpAddress().getHostAddress() + "] failed: " + e.getMessage());
 			}
 			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
 		}

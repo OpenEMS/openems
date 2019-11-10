@@ -35,32 +35,37 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   protected options: ChartOptions;
   protected colors = [{
     // Production
-    backgroundColor: 'rgba(45,143,171,0.1)',
+    backgroundColor: 'rgba(45,143,171,0.05)',
     borderColor: 'rgba(45,143,171,1)',
   }, {
     // Grid Buy
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.05)',
     borderColor: 'rgba(0,0,0,1)',
   }, {
     // Grid Sell
-    backgroundColor: 'rgba(0,0,200,0.1)',
+    backgroundColor: 'rgba(0,0,200,0.05)',
     borderColor: 'rgba(0,0,200,1)',
   }, {
     // Consumption
-    backgroundColor: 'rgba(221,223,1,0.1)',
-    borderColor: 'rgba(221,223,1,1)',
+    backgroundColor: 'rgba(253,197,7,0.05)',
+    borderColor: 'rgba(253,197,7,1)',
   }, {
     // Storage Charge
-    backgroundColor: 'rgba(0,223,0,0.1)',
+    backgroundColor: 'rgba(0,223,0,0.05)',
     borderColor: 'rgba(0,223,0,1)',
   }, {
     // Storage Discharge
-    backgroundColor: 'rgba(200,0,0,0.1)',
+    backgroundColor: 'rgba(200,0,0,0.05)',
     borderColor: 'rgba(200,0,0,1)',
   }];
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
+    this.service.getConfig().then(config => {
+      if (!config.hasProducer()) {
+        this.colors.splice(0, 1);
+      }
+    })
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
@@ -84,7 +89,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
-
           let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
           // convert labels
@@ -112,6 +116,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 return value / 1000; // convert to kW
               }
             });
+
             datasets.push({
               label: this.translate.instant('General.Production'),
               data: productionData,
@@ -132,6 +137,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
                 return 0;
               }
             });
+
             datasets.push({
               label: this.translate.instant('General.GridBuy'),
               data: buyFromGridData,
@@ -219,11 +225,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               hidden: false
             });
           }
-
           this.datasets = datasets;
-
           this.loading = false;
-
         }).catch(reason => {
           console.error(reason); // TODO error message
           this.initializeChart();
@@ -241,19 +244,31 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       if (edge.isVersionAtLeast('2018.8')) {
-        resolve([
-          // Ess
-          new ChannelAddress('_sum', 'EssActivePower'),
-          // Grid
-          new ChannelAddress('_sum', 'GridActivePower'),
-          // Production
-          new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'),
-          // Consumption
-          new ChannelAddress('_sum', 'ConsumptionActivePower')
-        ]);
+        let result: ChannelAddress[] = [];
+        config.widgets.classes.forEach(clazz => {
+          switch (clazz.toString()) {
+            case 'Grid':
+              result.push(new ChannelAddress('_sum', 'GridActivePower'));
+              break;
+            case 'Consumption':
+              result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
+              break;
+            case 'Storage':
+              result.push(new ChannelAddress('_sum', 'EssActivePower'));
+              break;
+            case 'Production':
+              result.push(
+                new ChannelAddress('_sum', 'ProductionActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'));
+              break;
+          };
+          return false;
+        });
+        resolve(result);
+
       } else {
         this.service.getConfig().then(config => {
           let ignoreIds = config.getComponentIdsImplementingNature("FeneconMiniConsumptionMeter");

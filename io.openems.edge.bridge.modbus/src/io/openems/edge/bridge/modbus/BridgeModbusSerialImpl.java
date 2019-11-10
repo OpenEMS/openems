@@ -92,7 +92,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Activate
 	void activate(ComponentContext context, ConfigSerial config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors());
 		this.portName = config.portName();
 		this.baudrate = config.baudRate();
 		this.databits = config.databits();
@@ -143,7 +144,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			try {
 				this._connection.open();
 			} catch (Exception e) {
-				throw new OpenemsException("Connection via [" + this.portName + "] failed: " + e.getMessage(), e);
+				throw new OpenemsException("Connection via [" + this.portName + "] failed: " + e.getMessage());
 			}
 			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
 		}

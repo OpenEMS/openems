@@ -1,13 +1,11 @@
 package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -20,14 +18,11 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
 public interface ManagedSymmetricEss extends SymmetricEss {
-
-	public static final Logger log = LoggerFactory.getLogger(ManagedSymmetricEss.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -310,9 +305,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * 
 	 * @param activePower   the active power in [W]
 	 * @param reactivePower the reactive power in [var]
-	 * @throws OpenemsException      on error; causes activation of
+	 * @throws OpenemsNamedException on error; causes activation of
 	 *                               APPLY_POWER_FAILED StateChannel
-	 * @throws OpenemsNamedException
 	 */
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException;
 
@@ -334,8 +328,9 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * specific Constraints for this Ess on every Cycle.
 	 * 
 	 * @return the Constraints
+	 * @throws OpenemsException on error
 	 */
-	public default Constraint[] getStaticConstraints() {
+	public default Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		return Power.NO_CONSTRAINTS;
 	}
 
@@ -348,9 +343,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @param relationship equals, less-than or greater-than
 	 * @param value        the function value
 	 * @return the Constraint
+	 * @throws OpenemsException on error
 	 */
 	public default Constraint createPowerConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
-			double value) {
+			double value) throws OpenemsException {
 		return this.getPower().createSimpleConstraint(description, this, phase, pwr, relationship, value);
 	}
 
@@ -366,9 +362,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @param relationship equals, less-than or greater-than
 	 * @param value        the function value
 	 * @return the Constraint
+	 * @throws OpenemsException on error
 	 */
 	public default Constraint addPowerConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
-			double value) {
+			double value) throws OpenemsException {
 		return this.getPower().addConstraint(this.createPowerConstraint(description, phase, pwr, relationship, value));
 	}
 
@@ -384,10 +381,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @param relationship equals, less-than or greater-than
 	 * @param value        the function value
 	 * @return the Constraint
-	 * @throws PowerException on validation error
+	 * @throws OpenemsException on error
 	 */
 	public default Constraint addPowerConstraintAndValidate(String description, Phase phase, Pwr pwr,
-			Relationship relationship, double value) throws PowerException {
+			Relationship relationship, double value) throws OpenemsException {
 		return this.getPower()
 				.addConstraintAndValidate(this.createPowerConstraint(description, phase, pwr, relationship, value));
 	}

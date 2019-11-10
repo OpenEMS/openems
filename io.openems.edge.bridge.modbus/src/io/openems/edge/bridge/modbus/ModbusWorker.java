@@ -109,9 +109,10 @@ class ModbusWorker extends AbstractImmediateWorker {
 		LongReadChannel executionDurationChannel = this.parent.channel(BridgeModbus.ChannelId.EXECUTION_DURATION);
 		executionDurationChannel.setNextValue(totalDuration);
 
-		// Set CYCLE_TIME_IS_TOO_SHORT state-channel
+		// Set CYCLE_TIME_IS_TOO_SHORT state-channel if more than one cycle is required;
+		// but only if SlaveCommunicationFailed-Channel is not set
 		StateChannel cycleTimeIsTooShortChannel = this.parent.channel(BridgeModbus.ChannelId.CYCLE_TIME_IS_TOO_SHORT);
-		if (noOfRequiredCycles > 1) {
+		if (noOfRequiredCycles > 1 && !this.parent.getSlaveCommunicationFailedChannel().value().orElse(false)) {
 			cycleTimeIsTooShortChannel.setNextValue(true);
 		} else {
 			cycleTimeIsTooShortChannel.setNextValue(false);
@@ -199,7 +200,7 @@ class ModbusWorker extends AbstractImmediateWorker {
 
 			// invalidate elements of this task
 			for (ModbusElement<?> element : task.getElements()) {
-				element.invalidate();
+				element.invalidate(this.parent);
 			}
 		}
 	}
@@ -259,7 +260,7 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 * result. The idea is to not execute tasks that are known to fail.
 	 * 
 	 * @param <T>   the Task type
-	 * @param tasks Tasks by Componen-ID
+	 * @param tasks Tasks by Component-ID
 	 * @return a list of filtered tasks
 	 */
 	private <T extends Task> List<T> filterDefectiveComponents(Multimap<String, T> tasks) {

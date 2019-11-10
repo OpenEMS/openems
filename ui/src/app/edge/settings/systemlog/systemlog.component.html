@@ -10,12 +10,12 @@
         <ion-card-content>
           <ion-item>
             <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed"></ion-checkbox>
-            <ion-label translate text-wrap>Edge.Config.Log.AutomaticUpdating</ion-label>
+            <ion-label translate class="ion-text-wrap">Edge.Config.Log.AutomaticUpdating</ion-label>
           </ion-item>
         </ion-card-content>
 
         <ion-card-content>
-          <ion-grid *ngFor="let line of lines" no-padding>
+          <ion-grid *ngFor="let line of lines" class="ion-no-padding">
             <ion-row style="font-family: monospace; font-size: small" style.color="black">
               <ion-col size-xl="2" size-sm="6">
                 {{ line.time }}

@@ -31,6 +31,19 @@ public interface SymmetricEss extends OpenemsComponent {
 		SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)),
 		/**
+		 * Capacity.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 * 
+		 * @since 2019.5.0
+		 */
+		CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		/**
 		 * Grid-Mode.
 		 * 
 		 * <ul>
@@ -102,7 +115,23 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Min Cell Voltage.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: mV
+		 * <li>Range: > 0
+		 * </ul>
+		 * 
+		 * @since 2019.12.0
+		 */
+		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+		),
+		;
 
 		private final Doc doc;
 
@@ -131,6 +160,15 @@ public interface SymmetricEss extends OpenemsComponent {
 	 */
 	default Channel<Integer> getSoc() {
 		return this.channel(ChannelId.SOC);
+	}
+
+	/**
+	 * Gets the (usable) capacity of the Battery in [Wh].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getCapacity() {
+		return this.channel(ChannelId.CAPACITY);
 	}
 
 	/**
@@ -187,5 +225,14 @@ public interface SymmetricEss extends OpenemsComponent {
 	 */
 	default Channel<Long> getActiveDischargeEnergy() {
 		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	}
+	
+	/**
+	 * Gets the minimum cell voltage in [mV].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMinCellVoltage() {
+		return this.channel(ChannelId.MIN_CELL_VOLTAGE);
 	}
 }

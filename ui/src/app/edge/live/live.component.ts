@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, Service, Utils, Widget } from '../../shared/shared';
+import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
 
 @Component({
   selector: 'live',
@@ -9,7 +9,8 @@ import { Edge, Service, Utils, Widget } from '../../shared/shared';
 export class LiveComponent implements OnInit {
 
   public edge: Edge = null
-  public widgets: Widget[] = [];
+  public config: EdgeConfig = null;
+  public widgets: Widgets = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -20,9 +21,11 @@ export class LiveComponent implements OnInit {
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge
+      this.edge = edge;
     });
-    this.service.getWidgets().then(widgets => this.widgets = widgets);
+    this.service.getConfig().then(config => {
+      this.config = config;
+      this.widgets = config.widgets;
+    })
   }
-
 }

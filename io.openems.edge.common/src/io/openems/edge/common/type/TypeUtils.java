@@ -1,11 +1,13 @@
 package io.openems.edge.common.type;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
@@ -264,6 +266,30 @@ public class TypeUtils {
 			if (value == null) {
 				return (T) ((String) value);
 
+			} else if (value instanceof Object[]) {
+				return (T) Arrays.deepToString((Object[]) value);
+
+			} else if (value.getClass().isArray()) {
+				if (value instanceof boolean[]) {
+					return (T) Arrays.toString((boolean[]) value);
+				} else if (value instanceof byte[]) {
+					return (T) Arrays.toString((byte[]) value);
+				} else if (value instanceof char[]) {
+					return (T) Arrays.toString((char[]) value);
+				} else if (value instanceof double[]) {
+					return (T) Arrays.toString((double[]) value);
+				} else if (value instanceof float[]) {
+					return (T) Arrays.toString((float[]) value);
+				} else if (value instanceof int[]) {
+					return (T) Arrays.toString((int[]) value);
+				} else if (value instanceof long[]) {
+					return (T) Arrays.toString((long[]) value);
+				} else if (value instanceof short[]) {
+					return (T) Arrays.toString((short[]) value);
+				} else {
+					return (T) value.toString();
+				}
+
 			} else {
 				return (T) value.toString();
 			}
@@ -340,5 +366,18 @@ public class TypeUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Throws an descriptive exception if the object is null.
+	 * 
+	 * @param description text that is added to the exception
+	 * @param object      the object
+	 * @throws OpenemsException if object is null
+	 */
+	public static void assertNull(String description, Object object) throws OpenemsException {
+		if (object == null) {
+			throw new OpenemsException(description + " value is null!");
+		}
 	}
 }

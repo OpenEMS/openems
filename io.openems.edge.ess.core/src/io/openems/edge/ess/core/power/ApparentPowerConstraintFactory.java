@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
@@ -34,7 +35,7 @@ public class ApparentPowerConstraintFactory {
 		this.parent = parent;
 	}
 
-	public List<Constraint> getConstraints(String essId, Phase phase, double apparentPower) {
+	public List<Constraint> getConstraints(String essId, Phase phase, double apparentPower) throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 
 		if (apparentPower > 0) {
@@ -75,7 +76,7 @@ public class ApparentPowerConstraintFactory {
 	}
 
 	private Constraint getConstraintThroughPoints(String essId, Phase phase, Point p1, Point p2,
-			Relationship relationship) {
+			Relationship relationship) throws OpenemsException {
 		/**
 		 * Build the LinearConstraint.
 		 * 
