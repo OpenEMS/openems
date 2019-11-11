@@ -1,8 +1,0 @@
-# io.openems.edge.controller.timelinecharge Provider
-
-${Bundle-Description}
-
-## Example
-
-## References
-
