@@ -374,8 +374,10 @@ public class ErrorHandler {
 			int code = errorCodeOpt.get();
 			code = code >> 8;
 			ChannelId id = this.errorChannelIds.get(code);
-			this.log.info("Error code is present --> " + code + " --> " + ((ErrorDoc) id.doc()).getText());
-			return this.parent.parent.channel(id);
+			if (id != null && id.doc() != null) {
+				this.log.info("Error code is present --> " + code + " --> " + ((ErrorDoc) id.doc()).getText());
+				return this.parent.parent.channel(id);
+			}
 		}
 		return null;
 	}

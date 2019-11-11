@@ -127,7 +127,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			this.logMessage("Activate DISABLED");
 		}
 
-		this.addChannelsForProperties(context.getProperties());
+//		this.addChannelsForProperties(context.getProperties());
 	}
 
 	/**
