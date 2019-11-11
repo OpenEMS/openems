@@ -15,7 +15,9 @@ public enum Status implements OptionsEnum {
 	READY_FOR_CHARGING(2, "Ready for Charging"), //
 	CHARGING(3, "Charging"), //
 	ERROR(4, "Error"), //
-	AUTHORIZATION_REJECTED(5, "Authorization rejected");
+	CHARGING_REJECTED(5, "Charging rejected"), //
+	ENERGY_LIMIT_REACHED(6, "The charging limit reached"), //
+	CHARGING_FINISHED(7, "Charging has finished");
 
 	private final int value;
 	private final String name;

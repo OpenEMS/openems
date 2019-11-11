@@ -211,6 +211,13 @@ public class Solver {
 						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
+
+			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
+				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL,
+						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
+						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
+				break;
 			}
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
@@ -275,6 +282,9 @@ public class Solver {
 			case OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER:
 				solution = this.optimizeByKeepingTargetDirectionAndMaximizingInOrder(allInverters, targetInverters,
 						allConstraints, targetDirection);
+				break;
+			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
+				solution = this.optimizeByKeepingAllEqual(allInverters, allConstraints);
 				break;
 			}
 
@@ -384,39 +394,27 @@ public class Solver {
 	 * @param allConstraints
 	 * @return
 	 */
-	// private PointValuePair optimizeByDistributingEqually(List<Inverter>
-	// targetInverters,
-	// List<Constraint> allConstraints) {
-	//
-	// double[] weights = new double[targetInverters.size()];
-	// for (int invIndex = 1; invIndex < targetInverters.size(); invIndex++) {
-	// for (double weight = 1; weight > 0; weight -= LEARNING_RATE) {
-	// }
-	// }
-	//
-	// List<Constraint> constraints = new ArrayList<>(allConstraints);
-	// for (int i = 1; i < targetInverters.size(); i++) {
-	// Inverter inv0 = targetInverters.get(0);
-	// Inverter inv1 = targetInverters.get(i);
-	// constraints.add(new Constraint(inv0.toString() + "/" + inv1.toString() + ":
-	// distribute equally",
-	// new LinearCoefficient[] { //
-	// new LinearCoefficient(this.data.getCoefficient(inv0.getEss(),
-	// inv0.getPhase(), Pwr.ACTIVE),
-	// 1), //
-	// new LinearCoefficient(this.data.getCoefficient(inv1.getEss(),
-	// inv1.getPhase(), Pwr.ACTIVE),
-	// 1) //
-	// }, Relationship.EQUALS, 0));
-	// }
-	//
-	// try {
-	// return this.solveWithConstraints(constraints);
-	// } catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-	// log.warn("Unable to solve with optimizeByDistributingEqually()");
-	// return null;
-	// }
-	// }
+	private PointValuePair optimizeByKeepingAllEqual(List<Inverter> allInverters, List<Constraint> allConstraints) {
+		try {
+			List<Constraint> constraints = new ArrayList<>(allConstraints);
+			// Create weighted Constraint between first inverter and every other inverter
+			Inverter invA = allInverters.get(0);
+			for (int j = 1; j < allInverters.size(); j++) {
+				Inverter invB = allInverters.get(j);
+				Constraint c = new Constraint(invA.toString() + "|" + invB.toString() + ": distribute equally",
+						new LinearCoefficient[] {
+								new LinearCoefficient(
+										this.data.getCoefficient(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE), 1),
+								new LinearCoefficient(
+										this.data.getCoefficient(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE), -1) },
+						Relationship.EQUALS, 0);
+				constraints.add(c);
+			}
+			return this.solveWithConstraints(constraints);
+		} catch (OpenemsException | NoFeasibleSolutionException | UnboundedSolutionException e) {
+			return null;
+		}
+	}
 
 	/**
 	 * Tries to keep all Target Inverters in the right TargetDirection; then

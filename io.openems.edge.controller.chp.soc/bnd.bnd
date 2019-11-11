@@ -22,7 +22,9 @@ Private-Package:  \
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.io.api;version=latest
+	io.openems.edge.io.api;version=latest,\
+	com.google.guava,\
+	com.google.gson
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

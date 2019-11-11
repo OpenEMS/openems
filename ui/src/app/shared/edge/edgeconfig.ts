@@ -183,6 +183,7 @@ export class EdgeConfig {
                 if (component.properties['type'] == "PRODUCTION") {
                     return true;
                 }
+                // TODO remove, once all Edges are at least version 2019.15
                 switch (component.factoryId) {
                     case 'Fenecon.Mini.PvMeter':
                     case 'Fenecon.Dess.PvMeter':
@@ -207,6 +208,7 @@ export class EdgeConfig {
         if (component.properties['type'] == "PRODUCTION") {
             return true;
         } else {
+            // TODO remove, once all Edges are at least version 2019.15
             switch (component.factoryId) {
                 case 'Fenecon.Mini.PvMeter':
                 case 'Fenecon.Dess.PvMeter':
@@ -339,5 +341,4 @@ export module EdgeConfig {
         public name: string = "";
         public factoryIds: string[] = [];
     }
-
 }

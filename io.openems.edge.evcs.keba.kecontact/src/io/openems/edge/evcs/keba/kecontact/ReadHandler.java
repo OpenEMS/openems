@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 
@@ -74,17 +73,59 @@ public class ReadHandler implements Consumer<String> {
 					receiveReport2 = true;
 					setInt(KebaChannelId.STATUS_KEBA, jMessage, "State");
 
+					// The setenergy value of KEBA is not used because it is reset by the currtime 0 1 command
+
 					// Set STATUS and Warning STATE Channel
 					Channel<Status> stateChannel = this.parent.channel(KebaChannelId.STATUS_KEBA);
 					Channel<Status> plugChannel = this.parent.channel(KebaChannelId.PLUG);
 
 					Plug plug = plugChannel.value().asEnum();
 					Status status = stateChannel.value().asEnum();
-					if (status == Status.NOT_READY_FOR_CHARGING) {
-						if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
-							status = Status.AUTHORIZATION_REJECTED;
+					if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
+
+						// Charging is rejected (by the Software) if the plug is connected but the EVCS
+						// still not ready for charging.
+						if (status.equals(Status.NOT_READY_FOR_CHARGING)) {
+							status = Status.CHARGING_REJECTED;
+						}
+
+						// Charging is Finished if 'Plug' is connected, State was charging or already
+						// finished and the EVCS is still ready for charging.
+						Status evcsStatus = parent.status().value().asEnum();
+						switch (evcsStatus) {
+						case CHARGING_REJECTED:
+						case ENERGY_LIMIT_REACHED:
+						case ERROR:
+						case NOT_READY_FOR_CHARGING:
+						case STARTING:
+						case UNDEFINED:
+							break;
+						case READY_FOR_CHARGING:
+						case CHARGING:
+						case CHARGING_FINISHED:
+							if (status.equals(Status.READY_FOR_CHARGING) && parent.setChargePowerLimit().value().orElse(0) > 0) {
+								status = Status.CHARGING_FINISHED;
+							}
 						}
 					}
+
+					/*
+					 * Check if the maximum energy limit is reached, informs the user and sets the
+					 * status
+					 */
+					int limit = this.parent.setEnergyLimit().value().orElse(0);
+					int energy = this.parent.getEnergySession().value().orElse(0);
+					if (energy >= limit && limit != 0) {
+						try {
+
+							this.parent.setDisplayText().setNextWriteValue(limit + "Wh erreicht");
+							status = Status.ENERGY_LIMIT_REACHED;
+							this.parent.logInfo(log, "Status: " + status.getName());
+						} catch (OpenemsNamedException e) {
+							e.printStackTrace();
+						}
+					}
+
 					this.parent.channel(Evcs.ChannelId.STATUS).setNextValue(status);
 
 					if (status == Status.ERROR) {
@@ -127,10 +168,6 @@ public class ReadHandler implements Consumer<String> {
 					}
 
 					this.parent.channel(KebaChannelId.MAX_CURR).setNextValue(hwPower);
-
-					// Set the EnergyLimit
-					this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT)
-							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "Setenergy").orElse(null)) * 0.1);
 
 				} else if (id.equals("3")) {
 					/*
@@ -196,7 +233,7 @@ public class ReadHandler implements Consumer<String> {
 
 					// Set ENERGY_SESSION
 					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
-							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null)) * 0.1);
+							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(0)) * 0.1);
 				}
 
 			} else {
@@ -217,7 +254,7 @@ public class ReadHandler implements Consumer<String> {
 				}
 				if (jMessage.has("E pres")) {
 					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
-							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null)) * 0.1);
+							.setNextValue((JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(0)) * 0.1);
 				}
 			}
 		}

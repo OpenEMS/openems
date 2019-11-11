@@ -10,7 +10,6 @@ import { Edges } from '../jsonrpc/shared';
 import { LanguageTag, Language } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
-import { Widget, WidgetNature, WidgetFactory, Widgets } from '../type/widget';
 import { ToastController } from '@ionic/angular';
 
 @Injectable()

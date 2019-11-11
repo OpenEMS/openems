@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar class="ion-justify-content-center" color="primary">
-    <ion-title text-start padding-left translate>General.Autarchy</ion-title>
+    <ion-title class="ion-text-start ion-padding-left" translate>General.Autarchy</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close"></ion-icon>
@@ -11,13 +11,13 @@
 
 <!-- Info Text -->
 <ion-content>
-  <ion-grid padding-top>
-    <ion-row justify-content-center align-items-center>
-      <ion-col size="2" text-center>
-        <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+  <ion-grid class="ion-padding-top">
+    <ion-row class="ion-align-items-center ion-justify-content-center">
+      <ion-col size="2" class="ion-text-center">
+        <ion-icon class="ion-padding-right" color="primary" size="large" name="alert"></ion-icon>
       </ion-col>
       <ion-col size="10">
-        <ion-note text-wrap>
+        <ion-note class="ion-text-wrap">
           <small translate>Edge.Index.Widgets.autarchyInfo</small>
         </ion-note>
       </ion-col>
