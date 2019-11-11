@@ -113,8 +113,8 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		int currentHWLimit = config.hardwareCurrentLimit();
 		this.totalPowerLimit = currentHWLimit * 230 * 3;
 
-		// update filter for 'evcss' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss", config.evcs_ids())) {
+		// update filter for 'evcs' component
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}
 	}
@@ -139,7 +139,6 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		for (ManagedEvcs evcs : this.sortedEvcss) {
 			evcs.setChargePowerRequest().setNextValue(null);
 			evcs.isClustered().setNextValue(false);
-
 			evcs.getMaximumPower().setNextValue(null);
 		}
 		super.deactivate();
