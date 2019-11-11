@@ -19,7 +19,7 @@ export class PickDateComponent {
     public readonly YESTERDAY = subDays(new Date(), 1);
     public readonly TOMORROW = addDays(new Date(), 1);
 
-    public disableArrow: boolean = true;
+    public disableArrow: boolean = null;
 
     constructor(
         public service: Service,
@@ -28,7 +28,49 @@ export class PickDateComponent {
     ) { }
 
     ngOnInit() {
-        this.service.periodString = 'day';
+        switch (this.service.periodString) {
+            case 'day': {
+                if (isFuture(addDays(this.service.historyPeriod.from, 1))) {
+                    this.disableArrow = true;
+                } else {
+                    this.disableArrow = false;
+                }
+                break;
+            }
+            case 'week': {
+                if (isFuture(addWeeks(this.service.historyPeriod.from, 1))) {
+                    this.disableArrow = true;
+                } else {
+                    this.disableArrow = false;
+                }
+                break;
+            }
+            case 'month': {
+                if (isFuture(addMonths(this.service.historyPeriod.from, 1))) {
+                    this.disableArrow = true;
+                } else {
+                    this.disableArrow = false;
+                }
+                break;
+            }
+            case 'year': {
+                if (isFuture(addYears(this.service.historyPeriod.from, 1))) {
+                    this.disableArrow = true;
+                } else {
+                    this.disableArrow = false;
+                }
+                break;
+            }
+            case 'custom': {
+                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+                if (isFuture(addDays(this.service.historyPeriod.from, dateDistance * 2))) {
+                    this.disableArrow = true;
+                } else {
+                    this.disableArrow = false;
+                }
+                break;
+            }
+        }
     }
 
     ngOnDestroy() { }
@@ -64,10 +106,10 @@ export class PickDateComponent {
                 disableArrow: this.disableArrow,
             }
         });
+        await popover.present();
         popover.onDidDismiss().then((data) => {
             this.disableArrow = data['data'];
         });
-        await popover.present();
     }
 
     public goForward() {

@@ -10,9 +10,26 @@
       <ion-buttons slot="start" *ngIf="enableSideMenu">
         <ion-menu-button autoHide="false"></ion-menu-button>
       </ion-buttons>
-      <!-- TODO COSTUM FEMS WIDTH -->
-      <ion-title *ngIf="!isMobile && isMobile != null" slot="start" style="max-width: 160.33px;">
+      <ion-title *ngIf="!isMobile && isMobile != null" slot="start">
         {{ service.currentPageTitle }}
+      </ion-title>
+      <ng-container *ngIf="service.currentEdge | async as edge">
+        <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
+          <ion-buttons>
+            <ion-segment class="ion-justify-content-center">
+              <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
+                routerLink="/device/{{ edge.id }}/live">
+                <ion-label translate>General.Live</ion-label>
+              </ion-segment-button>
+              <ion-segment-button [checked]="currentPage == 'IndexHistory'" value="History"
+                routerLink="/device/{{ edge.id }}/history">
+                <ion-label translate>General.History</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+          </ion-buttons>
+        </ng-container>
+      </ng-container>
+      <ion-title *ngIf="!isMobile && isMobile != null" slot="end">
       </ion-title>
       <ng-container *ngIf="service.currentEdge | async as edge">
         <ion-buttons slot="end" *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
@@ -20,21 +37,6 @@
             <ion-icon name="bug"></ion-icon>
           </ion-button>
         </ion-buttons>
-      </ng-container>
-      <ng-container *ngIf="service.currentEdge | async as edge">
-        <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
-          <!-- TODO COSTUM FEMS WIDTH -->
-          <ion-segment [class.toolbarpadding]="!isMobile && isMobile != null">
-            <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
-              routerLink="/device/{{ edge.id }}/live">
-              <ion-label translate>General.Live</ion-label>
-            </ion-segment-button>
-            <ion-segment-button [checked]="currentPage == 'IndexHistory'" value="History"
-              routerLink="/device/{{ edge.id }}/history">
-              <ion-label translate>General.History</ion-label>
-            </ion-segment-button>
-          </ion-segment>
-        </ng-container>
       </ng-container>
 
     </ion-toolbar>

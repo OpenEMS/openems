@@ -287,6 +287,8 @@ export class Service implements ErrorHandler {
 
   /**
    * Currently selected history period string
+   * 
+   * initialized as day, is getting changed by pickdate component
    */
-  public periodString: DefaultTypes.PeriodString;
+  public periodString: DefaultTypes.PeriodString = 'day';
 }
