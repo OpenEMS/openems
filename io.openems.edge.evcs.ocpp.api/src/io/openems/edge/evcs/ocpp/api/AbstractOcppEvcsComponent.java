@@ -7,6 +7,7 @@ import java.util.Set;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
@@ -22,8 +23,10 @@ import io.openems.edge.evcs.api.Status;
 
 public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		implements Evcs, MeasuringEvcs, EventHandler {
+	
+	protected final Set<OcppProfileType> profileTypes;
 
-	private final Set<OcppProfileType> profileTypes;
+	private final WriteHandler writeHandler = new WriteHandler(this);
 
 	protected AbstractOcppEvcsComponent(OcppProfileType[] profileTypes,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
@@ -48,33 +51,17 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-
-			if (this.getChargingSessionId().value().orElse("").isEmpty()) {
+			if (this.getChargingSessionId().getNextValue().orElse("").isEmpty()) {
 				this.getChargingstationCommunicationFailed().setNextValue(true);
+				break;
 			} else {
 				this.getChargingstationCommunicationFailed().setNextValue(false);
 			}
 			if (this.status().getNextValue().asEnum().equals(Status.CHARGING_FINISHED)) {
 				this.resetChannelValues();
 			}
+			writeHandler.run();
 
-			// TODO: Ask a WriteHandler to set Values for the profiles
-			for (OcppProfileType ocppProfileType : profileTypes) {
-				switch (ocppProfileType) {
-				case CORE:
-					break;
-				case FIRMWARE_MANAGEMENT:
-					break;
-				case LOCAL_AUTH_LIST_MANAGEMENT:
-					break;
-				case REMOTE_TRIGGER:
-					break;
-				case RESERVATION:
-					break;
-				case SMART_CHARGING:
-					break;
-				}
-			}
 			break;
 		}
 	}
@@ -94,7 +81,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		 * established
 		 * 
 		 * <ul>
-		 * <li>Interface: OcppEvcs
 		 * <li>Readable
 		 * <li>Type: String
 		 * </ul>
@@ -108,7 +94,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		 * Id that is defined in every EVCS which implements OCPP
 		 * 
 		 * <ul>
-		 * <li>Interface: OcppEvcs
 		 * <li>Readable
 		 * <li>Type: String
 		 * </ul>
@@ -122,7 +107,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		 * Defines which plug is used (Like two plugs/connectors in ABL).
 		 * 
 		 * <ul>
-		 * <li>Interface: OcppEvcs
 		 * <li>Readable
 		 * <li>Type: Integer
 		 * </ul>
@@ -150,6 +134,8 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public abstract Integer getConfiguredMaximumHardwarePower();
 
 	public abstract Integer getConfiguredMinimumHardwarePower();
+	
+	public abstract OcppServer getConfiguredOcppServer();
 
 	private void resetChannelValues() {
 		for (MeasuringEvcs.ChannelId c : MeasuringEvcs.ChannelId.values()) {
@@ -187,5 +173,10 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	 */
 	public IntegerReadChannel getConnectorId() {
 		return this.channel(ChannelId.CONNECTOR_ID);
+	}
+	
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 }

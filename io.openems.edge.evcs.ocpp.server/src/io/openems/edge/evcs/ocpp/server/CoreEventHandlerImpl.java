@@ -41,9 +41,9 @@ import eu.chargetime.ocpp.model.core.ValueFormat;
 public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(CoreEventHandlerImpl.class);
-	private OcppServer server;
+	private OcppServerImpl server;
 
-	public CoreEventHandlerImpl(OcppServer parent) {
+	public CoreEventHandlerImpl(OcppServerImpl parent) {
 		this.server = parent;
 	}
 

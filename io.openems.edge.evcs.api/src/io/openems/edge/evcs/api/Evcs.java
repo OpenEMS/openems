@@ -47,6 +47,19 @@ public interface Evcs extends OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		/**
+		 * Charging Type.
+		 * 
+		 * Type of charging.
+		 * 
+		 * <ul>
+		 * <li>Interface: EVCS
+		 * <li>Readable
+		 * <li>Type: ChargingType
+		 * </ul>
+		 */
+		CHARGING_TYPE(Doc.of(ChargingType.values()).accessMode(AccessMode.READ_ONLY)), //
+		
+		/**
 		 * Count of phases, the EV is charging with.
 		 * 
 		 * <p>
@@ -54,7 +67,7 @@ public interface Evcs extends OpenemsComponent {
 		 * charging.
 		 * 
 		 * <ul>
-		 * <li>Interface: ManagedEvcs
+		 * <li>Interface: EVCS
 		 * <li>Readable
 		 * <li>Type: Integer
 		 * </ul>
@@ -179,6 +192,15 @@ public interface Evcs extends OpenemsComponent {
 		return this.channel(ChannelId.CHARGE_POWER);
 	}
 
+	/**
+	 * Gets the charging type.
+	 * 
+	 * @return the EnumReadChannel
+	 */
+	public default EnumReadChannel getChargingType() {
+		return this.channel(ChannelId.CHARGING_TYPE);
+	}
+	
 	/**
 	 * Count of phases, the EV is charging with.
 	 * 

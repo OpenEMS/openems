@@ -13,9 +13,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +40,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.api.OcppServer;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -49,10 +48,10 @@ import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class OcppServer extends AbstractOpenemsComponent
-		implements OpenemsComponent, EventHandler, ConfigurationListener {
+public class OcppServerImpl extends AbstractOpenemsComponent
+		implements OpenemsComponent, ConfigurationListener, OcppServer {
 
-	private final Logger log = LoggerFactory.getLogger(OcppServer.class);
+	private final Logger log = LoggerFactory.getLogger(OcppServerImpl.class);
 
 	/**
 	 * The JSON OCPP server.
@@ -75,7 +74,7 @@ public class OcppServer extends AbstractOpenemsComponent
 	@Reference
 	protected ComponentManager componentManager;
 
-	public OcppServer() {
+	public OcppServerImpl() {
 		super(OpenemsComponent.ChannelId.values() //
 		);
 		this.coreProfile = new ServerCoreProfile(new CoreEventHandlerImpl(this));
@@ -88,7 +87,6 @@ public class OcppServer extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		startServer();
-
 	}
 
 	@Deactivate
@@ -114,7 +112,8 @@ public class OcppServer extends AbstractOpenemsComponent
 				for (EvcsSession evcsSession : activeSessions) {
 					for (MeasuringEvcs measuringEvcs : evcsSession.getOcppEvcss()) {
 						if (evcsSession.getSessionId().equals(sessionIndex)) {
-							measuringEvcs.channel(AbstractOcppEvcsComponent.ChannelId.CHARGING_SESSION_ID).setNextValue(null);
+							measuringEvcs.channel(AbstractOcppEvcsComponent.ChannelId.CHARGING_SESSION_ID)
+									.setNextValue(null);
 							measuringEvcs.getChargingstationCommunicationFailed().setNextValue(true);
 							activeSessions.remove(evcsSession);
 						}
@@ -127,13 +126,13 @@ public class OcppServer extends AbstractOpenemsComponent
 				logInfo(log, "New session " + sessionIndex + ": Chargepoint: " + information.getIdentifier() + ", IP: "
 						+ information.getAddress());
 
-				List<AbstractOcppEvcsComponent> evcssWithThisId = searchForComponentWithThatIdentifier(information.getIdentifier(),
-						sessionIndex);
+				List<AbstractOcppEvcsComponent> evcssWithThisId = searchForComponentWithThatIdentifier(
+						information.getIdentifier(), sessionIndex);
 				activeSessions.add(new EvcsSession(sessionIndex, information, evcssWithThisId));
 
 				ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest();
 				for (AbstractOcppEvcsComponent ocppEvcs : evcssWithThisId) {
-					logInfo(log, "Setting EVCS "+ ocppEvcs.alias() +" availability to operative");
+					logInfo(log, "Setting EVCS " + ocppEvcs.alias() + " availability to operative");
 					changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
 					changeAvailabilityRequest.setType(AvailabilityType.Operative);
 					send(sessionIndex, changeAvailabilityRequest);
@@ -152,7 +151,8 @@ public class OcppServer extends AbstractOpenemsComponent
 	 * @throws UnsupportedFeatureException
 	 * @throws OccurenceConstraintException
 	 */
-	protected boolean send(UUID sessionIndex, Request request) {
+	@Override
+	public boolean send(UUID sessionIndex, Request request) {
 		try {
 			request.validate();
 			server.send(sessionIndex, request).whenComplete((confirmation, throwable) -> {
@@ -167,22 +167,6 @@ public class OcppServer extends AbstractOpenemsComponent
 			this.logWarn(log, "The server is not connected.");
 		}
 		return false;
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			for (EvcsSession evcsSession : activeSessions) {
-				for (MeasuringEvcs measuringEvcs : evcsSession.getOcppEvcss()) {
-					if (measuringEvcs != null) {
-						// handle writes
-						// this.writeHandler.run();
-					}
-				}
-			}
-			break;
-		}
 	}
 
 	private List<AbstractOcppEvcsComponent> searchForComponentWithThatIdentifier(String identifier, UUID sessionIndex) {
