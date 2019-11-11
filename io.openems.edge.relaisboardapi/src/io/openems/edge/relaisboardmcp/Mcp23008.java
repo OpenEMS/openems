@@ -2,12 +2,10 @@ package io.openems.edge.relaisboardmcp;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.relaisboardmcp.task.McpTask;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 
