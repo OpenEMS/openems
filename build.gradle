@@ -31,7 +31,7 @@ task updateVersion {
         constants = constants.replaceAll('(short VERSION_MAJOR = ).*;', '$1' + version.getMajorVersion() + ';')
         constants = constants.replaceAll('(short VERSION_MINOR = ).*;', '$1' + version.getMinorVersion() + ';')
         constants = constants.replaceAll('(short VERSION_PATCH = ).*;', '$1' + version.getPatchVersion() + ';')
-        constants = constants.replaceAll('(String VERSION_STRING = \").+(\";)', '$1' + versionString + '$2')
+        //constants = constants.replaceAll('(String VERSION_STRING = \").+(\";)', '$1' + versionString + '$2')
         openemsConstantsFile.write(constants, 'UTF-8')
     }
 }
