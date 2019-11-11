@@ -25,6 +25,7 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 
 	private Mcp allocatedMcp;
 	private int position;
+	private Optional<Boolean> status;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -91,9 +92,10 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 	@Override
 	public String debugLog() {
 		if (this.getRelaisChannelValue().getNextWriteValue().isPresent() && !this.getRelaisChannelValue().getNextWriteValue().equals(Optional.empty())) {
+			this.status = this.getRelaisChannelValue().getNextWriteValue();
 			return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
 		} else {
-			return "Status of " + super.id() + " alias: " + super.alias() + "is " + this.getRelaisChannelValue().value();
+			return "Status of " + super.id() + " alias " + super.alias() + " is " + this.status.toString();
 		}
 	}
 
@@ -109,7 +111,7 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 	}
 
 	@Override
-	public boolean isCloser(){
+	public boolean isCloser() {
 		return this.relaisValue;
 	}
 

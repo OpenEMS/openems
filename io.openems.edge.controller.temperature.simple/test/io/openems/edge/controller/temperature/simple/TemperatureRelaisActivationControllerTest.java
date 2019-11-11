@@ -9,7 +9,7 @@ import org.junit.Test;
  *
  */
 
-public class SimpleTemperatureControllerTest {
+public class TemperatureRelaisActivationControllerTest {
 
 	/*
 	 * Example test method
@@ -17,7 +17,7 @@ public class SimpleTemperatureControllerTest {
 
 	@Test
 	public void simple() {
-		SimpleTemperatureController impl = new SimpleTemperatureController();
+		TemperatureRelaisActivationController impl = new TemperatureRelaisActivationController();
 		assertNotNull(impl);
 	}
 

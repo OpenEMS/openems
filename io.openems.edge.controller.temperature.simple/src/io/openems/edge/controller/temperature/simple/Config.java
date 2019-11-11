@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(
-        name = "Controller Consolinno Temperature Simple",
+        name = "Controller Consolinno Temperature Activator",
         description = "This Controller opens or Closes a Relais depending on Temperature"
 )
 
@@ -23,11 +23,14 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "TemperatureSensor Id", description = "Unique Id of Temperature Sensor what you want to be controlled")
     String temperatureId() default "TemperatureSensor0";
 
-    @AttributeDefinition(name = "Wanted Temperature in dC", description = "What Temperature you want to reach. 1°C = 10")
-            float wantedTemperature() default 250.f;
+    @AttributeDefinition(name = "Max Temperature in dC", description = "What Temperature is the Maximum. 1°C = 10")
+            float TemperatureMax() default 1250.f;
+
+    @AttributeDefinition(name = "Min Temperature in dC", description = "What Temperature is the Minimum. 1°C = 10")
+             float TemperatureMin() default 850.f;
 
     @AttributeDefinition(name = "Tolerance Temperature in dC", description = "Tolerated Temperature difference to wanted Temp.")
-            float toleranceTemperature() default 0;
+            float toleranceTemperature() default 10;
 
     boolean enabled() default true;
 

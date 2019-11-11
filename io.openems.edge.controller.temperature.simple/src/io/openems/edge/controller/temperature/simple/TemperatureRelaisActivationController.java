@@ -21,7 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "SimpleTemperatureController")
-public class SimpleTemperatureController extends AbstractOpenemsComponent implements OpenemsComponent, Controller {
+public class TemperatureRelaisActivationController extends AbstractOpenemsComponent implements OpenemsComponent, Controller {
 
 	@Reference
 	ComponentManager cpm;
@@ -29,10 +29,11 @@ public class SimpleTemperatureController extends AbstractOpenemsComponent implem
 	private TemperatureSensor temperatureSensor;
 	private RelaisActuator relaisActuator;
 	private float toleranceTemperature;
-	private float wantedTemperature;
+	private float maxTemp;
+	private float minTemp;
 
 
-	public SimpleTemperatureController() {
+	public TemperatureRelaisActivationController() {
 		super(OpenemsComponent.ChannelId.values(), Controller.ChannelId.values());
 	}
 
@@ -41,7 +42,8 @@ public class SimpleTemperatureController extends AbstractOpenemsComponent implem
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.toleranceTemperature = config.toleranceTemperature();
-		this.wantedTemperature = config.wantedTemperature();
+		this.maxTemp = config.TemperatureMax();
+		this.minTemp = config.TemperatureMin();
 
 		if (cpm.getComponent(config.relaisId()) instanceof RelaisActuator) {
 			RelaisActuator tempR = cpm.getComponent(config.relaisId());
@@ -65,9 +67,8 @@ public class SimpleTemperatureController extends AbstractOpenemsComponent implem
 	@Override
 	public void run() throws OpenemsError.OpenemsNamedException {
 
-		//TODO There has to be a better way
 		String temperature = temperatureSensor.getTemperatureOfSensor().value().toString().replaceAll("[a-zA-Z _]", "").trim();
-		if (Integer.parseInt(temperature) + toleranceTemperature < wantedTemperature) {
+		if (Integer.parseInt(temperature) + toleranceTemperature < minTemp) {
 			//increase Temperature
 			if (relaisActuator.isCloser()) {
 				//for warming purposes a closer relais has to be closed --> closed circuit default
@@ -76,7 +77,7 @@ public class SimpleTemperatureController extends AbstractOpenemsComponent implem
 				//same as above; relais is a opener --> so it has to be deactivated for closed circuit
 				relaisActuator.getRelaisChannelValue().setNextWriteValue(false);
 			}
-		} else if (Integer.parseInt(temperature) - toleranceTemperature > wantedTemperature) {
+		} else if (Integer.parseInt(temperature) - toleranceTemperature > maxTemp) {
 			if (relaisActuator.isCloser()) {
 				//logic is Vice Versa here: | | <-- inactive |_| <---active
 				relaisActuator.getRelaisChannelValue().setNextWriteValue(false);
