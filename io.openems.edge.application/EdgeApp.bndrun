@@ -102,6 +102,7 @@
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
+	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10'
 	bnd.identity;id='io.openems.edge.timedata.rrd4j'
 
 -runbundles: \
@@ -173,6 +174,7 @@
 	io.openems.edge.goodwe.et;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
+	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
@@ -224,4 +226,5 @@
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
 	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
 	rrd4j;version='[3.5.0,3.5.1)',\
+	javax.jmdns;version=3.5.5,\
 	com.sun.jna;version='[5.5.0,5.5.1)'
