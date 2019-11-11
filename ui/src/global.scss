@@ -12,8 +12,10 @@
 
 //252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content{
-    width: 252px;
-    position: center; 
+    width: 251px;
+    position: center;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 ion-label {
