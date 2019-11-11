@@ -169,5 +169,17 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.8.0-beta4</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client -->
+		<dependency>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>1.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jmdns</groupId>
+			<artifactId>jmdns</artifactId>
+			<version>3.5.5</version>
+		</dependency>
+
 	</dependencies>
 </project>
