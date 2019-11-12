@@ -7,6 +7,7 @@ import { Service } from '../shared';
 import { PickDatePopoverComponent } from './popover/popover.component';
 import { DefaultTypes } from '../service/defaulttypes';
 import { endOfDay, endOfMonth, addMonths, subYears } from 'date-fns';
+import { isUndefined } from 'util';
 
 
 @Component({
@@ -108,7 +109,9 @@ export class PickDateComponent {
         });
         await popover.present();
         popover.onDidDismiss().then((data) => {
-            this.disableArrow = data['data'];
+            if (!isUndefined(data['data'])) {
+                this.disableArrow = data['data'];
+            }
         });
     }
 
@@ -176,39 +179,39 @@ export class PickDateComponent {
     public goBackward() {
         switch (this.service.periodString) {
             case 'day': {
+                this.disableArrow = false;
                 this.service.historyPeriod.from = subDays(this.service.historyPeriod.from, 1);
                 this.service.historyPeriod.to = endOfDay(this.service.historyPeriod.from);
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                this.disableArrow = false;
                 break;
             }
             case 'week': {
+                this.disableArrow = false;
                 this.service.historyPeriod.from = subWeeks(this.service.historyPeriod.from, 1);
                 this.service.historyPeriod.to = endOfWeek(this.service.historyPeriod.from, { weekStartsOn: 1 });
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                this.disableArrow = false;
                 break;
             }
             case 'month': {
+                this.disableArrow = false;
                 this.service.historyPeriod.from = subMonths(this.service.historyPeriod.from, 1);
                 this.service.historyPeriod.to = endOfMonth(this.service.historyPeriod.from);
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                this.disableArrow = false;
                 break;
             }
             case 'year': {
+                this.disableArrow = false;
                 this.service.historyPeriod.from = subYears(this.service.historyPeriod.from, 1);
                 this.service.historyPeriod.to = endOfYear(this.service.historyPeriod.from);
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                this.disableArrow = false;
                 break;
             }
             case 'custom': {
+                this.disableArrow = false;
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 this.service.historyPeriod.from = subDays(this.service.historyPeriod.from, dateDistance);
                 this.service.historyPeriod.to = subDays(this.service.historyPeriod.to, dateDistance);
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                this.disableArrow = false;
                 break;
             }
         }

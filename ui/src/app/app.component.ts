@@ -23,7 +23,6 @@ export class AppComponent {
   public enableSideMenu: boolean;
   public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
-  public isMobile: boolean = null;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
@@ -68,12 +67,6 @@ export class AppComponent {
     ).subscribe(event => {
       this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
     })
-    // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
-    setTimeout(() => this.isMobileMode(), 500);
-    const source = fromEvent(window, 'resize', null, null);
-    source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
-      this.isMobileMode();
-    });
   }
 
   updateUrl(url: string) {
@@ -153,14 +146,6 @@ export class AppComponent {
       }
     } else {
       this.currentPage = 'Other';
-    }
-  }
-
-  isMobileMode() {
-    if (window.innerWidth < 993) {
-      this.isMobile = true;
-    } else {
-      this.isMobile = false;
     }
   }
 

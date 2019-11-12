@@ -5,6 +5,7 @@ import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../service/defaulttypes';
 import { IMyDate, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
+import { isFuture } from 'date-fns';
 
 
 @Component({
@@ -25,6 +26,7 @@ export class PickDatePopoverComponent {
 
     //DateRangePicker Options
     public dateRangePickerOptions: IMyDrpOptions = {
+        selectorHeight: '225px',
         inline: true,
         showClearBtn: false,
         showApplyBtn: false,
@@ -108,6 +110,12 @@ export class PickDatePopoverComponent {
     public onDateRangeChanged(event: IMyDateRangeModel) {
         this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
         this.service.periodString = 'custom';
-        this.popoverCtrl.dismiss();
+        let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+        if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
+            this.disableArrow = true;
+        } else {
+            this.disableArrow = false;
+        }
+        this.popoverCtrl.dismiss(this.disableArrow);
     }
 }

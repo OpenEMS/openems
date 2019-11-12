@@ -9,6 +9,7 @@
 @import '~@ionic/angular/css/text-alignment.css';
 @import '~@ionic/angular/css/text-transformation.css';
 @import '~@ionic/angular/css/flex-utils.css';
+@import '~@ionic/angular/css/display.css';
 
 .active {
     color: #2d8fab;
@@ -59,10 +60,6 @@ table {
   
 .underline {
     border-bottom: 1pt solid lightgray;
-}
-
-.toolbarpadding {
-    padding-right: 160.33px;
 }
   
 .gray_color {
