@@ -7,10 +7,7 @@ Bundle-Description: \
 	\
 
 Export-Package:  \
-	io.openems.edge.evcs.ocpp.server.api;-provide=true
-	
-Private-Package:  \
-	io.openems.edge.evcs.ocpp.server 
+	io.openems.edge.evcs.ocpp.server
 
 -includeresource: {readme.md} \
 	

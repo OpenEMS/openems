@@ -85,9 +85,8 @@ public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent
 		super.activate(context, configSelfConsumtion.id(), configSelfConsumtion.alias(),
 				configSelfConsumtion.enabled());
 
-		// update filter for 'evcss' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss",
-				configSelfConsumtion.evcs_ids())) {
+		// update filter for 'evcs' component
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", configSelfConsumtion.evcs_ids())) {
 			return;
 		}
 	}

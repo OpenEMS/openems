@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.evcs.api.OcppEvcs;
+import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.api.OcppInformations;
@@ -41,9 +41,9 @@ import eu.chargetime.ocpp.model.core.ValueFormat;
 public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(CoreEventHandlerImpl.class);
-	private OcppServer server;
+	private OcppServerImpl server;
 
-	public CoreEventHandlerImpl(OcppServer parent) {
+	public CoreEventHandlerImpl(OcppServerImpl parent) {
 		this.server = parent;
 	}
 
@@ -205,7 +205,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			StatusNotificationRequest request) {
 
 		server.logInfo(this.log, "Handle StatusNotificationRequest: " + request);
-		OcppEvcs evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
+		MeasuringEvcs evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new StatusNotificationConfirmation();
 		}
