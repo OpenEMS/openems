@@ -34,8 +34,7 @@ public class RelaisActuatorTask extends McpTask {
         return this.position;
     }
 
-
-
+    //No Usage here, just for the Gaspedal Stuff
     @Override
     public WriteChannel<Integer> getPowerLevel() {
         return null;
@@ -43,7 +42,7 @@ public class RelaisActuatorTask extends McpTask {
 
 
     @Override
-    public int getDigitValue(){
-        return -1;
+    public int getDigitValue() {
+        return -666;
     }
 }
