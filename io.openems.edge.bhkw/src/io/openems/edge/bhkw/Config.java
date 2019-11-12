@@ -29,12 +29,17 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "GaspedalId", description = "Id of the Gaspedal you previously implemented")
     String gaspedalId() default "Gaspedal0";
 
-    @AttributeDefinition(name = "Range of min Limit", description = "Is your Bhkw mA starting at 0 or 4")
+    @AttributeDefinition(name = "min Limit of Bhkw", description = "Is your Bhkw mA starting at 0 or 4")
     short minLimit() default 4;
+
+    @AttributeDefinition(name = "max Limit of Bhkw", description = "Mostly your Bhkw has a max mA of 100")
+    short maxLimit() default 100;
 
     @AttributeDefinition(name = "Percentage Range", description = "Is your Bhkw range from 0-100% (type 0) or 50-100%(type 50")
     int percentageRange() default 50;
 
+    @AttributeDefinition(name = "Position on Board", description = "On what Position is your Bhkw connected with Gaspedal?")
+    int position() default 0;
     boolean enabled() default true;
 
     String webconsole_configurationFactory_nameHint() default "Bhkw [{id}]";

@@ -34,4 +34,16 @@ public class RelaisActuatorTask extends McpTask {
         return this.position;
     }
 
+
+
+    @Override
+    public WriteChannel<Integer> getPowerLevel() {
+        return null;
+    }
+
+
+    @Override
+    public int getDigitValue(){
+        return -1;
+    }
 }

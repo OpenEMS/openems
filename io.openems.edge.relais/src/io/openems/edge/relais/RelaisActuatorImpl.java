@@ -95,7 +95,7 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 			this.status = this.getRelaisChannelValue().getNextWriteValue();
 			return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
 		} else {
-			return "Status of " + super.id() + " alias " + super.alias() + " is " + this.status.toString();
+			return "Status of " + super.id() + " alias " + super.alias() + " is " + this.getRelaisChannel().value().get();
 		}
 	}
 

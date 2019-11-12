@@ -3,8 +3,8 @@ package io.openems.edge.bhkw;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface PowerLevel extends OpenemsComponent {
@@ -32,7 +32,7 @@ public interface PowerLevel extends OpenemsComponent {
 
         }
 
-        default BooleanWriteChannel getPowerLevelChannel() {
+        default IntegerWriteChannel getPowerLevelChannel() {
             return this.channel(ChannelId.POWER_LEVEL);
         }
 

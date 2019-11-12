@@ -2,7 +2,6 @@ package io.openems.edge.relaisboardmcp;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.task.McpTask;
 
 import java.io.IOException;
@@ -14,19 +13,16 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
     private String parentCircuitBoard;
     private final int length = 4;
     private I2CDevice device;
-    private int [] values;
-    private int [] prevValues;
-    private final Map<String, McpTask> tasks = new ConcurrentHashMap<>();
+    private int[] values;
+    private int[] prevValues;
+    private Map<String, McpTask> tasks = new ConcurrentHashMap<>();
 
 
-
-
-
-    public Mcp4728(String address, String parentCircuitBoard, I2CBus device)  throws IOException {
+    public Mcp4728(String address, String parentCircuitBoard, I2CBus device) throws IOException {
         values = new int[4];
         prevValues = new int[4];
 
-        for(short x = 0; x < length; x++) {
+        for (short x = 0; x < length; x++) {
             values[x] = 0;
             prevValues[x] = 0;
 
@@ -61,10 +57,24 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
 
     }
 
-    public void shift(){
+    public void shift() {
 
-        for (McpTask task : tasks.values()){
-            //TODO do something
+        for (McpTask task : tasks.values()) {
+            //-69 default value of digitValue in BhkwTask
+            if (task.getDigitValue() != -69) {
+                values[task.getPosition()] = task.getDigitValue();
+                if (values[task.getPosition()] < 0) {
+                    values[task.getPosition()] = 0;
+                } else if (values[task.getPosition()] > 4095) {
+                    values[task.getPosition()] = 4095;
+
+                }
+                if (values[task.getPosition()] != prevValues[task.getPosition()]) {
+                    prevValues[task.getPosition()] = values[task.getPosition()];
+                }
+            } else {
+                values[task.getPosition()] = prevValues[task.getPosition()];
+            }
         }
         try {
             this.device.write(0x50, setAllVoltage());
@@ -75,28 +85,27 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
     }
 
     @Override
-    public void addToDefault(int position, boolean activate) {
-
-    }
-
-    @Override
     public void addTask(String id, McpTask mcpTask) {
-
+        this.tasks.put(id, mcpTask);
     }
 
     @Override
     public void removeTask(String id) {
-
+    this.tasks.remove(id);
     }
 
     public byte[] setAllVoltage() {
-        byte[] setBytes = new byte[this.length];
+        byte[] setBytes = new byte[this.length - 1];
 
         for (short x = 0; x < this.length; x++) {
             setBytes[x] = (byte) ((this.values[x] >> 8) & 0xFF);
-
         }
         return setBytes;
     }
 
+
+    @Override
+    public void addToDefault(int position, boolean activate) {
+        return;
+    }
 }

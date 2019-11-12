@@ -138,4 +138,12 @@ public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsCom
 	public Mcp getMcp() {
 		return this.allocatedMcp;
 	}
+
+    @Override
+    public int calculateValueForDigit(int percentageRange, int ampereRange) {
+            //TODO -Calc Values --
+
+
+        return -1;
+    }
 }

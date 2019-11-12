@@ -13,13 +13,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Bhkw")
-public abstract class BhkwImpl extends AbstractOpenemsComponent implements OpenemsComponent, PowerLevel {
+public class BhkwImpl extends AbstractOpenemsComponent implements OpenemsComponent, PowerLevel {
     private Mcp mcp;
     @Reference
     protected ComponentManager cpm;
@@ -35,9 +34,11 @@ public abstract class BhkwImpl extends AbstractOpenemsComponent implements Opene
         if (cpm.getComponent(config.gaspedalId()) instanceof Gaspedal) {
             Gaspedal gaspedal = cpm.getComponent(config.gaspedalId());
             if (gaspedal.getId().equals(config.gaspedalId())) {
+                //TODO Temporary till BhkwTypes are implemented
+
                 if (gaspedal.getMcp() instanceof Mcp4728) {
                     mcp = gaspedal.getMcp();
-                    ((Mcp4728) mcp).addTask(super.id(), new BhkwTask(super.id()));
+                    ((Mcp4728) mcp).addTask(super.id(), new BhkwTask(super.id(), config.position(), config.minLimit(), config.maxLimit(), config.percentageRange(), 4096, this.getPowerLevelChannel()));
                 }
             }
         }
@@ -46,6 +47,7 @@ public abstract class BhkwImpl extends AbstractOpenemsComponent implements Opene
 
     @Deactivate
     public void deactivate() {
+        //TODO
         super.deactivate();
     }
 

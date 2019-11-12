@@ -14,5 +14,9 @@ public abstract class McpTask {
 
     public abstract WriteChannel<Boolean> getWriteChannel();
 
+    public abstract WriteChannel<Integer> getPowerLevel();
+
+    public abstract int getDigitValue();
+
 
 }
