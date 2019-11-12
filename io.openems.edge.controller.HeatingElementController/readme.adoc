@@ -1,8 +1,57 @@
-# io.openems.edge.controller.HeatingElementController Provider
+= Heating element controller, controls via excess grid active power
 
-${Bundle-Description}
+Controls the heating element controller.
 
-## Example
 
-## References
+  
+  
 
+== Configuration
+
+                - `id` Unique ID of this Component (id), e.g. "ctrlIoAlarm0", "ctrlIoAlarm1"
+
+                - `alias` Human-readable name of this Component; defaults to Component-ID (alias)
+
+                - `enabled` Is this Component enabled?
+
+                - `mode` Selection of the Mode, 1) always on 2) always off or 3) Automatic
+
+                - `inputChannelAddress` Address of the input channel for the grid power
+
+                - `outputChannelAddress1` Channel address of the Digital Output that should be switched
+
+                - `outputChannelAddress2` Channel address of the Digital Output that should be switched
+
+                - `outputChannelAddress3` Channel address of the Digital Output that should be switched
+
+                - `endTime` End time to check the minmum run time
+
+                - `priority` Decide the priority, time or the Kilo watt hour
+
+                - `minTime` Minimum time for heating element to run in hours
+
+                - `minkwh` Minimun Kilo watt hour for heating element to run in kwh
+
+                - `powerOfPhase` Power of the single phase
+
+
+
+
+== Example Configuration
+
+- `Component-ID` : ctrlHeatingElement00
+- `Alias` : myCtrl
+- `enabled` : true
+- `Mode` : Automatic
+- `Input Channels` : _sum/GridActivePower
+- `Output Channel1` : io0/Relay1
+- `Output Channel2` : io0/Relay2
+- `Output Channel3` : io0/Relay3
+- `End time` : "17:00:00" 
+- `Priority` : "Time"
+- `Minimum Time` : 1
+- `Minimum Kwh` : 4
+- `Power of Phase` : 2000
+
+NOTE: _sum/GridActivePower - represents the Grid active power channel of the ESS0, 
+io0/relay1 - represents the relay 1 of the relay board.
