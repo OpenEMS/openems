@@ -80,20 +80,6 @@ export class PickDatePopoverComponent {
                 this.popoverCtrl.dismiss(this.disableArrow);
                 break;
             }
-            case 'month': {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
-                this.service.periodString = period;
-                this.disableArrow = true;
-                this.popoverCtrl.dismiss(this.disableArrow);
-                break;
-            }
-            case 'year': {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
-                this.service.periodString = period;
-                this.disableArrow = true;
-                this.popoverCtrl.dismiss(this.disableArrow);
-                break;
-            }
         }
     }
 

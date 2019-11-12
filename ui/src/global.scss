@@ -9,13 +9,19 @@
 @import '~@ionic/angular/css/text-alignment.css';
 @import '~@ionic/angular/css/text-transformation.css';
 @import '~@ionic/angular/css/flex-utils.css';
+@import '~@ionic/angular/css/display.css';
 
-//252px for the exact width of my-date-range-picker in PickDateComponent
+//251px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content{
     width: 251px;
     position: center;
     overflow-y: hidden;
     overflow-x: hidden;
+}
+
+//is used for PickDateComponent - shows active PeriodString
+.active {
+    color: #2d8fab;
 }
 
 ion-label {

@@ -46,22 +46,6 @@ export class PickDateComponent {
                 }
                 break;
             }
-            case 'month': {
-                if (isFuture(addMonths(this.service.historyPeriod.from, 1))) {
-                    this.disableArrow = true;
-                } else {
-                    this.disableArrow = false;
-                }
-                break;
-            }
-            case 'year': {
-                if (isFuture(addYears(this.service.historyPeriod.from, 1))) {
-                    this.disableArrow = true;
-                } else {
-                    this.disableArrow = false;
-                }
-                break;
-            }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 if (isFuture(addDays(this.service.historyPeriod.from, dateDistance * 2))) {
@@ -139,28 +123,6 @@ export class PickDateComponent {
                 }
                 break;
             }
-            case 'month': {
-                if (isFuture(addMonths(this.service.historyPeriod.from, 2))) {
-                    this.disableArrow = true;
-                }
-                if (!isFuture(addMonths(this.service.historyPeriod.from, 1))) {
-                    this.service.historyPeriod.from = addMonths(this.service.historyPeriod.from, 1);
-                    this.service.historyPeriod.to = endOfMonth(this.service.historyPeriod.from);
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                }
-                break;
-            }
-            case 'year': {
-                if (isFuture(addYears(this.service.historyPeriod.from, 2))) {
-                    this.disableArrow = true;
-                }
-                if (!isFuture(addYears(this.service.historyPeriod.from, 1))) {
-                    this.service.historyPeriod.from = addYears(this.service.historyPeriod.from, 1);
-                    this.service.historyPeriod.to = endOfYear(this.service.historyPeriod.from);
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                }
-                break;
-            }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
@@ -189,20 +151,6 @@ export class PickDateComponent {
                 this.disableArrow = false;
                 this.service.historyPeriod.from = subWeeks(this.service.historyPeriod.from, 1);
                 this.service.historyPeriod.to = endOfWeek(this.service.historyPeriod.from, { weekStartsOn: 1 });
-                this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                break;
-            }
-            case 'month': {
-                this.disableArrow = false;
-                this.service.historyPeriod.from = subMonths(this.service.historyPeriod.from, 1);
-                this.service.historyPeriod.to = endOfMonth(this.service.historyPeriod.from);
-                this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
-                break;
-            }
-            case 'year': {
-                this.disableArrow = false;
-                this.service.historyPeriod.from = subYears(this.service.historyPeriod.from, 1);
-                this.service.historyPeriod.to = endOfYear(this.service.historyPeriod.from);
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
                 break;
             }
