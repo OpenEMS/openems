@@ -163,7 +163,7 @@ export class PickDateComponent {
             }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
-                if (isFuture(addDays(this.service.historyPeriod.from, dateDistance * 2))) {
+                if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
                     this.disableArrow = true;
                 }
                 if (!isFuture(addDays(this.service.historyPeriod.to, dateDistance))) {
