@@ -37,10 +37,9 @@ public class BhkwTask extends McpTask {
     public int getDigitValue() {
         //digit
         int digitValue = -69;
-        if (powerLevel.getNextWriteValue().isPresent()) {
-            if (percentageRange > 0) {
-                digitValue = ((maxValue - minValue) / (100 - percentageRange) * scaling) * (powerLevel.value().get() - percentageRange) + minValue;
-            }
+        if (powerLevel.value().isDefined()) {
+          String power =  powerLevel.value().get().toString().replaceAll("[a-zA-Z _%]", "");
+                digitValue = ((maxValue - minValue) / (100 - percentageRange) * scaling) * (Integer.parseInt(power) - percentageRange) + minValue;
         }
 
         return digitValue;
@@ -50,4 +49,5 @@ public class BhkwTask extends McpTask {
         public WriteChannel<Boolean> getWriteChannel() {
             return null;
         }
+
     }

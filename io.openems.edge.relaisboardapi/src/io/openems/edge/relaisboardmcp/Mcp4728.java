@@ -21,7 +21,7 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
     public Mcp4728(String address, String parentCircuitBoard, I2CBus device) throws IOException {
         values = new int[4];
         prevValues = new int[4];
-
+        this.parentCircuitBoard = parentCircuitBoard;
         for (short x = 0; x < length; x++) {
             values[x] = 0;
             prevValues[x] = 0;
@@ -43,19 +43,6 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
         }
     }
 
-    public void setPosition(int position, int value) {
-        if (position >= 0 && position < length) {
-            this.values[position] = value;
-        } else {
-            throw new IllegalArgumentException("There is no position: " + position + "max is " + (this.length - 1));
-        }
-
-    }
-
-    @Override
-    public void setPosition(int position, boolean activate) {
-
-    }
 
     public void shift() {
 
@@ -91,21 +78,24 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
 
     @Override
     public void removeTask(String id) {
-    this.tasks.remove(id);
+        this.tasks.remove(id);
     }
 
     public byte[] setAllVoltage() {
-        byte[] setBytes = new byte[this.length - 1];
 
-        for (short x = 0; x < this.length; x++) {
-            setBytes[x] = (byte) ((this.values[x] >> 8) & 0xFF);
-        }
-        return setBytes;
+        return new byte[]{(byte) ((this.values[0] >> 8) & 0xFF), (byte) ((this.values[0]) & 0xFF),
+                (byte) ((this.values[1] >> 8) & 0xFF), (byte) ((this.values[1]) & 0xFF),
+                (byte) ((this.values[2] >> 8) & 0xFF), (byte) ((this.values[2]) & 0xFF),
+                (byte) ((this.values[3] >> 8) & 0xFF), (byte) ((this.values[3]) & 0xFF)};
     }
 
 
     @Override
     public void addToDefault(int position, boolean activate) {
         return;
+    }
+
+    @Override
+    public void setPosition(int position, boolean activate) {
     }
 }

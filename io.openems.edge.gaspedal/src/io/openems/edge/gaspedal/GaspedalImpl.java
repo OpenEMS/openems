@@ -19,14 +19,14 @@ import java.io.IOException;
 @Component(name = "Gaspedal")
 public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsComponent, Gaspedal {
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	public I2cBridge refI2cBridge;
+    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+    public I2cBridge refI2cBridge;
 
     private Mcp allocatedMcp;
     private I2CBus bus;
     private String address;
-	private String id;
-	private String i2cBridge;
+    private String id;
+    private String i2cBridge;
 
     public GaspedalImpl() {
         super(OpenemsComponent.ChannelId.values());
@@ -108,20 +108,20 @@ public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsCom
         super.activate(context, config.id(), config.alias(), config.enabled());
         this.id = config.id();
         this.i2cBridge = config.bridge();
-
+        this.address = config.address();
         allocateBus(config.bus());
 
         switch (config.version()) {
             case "1":
-				try {
-					this.allocatedMcp = new Mcp4728(address, super.id(), this.bus);
-					this.refI2cBridge.addMcp(this.allocatedMcp);
-					break;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+                try {
+                    this.allocatedMcp = new Mcp4728(config.address(), super.id(), this.bus);
+                    this.refI2cBridge.addMcp(this.allocatedMcp);
+                    break;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-		}
+        }
     }
 
     @Deactivate
@@ -129,21 +129,14 @@ public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsCom
         super.deactivate();
     }
 
-	@Override
-	public String getId() {
-		return super.id();
-	}
-
-	@Override
-	public Mcp getMcp() {
-		return this.allocatedMcp;
-	}
+    @Override
+    public String getId() {
+        return super.id();
+    }
 
     @Override
-    public int calculateValueForDigit(int percentageRange, int ampereRange) {
-            //TODO -Calc Values --
-
-
-        return -1;
+    public Mcp getMcp() {
+        return this.allocatedMcp;
     }
+
 }

@@ -8,6 +8,5 @@ public interface Gaspedal {
 
     Mcp getMcp();
 
-    int calculateValueForDigit(int percentageRange, int ampereRange);
 
 }
