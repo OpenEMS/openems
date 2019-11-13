@@ -308,6 +308,15 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				}
 			};
 			break;
+		case "float":
+			handler = (builder, value) -> {
+				try {
+					builder.addField(field, Float.parseFloat(value.toString().replace("\"", "")));
+				} catch (NumberFormatException e1) {
+					this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to float");
+				}
+			};
+			break;
 		}
 
 		if (handler == null) {
