@@ -47,7 +47,7 @@ export class AutarchyWidgetComponent implements OnInit, OnChanges {
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
             this.service.getConfig().then(config => {
                 let result = response.result;
-                this.autarchyValue = CurrentData.calculateAutarchy(result.data['_sum/GridBuyActiveEnergy'], result.data['_sum/ConsumptionActiveEnergy'])
+                this.autarchyValue = CurrentData.calculateAutarchy(result.data['_sum/GridBuyActiveEnergy'] / 1000, result.data['_sum/ConsumptionActiveEnergy'] / 1000)
             }).catch(reason => {
                 console.error(reason); // TODO error message
             });

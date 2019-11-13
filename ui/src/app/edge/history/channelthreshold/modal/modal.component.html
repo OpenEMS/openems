@@ -21,12 +21,22 @@
 <ion-content>
     <ng-container *ngIf="showTotal">
         <ion-card-content>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                </tr>
+            </table>
             <channelthresholdTotalChart [period]="service.historyPeriod">
             </channelthresholdTotalChart>
         </ion-card-content>
     </ng-container>
     <ng-container *ngIf="!showTotal || showTotal == null">
         <ion-card-content>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 100%" class="ion-padding" translate>Edge.Index.Widgets.Channeltreshold.Output</td>
+                </tr>
+            </table>
             <channelthresholdSingleChart [controllerId]="controllerId" [period]="service.historyPeriod">
             </channelthresholdSingleChart>
         </ion-card-content>

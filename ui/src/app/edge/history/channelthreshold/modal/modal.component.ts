@@ -34,6 +34,7 @@ export class ChannelthresholdModalComponent {
                 this.showTotal = false;
             }
         })
+        console.log("channelthresholdcomponents", this.channelthresholdComponents)
     }
 
     onNotifyTotal(showTotal: boolean): void {

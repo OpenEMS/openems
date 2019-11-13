@@ -41,6 +41,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(() => {
                 this.service.getConfig().then((config) => {
+                    this.colors = [];
                     let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
                     // convert labels
@@ -116,17 +117,17 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                             }
                         });
                         datasets.push({
-                            label: this.translate.instant('General.Consumption') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                            label: this.translate.instant('General.Total') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
                             data: consumptionDataL1
                         });
                         this.colors.push(this.phase1Color);
                         datasets.push({
-                            label: this.translate.instant('General.Consumption') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                            label: this.translate.instant('General.Total') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
                             data: consumptionDataL2
                         });
                         this.colors.push(this.phase2Color);
                         datasets.push({
-                            label: this.translate.instant('General.Consumption') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                            label: this.translate.instant('General.Total') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
                             data: consumptionDataL3
                         });
                         this.colors.push(this.phase3Color);
@@ -154,7 +155,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                         })
 
                     }
-                    // show every single EVCS 
+                    // show every single EVCS
                     Object.keys(result.data).forEach((channel) => {
                         let address = ChannelAddress.fromString(channel);
                         let component = config.getComponent(address.componentId);

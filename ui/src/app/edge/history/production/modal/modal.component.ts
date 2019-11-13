@@ -10,6 +10,7 @@ export class ProductionModalComponent {
 
     private static readonly SELECTOR = "production-modal";
 
+    public config: EdgeConfig = null;
     public productionMeterComponents: EdgeConfig.Component[] = null;
     public chargerComponents: EdgeConfig.Component[] = null;
     public showTotal: boolean = null;
@@ -26,6 +27,7 @@ export class ProductionModalComponent {
 
     ngOnInit() {
         this.service.getConfig().then(config => {
+            this.config = config;
             this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => config.isProducer(component));
             this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
             if ((this.productionMeterComponents != null && this.productionMeterComponents.length > 0 && this.chargerComponents != null && this.chargerComponents.length > 0)
@@ -39,7 +41,7 @@ export class ProductionModalComponent {
             } else {
                 this.isOnlyChart = false;
             }
-            if (this.productionMeterComponents.length == 0) {
+            if (this.productionMeterComponents != null && this.productionMeterComponents.length == 0) {
                 this.showPhases = null;
             }
         })

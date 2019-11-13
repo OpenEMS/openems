@@ -59,87 +59,48 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                     Object.keys(result.data).forEach((channel) => {
                         let address = ChannelAddress.fromString(channel);
                         let component = config.getComponent(address.componentId);
-                        let dischargeData = result.data[channel].map(value => {
+                        let chargeDischargeData = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
-                            } else if (value > 0) {
+                            } else if (value == 0) {
+                                return 0;
+                            } else {
                                 return value / 1000; // convert to kW
-                            } else {
-                                return 0;
                             }
-                        });
-                        let chargeData = result.data[channel].map(value => {
-                            if (value == null) {
-                                return null;
-                            } else if (value < 0) {
-                                return value / -1000;
-                            } else {
-                                return 0;
-                            }
-                        });
+                        })
                         if (address.channelId == "ActivePower") {
                             datasets.push({
-                                label: this.translate.instant('General.ChargePower') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
-                                data: chargeData,
+                                label: this.translate.instant('General.ChargeDischarge') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
+                                data: chargeDischargeData,
                                 hidden: false
                             });
                             this.colors.push({
                                 backgroundColor: 'rgba(0,223,0,0.05)',
                                 borderColor: 'rgba(0,223,0,1)',
                             })
-                            datasets.push({
-                                label: this.translate.instant('General.DischargePower') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
-                                data: dischargeData,
-                                hidden: false
-                            });
-                            this.colors.push({
-                                backgroundColor: 'rgba(200,0,0,0.05)',
-                                borderColor: 'rgba(200,0,0,1)',
-                            });
                         }
                         if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
                             // Phases
                             if (address.channelId == 'ActivePowerL1') {
-                                //Charge
                                 datasets.push({
-                                    label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                                    data: chargeData
+                                    label: this.translate.instant('General.ChargeDischarge') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                    data: chargeDischargeData
                                 });
                                 this.colors.push(this.phase1Color);
-                                //Discharge
-                                datasets.push({
-                                    label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                                    data: dischargeData
-                                });
-                                this.colors.push(this.phase1AdditionalColor);
                             }
                             if (address.channelId == 'ActivePowerL2') {
-                                //Charge
                                 datasets.push({
-                                    label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                                    data: chargeData
+                                    label: this.translate.instant('General.ChargeDischarge') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                    data: chargeDischargeData
                                 });
                                 this.colors.push(this.phase2Color);
-                                //Discharge
-                                datasets.push({
-                                    label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                                    data: dischargeData
-                                });
-                                this.colors.push(this.phase2AdditionalColor);
                             }
                             if (address.channelId == 'ActivePowerL3') {
-                                //Charge
                                 datasets.push({
-                                    label: this.translate.instant('General.ChargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                                    data: chargeData
+                                    label: this.translate.instant('General.ChargeDischarge') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                    data: chargeDischargeData
                                 });
                                 this.colors.push(this.phase3Color);
-                                //Discharge
-                                datasets.push({
-                                    label: this.translate.instant('General.DischargePower') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                                    data: dischargeData
-                                });
-                                this.colors.push(this.phase3AdditionalColor);
                             }
                         }
                     })

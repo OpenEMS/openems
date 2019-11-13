@@ -39,6 +39,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(() => {
                 this.service.getConfig().then((config) => {
+                    this.colors = [];
                     let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
                     // convert labels

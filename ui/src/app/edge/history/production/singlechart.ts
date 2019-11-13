@@ -40,6 +40,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
+                    this.colors = [];
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -50,54 +51,55 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                     // convert datasets
                     let datasets = [];
 
-
-
-                    Object.keys(result.data).forEach((channel, index) => {
-                        let address = ChannelAddress.fromString(channel);
-                        let component = config.getComponent(address.componentId);
-                        let data = result.data[channel].map(value => {
-                            if (value == null) {
-                                return null
+                    this.getChannelAddresses(edge, config).then(channelAddresses => {
+                        channelAddresses.forEach(channelAddress => {
+                            let data = result.data[channelAddress.toString()].map(value => {
+                                if (value == null) {
+                                    return null
+                                } else {
+                                    return value / 1000;
+                                }
+                            });
+                            if (!data) {
+                                return;
                             } else {
-                                return value / 1000; // convert to kW
+                                if (channelAddress.channelId == 'ProductionActivePower') {
+                                    datasets.push({
+                                        label: this.translate.instant('General.Production') + ' (' + this.translate.instant('General.Total') + ')',
+                                        data: data
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(45,143,171,0.1)',
+                                        borderColor: 'rgba(45,143,171,1)',
+                                    });
+                                }
+                                if ('_sum/ProductionAcActivePowerL1' && '_sum/ProductionAcActivePowerL2' && '_sum/ProductionAcActivePowerL3' in result.data && this.showPhases == true) {
+                                    // Phases
+                                    if (channelAddress.channelId == 'ProductionAcActivePowerL1') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase1Color);
+                                    }
+                                    if (channelAddress.channelId == 'ProductionAcActivePowerL2') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase2Color);
+                                    }
+                                    if (channelAddress.channelId == 'ProductionAcActivePowerL3') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase3Color);
+                                    }
+                                }
                             }
                         });
-                        //more than one Production Unit
-                        if (address.channelId == 'ProductionActivePower') {
-                            datasets.push({
-                                label: this.translate.instant('General.Production') + ' (' + this.translate.instant('General.Total') + ')',
-                                data: data
-                            });
-                            this.colors.push({
-                                backgroundColor: 'rgba(255,165,0,0.1)',
-                                borderColor: 'rgba(255,165,0,1)',
-                            });
-                        }
-                        if ('_sum/ActivePowerL1' && '_sum/ActivePowerL2' && '_sum/ActivePowerL3' in result.data && this.showPhases == true) {
-                            // Phases
-                            if (address.channelId == 'ActivePowerL1') {
-                                datasets.push({
-                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                                    data: data
-                                });
-                                this.colors.push(this.phase1Color);
-                            }
-                            if (address.channelId == 'ActivePowerL2') {
-                                datasets.push({
-                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                                    data: data
-                                });
-                                this.colors.push(this.phase2Color);
-                            }
-                            if (address.channelId == 'ActivePowerL3') {
-                                datasets.push({
-                                    label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                                    data: data
-                                });
-                                this.colors.push(this.phase3Color);
-                            }
-                        }
-                    })
+                    });
                     this.datasets = datasets;
                     this.loading = false;
 

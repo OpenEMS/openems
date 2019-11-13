@@ -91,7 +91,6 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                                 })
                             })
                             this.timeActiveOverPeriod = (compareArray.length / (result.timestamps.length / 100));
-                            console.log("blabla", compareArray.length / (result.timestamps.length / 100))
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {

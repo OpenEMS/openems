@@ -17,7 +17,7 @@ import { differenceInHours } from 'date-fns';
 export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
   @Input() private period: DefaultTypes.HistoryPeriod;
-  @Input() private controllerId: string;
+  @Input() public controllerId: string;
 
   ngOnChanges() {
     this.updateChart();

@@ -53,6 +53,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                     let showComponentId = Object.keys(result.data).length > 1 ? true : false;
 
                     Object.keys(result.data).forEach((channel, index) => {
+                        console.log("result.data", result)
                         let address = ChannelAddress.fromString(channel);
                         let component = config.getComponent(address.componentId);
                         let data = result.data[channel].map(value => {
@@ -74,27 +75,21 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 borderColor: 'rgba(0,223,0,1)',
                             })
                         } else {
-                            switch (index % 2) {
-                                case 0:
-                                    datasets.push({
-                                        label: this.translate.instant('General.Soc') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
-                                        data: data
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(32,178,170,0.05)',
-                                        borderColor: 'rgba(32,178,170,1)',
-                                    })
-                                    break;
-                                case 1:
-                                    datasets.push({
-                                        label: this.translate.instant('General.Soc') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
-                                        data: data
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(128,128,0,0.05)',
-                                        borderColor: 'rgba(128,128,0,1)',
-                                    })
-                                    break;
+                            datasets.push({
+                                label: this.translate.instant('General.Soc') + (showComponentId ? (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')') : ''),
+                                data: data
+                            });
+                            // if there is only one SOC, use green as color, if not use grey (only total SOC will appear in green)
+                            if ('_sum/EssSoc' in result.data) {
+                                this.colors.push({
+                                    backgroundColor: 'rgba(0,223,0,0.05)',
+                                    borderColor: 'rgba(0,223,0,1)',
+                                })
+                            } else {
+                                this.colors.push({
+                                    backgroundColor: 'rgba(128,128,128,0.05)',
+                                    borderColor: 'rgba(128,128,128,1)',
+                                })
                             }
                         }
                     })

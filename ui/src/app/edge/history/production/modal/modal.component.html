@@ -1,7 +1,7 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
         <ion-title class="ion-text-start ion-padding-left" translate>General.Production</ion-title>
-        <ng-container *ngIf="showTotal != null">
+        <ng-container *ngIf="showTotal != null || showPhases != null">
             <ion-buttons slot="start">
                 <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
                     [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
@@ -23,6 +23,11 @@
 <ion-content>
     <ng-container *ngIf="showTotal">
         <ion-card-content>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                </tr>
+            </table>
             <productionTotalChart [showPhases]="showPhases" [period]="service.historyPeriod"></productionTotalChart>
         </ion-card-content>
     </ng-container>
@@ -31,6 +36,11 @@
         <ng-container
             *ngIf="productionMeterComponents != null && productionMeterComponents.length > 0 && chargerComponents != null && chargerComponents.length > 0">
             <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                    </tr>
+                </table>
                 <productionSingleChart [showPhases]="showPhases" [period]="service.historyPeriod">
                 </productionSingleChart>
             </ion-card-content>
@@ -40,6 +50,16 @@
             *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && (chargerComponents.length == 0 || chargerComponents == null)">
             <ng-container *ngFor="let component of productionMeterComponents">
                 <ion-card-content [class.underline]="chargerComponents.length > 0">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
+                                {{component.id}}
+                            </td>
+                            <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
+                                {{component.alias}}
+                            </td>
+                        </tr>
+                    </table>
                     <productionMeterChart [showPhases]="showPhases" [isOnlyChart]="isOnlyChart"
                         [period]="service.historyPeriod" [componentId]="component.id">
                     </productionMeterChart>
@@ -51,6 +71,16 @@
             *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && chargerComponents.length > 0">
             <ng-container *ngFor="let component of productionMeterComponents">
                 <ion-card-content [class.underline]="chargerComponents.length > 0">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
+                                {{component.id}}
+                            </td>
+                            <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
+                                {{component.alias}}
+                            </td>
+                        </tr>
+                    </table>
                     <productionMeterChart [isOnlyChart]="isOnlyChart" [period]="service.historyPeriod"
                         [componentId]="component.id">
                     </productionMeterChart>
@@ -62,6 +92,11 @@
         <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
             <ion-card-content class="underline"
                 *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                    </tr>
+                </table>
                 <productionTotalAcChart [showPhases]="showPhases" [period]="service.historyPeriod">
                 </productionTotalAcChart>
             </ion-card-content>
@@ -73,6 +108,16 @@
                     <ion-card-content
                         [class.underline]="chargerComponents.length > 0 || !isLastElement(component, productionMeterComponents)">
                         <ng-container *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter')">
+                            <table class="full_width">
+                                <tr>
+                                    <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
+                                        {{component.id}}
+                                    </td>
+                                    <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
+                                        {{component.alias}}
+                                    </td>
+                                </tr>
+                            </table>
                             <productionMeterChart [period]="service.historyPeriod" [componentId]="component.id">
                             </productionMeterChart>
                         </ng-container>
@@ -85,6 +130,16 @@
         <ng-container *ngIf="chargerComponents != null && chargerComponents.length == 1">
             <ng-container *ngFor="let component of chargerComponents">
                 <ion-card-content>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
+                                {{component.id}}
+                            </td>
+                            <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
+                                {{component.alias}}
+                            </td>
+                        </tr>
+                    </table>
                     <productionChargerChart [isOnlyChart]="isOnlyChart" [period]="service.historyPeriod"
                         [componentId]="component.id">
                     </productionChargerChart>
@@ -95,9 +150,24 @@
         <ng-container *ngIf="chargerComponents != null && chargerComponents.length > 1">
             <!-- summary of DC Charger -->
             <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%" class="ion-padding" translate>General.Total<span> DC</span></td>
+                    </tr>
+                </table>
                 <productionTotalDcChart [period]="service.historyPeriod"></productionTotalDcChart>
             </ion-card-content>
             <ng-container *ngFor="let component of chargerComponents">
+                <table class="full_width">
+                    <tr>
+                        <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
+                            {{component.id}}
+                        </td>
+                        <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
+                            {{component.alias}}
+                        </td>
+                    </tr>
+                </table>
                 <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
                     <productionChargerChart [period]="service.historyPeriod" [componentId]="component.id">
                     </productionChargerChart>

@@ -73,23 +73,23 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
                                 borderColor: 'rgba(255,165,0,1)',
                             });
                         }
-                        if ('_sum/ActivePowerL1' && '_sum/ActivePowerL2' && '_sum/ActivePowerL3' in result.data && this.showPhases == true) {
+                        if ('_sum/ProductionAcActivePowerL1' && '_sum/ProductionAcActivePowerL2' && '_sum/ProductionAcActivePowerL3' in result.data && this.showPhases == true) {
                             // Phases
-                            if (address.channelId == 'ActivePowerL1') {
+                            if (address.channelId == 'ProductionAcActivePowerL1') {
                                 datasets.push({
                                     label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
                                     data: data
                                 });
                                 this.colors.push(this.phase1Color);
                             }
-                            if (address.channelId == 'ActivePowerL2') {
+                            if (address.channelId == 'ProductionAcActivePowerL2') {
                                 datasets.push({
                                     label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
                                     data: data
                                 });
                                 this.colors.push(this.phase2Color);
                             }
-                            if (address.channelId == 'ActivePowerL3') {
+                            if (address.channelId == 'ProductionAcActivePowerL3') {
                                 datasets.push({
                                     label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
                                     data: data

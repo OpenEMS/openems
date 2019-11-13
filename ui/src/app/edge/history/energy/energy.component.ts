@@ -183,8 +183,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               hidden: false
             });
             this.colors.push({
-              backgroundColor: 'rgba(153,50,204,0.05)',
-              borderColor: 'rgba(153,50,204,1)'
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              borderColor: 'rgba(0,0,0,1)'
             })
 
             /*
