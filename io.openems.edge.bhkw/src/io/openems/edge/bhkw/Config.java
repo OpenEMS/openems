@@ -47,7 +47,7 @@ import org.osgi.service.metatype.annotations.Option;
     String gaspedalId() default "Gaspedal0";
 
     @AttributeDefinition(name = "min Limit of Bhkw", description = "Minimum of your Bhkw API mA.")
-    short minLimit() default 4;
+    short minLimit() default 0;
 
     @AttributeDefinition(name = "max Limit of Bhkw", description = "Maximum of your Bhkw API mA.")
     short maxLimit() default 20;

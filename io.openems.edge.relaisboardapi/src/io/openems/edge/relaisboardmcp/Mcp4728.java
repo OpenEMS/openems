@@ -5,6 +5,7 @@ import com.pi4j.io.i2c.I2CDevice;
 import io.openems.edge.relaisboardmcp.task.McpTask;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,8 +49,9 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
 
         for (McpTask task : tasks.values()) {
             //-69 default value of digitValue in BhkwTask
-            if (task.getDigitValue() != -69) {
-                values[task.getPosition()] = task.getDigitValue();
+            int digitValue = task.getDigitValue();
+            if (digitValue != -69) {
+                values[task.getPosition()] = digitValue;
                 if (values[task.getPosition()] < 0) {
                     values[task.getPosition()] = 0;
                 } else if (values[task.getPosition()] > 4095) {
@@ -64,7 +66,8 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
             }
         }
         try {
-            this.device.write(0x50, setAllVoltage());
+            byte[] allVoltage = setAllVoltage();
+            this.device.write(0x50, allVoltage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,10 +86,18 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
 
     public byte[] setAllVoltage() {
 
-        return new byte[]{(byte) ((this.values[0] >> 8) & 0xFF), (byte) ((this.values[0]) & 0xFF),
-                (byte) ((this.values[1] >> 8) & 0xFF), (byte) ((this.values[1]) & 0xFF),
-                (byte) ((this.values[2] >> 8) & 0xFF), (byte) ((this.values[2]) & 0xFF),
-                (byte) ((this.values[3] >> 8) & 0xFF), (byte) ((this.values[3]) & 0xFF)};
+        byte[] allVoltage = new byte[8];
+        int change1;
+        int change2;
+        for (short x = 0, y = 0; x < 8; y++) {
+            change1 = this.values[y];
+            change2 = this.values[y];
+            allVoltage[x] = (byte) ((change1 >> 8) & 0xFF);
+            x++;
+            allVoltage[x] = (byte) (change2 & 0xFF);
+            x++;
+        }
+        return allVoltage;
     }
 
 
