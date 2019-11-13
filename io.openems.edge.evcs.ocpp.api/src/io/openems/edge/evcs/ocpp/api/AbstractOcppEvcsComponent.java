@@ -179,4 +179,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
+	
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
+	}
 }

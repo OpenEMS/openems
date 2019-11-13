@@ -28,18 +28,18 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
-@Designate(ocd = ConfigSelfConsumtion.class, factory = true)
+@Designate(ocd = ConfigSelfConsumption.class, factory = true)
 @Component(//
-		name = "Evcs.Cluster", //
+		name = "Evcs.Cluster.SelfConsumtion", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		})
-public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent, Evcs {
+public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements OpenemsComponent, Evcs {
 
-	private final Logger log = LoggerFactory.getLogger(EvcsCluster.class);
+	private final Logger log = LoggerFactory.getLogger(EvcsClusterSelfConsumption.class);
 
 	// Used EVCSs
 	private String[] evcsIds = new String[0];
@@ -53,7 +53,7 @@ public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent
 	protected Sum sum;
 
 
-	public EvcsCluster() {
+	public EvcsClusterSelfConsumption() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values());
@@ -79,14 +79,14 @@ public class EvcsCluster extends AbstractEvcsCluster implements OpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, ConfigSelfConsumtion configSelfConsumtion) throws OpenemsNamedException {
-		this.evcsIds = configSelfConsumtion.evcs_ids();
+	void activate(ComponentContext context, ConfigSelfConsumption configSelfConsumption) throws OpenemsNamedException {
+		this.evcsIds = configSelfConsumption.evcs_ids();
 		updateSortedEvcss();
-		super.activate(context, configSelfConsumtion.id(), configSelfConsumtion.alias(),
-				configSelfConsumtion.enabled());
+		super.activate(context, configSelfConsumption.id(), configSelfConsumption.alias(),
+				configSelfConsumption.enabled());
 
 		// update filter for 'evcs' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", configSelfConsumtion.evcs_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", configSelfConsumption.evcs_ids())) {
 			return;
 		}
 	}

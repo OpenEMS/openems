@@ -4,6 +4,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
@@ -29,6 +30,7 @@ import eu.chargetime.ocpp.feature.profile.ServerLocalAuthListProfile;
 import eu.chargetime.ocpp.feature.profile.ServerRemoteTriggerProfile;
 import eu.chargetime.ocpp.feature.profile.ServerReservationProfile;
 import eu.chargetime.ocpp.feature.profile.ServerSmartChargingProfile;
+import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.SessionInformation;
 import eu.chargetime.ocpp.model.core.AvailabilityType;
@@ -135,7 +137,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 					logInfo(log, "Setting EVCS " + ocppEvcs.alias() + " availability to operative");
 					changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
 					changeAvailabilityRequest.setType(AvailabilityType.Operative);
-					send(sessionIndex, changeAvailabilityRequest);
+					sendDefault(sessionIndex, changeAvailabilityRequest);
 				}
 			}
 		});
@@ -144,7 +146,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	/**
 	 * Send message to EVCS. Returns true if sent successfully
 	 *
-	 * @param sessionIndex Current session
+	 * @param session Current session
 	 * @param request      Request that will be sent
 	 * @return When the request has been sent and a confirmation is received
 	 * @throws NotConnectedException
@@ -152,13 +154,15 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	 * @throws OccurenceConstraintException
 	 */
 	@Override
-	public boolean send(UUID sessionIndex, Request request) {
-		try {
-			request.validate();
-			server.send(sessionIndex, request).whenComplete((confirmation, throwable) -> {
+	public CompletionStage<Confirmation> send(UUID session, Request request) throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
+		return server.send(session, request);
+	}
+	
+	public void sendDefault(UUID session, Request request) {		
+		try {	
+			this.send(session, request).whenComplete((confirmation, throwable) -> {
 				this.logInfo(log, confirmation.toString());
 			});
-			return true;
 		} catch (OccurenceConstraintException e) {
 			this.logWarn(log, "The request is not a valid OCPP request.");
 		} catch (UnsupportedFeatureException e) {
@@ -166,7 +170,6 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		} catch (NotConnectedException e) {
 			this.logWarn(log, "The server is not connected.");
 		}
-		return false;
 	}
 
 	private List<AbstractOcppEvcsComponent> searchForComponentWithThatIdentifier(String identifier, UUID sessionIndex) {

@@ -2,10 +2,10 @@
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
             <ion-title>
-                <ion-label *ngIf="currentData[componentId + '/Alias'] as alias">
+                <ion-label *ngIf="config.properties.alias as alias">
                     {{ alias }}
                 </ion-label>
-                <ion-label *ngIf="!currentData[componentId + '/Alias']" translate>
+                <ion-label *ngIf="!config.properties.alias" translate>
                     Edge.Index.Widgets.EVCS.ChargingStationCluster
                 </ion-label>
             </ion-title>

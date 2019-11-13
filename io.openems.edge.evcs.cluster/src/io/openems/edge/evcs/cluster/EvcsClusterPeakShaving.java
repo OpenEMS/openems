@@ -163,7 +163,6 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		int allowedChargePower = 0;
 		int maxEssDischarge = 0;
-		// -Grid + (Allowed discharge-Current Discharge) + grid limit
 		
 		if (ess instanceof ManagedSymmetricEss) {
 			ManagedSymmetricEss e = (ManagedSymmetricEss)ess;
@@ -174,12 +173,11 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 			maxEssDischarge = ess.getMaxApparentPower().value().orElse(0);
 		}
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
-		long essDischargePower = this.sum.getEssActiveDischargeEnergy().value().orElse(new Long(0));
+		long essDischargePower = this.sum.getEssActivePower().value().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
 		int evcsCharge = this.getChargePower().value().orElse(0);
 		
-		
-		long maxAvailableStoragePower =  maxEssDischarge + (essDischargePower - essActivePowerDC);
+		long maxAvailableStoragePower =  maxEssDischarge - (essDischargePower - essActivePowerDC);
 		
 		allowedChargePower =(int)( evcsCharge + maxAvailableStoragePower + this.totalHardwarePowerLimit - buyFromGrid );
 		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;

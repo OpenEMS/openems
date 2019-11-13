@@ -7,6 +7,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.chargetime.ocpp.NotConnectedException;
+import eu.chargetime.ocpp.OccurenceConstraintException;
+import eu.chargetime.ocpp.UnsupportedFeatureException;
 import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -27,7 +30,7 @@ public class WriteHandler implements Runnable {
 	/**
 	 * Minimum pause between two consecutive writes
 	 */
-	private final static int WRITE_INTERVAL_SECONDS = 5;
+	private final static int WRITE_INTERVAL_SECONDS = 30;
 
 	public WriteHandler(AbstractOcppEvcsComponent parent) {
 		this.parent = parent;
@@ -40,11 +43,11 @@ public class WriteHandler implements Runnable {
 		if (communicationChannel.value().orElse(true)) {
 			return;
 		}
-		
+
 		for (OcppProfileType ocppProfileType : this.parent.profileTypes) {
 			switch (ocppProfileType) {
 			case CORE:
-				if(!(this.parent instanceof ManagedEvcs)) {
+				if (!(this.parent instanceof ManagedEvcs)) {
 					break;
 				}
 				this.setEnergyLimit();
@@ -62,11 +65,11 @@ public class WriteHandler implements Runnable {
 				break;
 			}
 		}
-		
+
 	}
 
-	private int lastTarget = 0;
-	private LocalDateTime nextCurrentWrite = LocalDateTime.MIN;
+	private Integer lastTarget = null;
+	private LocalDateTime nextPowerWrite = LocalDateTime.MIN;
 
 	/**
 	 * Sets the current from SET_CHARGE_POWER channel
@@ -76,19 +79,19 @@ public class WriteHandler implements Runnable {
 	 * used cable of the charging station.
 	 */
 	private void setPower() {
-
 		WriteChannel<Integer> energyLimitChannel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
 		int energyLimit = energyLimitChannel.getNextValue().orElse(0);
 
 		if (energyLimit == 0 || energyLimit > this.parent.getEnergySession().getNextValue().orElse(0)) {
 			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
 			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+
 			if (valueOpt.isPresent()) {
 
-				int target = 0;
 				String key = "PowerLimit";
 				int maxPower = this.parent.getMaximumHardwarePower().getNextValue().orElse(0);
 				Integer power = valueOpt.get();
+				Integer target = power;
 				ChangeConfigurationRequest request = new ChangeConfigurationRequest();
 				ChargingType chargeType = this.parent.getChargingType().getNextValue().asEnum();
 
@@ -112,22 +115,37 @@ public class WriteHandler implements Runnable {
 					this.parent.logInfo(this.log,
 							"The limit cannot be set during the charging because of the charge type chademo");
 					break;
-
 				}
-
-				if (target != lastTarget || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
-
-					this.parent.logInfo(this.log, "Setting EVCS " + this.parent.alias() + " Limit to [" + target + " "
-							+ (chargeType == ChargingType.AC ? "A" : "W") + "]");
-
+				
+				if (!target.equals(lastTarget) || this.nextPowerWrite.isBefore(LocalDateTime.now())) {
 					request.setKey(key);
 					request.setValue(String.valueOf(target));
 
 					UUID id = UUID.fromString(this.parent.getChargingSessionId().getNextValue().orElse(""));
-					boolean sentSuccessfully = parent.getConfiguredOcppServer().send(id, request);
-					if (sentSuccessfully) {
-						this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+
+					if (!request.validate()) {
+						this.parent.logInfo(log, "The request is not a valid OCPP request.");
+						return;
+					}
+
+					try {
+						this.parent.getConfiguredOcppServer().send(id, request)
+								.whenComplete((confirmation, throwable) -> {
+									this.parent.logInfo(log, confirmation.toString());
+								});
+
+						this.parent.logInfo(this.log, "Setting EVCS " + this.parent.alias() + " charge power to [" + target
+								+ " " + (chargeType == ChargingType.AC ? "A" : "W") + "]");
+
+						this.nextPowerWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 						this.lastTarget = target;
+
+					} catch (OccurenceConstraintException e) {
+						this.parent.logWarn(log, "The request is not a valid OCPP request.");
+					} catch (UnsupportedFeatureException e) {
+						this.parent.logWarn(log, "This feature is not implemented by the charging station.");
+					} catch (NotConnectedException e) {
+						this.parent.logWarn(log, "The server is not connected.");
 					}
 				}
 			}
@@ -137,12 +155,22 @@ public class WriteHandler implements Runnable {
 		}
 	}
 
+	private Integer lastEnergySession = null;
+	private LocalDateTime nextEnergySessionWrite = LocalDateTime.MIN;
+
 	private void setEnergyLimit() {
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
-			int energyLimit = valueOpt.get();
-			this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
+			Integer energyLimit = valueOpt.get();
+
+			if (!energyLimit.equals(lastEnergySession) || this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
+				this.parent.logInfo(this.log, "Setting OCPP EVCS " + this.parent.alias()
+						+ " Energy Limit in this Session to [" + energyLimit + " Wh]");
+				this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
+				lastEnergySession = energyLimit;
+				nextEnergySessionWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+			}
 		}
 	}
 }

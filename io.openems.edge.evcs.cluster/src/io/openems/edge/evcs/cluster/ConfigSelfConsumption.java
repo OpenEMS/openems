@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
 		name = "EVCS Cluster Self Consumtion", //
 		description = "Limits the maximum charging power of all electric vehicle charging stations, depending on the ecxess power.")
-@interface ConfigSelfConsumtion {
+@interface ConfigSelfConsumption {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "evcsCluster0";
