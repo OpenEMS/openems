@@ -16,8 +16,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
-	//TODO: Attribute for OCPP Version e.g. JSON 1.6
 
 	String webconsole_configurationFactory_nameHint() default "EVCS OCPP Server [{id}]";
 }

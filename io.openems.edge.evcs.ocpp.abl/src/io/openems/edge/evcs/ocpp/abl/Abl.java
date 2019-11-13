@@ -31,7 +31,7 @@ import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class Abl extends AbstractOcppEvcsComponent implements Evcs, MeasuringEvcs, OpenemsComponent, EventHandler{
+public class Abl extends AbstractOcppEvcsComponent implements Evcs, MeasuringEvcs, OpenemsComponent, EventHandler {
 
 	// Profiles that a ABL is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
@@ -45,7 +45,7 @@ public class Abl extends AbstractOcppEvcsComponent implements Evcs, MeasuringEvc
 
 	@Reference
 	protected ComponentManager componentManager;
-	
+
 	public Abl() {
 		super( //
 				PROFILE_TYPES, //
@@ -98,7 +98,7 @@ public class Abl extends AbstractOcppEvcsComponent implements Evcs, MeasuringEvc
 			return null;
 		}
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);

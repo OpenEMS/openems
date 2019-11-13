@@ -7,17 +7,22 @@ import java.util.UUID;
 import eu.chargetime.ocpp.model.SessionInformation;
 import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
 
+/**
+ * Represents an OCPP session with additional information and the matching EVCS.
+ */
 public class EvcsSession {
 
 	private UUID sessionId;
 	private SessionInformation sessionInformation = new SessionInformation();
 	private List<AbstractOcppEvcsComponent> ocppEvcss = new ArrayList<AbstractOcppEvcsComponent>();
 
-	public EvcsSession(UUID sessionId, SessionInformation sessionInformation, List<AbstractOcppEvcsComponent> ocppEvcss) {
+	public EvcsSession(UUID sessionId, SessionInformation sessionInformation,
+			List<AbstractOcppEvcsComponent> ocppEvcss) {
 		this.setSessionId(sessionId);
 		this.setSessionInformation(sessionInformation);
 		this.setOcppEvcss(ocppEvcss);
 	}
+
 	public EvcsSession(UUID sessionId) {
 		this.setSessionId(sessionId);
 	}
@@ -35,7 +40,7 @@ public class EvcsSession {
 	}
 
 	public void setSessionInformation(SessionInformation sessionInformation) {
-		if(sessionInformation != null) {
+		if (sessionInformation != null) {
 			this.sessionInformation = sessionInformation;
 		}
 	}
@@ -78,6 +83,4 @@ public class EvcsSession {
 			return false;
 		return true;
 	}
-	
-	
 }

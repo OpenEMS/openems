@@ -33,7 +33,8 @@ import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent implements Evcs,ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler{
+public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent
+		implements Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler {
 
 	// Profiles that a Ies KeyWatt is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
@@ -65,7 +66,7 @@ public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent implements Ev
 	public void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		
+
 		this.getChargingType().setNextValue(ChargingType.CCS);
 	}
 
@@ -103,7 +104,7 @@ public class IesKeywattSingleCCS extends AbstractOcppEvcsComponent implements Ev
 			return null;
 		}
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);

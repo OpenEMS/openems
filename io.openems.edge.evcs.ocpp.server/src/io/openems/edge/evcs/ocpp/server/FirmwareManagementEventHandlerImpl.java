@@ -11,7 +11,7 @@ import eu.chargetime.ocpp.model.firmware.DiagnosticsStatusNotificationRequest;
 import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationConfirmation;
 import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationRequest;
 
-public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagementEventHandler{
+public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagementEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(FirmwareManagementEventHandlerImpl.class);
 	private OcppServerImpl server;
@@ -24,7 +24,7 @@ public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagem
 	public DiagnosticsStatusNotificationConfirmation handleDiagnosticsStatusNotificationRequest(UUID sessionIndex,
 			DiagnosticsStatusNotificationRequest request) {
 		this.server.logInfo(log, "Handle DiagnosticsStatusNotificationRequest");
-		
+
 		return new DiagnosticsStatusNotificationConfirmation();
 	}
 

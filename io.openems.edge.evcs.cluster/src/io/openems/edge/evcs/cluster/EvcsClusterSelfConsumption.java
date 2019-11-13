@@ -52,13 +52,12 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	@Reference
 	protected Sum sum;
 
-
 	public EvcsClusterSelfConsumption() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values());
 	}
-	
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
 		if (evcs == this) {
@@ -86,11 +85,12 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 				configSelfConsumption.enabled());
 
 		// update filter for 'evcs' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", configSelfConsumption.evcs_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs",
+				configSelfConsumption.evcs_ids())) {
 			return;
 		}
 	}
-		
+
 	@Deactivate
 	protected void deactivate() {
 		for (Evcs evcs : this.sortedEvcss) {
@@ -115,6 +115,11 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 		}
 	}
 
+	/**
+	 * Sets the cluster channel to false and resets all depending channels
+	 * 
+	 * @param evcs
+	 */
 	private void resetClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
 			((ManagedEvcs) evcs).isClustered().setNextValue(false);
@@ -122,13 +127,18 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 		}
 		evcs.getMaximumPower().setNextValue(null);
 	}
-	
+
+	/**
+	 * Sets the cluster channel to true
+	 * 
+	 * @param evcs
+	 */
 	private void setClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
 			((ManagedEvcs) evcs).isClustered().setNextValue(true);
 		}
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
@@ -147,6 +157,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 		int essDischarge = this.sum.getEssActivePower().value().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
 		int evcsCharge = this.getChargePower().getNextValue().orElse(0);
+
 		excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 
 		return excessPower;
@@ -156,5 +167,4 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	public int getMinimumChargePowerGuarantee() {
 		return 0;
 	}
-
 }

@@ -23,7 +23,7 @@ import io.openems.edge.evcs.api.Status;
 
 public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		implements Evcs, MeasuringEvcs, EventHandler {
-	
+
 	protected final Set<OcppProfileType> profileTypes;
 
 	private final WriteHandler writeHandler = new WriteHandler(this);
@@ -134,7 +134,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public abstract Integer getConfiguredMaximumHardwarePower();
 
 	public abstract Integer getConfiguredMinimumHardwarePower();
-	
+
 	public abstract OcppServer getConfiguredOcppServer();
 
 	private void resetChannelValues() {
@@ -174,12 +174,12 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public IntegerReadChannel getConnectorId() {
 		return this.channel(ChannelId.CONNECTOR_ID);
 	}
-	
+
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
-	
+
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);

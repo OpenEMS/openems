@@ -41,6 +41,7 @@ import eu.chargetime.ocpp.model.core.ValueFormat;
 public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(CoreEventHandlerImpl.class);
+
 	private OcppServerImpl server;
 
 	public CoreEventHandlerImpl(OcppServerImpl parent) {
@@ -103,9 +104,12 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		if (evcs == null) {
 			return new MeterValuesConfirmation();
 		}
-		// TODO: Handle Event
+
 		evcs.status().setNextValue(Status.CHARGING);
 
+		/*
+		 * Set the channels depending on the meter values
+		 */
 		MeterValue[] meterValueArr = request.getMeterValue();
 		for (MeterValue meterValue : meterValueArr) {
 
@@ -118,24 +122,22 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 				Unit unit = Unit.valueOf(unitString.toUpperCase());
 				String val = value.getValue();
 
-				/**
-				 * Value is formated in RAW data (integer/decimal) or in SignedData (binary data
-				 * block, encoded as hex data)
-				 */
 				if (val != null) {
 
+					/*
+					 * Value is formated in RAW data (integer/decimal) or in SignedData (binary data
+					 * block, encoded as hex data)
+					 */
 					ValueFormat format = value.getFormat();
 					if (format.equals(ValueFormat.SignedData)) {
 						val = fromHexToDezString(val);
 					}
 
 					String measurandString = value.getMeasurand();
-					// SampleValueMeasurand measurand = SampleValueMeasurand
-					// .valueOf(measurandString.replace(".", "_").toUpperCase());
 
 					OcppInformations measurand = OcppInformations
 							.valueOf("CORE_METER_VALUES_" + measurandString.replace(".", "_").toUpperCase());
-					
+
 					if (evcs.getSupportedMeasurements().contains(measurand)) {
 
 						Object correctValue = val;
@@ -145,7 +147,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_CURRENT_OFFERED:
 							correctValue = Double.valueOf(val) * 1000;
 							break;
-							
+
 						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER:
 						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER:
 						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL:
@@ -154,7 +156,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								val = divideByThousand(val);
 							}
 							break;
-							
+
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
 						case CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_REGISTER:
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_INTERVAL:
@@ -163,7 +165,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								val = divideByThousand(val);
 							}
 							break;
-							
+
 						case CORE_METER_VALUES_POWER_ACTIVE_EXPORT:
 						case CORE_METER_VALUES_POWER_ACTIVE_IMPORT:
 						case CORE_METER_VALUES_POWER_OFFERED:
@@ -171,14 +173,14 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								val = divideByThousand(val);
 							}
 							break;
-							
+
 						case CORE_METER_VALUES_POWER_REACTIVE_EXPORT:
 						case CORE_METER_VALUES_POWER_REACTIVE_IMPORT:
 							if (unit.equals(Unit.KVAR)) {
 								val = divideByThousand(val);
 							}
 							break;
-							
+
 						case CORE_METER_VALUES_VOLTAGE:
 							evcs.getVoltage().setNextValue(Math.round(Double.valueOf(val)));
 							break;
@@ -190,6 +192,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_FREQUENCY:
 							break;
 						}
+
 						evcs.channel(measurand.getChannelId()).setNextValue(correctValue);
 						server.logInfo(this.log,
 								measurandString + ": " + val + " " + unitString + " Phases: " + phases);
@@ -210,6 +213,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			return new StatusNotificationConfirmation();
 		}
 
+		/*
+		 * Set the EVCS status based on the status from the StatusNotificationRequest
+		 */
 		Status evcsStatus = null;
 		ChargePointStatus ocppStatus = request.getStatus();
 		switch (ocppStatus) {
@@ -287,11 +293,32 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		return response;
 	}
 
+	/**
+	 * Get the EVCSs that are in this session.
+	 * <p>
+	 * One charging station has one session but can have more connectors. Every
+	 * connector is one EVCS in our System because each can be managed and monitored
+	 * by itself.
+	 * 
+	 * @param sessionIndex
+	 * @return
+	 */
 	private List<AbstractOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
 		int index = this.server.getActiveSessions().indexOf(new EvcsSession(sessionIndex));
 		return this.server.getActiveSessions().get(index).getOcppEvcss();
 	}
 
+	/**
+	 * Get the EVCS that are in this session and with the given connector id.
+	 * <p>
+	 * One charging station has one session but can have more connectors. Every
+	 * connector is one EVCS in our System because each can be managed and monitored
+	 * by itself.
+	 * 
+	 * @param sessionIndex
+	 * @param connectorId
+	 * @return EVCS Component with the given session and connectorId.
+	 */
 	private AbstractOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
 		List<AbstractOcppEvcsComponent> evcss = getEvcssBySessionIndex(sessionIndex);
 		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
@@ -304,11 +331,23 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		return null;
 	}
 
+	/**
+	 * Return the decimal value of the given Hexadecimal value
+	 * 
+	 * @param hex
+	 * @return Decimal value as String
+	 */
 	public String fromHexToDezString(String hex) {
 		int dezValue = Integer.parseInt(hex, 16);
 		return String.valueOf(dezValue);
 	}
 
+	/**
+	 * Divide the given String value by thousand
+	 * 
+	 * @param val
+	 * @return Value / 1000 as String
+	 */
 	private String divideByThousand(String val) {
 		if (val.isEmpty()) {
 			return val;

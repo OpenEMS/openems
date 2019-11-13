@@ -12,14 +12,25 @@ import eu.chargetime.ocpp.model.Request;
 public interface OcppServer {
 
 	/**
-	 * Send message to EVCS. Returns true if sent successfully
+	 * Send message to EVCS.
+	 * <p>
+	 * Example: <blockquote>
 	 * 
-	 * @param session Session Index of the Evcs
-	 * @param request OCPP request 
-	 * @return boolean
+	 * <pre>
+	 * send(session, request).whenComplete((confirmation, throwable) {
+	 *    this.logInfo(log, confirmation.toString());
+	 * });
+	 * </pre>
+	 * 
+	 * </blockquote>
+	 *
+	 * @param session Current session
+	 * @param request Request that will be sent
+	 * @return When the request has been sent and a confirmation is received
+	 * @throws NotConnectedException
+	 * @throws UnsupportedFeatureException
+	 * @throws OccurenceConstraintException
 	 */
-	//boolean send(UUID session, Request request);
-
-	public CompletionStage<Confirmation> send(UUID session, Request request) throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException ;
-	
+	public CompletionStage<Confirmation> send(UUID session, Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException;
 }

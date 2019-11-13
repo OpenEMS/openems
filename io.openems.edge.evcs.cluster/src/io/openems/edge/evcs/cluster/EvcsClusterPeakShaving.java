@@ -53,14 +53,11 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	private final List<Evcs> sortedEvcss = new ArrayList<>();
 	private Map<String, Evcs> _evcss = new ConcurrentHashMap<>();
 
-    // Total power limit for the whole cluster
-	private int totalHardwarePowerLimit = 0;
-	
 	private ConfigPeakShaving config;
-	
+
 	@Reference
 	protected ConfigurationAdmin cm;
-	
+
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -96,15 +93,12 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	void activate(ComponentContext context, ConfigPeakShaving config) throws OpenemsNamedException {
 		this.evcsIds = config.evcs_ids();
 		updateSortedEvcss();
-		super.activate(context, config.id(), config.alias(),
-				config.enabled());
-		
+		super.activate(context, config.id(), config.alias(), config.enabled());
+
 		this.config = config;
-        this.totalHardwarePowerLimit = config.hardwareCurrentLimit() * 230 * 3;
-		
+
 		// update filter for 'evcss' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss",
-				config.evcs_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}
 	}
@@ -133,6 +127,11 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		}
 	}
 
+	/**
+	 * Sets the cluster channel to false and resets all depending channels
+	 * 
+	 * @param evcs
+	 */
 	private void resetClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
 			((ManagedEvcs) evcs).isClustered().setNextValue(false);
@@ -141,12 +140,17 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		evcs.getMaximumPower().setNextValue(null);
 	}
 
+	/**
+	 * Sets the cluster channel to true
+	 * 
+	 * @param evcs
+	 */
 	private void setClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
 			((ManagedEvcs) evcs).isClustered().setNextValue(true);
 		}
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
@@ -157,32 +161,33 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		return this.sortedEvcss;
 	}
 
-	@Override 
+	@Override
 	public int getMaximumPowerToDistribute() {
 		try {
-		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		int allowedChargePower = 0;
-		int maxEssDischarge = 0;
-		
-		if (ess instanceof ManagedSymmetricEss) {
-			ManagedSymmetricEss e = (ManagedSymmetricEss)ess;
-			Power power = ((ManagedSymmetricEss)ess).getPower();
-			maxEssDischarge = power.getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-			maxEssDischarge = Math.abs(maxEssDischarge);
-		} else {
-			maxEssDischarge = ess.getMaxApparentPower().value().orElse(0);
-		}
-		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
-		long essDischargePower = this.sum.getEssActivePower().value().orElse(0);
-		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
-		int evcsCharge = this.getChargePower().value().orElse(0);
-		
-		long maxAvailableStoragePower =  maxEssDischarge - (essDischargePower - essActivePowerDC);
-		
-		allowedChargePower =(int)( evcsCharge + maxAvailableStoragePower + this.totalHardwarePowerLimit - buyFromGrid );
-		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
-		return allowedChargePower;
-		
+			SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+			int allowedChargePower = 0;
+			int maxEssDischarge = 0;
+
+			if (ess instanceof ManagedSymmetricEss) {
+				ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
+				Power power = ((ManagedSymmetricEss) ess).getPower();
+				maxEssDischarge = power.getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+				maxEssDischarge = Math.abs(maxEssDischarge);
+			} else {
+				maxEssDischarge = ess.getMaxApparentPower().value().orElse(0);
+			}
+			int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
+			long essDischargePower = this.sum.getEssActivePower().value().orElse(0);
+			int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
+			int evcsCharge = this.getChargePower().value().orElse(0);
+
+			long maxAvailableStoragePower = maxEssDischarge - (essDischargePower - essActivePowerDC);
+
+			allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower + this.config.hardwarePowerLimit()
+					- buyFromGrid);
+			allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
+			return allowedChargePower;
+
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 			return 0;

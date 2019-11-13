@@ -57,7 +57,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * The JSON OCPP server.
-	 * 
+	 * <p>
 	 * Responsible for sending and receiving OCPP JSON commands
 	 */
 	private JSONServer server;
@@ -143,23 +143,20 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		});
 	}
 
-	/**
-	 * Send message to EVCS. Returns true if sent successfully
-	 *
-	 * @param session Current session
-	 * @param request      Request that will be sent
-	 * @return When the request has been sent and a confirmation is received
-	 * @throws NotConnectedException
-	 * @throws UnsupportedFeatureException
-	 * @throws OccurenceConstraintException
-	 */
 	@Override
-	public CompletionStage<Confirmation> send(UUID session, Request request) throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
+	public CompletionStage<Confirmation> send(UUID session, Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
 		return server.send(session, request);
 	}
-	
-	public void sendDefault(UUID session, Request request) {		
-		try {	
+
+	/**
+	 * Default implementation of the send method.
+	 * 
+	 * @param session
+	 * @param request
+	 */
+	public void sendDefault(UUID session, Request request) {
+		try {
 			this.send(session, request).whenComplete((confirmation, throwable) -> {
 				this.logInfo(log, confirmation.toString());
 			});
@@ -172,6 +169,13 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Searching the OcppEvcs Components for the given identifier.
+	 * 
+	 * @param identifier
+	 * @param sessionIndex
+	 * @return List<AbstractOcppEvcsComponent>
+	 */
 	private List<AbstractOcppEvcsComponent> searchForComponentWithThatIdentifier(String identifier, UUID sessionIndex) {
 		List<AbstractOcppEvcsComponent> evcssWithThisId = new ArrayList<AbstractOcppEvcsComponent>();
 		List<OpenemsComponent> components = componentManager.getEnabledComponents();
@@ -197,6 +201,9 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		super.logInfo(log, message);
 	}
 
+	/**
+	 * Searching again for all Sessions after the configurations changed
+	 */
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
 		for (EvcsSession evcsSession : activeSessions) {
