@@ -9,11 +9,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.influxdb.InfluxDBException.FieldTypeConflictException;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
 import org.osgi.service.component.annotations.Activate;
@@ -80,8 +82,12 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				(failedPoints, throwable) -> {
 					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
 							.map(Point::lineProtocol).collect(Collectors.joining(","));
-					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
-							+ StringUtils.toShortString(pointsString, 100));
+					this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
+							+ ": " + throwable.getMessage() + " for " + StringUtils.toShortString(pointsString, 100));
+
+					if (throwable instanceof FieldTypeConflictException) {
+						this.handleFieldTypeConflictException((FieldTypeConflictException) throwable);
+					}
 				});
 	}
 
@@ -183,7 +189,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 					.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, TimeUnit.MILLISECONDS);
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
-				Influx.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
+				this.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
 			if (builder.hasFields()) {
 				this.influxConnector.write(builder.build());
@@ -230,9 +236,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param element the value
 	 * @return
 	 */
-	private static void addValue(Builder builder, String field, JsonElement element) {
+	private void addValue(Builder builder, String field, JsonElement element) {
 		if (element == null || element.isJsonNull()) {
 			// do not add
+			return;
+		}
+		if (this.specialCaseFieldHandling(builder, field, element)) {
+			// already handled by special case handling
 			return;
 		}
 		if (element.isJsonPrimitive()) {
@@ -257,6 +267,78 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		} else {
 			builder.addField(field, element.toString());
 		}
+	}
+
+	private final static Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
+			"^partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
+
+	private final Map<String, BiConsumer<Builder, JsonElement>> specialCaseFieldHandlers = new HashMap<>();
+
+	/**
+	 * Handles a {@link FieldTypeConflictException}; adds special handling for
+	 * fields that already exist in the database.
+	 * 
+	 * @param e the {@link FieldTypeConflictException}
+	 */
+	private void handleFieldTypeConflictException(FieldTypeConflictException e) {
+		Matcher matcher = FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
+		if (!matcher.find()) {
+			this.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
+			return;
+		}
+		String field = matcher.group("channel");
+		String thisType = matcher.group("thisType");
+		String requiredType = matcher.group("requiredType");
+
+		BiConsumer<Builder, JsonElement> handler = null;
+		switch (requiredType) {
+		case "string":
+			handler = (builder, value) -> {
+				builder.addField(field, value.toString());
+			};
+			break;
+		case "integer":
+			handler = (builder, value) -> {
+				try {
+					builder.addField(field, Long.parseLong(value.toString().replace("\"", "")));
+				} catch (NumberFormatException e1) {
+					this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to integer");
+				}
+			};
+			break;
+		}
+
+		if (handler == null) {
+			this.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
+					+ "] to [" + requiredType + "]");
+		} else {
+			this.logInfo(this.log,
+					"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
+			this.specialCaseFieldHandlers.put(field, handler);
+		}
+	}
+
+	/**
+	 * Handles some special cases for fields.
+	 * 
+	 * <p>
+	 * E.g. to avoid errors like "field type conflict: input field XYZ on
+	 * measurement "data" is type integer, already exists as type string"
+	 * 
+	 * @param builder the InfluxDB Builder
+	 * @param field   the fieldName, i.e. the ChannelAddress
+	 * @param value   the value, guaranteed to be not-null and not JsonNull.
+	 * @return true if field was handled; false otherwise
+	 */
+	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
+		BiConsumer<Builder, JsonElement> handler = this.specialCaseFieldHandlers.get(field);
+		if (handler == null) {
+			// no special handling exists for this field
+			return false;
+		}
+		// call special handler
+		handler.accept(builder, value);
+		return true;
 	}
 
 	@Override
