@@ -17,6 +17,7 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
     private int[] values;
     private int[] prevValues;
     private Map<String, McpTask> tasks = new ConcurrentHashMap<>();
+    private int maxDigitValue = 4095;
 
 
     public Mcp4728(String address, String parentCircuitBoard, I2CBus device) throws IOException {
@@ -54,8 +55,8 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
                 values[task.getPosition()] = digitValue;
                 if (values[task.getPosition()] < 0) {
                     values[task.getPosition()] = 0;
-                } else if (values[task.getPosition()] > 4095) {
-                    values[task.getPosition()] = 4095;
+                } else if (values[task.getPosition()] > this.maxDigitValue) {
+                    values[task.getPosition()] = this.maxDigitValue;
 
                 }
                 if (values[task.getPosition()] != prevValues[task.getPosition()]) {

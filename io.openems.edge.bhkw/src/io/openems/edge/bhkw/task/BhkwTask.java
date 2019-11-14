@@ -41,15 +41,7 @@ public class BhkwTask extends McpTask {
         int digitValue = -69;
         if (powerLevel.value().isDefined()) {
             String power = powerLevel.value().get().toString().replaceAll("[a-zA-Z _%]", "");
-            //100 - percentageRange / 100 --> digits per step
-            //0.1mA Value
-//          float singleDigitValue = this.scaling / ((maxValue - minValue) * digitScaling);
-//          //just for debug purposes
-//          float amperePercentage = ((Integer.parseInt(power) - percentageRange)
-//         * (maxValue - minValue)) / ((100.f - percentageRange)/ this.digitScaling);
-//          digitValue = (int) (singleDigitValue * (amperePercentage + (minValue / ((100.f - percentageRange) / this.digitScaling))));
-//           digitValue = (int) (singleDigitValue * ((amperePercentage - percentageRange) + minValue))
-//             atm 0,1 mA per Digit Value
+
             float singleDigitValue = this.scaling / ((maxValue - minValue) * digitScaling);
             float actualAmpere = (Float.parseFloat(power) - this.percentageRange) / ((100.f - percentageRange) / (maxValue - minValue));
             digitValue = (int) ((actualAmpere + minValue) * digitScaling * singleDigitValue);

@@ -121,10 +121,10 @@ public class RestHandler extends AbstractHandler {
 					} catch (UnsupportedEncodingException e) {
 						throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 					}
-					int p = credentials.indexOf(":");
-					if (p != -1) {
-						String username = credentials.substring(0, p).trim();
-						String password = credentials.substring(p + 1).trim();
+					String[] split = credentials.split(":");
+					if (split.length == 2) {
+						String username = split[0];
+						String password = split[1];
 						// authenticate using username & password
 						Optional<EdgeUser> userOpt = this.parent.userService.authenticate(username, password);
 						if (userOpt.isPresent()) {
