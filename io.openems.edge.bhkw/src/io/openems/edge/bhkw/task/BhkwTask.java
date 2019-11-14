@@ -42,7 +42,8 @@ public class BhkwTask extends McpTask {
         if (powerLevel.value().isDefined()) {
             String power = powerLevel.value().get().toString().replaceAll("[a-zA-Z _%]", "");
 
-            float singleDigitValue = this.scaling / ((maxValue - minValue) * digitScaling);
+            float singleDigitValue = this.scaling / ((maxValue) * digitScaling);
+
             float actualAmpere = (Float.parseFloat(power) - this.percentageRange) / ((100.f - percentageRange) / (maxValue - minValue));
             digitValue = (int) ((actualAmpere + minValue) * digitScaling * singleDigitValue);
         }
