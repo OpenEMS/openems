@@ -9,6 +9,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
+import io.openems.edge.relaisboardmcp.Mcp4728;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -112,6 +113,8 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             for (Mcp mcp : getMcpList()) {
                 if (mcp instanceof Mcp23008) {
                     ((Mcp23008) mcp).shift();
+                } else if (mcp instanceof Mcp4728) {
+                    ((Mcp4728) mcp).shift();
                 }
             }
         }

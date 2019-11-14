@@ -19,33 +19,69 @@ import java.util.Optional;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "ConsolinnoRelais",
-		configurationPolicy = ConfigurationPolicy.REQUIRE,
-immediate = true)
+        configurationPolicy = ConfigurationPolicy.REQUIRE,
+        immediate = true)
 public class RelaisActuatorImpl extends AbstractOpenemsComponent implements ActuatorRelaisChannel, OpenemsComponent, RelaisActuator {
 
-	private Mcp allocatedMcp;
-	private int position;
-	private Optional<Boolean> status;
+    private Mcp allocatedMcp;
+    private int position;
+    private Optional<Boolean> status;
 
-	@Reference
-	protected ConfigurationAdmin cm;
+    @Reference
+    protected ConfigurationAdmin cm;
 
-	@Reference
+    @Reference
     protected ComponentManager cpm;
 
-	public RelaisActuatorImpl() {
-		super(OpenemsComponent.ChannelId.values(),
-				ActuatorRelaisChannel.ChannelId.values());
-	}
+    public RelaisActuatorImpl() {
+        super(OpenemsComponent.ChannelId.values(),
+                ActuatorRelaisChannel.ChannelId.values());
+    }
 
-	private boolean relaisValue = false;
+    private boolean relaisValue = false;
 
-	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsError.OpenemsNamedException {
-		super.activate(context,config.id(), config.alias(), config.enabled());
+    @Activate
+    void activate(ComponentContext context, Config config) throws OpenemsError.OpenemsNamedException {
+        super.activate(context, config.id(), config.alias(), config.enabled());
 //			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
 //				return;
 //			}
+<<<<<<< HEAD
+        allocateRelaisValue(config.relaisType());
+        this.position = config.position();
+        if (cpm.getComponent(config.relaisBoard_id()) instanceof RelaisBoard) {
+            RelaisBoard relaisBoard = cpm.getComponent(config.relaisBoard_id());
+            if (relaisBoard.getId().equals(config.relaisBoard_id())) {
+                if (relaisBoard.getMcp() instanceof Mcp23008) {
+                    Mcp23008 mcp = (Mcp23008) relaisBoard.getMcp();
+                    allocatedMcp = mcp;
+                    //Value if it's activated always true
+                    mcp.setPosition(config.position(), true);
+                    //Value if it's deactivated Opener will be closed and Closer will be opened
+                    mcp.addToDefault(config.position(), !this.relaisValue);
+                    mcp.shift();
+                    mcp.addTask(config.id(), new RelaisActuatorTask(mcp, config.position(),
+                            !this.relaisValue, this.getRelaisChannel(),
+                            config.relaisBoard_id()));
+                }
+            }
+
+        }
+    }
+
+
+    private void allocateRelaisValue(String relaisType) {
+        switch (relaisType) {
+
+            case "Closer":
+            case "Reverse":
+                this.relaisValue = true;
+                break;
+            default:
+                this.relaisValue = false;
+        }
+    }
+=======
 			allocateRelaisValue(config.relaisType());
 			this.position = config.position();
 			if (cpm.getComponent(config.relaisBoard_id()) instanceof RelaisBoard) {
@@ -80,6 +116,7 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 				this.relaisValue = false;
 }
 	}
+>>>>>>> develop
 
     @Deactivate
     public void deactivate() {
@@ -89,30 +126,30 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
         }
     }
 
-	@Override
-	public String debugLog() {
-		if (this.getRelaisChannelValue().getNextWriteValue().isPresent() && !this.getRelaisChannelValue().getNextWriteValue().equals(Optional.empty())) {
-			this.status = this.getRelaisChannelValue().getNextWriteValue();
-			return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
-		} else {
-			return "Status of " + super.id() + " alias " + super.alias() + " is " + this.status.toString();
-		}
-	}
+    @Override
+    public String debugLog() {
+        if (this.getRelaisChannelValue().getNextWriteValue().isPresent() && !this.getRelaisChannelValue().getNextWriteValue().equals(Optional.empty())) {
+            this.status = this.getRelaisChannelValue().getNextWriteValue();
+            return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
+        } else {
+            return "Status of " + super.id() + " alias " + super.alias() + " is " + this.getRelaisChannel().value().get();
+        }
+    }
 
-	//For Controller
-	@Override
-	public WriteChannel<Boolean> getRelaisChannelValue() {
-		return this.getRelaisChannel();
-	}
+    //For Controller
+    @Override
+    public WriteChannel<Boolean> getRelaisChannelValue() {
+        return this.getRelaisChannel();
+    }
 
-	@Override
-	public String getRelaisId() {
-		return super.id();
-	}
+    @Override
+    public String getRelaisId() {
+        return super.id();
+    }
 
-	@Override
-	public boolean isCloser() {
-		return this.relaisValue;
-	}
+    @Override
+    public boolean isCloser() {
+        return this.relaisValue;
+    }
 
 }

@@ -99,6 +99,8 @@
 	bnd.identity;id='io.openems.edge.relaisBoard',\
 	bnd.identity;id='io.openems.edge.relaisboardapi',\
 	bnd.identity;id='io.openems.edge.controller.temperature.simple',\
+	bnd.identity;id='io.openems.edge.bhkw',\
+	bnd.identity;id='io.openems.edge.gaspedal',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\
@@ -178,6 +180,8 @@
 	io.openems.edge.relais;version=snapshot,\
 	io.openems.edge.relaisboardapi;version=snapshot,\
 	io.openems.edge.controller.temperature.simple;version=snapshot,\
+	io.openems.edge.gaspedal;version=snapshot,\
+	io.openems.edge.bhkw;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\

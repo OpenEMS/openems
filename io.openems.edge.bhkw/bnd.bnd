@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge Relais
+Bundle-Name: OpenEMS Edge Bhkw
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
@@ -6,17 +6,20 @@ Bundle-Version: 1.0.0.${tstamp}
 
 
 Export-Package:  \
-	io.openems.edge.relais,\
+	io.openems.edge.bhkw,\
+	io.openems.edge.bhkw.task,\
+
+Private-Package:  \
+	io.openems.edge.bhkw
 
 -includeresource: {readme.md}
 
 -buildpath:  \
 	osgi.enroute.base.api;version=2.1,\
-		io.openems.edge.common;version=latest,\
-    	io.openems.common;version=latest,\
-    	io.openems.edge.relaisBoard;version=latest,\
-    	io.openems.edge.relaisboardapi;version=latest,\
-    	pi4j-core,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.relaisboardapi;version=latest,\
+	io.openems.edge.gaspedal;version=latest,\
 
 
 -testpath: \
