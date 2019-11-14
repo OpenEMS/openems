@@ -109,4 +109,4 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
     @Override
     public void setPosition(int position, boolean activate) {
     }
-}
+    }

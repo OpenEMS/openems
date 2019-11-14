@@ -54,9 +54,9 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 					if (relaisBoard.getMcp() instanceof Mcp23008) {
 					Mcp23008 mcp = (Mcp23008) relaisBoard.getMcp();
 					allocatedMcp = mcp;
-						//Value if it's activated
-						mcp.setPosition(config.position(), this.relaisValue);
-						//Value if it's deactivated
+						//Value if it's activated always true
+						mcp.setPosition(config.position(), true);
+						//Value if it's deactivated Opener will be closed and Closer will be opened
 						mcp.addToDefault(config.position(), !this.relaisValue);
 						mcp.shift();
 							mcp.addTask(config.id(), new RelaisActuatorTask(mcp, config.position(),
