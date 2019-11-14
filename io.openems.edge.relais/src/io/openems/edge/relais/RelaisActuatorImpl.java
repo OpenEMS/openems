@@ -46,7 +46,6 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
 //			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
 //				return;
 //			}
-<<<<<<< HEAD
         allocateRelaisValue(config.relaisType());
         this.position = config.position();
         if (cpm.getComponent(config.relaisBoard_id()) instanceof RelaisBoard) {
@@ -81,42 +80,6 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
                 this.relaisValue = false;
         }
     }
-=======
-			allocateRelaisValue(config.relaisType());
-			this.position = config.position();
-			if (cpm.getComponent(config.relaisBoard_id()) instanceof RelaisBoard) {
-				RelaisBoard relaisBoard = cpm.getComponent(config.relaisBoard_id());
-				if (relaisBoard.getId().equals(config.relaisBoard_id())) {
-					if (relaisBoard.getMcp() instanceof Mcp23008) {
-					Mcp23008 mcp = (Mcp23008) relaisBoard.getMcp();
-					allocatedMcp = mcp;
-						//Value if it's activated always true bc it's wanted
-						mcp.setPosition(config.position(), true);
-						//Value if it's deactivated
-						mcp.addToDefault(config.position(), !this.relaisValue);
-						mcp.shift();
-							mcp.addTask(config.id(), new RelaisActuatorTask(mcp, config.position(),
-									!this.relaisValue, this.getRelaisChannel(),
-									config.relaisBoard_id()));
-					}
-				}
-
-			}
-	}
-
-
-	private void allocateRelaisValue(String relaisType) {
-		switch (relaisType) {
-
-			case "Closer":
-			case "Reverse":
-				this.relaisValue = true;
-				break;
-			default:
-				this.relaisValue = false;
-}
-	}
->>>>>>> develop
 
     @Deactivate
     public void deactivate() {
