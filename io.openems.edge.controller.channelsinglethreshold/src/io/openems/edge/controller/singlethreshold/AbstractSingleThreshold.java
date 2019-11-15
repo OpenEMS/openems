@@ -112,7 +112,7 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 		 */
 		int value;
 		try {
-			Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
+			Channel<?> inputChannel = this.getComponentManager().getChannel(this.inputChannelAddress);
 			value = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
 		} catch (Exception e) {
 			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -197,7 +197,7 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 	 */
 	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
-			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
+			WriteChannel<Boolean> outputChannel = this.getComponentManager().getChannel(this.outputChannelAddress);
 			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
 			if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
 				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
