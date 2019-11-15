@@ -126,7 +126,12 @@ public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsCom
 
     @Deactivate
     public void deactivate() {
+
         super.deactivate();
+        if (this.allocatedMcp instanceof Mcp4728) {
+            ((Mcp4728) this.allocatedMcp).deactivate();
+        }
+        this.refI2cBridge.removeMcp(this.allocatedMcp);
     }
 
     @Override

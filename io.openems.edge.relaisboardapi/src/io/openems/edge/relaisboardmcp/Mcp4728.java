@@ -82,6 +82,8 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
 
     @Override
     public void removeTask(String id) {
+        this.values[this.tasks.get(id).getPosition()] = 0;
+        this.prevValues[this.tasks.get(id).getPosition()] = 0;
         this.tasks.remove(id);
     }
 
@@ -101,6 +103,23 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
         return allVoltage;
     }
 
+    public void deactivate() {
+        for (short x = 0; x < length; x++) {
+            this.values[x] = 0;
+            this.prevValues[x] = 0;
+            try {
+                byte[] allVoltage = setAllVoltage();
+                this.device.write(0x50, allVoltage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public String getParentCircuitBoard() {
+        return parentCircuitBoard;
+    }
 
     @Override
     public void addToDefault(int position, boolean activate) {
@@ -110,4 +129,4 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
     @Override
     public void setPosition(int position, boolean activate) {
     }
-    }
+}

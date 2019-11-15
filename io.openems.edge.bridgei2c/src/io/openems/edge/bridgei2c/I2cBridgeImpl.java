@@ -23,9 +23,9 @@ import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "I2CBridge",
-immediate = true,
-            configurationPolicy = ConfigurationPolicy.REQUIRE,
-            property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+        immediate = true,
+        configurationPolicy = ConfigurationPolicy.REQUIRE,
+        property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsComponent, I2cBridge, EventHandler {
 
     private final I2cWorker worker = new I2cWorker();
@@ -38,12 +38,16 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             this.worker.activate(super.id());
         }
     }
+
     @Deactivate
     public void deactivate() {
         super.deactivate();
-            this.worker.deactivate();
-            //TODO What to do with Mcp --> Set to default?
+        this.worker.deactivate();
+        //Relais will be default (depending on opener and closer) and Bhkw will be 0
+        for (Mcp mcp : mcpList) {
+            mcp.deactivate();
         }
+    }
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         ;
@@ -90,6 +94,11 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             Mcp willBeRemoved = iter.next();
             if (willBeRemoved instanceof Mcp23008 && toRemove instanceof Mcp23008) {
                 if (((Mcp23008) willBeRemoved).getParentCircuitBoard().equals(((Mcp23008) toRemove).getParentCircuitBoard())) {
+                    iter.remove();
+                    break;
+                }
+            } else if (willBeRemoved instanceof Mcp4728 && toRemove instanceof Mcp4728) {
+                if (((Mcp4728) willBeRemoved).getParentCircuitBoard().equals(((Mcp4728) toRemove).getParentCircuitBoard())) {
                     iter.remove();
                     break;
                 }

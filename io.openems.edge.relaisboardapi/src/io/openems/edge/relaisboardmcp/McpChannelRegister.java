@@ -14,4 +14,6 @@ public interface McpChannelRegister {
      void addTask(String id, McpTask mcpTask);
 
      void removeTask(String id);
+     String getParentCircuitBoard();
+     void deactivate();
 }

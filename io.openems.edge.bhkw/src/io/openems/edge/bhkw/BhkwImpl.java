@@ -8,6 +8,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.gaspedal.Gaspedal;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp4728;
+import io.openems.edge.relaisboardmcp.McpChannelRegister;
+import io.openems.edge.relaisboardmcp.task.McpTask;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -111,8 +113,10 @@ public class BhkwImpl extends AbstractOpenemsComponent implements OpenemsCompone
 
     @Deactivate
     public void deactivate() {
-        //TODO
         super.deactivate();
+        if (this.mcp instanceof Mcp4728) {
+            ((Mcp4728) this.mcp).removeTask(super.id());
+        }
     }
 
 

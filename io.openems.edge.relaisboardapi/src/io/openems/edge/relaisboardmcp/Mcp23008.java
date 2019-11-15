@@ -89,8 +89,17 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
         return valuesPerDefault;
     }
 
+    @Override
     public String getParentCircuitBoard() {
         return parentCircuitBoard;
+    }
+
+    @Override
+    public void deactivate() {
+        for (Map.Entry<Integer, Boolean> entry : getValuesPerDefault().entrySet()) {
+            setPosition(entry.getKey(), entry.getValue());
+        }
+        shift();
     }
 
     @Override
