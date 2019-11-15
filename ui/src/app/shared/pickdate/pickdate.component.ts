@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays, getDate, getMonth, getYear, subDays, subWeeks, endOfWeek, addWeeks, subMonths, endOfYear, addYears, isFuture } from 'date-fns/esm';
+import { endOfDay } from 'date-fns';
+import { addDays, addWeeks, endOfWeek, getDate, getMonth, getYear, isFuture, subDays, subWeeks } from 'date-fns/esm';
 import { IMyDate } from 'mydaterangepicker';
+import { isUndefined } from 'util';
+import { DefaultTypes } from '../service/defaulttypes';
 import { Service } from '../shared';
 import { PickDatePopoverComponent } from './popover/popover.component';
-import { DefaultTypes } from '../service/defaulttypes';
-import { endOfDay, endOfMonth, addMonths, subYears } from 'date-fns';
-import { isUndefined } from 'util';
 
 
 @Component({

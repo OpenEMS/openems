@@ -1,5 +1,6 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
@@ -7,10 +8,9 @@ import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { Edges } from '../jsonrpc/shared';
-import { LanguageTag, Language } from '../translate/language';
+import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
-import { ToastController } from '@ionic/angular';
 
 @Injectable()
 export class Service implements ErrorHandler {
