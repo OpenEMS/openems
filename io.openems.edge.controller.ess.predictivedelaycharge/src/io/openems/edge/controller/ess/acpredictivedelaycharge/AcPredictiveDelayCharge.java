@@ -61,9 +61,9 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		super.meterId = config.meter_id();
-		super.essId = config.ess_id();
-		super.bufferHour = config.Buffer_hours();
+		this.meterId = config.meter_id();
+		this.essId = config.ess_id();
+		this.bufferHour = config.Buffer_hours();
 		this.config = config;
 	}
 
