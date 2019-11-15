@@ -27,6 +27,9 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 
 	private final ChannelAddress channelAddress;
 	private final Clock clock;
+	private boolean executed;
+	private long currentEnergy;
+	LocalDateTime prevHour = LocalDateTime.now();
 
 	private static class EnergyData {
 		private final long total;
@@ -97,15 +100,17 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 		LocalDateTime currentHour = LocalDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0);
 		Entry<LocalDateTime, EnergyData> lastEntry = this.hourlyEnergyData.lastEntry();
 
-		if (lastEntry == null) {
-			// Map is still empty -> record the current value
-			this.hourlyEnergyData.put(currentHour, new EnergyData(energy, null));
-
-		} else if (currentHour.isAfter(lastEntry.getKey())) {
+		if (!executed) {
+			// First time execution - Map is still empty
+			this.currentEnergy = energy;
+			this.prevHour = currentHour;
+			this.executed = true;
+		} else if (currentHour.isAfter(this.prevHour)) {
 			// hour changed -> calculate delta and record value
-			int delta = (int) (energy - lastEntry.getValue().total);
-			this.hourlyEnergyData.put(currentHour, new EnergyData(energy, delta));
-
+			int delta = (int) (energy - this.currentEnergy);
+			this.hourlyEnergyData.put(this.prevHour, new EnergyData(energy, delta));
+			this.prevHour = currentHour;
+			this.currentEnergy = energy;
 		} else {
 			// hour did not change -> return
 			return;
