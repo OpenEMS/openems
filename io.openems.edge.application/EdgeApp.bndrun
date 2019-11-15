@@ -34,6 +34,7 @@
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
+	bnd.identity;id='io.openems.edge.controller.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
@@ -130,6 +131,7 @@
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
+	io.openems.edge.controller.channelsinglethreshold;version=snapshot,\
 	io.openems.edge.controller.chp.soc;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
@@ -225,3 +227,4 @@
 	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
 	rrd4j;version='[3.5.0,3.5.1)',\
 	com.sun.jna;version='[5.5.0,5.5.1)'
+	
