@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { format, isSameDay, subDays, getDay } from 'date-fns';
+import { format, getDay, isSameDay, subDays } from 'date-fns';
 
 export module DefaultTypes {
 
@@ -83,6 +83,8 @@ export module DefaultTypes {
     params?: string[]
   }
 
+  export type PeriodString = 'day' | 'week' | 'custom';
+
   export class HistoryPeriod {
 
     constructor(
@@ -135,12 +137,11 @@ export module DefaultTypes {
       }
       else if (isSameDay(this.from, this.to) && isSameDay(this.from, subDays(new Date(), 1))) {
         return translate.instant('Edge.History.Yesterday') + ", " + format(this.from, translate.instant('General.DateFormat'));
-      }
-      else {
+      } else {
         {
           return translate.instant(
             'General.PeriodFromTo', {
-            value1: format(this.from, translate.instant('General.DateFormat')),
+            value1: format(this.from, translate.instant('General.DateFormatShort')),
             value2: format(this.to, translate.instant('General.DateFormat'))
           })
         }

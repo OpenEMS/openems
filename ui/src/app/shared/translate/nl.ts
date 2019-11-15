@@ -36,6 +36,7 @@ export const TRANSLATION = {
         ActualPower: "e-car Laad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        DateFormatShort: "dd.MM",
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -44,6 +45,20 @@ export const TRANSLATION = {
             Friday: "Vrijdag",
             Saturday: "Zaterdag",
             Sunday: "Zondag"
+        },
+        Month: {
+            January: "Januari",
+            February: "Februari",
+            March: "Maart",
+            April: "April",
+            May: "Mei",
+            June: "Juni",
+            July: "Juli",
+            August: "Augustus",
+            September: "September",
+            October: "Oktober",
+            November: "November",
+            December: "December"
         },
         ReportValue: "Rapporteer beschadigde gegevens"
     },
@@ -163,7 +178,11 @@ export const TRANSLATION = {
             LastMonth: "Vorige maand",
             LastYear: "Vorig jaar",
             Go: "Ga!",
-            Export: "download als Excel-bestand"
+            Export: "download als Excel-bestand",
+            Day: "Dag",
+            Week: "Woche",
+            Month: "Maand",
+            Year: "Jaar"
         },
         Config: {
             Index: {
