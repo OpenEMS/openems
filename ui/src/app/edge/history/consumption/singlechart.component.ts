@@ -34,7 +34,6 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
-        // ANIMATION MIT TIMEOUT VERSUXCHEN
     }
 
     protected updateChart() {
