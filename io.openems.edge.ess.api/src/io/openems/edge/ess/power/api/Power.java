@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public interface Power {
@@ -104,4 +105,12 @@ public interface Power {
 		}
 		return value;
 	}
+
+	/**
+	 * Builds a PidFilter instance with the configured P, I and D variables. If no
+	 * configuration is found, it falls back to default PidFilter values.
+	 * 
+	 * @return an instance of {@link PidFilter}
+	 */
+	public PidFilter buildPidFilter();
 }
