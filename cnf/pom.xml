@@ -57,7 +57,7 @@
 			<version>28.1-jre</version>
 		</dependency>
 
-		<!--Included Pi4...or at least I hope so -->
+
 <!--		<dependency>-->
 <!--			<groupId>com.pi4j</groupId>-->
 <!--			<artifactId>pi4j-core</artifactId>-->
@@ -77,6 +77,12 @@
 			<version>1.3-SNAPSHOT</version>
 		</dependency>
 
+
+		<dependency>
+			<groupId>com.pi4j</groupId>
+			<artifactId>pi4j-gpio-extension</artifactId>
+			<version>1.2</version>
+		</dependency>
 
 
         <dependency>

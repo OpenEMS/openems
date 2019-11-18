@@ -174,11 +174,13 @@
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	pi4j-core;version='[1.0,1.4)',\
+	com.pi4j:pi4j-gpio-extension;version='[1.0,1.4)',\
 	io.openems.edge.raspberrypi;version=snapshot,\
 	io.openems.edge.relaisBoard;version=snapshot,\
 	io.openems.edge.bridgei2c;version=snapshot,\
 	io.openems.edge.relais;version=snapshot,\
 	io.openems.edge.relaisboardapi;version=snapshot,\
+	io.openems.edge.pwm;version=latest,\
 	io.openems.edge.controller.temperature.simple;version=snapshot,\
 	io.openems.edge.gaspedal;version=snapshot,\
 	io.openems.edge.bhkw;version=snapshot,\

@@ -1,15 +1,14 @@
-Bundle-Name: OpenEMS Edge BridgeI2c
+Bundle-Name: OpenEMS Edge PwmModule
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-
 Export-Package:  \
-	io.openems.edge.bridgei2c,\
-	io.openems.edge.bridgei2c.task,\
+	io.openems.edge.pwm,\
+
 
 Private-Package:  \
-	io.openems.edge.bridgei2c
+	io.openems.edge.pwm
 
 -includeresource: {readme.md}
 
@@ -17,9 +16,9 @@ Private-Package:  \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-    io.openems.edge.relaisboardapi;version=latest,\
-    com.pi4j:pi4j-gpio-extension,\
-    pi4j-core,\
+	io.openems.edge.bridgei2c;version=latest,\
+	pi4j-core,\
+	com.pi4j:pi4j-gpio-extension,\
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

@@ -1,7 +1,10 @@
 package io.openems.edge.bridgei2c;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
+import com.pi4j.gpio.extension.pca.PCA9685GpioProvider;
+import com.pi4j.io.gpio.GpioProviderBase;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -30,6 +33,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     private final I2cWorker worker = new I2cWorker();
     private List<Mcp> mcpList = new ArrayList<>();
+    private Map<String, GpioProviderBase> gpioMap = new ConcurrentHashMap<>();
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -106,6 +110,23 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         }
     }
 
+    @Override
+    public void addGpioDevice(String id, GpioProviderBase gpio) {
+        if (!this.gpioMap.containsKey(id)) {
+            this.gpioMap.put(id, gpio);
+        } else {
+            System.out.println("Warning! id " + id + "Already in Map, choose another id Name");
+        }
+    }
+
+    @Override
+    public void removeGpioDevice(String id, GpioProviderBase gpio) {
+
+        //TODO Do something
+        this.gpioMap.remove(id);
+    }
+
+
     private class I2cWorker extends AbstractCycleWorker {
         @Override
         public void activate(String name) {
@@ -135,5 +156,6 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             this.worker.triggerNextRun();
         }
     }
+
 
 }
