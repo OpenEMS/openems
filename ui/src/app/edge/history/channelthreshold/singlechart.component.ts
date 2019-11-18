@@ -123,6 +123,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   }
 
   public getChartHeight(): number {
-    return window.innerHeight / 1.2;
+    return window.innerHeight / 1.3;
   }
 }

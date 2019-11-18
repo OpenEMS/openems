@@ -48,16 +48,16 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
+
                     // convert datasets
                     let datasets = [];
-
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
                                     return null
                                 } else {
-                                    return value / 1000;
+                                    return value / 1000; // convert to kW
                                 }
                             });
                             if (!data) {
@@ -65,33 +65,32 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                             } else {
                                 if (channelAddress.channelId == 'ProductionActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Production') + ' (' + this.translate.instant('General.Total') + ')',
+                                        label: this.translate.instant('General.Production'),
                                         data: data
                                     });
                                     this.colors.push({
-                                        backgroundColor: 'rgba(45,143,171,0.1)',
-                                        borderColor: 'rgba(45,143,171,1)',
+                                        backgroundColor: 'rgba(45,143,171,0.05)',
+                                        borderColor: 'rgba(45,143,171,1)'
                                     });
                                 }
                                 if ('_sum/ProductionAcActivePowerL1' && '_sum/ProductionAcActivePowerL2' && '_sum/ProductionAcActivePowerL3' in result.data && this.showPhases == true) {
-                                    // Phases
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL1') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L1',
                                             data: data
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL2') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L2',
                                             data: data
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL3') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Production') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L3',
                                             data: data
                                         });
                                         this.colors.push(this.phase3Color);

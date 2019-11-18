@@ -67,7 +67,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                             } else {
                                 if (channelAddress.channelId == 'ConsumptionActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Consumption') + ' (' + this.translate.instant('General.Total') + ')',
+                                        label: this.translate.instant('General.Consumption'),
                                         data: data,
                                         hidden: false
                                     });
@@ -77,24 +77,23 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     })
                                 }
                                 if ('_sum/ConsumptionActivePowerL1' && '_sum/ConsumptionActivePowerL2' && '_sum/ConsumptionActivePowerL3' in result.data && this.showPhases == true) {
-                                    // Phases
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL1') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Total') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L1',
                                             data: data
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL2') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Total') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L2',
                                             data: data
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL3') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Total') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L3',
                                             data: data
                                         });
                                         this.colors.push(this.phase3Color);
@@ -155,7 +154,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
 
     public getChartHeight(): number {
         if (this.isOnlyChart == true) {
-            return window.innerHeight / 1.2;
+            return window.innerHeight / 1.3;
         } else {
             return window.innerHeight / 21 * 9;
         }

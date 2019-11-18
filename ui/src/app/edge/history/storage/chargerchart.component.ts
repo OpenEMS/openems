@@ -59,7 +59,6 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
                     Object.keys(result.data).forEach((channel, index) => {
                         let address = ChannelAddress.fromString(channel);
-                        let component = config.getComponent(address.componentId);
                         let chargerData = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
@@ -69,7 +68,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                         });
                         if (address.channelId == "ActualPower") {
                             datasets.push({
-                                label: this.translate.instant('General.ChargePower') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
+                                label: this.translate.instant('General.ChargePower'),
                                 data: chargerData,
                                 hidden: false
                             });
@@ -124,49 +123,6 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
         this.options = options;
-    }
-
-    private getSoc(ids: string[], ignoreIds: string[]): ChannelAddress[] {
-        let result: ChannelAddress[] = [];
-        for (let id of ids) {
-            if (ignoreIds.includes(id)) {
-                continue;
-            }
-            result.push.apply(result, [
-                new ChannelAddress(id, 'Soc'),
-            ]);
-        }
-        return result;
-    }
-
-    /**
-   * Calculates '_sum' values.
-   * 
-   * @param data 
-   */
-    private convertDeprecatedData(config: EdgeConfig, data: { [channelAddress: string]: any[] }) {
-        let sumEssSoc = [];
-
-        for (let channel of Object.keys(data)) {
-            let channelAddress = ChannelAddress.fromString(channel)
-            let componentId = channelAddress.componentId;
-            let channelId = channelAddress.channelId;
-            let natureIds = config.getNatureIdsByComponentId(componentId);
-
-            if (natureIds.includes('EssNature') && channelId == 'Soc') {
-                if (sumEssSoc.length == 0) {
-                    sumEssSoc = data[channel];
-                } else {
-                    sumEssSoc = data[channel].map((value, index) => {
-                        return Utils.addSafely(sumEssSoc[index], value);
-                    });
-                }
-            }
-        }
-        data['_sum/EssSoc'] = sumEssSoc.map((value, index) => {
-            return Utils.divideSafely(sumEssSoc[index], Object.keys(data).length);
-        });
-
     }
 
     public getChartHeight(): number {

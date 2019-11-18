@@ -42,7 +42,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(() => {
+            this.service.getCurrentEdge().then((edge) => {
                 this.service.getConfig().then(config => {
                     this.colors = [];
                     let result = response.result;
@@ -55,55 +55,55 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
                     // convert datasets
                     let datasets = [];
-
-                    Object.keys(result.data).forEach((channel) => {
-                        let address = ChannelAddress.fromString(channel);
-                        let component = config.getComponent(address.componentId);
-                        let chargeDischargeData = result.data[channel].map(value => {
-                            if (value == null) {
-                                return null
-                            } else if (value == 0) {
-                                return 0;
-                            } else {
-                                return value / 1000; // convert to kW
-                            }
-                        })
-                        if (address.channelId == "ActivePower") {
-                            datasets.push({
-                                label: this.translate.instant('General.ChargeDischarge') + (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')'),
-                                data: chargeDischargeData,
-                                hidden: false
+                    this.getChannelAddresses(edge, config).then(channelAddresses => {
+                        channelAddresses.forEach(channelAddress => {
+                            let data = result.data[channelAddress.toString()].map(value => {
+                                if (value == null) {
+                                    return null
+                                } else {
+                                    return value / 1000; // convert to kW
+                                }
                             });
-                            this.colors.push({
-                                backgroundColor: 'rgba(0,223,0,0.05)',
-                                borderColor: 'rgba(0,223,0,1)',
-                            })
-                        }
-                        if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
-                            // Phases
-                            if (address.channelId == 'ActivePowerL1') {
-                                datasets.push({
-                                    label: this.translate.instant('General.ChargeDischarge') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L1',
-                                    data: chargeDischargeData
-                                });
-                                this.colors.push(this.phase1Color);
+                            if (!data) {
+                                return;
+                            } else {
+                                if (channelAddress.channelId == "ActivePower") {
+                                    datasets.push({
+                                        label: this.translate.instant('General.ChargeDischarge'),
+                                        data: data,
+                                        hidden: false
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(0,223,0,0.05)',
+                                        borderColor: 'rgba(0,223,0,1)',
+                                    })
+                                }
+                                if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
+                                    if (channelAddress.channelId == 'ActivePowerL1') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L1',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase1Color);
+                                    }
+                                    if (channelAddress.channelId == 'ActivePowerL2') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L2',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase2Color);
+                                    }
+                                    if (channelAddress.channelId == 'ActivePowerL3') {
+                                        datasets.push({
+                                            label: this.translate.instant('General.Phase') + ' ' + 'L3',
+                                            data: data
+                                        });
+                                        this.colors.push(this.phase3Color);
+                                    }
+                                }
                             }
-                            if (address.channelId == 'ActivePowerL2') {
-                                datasets.push({
-                                    label: this.translate.instant('General.ChargeDischarge') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L2',
-                                    data: chargeDischargeData
-                                });
-                                this.colors.push(this.phase2Color);
-                            }
-                            if (address.channelId == 'ActivePowerL3') {
-                                datasets.push({
-                                    label: this.translate.instant('General.ChargeDischarge') + ' ' + this.translate.instant('General.Phase') + ' ' + 'L3',
-                                    data: chargeDischargeData
-                                });
-                                this.colors.push(this.phase3Color);
-                            }
-                        }
-                    })
+                        });
+                    });
                     this.datasets = datasets;
                     this.loading = false;
                 }).catch(reason => {

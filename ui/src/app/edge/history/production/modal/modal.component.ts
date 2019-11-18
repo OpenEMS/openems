@@ -36,7 +36,7 @@ export class ProductionModalComponent {
                 this.showTotal = false;
             }
             if (((this.chargerComponents != null && this.chargerComponents.length == 1) && (this.productionMeterComponents != null && this.productionMeterComponents.length == 0))
-                || ((this.productionMeterComponents != null && this.productionMeterComponents.length == 1) && (this.chargerComponents != null && this.chargerComponents.length == 1))) {
+                || ((this.productionMeterComponents != null && this.productionMeterComponents.length == 0) && (this.chargerComponents != null && this.chargerComponents.length == 1))) {
                 this.isOnlyChart = true;
             } else {
                 this.isOnlyChart = false;

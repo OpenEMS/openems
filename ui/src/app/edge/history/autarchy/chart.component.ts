@@ -54,10 +54,6 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
                     let buyFromGridData: number[] = [];
                     let consumptionData: number[] = [];
 
-                    if (!edge.isVersionAtLeast('2018.8')) {
-                        this.convertDeprecatedData(config, result.data); // TODO deprecated
-                    }
-
                     if ('_sum/ConsumptionActivePower' in result.data) {
                         /*
                          * Consumption
@@ -156,55 +152,13 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
         this.options = options;
     }
 
-    private getSoc(ids: string[], ignoreIds: string[]): ChannelAddress[] {
-        let result: ChannelAddress[] = [];
-        for (let id of ids) {
-            if (ignoreIds.includes(id)) {
-                continue;
-            }
-            result.push.apply(result, [
-                new ChannelAddress(id, 'Soc'),
-            ]);
-        }
-        return result;
-    }
-
     protected initializeChart() {
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
     }
 
-    /**
-   * Calculates '_sum' values.
-   * 
-   * @param data 
-   */
-    private convertDeprecatedData(config: EdgeConfig, data: { [channelAddress: string]: any[] }) {
-        let sumEssSoc = [];
-
-        for (let channel of Object.keys(data)) {
-            let channelAddress = ChannelAddress.fromString(channel)
-            let componentId = channelAddress.componentId;
-            let channelId = channelAddress.channelId;
-            let natureIds = config.getNatureIdsByComponentId(componentId);
-
-            if (natureIds.includes('EssNature') && channelId == 'Soc') {
-                if (sumEssSoc.length == 0) {
-                    sumEssSoc = data[channel];
-                } else {
-                    sumEssSoc = data[channel].map((value, index) => {
-                        return Utils.addSafely(sumEssSoc[index], value);
-                    });
-                }
-            }
-        }
-        data['_sum/EssSoc'] = sumEssSoc.map((value, index) => {
-            return Utils.divideSafely(sumEssSoc[index], Object.keys(data).length);
-        });
-    }
-
     public getChartHeight(): number {
-        return window.innerHeight / 1.2;
+        return window.innerHeight / 1.3;
     }
 }

@@ -41,7 +41,7 @@
                         <td style="width: 100%" class="ion-padding" translate>General.Total</td>
                     </tr>
                 </table>
-                <productionSingleChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                <productionSingleChart [period]="service.historyPeriod">
                 </productionSingleChart>
             </ion-card-content>
         </ng-container>
@@ -81,8 +81,8 @@
                             </td>
                         </tr>
                     </table>
-                    <productionMeterChart [isOnlyChart]="isOnlyChart" [period]="service.historyPeriod"
-                        [componentId]="component.id">
+                    <productionMeterChart [showPhases]="showPhases" [isOnlyChart]="isOnlyChart"
+                        [period]="service.historyPeriod" [componentId]="component.id">
                     </productionMeterChart>
                 </ion-card-content>
             </ng-container>

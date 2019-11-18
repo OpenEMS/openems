@@ -18,18 +18,20 @@
 </ion-header>
 
 <ion-content>
-    <ion-card-content>
+    <ion-card-content class="underline">
         <gridChart [showPhases]="showPhases" [period]="service.historyPeriod"></gridChart>
     </ion-card-content>
     <!-- Info Text -->
-    <ion-row class="ion-justify-content-center">
-        <ion-item class="ion-text-center" lines="none">
-            <ion-icon color="primary" size="large" slot="start" name="alert"></ion-icon>
-            <ion-label>
-                <small translate>
-                    Edge.Index.Widgets.twoWayInfoGrid
-                </small>
-            </ion-label>
-        </ion-item>
-    </ion-row>
+    <ion-card-content class="underline">
+        <ion-row class="ion-justify-content-center">
+            <ion-item class="ion-text-center" lines="none">
+                <ion-icon color="primary" size="large" slot="start" name="alert"></ion-icon>
+                <ion-label>
+                    <small translate>
+                        Edge.Index.Widgets.twoWayInfoGrid
+                    </small>
+                </ion-label>
+            </ion-item>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

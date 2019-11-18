@@ -124,7 +124,7 @@ export class ChpSocTotalChartComponent extends AbstractHistoryChart implements O
 
     public getChartHeight(): number {
         if (this.isOnlyChart == true) {
-            return window.innerHeight / 1.2;
+            return window.innerHeight / 1.3;
         } else if (this.isOnlyChart == false) {
             return window.innerHeight / 21 * 9;
         }

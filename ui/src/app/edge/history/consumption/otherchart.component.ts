@@ -79,7 +79,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                     // show other consumption
                     if (totalEvcsConsumption != []) {
                         datasets.push({
-                            label: this.translate.instant('General.otherConsumption') + ' ' + this.translate.instant('General.Consumption'),
+                            label: this.translate.instant('General.Consumption'),
                             data: otherConsumption,
                             hidden: false
                         });
@@ -112,9 +112,6 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'ConsumptionActivePower'),
-                new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
-                new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-                new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
             ];
             config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster')).forEach(component => {
                 result.push(new ChannelAddress(component.id, 'ChargePower'));

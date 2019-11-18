@@ -36,7 +36,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(() => {
+            this.service.getCurrentEdge().then((edge) => {
                 this.service.getConfig().then((config) => {
                     let result = response.result;
                     // convert labels
@@ -49,50 +49,46 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                     // convert datasets
                     let datasets = [];
 
-                    // show Component-ID if there is more than one Channel
-                    let showComponentId = Object.keys(result.data).length > 1 ? true : false;
+                    let moreThanOneESS = Object.keys(result.data).length > 1 ? true : false;
 
-                    Object.keys(result.data).forEach((channel, index) => {
-                        console.log("result.data", result)
-                        let address = ChannelAddress.fromString(channel);
-                        let component = config.getComponent(address.componentId);
-                        let data = result.data[channel].map(value => {
-                            if (value == null) {
-                                return null
-                            } else if (value > 100 || value < 0) {
-                                return null;
+                    this.getChannelAddresses(edge, config).then(channelAddresses => {
+                        channelAddresses.forEach(channelAddress => {
+                            let component = config.getComponent(channelAddress.componentId);
+                            let data = result.data[channelAddress.toString()].map(value => {
+                                if (value == null) {
+                                    return null
+                                } else if (value > 100 || value < 0) {
+                                    return null;
+                                } else {
+                                    return value;
+                                }
+                            });
+                            if (!data) {
+                                return;
                             } else {
-                                return value;
+                                if (channelAddress.channelId == 'EssSoc') {
+                                    datasets.push({
+                                        label: (moreThanOneESS ? this.translate.instant('General.Total') : this.translate.instant('General.Soc')),
+                                        data: data
+                                    })
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(0,223,0,0.05)',
+                                        borderColor: 'rgba(0,223,0,1)',
+                                    })
+                                }
+                                if (channelAddress.channelId == 'Soc' && moreThanOneESS) {
+                                    datasets.push({
+                                        label: (channelAddress.componentId == component.alias ? component.id : component.alias),
+                                        data: data
+                                    })
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(128,128,128,0.05)',
+                                        borderColor: 'rgba(128,128,128,1)',
+                                    })
+                                }
                             }
                         });
-                        if (config.components[address['componentId']].factoryId == 'Ess.Cluster') {
-                            datasets.push({
-                                label: this.translate.instant('General.Soc') + (showComponentId ? ' (' + this.translate.instant('General.Total') + ')' : ''),
-                                data: data
-                            })
-                            this.colors.push({
-                                backgroundColor: 'rgba(0,223,0,0.05)',
-                                borderColor: 'rgba(0,223,0,1)',
-                            })
-                        } else {
-                            datasets.push({
-                                label: this.translate.instant('General.Soc') + (showComponentId ? (address.componentId == component.alias ? ' (' + component.id + ')' : ' (' + component.alias + ')') : ''),
-                                data: data
-                            });
-                            // if there is only one SOC, use green as color, if not use grey (only total SOC will appear in green)
-                            if ('_sum/EssSoc' in result.data) {
-                                this.colors.push({
-                                    backgroundColor: 'rgba(0,223,0,0.05)',
-                                    borderColor: 'rgba(0,223,0,1)',
-                                })
-                            } else {
-                                this.colors.push({
-                                    backgroundColor: 'rgba(128,128,128,0.05)',
-                                    borderColor: 'rgba(128,128,128,1)',
-                                })
-                            }
-                        }
-                    })
+                    });
                     this.datasets = datasets;
                     this.loading = false;
                 }).catch(reason => {
@@ -115,13 +111,11 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channeladdresses: ChannelAddress[] = [];
+            channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'))
             if (config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 1) {
-                // find all Ess
-                for (let componentid of config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss')) {
-                    channeladdresses.push(new ChannelAddress(componentid, 'Soc'))
-                }
-            } else {
-                channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'))
+                config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !(component.factoryId == 'Ess.Cluster')).forEach(component => {
+                    channeladdresses.push(new ChannelAddress(component.id, 'Soc'))
+                })
             }
             resolve(channeladdresses);
         })

@@ -52,9 +52,8 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
                     // convert datasets
                     let datasets = [];
 
-                    Object.keys(result.data).forEach((channel, index) => {
+                    Object.keys(result.data).forEach(channel => {
                         let address = ChannelAddress.fromString(channel);
-                        let component = config.getComponent(address.componentId);
                         let data = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
@@ -64,12 +63,12 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
                         });
                         if (address.channelId == 'ActualPower') {
                             datasets.push({
-                                label: this.translate.instant('General.Production') + ' (' + (address.componentId == component.alias ? address.componentId : component.alias) + ')',
+                                label: this.translate.instant('General.Production'),
                                 data: data
                             });
                             this.colors.push({
-                                backgroundColor: 'rgba(255,165,0,0.1)',
-                                borderColor: 'rgba(255,165,0,1)',
+                                backgroundColor: 'rgba(45,143,171,0.05)',
+                                borderColor: 'rgba(45,143,171,1)'
                             });
                         }
                     })
@@ -123,7 +122,7 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
 
     public getChartHeight(): number {
         if (this.isOnlyChart == true) {
-            return window.innerHeight / 1.2;
+            return window.innerHeight / 1.3;
         } else {
             return window.innerHeight / 21 * 9;
         }

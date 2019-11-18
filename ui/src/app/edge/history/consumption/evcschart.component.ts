@@ -55,7 +55,6 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
 
                     Object.keys(result.data).forEach((channel, index) => {
                         let address = ChannelAddress.fromString(channel);
-                        let component = config.getComponent(address.componentId);
                         let chargeData = result.data[channel].map(value => {
                             if (value == null) {
                                 return null
@@ -65,7 +64,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
                         });
                         if (address.channelId == "ChargePower") {
                             datasets.push({
-                                label: this.translate.instant('General.Consumption') + ' (' + (component.id == component.alias ? component.id : component.alias) + ')',
+                                label: this.translate.instant('General.Consumption'),
                                 data: chargeData,
                                 hidden: false
                             });
