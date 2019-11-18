@@ -11,7 +11,7 @@ import org.osgi.service.metatype.annotations.Option;
 @interface Config {
     String service_pid();
 
-    @AttributeDefinition(name = "Pwm Name", description = "")
+    @AttributeDefinition(name = "Pwm Module Name", description = "")
     String id() default "Pwm0";
 
     @AttributeDefinition(name = "Alias", description = "Human readable name for this Component.")
