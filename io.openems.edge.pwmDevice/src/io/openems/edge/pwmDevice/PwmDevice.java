@@ -15,7 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Pwm Device")
+@Component(name = "PwmDevice")
 public class PwmDevice extends AbstractOpenemsComponent implements OpenemsComponent, PwmPowerLevelChannel {
 
     @Reference
@@ -24,7 +24,7 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
     private String pwmModule;
     private String i2cBridge;
     private short pinPosition;
-//    private int offset;
+    //    private int offset;
 //    private int pulseDuration;
     private boolean isInverse;
     private float initialValue;
@@ -57,7 +57,15 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
 
     @Deactivate
     public void deactivate() {
-        //TODO Do something
+        try {
+            if (cpm.getComponent(i2cBridge) instanceof I2cBridge) {
+                I2cBridge i2c = cpm.getComponent(i2cBridge);
+                i2c.removeI2cTask(super.id());
+            }
+        } catch (OpenemsError.OpenemsNamedException e) {
+            e.printStackTrace();
+        }
+        super.deactivate();
     }
 
 

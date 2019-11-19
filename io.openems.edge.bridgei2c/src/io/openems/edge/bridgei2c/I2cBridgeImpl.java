@@ -7,6 +7,7 @@ import com.pi4j.gpio.extension.pca.PCA9685GpioProvider;
 import com.pi4j.gpio.extension.pca.PCA9685Pin;
 import com.pi4j.io.gpio.GpioProviderBase;
 import com.pi4j.io.gpio.Pin;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridgei2c.task.I2cTask;
 import io.openems.edge.common.channel.Doc;
@@ -16,6 +17,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
 import io.openems.edge.relaisboardmcp.Mcp4728;
+import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -57,6 +59,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         //Relais will be default (depending on opener and closer) and Bhkw will be 0
         for (Mcp mcp : mcpList) {
             mcp.deactivate();
+        }
+        for (String id : this.gpioMap.keySet()) {
+            removeGpioDevice(id);
         }
     }
 
@@ -127,23 +132,43 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     @Override
-    public void removeGpioDevice(String id, GpioProviderBase gpio) {
+    public void removeGpioDevice(String id) {
 
-        //TODO Do something
+        for (I2cTask task : tasks.values()) {
+            shutdown(task.getPwmModuleId());
+        }
         this.gpioMap.remove(id);
     }
 
     @Override
-    public void addI2cTask(String id, I2cTask i2cTask) {
-        if (this.tasks.get(id) == null) {
+    public void addI2cTask(String id, I2cTask i2cTask) throws OpenemsException {
+        if (!this.tasks.containsKey(id)) {
             this.tasks.put(id, i2cTask);
+        }
+        else {
+            throw new OpenemsException("Attention, id " + id + "is already Key, activate again with a new name");
         }
     }
 
     @Override
     public void removeI2cTask(String id) {
-        //TODO Do something
+        shutdown(id);
         this.tasks.remove(id);
+    }
+
+    private void shutdown(String id) {
+        GpioProviderBase gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
+        if (gpio instanceof PCA9685GpioProvider) {
+            if (pin == null || !(pin[tasks.get(id).getPinPosition()] instanceof PCA9685Pin)) {
+                pin = PCA9685Pin.ALL;
+            }
+            if (tasks.get(id).isInverse()) {
+                ((PCA9685GpioProvider) gpio).setAlwaysOn(pin[tasks.get(id).getPinPosition()]);
+            } else {
+                ((PCA9685GpioProvider) gpio).setAlwaysOff(pin[tasks.get(id).getPinPosition()]);
+            }
+        }
+
     }
 
 
@@ -181,7 +206,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
                     } else if (digit < 0) {
                         digit = 0;
                     }
-                    ((PCA9685GpioProvider)gpio).setPwm(pin[task.getPinPosition()], 0, digit);
+                    ((PCA9685GpioProvider) gpio).setPwm(pin[task.getPinPosition()], 0, digit);
                 }
             }
         }

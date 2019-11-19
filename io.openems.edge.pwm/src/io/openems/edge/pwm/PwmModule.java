@@ -63,6 +63,7 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
 
     @Deactivate
     public void deactivate() {
+        refI2cBridge.removeGpioDevice(super.id());
         super.deactivate();
     }
 

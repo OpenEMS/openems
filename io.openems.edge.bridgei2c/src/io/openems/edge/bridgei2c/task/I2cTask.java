@@ -16,4 +16,5 @@ public interface I2cTask {
    boolean isInverse();
    int calculateDigit(int digitRange);
    String getPwmModuleId();
+
 }
