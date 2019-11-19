@@ -4,8 +4,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.pi4j.gpio.extension.pca.PCA9685GpioProvider;
+import com.pi4j.gpio.extension.pca.PCA9685Pin;
 import com.pi4j.io.gpio.GpioProviderBase;
+import com.pi4j.io.gpio.Pin;
 import io.openems.common.worker.AbstractCycleWorker;
+import io.openems.edge.bridgei2c.task.I2cTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,7 +36,11 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     private final I2cWorker worker = new I2cWorker();
     private List<Mcp> mcpList = new ArrayList<>();
+    //String --> PwmModule
     private Map<String, GpioProviderBase> gpioMap = new ConcurrentHashMap<>();
+    //String --> PwmDevice
+    private Map<String, I2cTask> tasks = new ConcurrentHashMap<>();
+    private Pin[] pin;
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -126,6 +133,19 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         this.gpioMap.remove(id);
     }
 
+    @Override
+    public void addI2cTask(String id, I2cTask i2cTask) {
+        if (this.tasks.get(id) == null) {
+            this.tasks.put(id, i2cTask);
+        }
+    }
+
+    @Override
+    public void removeI2cTask(String id) {
+        //TODO Do something
+        this.tasks.remove(id);
+    }
+
 
     private class I2cWorker extends AbstractCycleWorker {
         @Override
@@ -145,6 +165,23 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
                     ((Mcp23008) mcp).shift();
                 } else if (mcp instanceof Mcp4728) {
                     ((Mcp4728) mcp).shift();
+                }
+            }
+            for (I2cTask task : tasks.values()) {
+
+                GpioProviderBase gpio = gpioMap.get(task.getPwmModuleId());
+                if (gpio instanceof PCA9685GpioProvider) {
+                    if (pin == null || !(pin[0] instanceof PCA9685Pin)) {
+                        pin = PCA9685Pin.ALL;
+                    }
+                    //with or without offset?
+                    int digit = task.calculateDigit(4096);
+                    if (digit > 4095) {
+                        digit = 4095;
+                    } else if (digit < 0) {
+                        digit = 0;
+                    }
+                    ((PCA9685GpioProvider)gpio).setPwm(pin[task.getPinPosition()], 0, digit);
                 }
             }
         }

@@ -21,7 +21,7 @@ import org.osgi.service.metatype.annotations.Option;
     String version() default "1";
 
     @AttributeDefinition(name = "I2C Bridge - ID", description = "ID of I2C Bridge - ID.")
-    String spiI2c_id() default "I2C0";
+    String i2c_id() default "I2C0";
 
     @AttributeDefinition(name = "Bus Device Address", description = "What I2C Bus are you using.")
     short bus_address() default 1;
@@ -30,14 +30,11 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "Device Address", description = "The address of your Pwm Module")
     String pwm_address() default "0x55";
 
-    @AttributeDefinition(name = "Steps in microseconds", description = "Resolution of x microseconds per step")
-            int step_Micro() default 5;
+    @AttributeDefinition(name = "Maximum Hz", description = "Maximum Hz supported by the Module")
+            String max_frequency() default "1526";
 
-    @AttributeDefinition(name = "Measured Frequency", description = "What Frequency are you actualle Measuring")
-            String actual_frequency() default "51.68";
-
-    @AttributeDefinition(name = "offset", description = "Offset for Pwm Module.")
-            int pwm_offset() default 400;
+    @AttributeDefinition(name = "Measured Frequency", description = "actual measured Frequency of Module")
+            String actual_frequency() default "1526";
 
     @AttributeDefinition(name = "pulseDuration", description = "pulseDuration of Pwm Module")
             int pwm_pulseDuration()default 600;

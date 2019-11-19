@@ -1,16 +1,19 @@
 package io.openems.edge.bridgei2c.task;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.channel.WriteChannel;
 
-public abstract class I2cTask {
+public interface I2cTask {
 
-    private String pwmModuleId;
+   WriteChannel<Float> getFloatPowerLevel();
 
-    public I2cTask(String pwmModuleId){
-        this.pwmModuleId = pwmModuleId;
-    }
-    //TODO Do correct stuff in future
-        public abstract void doStuff();
+   void setFloatPowerLevel(float powerLevel) throws OpenemsError.OpenemsNamedException;
 
-    public abstract WriteChannel<Float> powerLevel();
+   int getPinPosition();
+
+   //   int getOffset();
+   //   int getPulseDuration();
+   boolean isInverse();
+   int calculateDigit(int digitRange);
+   String getPwmModuleId();
 }

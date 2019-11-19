@@ -25,15 +25,14 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
     protected I2cBridge refI2cBridge;
 
 
-
     private BigDecimal frequency;
     private BigDecimal frequencyCorrectionFactor;
     private I2CBus i2CBus;
-    private Pin pin;
+    private Pin[] pin;
     private GpioProviderBase provider;
     private GpioPinPwmOutput[] myOutputs;
-    private int offset;
-    private int pulseDuration;
+    //    private int offset;
+//    private int pulseDuration;
     private int onPosition;
     private int offPosition;
     private static final int SERVO_DURATION_MIN = 900;
@@ -51,19 +50,16 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
         super.activate(context, config.id(), config.alias(), config.enabled());
 
         allocateBus(config.bus_address());
-        //4096 Steps
-        float frequ = calcfrequency(config.step_Micro());
-        this.frequency = new BigDecimal(Float.toString(frequ));
-        float correction = Float.parseFloat(config.actual_frequency()) / frequ;
+        this.frequency = new BigDecimal(config.max_frequency());
+        float correction = Float.parseFloat(config.actual_frequency()) / Float.parseFloat(config.max_frequency());
         this.frequencyCorrectionFactor = new BigDecimal(Float.toString(correction));
-        this.offset = config.pwm_offset();
-        this.pulseDuration = config.pwm_pulseDuration();
+//        this.pulseDuration = config.pwm_pulseDuration();
         allocateGpioProvider(config);
     }
 
-    private float calcfrequency(int step_micro) {
-        return 4096 * (step_micro * (float) Math.pow(10, -6));
-    }
+//    private float calcfrequency(int step_micro) {
+//        return 4096 * (step_micro * (float) Math.pow(10, -6));
+//    }
 
     @Deactivate
     public void deactivate() {
@@ -80,14 +76,14 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
                             this.frequency, this.frequencyCorrectionFactor);
                     this.myOutputs = provisionPwmOutputs((PCA9685GpioProvider) provider);
                     ((PCA9685GpioProvider) provider).reset();
-                    for (int i = 0; i < 10; i++) {
-                        this.pin = PCA9685Pin.ALL[i];
-                        this.onPosition = checkForOverflow(offset * i);
-                        this.offPosition = checkForOverflow(pulseDuration * (i + 1));
-                        ((PCA9685GpioProvider) provider).setPwm(pin, onPosition, offPosition);
-                        providerSettings("PCA9685");
-                        this.refI2cBridge.addGpioDevice(super.id(), provider);
-                    }
+//                    for (int i = 0; i < 8; i++) {
+                    this.pin = PCA9685Pin.ALL;
+//                        this.onPosition = checkForOverflow(offset * i);
+//                        this.offPosition = checkForOverflow(pulseDuration * (i + 1));
+//                        ((PCA9685GpioProvider) provider).setPwm(pin[i], onPosition, offPosition);
+//                        providerSettings("PCA9685");
+                    this.refI2cBridge.addGpioDevice(super.id(), provider);
+//                    }
                     break;
             }
         } catch (IOException e) {
@@ -96,26 +92,26 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
 
     }
 
-    private void providerSettings(String pca) {
-        switch (pca) {
-            case "PCA9685":
-                //Set full ON
-                ((PCA9685GpioProvider) provider).setAlwaysOn(PCA9685Pin.PWM_10);
-                //Set full Off
-                ((PCA9685GpioProvider) provider).setAlwaysOff(PCA9685Pin.PWM_11);
-                //Set 0.9ms pulse (R/C Servo minimum position)
-                provider.setPwm(PCA9685Pin.PWM_12, SERVO_DURATION_MIN);
-                // Set 1.5ms pulse (R/C Servo neutral position)
-                provider.setPwm(PCA9685Pin.PWM_13, SERVO_DURATION_NEUTRAL);
-                // Set 2.1ms pulse (R/C Servo maximum position)
-                provider.setPwm(PCA9685Pin.PWM_14, SERVO_DURATION_MAX);
-                for (GpioPinPwmOutput output : myOutputs) {
-                    int[] onOffValues = ((PCA9685GpioProvider) provider).getPwmOnOffValues(output.getPin());
-                    System.out.println(output.getPin().getName() + " (" + output.getName() + "): ON value [" + onOffValues[0] + "], OFF value [" + onOffValues[1] + "]");
-                }
-                break;
-        }
-    }
+//    private void providerSettings(String pca) {
+//        switch (pca) {
+//            case "PCA9685":
+//                //Set full ON
+//                ((PCA9685GpioProvider) provider).setAlwaysOn(PCA9685Pin.PWM_10);
+//                //Set full Off
+//                ((PCA9685GpioProvider) provider).setAlwaysOff(PCA9685Pin.PWM_11);
+//                //Set 0.9ms pulse (R/C Servo minimum position)
+//                provider.setPwm(PCA9685Pin.PWM_12, SERVO_DURATION_MIN);
+//                // Set 1.5ms pulse (R/C Servo neutral position)
+//                provider.setPwm(PCA9685Pin.PWM_13, SERVO_DURATION_NEUTRAL);
+//                // Set 2.1ms pulse (R/C Servo maximum position)
+//                provider.setPwm(PCA9685Pin.PWM_14, SERVO_DURATION_MAX);
+//                for (GpioPinPwmOutput output : myOutputs) {
+//                    int[] onOffValues = ((PCA9685GpioProvider) provider).getPwmOnOffValues(output.getPin());
+//                    System.out.println(output.getPin().getName() + " (" + output.getName() + "): ON value [" + onOffValues[0] + "], OFF value [" + onOffValues[1] + "]");
+//                }
+//                break;
+//        }
+//    }
 
     private void allocateBus(int config) {
         try {
