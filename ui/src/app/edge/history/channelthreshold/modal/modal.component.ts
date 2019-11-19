@@ -8,7 +8,7 @@ import { ModalController } from '@ionic/angular';
 })
 export class ChannelthresholdModalComponent {
 
-    @Input() private controllerId: string;
+    @Input() public controllerId: string;
 
     private static readonly SELECTOR = "channelthreshold-modal";
 
@@ -32,9 +32,10 @@ export class ChannelthresholdModalComponent {
             }
             if (this.channelthresholdComponents.length > 1) {
                 this.showTotal = false;
+            } else if (this.channelthresholdComponents.length == 1) {
+                this.showTotal = null;
             }
         })
-        console.log("channelthresholdcomponents", this.channelthresholdComponents)
     }
 
     onNotifyTotal(showTotal: boolean): void {

@@ -149,10 +149,28 @@ export class CurrentData {
       result.storage.dischargeActivePower = result.storage.dischargeActivePowerAc;
 
       let effectivePower;
+      let effectivePowerL1;
+      let effectivePowerL2;
+      let effectivePowerL3;
       if (result.storage.chargeActivePowerAc == null && result.storage.dischargeActivePowerAc == null && result.production.activePowerDc == null) {
         result.storage.effectivePower = null;
         effectivePower = null;
+        effectivePowerL1 = null;
+        effectivePowerL2 = null;
+        effectivePowerL3 = null;
       } else {
+        effectivePowerL1 = Utils.subtractSafely(
+          result.storage.activePowerL1, result.production.activePowerDc / 3);
+        result.storage.activePowerL1 = effectivePowerL1;
+
+        effectivePowerL2 = Utils.subtractSafely(
+          result.storage.activePowerL2, result.production.activePowerDc / 3);
+        result.storage.activePowerL2 = effectivePowerL2;
+
+        effectivePowerL3 = Utils.subtractSafely(
+          result.storage.activePowerL3, result.production.activePowerDc / 3);
+        result.storage.activePowerL3 = effectivePowerL3;
+
         effectivePower = Utils.subtractSafely(
           Utils.subtractSafely(
             Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc

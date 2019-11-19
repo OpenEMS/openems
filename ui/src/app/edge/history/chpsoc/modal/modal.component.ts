@@ -8,6 +8,8 @@ import { ModalController } from '@ionic/angular';
 })
 export class ChpSocModalComponent {
 
+    @Input() public controller: string;
+
     public chpSocComponents: string[] = [];
     public isOnlyChart: boolean = null;
     public showTotal: boolean = null;

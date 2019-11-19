@@ -68,7 +68,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
                             } else {
                                 if (channelAddress.channelId == 'ActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Production') + ' (' + (channelAddress.componentId == component.alias ? channelAddress.componentId : component.alias) + ')',
+                                        label: this.translate.instant('General.Production'),
                                         data: data
                                     });
                                     this.colors.push({

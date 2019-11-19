@@ -53,13 +53,22 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                     // convert datasets
                     let datasets = [];
                     // calculate total charge and discharge
-                    let effectivePower;
+                    let effectivePower = [];
+                    let effectivePowerL1 = [];
+                    let effectivePowerL2 = [];
+                    let effectivePowerL3 = [];
                     if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
-                        effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
-                            return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                        result.data['_sum/ProductionDcActualPower'].forEach((value, index) => {
+                            effectivePower[index] = Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                            effectivePowerL1[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL1'][index], value / 3);
+                            effectivePowerL2[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL2'][index], value / 3);
+                            effectivePowerL3[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL3'][index], value / 3);
                         });
                     } else {
                         effectivePower = result.data['_sum/EssActivePower'];
+                        effectivePowerL1 = result.data['_sum/EssActivePowerL1'];
+                        effectivePowerL2 = result.data['_sum/EssActivePowerL2'];
+                        effectivePowerL3 = result.data['_sum/EssActivePowerL3'];
                     }
 
                     let totalData = effectivePower.map(value => {
@@ -67,6 +76,30 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                             return null
                         } else {
                             return value / 1000; // convert to kW
+                        }
+                    })
+
+                    let totalDataL1 = effectivePowerL1.map(value => {
+                        if (value == null) {
+                            return null
+                        } else {
+                            return value / 1000 // convert to kW
+                        }
+                    })
+
+                    let totalDataL2 = effectivePowerL2.map(value => {
+                        if (value == null) {
+                            return null
+                        } else {
+                            return value / 1000 // convert to kW
+                        }
+                    })
+
+                    let totalDataL3 = effectivePowerL3.map(value => {
+                        if (value == null) {
+                            return null
+                        } else {
+                            return value / 1000 // convert to kW
                         }
                     })
 
@@ -96,19 +129,19 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                     if (channelAddress.channelId == 'EssActivePowerL1') {
                                         datasets.push({
                                             label: this.translate.instant('General.Phase') + ' ' + 'L1',
-                                            data: data
+                                            data: totalDataL1
                                         });
                                         this.colors.push(this.phase1Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL2') {
                                         datasets.push({
                                             label: this.translate.instant('General.Phase') + ' ' + 'L2',
-                                            data: data
+                                            data: totalDataL2
                                         });
                                         this.colors.push(this.phase2Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL3') {
                                         datasets.push({
                                             label: this.translate.instant('General.Phase') + ' ' + 'L3',
-                                            data: data
+                                            data: totalDataL3
                                         });
                                         this.colors.push(this.phase3Color);
                                     }
