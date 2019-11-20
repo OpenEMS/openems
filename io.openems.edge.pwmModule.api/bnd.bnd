@@ -1,25 +1,22 @@
-Bundle-Name: OpenEMS Edge PwmModule
+Bundle-Name: OpenEMS Edge PwmModuleApi
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-Export-Package:  \
-	io.openems.edge.pwm,\
 
+Export-Package:  \
+	io.openems.edge.pwmModule.api,\
 
 Private-Package:  \
-	io.openems.edge.pwm
+	io.openems.edge.pwmModule.api
 
 -includeresource: {readme.md}
 
 -buildpath:  \
 	osgi.enroute.base.api;version=2.1,\
+	pi4j-core,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.bridgei2c;version=latest,\
-	io.openems.edge.pwmModule.api;version=latest,\
-	pi4j-core,\
-
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

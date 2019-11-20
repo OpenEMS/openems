@@ -72,18 +72,4 @@ public class PwmDeviceTaskImpl extends I2cTaskImpl {
 
 
     }
-
-
-
-//    @Override
-//    public int getOffset() {
-//        return offset;
-//    }
-
-//    @Override
-//    public int getPulseDuration() {
-//        return pulseDuration;
-//    }
-
-
 }

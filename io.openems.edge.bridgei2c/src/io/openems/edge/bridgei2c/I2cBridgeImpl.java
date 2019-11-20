@@ -3,8 +3,6 @@ package io.openems.edge.bridgei2c;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.pi4j.gpio.extension.pca.PCA9685GpioProvider;
-import com.pi4j.gpio.extension.pca.PCA9685Pin;
 import com.pi4j.io.gpio.GpioProviderBase;
 import com.pi4j.io.gpio.Pin;
 import io.openems.common.exceptions.OpenemsException;
@@ -14,10 +12,11 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.pwmModule.api.Pca9685GpioProvider;
+import io.openems.edge.pwmModule.api.PcaGpioProvider;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
 import io.openems.edge.relaisboardmcp.Mcp4728;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -39,7 +38,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     private final I2cWorker worker = new I2cWorker();
     private List<Mcp> mcpList = new ArrayList<>();
     //String --> PwmModule
-    private Map<String, GpioProviderBase> gpioMap = new ConcurrentHashMap<>();
+    private Map<String, PcaGpioProvider> gpioMap = new ConcurrentHashMap<>();
     //String --> PwmDevice
     private Map<String, I2cTask> tasks = new ConcurrentHashMap<>();
     private Pin[] pin;
@@ -123,7 +122,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     @Override
-    public void addGpioDevice(String id, GpioProviderBase gpio) {
+    public void addGpioDevice(String id, PcaGpioProvider gpio) {
         if (!this.gpioMap.containsKey(id)) {
             this.gpioMap.put(id, gpio);
         } else {
@@ -157,15 +156,13 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     private void shutdown(String id) {
-        GpioProviderBase gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
-        if (gpio instanceof PCA9685GpioProvider) {
-            if (pin == null || !(pin[tasks.get(id).getPinPosition()] instanceof PCA9685Pin)) {
-                pin = PCA9685Pin.ALL;
-            }
+        PcaGpioProvider gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
+        if (gpio instanceof Pca9685GpioProvider) {
+
             if (tasks.get(id).isInverse()) {
-                ((PCA9685GpioProvider) gpio).setAlwaysOn(pin[tasks.get(id).getPinPosition()]);
+                ((Pca9685GpioProvider) gpio).setAlwaysOn(tasks.get(id).getPinPosition());
             } else {
-                ((PCA9685GpioProvider) gpio).setAlwaysOff(pin[tasks.get(id).getPinPosition()]);
+                ((Pca9685GpioProvider) gpio).setAlwaysOff(tasks.get(id).getPinPosition());
             }
         }
 
@@ -194,11 +191,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             }
             for (I2cTask task : tasks.values()) {
 
-                GpioProviderBase gpio = gpioMap.get(task.getPwmModuleId());
-                if (gpio instanceof PCA9685GpioProvider) {
-                    if (pin == null || !(pin[0] instanceof PCA9685Pin)) {
-                        pin = PCA9685Pin.ALL;
-                    }
+                PcaGpioProvider gpio = gpioMap.get(task.getPwmModuleId());
+                if (gpio instanceof Pca9685GpioProvider) {
+
                     //with or without offset?
                     int digit = task.calculateDigit(4096);
                     if (digit > 4095) {
@@ -206,7 +201,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
                     } else if (digit < 0) {
                         digit = 0;
                     }
-                    ((PCA9685GpioProvider) gpio).setPwm(pin[task.getPinPosition()], 0, digit);
+                    ((Pca9685GpioProvider) gpio).setPwm(task.getPinPosition(), 0, digit);
                 }
             }
         }

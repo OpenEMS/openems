@@ -41,7 +41,7 @@ import org.osgi.service.metatype.annotations.Option;
                     @Option(label = "Vitoblock 200 BM - 366/437", value = "BM_366_437"),
                     @Option(label = "Not in list", value = "Null")
             })
-    String bhkwType() default "Vitoblock140";
+    String bhkwType() default "EM_140_207";
 
     @AttributeDefinition(name = "GaspedalId", description = "Id of the Gaspedal you previously implemented")
     String gaspedalId() default "Gaspedal0";

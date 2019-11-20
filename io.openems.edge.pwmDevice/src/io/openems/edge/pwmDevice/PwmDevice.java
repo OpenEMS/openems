@@ -2,10 +2,10 @@ package io.openems.edge.pwmDevice;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.bridgei2c.I2cBridge;
+import io.openems.edge.pwmDevice.task.PwmDeviceTaskImpl;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.pwmDevice.task.PwmDeviceTaskImpl;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -40,7 +40,7 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
         super.activate(context, config.id(), config.alias(), config.enabled());
         this.pwmModule = config.pwm_module();
         this.i2cBridge = config.i2c_id();
-//        this.pulseDuration = config.pwm_pulseDuration();
+        // this.pulseDuration = config.pwm_pulseDuration();
         this.isInverse = config.isInverse();
         this.initialValue = config.percentage_Initial();
 

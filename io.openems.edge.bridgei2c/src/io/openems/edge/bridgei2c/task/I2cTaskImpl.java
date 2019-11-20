@@ -1,7 +1,5 @@
 package io.openems.edge.bridgei2c.task;
 
-import io.openems.edge.common.channel.WriteChannel;
-
 public abstract class I2cTaskImpl implements I2cTask {
 
     private String pwmModuleId;
