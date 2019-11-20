@@ -10,8 +10,9 @@ import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.metadata.odoo.MetadataOdoo;
+import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.Field.EdgeDeviceStatus;
 
 public class MyConnection {
 
@@ -43,6 +44,9 @@ public class MyConnection {
 		// Initialize everything
 		this.psQueryAllEdges = null;
 		this.psQueryEdgesWithApikey = null;
+		this.psInsertOrUpdateDeviceState = null;
+		this.psQueryNotAcknowledgedDeviceStates = null;
+		this.psUpdateEdgeState = null;
 
 		// Open new Database connection
 		Properties props = new Properties();
@@ -56,7 +60,7 @@ public class MyConnection {
 		}
 		String url = "jdbc:postgresql://" + this.credentials.getHost() + ":5432/" + this.credentials.getDatabase();
 		this.conn = DriverManager.getConnection(url, props);
-		this.conn.setAutoCommit(false);
+		this.conn.setAutoCommit(true);
 		return this.conn;
 	}
 
@@ -85,8 +89,8 @@ public class MyConnection {
 		Connection conn = this.get();
 		if (this.psQueryAllEdges == null) {
 			this.psQueryAllEdges = conn.prepareStatement(//
-					"SELECT " + EdgeDevice.getSqlQueryFields() //
-							+ " FROM " + MetadataOdoo.ODOO_DEVICE_TABLE + ";");
+					"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
+							+ " FROM " + EdgeDevice.ODOO_TABLE + ";");
 		}
 		return this.psQueryAllEdges;
 	}
@@ -103,10 +107,85 @@ public class MyConnection {
 		Connection conn = this.get();
 		if (this.psQueryEdgesWithApikey == null) {
 			this.psQueryEdgesWithApikey = conn.prepareStatement(//
-					"SELECT " + EdgeDevice.getSqlQueryFields() //
-							+ " FROM " + MetadataOdoo.ODOO_DEVICE_TABLE //
+					"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
+							+ " FROM " + EdgeDevice.ODOO_TABLE //
 							+ " WHERE apikey = ?;");
 		}
+
 		return this.psQueryEdgesWithApikey;
+	}
+
+	private PreparedStatement psInsertOrUpdateDeviceState = null;
+
+	/**
+	 * INSERT INTO {} (...) VALUES (...) ON CONFLICT (..) UPDATE SET
+	 * item=excluded.item;
+	 * 
+	 * <p>
+	 * Be careful to synchronize access to the resulting PreparedStatement.
+	 * 
+	 * @return the PreparedStatement
+	 * @throws SQLException on error
+	 */
+	public PreparedStatement psInsertOrUpdateDeviceState() throws SQLException {
+		Connection conn = this.get();
+		if (this.psInsertOrUpdateDeviceState == null) {
+			this.psInsertOrUpdateDeviceState = conn.prepareStatement(//
+					"INSERT INTO " + EdgeDeviceStatus.ODOO_TABLE //
+							+ " (device_id, channel_address, level, component_id, channel_name, last_appearance)" //
+							+ " VALUES(?, ?, ?, ?, ?, ?)" //
+							+ "	ON CONFLICT (device_id, channel_address)" //
+							+ " DO UPDATE SET" //
+							+ " level=EXCLUDED.level,component_id=EXCLUDED.component_id,"//
+							+ "channel_name=EXCLUDED.channel_name,last_appearance=EXCLUDED.last_appearance");
+		}
+		return this.psInsertOrUpdateDeviceState;
+	}
+
+	private PreparedStatement psQueryNotAcknowledgedDeviceStates = null;
+
+	/**
+	 * SELECT level, component_id, channel_name FROM {} WHERE device_id = {} AND ...
+	 * 
+	 * @return the PreparedStatement
+	 * @throws SQLException on error
+	 */
+	public PreparedStatement psQueryNotAcknowledgedDeviceStates() throws SQLException {
+		Connection conn = this.get();
+		if (this.psQueryNotAcknowledgedDeviceStates == null) {
+			this.psQueryNotAcknowledgedDeviceStates = conn.prepareStatement(//
+					"SELECT " + Field.getSqlQueryFields(EdgeDeviceStatus.values()) //
+							+ " FROM " + EdgeDeviceStatus.ODOO_TABLE //
+							+ " WHERE device_id = ?" //
+							+ " AND (" //
+							+ " last_acknowledge IS NULL" //
+							+ " OR (acknowledge_days > 0 AND last_appearance > last_acknowledge + interval '1 day' * acknowledge_days)" //
+							+ " OR (acknowledge_days < 1 AND last_acknowledge IS NOT NULL)" //
+							+ ")");
+		}
+
+		return this.psQueryNotAcknowledgedDeviceStates;
+	}
+
+	private PreparedStatement psUpdateEdgeState = null;
+
+	/**
+	 * UPDATE {} SET openems_sum_state_level = {}, openems_sum_state_text = {} WHERE
+	 * id = {};
+	 * 
+	 * @return the PreparedStatement
+	 * @throws SQLException on error
+	 */
+	public PreparedStatement psUpdateEdgeState() throws SQLException {
+		Connection conn = this.get();
+		if (this.psUpdateEdgeState == null) {
+			this.psUpdateEdgeState = conn.prepareStatement(//
+					"UPDATE " + EdgeDevice.ODOO_TABLE //
+							+ " SET" //
+							+ " openems_sum_state_level = ?," //
+							+ " openems_sum_state_text = ?" //
+							+ " WHERE id = ?");
+		}
+		return this.psUpdateEdgeState;
 	}
 }

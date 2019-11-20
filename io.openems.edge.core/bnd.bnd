@@ -19,7 +19,8 @@ Private-Package: \
 	io.openems.edge.scheduler.api;version=latest,\
 	com.google.gson,\
 	slf4j.api,\
-	io.openems.wrapper.sdnotify;version=latest
+	io.openems.wrapper.sdnotify;version=latest,\
+	io.openems.edge.timedata.api;version=latest
 
 -testpath: ${testpath}
 

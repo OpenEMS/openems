@@ -50,12 +50,10 @@ import io.openems.edge.ess.power.api.Relationship;
 public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
-	//private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
-
 	private static final int MAX_APPARENT_POWER = 480_000;
 
 	private static final int UNIT_ID = 100;
-	private boolean readonly = false;	
+	private boolean readonly = false;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -85,7 +83,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BridgeModbus modbus2;
 
-	@Activate	
+	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id0());
@@ -158,17 +156,17 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		SystemWorkmode systemWorkmode = this.channel(ChannelId.SYSTEM_WORKMODE).value().asEnum(); //
 		SystemWorkstate systemWorkstate = this.channel(ChannelId.SYSTEM_WORKSTATE).value().asEnum();//
 
-		if (systemWorkmode != SystemWorkmode.PQ_MODE) {			
+		if (systemWorkmode != SystemWorkmode.PQ_MODE) {
 			return new Constraint[] { //
 					this.createPowerConstraint("WorkMode invalid", //
 							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("WorkMode invalid", //
 							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
-		
+
 		switch (systemWorkstate) {
 		case FAULT:
-		case STOP:			
+		case STOP:
 			return new Constraint[] { //
 					this.createPowerConstraint("WorkState invalid", //
 							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
@@ -180,10 +178,9 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		case INITIAL:
 		case STANDBY:
 		case GRID_MONITORING:
-		case READY:			
+		case READY:
 			break;
-		}		
-
+		}
 
 		// TODO set the positive and negative power limit in Constraints
 		// IntegerReadChannel posReactivePowerLimit =

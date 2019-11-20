@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class JsonUtils {
@@ -64,6 +66,16 @@ public class JsonUtils {
 			return (E) Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
+		}
+	}
+
+	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement)
+			throws OpenemsNamedException {
+		String element = getAsString(jElement);
+		try {
+			return (E) Enum.valueOf(enumType, element);
+		} catch (IllegalArgumentException e) {
+			throw OpenemsError.JSON_NO_ENUM.exception(element);
 		}
 	}
 
@@ -539,6 +551,23 @@ public class JsonUtils {
 			throw OpenemsError.JSON_NO_STRING_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
 		}
 		return jPrimitive.getAsString();
+	}
+
+	public static UUID getAsUUID(JsonElement jElement, String memberName) throws OpenemsNamedException {
+		try {
+			return UUID.fromString(getAsString(jElement, memberName));
+		} catch (IllegalArgumentException e) {
+			throw new OpenemsException("Unable to parse UUID: " + e.getMessage());
+		}
+	}
+
+	public static Optional<UUID> getAsOptionalUUID(JsonElement jElement, String memberName) {
+		Optional<String> uuid = getAsOptionalString(jElement, memberName);
+		if (uuid.isPresent()) {
+			return Optional.ofNullable(UUID.fromString(uuid.get()));
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	/**
