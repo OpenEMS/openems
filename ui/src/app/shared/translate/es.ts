@@ -36,6 +36,7 @@ export const TRANSLATION = {
         ActualPower: "e-car Carga",
         PeriodFromTo: "de {{value1}} para {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        DateFormatShort: "dd.MM",
         Search: "Búsqueda",
         Week: {
             Monday: "Lunes",
@@ -45,6 +46,20 @@ export const TRANSLATION = {
             Friday: "Viernes",
             Saturday: "Sábado",
             Sunday: "Domingo"
+        },
+        Month: {
+            January: "Enero",
+            February: "Febrero",
+            March: "Marzo",
+            April: "Abril",
+            May: "Mayo",
+            June: "Junio",
+            July: "Julio",
+            August: "Agosto",
+            September: "Septiembre",
+            October: "Octubre",
+            November: "Noviembre",
+            December: "Diciembre"
         },
         ReportValue: "Reportar datos corruptos"
     },
@@ -165,7 +180,11 @@ export const TRANSLATION = {
             LastMonth: "El me pasado",
             LastYear: "El año pasado",
             Go: "Nwo!",
-            Export: "descargar como archivo de excel"
+            Export: "descargar como archivo de excel",
+            Day: "Día",
+            Week: "Semana",
+            Month: "Mes",
+            Year: "Año"
         },
         Config: {
             Index: {

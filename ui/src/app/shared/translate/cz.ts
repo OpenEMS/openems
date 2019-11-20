@@ -36,6 +36,7 @@ export const TRANSLATION = {
         ActualPower: "E-Car Nabíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        DateFormatShort: "dd.MM",
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -44,6 +45,20 @@ export const TRANSLATION = {
             Friday: "Pátek",
             Saturday: "Sobota",
             Sunday: "Neděle"
+        },
+        Month: {
+            January: "leden",
+            February: "únor",
+            March: "březen",
+            April: "duben",
+            May: "květen",
+            June: "červen",
+            July: "červenec",
+            August: "srpen",
+            September: "září",
+            October: "říjen",
+            November: "listopad",
+            December: "prosinec"
         },
         ReportValue: "Nahlášení poškozených dat"
     },
@@ -168,7 +183,11 @@ export const TRANSLATION = {
             LastMonth: "Poslední měsíc",
             LastYear: "Poslední rok",
             Go: "Jdi!",
-            Export: "stáhnout jako soubor programu Excel"
+            Export: "stáhnout jako soubor programu Excel",
+            Day: "Den",
+            Week: "Týden",
+            Month: "Měsíc",
+            Year: "Rok"
         },
         Config: {
             Index: {
