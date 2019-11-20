@@ -22,7 +22,7 @@ export class ConsumptionModalComponent {
 
     ngOnInit() {
         this.service.getConfig().then(config => {
-            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster'))
+            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion'))
             // determine if singlechart is the only chart that is shown
             // disable total option to choose for chartoptions component
             if (this.evcsComponents.length > 0) {

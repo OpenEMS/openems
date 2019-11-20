@@ -22,6 +22,9 @@ export class CurrentData {
         activePowerL1: null,
         activePowerL2: null,
         activePowerL3: null,
+        effectiveActivePowerL1: null,
+        effectiveActivePowerL2: null,
+        effectiveActivePowerL3: null,
         chargeActivePower: null, // sum of chargeActivePowerAc and chargeActivePowerDc
         chargeActivePowerAc: null,
         chargeActivePowerDc: null,
@@ -161,15 +164,15 @@ export class CurrentData {
       } else {
         effectivePowerL1 = Utils.subtractSafely(
           result.storage.activePowerL1, result.production.activePowerDc / 3);
-        result.storage.activePowerL1 = effectivePowerL1;
+        result.storage.effectiveActivePowerL1 = effectivePowerL1;
 
         effectivePowerL2 = Utils.subtractSafely(
           result.storage.activePowerL2, result.production.activePowerDc / 3);
-        result.storage.activePowerL2 = effectivePowerL2;
+        result.storage.effectiveActivePowerL2 = effectivePowerL2;
 
         effectivePowerL3 = Utils.subtractSafely(
           result.storage.activePowerL3, result.production.activePowerDc / 3);
-        result.storage.activePowerL3 = effectivePowerL3;
+        result.storage.effectiveActivePowerL3 = effectivePowerL3;
 
         effectivePower = Utils.subtractSafely(
           Utils.subtractSafely(

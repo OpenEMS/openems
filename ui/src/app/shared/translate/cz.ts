@@ -175,7 +175,8 @@ export const TRANSLATION = {
             Day: "Den",
             Week: "Týden",
             Month: "Měsíc",
-            Year: "Rok"
+            Year: "Rok",
+            noData: "data nejsou k dispozici"
         },
         Config: {
             Index: {

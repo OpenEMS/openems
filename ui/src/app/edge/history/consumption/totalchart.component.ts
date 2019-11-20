@@ -27,10 +27,10 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
-        private translate: TranslateService
     ) {
-        super(service);
+        super(service, translate);
     }
 
 
@@ -95,7 +95,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                             } else {
                                 if (channelAddress.channelId == 'ConsumptionActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Consumption') + ' (' + this.translate.instant('General.Total') + ')',
+                                        label: this.translate.instant('General.Total'),
                                         data: data,
                                         hidden: false
                                     });
@@ -139,7 +139,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                     }
                                     if (channelAddress.channelId == "ChargePower") {
                                         datasets.push({
-                                            label: this.translate.instant('General.Consumption') + ' (' + (component.id == component.alias ? component.id : component.alias) + ')',
+                                            label: (component.id == component.alias ? component.id : component.alias),
                                             data: data,
                                             hidden: false
                                         });
@@ -152,7 +152,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                 } else if (config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).length == 1) {
                                     if (channelAddress.channelId == "ChargePower") {
                                         datasets.push({
-                                            label: this.translate.instant('General.Consumption') + ' (' + (component.id == component.alias ? component.id : component.alias) + ')',
+                                            label: (component.id == component.alias ? component.id : component.alias),
                                             data: data,
                                             hidden: false
                                         });
@@ -164,7 +164,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                 }
                                 if (Utils.isLastElement(channelAddress, channelAddresses) && config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).length > 0) {
                                     datasets.push({
-                                        label: this.translate.instant('General.otherConsumption') + ' ' + this.translate.instant('General.Consumption'),
+                                        label: this.translate.instant('General.otherConsumption'),
                                         data: otherConsumption,
                                         hidden: false
                                     });

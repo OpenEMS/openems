@@ -33,12 +33,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   constructor(
     protected service: Service,
+    protected translate: TranslateService,
     private route: ActivatedRoute,
-    private translate: TranslateService,
     public modalCtrl: ModalController,
     private websocket: Websocket,
   ) {
-    super(service);
+    super(service, translate);
   }
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();

@@ -8,6 +8,8 @@ import { ChannelthresholdModalComponent } from './modal/modal.component';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { getMinutes, differenceInHours, differenceInMinutes, getHours } from 'date-fns';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,
@@ -21,6 +23,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
     private static readonly SELECTOR = "channelthresholdWidget";
 
     public timeActiveOverPeriod: number = null;
+    public activeTimeHours: number = null;
     public data: Cumulated = null;
     public values: any;
     public edge: Edge = null;
@@ -29,6 +32,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
         public service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
+        private decimalPipe: DecimalPipe
     ) { }
 
     ngOnInit() {
@@ -81,16 +85,30 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                                     data: data
                                 });
                             }
-                            // calculate the effective active time in percent
-                            let compareArray = []
+
+                            // fills date array with existing dates
+                            let dates = []
+                            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+                            result.data[outputChannel.toString()].forEach((value, index) => {
+                                if (value != null) {
+                                    let date = new Date(result.timestamps[index]);
+                                    dates.push(date);
+                                }
+                            })
+                            // fills array with active values only
+                            let activeValues = []
                             datasets.forEach(dataset => {
                                 Object.values(dataset.data).forEach(data => {
                                     if (data == 100) {
-                                        compareArray.push(data)
+                                        activeValues.push(data)
                                     }
                                 })
                             })
-                            this.timeActiveOverPeriod = (compareArray.length / (result.timestamps.length / 100));
+                            // gets active time in percent by comparing the active values with the timestamps
+                            let activeTimePercent = (activeValues.length / (result.timestamps.length / 100))
+                            // gets the active time in hours for presenting in widget
+                            this.activeTimeHours = differenceInMinutes(dates[dates.length - 1], dates[0]) / 100 * activeTimePercent / 60;
+
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {

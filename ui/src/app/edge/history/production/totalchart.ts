@@ -23,12 +23,11 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
-        private translate: TranslateService
     ) {
-        super(service);
+        super(service, translate);
     }
-
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
@@ -106,7 +105,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                             } else {
                                 if (channelAddress.channelId == 'ProductionActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Production') + ' (' + this.translate.instant('General.Total') + ')',
+                                        label: this.translate.instant('General.Total'),
                                         data: data
                                     });
                                     this.colors.push({
@@ -139,7 +138,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                                 }
                                 if (channelAddress.channelId == 'ActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Production') + ' (' + (channelAddress.componentId == component.alias ? channelAddress.componentId : component.alias) + ')',
+                                        label: (channelAddress.componentId == component.alias ? channelAddress.componentId : component.alias),
                                         data: data
                                     });
                                     this.colors.push({
@@ -149,7 +148,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                                 }
                                 if (channelAddress.channelId == 'ActualPower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Production') + ' (' + (channelAddress.componentId == component.alias ? channelAddress.componentId : component.alias) + ')',
+                                        label: (channelAddress.componentId == component.alias ? channelAddress.componentId : component.alias),
                                         data: data
                                     });
                                     this.colors.push({

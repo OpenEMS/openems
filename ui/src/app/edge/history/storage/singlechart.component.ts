@@ -24,10 +24,10 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
-        private translate: TranslateService
     ) {
-        super(service);
+        super(service, translate);
     }
 
 
@@ -182,18 +182,17 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     protected setLabel() {
+        let translate = this.translate; // enables access to TranslateService
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            if (label == this.grid) {
-                if (value < 0) {
-                    value *= -1;
-                    label = this.gridBuy;
-                } else {
-                    label = this.gridSell;
-                }
+            // 0.01 to prevent showing Charge or Discharge if value is e.g. 0.00232138
+            if (value < -0.01) {
+                label = translate.instant('General.ChargePower');
+            } else if (value > 0.01) {
+                label = translate.instant('General.DischargePower');
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }

@@ -30,6 +30,9 @@ export module DefaultTypes {
       activePowerL1: number,
       activePowerL2: number,
       activePowerL3: number,
+      effectiveActivePowerL1: number,
+      effectiveActivePowerL2: number,
+      effectiveActivePowerL3: number,
       chargeActivePower: number,
       chargeActivePowerAc: number,
       chargeActivePowerDc: number,
@@ -93,13 +96,6 @@ export module DefaultTypes {
       public from: Date = new Date(),
       public to: Date = new Date(),
     ) { }
-
-    public dateForward() {
-
-    }
-
-    public dateBackward() {
-    }
 
     public getText(translate: TranslateService): string {
       if (isSameDay(this.from, this.to) && isSameDay(this.from, new Date())) {

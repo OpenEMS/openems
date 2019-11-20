@@ -25,10 +25,10 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   constructor(
     protected service: Service,
+    protected translate: TranslateService,
     private route: ActivatedRoute,
-    private translate: TranslateService
   ) {
-    super(service);
+    super(service, translate);
   }
 
   ngOnInit() {
@@ -66,7 +66,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
           }
         });
         datasets.push({
-          label: "Ausgang" + ' (' + address.channelId + ')',
+          label: address.channelId,
           data: data
         });
         this.colors.push({
@@ -108,14 +108,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == this.grid) {
-        if (value < 0) {
-          value *= -1;
-          label = this.gridBuy;
-        } else {
-          label = this.gridSell;
-        }
-      }
       return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
     }
     options.scales.yAxes[0].ticks.max = 100;

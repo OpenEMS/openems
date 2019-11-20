@@ -23,10 +23,10 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
 
   constructor(
     protected service: Service,
+    protected translate: TranslateService,
     private route: ActivatedRoute,
-    private translate: TranslateService
   ) {
-    super(service);
+    super(service, translate);
   }
 
   ngOnInit() {
@@ -46,16 +46,9 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
         labels.push(new Date(timestamp));
       }
       this.labels = labels;
+
       // show Channel-ID if there is more than one Channel
       let showChannelId = Object.keys(result.data).length > 1 ? true : false;
-
-      // CALCULCATE TIME ACTIVE IN %&
-      // Object.values(result.timestamps).forEach(timestamp => {
-      //   let newDate = new Date(timestamp);
-      // })
-
-      // Object.values(result.data).forEach(data => {
-      // })
 
       let datasets = [];
       // convert datasets
@@ -71,7 +64,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
         switch (index % 2) {
           case 0:
             datasets.push({
-              label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
+              label: address.channelId,
               data: data
             });
             this.colors.push({
@@ -81,7 +74,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
             break;
           case 1:
             datasets.push({
-              label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
+              label: address.channelId,
               data: data
             });
             this.colors.push({

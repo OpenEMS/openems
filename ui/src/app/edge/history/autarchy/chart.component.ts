@@ -22,10 +22,10 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
-        private translate: TranslateService
     ) {
-        super(service);
+        super(service, translate);
     }
 
 
@@ -150,12 +150,6 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
         }
         options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
-    }
-
-    protected initializeChart() {
-        this.datasets = EMPTY_DATASET;
-        this.labels = [];
-        this.loading = false;
     }
 
     public getChartHeight(): number {

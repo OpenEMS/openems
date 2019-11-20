@@ -26,13 +26,12 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
-        private translate: TranslateService,
         private websocket: Websocket,
     ) {
-        super(service);
+        super(service, translate);
     }
-
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
@@ -143,25 +142,22 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected setLabel() {
+        let translate = this.translate; // enables access to TranslateService
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            if (label == this.grid) {
-                if (value < 0) {
-                    value *= -1;
-                    label = this.gridBuy;
-                } else {
-                    label = this.gridSell;
-                }
+            // 0.01 to prevent showing Charge or Discharge if value is e.g. 0.00232138
+            if (value < -0.01) {
+                label = translate.instant('General.ChargePower');
+            } else if (value > 0.01) {
+                label = translate.instant('General.DischargePower');
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
         this.options = options;
     }
-
-
 
     public getChartHeight(): number {
         return window.innerHeight / 21 * 9;

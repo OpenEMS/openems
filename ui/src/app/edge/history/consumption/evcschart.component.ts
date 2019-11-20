@@ -23,10 +23,10 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
-        private translate: TranslateService
     ) {
-        super(service);
+        super(service, translate);
     }
 
 

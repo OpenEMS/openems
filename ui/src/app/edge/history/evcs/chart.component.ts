@@ -24,10 +24,10 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
 
   constructor(
     protected service: Service,
+    protected translate: TranslateService,
     private route: ActivatedRoute,
-    private translate: TranslateService
   ) {
-    super(service);
+    super(service, translate);
   }
 
   ngOnInit() {

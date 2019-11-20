@@ -28,11 +28,11 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
-        private translate: TranslateService,
         private websocket: Websocket,
     ) {
-        super(service);
+        super(service, translate);
     }
 
 
@@ -112,14 +112,6 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            if (label == this.grid) {
-                if (value < 0) {
-                    value *= -1;
-                    label = this.gridBuy;
-                } else {
-                    label = this.gridSell;
-                }
-            }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
         this.options = options;

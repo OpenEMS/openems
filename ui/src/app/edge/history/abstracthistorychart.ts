@@ -3,6 +3,8 @@ import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
 import { EMPTY_DATASET, Dataset, ChartOptions } from './shared';
+import { EMPTY } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 export abstract class AbstractHistoryChart {
 
@@ -27,7 +29,8 @@ export abstract class AbstractHistoryChart {
     }
 
     constructor(
-        protected service: Service
+        protected service: Service,
+        protected translate: TranslateService
     ) { }
 
     /**
@@ -77,9 +80,10 @@ export abstract class AbstractHistoryChart {
     protected abstract updateChart()
 
     /**
-     * Initializes Chart
+     * Initializes empty chart on error
      */
     protected initializeChart() {
+        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

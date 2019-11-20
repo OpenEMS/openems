@@ -9,11 +9,10 @@
   <ion-card-content>
     <table class="full_width">
       <tr>
-        <td style="width: 100%">
-          <ng-container *ngIf="timeActiveOverPeriod != null">
-            <percentagebar [value]="timeActiveOverPeriod">
-            </percentagebar>
-          </ng-container>
+        <td style="width:65%">
+          Einschaltdauer</td>
+        <td style="width:35%" class="align_right">
+          ~&nbsp;{{activeTimeHours | unitvalue:'h'}}
         </td>
       </tr>
     </table>

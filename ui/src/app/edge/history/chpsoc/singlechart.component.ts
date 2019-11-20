@@ -6,6 +6,7 @@ import { Dataset, EMPTY_DATASET, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, Toolt
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { formatNumber } from '@angular/common';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'chpsocSingleChart',
@@ -23,9 +24,10 @@ export class ChpSocSingleChartComponent extends AbstractHistoryChart implements 
 
     constructor(
         protected service: Service,
+        protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service);
+        super(service, translate);
     }
 
     protected updateChart() {

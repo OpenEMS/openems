@@ -22,10 +22,10 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
 
   constructor(
     protected service: Service,
+    protected translate: TranslateService,
     private route: ActivatedRoute,
-    private translate: TranslateService
   ) {
-    super(service);
+    super(service, translate);
   }
 
   public loading: boolean = true;
