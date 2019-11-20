@@ -16,12 +16,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class PricesTest {
+public class MainPriceTest {
 
 	private static LocalDateTime startTimeStamp = null;
 	private static TreeMap<LocalDateTime, Float> HourlyPrices = new TreeMap<LocalDateTime, Float>();
 
-	public static void houlryPricesTest() {
+	public static void main (String[] args) {
 
 		try {
 
@@ -50,6 +50,7 @@ public class PricesTest {
 				long start_Timestamp = jsonelement.get("start_timestamp").getAsLong();
 				startTimeStamp = LocalDateTime.ofInstant(Instant.ofEpochMilli(start_Timestamp), ZoneId.systemDefault());
 				HourlyPrices.put(startTimeStamp, marketPrice);
+				System.out.println(startTimeStamp + " " + marketPrice);
 
 			}
 

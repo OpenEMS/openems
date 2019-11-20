@@ -155,21 +155,6 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 			this.executed = false;
 		}
 
-//		if (this.cheapHours.isEmpty()) {
-//			Sum sum = this.componentManager.getComponent(OpenemsConstants.SUM_ID);
-//
-//			long currentProduction = sum.getProductionAcActiveEnergy().value().orElse(0L);
-//			long currentConsumption = sum.getConsumptionActiveEnergy().value().orElse(0L);
-//
-//			if (currentConsumption > currentProduction) {
-//				int nowHour = now.getHour();
-//				this.proLessThanCon = this.startHour.withHour(0).withMinute(0).withSecond(0).withNano(0)
-//						.plusHours(nowHour);
-//
-//				this.calculateRemainingCapacity(this.availableCapacity);
-//			}
-//		}
-
 		// Avoiding Discharging during cheapest hours
 		if (!this.cheapHours.isEmpty()) {
 			for (LocalDateTime entry : cheapHours) {
@@ -261,19 +246,6 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 //			hourlyPro.put(startHour.plusHours(i), value);
 //			j = j - 1;
 //		}
-
-//		//existing
-//		int consumptionTotal = 0;
-//
-//		for (Entry<LocalDateTime, Integer> entry : this.hourlyConsumption.entrySet()) {
-//			if (entry.getKey().isAfter(this.proLessThanCon) && entry.getKey().isBefore(this.proMoreThanCon)) {
-//				consumptionTotal += entry.getValue() - this.hourlyProduction.get(entry.getKey());
-//			}
-//		}
-//
-//		// remaining amount of energy that should be covered from grid.
-//		this.remainingCapacity = consumptionTotal - availableCapacity;
-
 //		return hourlyPro;
 //	}
 
