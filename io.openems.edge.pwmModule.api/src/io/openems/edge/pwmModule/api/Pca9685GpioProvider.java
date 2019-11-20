@@ -11,7 +11,6 @@ package io.openems.edge.pwmModule.api;
 import com.pi4j.io.gpio.exception.ValidationException;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-import io.openems.common.exceptions.OpenemsException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -57,10 +56,9 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
     }
 
     @Override
-    public void setPwm(int pinPos, int onPos, int offPos) throws OpenemsException {
+    public void setPwm(int pinPos, int onPos, int offPos) {
         if (pinPos > maxPinPos) {
-
-            throw new OpenemsException("pinPosition too Large, Check: Max Pin Value is: " + this.maxPinPos);
+            throw new IllegalArgumentException("pinPosition too Large, Check: Max Pin Value is: " + this.maxPinPos);
         }
         this.validatePositionPwmRange(onPos);
         this.validatePositionPwmRange(offPos);
@@ -81,7 +79,7 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
     }
 
     @Override
-    public void setPwm(int pinPos, int offPos) throws OpenemsException {
+    public void setPwm(int pinPos, int offPos) {
         this.setPwm(pinPos, 0, offPos);
     }
 

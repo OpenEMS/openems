@@ -58,8 +58,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         for (Mcp mcp : mcpList) {
             mcp.deactivate();
         }
-        for (String id : this.gpioMap.keySet()) {
-            removeGpioDevice(id);
+        // should always be empty already but to make sure..
+        for (String key : this.gpioMap.keySet()) {
+            removeGpioDevice(key);
         }
     }
 
@@ -122,18 +123,16 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     @Override
     public void addGpioDevice(String id, IpcaGpioProvider gpio) {
-        if (!this.gpioMap.containsKey(id)) {
-            this.gpioMap.put(id, gpio);
-        } else {
-            System.out.println("Warning! id " + id + "Already in Map, choose another id Name");
-        }
+        this.gpioMap.put(id, gpio);
     }
 
     @Override
     public void removeGpioDevice(String id) {
 
         for (I2cTask task : tasks.values()) {
-            shutdown(task.getPwmModuleId());
+            if (task.getPwmModuleId().equals(id)) {
+                removeI2cTask(task.getDeviceId());
+            }
         }
         this.gpioMap.remove(id);
     }
@@ -156,7 +155,6 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     private void shutdown(String id) {
         IpcaGpioProvider gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
         if (gpio != null) {
-
             if (tasks.get(id).isInverse()) {
                 gpio.setAlwaysOn(tasks.get(id).getPinPosition());
             } else {
@@ -166,6 +164,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     }
 
+    public Map<String, IpcaGpioProvider> getGpioMap() {
+        return gpioMap;
+    }
 
     private class I2cWorker extends AbstractCycleWorker {
         @Override
@@ -181,27 +182,58 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         @Override
         public void forever() throws Throwable {
             for (Mcp mcp : getMcpList()) {
-                if (mcp instanceof Mcp23008) {
-                    ((Mcp23008) mcp).shift();
-                } else if (mcp instanceof Mcp4728) {
-                    ((Mcp4728) mcp).shift();
-                }
+                mcp.shift();
             }
-            for (I2cTask task : tasks.values()) {
 
-                IpcaGpioProvider gpio = gpioMap.get(task.getPwmModuleId());
-                if (gpio != null) {
-
+            tasks.values().forEach(task -> {
+                getGpioMap().entrySet().stream()
+                        .filter(entry -> task.getPwmModuleId().equals(entry.getKey()))
+                        .map(Map.Entry::getValue)
+                        .findFirst().ifPresent(gpio -> {
                     //with or without offset?
                     int digit = task.calculateDigit(4096);
-                    if (digit > 4095) {
-                        digit = 4095;
-                    } else if (digit < 0) {
-                        digit = 0;
+
+                    if (digit <= 0) {
+                        if (task.isInverse()) {
+                            gpio.setAlwaysOn(task.getPinPosition());
+                        } else {
+                            gpio.setAlwaysOff(task.getPinPosition());
+                        }
+                    } else if (digit >= 4095) {
+                        if (task.isInverse()) {
+                            gpio.setAlwaysOff(task.getPinPosition());
+                        } else {
+                            gpio.setAlwaysOn(task.getPinPosition());
+                        }
+                    } else {
+                        gpio.setPwm(task.getPinPosition(), 0, digit);
                     }
-                    gpio.setPwm(task.getPinPosition(), 0, digit);
-                }
-            }
+                });
+            });
+
+//            for (I2cTask task : tasks.values()) {
+//
+//                IpcaGpioProvider gpio = getGpioMap().get(task.getPwmModuleId());
+//                if (gpio != null) {
+//
+//                    //with or without offset?
+//                    int digit = task.calculateDigit(4096);
+//                    if (digit > 4095) {
+//                        digit = 4095;
+//                    } else if (digit < 0) {
+//                        digit = 0;
+//                    }
+//                    if (digit == 0) {
+//                        if (task.isInverse()) {
+//                            gpio.setAlwaysOn(task.getPinPosition());
+//                        } else {
+//                            gpio.setAlwaysOff(task.getPinPosition());
+//                        }
+//                    } else {
+//                        gpio.setPwm(task.getPinPosition(), 0, digit);
+//                    }
+//                }
+//            }
         }
     }
 

@@ -13,13 +13,13 @@ public class PwmDeviceTaskImpl extends I2cTaskImpl {
     //    private int pulseDuration;
     private boolean isInverse;
     private float initialValue;
-    private int scaling = 10;
+    private float scaling = 10.f;
     private boolean initalWasSet = false;
     private String deviceId;
 
 
     public PwmDeviceTaskImpl(String deviceId, WriteChannel<Float> powerLevel, String pwmModule, short pinPosition, boolean isInverse, float percentageValue) {
-        super(pwmModule);
+        super(pwmModule, deviceId);
         this.powerLevel = powerLevel;
         this.pwmModule = pwmModule;
         this.pinPosition = pinPosition;
@@ -53,25 +53,21 @@ public class PwmDeviceTaskImpl extends I2cTaskImpl {
     @Override
     public int calculateDigit(int digitRange) {
         int digitValue = -5;
-        int singleDigitValue = digitRange / (100 * scaling);
-        if (initalWasSet) {
-            if (this.powerLevel.value().isDefined()) {
-                float power = Float.parseFloat(powerLevel.value().get().toString().replaceAll("[a-zA-Z _%]", ""));
-                if (isInverse) {
-                    power = 100 - power;
-                }
-                return (int) power * singleDigitValue * scaling;
-            } else {
-                return digitValue;
-            }
+        float singleDigitValue = (float)(digitRange) / (100 * scaling);
 
-        } else {
+        if (this.powerLevel.value().isDefined()) {
+
+            float power = powerLevel.getNextValue().get();
+
+//            float power = Float.parseFloat(powerLevel.value().get().toString().replaceAll("[a-zA-Z _%]", ""));
             if (isInverse) {
-                this.initialValue = 100 - this.initialValue;
+                power = 100 - power;
             }
-            return (int) this.initialValue * singleDigitValue * scaling;
+            return (int) (power * singleDigitValue * scaling);
+        } else {
+            return digitValue;
         }
-
-
     }
+
+
 }

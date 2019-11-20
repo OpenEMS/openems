@@ -56,13 +56,13 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
         this.frequency = new BigDecimal(config.max_frequency());
         float correction = Float.parseFloat(config.actual_frequency()) / Float.parseFloat(config.max_frequency());
         this.frequencyCorrectionFactor = new BigDecimal(Float.toString(correction));
-//        this.pulseDuration = config.pwm_pulseDuration();
+        //        this.pulseDuration = config.pwm_pulseDuration();
         allocateGpioProvider(config);
     }
 
-//    private float calcfrequency(int step_micro) {
-//        return 4096 * (step_micro * (float) Math.pow(10, -6));
-//    }
+    //    private float calcfrequency(int step_micro) {
+    //        return 4096 * (step_micro * (float) Math.pow(10, -6));
+    //    }
 
     @Deactivate
     public void deactivate() {
@@ -77,13 +77,13 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
                 case "1":
                     provider = new Pca9685GpioProvider(this.i2CBus, config.pwm_address(),
                             this.frequency, this.frequencyCorrectionFactor);
-//                    for (int i = 0; i < 8; i++) {
-//                        this.onPosition = checkForOverflow(offset * i);
-//                        this.offPosition = checkForOverflow(pulseDuration * (i + 1));
-//                        ((PCA9685GpioProvider) provider).setPwm(pin[i], onPosition, offPosition);
-//                        providerSettings("PCA9685");
+                    //                    for (int i = 0; i < 8; i++) {
+                    //                        this.onPosition = checkForOverflow(offset * i);
+                    //                        this.offPosition = checkForOverflow(pulseDuration * (i + 1));
+                    //                        ((PCA9685GpioProvider) provider).setPwm(pin[i], onPosition, offPosition);
+                    //                        providerSettings("PCA9685");
                     this.refI2cBridge.addGpioDevice(super.id(), (IpcaGpioProvider) provider);
-//                    }
+                    //                    }
                     break;
             }
         } catch (IOException e) {
@@ -163,7 +163,7 @@ public class PwmModule extends AbstractOpenemsComponent implements OpenemsCompon
 
     private int checkForOverflow(int position) {
         int result = -66;
-        if( this.provider instanceof Pca9685GpioProvider) {
+        if (this.provider instanceof Pca9685GpioProvider) {
             result = position;
             if (position > Pca9685GpioProvider.PWM_STEPS - 1) {
                 result = position - Pca9685GpioProvider.PWM_STEPS - 1;
