@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.acpredictivedelaycharge;
+package io.openems.edge.controller.ess.predictivedelaycharge.ac;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

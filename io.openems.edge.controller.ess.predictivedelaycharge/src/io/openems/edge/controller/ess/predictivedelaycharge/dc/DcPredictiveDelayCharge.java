@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.acpredictivedelaycharge;
+package io.openems.edge.controller.ess.predictivedelaycharge.dc;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -17,6 +17,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.predictivedelaycharge.AbstractPredictiveDelayCharge;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -27,13 +28,12 @@ import io.openems.edge.predictor.api.HourlyPredictor;
 import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Ess.AcPredictiveDelayCharge", //
+@Component(name = "Controller.Ess.DcPredictiveDelayCharge", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
+public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 		implements Controller, OpenemsComponent, HourlyPredictor {
 
 	private Config config;
-	private Integer calculatedPower;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -44,11 +44,13 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 	@Reference
 	protected ConsumptionHourlyPredictor consumptionHourlyPredictor;
 
-	public AcPredictiveDelayCharge() {
+	private Integer calculatedPower;
+
+	public DcPredictiveDelayCharge() {
 		super();
 	}
 
-	public AcPredictiveDelayCharge(Clock clock, String componentId,
+	public DcPredictiveDelayCharge(Clock clock, String componentId,
 			io.openems.edge.common.channel.ChannelId channelId) {
 		super(clock, componentId, channelId);
 	}
@@ -83,20 +85,29 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 
 		// Get required variables
 		ManagedSymmetricEss ess = this.getComponentManager().getComponent(this.config.ess_id());
+		EssDcCharger charger = this.componentManager.getComponent(this.config.charger_id());
+
+		int productionPower = charger.getActualPower().value().orElse(0);
 
 		this.calculatedPower = getCalculatedPower();
 
 		// checking if power per second is calculated
-		if (this.calculatedPower != null) {
-			// Set limitation for ChargePower
-			Power power = ess.getPower();
-			this.calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-					(this.calculatedPower * -1));
-			/*
-			 * set result
-			 */
-			ess.addPowerConstraintAndValidate("AcPredictiveDelayCharge", Phase.ALL, Pwr.ACTIVE,
-					Relationship.GREATER_OR_EQUALS, this.calculatedPower);
+		if (calculatedPower != null) {
+
+			int calculatedMinPower = productionPower - this.calculatedPower;
+
+			// avoiding buying power from grid to charge the battery.
+			if (calculatedMinPower > 0) {
+				// Set limitation for ChargePower
+				Power power = ess.getPower();
+				this.calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+						calculatedMinPower);
+				/*
+				 * set result
+				 */
+				ess.addPowerConstraintAndValidate("DcPredictiveDelayCharge", Phase.ALL, Pwr.ACTIVE,
+						Relationship.GREATER_OR_EQUALS, this.calculatedPower);
+			}
 		}
 	}
 
