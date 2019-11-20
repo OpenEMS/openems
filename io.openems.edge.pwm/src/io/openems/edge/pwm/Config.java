@@ -26,7 +26,6 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "Bus Device Address", description = "What I2C Bus are you using.")
     short bus_address() default 1;
 
-
     @AttributeDefinition(name = "Device Address", description = "The address of your Pwm Module")
     String pwm_address() default "0x55";
 
@@ -35,9 +34,6 @@ import org.osgi.service.metatype.annotations.Option;
 
     @AttributeDefinition(name = "Measured Frequency", description = "actual measured Frequency of Module")
             String actual_frequency() default "1526";
-
-    @AttributeDefinition(name = "pulseDuration", description = "pulseDuration of Pwm Module")
-            int pwm_pulseDuration()default 600;
 
     boolean enabled() default true;
 

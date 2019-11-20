@@ -25,6 +25,14 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
     public static final BigDecimal DIGITAL_SERVO_FREQUENCY = new BigDecimal("90.909");
     public static final BigDecimal DEFAULT_FREQUENCY;
     public static final int PWM_STEPS = 4096;
+    //
+    private static final int PCA9685A_MODE1 = 0x00;
+    private static final int PCA9685A_PRESCALE = 0xFE;
+    private static final int PCA9685A_LED0_ON_L = 0x06;
+    private static final int PCA9685A_LED0_ON_H = 0x07;
+    private static final int PCA9685A_LED0_OFF_L = 0x08;
+    private static final int PCA9685A_LED0_OFF_H = 0x09;
+
     private boolean i2cBusOwner;
     private I2CBus bus;
     private I2CDevice device;
@@ -34,11 +42,10 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
 
 
     public Pca9685GpioProvider(I2CBus bus, String address, BigDecimal targetFrequency, BigDecimal frequencyCorrectionFactor) throws IOException {
-
         this.i2cBusOwner = false;
         this.bus = bus;
         allocateAddress(address);
-        this.device.write(0, (byte) 0);
+        this.device.write(PCA9685A_MODE1, (byte) 0);
         this.setFrequency(targetFrequency, frequencyCorrectionFactor);
     }
 
