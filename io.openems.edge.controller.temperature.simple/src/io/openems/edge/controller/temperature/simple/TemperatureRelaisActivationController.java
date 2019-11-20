@@ -66,7 +66,7 @@ public class TemperatureRelaisActivationController extends AbstractOpenemsCompon
 
 	@Override
 	public void run() throws OpenemsError.OpenemsNamedException {
-
+//		int temp = temperatureSensor.getTemperatureOfSensor().getNextValue().get();
 		String temperature = temperatureSensor.getTemperatureOfSensor().value().toString().replaceAll("[a-zA-Z _]", "").trim();
 		if (Integer.parseInt(temperature) + toleranceTemperature < minTemp) {
 			//increase Temperature

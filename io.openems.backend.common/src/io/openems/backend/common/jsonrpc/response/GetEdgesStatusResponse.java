@@ -1,14 +1,13 @@
 package io.openems.backend.common.jsonrpc.response;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
-
 import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
+
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 /**
  * Represents a JSON-RPC Response for {@link GetEdgesStatusRequest}.

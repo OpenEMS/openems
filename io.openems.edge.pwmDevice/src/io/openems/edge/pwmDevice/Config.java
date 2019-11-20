@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(
-        name = "Consolinno PwmModule",
+        name = "Consolinno Pwm Device",
         description = "Module for Pulse widening modulation"
 )
 @interface Config {

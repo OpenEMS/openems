@@ -9,15 +9,14 @@ import io.openems.edge.gaspedal.Gaspedal;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp4728;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Bhkw")
+@Component(name = "Bhkw",
+        configurationPolicy = ConfigurationPolicy.REQUIRE,
+        immediate = true)
 public class BhkwImpl extends AbstractOpenemsComponent implements OpenemsComponent, PowerLevel {
     private Mcp mcp;
     //bhkwType only for purposes coming in future

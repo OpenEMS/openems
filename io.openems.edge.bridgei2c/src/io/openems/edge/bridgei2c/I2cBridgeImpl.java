@@ -1,12 +1,5 @@
 package io.openems.edge.bridgei2c;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.pi4j.gpio.extension.pca.PCA9685GpioProvider;
-import com.pi4j.gpio.extension.pca.PCA9685Pin;
-import com.pi4j.io.gpio.GpioProviderBase;
-import com.pi4j.io.gpio.Pin;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridgei2c.task.I2cTask;
@@ -14,10 +7,10 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.pwmModule.api.IpcaGpioProvider;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
 import io.openems.edge.relaisboardmcp.Mcp4728;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,6 +20,12 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -39,10 +38,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     private final I2cWorker worker = new I2cWorker();
     private List<Mcp> mcpList = new ArrayList<>();
     //String --> PwmModule
-    private Map<String, GpioProviderBase> gpioMap = new ConcurrentHashMap<>();
+    private Map<String, IpcaGpioProvider> gpioMap = new ConcurrentHashMap<>();
     //String --> PwmDevice
     private Map<String, I2cTask> tasks = new ConcurrentHashMap<>();
-    private Pin[] pin;
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -60,8 +58,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         for (Mcp mcp : mcpList) {
             mcp.deactivate();
         }
-        for (String id : this.gpioMap.keySet()) {
-            removeGpioDevice(id);
+        // should always be empty already but to make sure..
+        for (String key : this.gpioMap.keySet()) {
+            removeGpioDevice(key);
         }
     }
 
@@ -123,19 +122,17 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     @Override
-    public void addGpioDevice(String id, GpioProviderBase gpio) {
-        if (!this.gpioMap.containsKey(id)) {
-            this.gpioMap.put(id, gpio);
-        } else {
-            System.out.println("Warning! id " + id + "Already in Map, choose another id Name");
-        }
+    public void addGpioDevice(String id, IpcaGpioProvider gpio) {
+        this.gpioMap.put(id, gpio);
     }
 
     @Override
     public void removeGpioDevice(String id) {
 
         for (I2cTask task : tasks.values()) {
-            shutdown(task.getPwmModuleId());
+            if (task.getPwmModuleId().equals(id)) {
+                removeI2cTask(task.getDeviceId());
+            }
         }
         this.gpioMap.remove(id);
     }
@@ -144,8 +141,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     public void addI2cTask(String id, I2cTask i2cTask) throws OpenemsException {
         if (!this.tasks.containsKey(id)) {
             this.tasks.put(id, i2cTask);
-        }
-        else {
+        } else {
             throw new OpenemsException("Attention, id " + id + "is already Key, activate again with a new name");
         }
     }
@@ -157,20 +153,20 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     private void shutdown(String id) {
-        GpioProviderBase gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
-        if (gpio instanceof PCA9685GpioProvider) {
-            if (pin == null || !(pin[tasks.get(id).getPinPosition()] instanceof PCA9685Pin)) {
-                pin = PCA9685Pin.ALL;
-            }
+        IpcaGpioProvider gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
+        if (gpio != null) {
             if (tasks.get(id).isInverse()) {
-                ((PCA9685GpioProvider) gpio).setAlwaysOn(pin[tasks.get(id).getPinPosition()]);
+                gpio.setAlwaysOn(tasks.get(id).getPinPosition());
             } else {
-                ((PCA9685GpioProvider) gpio).setAlwaysOff(pin[tasks.get(id).getPinPosition()]);
+                gpio.setAlwaysOff(tasks.get(id).getPinPosition());
             }
         }
 
     }
 
+    public Map<String, IpcaGpioProvider> getGpioMap() {
+        return gpioMap;
+    }
 
     private class I2cWorker extends AbstractCycleWorker {
         @Override
@@ -186,29 +182,58 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         @Override
         public void forever() throws Throwable {
             for (Mcp mcp : getMcpList()) {
-                if (mcp instanceof Mcp23008) {
-                    ((Mcp23008) mcp).shift();
-                } else if (mcp instanceof Mcp4728) {
-                    ((Mcp4728) mcp).shift();
-                }
+                mcp.shift();
             }
-            for (I2cTask task : tasks.values()) {
 
-                GpioProviderBase gpio = gpioMap.get(task.getPwmModuleId());
-                if (gpio instanceof PCA9685GpioProvider) {
-                    if (pin == null || !(pin[0] instanceof PCA9685Pin)) {
-                        pin = PCA9685Pin.ALL;
-                    }
+            tasks.values().forEach(task -> {
+                getGpioMap().entrySet().stream()
+                        .filter(entry -> task.getPwmModuleId().equals(entry.getKey()))
+                        .map(Map.Entry::getValue)
+                        .findFirst().ifPresent(gpio -> {
                     //with or without offset?
                     int digit = task.calculateDigit(4096);
-                    if (digit > 4095) {
-                        digit = 4095;
-                    } else if (digit < 0) {
-                        digit = 0;
+
+                    if (digit <= 0) {
+                        if (task.isInverse()) {
+                            gpio.setAlwaysOn(task.getPinPosition());
+                        } else {
+                            gpio.setAlwaysOff(task.getPinPosition());
+                        }
+                    } else if (digit >= 4095) {
+                        if (task.isInverse()) {
+                            gpio.setAlwaysOff(task.getPinPosition());
+                        } else {
+                            gpio.setAlwaysOn(task.getPinPosition());
+                        }
+                    } else {
+                        gpio.setPwm(task.getPinPosition(), 0, digit);
                     }
-                    ((PCA9685GpioProvider) gpio).setPwm(pin[task.getPinPosition()], 0, digit);
-                }
-            }
+                });
+            });
+
+//            for (I2cTask task : tasks.values()) {
+//
+//                IpcaGpioProvider gpio = getGpioMap().get(task.getPwmModuleId());
+//                if (gpio != null) {
+//
+//                    //with or without offset?
+//                    int digit = task.calculateDigit(4096);
+//                    if (digit > 4095) {
+//                        digit = 4095;
+//                    } else if (digit < 0) {
+//                        digit = 0;
+//                    }
+//                    if (digit == 0) {
+//                        if (task.isInverse()) {
+//                            gpio.setAlwaysOn(task.getPinPosition());
+//                        } else {
+//                            gpio.setAlwaysOff(task.getPinPosition());
+//                        }
+//                    } else {
+//                        gpio.setPwm(task.getPinPosition(), 0, digit);
+//                    }
+//                }
+//            }
         }
     }
 
