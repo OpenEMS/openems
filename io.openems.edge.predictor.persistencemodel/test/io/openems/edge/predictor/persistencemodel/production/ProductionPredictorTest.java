@@ -127,7 +127,5 @@ public class ProductionPredictorTest {
 		public Collection<Channel<?>> channels() {
 			return null;
 		}
-
 	}
-
 }

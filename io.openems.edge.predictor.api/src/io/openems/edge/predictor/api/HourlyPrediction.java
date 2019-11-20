@@ -9,6 +9,14 @@ public class HourlyPrediction {
 
 	private final Integer[] values = new Integer[24];
 	private final LocalDateTime start;
+	
+//	public HourlyPrediction() {
+//		super();
+//		for (int i = 0; i < 24 && i < values.length; i++) {
+//			this.values[i] = 0;
+//		}
+//		this.start = LocalDateTime.now();
+//	}
 
 	public HourlyPrediction(Integer[] values, LocalDateTime start) {
 		super();
