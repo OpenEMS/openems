@@ -19,7 +19,7 @@ import java.math.RoundingMode;
 public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProvider {
 
     public static final int INTERNAL_CLOCK_FREQ = 25000000;
-    public static final BigDecimal MIN_FREQUENCY = new BigDecimal("40");
+    public static final BigDecimal MIN_FREQUENCY = new BigDecimal("24");
     public static final BigDecimal MAX_FREQUENCY = new BigDecimal("1600");
     public static final BigDecimal ANALOG_SERVO_FREQUENCY = new BigDecimal("45.454");
     public static final BigDecimal DIGITAL_SERVO_FREQUENCY = new BigDecimal("90.909");
@@ -73,6 +73,7 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
             throw new ValidationException("ON [" + onPos + "] and OFF [" + offPos + "] values must be different.");
         } else {
             try {
+                //6789 bc of Pin Adress arrangement -->LEDX_ON_L: LEDX_ON_H; LED_OFF_L; LED_OFF_H; X == Pin Position
                 this.device.write(6 + 4 * pinPos, (byte) (onPos & 255));
                 this.device.write(7 + 4 * pinPos, (byte) (onPos >> 8));
                 this.device.write(8 + 4 * pinPos, (byte) (offPos & 255));
