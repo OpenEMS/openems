@@ -14,7 +14,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,7 @@ import io.openems.edge.evcs.ocpp.api.OcppServer;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class OcppServerImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, ConfigurationListener, OcppServer {
+		implements OpenemsComponent, ConfigurationListener, OcppServer, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(OcppServerImpl.class);
 
@@ -97,6 +99,10 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		server.close();
 	}
 
+	/**
+	 * Defining the protocols and starting the Ocpp Server. Responds to every
+	 * connected/disconnected charging station.
+	 */
 	private void startServer() {
 		server = new JSONServer(coreProfile);
 		server.addFeatureProfile(firmwareProfile);
@@ -132,15 +138,21 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 						information.getIdentifier(), sessionIndex);
 				activeSessions.add(new EvcsSession(sessionIndex, information, evcssWithThisId));
 
-				ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest();
-				for (AbstractOcppEvcsComponent ocppEvcs : evcssWithThisId) {
-					logInfo(log, "Setting EVCS " + ocppEvcs.alias() + " availability to operative");
-					changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
-					changeAvailabilityRequest.setType(AvailabilityType.Operative);
-					sendDefault(sessionIndex, changeAvailabilityRequest);
-				}
+				sendInitialRequests(sessionIndex, evcssWithThisId);
 			}
 		});
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+			for (EvcsSession evcsSession : activeSessions) {
+				// TODO: Put that logik in ReadHandler
+				this.sendPermanentRequests(evcsSession);
+			}
+			break;
+		}
 	}
 
 	@Override
@@ -166,6 +178,45 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 			this.logWarn(log, "This feature is not implemented by the charging station.");
 		} catch (NotConnectedException e) {
 			this.logWarn(log, "The server is not connected.");
+		}
+	}
+
+	/**
+	 * Sending initially all required requests to the EVCS
+	 * 
+	 * @param sessionIndex
+	 * @param evcss
+	 */
+	private void sendInitialRequests(UUID sessionIndex, List<AbstractOcppEvcsComponent> evcss) {
+
+		ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest();
+		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
+
+			// Setting the Evcss of this session id to available
+			changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
+			changeAvailabilityRequest.setType(AvailabilityType.Operative);
+			this.sendDefault(sessionIndex, changeAvailabilityRequest);
+
+			// Sending all required requests defined for each EVCS
+			List<Request> requiredRequests = ocppEvcs.getRequiredRequestsAfterConnection();
+			for (Request request : requiredRequests) {
+				this.sendDefault(sessionIndex, request);
+			}
+		}
+	}
+	
+	/**
+	 * Sending all permanently required requests to the EVCS
+	 * 
+	 * @param sessionIndex
+	 * @param evcss
+	 */
+	private void sendPermanentRequests(EvcsSession evcsSession) {
+		for (AbstractOcppEvcsComponent evcs : evcsSession.getOcppEvcss()) {
+			List<Request> requiredRequests = evcs.getRequiredRequestsDuringConnection();
+			for (Request request : requiredRequests) {
+				this.sendDefault(evcsSession.getSessionId(), request);
+			}
 		}
 	}
 
@@ -196,11 +247,6 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		return evcssWithThisId;
 	}
 
-	@Override
-	public void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
-	}
-
 	/**
 	 * Searching again for all Sessions after the configurations changed
 	 */
@@ -218,7 +264,17 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Get all active Sessions
+	 * 
+	 * @return List of EvcsSessions
+	 */
 	public List<EvcsSession> getActiveSessions() {
 		return activeSessions;
+	}
+
+	@Override
+	public void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 }

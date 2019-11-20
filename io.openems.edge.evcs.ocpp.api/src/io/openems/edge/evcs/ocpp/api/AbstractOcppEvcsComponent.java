@@ -2,6 +2,7 @@ package io.openems.edge.evcs.ocpp.api;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
@@ -9,6 +10,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 
+import eu.chargetime.ocpp.model.Request;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -136,6 +138,27 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public abstract Integer getConfiguredMinimumHardwarePower();
 
 	public abstract OcppServer getConfiguredOcppServer();
+	
+	/**
+	 * Required requests that should be sent after a connection was established
+	 * 
+	 * @return List of requests
+	 */
+	public abstract List<Request> getRequiredRequestsAfterConnection();
+	
+	/**
+	 * Required requests that should be sent permanently during a session
+	 * 
+	 * @return List of requests
+	 */
+	public abstract List<Request> getRequiredRequestsDuringConnection();
+	
+	/**
+	 * Default requests that every OCPP EVCS should have
+	 * 
+	 * @return OcppRequests
+	 */
+	public abstract OcppRequests getSupportedRequests();
 
 	private void resetChannelValues() {
 		for (MeasuringEvcs.ChannelId c : MeasuringEvcs.ChannelId.values()) {
@@ -184,4 +207,5 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}
+
 }

@@ -190,23 +190,24 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				// Power left for the single EVCS including their guarantee
 				int powerLeft = totalPowerLeftMinusGuarantee + guarantee;
 
-				int nextChargePower;
-				Optional<Integer> requestedPower = evcs.setChargePowerRequest().getNextWriteValue();
+				int nextChargePower = 0;
+				int requestedPower = 0;
+				Optional<Integer> requestedPowerOptional = evcs.setChargePowerRequest().getNextWriteValue();
 
 				// Power requested by the controller
-				if (requestedPower.isPresent()) {
-					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPower.get());
-					nextChargePower = requestedPower.get();
+				if (requestedPowerOptional.isPresent()) {
+					this.logInfo(this.log, "Requested Power ( for " + evcs.alias() + "): " + requestedPowerOptional.get());
+					requestedPower = requestedPowerOptional.get();
 				} else {
-					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT);
+					requestedPower = evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT);
 				}
 
 				// It should not be charged more than possible for the current EV
 				int maxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
-				nextChargePower = nextChargePower > maxPower ? maxPower : nextChargePower;
+				nextChargePower = requestedPower > maxPower ? maxPower : requestedPower;
 
 				// Add extra power(Power not used in the cycle before) to the the EVCS
-				int extraPower = calculateExtraPowerIfPrefered(index, evcs, activeEvcss.size());
+				int extraPower = calculateExtraPowerIfPrefered(index, evcs, activeEvcss.size(), requestedPower);
 				nextChargePower = nextChargePower + extraPower;
 
 				// Checks if there is enough power left and sets the charge power
@@ -245,14 +246,13 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	 * @param evcs
 	 * @return calculated extra power if that evcs is preferred
 	 */
-	private int calculateExtraPowerIfPrefered(int index, ManagedEvcs evcs, int activeEvcssSize) {
+	private int calculateExtraPowerIfPrefered(int index, ManagedEvcs evcs, int activeEvcssSize, int requestedPower) {
 		int extraPower = 0;
-		int leftToMaxPower = evcs.getMaximumHardwarePower().value().orElse(22800)
-				- evcs.getChargePower().value().orElse(0);
+		int leftToRequestedPower = requestedPower - evcs.getChargePower().value().orElse(0);
 
-		extraPower = (int) (this.totalPowerLeftInACycle < leftToMaxPower ? this.totalPowerLeftInACycle
-				: leftToMaxPower);
-		this.logInfo(this.log, "Extra Power calculated:  ( for " + evcs.alias() + "): " + extraPower);
+		extraPower = (int) (this.totalPowerLeftInACycle < leftToRequestedPower ? this.totalPowerLeftInACycle
+				: leftToRequestedPower);
+
 		if (activeEvcssSize <= 1 || index == preferredEvcsCounter) {
 			return extraPower > 0 ? extraPower : 0;
 		}
