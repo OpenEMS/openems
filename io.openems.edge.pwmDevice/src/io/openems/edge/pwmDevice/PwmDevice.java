@@ -2,21 +2,23 @@ package io.openems.edge.pwmDevice;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.bridgei2c.I2cBridge;
-import io.openems.edge.pwmDevice.task.PwmDeviceTaskImpl;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.pwmDevice.task.PwmDeviceTaskImpl;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "PwmDevice")
+@Component(name = "PwmDevice",
+        configurationPolicy = ConfigurationPolicy.REQUIRE,
+        immediate = true)
 public class PwmDevice extends AbstractOpenemsComponent implements OpenemsComponent, PwmPowerLevelChannel {
+
+    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+    public I2cBridge refI2cBridge;
 
     @Reference
     ComponentManager cpm;
@@ -44,27 +46,20 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
         this.isInverse = config.isInverse();
         this.initialValue = config.percentage_Initial();
 
+        //Just temporarly for testing
+        this.getPwmPowerLevelChannel().setNextValue(initialValue);
+
         try {
-            if (cpm.getComponent(i2cBridge) instanceof I2cBridge) {
-                I2cBridge i2c = cpm.getComponent(i2cBridge);
-                i2c.addI2cTask(super.id(), new PwmDeviceTaskImpl(super.id(), this.getPwmPowerLevelChannel(), pwmModule, pinPosition, isInverse, initialValue));
-            }
+            refI2cBridge.addI2cTask(super.id(), new PwmDeviceTaskImpl(super.id(), this.getPwmPowerLevelChannel(), pwmModule, pinPosition, isInverse, initialValue));
+
         } catch (OpenemsError.OpenemsNamedException e) {
             e.printStackTrace();
         }
-
     }
 
     @Deactivate
     public void deactivate() {
-        try {
-            if (cpm.getComponent(i2cBridge) instanceof I2cBridge) {
-                I2cBridge i2c = cpm.getComponent(i2cBridge);
-                i2c.removeI2cTask(super.id());
-            }
-        } catch (OpenemsError.OpenemsNamedException e) {
-            e.printStackTrace();
-        }
+            refI2cBridge.removeI2cTask(super.id());
         super.deactivate();
     }
 

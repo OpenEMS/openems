@@ -1,10 +1,5 @@
 package io.openems.edge.bridgei2c;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.pi4j.io.gpio.GpioProviderBase;
-import com.pi4j.io.gpio.Pin;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridgei2c.task.I2cTask;
@@ -12,8 +7,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.pwmModule.api.Pca9685GpioProvider;
-import io.openems.edge.pwmModule.api.PcaGpioProvider;
+import io.openems.edge.pwmModule.api.IpcaGpioProvider;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
 import io.openems.edge.relaisboardmcp.Mcp4728;
@@ -27,6 +21,12 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "I2CBridge",
@@ -38,10 +38,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     private final I2cWorker worker = new I2cWorker();
     private List<Mcp> mcpList = new ArrayList<>();
     //String --> PwmModule
-    private Map<String, PcaGpioProvider> gpioMap = new ConcurrentHashMap<>();
+    private Map<String, IpcaGpioProvider> gpioMap = new ConcurrentHashMap<>();
     //String --> PwmDevice
     private Map<String, I2cTask> tasks = new ConcurrentHashMap<>();
-    private Pin[] pin;
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -122,7 +121,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     @Override
-    public void addGpioDevice(String id, PcaGpioProvider gpio) {
+    public void addGpioDevice(String id, IpcaGpioProvider gpio) {
         if (!this.gpioMap.containsKey(id)) {
             this.gpioMap.put(id, gpio);
         } else {
@@ -143,8 +142,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     public void addI2cTask(String id, I2cTask i2cTask) throws OpenemsException {
         if (!this.tasks.containsKey(id)) {
             this.tasks.put(id, i2cTask);
-        }
-        else {
+        } else {
             throw new OpenemsException("Attention, id " + id + "is already Key, activate again with a new name");
         }
     }
@@ -156,13 +154,13 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     }
 
     private void shutdown(String id) {
-        PcaGpioProvider gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
-        if (gpio instanceof Pca9685GpioProvider) {
+        IpcaGpioProvider gpio = gpioMap.get(tasks.get(id).getPwmModuleId());
+        if (gpio != null) {
 
             if (tasks.get(id).isInverse()) {
-                ((Pca9685GpioProvider) gpio).setAlwaysOn(tasks.get(id).getPinPosition());
+                gpio.setAlwaysOn(tasks.get(id).getPinPosition());
             } else {
-                ((Pca9685GpioProvider) gpio).setAlwaysOff(tasks.get(id).getPinPosition());
+                gpio.setAlwaysOff(tasks.get(id).getPinPosition());
             }
         }
 
@@ -191,8 +189,8 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             }
             for (I2cTask task : tasks.values()) {
 
-                PcaGpioProvider gpio = gpioMap.get(task.getPwmModuleId());
-                if (gpio instanceof Pca9685GpioProvider) {
+                IpcaGpioProvider gpio = gpioMap.get(task.getPwmModuleId());
+                if (gpio != null) {
 
                     //with or without offset?
                     int digit = task.calculateDigit(4096);
@@ -201,7 +199,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
                     } else if (digit < 0) {
                         digit = 0;
                     }
-                    ((Pca9685GpioProvider) gpio).setPwm(task.getPinPosition(), 0, digit);
+                    gpio.setPwm(task.getPinPosition(), 0, digit);
                 }
             }
         }

@@ -11,53 +11,49 @@ package io.openems.edge.pwmModule.api;
 import com.pi4j.io.gpio.exception.ValidationException;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-import com.pi4j.io.i2c.I2CFactory;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.component.OpenemsComponent;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Pca9685GpioProvider extends PcaGpioProvider implements OpenemsComponent, IpcaGpioProvider {
+public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProvider {
 
     public static final int INTERNAL_CLOCK_FREQ = 25000000;
     public static final BigDecimal MIN_FREQUENCY = new BigDecimal("40");
-    public static final BigDecimal MAX_FREQUENCY = new BigDecimal("1000");
+    public static final BigDecimal MAX_FREQUENCY = new BigDecimal("1600");
     public static final BigDecimal ANALOG_SERVO_FREQUENCY = new BigDecimal("45.454");
     public static final BigDecimal DIGITAL_SERVO_FREQUENCY = new BigDecimal("90.909");
     public static final BigDecimal DEFAULT_FREQUENCY;
     public static final int PWM_STEPS = 4096;
     private boolean i2cBusOwner;
-    private final I2CBus bus;
-    private final I2CDevice device;
+    private I2CBus bus;
+    private I2CDevice device;
     private BigDecimal frequency;
     private int periodDurationMicros;
     private int maxPinPos = 7;
 
-    public Pca9685GpioProvider(int busNumber, int address) throws I2CFactory.UnsupportedBusNumberException, IOException {
 
-        this(I2CFactory.getInstance(busNumber), address);
-        this.i2cBusOwner = true;
-    }
-
-    public Pca9685GpioProvider(I2CBus bus, int address) throws IOException {
-        this(bus, address, DEFAULT_FREQUENCY, BigDecimal.ONE);
-    }
-
-    public Pca9685GpioProvider(I2CBus bus, int address, BigDecimal targetFrequency) throws IOException {
-        this(bus, address, targetFrequency, BigDecimal.ONE);
-    }
-
-
-    public Pca9685GpioProvider(I2CBus bus, int address, BigDecimal targetFrequency, BigDecimal frequencyCorrectionFactor) throws IOException {
-        super(OpenemsComponent.ChannelId.values());
+    public Pca9685GpioProvider(I2CBus bus, String address, BigDecimal targetFrequency, BigDecimal frequencyCorrectionFactor) throws IOException {
 
         this.i2cBusOwner = false;
         this.bus = bus;
-        this.device = bus.getDevice(address);
+        allocateAddress(address);
         this.device.write(0, (byte) 0);
         this.setFrequency(targetFrequency, frequencyCorrectionFactor);
+    }
+
+    private void allocateAddress(String address) {
+        try {
+            switch (address) {
+                default:
+                case "0x55":
+                    this.device = bus.getDevice(0x55);
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -103,10 +99,10 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements OpenemsCompo
     public void setAlwaysOn(int pinPos) {
         try {
 
-            this.device.write(6 + 4 * pinPos, (byte)0);
-            this.device.write(7 + 4 * pinPos, (byte)16);
-            this.device.write(8 + 4 * pinPos, (byte)0);
-            this.device.write(9 + 4 * pinPos, (byte)0);
+            this.device.write(6 + 4 * pinPos, (byte) 0);
+            this.device.write(7 + 4 * pinPos, (byte) 16);
+            this.device.write(8 + 4 * pinPos, (byte) 0);
+            this.device.write(9 + 4 * pinPos, (byte) 0);
         } catch (IOException var6) {
             throw new RuntimeException("Error while trying to set channel [" + pinPos + "] always ON.", var6);
         }
@@ -115,15 +111,14 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements OpenemsCompo
     @Override
     public void setAlwaysOff(int pinPos) {
         try {
-            this.device.write(6 + 4 * pinPos, (byte)0);
-            this.device.write(7 + 4 * pinPos, (byte)0);
-            this.device.write(8 + 4 * pinPos, (byte)0);
-            this.device.write(9 + 4 * pinPos, (byte)16);
+            this.device.write(6 + 4 * pinPos, (byte) 0);
+            this.device.write(7 + 4 * pinPos, (byte) 0);
+            this.device.write(8 + 4 * pinPos, (byte) 0);
+            this.device.write(9 + 4 * pinPos, (byte) 16);
         } catch (IOException var6) {
             throw new RuntimeException("Error while trying to set channel [" + pinPos + "] always OFF.", var6);
         }
     }
-
 
 
     @Override
@@ -150,7 +145,7 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements OpenemsCompo
 
     private void validateFrequency(BigDecimal frequency) {
         if (frequency.compareTo(MIN_FREQUENCY) == -1 || frequency.compareTo(MAX_FREQUENCY) == 1) {
-            throw new ValidationException("Frequency [" + frequency + "] must be between 40.0 and 1000.0 Hz.");
+            throw new ValidationException("Frequency [" + frequency + "] must be between 40.0 and 1600.0 Hz.");
         }
     }
 

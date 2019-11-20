@@ -15,16 +15,18 @@ public class PwmDeviceTaskImpl extends I2cTaskImpl {
     private float initialValue;
     private int scaling = 10;
     private boolean initalWasSet = false;
+    private String deviceId;
 
 
-    public PwmDeviceTaskImpl(String pwmModuleId, WriteChannel<Float> powerLevel, String pwmModule, short pinPosition, boolean isInverse, float percentageValue) {
-        super(pwmModuleId);
+    public PwmDeviceTaskImpl(String deviceId, WriteChannel<Float> powerLevel, String pwmModule, short pinPosition, boolean isInverse, float percentageValue) {
+        super(pwmModule);
         this.powerLevel = powerLevel;
         this.pwmModule = pwmModule;
         this.pinPosition = pinPosition;
         //   this.pulseDuration = pulseDuration;
         this.isInverse = isInverse;
         this.initialValue = percentageValue;
+        this.deviceId = deviceId;
     }
 
 
