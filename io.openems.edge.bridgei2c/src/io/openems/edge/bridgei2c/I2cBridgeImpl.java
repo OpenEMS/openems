@@ -21,10 +21,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -184,12 +181,8 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
             for (Mcp mcp : getMcpList()) {
                 mcp.shift();
             }
-
             tasks.values().forEach(task -> {
-                getGpioMap().entrySet().stream()
-                        .filter(entry -> task.getPwmModuleId().equals(entry.getKey()))
-                        .map(Map.Entry::getValue)
-                        .findFirst().ifPresent(gpio -> {
+                Optional.ofNullable(getGpioMap().get(task.getPwmModuleId())).ifPresent(gpio -> {
                     //with or without offset?
                     int digit = task.calculateDigit(4096);
 
