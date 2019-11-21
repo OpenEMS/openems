@@ -104,8 +104,9 @@
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
-	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j'
+	
+	
 
 -runbundles: \
 	com.fasterxml.jackson.core.jackson-annotations;version='[2.10.0,2.10.1)',\
@@ -225,21 +226,8 @@
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
-<<<<<<< HEAD
-	com.fazecast.jSerialComm;version='[2.5.2,2.5.3)',\
-	io.openems.edge.meter.sunspec;version=snapshot,\
-	io.openems.edge.solaredge;version=snapshot,\
-	com.fasterxml.jackson.core.jackson-annotations;version='[2.10.0,2.10.1)',\
-	com.fasterxml.jackson.core.jackson-core;version='[2.10.0,2.10.1)',\
-	com.fasterxml.jackson.core.jackson-databind;version='[2.10.0,2.10.1)',\
-	com.github.scribejava.core;version='[6.9.0,6.9.1)',\
-	io.openems.edge.scheduler.daily;version=snapshot,\
-	io.openems.edge.timedata.rrd4j;version=snapshot,\
-	rrd4j;version='[3.5.0,3.5.1)'
-=======
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
 	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
 	rrd4j;version='[3.5.0,3.5.1)',\
 	com.sun.jna;version='[5.5.0,5.5.1)',\
 	org.openmuc.jmbus;version='[3.2.1,3.2.2)'
->>>>>>> bd4a7ccdf48267f4facdb4aa164e0fc2a41dd750
