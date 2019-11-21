@@ -111,7 +111,7 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 			 * set result
 			 */
 			ess.addPowerConstraintAndValidate("SelfConsmption-OptimizationController", Phase.ALL, Pwr.ACTIVE,
-					Relationship.EQUALS, calculatedPower); //
+					Relationship.GREATER_OR_EQUALS, calculatedPower); //
 		}
 	}
 }

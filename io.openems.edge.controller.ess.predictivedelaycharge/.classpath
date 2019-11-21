@@ -8,5 +8,6 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

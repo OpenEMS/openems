@@ -1,8 +1,5 @@
-# io.openems.edge.controller.symmetric.selfconsumptionoptimization Provider
+= ESS Predictive Delay Charge
 
-${Bundle-Description}
+Delays the charging of the AC and DC storage system based on the predicted values of the PV generation.
 
-## Example
-
-## References
-
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.predictivedelaycharge[Source Code icon:github[]]

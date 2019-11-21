@@ -1,5 +1,5 @@
-= Symmetric Peak-Shaving
+= Symmetric Self-Consumption
 
-Applies peak-shaving at the grid using a symmetric energy storage system.
+Limits the maximum feed-in to the grid by 70% of the max peak power generation.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.peakshaving[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.selfconsumption[Source Code icon:github[]]

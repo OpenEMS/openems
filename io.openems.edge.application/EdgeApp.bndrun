@@ -41,6 +41,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.limitdischargecellvoltage',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
+	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
@@ -57,6 +58,7 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.selfconsumption',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
@@ -101,8 +103,6 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.selfconsumption',\
-	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j'
 
 -runbundles: \
@@ -130,6 +130,7 @@
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
 	io.openems.edge.controller.ess.limitdischargecellvoltage;version=snapshot,\
 	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
+	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
 	io.openems.edge.controller.highloadtimeslot;version=snapshot,\
 	io.openems.edge.controller.io.alarm;version=snapshot,\
@@ -143,6 +144,7 @@
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
+	io.openems.edge.controller.symmetric.selfconsumption;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
@@ -219,8 +221,6 @@
 	com.fasterxml.jackson.core.jackson-core;version='[2.10.0,2.10.1)',\
 	com.fasterxml.jackson.core.jackson-databind;version='[2.10.0,2.10.1)',\
 	com.github.scribejava.core;version='[6.9.0,6.9.1)',\
-	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
-	io.openems.edge.controller.symmetric.selfconsumption;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.timedata.rrd4j;version=snapshot,\
 	rrd4j;version='[3.5.0,3.5.1)'
