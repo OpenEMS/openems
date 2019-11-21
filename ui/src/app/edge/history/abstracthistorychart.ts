@@ -7,11 +7,12 @@ import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
 
 export abstract class AbstractHistoryChart {
 
+    public loading: boolean = true;
+
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
     protected options: ChartOptions;
     protected colors = []
-    protected loading: boolean = true;
 
     // Colors for Phase 1-3
     protected phase1Color = {

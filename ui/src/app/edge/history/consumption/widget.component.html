@@ -9,7 +9,8 @@
         <table class="full_width">
             <tr>
                 <td style="width:65%"></td>
-                <td style="width:35%" class="align_right" *ngIf="data && service.isKwhAllowed();else noData">
+                <td style="width:35%" class="align_right"
+                    *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
                     {{data["_sum/ConsumptionActiveEnergy"] | unitvalue:'kWh'}}
                 </td>
                 <ng-template #noData>

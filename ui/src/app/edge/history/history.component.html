@@ -18,12 +18,12 @@
       <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="4" size-xl="2">
         <consumptionWidget [period]="service.historyPeriod"></consumptionWidget>
       </ion-col>
-      <ng-container *ngIf="service.isKwhAllowed()">
+      <ng-container *ngIf="edge && service.isKwhAllowed(edge)">
         <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="4" size-xl="2">
           <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>
         </ion-col>
       </ng-container>
-      <ng-container *ngIf="service.isKwhAllowed()">
+      <ng-container *ngIf="edge && service.isKwhAllowed(edge)">
         <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="4" size-xl="2">
           <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
         </ion-col>
