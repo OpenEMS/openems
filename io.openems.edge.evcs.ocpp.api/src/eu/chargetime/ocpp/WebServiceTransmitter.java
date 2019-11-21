@@ -34,68 +34,67 @@ import org.slf4j.LoggerFactory;
 */
 
 public class WebServiceTransmitter extends SOAPSyncHelper implements Transmitter {
-  private static final Logger logger = LoggerFactory.getLogger(WebServiceTransmitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(WebServiceTransmitter.class);
 
-  private SOAPConnection soapConnection;
-  private String url;
-  private RadioEvents events;
-  private boolean connected;
+	private SOAPConnection soapConnection;
+	private String url;
+	private RadioEvents events;
+	private boolean connected;
 
-  public WebServiceTransmitter() {
-    connected = false;
-  }
+	public WebServiceTransmitter() {
+		connected = false;
+	}
 
-  @Override
-  public void disconnect() {
-    if (connected) {
-      try {
-        soapConnection.close();
-        connected = false;
-      } catch (SOAPException e) {
-        logger.info("disconnect() failed", e);
-      }
-    }
-    events.disconnected();
-  }
+	@Override
+	public void disconnect() {
+		if (connected) {
+			try {
+				soapConnection.close();
+				connected = false;
+			} catch (SOAPException e) {
+				logger.info("disconnect() failed", e);
+			}
+		}
+		events.disconnected();
+	}
 
-  @Override
-  public boolean isClosed() {
-    return !connected;
-  }
+	@Override
+	public boolean isClosed() {
+		return !connected;
+	}
 
-  @Override
-  public void connect(String uri, RadioEvents events) {
-    url = uri;
-    this.events = events;
-    try {
-      SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-      soapConnection = soapConnectionFactory.createConnection();
-      connected = true;
-      events.connected();
-    } catch (SOAPException e) {
-      logger.warn("connect() failed", e);
-    }
-  }
+	@Override
+	public void connect(String uri, RadioEvents events) {
+		url = uri;
+		this.events = events;
+		try {
+			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+			soapConnection = soapConnectionFactory.createConnection();
+			connected = true;
+			events.connected();
+		} catch (SOAPException e) {
+			logger.warn("connect() failed", e);
+		}
+	}
 
-  @Override
-  protected void sendRequest(final SOAPMessage message) throws NotConnectedException {
-    if (!connected) throw new NotConnectedException();
-    Thread thread =
-        new Thread(
-            () -> {
-              try {
-                SOAPMessage response = soapConnection.call(message, url);
-                events.receivedMessage(response);
-              } catch (SOAPException e) {
-                logger.warn("sendRequest() failed", e);
-                disconnect();
-              }
-            });
-    thread.start();
-  }
+	@Override
+	protected void sendRequest(final SOAPMessage message) throws NotConnectedException {
+		if (!connected)
+			throw new NotConnectedException();
+		Thread thread = new Thread(() -> {
+			try {
+				SOAPMessage response = soapConnection.call(message, url);
+				events.receivedMessage(response);
+			} catch (SOAPException e) {
+				logger.warn("sendRequest() failed", e);
+				disconnect();
+			}
+		});
+		thread.start();
+	}
 
-  @Override
-  protected void forwardMessage(SOAPMessage message) {
-    events.receivedMessage(message);
-  }
+	@Override
+	protected void forwardMessage(SOAPMessage message) {
+		events.receivedMessage(message);
+	}
 }

@@ -31,11 +31,12 @@ import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageConfirmation;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
 
 public interface ClientRemoteTriggerHandler {
-  /**
-   * Handle a {@link TriggerMessageRequest} and return a {@link TriggerMessageConfirmation}.
-   *
-   * @param request incoming {@link TriggerMessageRequest} to handle.
-   * @return outgoing {@link TriggerMessageConfirmation} to reply with.
-   */
-  TriggerMessageConfirmation handleTriggerMessageRequest(TriggerMessageRequest request);
+	/**
+	 * Handle a {@link TriggerMessageRequest} and return a
+	 * {@link TriggerMessageConfirmation}.
+	 *
+	 * @param request incoming {@link TriggerMessageRequest} to handle.
+	 * @return outgoing {@link TriggerMessageConfirmation} to reply with.
+	 */
+	TriggerMessageConfirmation handleTriggerMessageRequest(TriggerMessageRequest request);
 }

@@ -34,40 +34,40 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PromiseRepository implements IPromiseRepository {
 
-  private Map<String, CompletableFuture<Confirmation>> promises;
+	private Map<String, CompletableFuture<Confirmation>> promises;
 
-  public PromiseRepository() {
-    this.promises = new ConcurrentHashMap<>();
-  }
+	public PromiseRepository() {
+		this.promises = new ConcurrentHashMap<>();
+	}
 
-  /**
-   * Creates call back {@link CompletableFuture} for later use
-   *
-   * @param uniqueId identification for the {@link Request}
-   * @return call back {@link CompletableFuture}
-   */
-  public CompletableFuture<Confirmation> createPromise(String uniqueId) {
-    CompletableFuture<Confirmation> promise = new CompletableFuture<>();
-    promises.put(uniqueId, promise);
-    return promise;
-  }
+	/**
+	 * Creates call back {@link CompletableFuture} for later use
+	 *
+	 * @param uniqueId identification for the {@link Request}
+	 * @return call back {@link CompletableFuture}
+	 */
+	public CompletableFuture<Confirmation> createPromise(String uniqueId) {
+		CompletableFuture<Confirmation> promise = new CompletableFuture<>();
+		promises.put(uniqueId, promise);
+		return promise;
+	}
 
-  /**
-   * Get stored call back {@link CompletableFuture}.
-   *
-   * @param uniqueId identification for the {@link Request}
-   * @return optional of call back {@link CompletableFuture}
-   */
-  public Optional<CompletableFuture<Confirmation>> getPromise(String uniqueId) {
-    return Optional.ofNullable(promises.get(uniqueId));
-  }
+	/**
+	 * Get stored call back {@link CompletableFuture}.
+	 *
+	 * @param uniqueId identification for the {@link Request}
+	 * @return optional of call back {@link CompletableFuture}
+	 */
+	public Optional<CompletableFuture<Confirmation>> getPromise(String uniqueId) {
+		return Optional.ofNullable(promises.get(uniqueId));
+	}
 
-  /**
-   * Remove stored call back {@link CompletableFuture}.
-   *
-   * @param uniqueId identification for the {@link Request}
-   */
-  public void removePromise(String uniqueId) {
-    promises.remove(uniqueId);
-  }
+	/**
+	 * Remove stored call back {@link CompletableFuture}.
+	 *
+	 * @param uniqueId identification for the {@link Request}
+	 */
+	public void removePromise(String uniqueId) {
+		promises.remove(uniqueId);
+	}
 }

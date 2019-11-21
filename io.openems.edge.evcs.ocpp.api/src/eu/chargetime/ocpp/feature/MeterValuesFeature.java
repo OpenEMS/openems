@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.MeterValuesConfirmation;
 import eu.chargetime.ocpp.model.core.MeterValuesRequest;
 
 public class MeterValuesFeature extends ProfileFeature {
-  public MeterValuesFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public MeterValuesFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return MeterValuesRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return MeterValuesRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return MeterValuesConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return MeterValuesConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "MeterValues";
-  }
+	@Override
+	public String getAction() {
+		return "MeterValues";
+	}
 }

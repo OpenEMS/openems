@@ -35,61 +35,62 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "triggerMessageResponse")
 public class TriggerMessageConfirmation implements Confirmation {
-  private TriggerMessageStatus status;
+	private TriggerMessageStatus status;
 
-  public TriggerMessageConfirmation() {}
+	public TriggerMessageConfirmation() {
+	}
 
-  /**
-   * Set required values.
-   *
-   * @param status the {@link TriggerMessageStatus}, see {@link #setStatus(TriggerMessageStatus)}.
-   */
-  public TriggerMessageConfirmation(TriggerMessageStatus status) {
-    setStatus(status);
-  }
+	/**
+	 * Set required values.
+	 *
+	 * @param status the {@link TriggerMessageStatus}, see
+	 *               {@link #setStatus(TriggerMessageStatus)}.
+	 */
+	public TriggerMessageConfirmation(TriggerMessageStatus status) {
+		setStatus(status);
+	}
 
-  /**
-   * This indicates the success or failure of the trigger message request.
-   *
-   * @return the {@link TriggerMessageStatus}.
-   */
-  public TriggerMessageStatus getStatus() {
-    return status;
-  }
+	/**
+	 * This indicates the success or failure of the trigger message request.
+	 *
+	 * @return the {@link TriggerMessageStatus}.
+	 */
+	public TriggerMessageStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * Required. This indicates the success or failure of trigger message request.
-   *
-   * @param status the {@link TriggerMessageStatus}.
-   */
-  @XmlElement
-  public void setStatus(TriggerMessageStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Required. This indicates the success or failure of trigger message request.
+	 *
+	 * @param status the {@link TriggerMessageStatus}.
+	 */
+	@XmlElement
+	public void setStatus(TriggerMessageStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean validate() {
-    return this.status != null;
-  }
+	@Override
+	public boolean validate() {
+		return this.status != null;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    TriggerMessageConfirmation that = (TriggerMessageConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		TriggerMessageConfirmation that = (TriggerMessageConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

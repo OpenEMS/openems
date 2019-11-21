@@ -28,10 +28,10 @@ package eu.chargetime.ocpp;
 /** Interface to handle connections by a server. */
 public interface Receiver extends Radio {
 
-  /**
-   * Accept an incoming connection request.
-   *
-   * @param events connection related events.
-   */
-  void accept(RadioEvents events);
+	/**
+	 * Accept an incoming connection request.
+	 *
+	 * @param events connection related events.
+	 */
+	void accept(RadioEvents events);
 }

@@ -27,17 +27,17 @@ package eu.chargetime.ocpp;
 
 public class SessionFactory implements ISessionFactory {
 
-  private final IFeatureRepository featureRepository;
+	private final IFeatureRepository featureRepository;
 
-  public SessionFactory(IFeatureRepository featureRepository) {
+	public SessionFactory(IFeatureRepository featureRepository) {
 
-    this.featureRepository = featureRepository;
-  }
+		this.featureRepository = featureRepository;
+	}
 
-  @Override
-  public ISession createSession(Communicator communicator) {
-    AsyncPromiseFulfillerDecorator promiseFulfiler =
-        new AsyncPromiseFulfillerDecorator(new SimplePromiseFulfiller());
-    return new Session(communicator, new Queue(), promiseFulfiler, this.featureRepository);
-  }
+	@Override
+	public ISession createSession(Communicator communicator) {
+		AsyncPromiseFulfillerDecorator promiseFulfiler = new AsyncPromiseFulfillerDecorator(
+				new SimplePromiseFulfiller());
+		return new Session(communicator, new Queue(), promiseFulfiler, this.featureRepository);
+	}
 }

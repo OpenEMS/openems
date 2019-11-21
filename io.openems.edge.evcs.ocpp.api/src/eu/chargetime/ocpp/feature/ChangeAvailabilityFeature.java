@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.core.ChangeAvailabilityRequest;
 
 public class ChangeAvailabilityFeature extends ProfileFeature {
 
-  public ChangeAvailabilityFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public ChangeAvailabilityFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return ChangeAvailabilityRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return ChangeAvailabilityRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return ChangeAvailabilityConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return ChangeAvailabilityConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "ChangeAvailability";
-  }
+	@Override
+	public String getAction() {
+		return "ChangeAvailability";
+	}
 }

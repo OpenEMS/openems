@@ -37,71 +37,75 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "changeAvailabilityResponse")
 public class ChangeAvailabilityConfirmation implements Confirmation {
 
-  private AvailabilityStatus status;
+	private AvailabilityStatus status;
 
-  /**
-   * This indicates whether the Charge Point is able to perform the availability change.
-   *
-   * @return The {@link AvailabilityStatus} of the connector.
-   */
-  public AvailabilityStatus getStatus() {
-    return status;
-  }
+	/**
+	 * This indicates whether the Charge Point is able to perform the availability
+	 * change.
+	 *
+	 * @return The {@link AvailabilityStatus} of the connector.
+	 */
+	public AvailabilityStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * This indicates whether the Charge Point is able to perform the availability change.
-   *
-   * @return The {@link AvailabilityStatus} of the connector.
-   */
-  @Deprecated
-  public AvailabilityStatus objStatus() {
-    return status;
-  }
+	/**
+	 * This indicates whether the Charge Point is able to perform the availability
+	 * change.
+	 *
+	 * @return The {@link AvailabilityStatus} of the connector.
+	 */
+	@Deprecated
+	public AvailabilityStatus objStatus() {
+		return status;
+	}
 
-  /**
-   * Required. This indicates whether the Charge Point is able to perform the availability change.
-   *
-   * @param status the {@link AvailabilityStatus} of connector.
-   */
-  @XmlElement
-  public void setStatus(AvailabilityStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Required. This indicates whether the Charge Point is able to perform the
+	 * availability change.
+	 *
+	 * @param status the {@link AvailabilityStatus} of connector.
+	 */
+	@XmlElement
+	public void setStatus(AvailabilityStatus status) {
+		this.status = status;
+	}
 
-  public ChangeAvailabilityConfirmation() {}
+	public ChangeAvailabilityConfirmation() {
+	}
 
-  /**
-   * Handle required fields.
-   *
-   * @param status the {@link AvailabilityStatus}, see {@link #setStatus(AvailabilityStatus)}
-   */
-  public ChangeAvailabilityConfirmation(AvailabilityStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Handle required fields.
+	 *
+	 * @param status the {@link AvailabilityStatus}, see
+	 *               {@link #setStatus(AvailabilityStatus)}
+	 */
+	public ChangeAvailabilityConfirmation(AvailabilityStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean validate() {
-    return this.status != null;
-  }
+	@Override
+	public boolean validate() {
+		return this.status != null;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ChangeAvailabilityConfirmation that = (ChangeAvailabilityConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ChangeAvailabilityConfirmation that = (ChangeAvailabilityConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

@@ -31,127 +31,129 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/** Test model used to check conversion of different field types. Used for tests. */
+/**
+ * Test model used to check conversion of different field types. Used for tests.
+ */
 @XmlRootElement
 public class TestModel {
-  private String stringTest;
-  private Calendar calendarTest;
-  private Integer integerTest;
-  private int intTest;
-  private Long longTest;
-  private long genericLongTest;
-  private Double doubleTest;
-  private double genericDoubleTest;
-  private Boolean booleanTest;
-  private boolean genericBoleanTest;
-  private TestModel objectTest;
-  private Integer[] arrayTest;
+	private String stringTest;
+	private Calendar calendarTest;
+	private Integer integerTest;
+	private int intTest;
+	private Long longTest;
+	private long genericLongTest;
+	private Double doubleTest;
+	private double genericDoubleTest;
+	private Boolean booleanTest;
+	private boolean genericBoleanTest;
+	private TestModel objectTest;
+	private Integer[] arrayTest;
 
-  public Integer[] getArrayTest() {
-    return arrayTest;
-  }
+	public Integer[] getArrayTest() {
+		return arrayTest;
+	}
 
-  @XmlElement
-  public void setArrayTest(Integer[] arrayTest) {
-    this.arrayTest = arrayTest;
-  }
+	@XmlElement
+	public void setArrayTest(Integer[] arrayTest) {
+		this.arrayTest = arrayTest;
+	}
 
-  public TestModel getObjectTest() {
-    return objectTest;
-  }
+	public TestModel getObjectTest() {
+		return objectTest;
+	}
 
-  @XmlElement
-  public void setObjectTest(TestModel objectTest) {
-    this.objectTest = objectTest;
-  }
+	@XmlElement
+	public void setObjectTest(TestModel objectTest) {
+		this.objectTest = objectTest;
+	}
 
-  public boolean isGenericBoleanTest() {
-    return genericBoleanTest;
-  }
+	public boolean isGenericBoleanTest() {
+		return genericBoleanTest;
+	}
 
-  @XmlElement
-  public void setGenericBoleanTest(boolean genericBoleanTest) {
-    this.genericBoleanTest = genericBoleanTest;
-  }
+	@XmlElement
+	public void setGenericBoleanTest(boolean genericBoleanTest) {
+		this.genericBoleanTest = genericBoleanTest;
+	}
 
-  public Boolean getBooleanTest() {
-    return booleanTest;
-  }
+	public Boolean getBooleanTest() {
+		return booleanTest;
+	}
 
-  @XmlElement
-  public void setBooleanTest(Boolean booleanTest) {
-    this.booleanTest = booleanTest;
-  }
+	@XmlElement
+	public void setBooleanTest(Boolean booleanTest) {
+		this.booleanTest = booleanTest;
+	}
 
-  public double getGenericDoubleTest() {
-    return genericDoubleTest;
-  }
+	public double getGenericDoubleTest() {
+		return genericDoubleTest;
+	}
 
-  @XmlElement
-  public void setGenericDoubleTest(double genericDoubleTest) {
-    this.genericDoubleTest = genericDoubleTest;
-  }
+	@XmlElement
+	public void setGenericDoubleTest(double genericDoubleTest) {
+		this.genericDoubleTest = genericDoubleTest;
+	}
 
-  public Double getDoubleTest() {
-    return doubleTest;
-  }
+	public Double getDoubleTest() {
+		return doubleTest;
+	}
 
-  @XmlElement
-  public void setDoubleTest(Double doubleTest) {
-    this.doubleTest = doubleTest;
-  }
+	@XmlElement
+	public void setDoubleTest(Double doubleTest) {
+		this.doubleTest = doubleTest;
+	}
 
-  public long getGenericLongTest() {
-    return genericLongTest;
-  }
+	public long getGenericLongTest() {
+		return genericLongTest;
+	}
 
-  @XmlElement
-  public void setGenericLongTest(long genericLongTest) {
-    this.genericLongTest = genericLongTest;
-  }
+	@XmlElement
+	public void setGenericLongTest(long genericLongTest) {
+		this.genericLongTest = genericLongTest;
+	}
 
-  public Long getLongTest() {
-    return longTest;
-  }
+	public Long getLongTest() {
+		return longTest;
+	}
 
-  @XmlElement
-  public void setLongTest(Long longTest) {
-    this.longTest = longTest;
-  }
+	@XmlElement
+	public void setLongTest(Long longTest) {
+		this.longTest = longTest;
+	}
 
-  public int getIntTest() {
-    return intTest;
-  }
+	public int getIntTest() {
+		return intTest;
+	}
 
-  @XmlElement
-  public void setIntTest(int intTest) {
-    this.intTest = intTest;
-  }
+	@XmlElement
+	public void setIntTest(int intTest) {
+		this.intTest = intTest;
+	}
 
-  public Integer getIntegerTest() {
-    return integerTest;
-  }
+	public Integer getIntegerTest() {
+		return integerTest;
+	}
 
-  @XmlElement
-  public void setIntegerTest(Integer integerTest) {
-    this.integerTest = integerTest;
-  }
+	@XmlElement
+	public void setIntegerTest(Integer integerTest) {
+		this.integerTest = integerTest;
+	}
 
-  public Calendar getCalendarTest() {
-    return calendarTest;
-  }
+	public Calendar getCalendarTest() {
+		return calendarTest;
+	}
 
-  @XmlElement
-  public void setCalendarTest(Calendar calendarTest) {
-    this.calendarTest = calendarTest;
-  }
+	@XmlElement
+	public void setCalendarTest(Calendar calendarTest) {
+		this.calendarTest = calendarTest;
+	}
 
-  public String getStringTest() {
-    return stringTest;
-  }
+	public String getStringTest() {
+		return stringTest;
+	}
 
-  @XmlElement
-  public void setStringTest(String stringTest) {
-    this.stringTest = stringTest;
-  }
+	@XmlElement
+	public void setStringTest(String stringTest) {
+		this.stringTest = stringTest;
+	}
 }

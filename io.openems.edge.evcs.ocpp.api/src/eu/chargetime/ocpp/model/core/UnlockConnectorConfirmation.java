@@ -33,75 +33,76 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Sent by the Charge Point to the Central System in response to an {@link UnlockConnectorRequest}.
+ * Sent by the Charge Point to the Central System in response to an
+ * {@link UnlockConnectorRequest}.
  */
 @XmlRootElement(name = "unlockConnectorResponse")
 public class UnlockConnectorConfirmation implements Confirmation {
-  private UnlockStatus status;
+	private UnlockStatus status;
 
-  public UnlockConnectorConfirmation() {}
+	public UnlockConnectorConfirmation() {
+	}
 
-  /**
-   * Set required values.
-   *
-   * @param status the {@link UnlockStatus}, see {@link #setStatus(UnlockStatus)}.
-   */
-  public UnlockConnectorConfirmation(UnlockStatus status) {
-    setStatus(status);
-  }
+	/**
+	 * Set required values.
+	 *
+	 * @param status the {@link UnlockStatus}, see {@link #setStatus(UnlockStatus)}.
+	 */
+	public UnlockConnectorConfirmation(UnlockStatus status) {
+		setStatus(status);
+	}
 
-  @Override
-  public boolean validate() {
-    return status != null;
-  }
+	@Override
+	public boolean validate() {
+		return status != null;
+	}
 
-  /**
-   * This indicates whether the Charge Point has unlocked the connector.
-   *
-   * @return the {@link UnlockStatus}
-   */
-  public UnlockStatus getStatus() {
-    return status;
-  }
+	/**
+	 * This indicates whether the Charge Point has unlocked the connector.
+	 *
+	 * @return the {@link UnlockStatus}
+	 */
+	public UnlockStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * This indicates whether the Charge Point has unlocked the connector.
-   *
-   * @return the {@link UnlockStatus}
-   */
-  @Deprecated
-  public UnlockStatus objStatus() {
-    return status;
-  }
+	/**
+	 * This indicates whether the Charge Point has unlocked the connector.
+	 *
+	 * @return the {@link UnlockStatus}
+	 */
+	@Deprecated
+	public UnlockStatus objStatus() {
+		return status;
+	}
 
-  /**
-   * Required. This indicates whether the Charge Point has unlocked the connector.
-   *
-   * @param status the {@link UnlockStatus}.
-   */
-  @XmlElement
-  public void setStatus(UnlockStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Required. This indicates whether the Charge Point has unlocked the connector.
+	 *
+	 * @param status the {@link UnlockStatus}.
+	 */
+	@XmlElement
+	public void setStatus(UnlockStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    UnlockConnectorConfirmation that = (UnlockConnectorConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		UnlockConnectorConfirmation that = (UnlockConnectorConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

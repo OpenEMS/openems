@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 
 public class ChangeConfigurationFeature extends ProfileFeature {
 
-  public ChangeConfigurationFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public ChangeConfigurationFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return ChangeConfigurationRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return ChangeConfigurationRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return ChangeConfigurationConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return ChangeConfigurationConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "ChangeConfiguration";
-  }
+	@Override
+	public String getAction() {
+		return "ChangeConfiguration";
+	}
 }

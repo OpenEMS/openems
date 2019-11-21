@@ -32,17 +32,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimplePromiseFulfiller implements PromiseFulfiller {
-  private static final Logger logger = LoggerFactory.getLogger(SimplePromiseFulfiller.class);
+	private static final Logger logger = LoggerFactory.getLogger(SimplePromiseFulfiller.class);
 
-  @Override
-  public void fulfill(
-      CompletableFuture<Confirmation> promise, SessionEvents eventHandler, Request request) {
-    try {
-      Confirmation conf = eventHandler.handleRequest(request);
-      promise.complete(conf);
-    } catch (Exception ex) {
-      logger.warn("fulfillPromis() failed", ex);
-      promise.completeExceptionally(ex);
-    }
-  }
+	@Override
+	public void fulfill(CompletableFuture<Confirmation> promise, SessionEvents eventHandler, Request request) {
+		try {
+			Confirmation conf = eventHandler.handleRequest(request);
+			promise.complete(conf);
+		} catch (Exception ex) {
+			logger.warn("fulfillPromis() failed", ex);
+			promise.completeExceptionally(ex);
+		}
+	}
 }

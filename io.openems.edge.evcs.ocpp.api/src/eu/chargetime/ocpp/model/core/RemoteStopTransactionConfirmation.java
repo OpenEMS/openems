@@ -35,71 +35,75 @@ import javax.xml.bind.annotation.XmlRootElement;
 /** sent from Charge Point to Central System. */
 @XmlRootElement(name = "remoteStopTransactionResponse")
 public class RemoteStopTransactionConfirmation implements Confirmation {
-  private RemoteStartStopStatus status;
+	private RemoteStartStopStatus status;
 
-  public RemoteStopTransactionConfirmation() {}
+	public RemoteStopTransactionConfirmation() {
+	}
 
-  /**
-   * Set required fields.
-   *
-   * @param status the {@link RemoteStartStopStatus}, see {@link #setStatus(RemoteStartStopStatus)}.
-   */
-  public RemoteStopTransactionConfirmation(RemoteStartStopStatus status) {
-    setStatus(status);
-  }
+	/**
+	 * Set required fields.
+	 *
+	 * @param status the {@link RemoteStartStopStatus}, see
+	 *               {@link #setStatus(RemoteStartStopStatus)}.
+	 */
+	public RemoteStopTransactionConfirmation(RemoteStartStopStatus status) {
+		setStatus(status);
+	}
 
-  @Override
-  public boolean validate() {
-    return status != null;
-  }
+	@Override
+	public boolean validate() {
+		return status != null;
+	}
 
-  /**
-   * Status indicating whether Charge Point accepts the request to stop a transaction.
-   *
-   * @return the {@link RemoteStartStopStatus}.
-   */
-  public RemoteStartStopStatus getStatus() {
-    return status;
-  }
+	/**
+	 * Status indicating whether Charge Point accepts the request to stop a
+	 * transaction.
+	 *
+	 * @return the {@link RemoteStartStopStatus}.
+	 */
+	public RemoteStartStopStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * Status indicating whether Charge Point accepts the request to stop a transaction.
-   *
-   * @return the {@link RemoteStartStopStatus}.
-   */
-  @Deprecated
-  public RemoteStartStopStatus objStatus() {
-    return status;
-  }
+	/**
+	 * Status indicating whether Charge Point accepts the request to stop a
+	 * transaction.
+	 *
+	 * @return the {@link RemoteStartStopStatus}.
+	 */
+	@Deprecated
+	public RemoteStartStopStatus objStatus() {
+		return status;
+	}
 
-  /**
-   * Required. Status indicating whether Charge Point accepts the request to stop a transaction.
-   *
-   * @param status the {@link RemoteStartStopStatus}.
-   */
-  @XmlElement
-  public void setStatus(RemoteStartStopStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Required. Status indicating whether Charge Point accepts the request to stop
+	 * a transaction.
+	 *
+	 * @param status the {@link RemoteStartStopStatus}.
+	 */
+	@XmlElement
+	public void setStatus(RemoteStartStopStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    RemoteStopTransactionConfirmation that = (RemoteStopTransactionConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		RemoteStopTransactionConfirmation that = (RemoteStopTransactionConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

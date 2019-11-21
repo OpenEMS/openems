@@ -40,131 +40,127 @@ import org.slf4j.LoggerFactory;
 
 /** Web Socket implementation of the Transmitter. */
 public class WebSocketTransmitter implements Transmitter {
-  private static final Logger logger = LoggerFactory.getLogger(WebSocketTransmitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(WebSocketTransmitter.class);
 
-  public static final String WSS_SCHEME = "wss";
-  private final Draft draft;
+	public static final String WSS_SCHEME = "wss";
+	private final Draft draft;
 
-  private final JSONConfiguration configuration;
-  private volatile boolean closed = true;
-  private volatile WebSocketClient client;
-  private WssSocketBuilder wssSocketBuilder;
+	private final JSONConfiguration configuration;
+	private volatile boolean closed = true;
+	private volatile WebSocketClient client;
+	private WssSocketBuilder wssSocketBuilder;
 
-  public WebSocketTransmitter(JSONConfiguration configuration, Draft draft) {
-    this.configuration = configuration;
-    this.draft = draft;
-  }
+	public WebSocketTransmitter(JSONConfiguration configuration, Draft draft) {
+		this.configuration = configuration;
+		this.draft = draft;
+	}
 
-  public WebSocketTransmitter(Draft draft) {
-    this(JSONConfiguration.get(), draft);
-  }
+	public WebSocketTransmitter(Draft draft) {
+		this(JSONConfiguration.get(), draft);
+	}
 
-  @Override
-  public void connect(String uri, RadioEvents events) {
-    final URI resource = URI.create(uri);
+	@SuppressWarnings("deprecation")
+	@Override
+	public void connect(String uri, RadioEvents events) {
+		final URI resource = URI.create(uri);
 
-    client =
-        new WebSocketClient(resource, draft) {
-          @Override
-          public void onOpen(ServerHandshake serverHandshake) {
-            logger.debug("On connection open (HTTP status: {})", serverHandshake.getHttpStatus());
-            events.connected();
-          }
+		client = new WebSocketClient(resource, draft) {
+			@Override
+			public void onOpen(ServerHandshake serverHandshake) {
+				logger.debug("On connection open (HTTP status: {})", serverHandshake.getHttpStatus());
+				events.connected();
+			}
 
-          @Override
-          public void onMessage(String message) {
-            events.receivedMessage(message);
-          }
+			@Override
+			public void onMessage(String message) {
+				events.receivedMessage(message);
+			}
 
-          @Override
-          public void onClose(int code, String reason, boolean remote) {
-            logger.debug(
-                "On connection close (code: {}, reason: {}, remote: {})", code, reason, remote);
+			@Override
+			public void onClose(int code, String reason, boolean remote) {
+				logger.debug("On connection close (code: {}, reason: {}, remote: {})", code, reason, remote);
 
-            events.disconnected();
-          }
+				events.disconnected();
+			}
 
-          @Override
-          public void onError(Exception ex) {
-            if (ex instanceof ConnectException) {
-              logger.error("On error triggered caused by:", ex);
-            } else {
-              logger.error("On error triggered:", ex);
-            }
-          }
-        };
+			@Override
+			public void onError(Exception ex) {
+				if (ex instanceof ConnectException) {
+					logger.error("On error triggered caused by:", ex);
+				} else {
+					logger.error("On error triggered:", ex);
+				}
+			}
+		};
 
-    if (WSS_SCHEME.equals(resource.getScheme())) {
+		if (WSS_SCHEME.equals(resource.getScheme())) {
 
-      if (wssSocketBuilder == null) {
-        throw new IllegalStateException(
-            "wssSocketBuilder must be set to support " + WSS_SCHEME + " scheme");
-      }
+			if (wssSocketBuilder == null) {
+				throw new IllegalStateException("wssSocketBuilder must be set to support " + WSS_SCHEME + " scheme");
+			}
 
-      try {
-        client.setSocket(wssSocketBuilder.uri(resource).build());
-      } catch (IOException ex) {
-        logger.error("SSL socket creation failed", ex);
-      }
-    }
+			try {
+				client.setSocket(wssSocketBuilder.uri(resource).build());
+			} catch (IOException ex) {
+				logger.error("SSL socket creation failed", ex);
+			}
+		}
 
-    configure();
+		configure();
 
-    logger.debug("Trying to connect to: {}", resource);
+		logger.debug("Trying to connect to: {}", resource);
 
-    try {
-      client.connectBlocking();
-      closed = false;
-    } catch (Exception ex) {
-      logger.warn("client.connectBlocking() failed", ex);
-    }
-  }
+		try {
+			client.connectBlocking();
+			closed = false;
+		} catch (Exception ex) {
+			logger.warn("client.connectBlocking() failed", ex);
+		}
+	}
 
-  void configure() {
-    client.setReuseAddr(configuration.getParameter(JSONConfiguration.REUSE_ADDR_PARAMETER, false));
-    client.setTcpNoDelay(
-        configuration.getParameter(JSONConfiguration.TCP_NO_DELAY_PARAMETER, false));
-    client.setConnectionLostTimeout(
-        configuration.getParameter(JSONConfiguration.PING_INTERVAL_PARAMETER, 60));
-    client.setProxy(configuration.getParameter(JSONConfiguration.PROXY_PARAMETER, Proxy.NO_PROXY));
-  }
+	void configure() {
+		client.setReuseAddr(configuration.getParameter(JSONConfiguration.REUSE_ADDR_PARAMETER, false));
+		client.setTcpNoDelay(configuration.getParameter(JSONConfiguration.TCP_NO_DELAY_PARAMETER, false));
+		client.setConnectionLostTimeout(configuration.getParameter(JSONConfiguration.PING_INTERVAL_PARAMETER, 60));
+		client.setProxy(configuration.getParameter(JSONConfiguration.PROXY_PARAMETER, Proxy.NO_PROXY));
+	}
 
-  void enableWSS(WssSocketBuilder wssSocketBuilder) {
-    if (client != null) {
-      throw new IllegalStateException("Cannot enable WSS on already connected client");
-    }
-    this.wssSocketBuilder = wssSocketBuilder;
-  }
+	void enableWSS(WssSocketBuilder wssSocketBuilder) {
+		if (client != null) {
+			throw new IllegalStateException("Cannot enable WSS on already connected client");
+		}
+		this.wssSocketBuilder = wssSocketBuilder;
+	}
 
-  @Override
-  public void disconnect() {
-    if (client == null) {
-      return;
-    }
-    try {
-      client.closeBlocking();
-    } catch (Exception ex) {
-      logger.info("client.closeBlocking() failed", ex);
-    } finally {
-      client = null;
-      closed = true;
-    }
-  }
+	@Override
+	public void disconnect() {
+		if (client == null) {
+			return;
+		}
+		try {
+			client.closeBlocking();
+		} catch (Exception ex) {
+			logger.info("client.closeBlocking() failed", ex);
+		} finally {
+			client = null;
+			closed = true;
+		}
+	}
 
-  @Override
-  public void send(Object request) throws NotConnectedException {
-    if (client == null) {
-      throw new NotConnectedException();
-    }
+	@Override
+	public void send(Object request) throws NotConnectedException {
+		if (client == null) {
+			throw new NotConnectedException();
+		}
 
-    try {
-      client.send(request.toString());
-    } catch (WebsocketNotConnectedException ex) {
-      throw new NotConnectedException();
-    }
-  }
+		try {
+			client.send(request.toString());
+		} catch (WebsocketNotConnectedException ex) {
+			throw new NotConnectedException();
+		}
+	}
 
-  public boolean isClosed() {
-    return closed;
-  }
+	public boolean isClosed() {
+		return closed;
+	}
 }

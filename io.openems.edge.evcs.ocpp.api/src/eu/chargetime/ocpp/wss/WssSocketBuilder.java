@@ -31,27 +31,27 @@ import java.net.URI;
 
 /** To build SSL {@link Socket} to support WSS scheme. */
 public interface WssSocketBuilder {
-  /**
-   * Set URI to identify endpoint for the connection.
-   *
-   * @param uri to identify endpoint for the connection.
-   * @return instance of {@link WssSocketBuilder}
-   */
-  WssSocketBuilder uri(URI uri);
+	/**
+	 * Set URI to identify endpoint for the connection.
+	 *
+	 * @param uri to identify endpoint for the connection.
+	 * @return instance of {@link WssSocketBuilder}
+	 */
+	WssSocketBuilder uri(URI uri);
 
-  /**
-   * Builds SSL {@link Socket} to support WSS scheme.
-   *
-   * @return SSL {@link Socket}
-   */
-  Socket build() throws IOException;
+	/**
+	 * Builds SSL {@link Socket} to support WSS scheme.
+	 *
+	 * @return SSL {@link Socket}
+	 */
+	Socket build() throws IOException;
 
-  /**
-   * Verifies if all required by the client creation time parameters are set. The idea is to allow
-   * the client to fail fast if required parameters are missing without exposing implementation
-   * details.
-   *
-   * @throws IllegalStateException if verification fails.
-   */
-  void verify();
+	/**
+	 * Verifies if all required by the client creation time parameters are set. The
+	 * idea is to allow the client to fail fast if required parameters are missing
+	 * without exposing implementation details.
+	 *
+	 * @throws IllegalStateException if verification fails.
+	 */
+	void verify();
 }

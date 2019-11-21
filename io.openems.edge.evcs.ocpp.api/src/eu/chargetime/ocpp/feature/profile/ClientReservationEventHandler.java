@@ -33,19 +33,21 @@ import eu.chargetime.ocpp.model.reservation.ReserveNowRequest;
 
 public interface ClientReservationEventHandler {
 
-  /**
-   * Handle a {@link ReserveNowRequest} and return a {@link ReserveNowConfirmation}.
-   *
-   * @param request incoming {@link ReserveNowRequest} to handle.
-   * @return outgoing {@link ReserveNowConfirmation} to reply with.
-   */
-  ReserveNowConfirmation handleReserveNowRequest(ReserveNowRequest request);
+	/**
+	 * Handle a {@link ReserveNowRequest} and return a
+	 * {@link ReserveNowConfirmation}.
+	 *
+	 * @param request incoming {@link ReserveNowRequest} to handle.
+	 * @return outgoing {@link ReserveNowConfirmation} to reply with.
+	 */
+	ReserveNowConfirmation handleReserveNowRequest(ReserveNowRequest request);
 
-  /**
-   * Handle a {@link CancelReservationRequest} and return a {@link CancelReservationConfirmation}.
-   *
-   * @param request incoming {@link CancelReservationRequest} to handle.
-   * @return outgoing {@link CancelReservationConfirmation} to reply with.
-   */
-  CancelReservationConfirmation handleCancelReservationRequest(CancelReservationRequest request);
+	/**
+	 * Handle a {@link CancelReservationRequest} and return a
+	 * {@link CancelReservationConfirmation}.
+	 *
+	 * @param request incoming {@link CancelReservationRequest} to handle.
+	 * @return outgoing {@link CancelReservationConfirmation} to reply with.
+	 */
+	CancelReservationConfirmation handleCancelReservationRequest(CancelReservationRequest request);
 }

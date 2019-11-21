@@ -33,35 +33,35 @@ SOFTWARE.
 /** Call back handler for {@link Session} events. */
 public interface SessionEvents {
 
-  /**
-   * Handle a {@link Confirmation} to a {@link Request}.
-   *
-   * @param uniqueId the unique id used for the {@link Request}.
-   * @param confirmation the {@link Confirmation} to the {@link Request}.
-   */
-  void handleConfirmation(String uniqueId, Confirmation confirmation);
+	/**
+	 * Handle a {@link Confirmation} to a {@link Request}.
+	 *
+	 * @param uniqueId     the unique id used for the {@link Request}.
+	 * @param confirmation the {@link Confirmation} to the {@link Request}.
+	 */
+	void handleConfirmation(String uniqueId, Confirmation confirmation);
 
-  /**
-   * Handle a incoming {@link Request}.
-   *
-   * @param request the {@link Request}.
-   * @return a {@link Confirmation} to send as a response.
-   */
-  Confirmation handleRequest(Request request) throws UnsupportedFeatureException;
+	/**
+	 * Handle a incoming {@link Request}.
+	 *
+	 * @param request the {@link Request}.
+	 * @return a {@link Confirmation} to send as a response.
+	 */
+	Confirmation handleRequest(Request request) throws UnsupportedFeatureException;
 
-  /**
-   * Handle a error to a {@link Request}.
-   *
-   * @param uniqueId the unique identifier for the {@link Request}.
-   * @param errorCode string to indicate the error.
-   * @param errorDescription description of the error.
-   * @param payload a raw payload.
-   */
-  void handleError(String uniqueId, String errorCode, String errorDescription, Object payload);
+	/**
+	 * Handle a error to a {@link Request}.
+	 *
+	 * @param uniqueId         the unique identifier for the {@link Request}.
+	 * @param errorCode        string to indicate the error.
+	 * @param errorDescription description of the error.
+	 * @param payload          a raw payload.
+	 */
+	void handleError(String uniqueId, String errorCode, String errorDescription, Object payload);
 
-  /** Handle a closed connection. */
-  void handleConnectionClosed();
+	/** Handle a closed connection. */
+	void handleConnectionClosed();
 
-  /** Handle a opened connection. */
-  void handleConnectionOpened();
+	/** Handle a opened connection. */
+	void handleConnectionOpened();
 }

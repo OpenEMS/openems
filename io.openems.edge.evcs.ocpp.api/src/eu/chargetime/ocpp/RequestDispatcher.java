@@ -31,20 +31,20 @@ import java.util.concurrent.CompletableFuture;
 
 public class RequestDispatcher implements IRequestDispactcher {
 
-  private final PromiseFulfiller fulfiller;
-  protected SessionEvents eventHandler;
+	private final PromiseFulfiller fulfiller;
+	protected SessionEvents eventHandler;
 
-  public RequestDispatcher(PromiseFulfiller fulfiller) {
-    this.fulfiller = fulfiller;
-  }
+	public RequestDispatcher(PromiseFulfiller fulfiller) {
+		this.fulfiller = fulfiller;
+	}
 
-  public CompletableFuture<Confirmation> handleRequest(Request request) {
-    CompletableFuture<Confirmation> promise = new CompletableFuture<>();
-    fulfiller.fulfill(promise, eventHandler, request);
-    return promise;
-  }
+	public CompletableFuture<Confirmation> handleRequest(Request request) {
+		CompletableFuture<Confirmation> promise = new CompletableFuture<>();
+		fulfiller.fulfill(promise, eventHandler, request);
+		return promise;
+	}
 
-  public void setEventHandler(SessionEvents eventHandler) {
-    this.eventHandler = eventHandler;
-  }
+	public void setEventHandler(SessionEvents eventHandler) {
+		this.eventHandler = eventHandler;
+	}
 }

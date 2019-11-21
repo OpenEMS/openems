@@ -31,14 +31,14 @@ import eu.chargetime.ocpp.model.Request;
 import java.util.concurrent.CompletionStage;
 
 public interface IClientAPI {
-  void addFeatureProfile(Profile profile);
+	void addFeatureProfile(Profile profile);
 
-  void connect(String url, ClientEvents clientEvents);
+	void connect(String url, ClientEvents clientEvents);
 
-  CompletionStage<Confirmation> send(Request request)
-      throws OccurenceConstraintException, UnsupportedFeatureException;
+	CompletionStage<Confirmation> send(Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException;
 
-  void disconnect();
+	void disconnect();
 
-  boolean isClosed();
+	boolean isClosed();
 }

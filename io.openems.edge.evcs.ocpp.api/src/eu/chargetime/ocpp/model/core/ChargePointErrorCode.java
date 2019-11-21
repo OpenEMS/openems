@@ -28,20 +28,7 @@ package eu.chargetime.ocpp.model.core;
 
 /** Accepted values used with {@link StatusNotificationRequest}. */
 public enum ChargePointErrorCode {
-  ConnectorLockFailure,
-  EVCommunicationError,
-  GroundFailure,
-  HighTemperature,
-  InternalError,
-  LocalListConflict,
-  NoError,
-  OtherError,
-  OverCurrentFailure,
-  OverVoltage,
-  PowerMeterFailure,
-  PowerSwitchFailure,
-  ReaderFailure,
-  ResetFailure,
-  UnderVoltage,
-  WeakSignal
+	ConnectorLockFailure, EVCommunicationError, GroundFailure, HighTemperature, InternalError, LocalListConflict,
+	NoError, OtherError, OverCurrentFailure, OverVoltage, PowerMeterFailure, PowerSwitchFailure, ReaderFailure,
+	ResetFailure, UnderVoltage, WeakSignal
 }

@@ -42,33 +42,32 @@ import java.util.UUID;
 
 public class ServerSmartChargingProfile implements Profile {
 
-  private HashSet<Feature> features;
+	private HashSet<Feature> features;
 
-  public ServerSmartChargingProfile() {
-    features = new HashSet<>();
-    features.add(new SetChargingProfileFeature(this));
-    features.add(new ClearChargingProfileFeature(this));
-  }
+	public ServerSmartChargingProfile() {
+		features = new HashSet<>();
+		features.add(new SetChargingProfileFeature(this));
+		features.add(new ClearChargingProfileFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    return null;
-  }
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		return null;
+	}
 
-  public SetChargingProfileRequest createSetChargingProfileRequest(
-      int connectorId, ChargingProfile profile) {
-    SetChargingProfileRequest request = new SetChargingProfileRequest();
-    request.setConnectorId(connectorId);
-    request.setCsChargingProfiles(profile);
-    return request;
-  }
+	public SetChargingProfileRequest createSetChargingProfileRequest(int connectorId, ChargingProfile profile) {
+		SetChargingProfileRequest request = new SetChargingProfileRequest();
+		request.setConnectorId(connectorId);
+		request.setCsChargingProfiles(profile);
+		return request;
+	}
 
-  public ClearChargingProfileRequest createClearChargingProfileRequest() {
-    return new ClearChargingProfileRequest();
-  }
+	public ClearChargingProfileRequest createClearChargingProfileRequest() {
+		return new ClearChargingProfileRequest();
+	}
 }

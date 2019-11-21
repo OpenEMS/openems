@@ -31,37 +31,37 @@ import eu.chargetime.ocpp.model.Request;
 import java.util.UUID;
 
 /**
- * Abstract class. Feature ties {@link Request} and {@link Confirmation} types together with an
- * action name.
+ * Abstract class. Feature ties {@link Request} and {@link Confirmation} types
+ * together with an action name.
  */
 public interface Feature {
-  /**
-   * Handle request.
-   *
-   * @param sessionIndex source of the request.
-   * @param request the {@link Request} to be handled.
-   * @return the {@link Confirmation} to be send back.
-   */
-  Confirmation handleRequest(UUID sessionIndex, Request request);
+	/**
+	 * Handle request.
+	 *
+	 * @param sessionIndex source of the request.
+	 * @param request      the {@link Request} to be handled.
+	 * @return the {@link Confirmation} to be send back.
+	 */
+	Confirmation handleRequest(UUID sessionIndex, Request request);
 
-  /**
-   * Get the {@link Request} {@link java.lang.reflect.Type} for the feature.
-   *
-   * @return the {@link Request} {@link java.lang.reflect.Type}
-   */
-  Class<? extends Request> getRequestType();
+	/**
+	 * Get the {@link Request} {@link java.lang.reflect.Type} for the feature.
+	 *
+	 * @return the {@link Request} {@link java.lang.reflect.Type}
+	 */
+	Class<? extends Request> getRequestType();
 
-  /**
-   * Get the {@link Confirmation} {@link java.lang.reflect.Type} for the feature.
-   *
-   * @return the {@link Confirmation} {@link java.lang.reflect.Type}.
-   */
-  Class<? extends Confirmation> getConfirmationType();
+	/**
+	 * Get the {@link Confirmation} {@link java.lang.reflect.Type} for the feature.
+	 *
+	 * @return the {@link Confirmation} {@link java.lang.reflect.Type}.
+	 */
+	Class<? extends Confirmation> getConfirmationType();
 
-  /**
-   * Get the action name of the feature.
-   *
-   * @return the action name.
-   */
-  String getAction();
+	/**
+	 * Get the action name of the feature.
+	 *
+	 * @return the action name.
+	 */
+	String getAction();
 }

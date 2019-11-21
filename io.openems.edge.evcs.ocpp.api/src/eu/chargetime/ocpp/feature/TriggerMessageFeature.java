@@ -34,22 +34,22 @@ import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageConfirmation;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
 
 public class TriggerMessageFeature extends ProfileFeature {
-  public TriggerMessageFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public TriggerMessageFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return TriggerMessageRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return TriggerMessageRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return TriggerMessageConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return TriggerMessageConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "TriggerMessage";
-  }
+	@Override
+	public String getAction() {
+		return "TriggerMessage";
+	}
 }

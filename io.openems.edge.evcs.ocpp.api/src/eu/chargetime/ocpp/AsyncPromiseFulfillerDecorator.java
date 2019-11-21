@@ -31,16 +31,15 @@ import java.util.concurrent.CompletableFuture;
 
 public class AsyncPromiseFulfillerDecorator implements PromiseFulfiller {
 
-  private final PromiseFulfiller promiseFulfiller;
+	private final PromiseFulfiller promiseFulfiller;
 
-  @Override
-  public void fulfill(
-      CompletableFuture<Confirmation> promise, SessionEvents eventHandler, Request request) {
-    new Thread(() -> promiseFulfiller.fulfill(promise, eventHandler, request)).start();
-  }
+	@Override
+	public void fulfill(CompletableFuture<Confirmation> promise, SessionEvents eventHandler, Request request) {
+		new Thread(() -> promiseFulfiller.fulfill(promise, eventHandler, request)).start();
+	}
 
-  public AsyncPromiseFulfillerDecorator(PromiseFulfiller promiseFulfiller) {
+	public AsyncPromiseFulfillerDecorator(PromiseFulfiller promiseFulfiller) {
 
-    this.promiseFulfiller = promiseFulfiller;
-  }
+		this.promiseFulfiller = promiseFulfiller;
+	}
 }

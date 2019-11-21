@@ -34,56 +34,55 @@ import eu.chargetime.ocpp.utilities.MoreObjects;
 import java.util.Objects;
 
 public class AuthorizationData implements Validatable {
-  private String idTag;
-  private IdTagInfo idTagInfo;
+	private String idTag;
+	private IdTagInfo idTagInfo;
 
-  public void setIdTag(String idTag) {
-    if (!ModelUtil.validate(idTag, 20)) {
-      throw new PropertyConstraintException(idTag, "Exceeds limit of 20 chars");
-    }
+	public void setIdTag(String idTag) {
+		if (!ModelUtil.validate(idTag, 20)) {
+			throw new PropertyConstraintException(idTag, "Exceeds limit of 20 chars");
+		}
 
-    this.idTag = idTag;
-  }
+		this.idTag = idTag;
+	}
 
-  public String getIdTag() {
-    return idTag;
-  }
+	public String getIdTag() {
+		return idTag;
+	}
 
-  public void setIdTagInfo(IdTagInfo idTagInfo) {
-    if (!idTagInfo.validate()) {
-      throw new PropertyConstraintException(idTagInfo, "Failed Validation");
-    }
+	public void setIdTagInfo(IdTagInfo idTagInfo) {
+		if (!idTagInfo.validate()) {
+			throw new PropertyConstraintException(idTagInfo, "Failed Validation");
+		}
 
-    this.idTagInfo = idTagInfo;
-  }
+		this.idTagInfo = idTagInfo;
+	}
 
-  public IdTagInfo getIdTagInfo() {
-    return idTagInfo;
-  }
+	public IdTagInfo getIdTagInfo() {
+		return idTagInfo;
+	}
 
-  @Override
-  public boolean validate() {
-    return ModelUtil.validate(idTag, 20) && idTagInfo.validate();
-  }
+	@Override
+	public boolean validate() {
+		return ModelUtil.validate(idTag, 20) && idTagInfo.validate();
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    AuthorizationData that = (AuthorizationData) o;
-    return Objects.equals(idTag, that.idTag) && Objects.equals(idTagInfo, that.idTagInfo);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		AuthorizationData that = (AuthorizationData) o;
+		return Objects.equals(idTag, that.idTag) && Objects.equals(idTagInfo, that.idTagInfo);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(idTag, idTagInfo);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(idTag, idTagInfo);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("idTag", idTag)
-        .add("idTagInfo", idTagInfo)
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("idTag", idTag).add("idTagInfo", idTagInfo).toString();
+	}
 }

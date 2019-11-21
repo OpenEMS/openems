@@ -29,11 +29,11 @@ SOFTWARE.
 
 /** Interface used to add a validation option on a model. */
 public interface Validatable {
-  /**
-   * Validate if the model lives up to the specification. Must check if required fields are
-   * correctly set and underlying models are valid.
-   *
-   * @return the model is valid.
-   */
-  boolean validate();
+	/**
+	 * Validate if the model lives up to the specification. Must check if required
+	 * fields are correctly set and underlying models are valid.
+	 *
+	 * @return the model is valid.
+	 */
+	boolean validate();
 }

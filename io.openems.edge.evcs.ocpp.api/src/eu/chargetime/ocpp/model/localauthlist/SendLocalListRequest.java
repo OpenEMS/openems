@@ -34,84 +34,83 @@ import java.util.Objects;
 
 public class SendLocalListRequest implements Request {
 
-  private int listVersion = 0;
-  private AuthorizationData[] localAuthorizationList = null;
-  private UpdateType updateType = null;
+	private int listVersion = 0;
+	private AuthorizationData[] localAuthorizationList = null;
+	private UpdateType updateType = null;
 
-  public SendLocalListRequest() {}
+	public SendLocalListRequest() {
+	}
 
-  public SendLocalListRequest(int listVersion, UpdateType updateType) {
-    this.listVersion = listVersion;
-    this.updateType = updateType;
-  }
+	public SendLocalListRequest(int listVersion, UpdateType updateType) {
+		this.listVersion = listVersion;
+		this.updateType = updateType;
+	}
 
-  public void setListVersion(int listVersion) {
-    if (listVersion < 1) {
-      throw new PropertyConstraintException(listVersion, "listVersion must be > 0");
-    }
-    this.listVersion = listVersion;
-  }
+	public void setListVersion(int listVersion) {
+		if (listVersion < 1) {
+			throw new PropertyConstraintException(listVersion, "listVersion must be > 0");
+		}
+		this.listVersion = listVersion;
+	}
 
-  public int getListVersion() {
-    return listVersion;
-  }
+	public int getListVersion() {
+		return listVersion;
+	}
 
-  public void setLocalAuthorizationList(AuthorizationData[] localAuthorizationList) {
-    this.localAuthorizationList = localAuthorizationList;
-  }
+	public void setLocalAuthorizationList(AuthorizationData[] localAuthorizationList) {
+		this.localAuthorizationList = localAuthorizationList;
+	}
 
-  public AuthorizationData[] getLocalAuthorizationList() {
-    return localAuthorizationList;
-  }
+	public AuthorizationData[] getLocalAuthorizationList() {
+		return localAuthorizationList;
+	}
 
-  public void setUpdateType(UpdateType updateType) {
-    this.updateType = updateType;
-  }
+	public void setUpdateType(UpdateType updateType) {
+		this.updateType = updateType;
+	}
 
-  public UpdateType getUpdateType() {
-    return updateType;
-  }
+	public UpdateType getUpdateType() {
+		return updateType;
+	}
 
-  @Override
-  public boolean validate() {
-    boolean valid = (listVersion >= 1) && (updateType != null);
+	@Override
+	public boolean validate() {
+		boolean valid = (listVersion >= 1) && (updateType != null);
 
-    if (localAuthorizationList != null) {
-      for (AuthorizationData data : localAuthorizationList) {
-        valid &= data.validate();
-      }
-    }
+		if (localAuthorizationList != null) {
+			for (AuthorizationData data : localAuthorizationList) {
+				valid &= data.validate();
+			}
+		}
 
-    return valid;
-  }
+		return valid;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    SendLocalListRequest that = (SendLocalListRequest) o;
-    return Objects.equals(listVersion, that.listVersion)
-        && Arrays.equals(localAuthorizationList, that.localAuthorizationList)
-        && updateType == that.updateType;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		SendLocalListRequest that = (SendLocalListRequest) o;
+		return Objects.equals(listVersion, that.listVersion)
+				&& Arrays.equals(localAuthorizationList, that.localAuthorizationList) && updateType == that.updateType;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(listVersion, localAuthorizationList, updateType);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(listVersion, localAuthorizationList, updateType);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("listVersion", listVersion)
-        .add("localAuthorizationList", localAuthorizationList)
-        .add("updateType", updateType)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("listVersion", listVersion)
+				.add("localAuthorizationList", localAuthorizationList).add("updateType", updateType)
+				.add("isValid", validate()).toString();
+	}
 }

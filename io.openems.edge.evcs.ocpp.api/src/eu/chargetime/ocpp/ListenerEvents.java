@@ -28,5 +28,5 @@ package eu.chargetime.ocpp;
 import eu.chargetime.ocpp.model.SessionInformation;
 
 public interface ListenerEvents {
-  void newSession(ISession session, SessionInformation information);
+	void newSession(ISession session, SessionInformation information);
 }

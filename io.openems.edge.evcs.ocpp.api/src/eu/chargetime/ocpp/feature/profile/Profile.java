@@ -35,19 +35,19 @@ import java.util.UUID;
 /** Interface used for Feature Profiles. */
 public interface Profile {
 
-  /**
-   * Get a list of supported Feature for this Feature Profile.
-   *
-   * @return supported {@link Feature}s
-   */
-  ProfileFeature[] getFeatureList();
+	/**
+	 * Get a list of supported Feature for this Feature Profile.
+	 *
+	 * @return supported {@link Feature}s
+	 */
+	ProfileFeature[] getFeatureList();
 
-  /**
-   * Handle {@link Request}
-   *
-   * @param sessionIndex source of the request.
-   * @param request the {@link Request} to be handled.
-   * @return the {@link Confirmation} to be send.
-   */
-  Confirmation handleRequest(UUID sessionIndex, Request request);
+	/**
+	 * Handle {@link Request}
+	 *
+	 * @param sessionIndex source of the request.
+	 * @param request      the {@link Request} to be handled.
+	 * @return the {@link Confirmation} to be send.
+	 */
+	Confirmation handleRequest(UUID sessionIndex, Request request);
 }

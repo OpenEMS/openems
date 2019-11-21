@@ -31,33 +31,27 @@ import java.util.function.BiConsumer;
 
 class ConfirmationHandler implements BiConsumer<Confirmation, Throwable> {
 
-  private String id;
-  private String action;
-  private Communicator communicator;
+	private String id;
+	private String action;
+	private Communicator communicator;
 
-  public ConfirmationHandler(String id, String action, Communicator communicator) {
+	public ConfirmationHandler(String id, String action, Communicator communicator) {
 
-    this.id = id;
-    this.action = action;
-    this.communicator = communicator;
-  }
+		this.id = id;
+		this.action = action;
+		this.communicator = communicator;
+	}
 
-  @Override
-  public void accept(Confirmation confirmation, Throwable throwable) {
-    if (throwable != null) {
-      communicator.sendCallError(
-          id,
-          action,
-          "InternalError",
-          "An internal error occurred and the receiver was not able to process the requested Action successfully");
-    } else if (confirmation == null) {
-      communicator.sendCallError(
-          id,
-          action,
-          "NotSupported",
-          "Requested Action is recognized but not supported by the receiver");
-    } else {
-      communicator.sendCallResult(id, action, confirmation);
-    }
-  }
+	@Override
+	public void accept(Confirmation confirmation, Throwable throwable) {
+		if (throwable != null) {
+			communicator.sendCallError(id, action, "InternalError",
+					"An internal error occurred and the receiver was not able to process the requested Action successfully");
+		} else if (confirmation == null) {
+			communicator.sendCallError(id, action, "NotSupported",
+					"Requested Action is recognized but not supported by the receiver");
+		} else {
+			communicator.sendCallResult(id, action, confirmation);
+		}
+	}
 }

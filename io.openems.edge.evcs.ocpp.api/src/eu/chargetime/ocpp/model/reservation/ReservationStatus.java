@@ -29,9 +29,5 @@ package eu.chargetime.ocpp.model.reservation;
 
 /** Accepted values used with {@link ReserveNowRequest} */
 public enum ReservationStatus {
-  Accepted,
-  Faulted,
-  Occupied,
-  Rejected,
-  Unavailable
+	Accepted, Faulted, Occupied, Rejected, Unavailable
 }

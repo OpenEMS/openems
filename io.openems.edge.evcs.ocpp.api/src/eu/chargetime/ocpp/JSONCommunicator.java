@@ -45,119 +45,115 @@ SOFTWARE.
 /** Communicator for JSON messages */
 public class JSONCommunicator extends Communicator {
 
-  private static final Logger logger = LoggerFactory.getLogger(JSONCommunicator.class);
+	private static final Logger logger = LoggerFactory.getLogger(JSONCommunicator.class);
 
-  private static final int INDEX_MESSAGEID = 0;
-  private static final int TYPENUMBER_CALL = 2;
-  private static final int INDEX_CALL_ACTION = 2;
-  private static final int INDEX_CALL_PAYLOAD = 3;
+	private static final int INDEX_MESSAGEID = 0;
+	private static final int TYPENUMBER_CALL = 2;
+	private static final int INDEX_CALL_ACTION = 2;
+	private static final int INDEX_CALL_PAYLOAD = 3;
 
-  private static final int TYPENUMBER_CALLRESULT = 3;
-  private static final int INDEX_CALLRESULT_PAYLOAD = 2;
+	private static final int TYPENUMBER_CALLRESULT = 3;
+	private static final int INDEX_CALLRESULT_PAYLOAD = 2;
 
-  private static final int TYPENUMBER_CALLERROR = 4;
-  private static final int INDEX_CALLERROR_ERRORCODE = 2;
-  private static final int INDEX_CALLERROR_DESCRIPTION = 3;
-  private static final int INDEX_CALLERROR_PAYLOAD = 4;
+	private static final int TYPENUMBER_CALLERROR = 4;
+	private static final int INDEX_CALLERROR_ERRORCODE = 2;
+	private static final int INDEX_CALLERROR_DESCRIPTION = 3;
+	private static final int INDEX_CALLERROR_PAYLOAD = 4;
 
-  private static final int INDEX_UNIQUEID = 1;
-  private static final String CALL_FORMAT = "[2,\"%s\",\"%s\",%s]";
-  private static final String CALLRESULT_FORMAT = "[3,\"%s\",%s]";
-  private static final String CALLERROR_FORMAT = "[4,\"%s\",\"%s\",\"%s\",%s]";
-  private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-  private static final String DATE_FORMAT_WITH_MS = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-  private static final int DATE_FORMAT_WITH_MS_LENGTH = 24;
+	private static final int INDEX_UNIQUEID = 1;
+	private static final String CALL_FORMAT = "[2,\"%s\",\"%s\",%s]";
+	private static final String CALLRESULT_FORMAT = "[3,\"%s\",%s]";
+	private static final String CALLERROR_FORMAT = "[4,\"%s\",\"%s\",\"%s\",%s]";
+	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	private static final String DATE_FORMAT_WITH_MS = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-  private boolean hasLongDateFormat = false;
+	private boolean hasLongDateFormat = false;
 
-  /**
-   * Handle required injections.
-   *
-   * @param radio instance of the {@link Radio}.
-   */
-  public JSONCommunicator(Radio radio) {
-    super(radio);
-  }
+	/**
+	 * Handle required injections.
+	 *
+	 * @param radio instance of the {@link Radio}.
+	 */
+	public JSONCommunicator(Radio radio) {
+		super(radio);
+	}
 
-  @Override
-  public <T> T unpackPayload(Object payload, Class<T> type) throws Exception {
-    GsonBuilder builder = new GsonBuilder();
-    builder.registerTypeAdapter(Calendar.class, new CalendarDeserializer());
-    Gson gson = builder.create();
-    return gson.fromJson(payload.toString(), type);
-  }
+	@Override
+	public <T> T unpackPayload(Object payload, Class<T> type) throws Exception {
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(Calendar.class, new CalendarDeserializer());
+		Gson gson = builder.create();
+		return gson.fromJson(payload.toString(), type);
+	}
 
-  @Override
-  public Object packPayload(Object payload) {
-    GsonBuilder builder = new GsonBuilder();
-    builder.registerTypeAdapter(GregorianCalendar.class, new CalendarSerializer());
-    Gson gson = builder.create();
-    return gson.toJson(payload);
-  }
+	@Override
+	public Object packPayload(Object payload) {
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(GregorianCalendar.class, new CalendarSerializer());
+		Gson gson = builder.create();
+		return gson.toJson(payload);
+	}
 
-  private class CalendarSerializer implements JsonSerializer<Calendar> {
-    public JsonElement serialize(Calendar src, Type typeOfSrc, JsonSerializationContext context) {
-      SimpleDateFormat formatter =
-          new SimpleDateFormat(hasLongDateFormat ? DATE_FORMAT_WITH_MS : DATE_FORMAT);
-      formatter.setTimeZone(TimeZone.getTimeZone("GMT+00:00"));
-      return new JsonPrimitive(formatter.format(src.getTime()));
-    }
-  }
+	private class CalendarSerializer implements JsonSerializer<Calendar> {
+		public JsonElement serialize(Calendar src, Type typeOfSrc, JsonSerializationContext context) {
+			SimpleDateFormat formatter = new SimpleDateFormat(hasLongDateFormat ? DATE_FORMAT_WITH_MS : DATE_FORMAT);
+			formatter.setTimeZone(TimeZone.getTimeZone("GMT+00:00"));
+			return new JsonPrimitive(formatter.format(src.getTime()));
+		}
+	}
 
-  private class CalendarDeserializer implements JsonDeserializer<Calendar> {
-    public Calendar deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-        throws JsonParseException {
-      try {
-        String dateString = json.getAsJsonPrimitive().getAsString();
-        return GregorianCalendar.from(ZonedDateTime.parse(dateString));
-      } catch (DateTimeParseException e) {
-        throw new JsonParseException(e);
-      }
-    }
-  }
+	private class CalendarDeserializer implements JsonDeserializer<Calendar> {
+		public Calendar deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+				throws JsonParseException {
+			try {
+				String dateString = json.getAsJsonPrimitive().getAsString();
+				return GregorianCalendar.from(ZonedDateTime.parse(dateString));
+			} catch (DateTimeParseException e) {
+				throw new JsonParseException(e);
+			}
+		}
+	}
 
-  @Override
-  protected Object makeCallResult(String uniqueId, String action, Object payload) {
-    return String.format(CALLRESULT_FORMAT, uniqueId, payload);
-  }
+	@Override
+	protected Object makeCallResult(String uniqueId, String action, Object payload) {
+		return String.format(CALLRESULT_FORMAT, uniqueId, payload);
+	}
 
-  @Override
-  protected Object makeCall(String uniqueId, String action, Object payload) {
-    return String.format(CALL_FORMAT, uniqueId, action, payload);
-  }
+	@Override
+	protected Object makeCall(String uniqueId, String action, Object payload) {
+		return String.format(CALL_FORMAT, uniqueId, action, payload);
+	}
 
-  @Override
-  protected Object makeCallError(
-      String uniqueId, String action, String errorCode, String errorDescription) {
-    return String.format(CALLERROR_FORMAT, uniqueId, errorCode, errorDescription, "{}");
-  }
+	@Override
+	protected Object makeCallError(String uniqueId, String action, String errorCode, String errorDescription) {
+		return String.format(CALLERROR_FORMAT, uniqueId, errorCode, errorDescription, "{}");
+	}
 
-  @Override
-  protected Message parse(Object json) {
-    Message message;
-    JsonParser parser = new JsonParser();
-    JsonArray array = parser.parse(json.toString()).getAsJsonArray();
+	@Override
+	protected Message parse(Object json) {
+		Message message;
+		JsonParser parser = new JsonParser();
+		JsonArray array = parser.parse(json.toString()).getAsJsonArray();
 
-    if (array.get(INDEX_MESSAGEID).getAsInt() == TYPENUMBER_CALL) {
-      message = new CallMessage();
-      message.setAction(array.get(INDEX_CALL_ACTION).getAsString());
-      message.setPayload(array.get(INDEX_CALL_PAYLOAD).toString());
-    } else if (array.get(INDEX_MESSAGEID).getAsInt() == TYPENUMBER_CALLRESULT) {
-      message = new CallResultMessage();
-      message.setPayload(array.get(INDEX_CALLRESULT_PAYLOAD).toString());
-    } else if (array.get(INDEX_MESSAGEID).getAsInt() == TYPENUMBER_CALLERROR) {
-      message = new CallErrorMessage();
-      ((CallErrorMessage) message).setErrorCode(array.get(INDEX_CALLERROR_ERRORCODE).getAsString());
-      ((CallErrorMessage) message)
-          .setErrorDescription(array.get(INDEX_CALLERROR_DESCRIPTION).getAsString());
-      ((CallErrorMessage) message).setRawPayload(array.get(INDEX_CALLERROR_PAYLOAD).toString());
-    } else {
-      logger.error("Unknown message type of message: {}", json.toString());
-      throw new IllegalArgumentException("Unknown message type");
-    }
+		if (array.get(INDEX_MESSAGEID).getAsInt() == TYPENUMBER_CALL) {
+			message = new CallMessage();
+			message.setAction(array.get(INDEX_CALL_ACTION).getAsString());
+			message.setPayload(array.get(INDEX_CALL_PAYLOAD).toString());
+		} else if (array.get(INDEX_MESSAGEID).getAsInt() == TYPENUMBER_CALLRESULT) {
+			message = new CallResultMessage();
+			message.setPayload(array.get(INDEX_CALLRESULT_PAYLOAD).toString());
+		} else if (array.get(INDEX_MESSAGEID).getAsInt() == TYPENUMBER_CALLERROR) {
+			message = new CallErrorMessage();
+			((CallErrorMessage) message).setErrorCode(array.get(INDEX_CALLERROR_ERRORCODE).getAsString());
+			((CallErrorMessage) message).setErrorDescription(array.get(INDEX_CALLERROR_DESCRIPTION).getAsString());
+			((CallErrorMessage) message).setRawPayload(array.get(INDEX_CALLERROR_PAYLOAD).toString());
+		} else {
+			logger.error("Unknown message type of message: {}", json.toString());
+			throw new IllegalArgumentException("Unknown message type");
+		}
 
-    message.setId(array.get(INDEX_UNIQUEID).getAsString());
+		message.setId(array.get(INDEX_UNIQUEID).getAsString());
 
-    return message;
-  }
+		return message;
+	}
 }

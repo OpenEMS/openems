@@ -40,32 +40,32 @@ import java.util.UUID;
 
 public class ClientLocalAuthListProfile implements Profile {
 
-  private ClientLocalAuthListEventHandler eventHandler;
-  private ArrayList<Feature> featureList;
+	private ClientLocalAuthListEventHandler eventHandler;
+	private ArrayList<Feature> featureList;
 
-  public ClientLocalAuthListProfile(ClientLocalAuthListEventHandler handler) {
-    eventHandler = handler;
+	public ClientLocalAuthListProfile(ClientLocalAuthListEventHandler handler) {
+		eventHandler = handler;
 
-    featureList = new ArrayList<>();
-    featureList.add(new GetLocalListVersionFeature(this));
-    featureList.add(new SendLocalListFeature(this));
-  }
+		featureList = new ArrayList<>();
+		featureList.add(new GetLocalListVersionFeature(this));
+		featureList.add(new SendLocalListFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return featureList.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return featureList.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    Confirmation result = null;
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		Confirmation result = null;
 
-    if (request instanceof GetLocalListVersionRequest) {
-      result = eventHandler.handleGetLocalListVersionRequest((GetLocalListVersionRequest) request);
-    } else if (request instanceof SendLocalListRequest) {
-      result = eventHandler.handleSendLocalListRequest((SendLocalListRequest) request);
-    }
+		if (request instanceof GetLocalListVersionRequest) {
+			result = eventHandler.handleGetLocalListVersionRequest((GetLocalListVersionRequest) request);
+		} else if (request instanceof SendLocalListRequest) {
+			result = eventHandler.handleSendLocalListRequest((SendLocalListRequest) request);
+		}
 
-    return result;
-  }
+		return result;
+	}
 }

@@ -34,21 +34,21 @@ import java.util.UUID;
 
 public class ServerReservationProfile implements Profile {
 
-  private HashSet<Feature> features;
+	private HashSet<Feature> features;
 
-  public ServerReservationProfile() {
-    features = new HashSet<>();
-    features.add(new ReserveNowFeature(this));
-    features.add(new CancelReservationFeature(this));
-  }
+	public ServerReservationProfile() {
+		features = new HashSet<>();
+		features.add(new ReserveNowFeature(this));
+		features.add(new CancelReservationFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    return null;
-  }
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		return null;
+	}
 }

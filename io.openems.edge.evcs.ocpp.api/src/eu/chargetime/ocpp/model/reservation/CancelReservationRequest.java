@@ -36,61 +36,62 @@ import javax.xml.bind.annotation.XmlRootElement;
 /** Sent by the Central System to the Charge Point. */
 @XmlRootElement
 public class CancelReservationRequest implements Request {
-  private Integer reservationId;
+	private Integer reservationId;
 
-  public CancelReservationRequest() {}
+	public CancelReservationRequest() {
+	}
 
-  public CancelReservationRequest(Integer reservationId) {
-    this.reservationId = reservationId;
-  }
+	public CancelReservationRequest(Integer reservationId) {
+		this.reservationId = reservationId;
+	}
 
-  @Override
-  public boolean validate() {
-    return reservationId != null;
-  }
+	@Override
+	public boolean validate() {
+		return reservationId != null;
+	}
 
-  /**
-   * Id of the reservation to cancel.
-   *
-   * @return Integer, id of the reservation.
-   */
-  public Integer getReservationId() {
-    return reservationId;
-  }
+	/**
+	 * Id of the reservation to cancel.
+	 *
+	 * @return Integer, id of the reservation.
+	 */
+	public Integer getReservationId() {
+		return reservationId;
+	}
 
-  /**
-   * Required. Id of the reservation to cancel.
-   *
-   * @param reservationId Integer, id of the reservation.
-   */
-  @XmlElement
-  public void setReservationId(Integer reservationId) {
-    this.reservationId = reservationId;
-  }
+	/**
+	 * Required. Id of the reservation to cancel.
+	 *
+	 * @param reservationId Integer, id of the reservation.
+	 */
+	@XmlElement
+	public void setReservationId(Integer reservationId) {
+		this.reservationId = reservationId;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    CancelReservationRequest that = (CancelReservationRequest) o;
-    return Objects.equals(reservationId, that.reservationId);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		CancelReservationRequest that = (CancelReservationRequest) o;
+		return Objects.equals(reservationId, that.reservationId);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(reservationId);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(reservationId);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("reservationId", reservationId)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("reservationId", reservationId).add("isValid", validate())
+				.toString();
+	}
 }

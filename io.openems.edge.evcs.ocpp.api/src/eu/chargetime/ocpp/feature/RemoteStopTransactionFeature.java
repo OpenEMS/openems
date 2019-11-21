@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.RemoteStopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.RemoteStopTransactionRequest;
 
 public class RemoteStopTransactionFeature extends ProfileFeature {
-  public RemoteStopTransactionFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public RemoteStopTransactionFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return RemoteStopTransactionRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return RemoteStopTransactionRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return RemoteStopTransactionConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return RemoteStopTransactionConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "RemoteStopTransaction";
-  }
+	@Override
+	public String getAction() {
+		return "RemoteStopTransaction";
+	}
 }

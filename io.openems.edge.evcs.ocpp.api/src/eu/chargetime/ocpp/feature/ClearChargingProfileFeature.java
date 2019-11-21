@@ -34,22 +34,22 @@ import eu.chargetime.ocpp.model.smartcharging.ClearChargingProfileConfirmation;
 import eu.chargetime.ocpp.model.smartcharging.ClearChargingProfileRequest;
 
 public class ClearChargingProfileFeature extends ProfileFeature {
-  public ClearChargingProfileFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public ClearChargingProfileFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return ClearChargingProfileRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return ClearChargingProfileRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return ClearChargingProfileConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return ClearChargingProfileConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "ClearChargingProfile";
-  }
+	@Override
+	public String getAction() {
+		return "ClearChargingProfile";
+	}
 }

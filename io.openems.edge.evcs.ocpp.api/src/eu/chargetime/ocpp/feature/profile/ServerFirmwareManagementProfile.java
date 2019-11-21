@@ -35,37 +35,35 @@ import java.util.UUID;
 
 public class ServerFirmwareManagementProfile implements Profile {
 
-  private final ServerFirmwareManagementEventHandler eventHandler;
-  private HashSet<Feature> features;
+	private final ServerFirmwareManagementEventHandler eventHandler;
+	private HashSet<Feature> features;
 
-  public ServerFirmwareManagementProfile(ServerFirmwareManagementEventHandler eventHandler) {
-    this.eventHandler = eventHandler;
-    features = new HashSet<>();
-    features.add(new GetDiagnosticsFeature(this));
-    features.add(new DiagnosticsStatusNotificationFeature(this));
-    features.add(new FirmwareStatusNotificationFeature(this));
-    features.add(new UpdateFirmwareFeature(this));
-  }
+	public ServerFirmwareManagementProfile(ServerFirmwareManagementEventHandler eventHandler) {
+		this.eventHandler = eventHandler;
+		features = new HashSet<>();
+		features.add(new GetDiagnosticsFeature(this));
+		features.add(new DiagnosticsStatusNotificationFeature(this));
+		features.add(new FirmwareStatusNotificationFeature(this));
+		features.add(new UpdateFirmwareFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    Confirmation result = null;
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		Confirmation result = null;
 
-    if (request instanceof DiagnosticsStatusNotificationRequest) {
-      result =
-          eventHandler.handleDiagnosticsStatusNotificationRequest(
-              sessionIndex, (DiagnosticsStatusNotificationRequest) request);
-    } else if (request instanceof FirmwareStatusNotificationRequest) {
-      result =
-          eventHandler.handleFirmwareStatusNotificationRequest(
-              sessionIndex, (FirmwareStatusNotificationRequest) request);
-    }
+		if (request instanceof DiagnosticsStatusNotificationRequest) {
+			result = eventHandler.handleDiagnosticsStatusNotificationRequest(sessionIndex,
+					(DiagnosticsStatusNotificationRequest) request);
+		} else if (request instanceof FirmwareStatusNotificationRequest) {
+			result = eventHandler.handleFirmwareStatusNotificationRequest(sessionIndex,
+					(FirmwareStatusNotificationRequest) request);
+		}
 
-    return result;
-  }
+		return result;
+	}
 }

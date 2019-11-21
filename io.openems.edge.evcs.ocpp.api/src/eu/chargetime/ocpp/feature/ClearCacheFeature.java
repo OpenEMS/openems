@@ -34,22 +34,22 @@ import eu.chargetime.ocpp.model.core.ClearCacheConfirmation;
 import eu.chargetime.ocpp.model.core.ClearCacheRequest;
 
 public class ClearCacheFeature extends ProfileFeature {
-  public ClearCacheFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public ClearCacheFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return ClearCacheRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return ClearCacheRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return ClearCacheConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return ClearCacheConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "ClearCache";
-  }
+	@Override
+	public String getAction() {
+		return "ClearCache";
+	}
 }

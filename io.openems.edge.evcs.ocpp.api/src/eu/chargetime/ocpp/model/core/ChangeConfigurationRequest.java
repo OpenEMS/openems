@@ -38,107 +38,107 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * Sent by Central System to Charge Point.
  *
- * <p>It is RECOMMENDED that the content and meaning of the 'key' and 'value' fields is agreed upon
- * between Charge Point and Central System.
+ * <p>
+ * It is RECOMMENDED that the content and meaning of the 'key' and 'value'
+ * fields is agreed upon between Charge Point and Central System.
  */
 @XmlRootElement
-@XmlType(propOrder = {"key", "value"})
+@XmlType(propOrder = { "key", "value" })
 public class ChangeConfigurationRequest implements Request {
 
-  private static final String ERROR_MESSAGE = "Exceeded limit of %s chars";
-  private static final int KEY_MAX_LENGTH = 50;
-  private static final int VALUE_MAX_LENGTH = 500;
+	private static final String ERROR_MESSAGE = "Exceeded limit of %s chars";
+	private static final int KEY_MAX_LENGTH = 50;
+	private static final int VALUE_MAX_LENGTH = 500;
 
-  private String key;
-  private String value;
+	private String key;
+	private String value;
 
-  /**
-   * The name of the configuration setting to change.
-   *
-   * @return Name of the configuration setting.
-   */
-  public String getKey() {
-    return key;
-  }
+	/**
+	 * The name of the configuration setting to change.
+	 *
+	 * @return Name of the configuration setting.
+	 */
+	public String getKey() {
+		return key;
+	}
 
-  /**
-   * Required. The name of the configuration setting to change.
-   *
-   * @param key String, max 50 characters, case insensitive.
-   */
-  @XmlElement
-  public void setKey(String key) {
-    if (!isValidKey(key)) {
-      throw new PropertyConstraintException(key.length(), createErrorMessage(KEY_MAX_LENGTH));
-    }
+	/**
+	 * Required. The name of the configuration setting to change.
+	 *
+	 * @param key String, max 50 characters, case insensitive.
+	 */
+	@XmlElement
+	public void setKey(String key) {
+		if (!isValidKey(key)) {
+			throw new PropertyConstraintException(key.length(), createErrorMessage(KEY_MAX_LENGTH));
+		}
 
-    this.key = key;
-  }
+		this.key = key;
+	}
 
-  private boolean isValidKey(String key) {
-    return ModelUtil.validate(key, KEY_MAX_LENGTH);
-  }
+	private boolean isValidKey(String key) {
+		return ModelUtil.validate(key, KEY_MAX_LENGTH);
+	}
 
-  /**
-   * The new value as string for the setting.
-   *
-   * @return Value of the configuration setting.
-   */
-  public String getValue() {
-    return value;
-  }
+	/**
+	 * The new value as string for the setting.
+	 *
+	 * @return Value of the configuration setting.
+	 */
+	public String getValue() {
+		return value;
+	}
 
-  /**
-   * Required. The new value as string for the setting.
-   *
-   * @param value String, max 500 characters, case insensitive.
-   */
-  @XmlElement
-  public void setValue(String value) {
-    if (!isValidValue(value)) {
-      throw new PropertyConstraintException(value.length(), createErrorMessage(VALUE_MAX_LENGTH));
-    }
+	/**
+	 * Required. The new value as string for the setting.
+	 *
+	 * @param value String, max 500 characters, case insensitive.
+	 */
+	@XmlElement
+	public void setValue(String value) {
+		if (!isValidValue(value)) {
+			throw new PropertyConstraintException(value.length(), createErrorMessage(VALUE_MAX_LENGTH));
+		}
 
-    this.value = value;
-  }
+		this.value = value;
+	}
 
-  private boolean isValidValue(String value) {
-    return ModelUtil.validate(value, VALUE_MAX_LENGTH);
-  }
+	private boolean isValidValue(String value) {
+		return ModelUtil.validate(value, VALUE_MAX_LENGTH);
+	}
 
-  @Override
-  public boolean validate() {
-    return isValidKey(this.key) && isValidValue(this.value);
-  }
+	@Override
+	public boolean validate() {
+		return isValidKey(this.key) && isValidValue(this.value);
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  private static String createErrorMessage(int valueMaxLength) {
-    return String.format(ERROR_MESSAGE, valueMaxLength);
-  }
+	private static String createErrorMessage(int valueMaxLength) {
+		return String.format(ERROR_MESSAGE, valueMaxLength);
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ChangeConfigurationRequest that = (ChangeConfigurationRequest) o;
-    return Objects.equals(key, that.key) && Objects.equals(value, that.value);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ChangeConfigurationRequest that = (ChangeConfigurationRequest) o;
+		return Objects.equals(key, that.key) && Objects.equals(value, that.value);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(key, value);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(key, value);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("key", key)
-        .add("value", value)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("key", key).add("value", value).add("isValid", validate())
+				.toString();
+	}
 }

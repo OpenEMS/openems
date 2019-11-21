@@ -38,30 +38,32 @@ import org.java_websocket.SSLSocketChannel2;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 /**
- * Overriding wrapping of channel from DefaultSSLWebSocketServerFactory to restrict enabled ciphers.
+ * Overriding wrapping of channel from DefaultSSLWebSocketServerFactory to
+ * restrict enabled ciphers.
  */
 public final class CustomSSLWebSocketServerFactory extends DefaultSSLWebSocketServerFactory {
 
-  private List<String> ciphers;
+	private List<String> ciphers;
 
-  public CustomSSLWebSocketServerFactory(SSLContext sslContext, List<String> ciphers) {
-    super(sslContext);
-    this.ciphers = ciphers;
-  }
+	public CustomSSLWebSocketServerFactory(SSLContext sslContext, List<String> ciphers) {
+		super(sslContext);
+		this.ciphers = ciphers;
+	}
 
-  @Override
-  public ByteChannel wrapChannel(SocketChannel channel, SelectionKey key) throws IOException {
-    SSLEngine e = sslcontext.createSSLEngine();
-    /*
-     * See https://github.com/TooTallNate/Java-WebSocket/issues/466
-     *
-     * For TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 you must patch your java installation directly.
-     */
-    List<String> enabledCiphers = new ArrayList<String>(Arrays.asList(e.getEnabledCipherSuites()));
-    enabledCiphers.retainAll(ciphers);
+	@Override
+	public ByteChannel wrapChannel(SocketChannel channel, SelectionKey key) throws IOException {
+		SSLEngine e = sslcontext.createSSLEngine();
+		/*
+		 * See https://github.com/TooTallNate/Java-WebSocket/issues/466
+		 *
+		 * For TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 you must patch your java
+		 * installation directly.
+		 */
+		List<String> enabledCiphers = new ArrayList<String>(Arrays.asList(e.getEnabledCipherSuites()));
+		enabledCiphers.retainAll(ciphers);
 
-    e.setEnabledCipherSuites(enabledCiphers.toArray(new String[enabledCiphers.size()]));
-    e.setUseClientMode(false);
-    return new SSLSocketChannel2(channel, e, exec, key);
-  }
+		e.setEnabledCipherSuites(enabledCiphers.toArray(new String[enabledCiphers.size()]));
+		e.setUseClientMode(false);
+		return new SSLSocketChannel2(channel, e, exec, key);
+	}
 }

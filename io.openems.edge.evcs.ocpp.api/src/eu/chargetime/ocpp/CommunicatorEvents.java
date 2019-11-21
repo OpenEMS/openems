@@ -29,46 +29,49 @@ SOFTWARE.
 
 /** Call back handler for communicator events. */
 public interface CommunicatorEvents {
-  /**
-   * Handle call result.
-   *
-   * <p>Hint: Use the id to identify the confirmation type, you can then choose to use the {@link
-   * Communicator}s unpackPayload method.
-   *
-   * @param id unique id used to identify the original request.
-   * @param action Optional. The action.
-   * @param payload raw payload.
-   */
-  void onCallResult(String id, String action, Object payload);
+	/**
+	 * Handle call result.
+	 *
+	 * <p>
+	 * Hint: Use the id to identify the confirmation type, you can then choose to
+	 * use the {@link Communicator}s unpackPayload method.
+	 *
+	 * @param id      unique id used to identify the original request.
+	 * @param action  Optional. The action.
+	 * @param payload raw payload.
+	 */
+	void onCallResult(String id, String action, Object payload);
 
-  /**
-   * Handle call.
-   *
-   * <p>Hint: Use the action name to identify the request, you can then choose to use {@link
-   * Communicator}s unpackPayload method.
-   *
-   * @param id unique id used to reply to server.
-   * @param action action name used to identify the feature.
-   * @param payload raw payload.
-   */
-  void onCall(String id, String action, Object payload);
+	/**
+	 * Handle call.
+	 *
+	 * <p>
+	 * Hint: Use the action name to identify the request, you can then choose to use
+	 * {@link Communicator}s unpackPayload method.
+	 *
+	 * @param id      unique id used to reply to server.
+	 * @param action  action name used to identify the feature.
+	 * @param payload raw payload.
+	 */
+	void onCall(String id, String action, Object payload);
 
-  /**
-   * Handle call error.
-   *
-   * <p>Hint: Use the id to identify the original call. You can use {@link Communicator}s
-   * unpackPayload method.
-   *
-   * @param id unique id used to identify the original request.
-   * @param errorCode short text to categorize the error.
-   * @param errorDescription a longer text to describe the error.
-   * @param payload Object payload attached to the error.
-   */
-  void onError(String id, String errorCode, String errorDescription, Object payload);
+	/**
+	 * Handle call error.
+	 *
+	 * <p>
+	 * Hint: Use the id to identify the original call. You can use
+	 * {@link Communicator}s unpackPayload method.
+	 *
+	 * @param id               unique id used to identify the original request.
+	 * @param errorCode        short text to categorize the error.
+	 * @param errorDescription a longer text to describe the error.
+	 * @param payload          Object payload attached to the error.
+	 */
+	void onError(String id, String errorCode, String errorDescription, Object payload);
 
-  /** The connection was disconnected. */
-  void onDisconnected();
+	/** The connection was disconnected. */
+	void onDisconnected();
 
-  /** A connection was established. */
-  void onConnected();
+	/** A connection was established. */
+	void onConnected();
 }

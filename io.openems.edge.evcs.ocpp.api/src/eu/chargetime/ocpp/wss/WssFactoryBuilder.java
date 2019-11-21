@@ -30,19 +30,19 @@ import org.java_websocket.WebSocketServerFactory;
 /** To build {@link WebSocketServerFactory} factory to support WSS scheme. */
 public interface WssFactoryBuilder {
 
-  /**
-   * Builds {@link WebSocketServerFactory} to support WSS scheme.
-   *
-   * @return {@link WebSocketServerFactory}
-   */
-  WebSocketServerFactory build();
+	/**
+	 * Builds {@link WebSocketServerFactory} to support WSS scheme.
+	 *
+	 * @return {@link WebSocketServerFactory}
+	 */
+	WebSocketServerFactory build();
 
-  /**
-   * Verifies if all required by the server creation time parameters are set. The idea is to allow
-   * the server to fail fast if required parameters are missing without exposing implementation
-   * details.
-   *
-   * @throws IllegalStateException if verification fails.
-   */
-  void verify();
+	/**
+	 * Verifies if all required by the server creation time parameters are set. The
+	 * idea is to allow the server to fail fast if required parameters are missing
+	 * without exposing implementation details.
+	 *
+	 * @throws IllegalStateException if verification fails.
+	 */
+	void verify();
 }

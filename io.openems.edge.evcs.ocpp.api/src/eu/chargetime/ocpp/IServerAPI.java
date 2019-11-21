@@ -32,16 +32,16 @@ import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 public interface IServerAPI {
-  void addFeatureProfile(Profile profile);
+	void addFeatureProfile(Profile profile);
 
-  void closeSession(UUID session);
+	void closeSession(UUID session);
 
-  void open(String host, int port, ServerEvents serverEvents);
+	void open(String host, int port, ServerEvents serverEvents);
 
-  void close();
+	void close();
 
-  boolean isClosed();
+	boolean isClosed();
 
-  CompletionStage<Confirmation> send(UUID sessionIndex, Request request)
-      throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException;
+	CompletionStage<Confirmation> send(UUID sessionIndex, Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException;
 }

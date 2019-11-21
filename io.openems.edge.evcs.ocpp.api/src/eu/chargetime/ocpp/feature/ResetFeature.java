@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.ResetRequest;
  */
 
 public class ResetFeature extends ProfileFeature {
-  public ResetFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public ResetFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return ResetRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return ResetRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return ResetConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return ResetConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "Reset";
-  }
+	@Override
+	public String getAction() {
+		return "Reset";
+	}
 }

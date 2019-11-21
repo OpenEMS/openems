@@ -32,25 +32,25 @@ import java.util.UUID;
 
 public abstract class ProfileFeature implements Feature {
 
-  private Profile profile;
+	private Profile profile;
 
-  /**
-   * Creates link back to the {@link Profile}.
-   *
-   * @param ownerProfile the {@link Profile} that owns the function.
-   */
-  public ProfileFeature(Profile ownerProfile) {
-    profile = ownerProfile;
-  }
+	/**
+	 * Creates link back to the {@link Profile}.
+	 *
+	 * @param ownerProfile the {@link Profile} that owns the function.
+	 */
+	public ProfileFeature(Profile ownerProfile) {
+		profile = ownerProfile;
+	}
 
-  /**
-   * Calls {@link Profile} to handle a {@link Request}.
-   *
-   * @param sessionIndex source of the request.
-   * @param request the {@link Request} to be handled.
-   * @return the {@link Confirmation} to be send back.
-   */
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    return profile.handleRequest(sessionIndex, request);
-  }
+	/**
+	 * Calls {@link Profile} to handle a {@link Request}.
+	 *
+	 * @param sessionIndex source of the request.
+	 * @param request      the {@link Request} to be handled.
+	 * @return the {@link Confirmation} to be send back.
+	 */
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		return profile.handleRequest(sessionIndex, request);
+	}
 }

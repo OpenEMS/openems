@@ -28,7 +28,5 @@ package eu.chargetime.ocpp.model.smartcharging;
 
 /** Accepted values used with {@link SetChargingProfileConfirmation}. */
 public enum ChargingProfileStatus {
-  Accepted,
-  Rejected,
-  NotSupported
+	Accepted, Rejected, NotSupported
 }

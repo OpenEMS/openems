@@ -28,10 +28,6 @@ SOFTWARE.
 */
 
 public enum TriggerMessageRequestType {
-  BootNotification,
-  DiagnosticsStatusNotification,
-  FirmwareStatusNotification,
-  Heartbeat,
-  MeterValues,
-  StatusNotification
+	BootNotification, DiagnosticsStatusNotification, FirmwareStatusNotification, Heartbeat, MeterValues,
+	StatusNotification
 }

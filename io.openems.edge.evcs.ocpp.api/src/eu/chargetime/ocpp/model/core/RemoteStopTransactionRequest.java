@@ -35,55 +35,56 @@ import javax.xml.bind.annotation.XmlRootElement;
 /** sent to Charge Point by Central System. */
 @XmlRootElement
 public class RemoteStopTransactionRequest implements Request {
-  private Integer transactionId;
+	private Integer transactionId;
 
-  @Override
-  public boolean validate() {
-    return transactionId != null;
-  }
+	@Override
+	public boolean validate() {
+		return transactionId != null;
+	}
 
-  /**
-   * The identifier of the transaction which Charge Point is requested to stop.
-   *
-   * @return transaction id.
-   */
-  public Integer getTransactionId() {
-    return transactionId;
-  }
+	/**
+	 * The identifier of the transaction which Charge Point is requested to stop.
+	 *
+	 * @return transaction id.
+	 */
+	public Integer getTransactionId() {
+		return transactionId;
+	}
 
-  /**
-   * Required. The identifier of the transaction which Charge Point is requested to stop.
-   *
-   * @param transactionId integer, transaction id.
-   */
-  @XmlElement
-  public void setTransactionId(Integer transactionId) {
-    this.transactionId = transactionId;
-  }
+	/**
+	 * Required. The identifier of the transaction which Charge Point is requested
+	 * to stop.
+	 *
+	 * @param transactionId integer, transaction id.
+	 */
+	@XmlElement
+	public void setTransactionId(Integer transactionId) {
+		this.transactionId = transactionId;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    RemoteStopTransactionRequest that = (RemoteStopTransactionRequest) o;
-    return Objects.equals(transactionId, that.transactionId);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		RemoteStopTransactionRequest that = (RemoteStopTransactionRequest) o;
+		return Objects.equals(transactionId, that.transactionId);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(transactionId);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(transactionId);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("transactionId", transactionId)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("transactionId", transactionId).add("isValid", validate())
+				.toString();
+	}
 }

@@ -29,8 +29,8 @@ SOFTWARE.
 
 /** Test implementation of the Confirmation interface. Used for tests. */
 public class TestConfirmation implements Confirmation {
-  @Override
-  public boolean validate() {
-    return true;
-  }
+	@Override
+	public boolean validate() {
+		return true;
+	}
 }

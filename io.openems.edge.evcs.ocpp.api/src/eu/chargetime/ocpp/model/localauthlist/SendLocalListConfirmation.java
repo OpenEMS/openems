@@ -33,62 +33,62 @@ import java.util.Objects;
 
 public class SendLocalListConfirmation implements Confirmation {
 
-  private UpdateStatus status;
+	private UpdateStatus status;
 
-  public SendLocalListConfirmation() {}
+	public SendLocalListConfirmation() {
+	}
 
-  public SendLocalListConfirmation(UpdateStatus status) {
-    this.status = status;
-  }
+	public SendLocalListConfirmation(UpdateStatus status) {
+		this.status = status;
+	}
 
-  /**
-   * This indicates whether the Charge Point has successfully received and applied the update of the
-   * local authorization list.
-   *
-   * @return UpdateStatus, status of localAuthList updating.
-   */
-  public UpdateStatus getStatus() {
-    return status;
-  }
+	/**
+	 * This indicates whether the Charge Point has successfully received and applied
+	 * the update of the local authorization list.
+	 *
+	 * @return UpdateStatus, status of localAuthList updating.
+	 */
+	public UpdateStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * Required. This indicates whether the Charge Point has successfully received and applied the
-   * update of the local authorization list.
-   *
-   * @param status {@link UpdateStatus}, status of localAuthList updating.
-   */
-  public void setStatus(UpdateStatus status) {
-    if (status == null) {
-      throw new PropertyConstraintException(null, "updateStatus must be present");
-    }
+	/**
+	 * Required. This indicates whether the Charge Point has successfully received
+	 * and applied the update of the local authorization list.
+	 *
+	 * @param status {@link UpdateStatus}, status of localAuthList updating.
+	 */
+	public void setStatus(UpdateStatus status) {
+		if (status == null) {
+			throw new PropertyConstraintException(null, "updateStatus must be present");
+		}
 
-    this.status = status;
-  }
+		this.status = status;
+	}
 
-  @Override
-  public boolean validate() {
-    return status != null;
-  }
+	@Override
+	public boolean validate() {
+		return status != null;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    SendLocalListConfirmation that = (SendLocalListConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		SendLocalListConfirmation that = (SendLocalListConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
+	@Override
+	public int hashCode() {
 
-    return Objects.hash(status);
-  }
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

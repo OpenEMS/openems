@@ -33,21 +33,21 @@ import java.util.UUID;
 
 public class ServerLocalAuthListProfile implements Profile {
 
-  private HashSet<Feature> featureList;
+	private HashSet<Feature> featureList;
 
-  public ServerLocalAuthListProfile() {
-    featureList = new HashSet<>();
-    featureList.add(new GetLocalListVersionFeature(this));
-    featureList.add(new SendLocalListFeature(this));
-  }
+	public ServerLocalAuthListProfile() {
+		featureList = new HashSet<>();
+		featureList.add(new GetLocalListVersionFeature(this));
+		featureList.add(new SendLocalListFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return featureList.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return featureList.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    return null;
-  }
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		return null;
+	}
 }

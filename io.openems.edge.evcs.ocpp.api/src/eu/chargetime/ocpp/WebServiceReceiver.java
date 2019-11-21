@@ -33,69 +33,68 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebServiceReceiver extends SOAPSyncHelper implements Receiver {
-  private static final Logger logger = LoggerFactory.getLogger(WebServiceReceiver.class);
+	private static final Logger logger = LoggerFactory.getLogger(WebServiceReceiver.class);
 
-  private RadioEvents events;
-  private SOAPConnection soapConnection;
-  private String url;
-  private WebServiceReceiverEvents receiverEvents;
-  private boolean connected;
+	private RadioEvents events;
+	private SOAPConnection soapConnection;
+	private String url;
+	private WebServiceReceiverEvents receiverEvents;
+	private boolean connected;
 
-  public WebServiceReceiver(String url, WebServiceReceiverEvents receiverEvents) {
-    this.url = url;
-    this.receiverEvents = receiverEvents;
-    connected = false;
-  }
+	public WebServiceReceiver(String url, WebServiceReceiverEvents receiverEvents) {
+		this.url = url;
+		this.receiverEvents = receiverEvents;
+		connected = false;
+	}
 
-  @Override
-  public void disconnect() {
-    if (connected) {
-      try {
-        soapConnection.close();
-        connected = false;
-      } catch (SOAPException e) {
-        logger.info("disconnect() failed", e);
-      }
-    }
-    events.disconnected();
-    receiverEvents.disconnect();
-  }
+	@Override
+	public void disconnect() {
+		if (connected) {
+			try {
+				soapConnection.close();
+				connected = false;
+			} catch (SOAPException e) {
+				logger.info("disconnect() failed", e);
+			}
+		}
+		events.disconnected();
+		receiverEvents.disconnect();
+	}
 
-  @Override
-  public boolean isClosed() {
-    return !connected;
-  }
+	@Override
+	public boolean isClosed() {
+		return !connected;
+	}
 
-  @Override
-  public void accept(RadioEvents events) {
-    this.events = events;
-    try {
-      SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-      soapConnection = soapConnectionFactory.createConnection();
-      connected = true;
-      events.connected();
-    } catch (SOAPException e) {
-      logger.warn("accept() failed", e);
-    }
-  }
+	@Override
+	public void accept(RadioEvents events) {
+		this.events = events;
+		try {
+			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+			soapConnection = soapConnectionFactory.createConnection();
+			connected = true;
+			events.connected();
+		} catch (SOAPException e) {
+			logger.warn("accept() failed", e);
+		}
+	}
 
-  @Override
-  void forwardMessage(SOAPMessage message) {
-    events.receivedMessage(message);
-  }
+	@Override
+	void forwardMessage(SOAPMessage message) {
+		events.receivedMessage(message);
+	}
 
-  @Override
-  void sendRequest(SOAPMessage message) throws NotConnectedException {
-    if (!connected) throw new NotConnectedException();
+	@Override
+	void sendRequest(SOAPMessage message) throws NotConnectedException {
+		if (!connected)
+			throw new NotConnectedException();
 
-    new Thread(
-            () -> {
-              try {
-                events.receivedMessage(soapConnection.call(message, url));
-              } catch (SOAPException e) {
-                disconnect();
-              }
-            })
-        .start();
-  }
+		new Thread(() -> {
+			try {
+				events.receivedMessage(soapConnection.call(message, url));
+			} catch (SOAPException e) {
+				disconnect();
+			}
+		}).start();
+	}
 }

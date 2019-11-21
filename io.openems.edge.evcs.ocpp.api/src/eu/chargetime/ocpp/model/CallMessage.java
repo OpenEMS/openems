@@ -28,4 +28,5 @@ SOFTWARE.
 */
 
 /** Model class. Used to wrap a call. */
-public class CallMessage extends Message {}
+public class CallMessage extends Message {
+}

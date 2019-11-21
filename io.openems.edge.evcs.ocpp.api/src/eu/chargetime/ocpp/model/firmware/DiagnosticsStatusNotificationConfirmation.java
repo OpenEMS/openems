@@ -32,31 +32,32 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Sent by the Central System to the Charge Point in response to an {@link
- * DiagnosticsStatusNotificationRequest}.
+ * Sent by the Central System to the Charge Point in response to an
+ * {@link DiagnosticsStatusNotificationRequest}.
  */
 @XmlRootElement(name = "diagnosticsStatusNotificationResponse")
 public class DiagnosticsStatusNotificationConfirmation implements Confirmation {
 
-  public DiagnosticsStatusNotificationConfirmation() {}
+	public DiagnosticsStatusNotificationConfirmation() {
+	}
 
-  @Override
-  public boolean validate() {
-    return true;
-  }
+	@Override
+	public boolean validate() {
+		return true;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    return this == o || o != null && getClass() == o.getClass();
-  }
+	@Override
+	public boolean equals(Object o) {
+		return this == o || o != null && getClass() == o.getClass();
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(DiagnosticsStatusNotificationConfirmation.class);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(DiagnosticsStatusNotificationConfirmation.class);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("isValid", validate()).toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("isValid", validate()).toString();
+	}
 }

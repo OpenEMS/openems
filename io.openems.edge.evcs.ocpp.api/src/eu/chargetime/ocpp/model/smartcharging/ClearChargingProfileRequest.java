@@ -37,136 +37,134 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class ClearChargingProfileRequest implements Request {
-  private Integer id;
-  private Integer connectorId;
-  private ChargingProfilePurposeType chargingProfilePurpose;
-  private Integer stackLevel;
+	private Integer id;
+	private Integer connectorId;
+	private ChargingProfilePurposeType chargingProfilePurpose;
+	private Integer stackLevel;
 
-  /**
-   * The ID of the charging profile to clear.
-   *
-   * @return id.
-   */
-  public Integer getId() {
-    return id;
-  }
+	/**
+	 * The ID of the charging profile to clear.
+	 *
+	 * @return id.
+	 */
+	public Integer getId() {
+		return id;
+	}
 
-  /**
-   * Optional. The ID of the charging profile to clear.
-   *
-   * @param id integer.
-   */
-  @XmlElement
-  public void setId(Integer id) {
-    this.id = id;
-  }
+	/**
+	 * Optional. The ID of the charging profile to clear.
+	 *
+	 * @param id integer.
+	 */
+	@XmlElement
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-  /**
-   * Specifies the ID of the connector for which to clear charging profiles.
-   *
-   * @return connectorId.
-   */
-  public Integer getConnectorId() {
-    return connectorId;
-  }
+	/**
+	 * Specifies the ID of the connector for which to clear charging profiles.
+	 *
+	 * @return connectorId.
+	 */
+	public Integer getConnectorId() {
+		return connectorId;
+	}
 
-  /**
-   * Optional. Specifies the ID of the connector for which to clear charging profiles.
-   *
-   * @param connectorId integer. value &ge; 0
-   */
-  @XmlElement
-  public void setConnectorId(Integer connectorId) {
-    if (connectorId != null && connectorId < 0) {
-      throw new PropertyConstraintException(connectorId, "connectorId must be >= 0");
-    }
+	/**
+	 * Optional. Specifies the ID of the connector for which to clear charging
+	 * profiles.
+	 *
+	 * @param connectorId integer. value &ge; 0
+	 */
+	@XmlElement
+	public void setConnectorId(Integer connectorId) {
+		if (connectorId != null && connectorId < 0) {
+			throw new PropertyConstraintException(connectorId, "connectorId must be >= 0");
+		}
 
-    this.connectorId = connectorId;
-  }
+		this.connectorId = connectorId;
+	}
 
-  /**
-   * Specifies the purpose of the charging profiles that will be cleared, if they meet the other
-   * criteria in the request.
-   *
-   * @return the {@link ChargingProfilePurposeType}
-   */
-  public ChargingProfilePurposeType getChargingProfilePurpose() {
-    return chargingProfilePurpose;
-  }
+	/**
+	 * Specifies the purpose of the charging profiles that will be cleared, if they
+	 * meet the other criteria in the request.
+	 *
+	 * @return the {@link ChargingProfilePurposeType}
+	 */
+	public ChargingProfilePurposeType getChargingProfilePurpose() {
+		return chargingProfilePurpose;
+	}
 
-  /**
-   * Optional. Specifies the purpose of the charging profiles that will be cleared, if they meet the
-   * other criteria in the request.
-   *
-   * @param chargingProfilePurpose the {@link ChargingProfilePurposeType}
-   */
-  @XmlElement
-  public void setChargingProfilePurpose(ChargingProfilePurposeType chargingProfilePurpose) {
-    this.chargingProfilePurpose = chargingProfilePurpose;
-  }
+	/**
+	 * Optional. Specifies the purpose of the charging profiles that will be
+	 * cleared, if they meet the other criteria in the request.
+	 *
+	 * @param chargingProfilePurpose the {@link ChargingProfilePurposeType}
+	 */
+	@XmlElement
+	public void setChargingProfilePurpose(ChargingProfilePurposeType chargingProfilePurpose) {
+		this.chargingProfilePurpose = chargingProfilePurpose;
+	}
 
-  /**
-   * Specifies the stackLevel for which charging profiles will be cleared, if they meet the other
-   * criteria in the request.
-   *
-   * @return stackLevel.
-   */
-  public Integer getStackLevel() {
-    return stackLevel;
-  }
+	/**
+	 * Specifies the stackLevel for which charging profiles will be cleared, if they
+	 * meet the other criteria in the request.
+	 *
+	 * @return stackLevel.
+	 */
+	public Integer getStackLevel() {
+		return stackLevel;
+	}
 
-  /**
-   * Optional. Specifies the stackLevel for which charging profiles will be cleared, if they meet
-   * the other criteria in the request.
-   *
-   * @param stackLevel integer. value &ge; 0
-   */
-  @XmlElement
-  public void setStackLevel(Integer stackLevel) {
-    if (stackLevel != null && stackLevel < 0) {
-      throw new PropertyConstraintException(stackLevel, "stackLevel must be >= 0");
-    }
+	/**
+	 * Optional. Specifies the stackLevel for which charging profiles will be
+	 * cleared, if they meet the other criteria in the request.
+	 *
+	 * @param stackLevel integer. value &ge; 0
+	 */
+	@XmlElement
+	public void setStackLevel(Integer stackLevel) {
+		if (stackLevel != null && stackLevel < 0) {
+			throw new PropertyConstraintException(stackLevel, "stackLevel must be >= 0");
+		}
 
-    this.stackLevel = stackLevel;
-  }
+		this.stackLevel = stackLevel;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean validate() {
-    boolean valid = connectorId == null || connectorId >= 0;
-    valid &= stackLevel == null || stackLevel >= 0;
+	@Override
+	public boolean validate() {
+		boolean valid = connectorId == null || connectorId >= 0;
+		valid &= stackLevel == null || stackLevel >= 0;
 
-    return valid;
-  }
+		return valid;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ClearChargingProfileRequest that = (ClearChargingProfileRequest) o;
-    return Objects.equals(id, that.id)
-        && Objects.equals(connectorId, that.connectorId)
-        && Objects.equals(chargingProfilePurpose, that.chargingProfilePurpose)
-        && Objects.equals(stackLevel, that.stackLevel);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ClearChargingProfileRequest that = (ClearChargingProfileRequest) o;
+		return Objects.equals(id, that.id) && Objects.equals(connectorId, that.connectorId)
+				&& Objects.equals(chargingProfilePurpose, that.chargingProfilePurpose)
+				&& Objects.equals(stackLevel, that.stackLevel);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, connectorId, chargingProfilePurpose, stackLevel);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, connectorId, chargingProfilePurpose, stackLevel);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("id", id)
-        .add("connectorId", connectorId)
-        .add("chargingProfilePurpose", chargingProfilePurpose)
-        .add("stackLevel", stackLevel)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("id", id).add("connectorId", connectorId)
+				.add("chargingProfilePurpose", chargingProfilePurpose).add("stackLevel", stackLevel)
+				.add("isValid", validate()).toString();
+	}
 }

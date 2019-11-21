@@ -39,33 +39,32 @@ import java.util.UUID;
 
 /** Callback handler for client events of the Smart Charging feature profile. */
 public class ClientSmartChargingProfile implements Profile {
-  private ClientSmartChargingEventHandler eventHandler;
-  private ArrayList<Feature> features;
+	private ClientSmartChargingEventHandler eventHandler;
+	private ArrayList<Feature> features;
 
-  public ClientSmartChargingProfile(ClientSmartChargingEventHandler handler) {
-    features = new ArrayList<>();
-    eventHandler = handler;
+	public ClientSmartChargingProfile(ClientSmartChargingEventHandler handler) {
+		features = new ArrayList<>();
+		eventHandler = handler;
 
-    features.add(new SetChargingProfileFeature(this));
-    features.add(new ClearChargingProfileFeature(this));
-  }
+		features.add(new SetChargingProfileFeature(this));
+		features.add(new ClearChargingProfileFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    Confirmation result = null;
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		Confirmation result = null;
 
-    if (request instanceof SetChargingProfileRequest) {
-      result = eventHandler.handleSetChargingProfileRequest((SetChargingProfileRequest) request);
-    } else if (request instanceof ClearChargingProfileRequest) {
-      result =
-          eventHandler.handleClearChargingProfileRequest((ClearChargingProfileRequest) request);
-    }
+		if (request instanceof SetChargingProfileRequest) {
+			result = eventHandler.handleSetChargingProfileRequest((SetChargingProfileRequest) request);
+		} else if (request instanceof ClearChargingProfileRequest) {
+			result = eventHandler.handleClearChargingProfileRequest((ClearChargingProfileRequest) request);
+		}
 
-    return result;
-  }
+		return result;
+	}
 }

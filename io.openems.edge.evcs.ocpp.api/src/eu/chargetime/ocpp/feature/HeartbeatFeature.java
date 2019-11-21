@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.HeartbeatConfirmation;
 import eu.chargetime.ocpp.model.core.HeartbeatRequest;
 
 public class HeartbeatFeature extends ProfileFeature {
-  public HeartbeatFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public HeartbeatFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return HeartbeatRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return HeartbeatRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return HeartbeatConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return HeartbeatConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "Heartbeat";
-  }
+	@Override
+	public String getAction() {
+		return "Heartbeat";
+	}
 }

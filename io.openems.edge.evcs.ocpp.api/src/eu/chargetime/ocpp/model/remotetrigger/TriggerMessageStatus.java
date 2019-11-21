@@ -28,7 +28,5 @@ SOFTWARE.
 */
 
 public enum TriggerMessageStatus {
-  Accepted,
-  Rejected,
-  NotImplemented
+	Accepted, Rejected, NotImplemented
 }

@@ -29,16 +29,16 @@ import eu.chargetime.ocpp.PropertyConstraintException;
 
 public class RequiredDecorator extends Validator<Object> {
 
-  private final Validator requiredValidator = new RequiredValidator();
-  private final Validator decoratee;
+	private final Validator<Object> requiredValidator = new RequiredValidator();
+	private final Validator<Object> decoratee;
 
-  public RequiredDecorator(Validator validator) {
-    this.decoratee = validator;
-  }
+	public RequiredDecorator(Validator<Object> validator) {
+		this.decoratee = validator;
+	}
 
-  @Override
-  public void validate(Object value) throws PropertyConstraintException {
-    requiredValidator.validate(value);
-    decoratee.validate(value);
-  }
+	@Override
+	public void validate(Object value) throws PropertyConstraintException {
+		requiredValidator.validate(value);
+		decoratee.validate(value);
+	}
 }

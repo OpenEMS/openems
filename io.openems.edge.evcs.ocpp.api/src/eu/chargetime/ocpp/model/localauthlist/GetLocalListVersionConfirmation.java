@@ -33,63 +33,65 @@ import java.util.Objects;
 
 public class GetLocalListVersionConfirmation implements Confirmation {
 
-  private int listVersion = -2;
+	private int listVersion = -2;
 
-  public GetLocalListVersionConfirmation() {}
+	public GetLocalListVersionConfirmation() {
+	}
 
-  public GetLocalListVersionConfirmation(int listVersion) {
-    this.listVersion = listVersion;
-  }
+	public GetLocalListVersionConfirmation(int listVersion) {
+		this.listVersion = listVersion;
+	}
 
-  /**
-   * This contains the current version number of the local authorization list in the Charge Point.
-   *
-   * @return String, version of localAuthList.
-   */
-  public int getListVersion() {
-    return listVersion;
-  }
+	/**
+	 * This contains the current version number of the local authorization list in
+	 * the Charge Point.
+	 *
+	 * @return String, version of localAuthList.
+	 */
+	public int getListVersion() {
+		return listVersion;
+	}
 
-  /**
-   * Required. This contains the current version number of the local authorization list in the
-   * Charge Point.
-   *
-   * <p>A version number of 0 (zero) SHALL be used to indicate that the local authorization list is
-   * empty, and a version number of -1 SHALL be used to indicate that the Charge Point does not
-   * support Local Authorization Lists.
-   *
-   * @param listVersion int, version of localAuthList.
-   */
-  public void setListVersion(int listVersion) {
-    if (listVersion < -1) {
-      throw new PropertyConstraintException(listVersion, "listVersion must be >= -1");
-    }
-    this.listVersion = listVersion;
-  }
+	/**
+	 * Required. This contains the current version number of the local authorization
+	 * list in the Charge Point.
+	 *
+	 * <p>
+	 * A version number of 0 (zero) SHALL be used to indicate that the local
+	 * authorization list is empty, and a version number of -1 SHALL be used to
+	 * indicate that the Charge Point does not support Local Authorization Lists.
+	 *
+	 * @param listVersion int, version of localAuthList.
+	 */
+	public void setListVersion(int listVersion) {
+		if (listVersion < -1) {
+			throw new PropertyConstraintException(listVersion, "listVersion must be >= -1");
+		}
+		this.listVersion = listVersion;
+	}
 
-  @Override
-  public boolean validate() {
-    return listVersion >= -1;
-  }
+	@Override
+	public boolean validate() {
+		return listVersion >= -1;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    GetLocalListVersionConfirmation that = (GetLocalListVersionConfirmation) o;
-    return Objects.equals(listVersion, that.listVersion);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		GetLocalListVersionConfirmation that = (GetLocalListVersionConfirmation) o;
+		return Objects.equals(listVersion, that.listVersion);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(listVersion);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(listVersion);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("listVersion", listVersion)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("listVersion", listVersion).add("isValid", validate()).toString();
+	}
 }

@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.firmware.DiagnosticsStatusNotificationRequest;
 
 public class DiagnosticsStatusNotificationFeature extends ProfileFeature {
 
-  public DiagnosticsStatusNotificationFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public DiagnosticsStatusNotificationFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return DiagnosticsStatusNotificationRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return DiagnosticsStatusNotificationRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return DiagnosticsStatusNotificationConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return DiagnosticsStatusNotificationConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "DiagnosticsStatusNotification";
-  }
+	@Override
+	public String getAction() {
+		return "DiagnosticsStatusNotification";
+	}
 }

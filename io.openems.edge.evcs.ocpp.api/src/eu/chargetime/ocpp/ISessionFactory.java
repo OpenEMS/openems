@@ -26,5 +26,5 @@ package eu.chargetime.ocpp;
 */
 
 public interface ISessionFactory {
-  ISession createSession(Communicator communicator);
+	ISession createSession(Communicator communicator);
 }

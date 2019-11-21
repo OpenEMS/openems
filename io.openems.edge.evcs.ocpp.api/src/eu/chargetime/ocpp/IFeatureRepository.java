@@ -29,5 +29,5 @@ import eu.chargetime.ocpp.feature.Feature;
 import java.util.Optional;
 
 public interface IFeatureRepository {
-  Optional<Feature> findFeature(Object needle);
+	Optional<Feature> findFeature(Object needle);
 }

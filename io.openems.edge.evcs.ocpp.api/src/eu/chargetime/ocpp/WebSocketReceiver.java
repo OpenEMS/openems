@@ -27,35 +27,35 @@ package eu.chargetime.ocpp;
 
 public class WebSocketReceiver implements Receiver {
 
-  private RadioEvents handler;
-  private WebSocketReceiverEvents receiverEvents;
+	private RadioEvents handler;
+	private WebSocketReceiverEvents receiverEvents;
 
-  public WebSocketReceiver(WebSocketReceiverEvents handler) {
-    receiverEvents = handler;
-  }
+	public WebSocketReceiver(WebSocketReceiverEvents handler) {
+		receiverEvents = handler;
+	}
 
-  @Override
-  public void disconnect() {
-    receiverEvents.close();
-    handler.disconnected();
-  }
+	@Override
+	public void disconnect() {
+		receiverEvents.close();
+		handler.disconnected();
+	}
 
-  void relay(String message) {
-    handler.receivedMessage(message);
-  }
+	void relay(String message) {
+		handler.receivedMessage(message);
+	}
 
-  @Override
-  public void send(Object message) {
-    receiverEvents.relay(message.toString());
-  }
+	@Override
+	public void send(Object message) {
+		receiverEvents.relay(message.toString());
+	}
 
-  @Override
-  public boolean isClosed() {
-    return receiverEvents.isClosed();
-  }
+	@Override
+	public boolean isClosed() {
+		return receiverEvents.isClosed();
+	}
 
-  @Override
-  public void accept(RadioEvents events) {
-    handler = events;
-  }
+	@Override
+	public void accept(RadioEvents events) {
+		handler = events;
+	}
 }

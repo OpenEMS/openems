@@ -33,38 +33,38 @@ import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 /** Base implementation of WssFactoryBuilder. */
 public class BaseWssFactoryBuilder implements WssFactoryBuilder {
 
-  private SSLContext sslContext;
-  private List<String> ciphers;
+	private SSLContext sslContext;
+	private List<String> ciphers;
 
-  private BaseWssFactoryBuilder() {}
+	private BaseWssFactoryBuilder() {
+	}
 
-  public static BaseWssFactoryBuilder builder() {
-    return new BaseWssFactoryBuilder();
-  }
+	public static BaseWssFactoryBuilder builder() {
+		return new BaseWssFactoryBuilder();
+	}
 
-  public BaseWssFactoryBuilder ciphers(List<String> ciphers) {
-    this.ciphers = ciphers;
-    return this;
-  }
+	public BaseWssFactoryBuilder ciphers(List<String> ciphers) {
+		this.ciphers = ciphers;
+		return this;
+	}
 
-  public BaseWssFactoryBuilder sslContext(SSLContext sslContext) {
-    this.sslContext = sslContext;
-    return this;
-  }
+	public BaseWssFactoryBuilder sslContext(SSLContext sslContext) {
+		this.sslContext = sslContext;
+		return this;
+	}
 
-  @Override
-  public WebSocketServerFactory build() {
-    verify();
+	@Override
+	public WebSocketServerFactory build() {
+		verify();
 
-    return ciphers == null
-        ? new DefaultSSLWebSocketServerFactory(sslContext)
-        : new CustomSSLWebSocketServerFactory(sslContext, ciphers);
-  }
+		return ciphers == null ? new DefaultSSLWebSocketServerFactory(sslContext)
+				: new CustomSSLWebSocketServerFactory(sslContext, ciphers);
+	}
 
-  @Override
-  public void verify() {
-    if (sslContext == null) {
-      throw new IllegalStateException("sslContext must be set");
-    }
-  }
+	@Override
+	public void verify() {
+		if (sslContext == null) {
+			throw new IllegalStateException("sslContext must be set");
+		}
+	}
 }

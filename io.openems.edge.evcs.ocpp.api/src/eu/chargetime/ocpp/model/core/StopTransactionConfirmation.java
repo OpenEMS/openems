@@ -33,60 +33,61 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Sent by the Central System to the Charge Point in response to a {@link StopTransactionRequest}.
+ * Sent by the Central System to the Charge Point in response to a
+ * {@link StopTransactionRequest}.
  */
 @XmlRootElement(name = "stopTransactionResponse")
 public class StopTransactionConfirmation implements Confirmation {
-  private IdTagInfo idTagInfo;
+	private IdTagInfo idTagInfo;
 
-  @Override
-  public boolean validate() {
-    boolean valid = true;
-    if (idTagInfo != null) {
-      valid &= idTagInfo.validate();
-    }
-    return valid;
-  }
+	@Override
+	public boolean validate() {
+		boolean valid = true;
+		if (idTagInfo != null) {
+			valid &= idTagInfo.validate();
+		}
+		return valid;
+	}
 
-  /**
-   * This contains information about authorization status, expiry and parent id. Null = transaction
-   * was stopped without an identifier.
-   *
-   * @return the {@link IdTagInfo}.
-   */
-  public IdTagInfo getIdTagInfo() {
-    return idTagInfo;
-  }
+	/**
+	 * This contains information about authorization status, expiry and parent id.
+	 * Null = transaction was stopped without an identifier.
+	 *
+	 * @return the {@link IdTagInfo}.
+	 */
+	public IdTagInfo getIdTagInfo() {
+		return idTagInfo;
+	}
 
-  /**
-   * Optional. This contains information about authorization status, expiry and parent id. It is
-   * optional, because a transaction may have been stopped without an identifier.
-   *
-   * @param idTagInfo the {@link IdTagInfo}.
-   */
-  @XmlElement
-  public void setIdTagInfo(IdTagInfo idTagInfo) {
-    this.idTagInfo = idTagInfo;
-  }
+	/**
+	 * Optional. This contains information about authorization status, expiry and
+	 * parent id. It is optional, because a transaction may have been stopped
+	 * without an identifier.
+	 *
+	 * @param idTagInfo the {@link IdTagInfo}.
+	 */
+	@XmlElement
+	public void setIdTagInfo(IdTagInfo idTagInfo) {
+		this.idTagInfo = idTagInfo;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    StopTransactionConfirmation that = (StopTransactionConfirmation) o;
-    return Objects.equals(idTagInfo, that.idTagInfo);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		StopTransactionConfirmation that = (StopTransactionConfirmation) o;
+		return Objects.equals(idTagInfo, that.idTagInfo);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(idTagInfo);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(idTagInfo);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("idTagInfo", idTagInfo)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("idTagInfo", idTagInfo).add("isValid", validate()).toString();
+	}
 }

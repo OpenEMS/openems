@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.StatusNotificationConfirmation;
 import eu.chargetime.ocpp.model.core.StatusNotificationRequest;
 
 public class StatusNotificationFeature extends ProfileFeature {
-  public StatusNotificationFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public StatusNotificationFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return StatusNotificationRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return StatusNotificationRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return StatusNotificationConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return StatusNotificationConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "StatusNotification";
-  }
+	@Override
+	public String getAction() {
+		return "StatusNotification";
+	}
 }

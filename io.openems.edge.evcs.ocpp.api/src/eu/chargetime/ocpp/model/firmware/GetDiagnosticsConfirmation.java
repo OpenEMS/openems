@@ -35,56 +35,57 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "getDiagnosticsResponse")
 public class GetDiagnosticsConfirmation implements Confirmation {
-  private String fileName;
+	private String fileName;
 
-  @Override
-  public boolean validate() {
-    return true;
-  }
+	@Override
+	public boolean validate() {
+		return true;
+	}
 
-  /**
-   * This contains the name of the file with diagnostic information that will be uploaded. This
-   * field is not present when no diagnostic information is available.
-   *
-   * @return String, file name
-   */
-  public String getFileName() {
-    return fileName;
-  }
+	/**
+	 * This contains the name of the file with diagnostic information that will be
+	 * uploaded. This field is not present when no diagnostic information is
+	 * available.
+	 *
+	 * @return String, file name
+	 */
+	public String getFileName() {
+		return fileName;
+	}
 
-  /**
-   * Optional. This contains the name of the file with diagnostic information that will be uploaded.
-   * This field is not present when no diagnostic information is available.
-   *
-   * @param fileName String, file name
-   */
-  @XmlElement
-  public void setFileName(String fileName) {
-    if (!ModelUtil.validate(fileName, 255)) {
-      throw new PropertyConstraintException(fileName.length(), "Exceeds limit of 255 chars");
-    }
+	/**
+	 * Optional. This contains the name of the file with diagnostic information that
+	 * will be uploaded. This field is not present when no diagnostic information is
+	 * available.
+	 *
+	 * @param fileName String, file name
+	 */
+	@XmlElement
+	public void setFileName(String fileName) {
+		if (!ModelUtil.validate(fileName, 255)) {
+			throw new PropertyConstraintException(fileName.length(), "Exceeds limit of 255 chars");
+		}
 
-    this.fileName = fileName;
-  }
+		this.fileName = fileName;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    GetDiagnosticsConfirmation that = (GetDiagnosticsConfirmation) o;
-    return Objects.equals(fileName, that.fileName);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		GetDiagnosticsConfirmation that = (GetDiagnosticsConfirmation) o;
+		return Objects.equals(fileName, that.fileName);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(fileName);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(fileName);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("fileName", fileName)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("fileName", fileName).add("isValid", validate()).toString();
+	}
 }

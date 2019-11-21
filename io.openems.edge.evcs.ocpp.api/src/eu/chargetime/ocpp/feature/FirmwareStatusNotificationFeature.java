@@ -36,22 +36,22 @@ import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationRequest;
 
 public class FirmwareStatusNotificationFeature extends ProfileFeature {
 
-  public FirmwareStatusNotificationFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public FirmwareStatusNotificationFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return FirmwareStatusNotificationRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return FirmwareStatusNotificationRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return FirmwareStatusNotificationConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return FirmwareStatusNotificationConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "FirmwareStatusNotification";
-  }
+	@Override
+	public String getAction() {
+		return "FirmwareStatusNotification";
+	}
 }

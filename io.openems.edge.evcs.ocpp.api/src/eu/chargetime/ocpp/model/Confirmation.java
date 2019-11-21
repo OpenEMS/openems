@@ -28,4 +28,5 @@ SOFTWARE.
 */
 
 /** Interface used to flag a Model as a Confirmation payload. */
-public interface Confirmation extends Validatable {}
+public interface Confirmation extends Validatable {
+}

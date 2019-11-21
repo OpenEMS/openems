@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.smartcharging.SetChargingProfileConfirmation;
 import eu.chargetime.ocpp.model.smartcharging.SetChargingProfileRequest;
 
 public class SetChargingProfileFeature extends ProfileFeature {
-  public SetChargingProfileFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public SetChargingProfileFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return SetChargingProfileRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return SetChargingProfileRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return SetChargingProfileConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return SetChargingProfileConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "SetChargingProfile";
-  }
+	@Override
+	public String getAction() {
+		return "SetChargingProfile";
+	}
 }

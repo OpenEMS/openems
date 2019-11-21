@@ -37,31 +37,31 @@ import java.util.UUID;
 
 public class ClientReservationProfile implements Profile {
 
-  private HashSet<Feature> features;
-  private ClientReservationEventHandler eventHandler;
+	private HashSet<Feature> features;
+	private ClientReservationEventHandler eventHandler;
 
-  public ClientReservationProfile(ClientReservationEventHandler eventHandler) {
-    this.eventHandler = eventHandler;
-    features = new HashSet<>();
-    features.add(new ReserveNowFeature(this));
-    features.add(new CancelReservationFeature(this));
-  }
+	public ClientReservationProfile(ClientReservationEventHandler eventHandler) {
+		this.eventHandler = eventHandler;
+		features = new HashSet<>();
+		features.add(new ReserveNowFeature(this));
+		features.add(new CancelReservationFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    Confirmation result = null;
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		Confirmation result = null;
 
-    if (request instanceof ReserveNowRequest) {
-      result = eventHandler.handleReserveNowRequest((ReserveNowRequest) request);
-    } else if (request instanceof CancelReservationRequest) {
-      result = eventHandler.handleCancelReservationRequest((CancelReservationRequest) request);
-    }
+		if (request instanceof ReserveNowRequest) {
+			result = eventHandler.handleReserveNowRequest((ReserveNowRequest) request);
+		} else if (request instanceof CancelReservationRequest) {
+			result = eventHandler.handleCancelReservationRequest((CancelReservationRequest) request);
+		}
 
-    return result;
-  }
+		return result;
+	}
 }

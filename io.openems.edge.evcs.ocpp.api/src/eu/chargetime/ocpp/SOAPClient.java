@@ -43,113 +43,104 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SOAPClient implements IClientAPI {
-  private static final Logger logger = LoggerFactory.getLogger(SOAPClient.class);
-  private static final String WSDL_CHARGE_POINT =
-      "eu/chargetime/ocpp/OCPP_ChargePointService_1.6.wsdl";
+	private static final Logger logger = LoggerFactory.getLogger(SOAPClient.class);
+	private static final String WSDL_CHARGE_POINT = "eu/chargetime/ocpp/OCPP_ChargePointService_1.6.wsdl";
 
-  private Client client;
-  private SOAPCommunicator communicator;
-  private WebServiceTransmitter transmitter;
-  private URL callback;
-  private HttpServer server;
-  private ExecutorService threadPool;
-  private FeatureRepository featureRepository;
+	private Client client;
+	private SOAPCommunicator communicator;
+	private WebServiceTransmitter transmitter;
+	private URL callback;
+	private HttpServer server;
+	private ExecutorService threadPool;
+	private FeatureRepository featureRepository;
 
-  /**
-   * The core feature profile is required. The client will use the information taken from the
-   * callback parameter to open a HTTP based Web Service.
-   *
-   * @param chargeBoxIdentity required identity used in message header.
-   * @param callback call back info that the server can send requests to.
-   * @param coreProfile implementation of the core feature profile.
-   */
-  public SOAPClient(String chargeBoxIdentity, URL callback, ClientCoreProfile coreProfile) {
+	/**
+	 * The core feature profile is required. The client will use the information
+	 * taken from the callback parameter to open a HTTP based Web Service.
+	 *
+	 * @param chargeBoxIdentity required identity used in message header.
+	 * @param callback          call back info that the server can send requests to.
+	 * @param coreProfile       implementation of the core feature profile.
+	 */
+	public SOAPClient(String chargeBoxIdentity, URL callback, ClientCoreProfile coreProfile) {
 
-    SOAPHostInfo hostInfo =
-        new SOAPHostInfo.Builder()
-            .isClient(true)
-            .chargeBoxIdentity(chargeBoxIdentity)
-            .fromUrl(callback.toString())
-            .namespace(SOAPHostInfo.NAMESPACE_CHARGEBOX)
-            .build();
+		SOAPHostInfo hostInfo = new SOAPHostInfo.Builder().isClient(true).chargeBoxIdentity(chargeBoxIdentity)
+				.fromUrl(callback.toString()).namespace(SOAPHostInfo.NAMESPACE_CHARGEBOX).build();
 
-    this.callback = callback;
-    this.transmitter = new WebServiceTransmitter();
-    this.communicator = new SOAPCommunicator(hostInfo, transmitter);
-    featureRepository = new FeatureRepository();
-    ISession session = new SessionFactory(featureRepository).createSession(communicator);
-    this.client = new Client(session, featureRepository, new PromiseRepository());
-    featureRepository.addFeatureProfile(coreProfile);
-  }
+		this.callback = callback;
+		this.transmitter = new WebServiceTransmitter();
+		this.communicator = new SOAPCommunicator(hostInfo, transmitter);
+		featureRepository = new FeatureRepository();
+		ISession session = new SessionFactory(featureRepository).createSession(communicator);
+		this.client = new Client(session, featureRepository, new PromiseRepository());
+		featureRepository.addFeatureProfile(coreProfile);
+	}
 
-  @Override
-  public void addFeatureProfile(Profile profile) {
-    featureRepository.addFeatureProfile(profile);
-  }
+	@Override
+	public void addFeatureProfile(Profile profile) {
+		featureRepository.addFeatureProfile(profile);
+	}
 
-  /**
-   * Connect to server and set To header. Client opens a WebService for incoming requests.
-   *
-   * @param uri url and port of the server
-   */
-  public void connect(String uri, ClientEvents events) {
-    communicator.setToUrl(uri);
-    this.client.connect(uri, events);
-    openWS();
-  }
+	/**
+	 * Connect to server and set To header. Client opens a WebService for incoming
+	 * requests.
+	 *
+	 * @param uri url and port of the server
+	 */
+	public void connect(String uri, ClientEvents events) {
+		communicator.setToUrl(uri);
+		this.client.connect(uri, events);
+		openWS();
+	}
 
-  @Override
-  public CompletionStage<Confirmation> send(Request request)
-      throws OccurenceConstraintException, UnsupportedFeatureException {
-    return client.send(request);
-  }
+	@Override
+	public CompletionStage<Confirmation> send(Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException {
+		return client.send(request);
+	}
 
-  /** Disconnect from server Closes down local callback service. */
-  public void disconnect() {
-    this.client.disconnect();
-    if (server != null) {
-      server.stop(1);
-      threadPool.shutdownNow();
-    }
-  }
+	/** Disconnect from server Closes down local callback service. */
+	public void disconnect() {
+		this.client.disconnect();
+		if (server != null) {
+			server.stop(1);
+			threadPool.shutdownNow();
+		}
+	}
 
-  /**
-   * Flag if connection is closed.
-   *
-   * @return true if connection was closed or not opened
-   */
-  @Override
-  public boolean isClosed() {
-    return transmitter.isClosed();
-  }
+	/**
+	 * Flag if connection is closed.
+	 *
+	 * @return true if connection was closed or not opened
+	 */
+	@Override
+	public boolean isClosed() {
+		return transmitter.isClosed();
+	}
 
-  private int getPort() {
-    return callback.getPort() == -1 ? 8000 : callback.getPort();
-  }
+	private int getPort() {
+		return callback.getPort() == -1 ? 8000 : callback.getPort();
+	}
 
-  private void openWS() {
-    try {
-      server = HttpServer.create(new InetSocketAddress(callback.getHost(), getPort()), 0);
-      server.createContext(
-          "/",
-          new WSHttpHandler(
-              WSDL_CHARGE_POINT,
-              message -> {
-                SOAPMessage soapMessage = null;
-                try {
-                  soapMessage = transmitter.relay(message.getMessage()).get();
-                } catch (InterruptedException e) {
-                  logger.warn("openWS() transmitter.relay failed", e);
-                } catch (ExecutionException e) {
-                  logger.warn("openWS() transmitter.relay failed", e);
-                }
-                return soapMessage;
-              }));
-      threadPool = Executors.newCachedThreadPool();
-      server.setExecutor(threadPool);
-      server.start();
-    } catch (IOException e) {
-      logger.warn("openWS() failed", e);
-    }
-  }
+	private void openWS() {
+		try {
+			server = HttpServer.create(new InetSocketAddress(callback.getHost(), getPort()), 0);
+			server.createContext("/", new WSHttpHandler(WSDL_CHARGE_POINT, message -> {
+				SOAPMessage soapMessage = null;
+				try {
+					soapMessage = transmitter.relay(message.getMessage()).get();
+				} catch (InterruptedException e) {
+					logger.warn("openWS() transmitter.relay failed", e);
+				} catch (ExecutionException e) {
+					logger.warn("openWS() transmitter.relay failed", e);
+				}
+				return soapMessage;
+			}));
+			threadPool = Executors.newCachedThreadPool();
+			server.setExecutor(threadPool);
+			server.start();
+		} catch (IOException e) {
+			logger.warn("openWS() failed", e);
+		}
+	}
 }

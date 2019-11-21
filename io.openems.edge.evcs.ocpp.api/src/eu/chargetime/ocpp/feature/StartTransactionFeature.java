@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.StartTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StartTransactionRequest;
 
 public class StartTransactionFeature extends ProfileFeature {
-  public StartTransactionFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public StartTransactionFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return StartTransactionRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return StartTransactionRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return StartTransactionConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return StartTransactionConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "StartTransaction";
-  }
+	@Override
+	public String getAction() {
+		return "StartTransaction";
+	}
 }

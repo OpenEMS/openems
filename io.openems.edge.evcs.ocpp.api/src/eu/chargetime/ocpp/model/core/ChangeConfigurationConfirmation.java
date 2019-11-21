@@ -36,60 +36,59 @@ import javax.xml.bind.annotation.XmlRootElement;
 /** Returned from Charge Point to Central System */
 @XmlRootElement(name = "changeConfigurationResponse")
 public class ChangeConfigurationConfirmation implements Confirmation {
-  private ConfigurationStatus status;
+	private ConfigurationStatus status;
 
-  /**
-   * Returns whether configuration change has been accepted.
-   *
-   * @return String, the {@link ConfigurationStatus}.
-   */
-  public ConfigurationStatus getStatus() {
-    return status;
-  }
+	/**
+	 * Returns whether configuration change has been accepted.
+	 *
+	 * @return String, the {@link ConfigurationStatus}.
+	 */
+	public ConfigurationStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * Returns whether configuration change has been accepted.
-   *
-   * @return the {@link ConfigurationStatus}.
-   */
-  @Deprecated
-  public ConfigurationStatus objStatus() {
-    return status;
-  }
+	/**
+	 * Returns whether configuration change has been accepted.
+	 *
+	 * @return the {@link ConfigurationStatus}.
+	 */
+	@Deprecated
+	public ConfigurationStatus objStatus() {
+		return status;
+	}
 
-  /**
-   * Required. Returns whether configuration change has been accepted.
-   *
-   * @param status the {@link ConfigurationStatus}.
-   */
-  @XmlElement
-  public void setStatus(ConfigurationStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Required. Returns whether configuration change has been accepted.
+	 *
+	 * @param status the {@link ConfigurationStatus}.
+	 */
+	@XmlElement
+	public void setStatus(ConfigurationStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean validate() {
-    return status != null;
-  }
+	@Override
+	public boolean validate() {
+		return status != null;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ChangeConfigurationConfirmation that = (ChangeConfigurationConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ChangeConfigurationConfirmation that = (ChangeConfigurationConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

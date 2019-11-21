@@ -34,22 +34,22 @@ import eu.chargetime.ocpp.model.localauthlist.GetLocalListVersionConfirmation;
 import eu.chargetime.ocpp.model.localauthlist.GetLocalListVersionRequest;
 
 public class GetLocalListVersionFeature extends ProfileFeature {
-  public GetLocalListVersionFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public GetLocalListVersionFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return GetLocalListVersionRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return GetLocalListVersionRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return GetLocalListVersionConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return GetLocalListVersionConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "GetLocalListVersion";
-  }
+	@Override
+	public String getAction() {
+		return "GetLocalListVersion";
+	}
 }

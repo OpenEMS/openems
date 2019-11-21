@@ -29,11 +29,11 @@ SOFTWARE.
 
 /** Interface to handle connections by a client. */
 public interface Transmitter extends Radio {
-  /**
-   * Connect to a specific node.
-   *
-   * @param uri url and port of the node.
-   * @param events connection related events.
-   */
-  void connect(String uri, RadioEvents events);
+	/**
+	 * Connect to a specific node.
+	 *
+	 * @param uri    url and port of the node.
+	 * @param events connection related events.
+	 */
+	void connect(String uri, RadioEvents events);
 }

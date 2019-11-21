@@ -35,62 +35,65 @@ import javax.xml.bind.annotation.XmlRootElement;
 /** Sent by the Central System to the Charge Point. */
 @XmlRootElement
 public class ResetRequest implements Request {
-  private ResetType type;
+	private ResetType type;
 
-  /**
-   * This contains the type of reset that the Charge Point should perform.
-   *
-   * @return the {@link ResetType}.
-   */
-  public ResetType getType() {
-    return type;
-  }
+	/**
+	 * This contains the type of reset that the Charge Point should perform.
+	 *
+	 * @return the {@link ResetType}.
+	 */
+	public ResetType getType() {
+		return type;
+	}
 
-  /**
-   * This contains the type of reset that the Charge Point should perform.
-   *
-   * @return the {@link ResetType}.
-   */
-  @Deprecated
-  public ResetType objType() {
-    return type;
-  }
+	/**
+	 * This contains the type of reset that the Charge Point should perform.
+	 *
+	 * @return the {@link ResetType}.
+	 */
+	@Deprecated
+	public ResetType objType() {
+		return type;
+	}
 
-  /**
-   * Required. This contains the type of reset that the Charge Point should perform.
-   *
-   * @param type the {@link ResetType}.
-   */
-  @XmlElement
-  public void setType(ResetType type) {
-    this.type = type;
-  }
+	/**
+	 * Required. This contains the type of reset that the Charge Point should
+	 * perform.
+	 *
+	 * @param type the {@link ResetType}.
+	 */
+	@XmlElement
+	public void setType(ResetType type) {
+		this.type = type;
+	}
 
-  @Override
-  public boolean validate() {
-    return type != null;
-  }
+	@Override
+	public boolean validate() {
+		return type != null;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ResetRequest that = (ResetRequest) o;
-    return type == that.type;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ResetRequest that = (ResetRequest) o;
+		return type == that.type;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(type);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(type);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("type", type).add("isValid", validate()).toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("type", type).add("isValid", validate()).toString();
+	}
 }

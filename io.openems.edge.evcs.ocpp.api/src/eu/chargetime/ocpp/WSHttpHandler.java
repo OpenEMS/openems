@@ -35,60 +35,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WSHttpHandler implements HttpHandler {
-  private static final Logger logger = LoggerFactory.getLogger(WSHttpHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(WSHttpHandler.class);
 
-  private String wsdlResourceName;
-  private WSHttpHandlerEvents events;
+	private String wsdlResourceName;
+	private WSHttpHandlerEvents events;
 
-  public WSHttpHandler(String wsdlResourceName, WSHttpHandlerEvents events) {
-    this.wsdlResourceName = wsdlResourceName;
-    this.events = events;
-  }
+	public WSHttpHandler(String wsdlResourceName, WSHttpHandlerEvents events) {
+		this.wsdlResourceName = wsdlResourceName;
+		this.events = events;
+	}
 
-  @Override
-  public void handle(HttpExchange httpExchange) throws IOException {
-    if ("wsdl".equals(httpExchange.getRequestURI().getQuery())) {
-      sendWSDL(httpExchange);
-    } else {
-      SOAPMessage request = parse(httpExchange.getRequestBody());
-      SOAPMessage confirmation =
-          events.incomingRequest(new SOAPMessageInfo(httpExchange.getRemoteAddress(), request));
-      OutputStream responseStream = httpExchange.getResponseBody();
-      try {
-        httpExchange
-            .getResponseHeaders()
-            .add("Content-Type", "application/soap+xml; charset=utf-8");
-        httpExchange.sendResponseHeaders(200, 0);
-        confirmation.writeTo(responseStream);
-      } catch (SOAPException e) {
-        httpExchange.sendResponseHeaders(500, 0);
-        logger.warn("handle() confirmation.writeTo failed", e);
-      }
-      responseStream.close();
-    }
-  }
+	@Override
+	public void handle(HttpExchange httpExchange) throws IOException {
+		if ("wsdl".equals(httpExchange.getRequestURI().getQuery())) {
+			sendWSDL(httpExchange);
+		} else {
+			SOAPMessage request = parse(httpExchange.getRequestBody());
+			SOAPMessage confirmation = events
+					.incomingRequest(new SOAPMessageInfo(httpExchange.getRemoteAddress(), request));
+			OutputStream responseStream = httpExchange.getResponseBody();
+			try {
+				httpExchange.getResponseHeaders().add("Content-Type", "application/soap+xml; charset=utf-8");
+				httpExchange.sendResponseHeaders(200, 0);
+				confirmation.writeTo(responseStream);
+			} catch (SOAPException e) {
+				httpExchange.sendResponseHeaders(500, 0);
+				logger.warn("handle() confirmation.writeTo failed", e);
+			}
+			responseStream.close();
+		}
+	}
 
-  private SOAPMessage parse(InputStream request) throws IOException {
-    SOAPMessage message = null;
-    try {
-      MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
-      message = messageFactory.createMessage(new MimeHeaders(), request);
-    } catch (SOAPException e) {
-      logger.warn("parse() failed", e);
-    }
-    return message;
-  }
+	private SOAPMessage parse(InputStream request) throws IOException {
+		SOAPMessage message = null;
+		try {
+			MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+			message = messageFactory.createMessage(new MimeHeaders(), request);
+		} catch (SOAPException e) {
+			logger.warn("parse() failed", e);
+		}
+		return message;
+	}
 
-  private void sendWSDL(HttpExchange httpExchange) throws IOException {
-    InputStream wsdl = getClass().getClassLoader().getResourceAsStream(wsdlResourceName);
-    httpExchange.sendResponseHeaders(200, 0);
-    OutputStream os = httpExchange.getResponseBody();
+	private void sendWSDL(HttpExchange httpExchange) throws IOException {
+		InputStream wsdl = getClass().getClassLoader().getResourceAsStream(wsdlResourceName);
+		httpExchange.sendResponseHeaders(200, 0);
+		OutputStream os = httpExchange.getResponseBody();
 
-    byte[] buffer = new byte[2048];
-    int read;
-    while ((read = wsdl.read(buffer)) != -1) os.write(buffer, 0, read);
+		byte[] buffer = new byte[2048];
+		int read;
+		while ((read = wsdl.read(buffer)) != -1)
+			os.write(buffer, 0, read);
 
-    os.flush();
-    os.close();
-  }
+		os.flush();
+		os.close();
+	}
 }

@@ -36,59 +36,58 @@ import javax.xml.bind.annotation.XmlRootElement;
 /** Sent by the Central System to the Charge Point. */
 @XmlRootElement
 public class UnlockConnectorRequest implements Request {
-  private Integer connectorId;
+	private Integer connectorId;
 
-  @Override
-  public boolean validate() {
-    return connectorId != null && connectorId > 0;
-  }
+	@Override
+	public boolean validate() {
+		return connectorId != null && connectorId > 0;
+	}
 
-  /**
-   * This contains the identifier of the connector to be unlocked.
-   *
-   * @return connector.
-   */
-  public Integer getConnectorId() {
-    return connectorId;
-  }
+	/**
+	 * This contains the identifier of the connector to be unlocked.
+	 *
+	 * @return connector.
+	 */
+	public Integer getConnectorId() {
+		return connectorId;
+	}
 
-  /**
-   * Required. This contains the identifier of the connector to be unlocked.
-   *
-   * @param connectorId integer, value &gt; 0.
-   */
-  @XmlElement
-  public void setConnectorId(Integer connectorId) {
-    if (connectorId == null || connectorId <= 0) {
-      throw new PropertyConstraintException(connectorId, "connectorId must be > 0");
-    }
+	/**
+	 * Required. This contains the identifier of the connector to be unlocked.
+	 *
+	 * @param connectorId integer, value &gt; 0.
+	 */
+	@XmlElement
+	public void setConnectorId(Integer connectorId) {
+		if (connectorId == null || connectorId <= 0) {
+			throw new PropertyConstraintException(connectorId, "connectorId must be > 0");
+		}
 
-    this.connectorId = connectorId;
-  }
+		this.connectorId = connectorId;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    UnlockConnectorRequest that = (UnlockConnectorRequest) o;
-    return Objects.equals(connectorId, that.connectorId);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		UnlockConnectorRequest that = (UnlockConnectorRequest) o;
+		return Objects.equals(connectorId, that.connectorId);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(connectorId);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(connectorId);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("connectorId", connectorId)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("connectorId", connectorId).add("isValid", validate()).toString();
+	}
 }

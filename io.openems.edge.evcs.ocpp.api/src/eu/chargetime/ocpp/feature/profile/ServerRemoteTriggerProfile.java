@@ -1,20 +1,7 @@
 package eu.chargetime.ocpp.feature.profile;
-
-import eu.chargetime.ocpp.feature.Feature;
-import eu.chargetime.ocpp.feature.ProfileFeature;
-import eu.chargetime.ocpp.feature.TriggerMessageFeature;
-import eu.chargetime.ocpp.model.Confirmation;
-import eu.chargetime.ocpp.model.Request;
-import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
-import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
-import java.util.HashSet;
-import java.util.UUID;
-
 /*
 ChargeTime.eu - Java-OCA-OCPP
-Copyright (C) 2017 Emil Christopher Solli Melar <emil@iconsultable.no>
-
-MIT License
+Copyright (C) 2017 Emil Christopher Solli MIT License
 
 Copyright (C) 2017 Emil Christopher Solli Melar
 
@@ -37,34 +24,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import eu.chargetime.ocpp.feature.Feature;
+import eu.chargetime.ocpp.feature.ProfileFeature;
+import eu.chargetime.ocpp.feature.TriggerMessageFeature;
+import eu.chargetime.ocpp.model.Confirmation;
+import eu.chargetime.ocpp.model.Request;
+import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
+import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
+import java.util.HashSet;
+import java.util.UUID;
+
 public class ServerRemoteTriggerProfile implements Profile {
 
-  private HashSet<Feature> features;
+	private HashSet<Feature> features;
 
-  public ServerRemoteTriggerProfile() {
+	public ServerRemoteTriggerProfile() {
 
-    features = new HashSet<>();
-    features.add(new TriggerMessageFeature(this));
-  }
+		features = new HashSet<>();
+		features.add(new TriggerMessageFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    return null;
-  }
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		return null;
+	}
 
-  public TriggerMessageRequest createTriggerMessageRequest(TriggerMessageRequestType type) {
-    return createTriggerMessageRequest(type, null);
-  }
+	public TriggerMessageRequest createTriggerMessageRequest(TriggerMessageRequestType type) {
+		return createTriggerMessageRequest(type, null);
+	}
 
-  public TriggerMessageRequest createTriggerMessageRequest(
-      TriggerMessageRequestType type, Integer connectorId) {
-    TriggerMessageRequest request = new TriggerMessageRequest(type);
-    request.setConnectorId(connectorId);
-    return request;
-  }
+	public TriggerMessageRequest createTriggerMessageRequest(TriggerMessageRequestType type, Integer connectorId) {
+		TriggerMessageRequest request = new TriggerMessageRequest(type);
+		request.setConnectorId(connectorId);
+		return request;
+	}
 }

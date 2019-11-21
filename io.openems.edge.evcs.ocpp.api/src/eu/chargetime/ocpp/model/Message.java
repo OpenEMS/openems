@@ -29,61 +29,61 @@ SOFTWARE.
 
 /** Wrapper class for a message */
 public class Message {
-  private String id;
-  private Object payload;
-  private String action;
+	private String id;
+	private Object payload;
+	private String action;
 
-  /**
-   * Get unique id for message.
-   *
-   * @return message id.
-   */
-  public String getId() {
-    return id;
-  }
+	/**
+	 * Get unique id for message.
+	 *
+	 * @return message id.
+	 */
+	public String getId() {
+		return id;
+	}
 
-  /**
-   * Set unique id for message.
-   *
-   * @param id String, message id.
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
+	/**
+	 * Set unique id for message.
+	 *
+	 * @param id String, message id.
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  /**
-   * Get attached payload.
-   *
-   * @return payload.
-   */
-  public Object getPayload() {
-    return payload;
-  }
+	/**
+	 * Get attached payload.
+	 *
+	 * @return payload.
+	 */
+	public Object getPayload() {
+		return payload;
+	}
 
-  /**
-   * Attach payload to message.
-   *
-   * @param payload payload object.
-   */
-  public void setPayload(Object payload) {
-    this.payload = payload;
-  }
+	/**
+	 * Attach payload to message.
+	 *
+	 * @param payload payload object.
+	 */
+	public void setPayload(Object payload) {
+		this.payload = payload;
+	}
 
-  /**
-   * Get the action.
-   *
-   * @return String, action.
-   */
-  public String getAction() {
-    return action;
-  }
+	/**
+	 * Get the action.
+	 *
+	 * @return String, action.
+	 */
+	public String getAction() {
+		return action;
+	}
 
-  /**
-   * Set the action.
-   *
-   * @param action String, action.
-   */
-  public void setAction(String action) {
-    this.action = action;
-  }
+	/**
+	 * Set the action.
+	 *
+	 * @param action String, action.
+	 */
+	public void setAction(String action) {
+		this.action = action;
+	}
 }

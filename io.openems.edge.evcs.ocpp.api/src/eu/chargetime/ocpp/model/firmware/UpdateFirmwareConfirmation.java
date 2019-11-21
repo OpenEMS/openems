@@ -33,30 +33,32 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Sent by the Charge Point to the Central System in response to an {@link UpdateFirmwareRequest}.
+ * Sent by the Charge Point to the Central System in response to an
+ * {@link UpdateFirmwareRequest}.
  */
 @XmlRootElement(name = "updateFirmwareResponse")
 public class UpdateFirmwareConfirmation implements Confirmation {
 
-  public UpdateFirmwareConfirmation() {}
+	public UpdateFirmwareConfirmation() {
+	}
 
-  @Override
-  public boolean validate() {
-    return true;
-  }
+	@Override
+	public boolean validate() {
+		return true;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    return this == o || o != null && getClass() == o.getClass();
-  }
+	@Override
+	public boolean equals(Object o) {
+		return this == o || o != null && getClass() == o.getClass();
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(UpdateFirmwareConfirmation.class);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(UpdateFirmwareConfirmation.class);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("isValid", validate()).toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("isValid", validate()).toString();
+	}
 }

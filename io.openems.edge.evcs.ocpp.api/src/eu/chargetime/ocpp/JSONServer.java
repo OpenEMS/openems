@@ -46,120 +46,127 @@ import org.slf4j.LoggerFactory;
 
 public class JSONServer implements IServerAPI {
 
-  private static final Logger logger = LoggerFactory.getLogger(JSONServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(JSONServer.class);
 
-  public final Draft draftOcppOnly;
-  private final WebSocketListener listener;
-  private final Server server;
-  private final FeatureRepository featureRepository;
+	public final Draft draftOcppOnly;
+	private final WebSocketListener listener;
+	private final Server server;
+	private final FeatureRepository featureRepository;
 
-  /**
-   * The core feature profile is required as a minimum. The constructor creates WS-ready server.
-   *
-   * @param coreProfile implementation of the core feature profile.
-   * @param configuration network configuration for a json server.
-   */
-  public JSONServer(ServerCoreProfile coreProfile, JSONConfiguration configuration) {
-    featureRepository = new FeatureRepository();
-    SessionFactory sessionFactory = new SessionFactory(featureRepository);
+	/**
+	 * The core feature profile is required as a minimum. The constructor creates
+	 * WS-ready server.
+	 *
+	 * @param coreProfile   implementation of the core feature profile.
+	 * @param configuration network configuration for a json server.
+	 */
+	public JSONServer(ServerCoreProfile coreProfile, JSONConfiguration configuration) {
+		featureRepository = new FeatureRepository();
+		SessionFactory sessionFactory = new SessionFactory(featureRepository);
 
-    ArrayList<IProtocol> protocols = new ArrayList<>();
-    protocols.add(new Protocol("ocpp1.6"));
-    protocols.add(new Protocol(""));
-    draftOcppOnly = new Draft_6455(Collections.emptyList(), protocols);
+		ArrayList<IProtocol> protocols = new ArrayList<>();
+		protocols.add(new Protocol("ocpp1.6"));
+		protocols.add(new Protocol(""));
+		draftOcppOnly = new Draft_6455(Collections.emptyList(), protocols);
 
-    this.listener = new WebSocketListener(sessionFactory, configuration, draftOcppOnly);
-    server = new Server(this.listener, featureRepository, new PromiseRepository());
-    featureRepository.addFeatureProfile(coreProfile);
-  }
+		this.listener = new WebSocketListener(sessionFactory, configuration, draftOcppOnly);
+		server = new Server(this.listener, featureRepository, new PromiseRepository());
+		featureRepository.addFeatureProfile(coreProfile);
+	}
 
-  /**
-   * The core feature profile is required as a minimum. The constructor creates WS-ready server.
-   *
-   * @param coreProfile implementation of the core feature profile.
-   */
-  public JSONServer(ServerCoreProfile coreProfile) {
-    this(coreProfile, JSONConfiguration.get());
-  }
+	/**
+	 * The core feature profile is required as a minimum. The constructor creates
+	 * WS-ready server.
+	 *
+	 * @param coreProfile implementation of the core feature profile.
+	 */
+	public JSONServer(ServerCoreProfile coreProfile) {
+		this(coreProfile, JSONConfiguration.get());
+	}
 
-  /**
-   * The core feature profile is required as a minimum. The constructor creates WSS-ready server.
-   *
-   * @param coreProfile implementation of the core feature profile.
-   * @param wssFactoryBuilder to build {@link org.java_websocket.WebSocketServerFactory} to support
-   *     wss://.
-   * @param configuration network configuration for a json server.
-   */
-  public JSONServer(
-      ServerCoreProfile coreProfile,
-      WssFactoryBuilder wssFactoryBuilder,
-      JSONConfiguration configuration) {
-    this(coreProfile, configuration);
-    enableWSS(wssFactoryBuilder);
-  }
+	/**
+	 * The core feature profile is required as a minimum. The constructor creates
+	 * WSS-ready server.
+	 *
+	 * @param coreProfile       implementation of the core feature profile.
+	 * @param wssFactoryBuilder to build
+	 *                          {@link org.java_websocket.WebSocketServerFactory} to
+	 *                          support wss://.
+	 * @param configuration     network configuration for a json server.
+	 */
+	public JSONServer(ServerCoreProfile coreProfile, WssFactoryBuilder wssFactoryBuilder,
+			JSONConfiguration configuration) {
+		this(coreProfile, configuration);
+		enableWSS(wssFactoryBuilder);
+	}
 
-  /**
-   * The core feature profile is required as a minimum. The constructor creates WSS-ready server.
-   *
-   * @param coreProfile implementation of the core feature profile.
-   * @param wssFactoryBuilder to build {@link org.java_websocket.WebSocketServerFactory} to support
-   *     wss://.
-   */
-  public JSONServer(ServerCoreProfile coreProfile, WssFactoryBuilder wssFactoryBuilder) {
-    this(coreProfile, wssFactoryBuilder, JSONConfiguration.get());
-  }
+	/**
+	 * The core feature profile is required as a minimum. The constructor creates
+	 * WSS-ready server.
+	 *
+	 * @param coreProfile       implementation of the core feature profile.
+	 * @param wssFactoryBuilder to build
+	 *                          {@link org.java_websocket.WebSocketServerFactory} to
+	 *                          support wss://.
+	 */
+	public JSONServer(ServerCoreProfile coreProfile, WssFactoryBuilder wssFactoryBuilder) {
+		this(coreProfile, wssFactoryBuilder, JSONConfiguration.get());
+	}
 
-  // To ensure the exposed API is backward compatible
-  public void enableWSS(SSLContext sslContext) throws IOException {
-    WssFactoryBuilder builder = BaseWssFactoryBuilder.builder().sslContext(sslContext);
-    enableWSS(builder);
-  }
+	// To ensure the exposed API is backward compatible
+	public void enableWSS(SSLContext sslContext) throws IOException {
+		WssFactoryBuilder builder = BaseWssFactoryBuilder.builder().sslContext(sslContext);
+		enableWSS(builder);
+	}
 
-  /**
-   * Enables server to accept WSS connections. The {@code wssFactoryBuilder} must be initialized at
-   * that step (as required parameters set might vary depending on implementation the {@link
-   * eu.chargetime.ocpp.wss.WssFactoryBuilder#verify()} is used to ensure initialization).
-   *
-   * @param wssFactoryBuilder builder to provide WebSocketServerFactory
-   * @return instance of {@link JSONServer}
-   * @throws IllegalStateException in case if the server is already connected
-   * @throws IllegalStateException in case {@code wssFactoryBuilder} not initialized properly
-   */
-  public JSONServer enableWSS(WssFactoryBuilder wssFactoryBuilder) {
-    wssFactoryBuilder.verify();
-    listener.enableWSS(wssFactoryBuilder);
-    return this;
-  }
+	/**
+	 * Enables server to accept WSS connections. The {@code wssFactoryBuilder} must
+	 * be initialized at that step (as required parameters set might vary depending
+	 * on implementation the
+	 * {@link eu.chargetime.ocpp.wss.WssFactoryBuilder#verify()} is used to ensure
+	 * initialization).
+	 *
+	 * @param wssFactoryBuilder builder to provide WebSocketServerFactory
+	 * @return instance of {@link JSONServer}
+	 * @throws IllegalStateException in case if the server is already connected
+	 * @throws IllegalStateException in case {@code wssFactoryBuilder} not
+	 *                               initialized properly
+	 */
+	public JSONServer enableWSS(WssFactoryBuilder wssFactoryBuilder) {
+		wssFactoryBuilder.verify();
+		listener.enableWSS(wssFactoryBuilder);
+		return this;
+	}
 
-  @Override
-  public void addFeatureProfile(Profile profile) {
-    featureRepository.addFeatureProfile(profile);
-  }
+	@Override
+	public void addFeatureProfile(Profile profile) {
+		featureRepository.addFeatureProfile(profile);
+	}
 
-  @Override
-  public void closeSession(UUID session) {
-    server.closeSession(session);
-  }
+	@Override
+	public void closeSession(UUID session) {
+		server.closeSession(session);
+	}
 
-  @Override
-  public void open(String host, int port, ServerEvents serverEvents) {
-    logger.info("Feature repository: {}", featureRepository);
-    server.open(host, port, serverEvents);
-  }
+	@Override
+	public void open(String host, int port, ServerEvents serverEvents) {
+		logger.info("Feature repository: {}", featureRepository);
+		server.open(host, port, serverEvents);
+	}
 
-  @Override
-  public void close() {
-    server.close();
-  }
+	@Override
+	public void close() {
+		server.close();
+	}
 
-  @Override
-  public boolean isClosed() {
-    return listener.isClosed();
-  }
+	@Override
+	public boolean isClosed() {
+		return listener.isClosed();
+	}
 
-  @Override
-  public CompletionStage<Confirmation> send(UUID session, Request request)
-      throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
-    return server.send(session, request);
-  }
+	@Override
+	public CompletionStage<Confirmation> send(UUID session, Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
+		return server.send(session, request);
+	}
 }

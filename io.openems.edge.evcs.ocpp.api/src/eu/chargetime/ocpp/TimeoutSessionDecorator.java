@@ -34,105 +34,106 @@ import java.util.UUID;
 
 public class TimeoutSessionDecorator implements ISession {
 
-  private TimeoutTimer timeoutTimer;
-  private final ISession session;
+	private TimeoutTimer timeoutTimer;
+	private final ISession session;
 
-  /** Handles required injections. */
-  public TimeoutSessionDecorator(TimeoutTimer timeoutTimer, ISession session) {
-    this.timeoutTimer = timeoutTimer;
-    this.session = session;
-  }
+	/** Handles required injections. */
+	public TimeoutSessionDecorator(TimeoutTimer timeoutTimer, ISession session) {
+		this.timeoutTimer = timeoutTimer;
+		this.session = session;
+	}
 
-  private void resetTimer(int timeoutInSec) {
-    if (timeoutTimer != null) timeoutTimer.setTimeout(timeoutInSec * 1000);
-    resetTimer();
-  }
+	private void resetTimer(int timeoutInSec) {
+		if (timeoutTimer != null)
+			timeoutTimer.setTimeout(timeoutInSec * 1000);
+		resetTimer();
+	}
 
-  private void resetTimer() {
-    if (timeoutTimer != null) timeoutTimer.reset();
-  }
+	private void resetTimer() {
+		if (timeoutTimer != null)
+			timeoutTimer.reset();
+	}
 
-  private void stopTimer() {
-    if (timeoutTimer != null) timeoutTimer.end();
-  }
+	private void stopTimer() {
+		if (timeoutTimer != null)
+			timeoutTimer.end();
+	}
 
-  private void startTimer() {
-    if (timeoutTimer != null) timeoutTimer.begin();
-  }
+	private void startTimer() {
+		if (timeoutTimer != null)
+			timeoutTimer.begin();
+	}
 
-  @Override
-  public UUID getSessionId() {
-    return session.getSessionId();
-  }
+	@Override
+	public UUID getSessionId() {
+		return session.getSessionId();
+	}
 
-  @Override
-  public void open(String uri, SessionEvents eventHandler) {
-    SessionEvents events = createEventHandler(eventHandler);
-    this.session.open(uri, events);
-  }
+	@Override
+	public void open(String uri, SessionEvents eventHandler) {
+		SessionEvents events = createEventHandler(eventHandler);
+		this.session.open(uri, events);
+	}
 
-  @Override
-  public void accept(SessionEvents eventHandler) {
-    SessionEvents events = createEventHandler(eventHandler);
-    this.session.accept(events);
-  }
+	@Override
+	public void accept(SessionEvents eventHandler) {
+		SessionEvents events = createEventHandler(eventHandler);
+		this.session.accept(events);
+	}
 
-  @Override
-  public String storeRequest(Request payload) {
-    return this.session.storeRequest(payload);
-  }
+	@Override
+	public String storeRequest(Request payload) {
+		return this.session.storeRequest(payload);
+	}
 
-  @Override
-  public void sendRequest(String action, Request payload, String uuid) {
-    this.session.sendRequest(action, payload, uuid);
-  }
+	@Override
+	public void sendRequest(String action, Request payload, String uuid) {
+		this.session.sendRequest(action, payload, uuid);
+	}
 
-  @Override
-  public void close() {
-    this.session.close();
-  }
+	@Override
+	public void close() {
+		this.session.close();
+	}
 
-  private SessionEvents createEventHandler(SessionEvents eventHandler) {
-    return new SessionEvents() {
-      @Override
-      public void handleConfirmation(String uniqueId, Confirmation confirmation) {
-        resetTimer();
-        eventHandler.handleConfirmation(uniqueId, confirmation);
-      }
+	private SessionEvents createEventHandler(SessionEvents eventHandler) {
+		return new SessionEvents() {
+			@Override
+			public void handleConfirmation(String uniqueId, Confirmation confirmation) {
+				resetTimer();
+				eventHandler.handleConfirmation(uniqueId, confirmation);
+			}
 
-      @Override
-      public synchronized Confirmation handleRequest(Request request)
-          throws UnsupportedFeatureException {
-        resetTimer();
-        Confirmation confirmation = eventHandler.handleRequest(request);
+			@Override
+			public synchronized Confirmation handleRequest(Request request) throws UnsupportedFeatureException {
+				resetTimer();
+				Confirmation confirmation = eventHandler.handleRequest(request);
 
-        if (confirmation instanceof BootNotificationConfirmation) {
-          BootNotificationConfirmation bootNotification =
-              (BootNotificationConfirmation) confirmation;
-          if (bootNotification.getStatus() == RegistrationStatus.Accepted) {
-            resetTimer(bootNotification.getInterval());
-          }
-        }
-        return confirmation;
-      }
+				if (confirmation instanceof BootNotificationConfirmation) {
+					BootNotificationConfirmation bootNotification = (BootNotificationConfirmation) confirmation;
+					if (bootNotification.getStatus() == RegistrationStatus.Accepted) {
+						resetTimer(bootNotification.getInterval());
+					}
+				}
+				return confirmation;
+			}
 
-      @Override
-      public void handleError(
-          String uniqueId, String errorCode, String errorDescription, Object payload) {
-        eventHandler.handleError(uniqueId, errorCode, errorDescription, payload);
-      }
+			@Override
+			public void handleError(String uniqueId, String errorCode, String errorDescription, Object payload) {
+				eventHandler.handleError(uniqueId, errorCode, errorDescription, payload);
+			}
 
-      @Override
-      public void handleConnectionClosed() {
-        eventHandler.handleConnectionClosed();
-        stopTimer();
-      }
+			@Override
+			public void handleConnectionClosed() {
+				eventHandler.handleConnectionClosed();
+				stopTimer();
+			}
 
-      @Override
-      public void handleConnectionOpened() {
-        eventHandler.handleConnectionOpened();
-        startTimer();
-      }
-    };
-  }
+			@Override
+			public void handleConnectionOpened() {
+				eventHandler.handleConnectionOpened();
+				startTimer();
+			}
+		};
+	}
 }

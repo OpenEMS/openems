@@ -32,19 +32,21 @@ import eu.chargetime.ocpp.model.firmware.UpdateFirmwareRequest;
 
 public interface ClientFirmwareManagementEventHandler {
 
-  /**
-   * Handle a {@link GetDiagnosticsRequest} and return a {@link GetDiagnosticsConfirmation}.
-   *
-   * @param request incoming {@link GetDiagnosticsRequest} to handle.
-   * @return outgoing {@link GetDiagnosticsConfirmation} to reply with.
-   */
-  GetDiagnosticsConfirmation handleGetDiagnosticsRequest(GetDiagnosticsRequest request);
+	/**
+	 * Handle a {@link GetDiagnosticsRequest} and return a
+	 * {@link GetDiagnosticsConfirmation}.
+	 *
+	 * @param request incoming {@link GetDiagnosticsRequest} to handle.
+	 * @return outgoing {@link GetDiagnosticsConfirmation} to reply with.
+	 */
+	GetDiagnosticsConfirmation handleGetDiagnosticsRequest(GetDiagnosticsRequest request);
 
-  /**
-   * Handle a {@link UpdateFirmwareRequest} and return a {@link UpdateFirmwareConfirmation}.
-   *
-   * @param request incoming {@link UpdateFirmwareRequest} to handle.
-   * @return outgoing {@link UpdateFirmwareConfirmation} to reply with.
-   */
-  UpdateFirmwareConfirmation handleUpdateFirmwareRequest(UpdateFirmwareRequest request);
+	/**
+	 * Handle a {@link UpdateFirmwareRequest} and return a
+	 * {@link UpdateFirmwareConfirmation}.
+	 *
+	 * @param request incoming {@link UpdateFirmwareRequest} to handle.
+	 * @return outgoing {@link UpdateFirmwareConfirmation} to reply with.
+	 */
+	UpdateFirmwareConfirmation handleUpdateFirmwareRequest(UpdateFirmwareRequest request);
 }

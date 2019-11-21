@@ -36,61 +36,61 @@ import java.util.Optional;
 
 public class FeatureRepository implements IFeatureRepository {
 
-  private final Map<String, Feature> actionMap = new HashMap<>();
-  private final Map<Class<?>, Feature> classMap = new HashMap<>();
+	private final Map<String, Feature> actionMap = new HashMap<>();
+	private final Map<Class<?>, Feature> classMap = new HashMap<>();
 
-  /**
-   * Add {@link Profile} to support a group of features.
-   *
-   * @param profile supported feature {@link Profile}
-   * @see Profile
-   */
-  public void addFeatureProfile(Profile profile) {
-    for (Feature feature : profile.getFeatureList()) {
-      addFeature(feature);
-    }
-  }
+	/**
+	 * Add {@link Profile} to support a group of features.
+	 *
+	 * @param profile supported feature {@link Profile}
+	 * @see Profile
+	 */
+	public void addFeatureProfile(Profile profile) {
+		for (Feature feature : profile.getFeatureList()) {
+			addFeature(feature);
+		}
+	}
 
-  /**
-   * Add {@link Feature} to support.
-   *
-   * @param feature supported {@link Feature}.
-   */
-  public void addFeature(Feature feature) {
-    actionMap.put(feature.getAction(), feature);
-    classMap.put(feature.getRequestType(), feature);
-    classMap.put(feature.getConfirmationType(), feature);
-  }
+	/**
+	 * Add {@link Feature} to support.
+	 *
+	 * @param feature supported {@link Feature}.
+	 */
+	public void addFeature(Feature feature) {
+		actionMap.put(feature.getAction(), feature);
+		classMap.put(feature.getRequestType(), feature);
+		classMap.put(feature.getConfirmationType(), feature);
+	}
 
-  /**
-   * Search for supported features added with the addProfile. If no supported feature is found,
-   * {@link Optional#empty()} is returned
-   *
-   * <p>Can take multiple inputs: {@link String}, search for the action name of the feature. {@link
-   * Request}/{@link Confirmation}, search for a feature that matches. Anything else will return
-   * {@link Optional#empty()}.
-   *
-   * @param needle Object supports {@link String}, {@link Request} or {@link Confirmation}
-   * @return Optional of instance of the supported Feature
-   */
-  @Override
-  public Optional<Feature> findFeature(Object needle) {
-    if (needle instanceof String) {
-      return Optional.ofNullable(actionMap.get(needle));
-    }
+	/**
+	 * Search for supported features added with the addProfile. If no supported
+	 * feature is found, {@link Optional#empty()} is returned
+	 *
+	 * <p>
+	 * Can take multiple inputs: {@link String}, search for the action name of the
+	 * feature. {@link Request}/{@link Confirmation}, search for a feature that
+	 * matches. Anything else will return {@link Optional#empty()}.
+	 *
+	 * @param needle Object supports {@link String}, {@link Request} or
+	 *               {@link Confirmation}
+	 * @return Optional of instance of the supported Feature
+	 */
+	@Override
+	public Optional<Feature> findFeature(Object needle) {
+		if (needle instanceof String) {
+			return Optional.ofNullable(actionMap.get(needle));
+		}
 
-    if ((needle instanceof Request) || (needle instanceof Confirmation)) {
-      return Optional.ofNullable(classMap.get((needle.getClass())));
-    }
+		if ((needle instanceof Request) || (needle instanceof Confirmation)) {
+			return Optional.ofNullable(classMap.get((needle.getClass())));
+		}
 
-    return Optional.empty();
-  }
+		return Optional.empty();
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper("FeatureRepository")
-        .add("actionMap", actionMap)
-        .add("classMap", classMap)
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper("FeatureRepository").add("actionMap", actionMap).add("classMap", classMap)
+				.toString();
+	}
 }

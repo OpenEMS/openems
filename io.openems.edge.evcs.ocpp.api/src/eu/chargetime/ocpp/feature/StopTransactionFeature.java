@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 
 public class StopTransactionFeature extends ProfileFeature {
-  public StopTransactionFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public StopTransactionFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return StopTransactionRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return StopTransactionRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return StopTransactionConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return StopTransactionConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "StopTransaction";
-  }
+	@Override
+	public String getAction() {
+		return "StopTransaction";
+	}
 }

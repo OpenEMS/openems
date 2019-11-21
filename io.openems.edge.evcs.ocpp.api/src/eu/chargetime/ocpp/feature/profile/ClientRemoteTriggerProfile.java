@@ -38,29 +38,29 @@ SOFTWARE.
 
 /** Callback handler for client events of the Remote Trigger feature profile. */
 public class ClientRemoteTriggerProfile implements Profile {
-  private ClientRemoteTriggerHandler eventHandler;
-  private ArrayList<Feature> features;
+	private ClientRemoteTriggerHandler eventHandler;
+	private ArrayList<Feature> features;
 
-  public ClientRemoteTriggerProfile(ClientRemoteTriggerHandler handler) {
-    features = new ArrayList<>();
-    eventHandler = handler;
+	public ClientRemoteTriggerProfile(ClientRemoteTriggerHandler handler) {
+		features = new ArrayList<>();
+		eventHandler = handler;
 
-    features.add(new TriggerMessageFeature(this));
-  }
+		features.add(new TriggerMessageFeature(this));
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    Confirmation result = null;
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		Confirmation result = null;
 
-    if (request instanceof TriggerMessageRequest) {
-      result = eventHandler.handleTriggerMessageRequest((TriggerMessageRequest) request);
-    }
+		if (request instanceof TriggerMessageRequest) {
+			result = eventHandler.handleTriggerMessageRequest((TriggerMessageRequest) request);
+		}
 
-    return result;
-  }
+		return result;
+	}
 }

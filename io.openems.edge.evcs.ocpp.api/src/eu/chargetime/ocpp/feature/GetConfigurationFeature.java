@@ -33,22 +33,22 @@ import eu.chargetime.ocpp.model.core.GetConfigurationConfirmation;
 import eu.chargetime.ocpp.model.core.GetConfigurationRequest;
 
 public class GetConfigurationFeature extends ProfileFeature {
-  public GetConfigurationFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public GetConfigurationFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return GetConfigurationRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return GetConfigurationRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return GetConfigurationConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return GetConfigurationConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "GetConfiguration";
-  }
+	@Override
+	public String getAction() {
+		return "GetConfiguration";
+	}
 }

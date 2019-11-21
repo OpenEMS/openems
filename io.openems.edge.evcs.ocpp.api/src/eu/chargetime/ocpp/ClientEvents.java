@@ -28,7 +28,7 @@ SOFTWARE.
 */
 
 public interface ClientEvents {
-  void connectionOpened();
+	void connectionOpened();
 
-  void connectionClosed();
+	void connectionClosed();
 }

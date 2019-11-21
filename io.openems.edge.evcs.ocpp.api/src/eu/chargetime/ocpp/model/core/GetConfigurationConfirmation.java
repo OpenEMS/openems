@@ -38,106 +38,105 @@ SOFTWARE.
 */
 
 /**
- * Sent by Charge Point the to the Central System in response to a {@link GetConfigurationRequest}.
+ * Sent by Charge Point the to the Central System in response to a
+ * {@link GetConfigurationRequest}.
  */
 @XmlRootElement(name = "getConfigurationResponse")
-@XmlType(propOrder = {"configurationKey", "unknownKey"})
+@XmlType(propOrder = { "configurationKey", "unknownKey" })
 public class GetConfigurationConfirmation implements Confirmation {
 
-  private static final String ERROR_MESSAGE = "Exceeds limit of %s chars";
+	private static final String ERROR_MESSAGE = "Exceeds limit of %s chars";
 
-  private KeyValueType[] configurationKey;
-  private String[] unknownKey;
+	private KeyValueType[] configurationKey;
+	private String[] unknownKey;
 
-  /**
-   * List of requested or known keys.
-   *
-   * @return Array of {@link KeyValueType}.
-   */
-  public KeyValueType[] getConfigurationKey() {
-    return configurationKey;
-  }
+	/**
+	 * List of requested or known keys.
+	 *
+	 * @return Array of {@link KeyValueType}.
+	 */
+	public KeyValueType[] getConfigurationKey() {
+		return configurationKey;
+	}
 
-  /**
-   * Optional. List of requested or known keys.
-   *
-   * @param configurationKey Array of {@link KeyValueType}.
-   */
-  @XmlElement
-  public void setConfigurationKey(KeyValueType[] configurationKey) {
-    this.configurationKey = configurationKey;
-  }
+	/**
+	 * Optional. List of requested or known keys.
+	 *
+	 * @param configurationKey Array of {@link KeyValueType}.
+	 */
+	@XmlElement
+	public void setConfigurationKey(KeyValueType[] configurationKey) {
+		this.configurationKey = configurationKey;
+	}
 
-  /**
-   * Requested keys that are unknown.
-   *
-   * @return Array of key names.
-   */
-  public String[] getUnknownKey() {
-    return unknownKey;
-  }
+	/**
+	 * Requested keys that are unknown.
+	 *
+	 * @return Array of key names.
+	 */
+	public String[] getUnknownKey() {
+		return unknownKey;
+	}
 
-  /**
-   * Optional. Requested keys that are unknown.
-   *
-   * @param unknownKey Array of String, max 50 characters, case insensitive.
-   */
-  @XmlElement
-  public void setUnknownKey(String[] unknownKey) {
-    isValidUnknownKey(unknownKey);
+	/**
+	 * Optional. Requested keys that are unknown.
+	 *
+	 * @param unknownKey Array of String, max 50 characters, case insensitive.
+	 */
+	@XmlElement
+	public void setUnknownKey(String[] unknownKey) {
+		isValidUnknownKey(unknownKey);
 
-    this.unknownKey = unknownKey;
-  }
+		this.unknownKey = unknownKey;
+	}
 
-  private void isValidUnknownKey(String[] unknownKeys) {
+	private void isValidUnknownKey(String[] unknownKeys) {
 
-    for (String key : unknownKeys) {
-      if (!ModelUtil.validate(key, 50)) {
-        throw new PropertyConstraintException(key.length(), String.format(ERROR_MESSAGE, 50));
-      }
-    }
-  }
+		for (String key : unknownKeys) {
+			if (!ModelUtil.validate(key, 50)) {
+				throw new PropertyConstraintException(key.length(), String.format(ERROR_MESSAGE, 50));
+			}
+		}
+	}
 
-  private boolean validateConfigurationKeys() {
-    boolean output = true;
+	private boolean validateConfigurationKeys() {
+		boolean output = true;
 
-    if (configurationKey != null && configurationKey.length > 0) {
-      for (KeyValueType key : configurationKey) {
-        if (!key.validate()) {
-          output = false;
-          break;
-        }
-      }
-    }
+		if (configurationKey != null && configurationKey.length > 0) {
+			for (KeyValueType key : configurationKey) {
+				if (!key.validate()) {
+					output = false;
+					break;
+				}
+			}
+		}
 
-    return output;
-  }
+		return output;
+	}
 
-  @Override
-  public boolean validate() {
-    return validateConfigurationKeys();
-  }
+	@Override
+	public boolean validate() {
+		return validateConfigurationKeys();
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    GetConfigurationConfirmation that = (GetConfigurationConfirmation) o;
-    return Arrays.equals(configurationKey, that.configurationKey)
-        && Arrays.equals(unknownKey, that.unknownKey);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		GetConfigurationConfirmation that = (GetConfigurationConfirmation) o;
+		return Arrays.equals(configurationKey, that.configurationKey) && Arrays.equals(unknownKey, that.unknownKey);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(configurationKey, unknownKey);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(configurationKey, unknownKey);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("configurationKey", configurationKey)
-        .add("unknownKey", unknownKey)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("configurationKey", configurationKey).add("unknownKey", unknownKey)
+				.add("isValid", validate()).toString();
+	}
 }

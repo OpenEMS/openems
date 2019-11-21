@@ -28,5 +28,5 @@ package eu.chargetime.ocpp.model.validation;
 import eu.chargetime.ocpp.PropertyConstraintException;
 
 public interface IValidationRule {
-  void validate(String value) throws PropertyConstraintException;
+	void validate(String value) throws PropertyConstraintException;
 }

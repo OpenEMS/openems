@@ -32,74 +32,78 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/** Sent by the Charge Point to the Central System in response to a {@link ResetRequest}. */
+/**
+ * Sent by the Charge Point to the Central System in response to a
+ * {@link ResetRequest}.
+ */
 @XmlRootElement
 public class ResetConfirmation implements Confirmation {
-  private ResetStatus status;
+	private ResetStatus status;
 
-  public ResetConfirmation() {}
+	public ResetConfirmation() {
+	}
 
-  /**
-   * Set required fields.
-   *
-   * @param status the {@link ResetStatus}, see {@link #setStatus(ResetStatus)}.
-   */
-  public ResetConfirmation(ResetStatus status) {
-    setStatus(status);
-  }
+	/**
+	 * Set required fields.
+	 *
+	 * @param status the {@link ResetStatus}, see {@link #setStatus(ResetStatus)}.
+	 */
+	public ResetConfirmation(ResetStatus status) {
+		setStatus(status);
+	}
 
-  @Override
-  public boolean validate() {
-    return status != null;
-  }
+	@Override
+	public boolean validate() {
+		return status != null;
+	}
 
-  /**
-   * This indicates whether the Charge Point is able to perform the reset.
-   *
-   * @return the {@link ResetStatus}.
-   */
-  public ResetStatus getStatus() {
-    return status;
-  }
+	/**
+	 * This indicates whether the Charge Point is able to perform the reset.
+	 *
+	 * @return the {@link ResetStatus}.
+	 */
+	public ResetStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * This indicates whether the Charge Point is able to perform the reset.
-   *
-   * @return the {@link ResetStatus}.
-   */
-  @Deprecated
-  public ResetStatus objStatus() {
-    return status;
-  }
+	/**
+	 * This indicates whether the Charge Point is able to perform the reset.
+	 *
+	 * @return the {@link ResetStatus}.
+	 */
+	@Deprecated
+	public ResetStatus objStatus() {
+		return status;
+	}
 
-  /**
-   * Required. This indicates whether the Charge Point is able to perform the reset.
-   *
-   * @param status the {@link ResetStatus}.
-   */
-  @XmlElement
-  public void setStatus(ResetStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Required. This indicates whether the Charge Point is able to perform the
+	 * reset.
+	 *
+	 * @param status the {@link ResetStatus}.
+	 */
+	@XmlElement
+	public void setStatus(ResetStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ResetConfirmation that = (ResetConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ResetConfirmation that = (ResetConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

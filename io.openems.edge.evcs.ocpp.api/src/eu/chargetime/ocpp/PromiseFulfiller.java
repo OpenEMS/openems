@@ -30,6 +30,5 @@ import eu.chargetime.ocpp.model.Request;
 import java.util.concurrent.CompletableFuture;
 
 public interface PromiseFulfiller {
-  void fulfill(
-      CompletableFuture<Confirmation> promise, SessionEvents eventHandler, Request request);
+	void fulfill(CompletableFuture<Confirmation> promise, SessionEvents eventHandler, Request request);
 }

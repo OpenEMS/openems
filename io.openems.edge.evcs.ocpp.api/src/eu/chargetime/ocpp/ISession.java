@@ -29,15 +29,15 @@ import java.util.UUID;
    SOFTWARE.
 */
 public interface ISession {
-  UUID getSessionId();
+	UUID getSessionId();
 
-  void open(String uri, SessionEvents eventHandler);
+	void open(String uri, SessionEvents eventHandler);
 
-  void accept(SessionEvents eventHandler);
+	void accept(SessionEvents eventHandler);
 
-  String storeRequest(Request payload);
+	String storeRequest(Request payload);
 
-  void sendRequest(String action, Request payload, String uuid);
+	void sendRequest(String action, Request payload, String uuid);
 
-  void close();
+	void close();
 }

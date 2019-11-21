@@ -32,9 +32,9 @@ import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationRequest;
 import java.util.UUID;
 
 public interface ServerFirmwareManagementEventHandler {
-  DiagnosticsStatusNotificationConfirmation handleDiagnosticsStatusNotificationRequest(
-      UUID sessionIndex, DiagnosticsStatusNotificationRequest request);
+	DiagnosticsStatusNotificationConfirmation handleDiagnosticsStatusNotificationRequest(UUID sessionIndex,
+			DiagnosticsStatusNotificationRequest request);
 
-  FirmwareStatusNotificationConfirmation handleFirmwareStatusNotificationRequest(
-      UUID sessionIndex, FirmwareStatusNotificationRequest request);
+	FirmwareStatusNotificationConfirmation handleFirmwareStatusNotificationRequest(UUID sessionIndex,
+			FirmwareStatusNotificationRequest request);
 }

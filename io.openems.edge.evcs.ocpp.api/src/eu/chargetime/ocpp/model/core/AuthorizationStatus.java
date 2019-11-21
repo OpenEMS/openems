@@ -32,9 +32,5 @@ package eu.chargetime.ocpp.model.core;
  * @see IdTagInfo
  */
 public enum AuthorizationStatus {
-  Accepted,
-  Blocked,
-  Expired,
-  Invalid,
-  ConcurrentTx
+	Accepted, Blocked, Expired, Invalid, ConcurrentTx
 }

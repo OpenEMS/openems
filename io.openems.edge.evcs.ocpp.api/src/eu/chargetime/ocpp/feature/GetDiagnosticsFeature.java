@@ -34,27 +34,27 @@ import eu.chargetime.ocpp.model.firmware.GetDiagnosticsRequest;
 
 public class GetDiagnosticsFeature extends ProfileFeature {
 
-  /**
-   * Creates link back to the {@link Profile}.
-   *
-   * @param ownerProfile the {@link Profile} that owns the function.
-   */
-  public GetDiagnosticsFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	/**
+	 * Creates link back to the {@link Profile}.
+	 *
+	 * @param ownerProfile the {@link Profile} that owns the function.
+	 */
+	public GetDiagnosticsFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return GetDiagnosticsRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return GetDiagnosticsRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return GetDiagnosticsConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return GetDiagnosticsConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "GetDiagnostics";
-  }
+	@Override
+	public String getAction() {
+		return "GetDiagnostics";
+	}
 }

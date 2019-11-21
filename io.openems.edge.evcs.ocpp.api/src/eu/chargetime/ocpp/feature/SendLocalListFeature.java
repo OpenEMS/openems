@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.localauthlist.SendLocalListRequest;
 
 public class SendLocalListFeature extends ProfileFeature {
 
-  public SendLocalListFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public SendLocalListFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return SendLocalListRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return SendLocalListRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return SendLocalListConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return SendLocalListConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "SendLocalList";
-  }
+	@Override
+	public String getAction() {
+		return "SendLocalList";
+	}
 }

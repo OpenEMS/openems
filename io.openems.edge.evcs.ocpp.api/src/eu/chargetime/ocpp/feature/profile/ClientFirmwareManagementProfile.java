@@ -34,59 +34,57 @@ import java.util.UUID;
 
 public class ClientFirmwareManagementProfile implements Profile {
 
-  private HashSet<Feature> features;
-  private ClientFirmwareManagementEventHandler eventHandler;
+	private HashSet<Feature> features;
+	private ClientFirmwareManagementEventHandler eventHandler;
 
-  public ClientFirmwareManagementProfile(ClientFirmwareManagementEventHandler eventHandler) {
-    this.eventHandler = eventHandler;
-    features = new HashSet<>();
-    features.add(new GetDiagnosticsFeature(this));
-    features.add(new DiagnosticsStatusNotificationFeature(this));
-    features.add(new FirmwareStatusNotificationFeature(this));
-    features.add(new UpdateFirmwareFeature(this));
-  }
+	public ClientFirmwareManagementProfile(ClientFirmwareManagementEventHandler eventHandler) {
+		this.eventHandler = eventHandler;
+		features = new HashSet<>();
+		features.add(new GetDiagnosticsFeature(this));
+		features.add(new DiagnosticsStatusNotificationFeature(this));
+		features.add(new FirmwareStatusNotificationFeature(this));
+		features.add(new UpdateFirmwareFeature(this));
+	}
 
-  /**
-   * Create a {@link DiagnosticsStatusNotificationRequest} with required values.
-   *
-   * @param status required. Identification of the {@link DiagnosticsStatus}.
-   * @return an instance of {@link DiagnosticsStatusNotificationRequest}.
-   * @see DiagnosticsStatusNotificationRequest
-   * @see DiagnosticsStatusNotificationFeature
-   */
-  public DiagnosticsStatusNotificationRequest createDiagnosticsStatusNotificationRequest(
-      DiagnosticsStatus status) {
-    return new DiagnosticsStatusNotificationRequest(status);
-  }
+	/**
+	 * Create a {@link DiagnosticsStatusNotificationRequest} with required values.
+	 *
+	 * @param status required. Identification of the {@link DiagnosticsStatus}.
+	 * @return an instance of {@link DiagnosticsStatusNotificationRequest}.
+	 * @see DiagnosticsStatusNotificationRequest
+	 * @see DiagnosticsStatusNotificationFeature
+	 */
+	public DiagnosticsStatusNotificationRequest createDiagnosticsStatusNotificationRequest(DiagnosticsStatus status) {
+		return new DiagnosticsStatusNotificationRequest(status);
+	}
 
-  /**
-   * Create a {@link FirmwareStatusNotificationRequest} with required values.
-   *
-   * @param status required. Identification of the {@link FirmwareStatus}.
-   * @return an instance of {@link FirmwareStatusNotificationRequest}.
-   * @see FirmwareStatusNotificationRequest
-   * @see FirmwareStatusNotificationFeature
-   */
-  public FirmwareStatusNotificationRequest createFirmwareStatusNotificationRequest(
-      FirmwareStatus status) {
-    return new FirmwareStatusNotificationRequest(status);
-  }
+	/**
+	 * Create a {@link FirmwareStatusNotificationRequest} with required values.
+	 *
+	 * @param status required. Identification of the {@link FirmwareStatus}.
+	 * @return an instance of {@link FirmwareStatusNotificationRequest}.
+	 * @see FirmwareStatusNotificationRequest
+	 * @see FirmwareStatusNotificationFeature
+	 */
+	public FirmwareStatusNotificationRequest createFirmwareStatusNotificationRequest(FirmwareStatus status) {
+		return new FirmwareStatusNotificationRequest(status);
+	}
 
-  @Override
-  public ProfileFeature[] getFeatureList() {
-    return features.toArray(new ProfileFeature[0]);
-  }
+	@Override
+	public ProfileFeature[] getFeatureList() {
+		return features.toArray(new ProfileFeature[0]);
+	}
 
-  @Override
-  public Confirmation handleRequest(UUID sessionIndex, Request request) {
-    Confirmation result = null;
+	@Override
+	public Confirmation handleRequest(UUID sessionIndex, Request request) {
+		Confirmation result = null;
 
-    if (request instanceof GetDiagnosticsRequest) {
-      result = eventHandler.handleGetDiagnosticsRequest((GetDiagnosticsRequest) request);
-    } else if (request instanceof UpdateFirmwareRequest) {
-      result = eventHandler.handleUpdateFirmwareRequest((UpdateFirmwareRequest) request);
-    }
+		if (request instanceof GetDiagnosticsRequest) {
+			result = eventHandler.handleGetDiagnosticsRequest((GetDiagnosticsRequest) request);
+		} else if (request instanceof UpdateFirmwareRequest) {
+			result = eventHandler.handleUpdateFirmwareRequest((UpdateFirmwareRequest) request);
+		}
 
-    return result;
-  }
+		return result;
+	}
 }

@@ -33,59 +33,62 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/** Sent by the Charge Point to the Central System in response to an {@link ReserveNowRequest}. */
+/**
+ * Sent by the Charge Point to the Central System in response to an
+ * {@link ReserveNowRequest}.
+ */
 @XmlRootElement(name = "reserveNowResponse")
 public class ReserveNowConfirmation implements Confirmation {
-  private ReservationStatus status;
+	private ReservationStatus status;
 
-  public ReserveNowConfirmation() {}
+	public ReserveNowConfirmation() {
+	}
 
-  public ReserveNowConfirmation(ReservationStatus status) {
-    setStatus(status);
-  }
+	public ReserveNowConfirmation(ReservationStatus status) {
+		setStatus(status);
+	}
 
-  @Override
-  public boolean validate() {
-    return status != null;
-  }
+	@Override
+	public boolean validate() {
+		return status != null;
+	}
 
-  /**
-   * This indicates the success or failure of the reservation.
-   *
-   * @return ReservationStatus, status of the reservation.
-   */
-  public ReservationStatus getStatus() {
-    return status;
-  }
+	/**
+	 * This indicates the success or failure of the reservation.
+	 *
+	 * @return ReservationStatus, status of the reservation.
+	 */
+	public ReservationStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * Required. This indicates the success or failure of the reservation.
-   *
-   * @param status ReservationStatus, status of the reservation.
-   */
-  @XmlElement
-  public void setStatus(ReservationStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Required. This indicates the success or failure of the reservation.
+	 *
+	 * @param status ReservationStatus, status of the reservation.
+	 */
+	@XmlElement
+	public void setStatus(ReservationStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ReserveNowConfirmation that = (ReserveNowConfirmation) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ReserveNowConfirmation that = (ReserveNowConfirmation) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

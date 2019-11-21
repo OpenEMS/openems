@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.core.BootNotificationRequest;
 
 public class BootNotificationFeature extends ProfileFeature {
 
-  public BootNotificationFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public BootNotificationFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return BootNotificationRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return BootNotificationRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return BootNotificationConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return BootNotificationConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "BootNotification";
-  }
+	@Override
+	public String getAction() {
+		return "BootNotification";
+	}
 }

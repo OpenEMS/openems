@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.firmware.UpdateFirmwareRequest;
 
 public class UpdateFirmwareFeature extends ProfileFeature {
 
-  public UpdateFirmwareFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public UpdateFirmwareFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return UpdateFirmwareRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return UpdateFirmwareRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return UpdateFirmwareConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return UpdateFirmwareConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "UpdateFirmware";
-  }
+	@Override
+	public String getAction() {
+		return "UpdateFirmware";
+	}
 }

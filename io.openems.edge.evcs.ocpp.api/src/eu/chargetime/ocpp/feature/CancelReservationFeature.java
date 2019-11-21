@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.reservation.CancelReservationRequest;
 
 public class CancelReservationFeature extends ProfileFeature {
 
-  public CancelReservationFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public CancelReservationFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return CancelReservationRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return CancelReservationRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return CancelReservationConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return CancelReservationConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "CancelReservation";
-  }
+	@Override
+	public String getAction() {
+		return "CancelReservation";
+	}
 }

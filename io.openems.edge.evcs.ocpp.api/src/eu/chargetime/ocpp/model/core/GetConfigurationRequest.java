@@ -39,62 +39,64 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class GetConfigurationRequest implements Request {
 
-  private String[] key;
+	private String[] key;
 
-  /**
-   * List of keys for which the configuration value is requested.
-   *
-   * @return Array of key names.
-   */
-  public String[] getKey() {
-    return key;
-  }
+	/**
+	 * List of keys for which the configuration value is requested.
+	 *
+	 * @return Array of key names.
+	 */
+	public String[] getKey() {
+		return key;
+	}
 
-  /**
-   * Optional. List of keys for which the configuration value is requested.
-   *
-   * @param key Array of Strings, max 50 characters each, case insensitive.
-   */
-  @XmlElement
-  public void setKey(String[] key) {
-    validateKeys(key);
+	/**
+	 * Optional. List of keys for which the configuration value is requested.
+	 *
+	 * @param key Array of Strings, max 50 characters each, case insensitive.
+	 */
+	@XmlElement
+	public void setKey(String[] key) {
+		validateKeys(key);
 
-    this.key = key;
-  }
+		this.key = key;
+	}
 
-  private void validateKeys(String[] keys) {
-    for (String k : keys) {
-      if (!ModelUtil.validate(k, 50)) {
-        throw new PropertyConstraintException(k.length(), "Exceeds limit of 50 chars");
-      }
-    }
-  }
+	private void validateKeys(String[] keys) {
+		for (String k : keys) {
+			if (!ModelUtil.validate(k, 50)) {
+				throw new PropertyConstraintException(k.length(), "Exceeds limit of 50 chars");
+			}
+		}
+	}
 
-  @Override
-  public boolean validate() {
-    return true;
-  }
+	@Override
+	public boolean validate() {
+		return true;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    GetConfigurationRequest that = (GetConfigurationRequest) o;
-    return Arrays.equals(key, that.key);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		GetConfigurationRequest that = (GetConfigurationRequest) o;
+		return Arrays.equals(key, that.key);
+	}
 
-  @Override
-  public int hashCode() {
-    return Arrays.hashCode(key);
-  }
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(key);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("key", key).add("isValid", validate()).toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("key", key).add("isValid", validate()).toString();
+	}
 }

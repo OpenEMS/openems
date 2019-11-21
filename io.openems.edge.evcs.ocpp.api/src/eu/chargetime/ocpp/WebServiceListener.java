@@ -25,128 +25,108 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import com.sun.net.httpserver.HttpServer;
-import eu.chargetime.ocpp.model.SOAPHostInfo;
-import eu.chargetime.ocpp.model.SessionInformation;
-import eu.chargetime.ocpp.utilities.TimeoutTimer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+
 import javax.xml.soap.SOAPMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.net.httpserver.HttpServer;
+
+import eu.chargetime.ocpp.model.SOAPHostInfo;
+import eu.chargetime.ocpp.model.SessionInformation;
+
 public class WebServiceListener implements Listener {
-  private static final Logger logger = LoggerFactory.getLogger(WebServiceListener.class);
-  private static final String WSDL_CENTRAL_SYSTEM =
-      "eu/chargetime/ocpp/OCPP_CentralSystemService_1.6.wsdl";
-  private final ISessionFactory sessionFactory;
+	private static final Logger logger = LoggerFactory.getLogger(WebServiceListener.class);
+	private static final String WSDL_CENTRAL_SYSTEM = "eu/chargetime/ocpp/OCPP_CentralSystemService_1.6.wsdl";
+	private final ISessionFactory sessionFactory;
 
-  private ListenerEvents events;
-  private String fromUrl = null;
-  private HttpServer server;
-  private boolean handleRequestAsync;
-  private volatile boolean closed = true;
+	private ListenerEvents events;
+	private String fromUrl = null;
+	private HttpServer server;
+	private volatile boolean closed = true;
 
-  public WebServiceListener(ISessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
-  }
+	public WebServiceListener(ISessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
-  @Override
-  public void open(String hostname, int port, ListenerEvents listenerEvents) {
-    events = listenerEvents;
-    fromUrl = String.format("http://%s:%d", hostname, port);
-    try {
-      server = HttpServer.create(new InetSocketAddress(hostname, port), 0);
-      server.createContext("/", new WSHttpHandler(WSDL_CENTRAL_SYSTEM, new WSHttpEventHandler()));
+	@Override
+	public void open(String hostname, int port, ListenerEvents listenerEvents) {
+		events = listenerEvents;
+		fromUrl = String.format("http://%s:%d", hostname, port);
+		try {
+			server = HttpServer.create(new InetSocketAddress(hostname, port), 0);
+			server.createContext("/", new WSHttpHandler(WSDL_CENTRAL_SYSTEM, new WSHttpEventHandler()));
 
-      server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
-      server.start();
+			server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
+			server.start();
 
-      closed = false;
-    } catch (IOException e) {
-      logger.warn("open() failed", e);
-    }
-  }
+			closed = false;
+		} catch (IOException e) {
+			logger.warn("open() failed", e);
+		}
+	}
 
-  @Override
-  public void close() {
-    if (server != null) server.stop(1);
-    closed = true;
-  }
+	@Override
+	public void close() {
+		if (server != null)
+			server.stop(1);
+		closed = true;
+	}
 
-  @Override
-  public boolean isClosed() {
-    return closed;
-  }
+	@Override
+	public boolean isClosed() {
+		return closed;
+	}
 
-  @Override
-  public void setAsyncRequestHandler(boolean async) {
-    handleRequestAsync = async;
-  }
+	@Override
+	public void setAsyncRequestHandler(boolean async) {
+	}
 
-  private class WSHttpEventHandler implements WSHttpHandlerEvents {
-    private static final long INITIAL_TIMEOUT = 1000 * 60 * 5;
-    HashMap<String, WebServiceReceiver> chargeBoxes;
+	private class WSHttpEventHandler implements WSHttpHandlerEvents {
+		HashMap<String, WebServiceReceiver> chargeBoxes;
 
-    public WSHttpEventHandler() {
-      chargeBoxes = new HashMap<>();
-    }
+		public WSHttpEventHandler() {
+			chargeBoxes = new HashMap<>();
+		}
 
-    private void removeChargebox(String identity) {
-      if (chargeBoxes.containsKey(identity)) chargeBoxes.remove(identity);
-    }
+		private void removeChargebox(String identity) {
+			if (chargeBoxes.containsKey(identity))
+				chargeBoxes.remove(identity);
+		}
 
-    @Override
-    public SOAPMessage incomingRequest(SOAPMessageInfo messageInfo) {
-      SOAPMessage message = messageInfo.getMessage();
-      String identity = SOAPSyncHelper.getHeaderValue(message, "chargeBoxIdentity");
-      if (!chargeBoxes.containsKey(identity)) {
-        String toUrl = SOAPSyncHelper.getHeaderValue(message, "From");
-        WebServiceReceiver webServiceReceiver =
-            new WebServiceReceiver(toUrl, () -> removeChargebox(identity));
+		@Override
+		public SOAPMessage incomingRequest(SOAPMessageInfo messageInfo) {
+			SOAPMessage message = messageInfo.getMessage();
+			String identity = SOAPSyncHelper.getHeaderValue(message, "chargeBoxIdentity");
+			if (!chargeBoxes.containsKey(identity)) {
+				String toUrl = SOAPSyncHelper.getHeaderValue(message, "From");
+				WebServiceReceiver webServiceReceiver = new WebServiceReceiver(toUrl, () -> removeChargebox(identity));
 
-        SOAPHostInfo hostInfo =
-            new SOAPHostInfo.Builder()
-                .isClient(false)
-                .chargeBoxIdentity(identity)
-                .fromUrl(fromUrl)
-                .namespace(SOAPHostInfo.NAMESPACE_CENTRALSYSTEM)
-                .build();
-        SOAPCommunicator communicator = new SOAPCommunicator(hostInfo, webServiceReceiver);
-        communicator.setToUrl(toUrl);
+				SOAPHostInfo hostInfo = new SOAPHostInfo.Builder().isClient(false).chargeBoxIdentity(identity)
+						.fromUrl(fromUrl).namespace(SOAPHostInfo.NAMESPACE_CENTRALSYSTEM).build();
+				SOAPCommunicator communicator = new SOAPCommunicator(hostInfo, webServiceReceiver);
+				communicator.setToUrl(toUrl);
 
-        ISession session = sessionFactory.createSession(communicator);
-        TimeoutTimer timeoutTimer =
-            new TimeoutTimer(
-                INITIAL_TIMEOUT,
-                () -> {
-                  session.close();
-                  chargeBoxes.remove(identity);
-                });
+				ISession session = sessionFactory.createSession(communicator);
+				SessionInformation information = new SessionInformation.Builder().Identifier(identity)
+						.InternetAddress(messageInfo.getAddress()).SOAPtoURL(toUrl).build();
+				events.newSession(session, information);
+				chargeBoxes.put(identity, webServiceReceiver);
+			}
 
-        // TODO: Decorator created but not used
-        ISession sessionDecorator = new TimeoutSessionDecorator(timeoutTimer, session);
+			SOAPMessage confirmation = null;
+			try {
+				confirmation = chargeBoxes.get(identity).relay(message).get();
+			} catch (InterruptedException | ExecutionException e) {
+				logger.warn("incomingRequest() chargeBoxes.relay failed", e);
+			}
 
-        SessionInformation information =
-            new SessionInformation.Builder()
-                .Identifier(identity)
-                .InternetAddress(messageInfo.getAddress())
-                .SOAPtoURL(toUrl)
-                .build();
-        events.newSession(session, information);
-        chargeBoxes.put(identity, webServiceReceiver);
-      }
-
-      SOAPMessage confirmation = null;
-      try {
-        confirmation = chargeBoxes.get(identity).relay(message).get();
-      } catch (InterruptedException | ExecutionException e) {
-        logger.warn("incomingRequest() chargeBoxes.relay failed", e);
-      }
-
-      return confirmation;
-    }
-  }
+			return confirmation;
+		}
+	}
 }

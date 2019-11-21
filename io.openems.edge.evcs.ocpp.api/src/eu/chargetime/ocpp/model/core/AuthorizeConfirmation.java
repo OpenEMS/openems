@@ -33,55 +33,59 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/** Sent by the Central System to the Charge Point in response to a {@link AuthorizeRequest}. */
+/**
+ * Sent by the Central System to the Charge Point in response to a
+ * {@link AuthorizeRequest}.
+ */
 @XmlRootElement(name = "authorizeResponse")
 public class AuthorizeConfirmation implements Confirmation {
-  private IdTagInfo idTagInfo;
+	private IdTagInfo idTagInfo;
 
-  /**
-   * This contains information about authorization status, expiry and parent id.
-   *
-   * @return an instance of {@link IdTagInfo}.
-   */
-  public IdTagInfo getIdTagInfo() {
-    return idTagInfo;
-  }
+	/**
+	 * This contains information about authorization status, expiry and parent id.
+	 *
+	 * @return an instance of {@link IdTagInfo}.
+	 */
+	public IdTagInfo getIdTagInfo() {
+		return idTagInfo;
+	}
 
-  /**
-   * Required. This contains information about authorization status, expiry and parent id.
-   *
-   * @param idTagInfo an instance of {@link IdTagInfo}.
-   */
-  @XmlElement
-  public void setIdTagInfo(IdTagInfo idTagInfo) {
-    this.idTagInfo = idTagInfo;
-  }
+	/**
+	 * Required. This contains information about authorization status, expiry and
+	 * parent id.
+	 *
+	 * @param idTagInfo an instance of {@link IdTagInfo}.
+	 */
+	@XmlElement
+	public void setIdTagInfo(IdTagInfo idTagInfo) {
+		this.idTagInfo = idTagInfo;
+	}
 
-  @Override
-  public boolean validate() {
-    boolean valid = true;
-    if (valid &= idTagInfo != null) valid &= idTagInfo.validate();
-    return valid;
-  }
+	@Override
+	public boolean validate() {
+		boolean valid = true;
+		if (valid &= idTagInfo != null)
+			valid &= idTagInfo.validate();
+		return valid;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    AuthorizeConfirmation response = (AuthorizeConfirmation) o;
-    return Objects.equals(idTagInfo, response.idTagInfo);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		AuthorizeConfirmation response = (AuthorizeConfirmation) o;
+		return Objects.equals(idTagInfo, response.idTagInfo);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(idTagInfo);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(idTagInfo);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("idTagInfo", idTagInfo)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("idTagInfo", idTagInfo).add("isValid", validate()).toString();
+	}
 }

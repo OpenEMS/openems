@@ -35,22 +35,22 @@ import eu.chargetime.ocpp.model.reservation.ReserveNowRequest;
 
 public class ReserveNowFeature extends ProfileFeature {
 
-  public ReserveNowFeature(Profile ownerProfile) {
-    super(ownerProfile);
-  }
+	public ReserveNowFeature(Profile ownerProfile) {
+		super(ownerProfile);
+	}
 
-  @Override
-  public Class<? extends Request> getRequestType() {
-    return ReserveNowRequest.class;
-  }
+	@Override
+	public Class<? extends Request> getRequestType() {
+		return ReserveNowRequest.class;
+	}
 
-  @Override
-  public Class<? extends Confirmation> getConfirmationType() {
-    return ReserveNowConfirmation.class;
-  }
+	@Override
+	public Class<? extends Confirmation> getConfirmationType() {
+		return ReserveNowConfirmation.class;
+	}
 
-  @Override
-  public String getAction() {
-    return "ReserveNow";
-  }
+	@Override
+	public String getAction() {
+		return "ReserveNow";
+	}
 }

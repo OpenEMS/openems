@@ -39,58 +39,59 @@ SOFTWARE.
 
 /** Class to store and restore requests based on a unique id. */
 public class Queue {
-  private static final Logger logger = LoggerFactory.getLogger(Queue.class);
+	private static final Logger logger = LoggerFactory.getLogger(Queue.class);
 
-  public static final int REQUEST_QUEUE_INITIAL_CAPACITY = 1000;
+	public static final int REQUEST_QUEUE_INITIAL_CAPACITY = 1000;
 
-  private Map<String, Request> requestQueue;
+	private Map<String, Request> requestQueue;
 
-  public Queue() {
-    requestQueue = new ConcurrentHashMap<>(REQUEST_QUEUE_INITIAL_CAPACITY);
-  }
+	public Queue() {
+		requestQueue = new ConcurrentHashMap<>(REQUEST_QUEUE_INITIAL_CAPACITY);
+	}
 
-  /**
-   * Store a {@link Request} and get a unique identifier to fetch it later on.
-   *
-   * @param request the {@link Request}.
-   * @return a unique identifier used to fetch the request.
-   */
-  public String store(Request request) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
+	/**
+	 * Store a {@link Request} and get a unique identifier to fetch it later on.
+	 *
+	 * @param request the {@link Request}.
+	 * @return a unique identifier used to fetch the request.
+	 */
+	public String store(Request request) {
+		Stopwatch stopwatch = Stopwatch.createStarted();
 
-    String ticket = UUID.randomUUID().toString();
-    requestQueue.put(ticket, request);
+		String ticket = UUID.randomUUID().toString();
+		requestQueue.put(ticket, request);
 
-    logger.debug("Queue size: {}, store time: {}", requestQueue.size(), stopwatch.stop());
+		logger.debug("Queue size: {}, store time: {}", requestQueue.size(), stopwatch.stop());
 
-    return ticket;
-  }
+		return ticket;
+	}
 
-  /**
-   * Restore a {@link Request} using a unique identifier. The identifier can only be used once. If
-   * no Request was found, null is returned.
-   *
-   * @param ticket unique identifier returned when {@link Request} was initially stored.
-   * @return the optional with stored {@link Request}
-   */
-  public Optional<Request> restoreRequest(String ticket) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
+	/**
+	 * Restore a {@link Request} using a unique identifier. The identifier can only
+	 * be used once. If no Request was found, null is returned.
+	 *
+	 * @param ticket unique identifier returned when {@link Request} was initially
+	 *               stored.
+	 * @return the optional with stored {@link Request}
+	 */
+	public Optional<Request> restoreRequest(String ticket) {
+		Stopwatch stopwatch = Stopwatch.createStarted();
 
-    try {
-      Request request = requestQueue.get(ticket);
-      requestQueue.remove(ticket);
+		try {
+			Request request = requestQueue.get(ticket);
+			requestQueue.remove(ticket);
 
-      logger.debug("Queue size: {}, store time: {}", requestQueue.size(), stopwatch.stop());
+			logger.debug("Queue size: {}, store time: {}", requestQueue.size(), stopwatch.stop());
 
-      return Optional.ofNullable(request);
-    } catch (Exception ex) {
-      logger.warn("restoreRequest({}) failed", ticket, ex);
-    }
-    return Optional.empty();
-  }
+			return Optional.ofNullable(request);
+		} catch (Exception ex) {
+			logger.warn("restoreRequest({}) failed", ticket, ex);
+		}
+		return Optional.empty();
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("requestQueue", requestQueue).toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("requestQueue", requestQueue).toString();
+	}
 }

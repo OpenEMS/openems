@@ -169,5 +169,12 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.8.0-beta4</version>
 		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.ocpp.core -->
+			<groupId>com.sun.net.httpserver</groupId>
+			<artifactId>http</artifactId>
+			<version>20070405</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

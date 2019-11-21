@@ -37,70 +37,70 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class FirmwareStatusNotificationRequest implements Request {
 
-  private FirmwareStatus status;
+	private FirmwareStatus status;
 
-  public FirmwareStatusNotificationRequest() {}
+	public FirmwareStatusNotificationRequest() {
+	}
 
-  /**
-   * Set required fields.
-   *
-   * @param status Firmware status, see {@link #setStatus(FirmwareStatus)}.
-   */
-  public FirmwareStatusNotificationRequest(FirmwareStatus status) {
-    this.status = status;
-  }
+	/**
+	 * Set required fields.
+	 *
+	 * @param status Firmware status, see {@link #setStatus(FirmwareStatus)}.
+	 */
+	public FirmwareStatusNotificationRequest(FirmwareStatus status) {
+		this.status = status;
+	}
 
-  @Override
-  public boolean validate() {
-    return status != null;
-  }
+	@Override
+	public boolean validate() {
+		return status != null;
+	}
 
-  /**
-   * This contains the status.
-   *
-   * @return connector.
-   */
-  public FirmwareStatus getStatus() {
-    return status;
-  }
+	/**
+	 * This contains the status.
+	 *
+	 * @return connector.
+	 */
+	public FirmwareStatus getStatus() {
+		return status;
+	}
 
-  /**
-   * Required. This contains the identifier of the status.
-   *
-   * @param status {@link FirmwareStatus}
-   */
-  @XmlElement
-  public void setStatus(FirmwareStatus status) {
-    if (status == null) {
-      throw new PropertyConstraintException(null, "FirmwareStatus must be present");
-    }
+	/**
+	 * Required. This contains the identifier of the status.
+	 *
+	 * @param status {@link FirmwareStatus}
+	 */
+	@XmlElement
+	public void setStatus(FirmwareStatus status) {
+		if (status == null) {
+			throw new PropertyConstraintException(null, "FirmwareStatus must be present");
+		}
 
-    this.status = status;
-  }
+		this.status = status;
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    FirmwareStatusNotificationRequest that = (FirmwareStatusNotificationRequest) o;
-    return status == that.status;
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		FirmwareStatusNotificationRequest that = (FirmwareStatusNotificationRequest) o;
+		return status == that.status;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(status);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("status", status).add("isValid", validate()).toString();
+	}
 }

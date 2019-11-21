@@ -34,52 +34,52 @@ import java.util.concurrent.CompletionStage;
 
 public class SOAPServer implements IServerAPI {
 
-  private final FeatureRepository featureRepository;
-  private final Server server;
-  private final WebServiceListener listener;
+	private final FeatureRepository featureRepository;
+	private final Server server;
+	private final WebServiceListener listener;
 
-  public SOAPServer(ServerCoreProfile coreProfile) {
+	public SOAPServer(ServerCoreProfile coreProfile) {
 
-    featureRepository = new FeatureRepository();
-    SessionFactory sessionFactory = new SessionFactory(featureRepository);
-    this.listener = new WebServiceListener(sessionFactory);
-    server = new Server(this.listener, featureRepository, new PromiseRepository());
-    featureRepository.addFeatureProfile(coreProfile);
-  }
+		featureRepository = new FeatureRepository();
+		SessionFactory sessionFactory = new SessionFactory(featureRepository);
+		this.listener = new WebServiceListener(sessionFactory);
+		server = new Server(this.listener, featureRepository, new PromiseRepository());
+		featureRepository.addFeatureProfile(coreProfile);
+	}
 
-  @Override
-  public void addFeatureProfile(Profile profile) {
-    featureRepository.addFeatureProfile(profile);
-  }
+	@Override
+	public void addFeatureProfile(Profile profile) {
+		featureRepository.addFeatureProfile(profile);
+	}
 
-  @Override
-  public void closeSession(UUID session) {
-    server.closeSession(session);
-  }
+	@Override
+	public void closeSession(UUID session) {
+		server.closeSession(session);
+	}
 
-  @Override
-  public void open(String host, int port, ServerEvents serverEvents) {
-    server.open(host, port, serverEvents);
-  }
+	@Override
+	public void open(String host, int port, ServerEvents serverEvents) {
+		server.open(host, port, serverEvents);
+	}
 
-  @Override
-  public void close() {
-    server.close();
-  }
+	@Override
+	public void close() {
+		server.close();
+	}
 
-  /**
-   * Flag if connection is closed.
-   *
-   * @return true if connection was closed or not opened
-   */
-  @Override
-  public boolean isClosed() {
-    return listener.isClosed();
-  }
+	/**
+	 * Flag if connection is closed.
+	 *
+	 * @return true if connection was closed or not opened
+	 */
+	@Override
+	public boolean isClosed() {
+		return listener.isClosed();
+	}
 
-  @Override
-  public CompletionStage<Confirmation> send(UUID session, Request request)
-      throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
-    return server.send(session, request);
-  }
+	@Override
+	public CompletionStage<Confirmation> send(UUID session, Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
+		return server.send(session, request);
+	}
 }

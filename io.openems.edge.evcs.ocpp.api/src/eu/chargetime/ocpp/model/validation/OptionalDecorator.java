@@ -27,16 +27,17 @@ package eu.chargetime.ocpp.model.validation;
 
 public class OptionalDecorator extends Validator<String> {
 
-  private final Validator validator;
+	private final Validator<String> validator;
 
-  public OptionalDecorator(Validator validator) {
-    this.validator = validator;
-  }
+	public OptionalDecorator(Validator<String> validator) {
+		this.validator = validator;
+	}
 
-  @Override
-  public void validate(String value) {
-    if (value == null) return;
+	@Override
+	public void validate(String value) {
+		if (value == null)
+			return;
 
-    this.validator.validate(value);
-  }
+		this.validator.validate(value);
+	}
 }

@@ -25,4 +25,5 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-public interface IRequestDispactcher {}
+public interface IRequestDispactcher {
+}

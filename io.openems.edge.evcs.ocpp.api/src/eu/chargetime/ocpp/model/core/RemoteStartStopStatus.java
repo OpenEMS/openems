@@ -27,10 +27,9 @@ package eu.chargetime.ocpp.model.core;
  */
 
 /**
- * Accepted values used with {@link RemoteStartTransactionConfirmation} and {@link
- * RemoteStopTransactionConfirmation}.
+ * Accepted values used with {@link RemoteStartTransactionConfirmation} and
+ * {@link RemoteStopTransactionConfirmation}.
  */
 public enum RemoteStartStopStatus {
-  Accepted,
-  Rejected
+	Accepted, Rejected
 }

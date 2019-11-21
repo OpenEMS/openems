@@ -39,73 +39,73 @@ SOFTWARE.
 @XmlRootElement
 public class AuthorizeRequest implements Request {
 
-  private static final int IDTAG_MAX_LENGTH = 20;
-  private static final String ERROR_MESSAGE = "Exceeded limit of " + IDTAG_MAX_LENGTH + " chars";
+	private static final int IDTAG_MAX_LENGTH = 20;
+	private static final String ERROR_MESSAGE = "Exceeded limit of " + IDTAG_MAX_LENGTH + " chars";
 
-  private String idTag;
+	private String idTag;
 
-  public AuthorizeRequest() {}
+	public AuthorizeRequest() {
+	}
 
-  /**
-   * Handle required fields.
-   *
-   * @param idToken authorize id.
-   */
-  public AuthorizeRequest(String idToken) {
-    setIdTag(idToken);
-  }
+	/**
+	 * Handle required fields.
+	 *
+	 * @param idToken authorize id.
+	 */
+	public AuthorizeRequest(String idToken) {
+		setIdTag(idToken);
+	}
 
-  /**
-   * This contains the identifier that needs to be authorized.
-   *
-   * @return String, max 20 characters. Case insensitive.
-   */
-  public String getIdTag() {
-    return idTag;
-  }
+	/**
+	 * This contains the identifier that needs to be authorized.
+	 *
+	 * @return String, max 20 characters. Case insensitive.
+	 */
+	public String getIdTag() {
+		return idTag;
+	}
 
-  /**
-   * Required. This contains the identifier that needs to be authorized.
-   *
-   * @param idTag String, max 20 characters. Case insensitive.
-   */
-  @XmlElement
-  public void setIdTag(String idTag) {
-    if (!ModelUtil.validate(idTag, IDTAG_MAX_LENGTH)) {
-      throw new PropertyConstraintException(idTag.length(), ERROR_MESSAGE);
-    }
+	/**
+	 * Required. This contains the identifier that needs to be authorized.
+	 *
+	 * @param idTag String, max 20 characters. Case insensitive.
+	 */
+	@XmlElement
+	public void setIdTag(String idTag) {
+		if (!ModelUtil.validate(idTag, IDTAG_MAX_LENGTH)) {
+			throw new PropertyConstraintException(idTag.length(), ERROR_MESSAGE);
+		}
 
-    this.idTag = idTag;
-  }
+		this.idTag = idTag;
+	}
 
-  @Override
-  public boolean validate() {
-    return ModelUtil.validate(idTag, IDTAG_MAX_LENGTH);
-  }
+	@Override
+	public boolean validate() {
+		return ModelUtil.validate(idTag, IDTAG_MAX_LENGTH);
+	}
 
-  @Override
-  public boolean transactionRelated() {
-    return false;
-  }
+	@Override
+	public boolean transactionRelated() {
+		return false;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    AuthorizeRequest request = (AuthorizeRequest) o;
-    return Objects.equals(idTag, request.idTag);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		AuthorizeRequest request = (AuthorizeRequest) o;
+		return Objects.equals(idTag, request.idTag);
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(idTag);
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(idTag);
+	}
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("idTag", idTag)
-        .add("isValid", validate())
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("idTag", idTag).add("isValid", validate()).toString();
+	}
 }

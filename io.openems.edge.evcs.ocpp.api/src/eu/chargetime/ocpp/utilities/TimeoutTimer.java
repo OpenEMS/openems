@@ -30,36 +30,35 @@ import java.util.TimerTask;
 
 public class TimeoutTimer extends Timer {
 
-  private TimerTask timerTask;
-  private long timeout;
-  private TimeoutHandler handler;
+	private TimerTask timerTask;
+	private long timeout;
+	private TimeoutHandler handler;
 
-  public TimeoutTimer(long timeout, TimeoutHandler handler) {
-    this.timeout = timeout;
-    this.handler = handler;
-  }
+	public TimeoutTimer(long timeout, TimeoutHandler handler) {
+		this.timeout = timeout;
+		this.handler = handler;
+	}
 
-  public void setTimeout(long timeout) {
-    this.timeout = timeout;
-  }
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
+	}
 
-  public void begin() {
-    timerTask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            handler.timeout();
-          }
-        };
-    this.schedule(timerTask, timeout);
-  }
+	public void begin() {
+		timerTask = new TimerTask() {
+			@Override
+			public void run() {
+				handler.timeout();
+			}
+		};
+		this.schedule(timerTask, timeout);
+	}
 
-  public void end() {
-    timerTask.cancel();
-  }
+	public void end() {
+		timerTask.cancel();
+	}
 
-  public void reset() {
-    end();
-    begin();
-  }
+	public void reset() {
+		end();
+		begin();
+	}
 }

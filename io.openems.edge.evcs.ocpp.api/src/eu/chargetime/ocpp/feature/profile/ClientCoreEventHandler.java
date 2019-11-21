@@ -31,81 +31,83 @@ SOFTWARE.
 
 /** Call back handler for client events of the core feature profile. */
 public interface ClientCoreEventHandler {
-  /**
-   * Handle a {@link ChangeAvailabilityRequest} and return a {@link ChangeAvailabilityConfirmation}.
-   *
-   * @param request incoming {@link ChangeAvailabilityRequest} to handle.
-   * @return outgoing {@link ChangeAvailabilityConfirmation} to reply with.
-   */
-  ChangeAvailabilityConfirmation handleChangeAvailabilityRequest(ChangeAvailabilityRequest request);
+	/**
+	 * Handle a {@link ChangeAvailabilityRequest} and return a
+	 * {@link ChangeAvailabilityConfirmation}.
+	 *
+	 * @param request incoming {@link ChangeAvailabilityRequest} to handle.
+	 * @return outgoing {@link ChangeAvailabilityConfirmation} to reply with.
+	 */
+	ChangeAvailabilityConfirmation handleChangeAvailabilityRequest(ChangeAvailabilityRequest request);
 
-  /**
-   * Handle a {@link GetConfigurationRequest} and return a {@link GetConfigurationConfirmation}.
-   *
-   * @param request incoming {@link GetConfigurationRequest} to handle.
-   * @return outgoing {@link GetConfigurationConfirmation} to reply with.
-   */
-  GetConfigurationConfirmation handleGetConfigurationRequest(GetConfigurationRequest request);
+	/**
+	 * Handle a {@link GetConfigurationRequest} and return a
+	 * {@link GetConfigurationConfirmation}.
+	 *
+	 * @param request incoming {@link GetConfigurationRequest} to handle.
+	 * @return outgoing {@link GetConfigurationConfirmation} to reply with.
+	 */
+	GetConfigurationConfirmation handleGetConfigurationRequest(GetConfigurationRequest request);
 
-  /**
-   * Handle a {@link ChangeConfigurationRequest} and return a {@link
-   * ChangeConfigurationConfirmation}.
-   *
-   * @param request incoming {@link ChangeConfigurationRequest} to handle.
-   * @return outgoing {@link ChangeConfigurationConfirmation} to reply with.
-   */
-  ChangeConfigurationConfirmation handleChangeConfigurationRequest(
-      ChangeConfigurationRequest request);
+	/**
+	 * Handle a {@link ChangeConfigurationRequest} and return a
+	 * {@link ChangeConfigurationConfirmation}.
+	 *
+	 * @param request incoming {@link ChangeConfigurationRequest} to handle.
+	 * @return outgoing {@link ChangeConfigurationConfirmation} to reply with.
+	 */
+	ChangeConfigurationConfirmation handleChangeConfigurationRequest(ChangeConfigurationRequest request);
 
-  /**
-   * Handle a {@link ClearCacheRequest} and return a {@link ClearCacheConfirmation}.
-   *
-   * @param request incoming {@link ClearCacheRequest} to handle.
-   * @return outgoing {@link ClearCacheConfirmation} to reply with.
-   */
-  ClearCacheConfirmation handleClearCacheRequest(ClearCacheRequest request);
+	/**
+	 * Handle a {@link ClearCacheRequest} and return a
+	 * {@link ClearCacheConfirmation}.
+	 *
+	 * @param request incoming {@link ClearCacheRequest} to handle.
+	 * @return outgoing {@link ClearCacheConfirmation} to reply with.
+	 */
+	ClearCacheConfirmation handleClearCacheRequest(ClearCacheRequest request);
 
-  /**
-   * Handle a {@link DataTransferRequest} and return a {@link DataTransferConfirmation}.
-   *
-   * @param request incoming {@link DataTransferRequest} to handle.
-   * @return outgoing {@link DataTransferConfirmation} to reply with.
-   */
-  DataTransferConfirmation handleDataTransferRequest(DataTransferRequest request);
+	/**
+	 * Handle a {@link DataTransferRequest} and return a
+	 * {@link DataTransferConfirmation}.
+	 *
+	 * @param request incoming {@link DataTransferRequest} to handle.
+	 * @return outgoing {@link DataTransferConfirmation} to reply with.
+	 */
+	DataTransferConfirmation handleDataTransferRequest(DataTransferRequest request);
 
-  /**
-   * Handle a {@link RemoteStartTransactionRequest} and return a {@link
-   * RemoteStartTransactionConfirmation}.
-   *
-   * @param request incoming {@link RemoteStartTransactionRequest} to handle.
-   * @return outgoing {@link RemoteStartTransactionConfirmation} to reply with.
-   */
-  RemoteStartTransactionConfirmation handleRemoteStartTransactionRequest(
-      RemoteStartTransactionRequest request);
+	/**
+	 * Handle a {@link RemoteStartTransactionRequest} and return a
+	 * {@link RemoteStartTransactionConfirmation}.
+	 *
+	 * @param request incoming {@link RemoteStartTransactionRequest} to handle.
+	 * @return outgoing {@link RemoteStartTransactionConfirmation} to reply with.
+	 */
+	RemoteStartTransactionConfirmation handleRemoteStartTransactionRequest(RemoteStartTransactionRequest request);
 
-  /**
-   * Handle a {@link RemoteStopTransactionRequest} and return a {@link
-   * RemoteStopTransactionConfirmation}.
-   *
-   * @param request incoming {@link RemoteStopTransactionRequest} to handle.
-   * @return outgoing {@link RemoteStopTransactionConfirmation} to reply with.
-   */
-  RemoteStopTransactionConfirmation handleRemoteStopTransactionRequest(
-      RemoteStopTransactionRequest request);
+	/**
+	 * Handle a {@link RemoteStopTransactionRequest} and return a
+	 * {@link RemoteStopTransactionConfirmation}.
+	 *
+	 * @param request incoming {@link RemoteStopTransactionRequest} to handle.
+	 * @return outgoing {@link RemoteStopTransactionConfirmation} to reply with.
+	 */
+	RemoteStopTransactionConfirmation handleRemoteStopTransactionRequest(RemoteStopTransactionRequest request);
 
-  /**
-   * Handle a {@link ResetRequest} and return a {@link ResetConfirmation}.
-   *
-   * @param request incoming {@link ResetRequest} to handle.
-   * @return outgoing {@link ResetConfirmation} to reply with.
-   */
-  ResetConfirmation handleResetRequest(ResetRequest request);
+	/**
+	 * Handle a {@link ResetRequest} and return a {@link ResetConfirmation}.
+	 *
+	 * @param request incoming {@link ResetRequest} to handle.
+	 * @return outgoing {@link ResetConfirmation} to reply with.
+	 */
+	ResetConfirmation handleResetRequest(ResetRequest request);
 
-  /**
-   * Handle a {@link UnlockConnectorRequest} and return a {@link UnlockConnectorConfirmation}.
-   *
-   * @param request incoming {@link UnlockConnectorRequest} to handle.
-   * @return outgoing {@link UnlockConnectorConfirmation} to reply with.
-   */
-  UnlockConnectorConfirmation handleUnlockConnectorRequest(UnlockConnectorRequest request);
+	/**
+	 * Handle a {@link UnlockConnectorRequest} and return a
+	 * {@link UnlockConnectorConfirmation}.
+	 *
+	 * @param request incoming {@link UnlockConnectorRequest} to handle.
+	 * @return outgoing {@link UnlockConnectorConfirmation} to reply with.
+	 */
+	UnlockConnectorConfirmation handleUnlockConnectorRequest(UnlockConnectorRequest request);
 }

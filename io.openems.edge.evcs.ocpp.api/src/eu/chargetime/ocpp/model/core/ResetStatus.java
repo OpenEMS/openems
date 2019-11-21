@@ -28,6 +28,5 @@ package eu.chargetime.ocpp.model.core;
 
 /** Accepted values used with {@link ResetConfirmation}. */
 public enum ResetStatus {
-  Accepted,
-  Rejected
+	Accepted, Rejected
 }

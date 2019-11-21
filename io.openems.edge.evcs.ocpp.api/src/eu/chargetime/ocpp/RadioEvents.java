@@ -29,16 +29,16 @@ SOFTWARE.
 
 /** Transmitter related events. */
 public interface RadioEvents {
-  /** Connection established. */
-  void connected();
+	/** Connection established. */
+	void connected();
 
-  /**
-   * Incoming message from node.
-   *
-   * @param message message object.
-   */
-  void receivedMessage(Object message);
+	/**
+	 * Incoming message from node.
+	 *
+	 * @param message message object.
+	 */
+	void receivedMessage(Object message);
 
-  /** Disconnected from node. */
-  void disconnected();
+	/** Disconnected from node. */
+	void disconnected();
 }
