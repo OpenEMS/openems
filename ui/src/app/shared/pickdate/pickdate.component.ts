@@ -9,7 +9,6 @@ import { DefaultTypes } from '../service/defaulttypes';
 import { Service } from '../shared';
 import { PickDatePopoverComponent } from './popover/popover.component';
 
-
 @Component({
     selector: 'pickdate',
     templateUrl: './pickdate.component.html'
@@ -48,6 +47,7 @@ export class PickDateComponent {
             }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+                dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
                 if (isFuture(addDays(this.service.historyPeriod.from, dateDistance * 2))) {
                     this.disableArrow = true;
                 } else {
@@ -125,6 +125,7 @@ export class PickDateComponent {
             }
             case 'custom': {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+                dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
                 if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
                     this.disableArrow = true;
                 }
@@ -157,6 +158,7 @@ export class PickDateComponent {
             case 'custom': {
                 this.disableArrow = false;
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+                dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
                 this.service.historyPeriod.from = subDays(this.service.historyPeriod.from, dateDistance);
                 this.service.historyPeriod.to = subDays(this.service.historyPeriod.to, dateDistance);
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
