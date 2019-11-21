@@ -9,7 +9,6 @@ Require-Capability: \
 -includeresource: {readme.md}
 
 -buildpath: ${buildpath},\
-	io.openems.backend.common;version=latest,\
 	io.openems.backend.edgewebsocket.api;version=latest,\
 	io.openems.common;version=latest,\
 	com.google.gson,\
