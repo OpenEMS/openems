@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { isFuture } from 'date-fns';
-import { addDays, endOfWeek, getDate, getMonth, getYear, startOfWeek, subDays } from 'date-fns/esm';
-import { IMyDate, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
-import { DefaultTypes } from '../../service/defaulttypes';
+import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, startOfMonth, startOfYear, endOfWeek, endOfMonth, endOfYear } from 'date-fns/esm';
 import { Service } from '../../shared';
+import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from '../../service/defaulttypes';
+import { IMyDate, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
+import { isFuture } from 'date-fns';
 
 
 @Component({
@@ -97,6 +97,7 @@ export class PickDatePopoverComponent {
         this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
         this.service.periodString = 'custom';
         let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+        dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
         if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
             this.disableArrow = true;
         } else {
