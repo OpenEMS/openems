@@ -70,7 +70,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, String meterId,
 			String essId, int bufferHour) {
-		super.activate(context, meterId, alias, enabled);
+		super.activate(context, id, alias, enabled);
 		this.essId = essId;
 		this.bufferHour = bufferHour;
 	}
