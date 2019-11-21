@@ -1,6 +1,5 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-//import { RouterModule, RouteReuseStrategy, Routes } from '@angular/router';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -30,6 +29,7 @@ import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
+import { InputTypeComponent } from './edge/settings/component/shared/input';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
@@ -39,6 +39,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 @NgModule({
   declarations: [
     AppComponent,
+    InputTypeComponent,
     RepeatTypeComponent,
     SystemLogComponent,
     PickDatePopoverComponent,
@@ -51,6 +52,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     IonicModule.forRoot(),
     FormlyModule.forRoot({
       types: [
+        { name: 'input', component: InputTypeComponent },
         { name: 'repeat', component: RepeatTypeComponent },
       ],
     }),
@@ -65,6 +67,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
       loader: { provide: TranslateLoader, useClass: Language }
     }),
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
+    BrowserAnimationsModule
   ],
   providers: [
     StatusBar,

@@ -23,11 +23,11 @@ include::io.openems.edge.controller.debug.detailedlog.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.debug.log.adoc[leveloffset=+1]
 
-include::io.openems.edge.controller.dischargelimitconsideringcellvoltage.adoc[leveloffset=+1]
-
 include::io.openems.edge.controller.ess.acisland.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.delaycharge.adoc[leveloffset=+1]
+
+include::io.openems.edge.controller.ess.limitdischargecellvoltage.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.limittotaldischarge.adoc[leveloffset=+1]
 

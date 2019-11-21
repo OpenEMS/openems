@@ -79,3 +79,10 @@ button.activated {
     overflow-y: hidden;
     overflow-x: hidden;
 }
+
+/*
+ * Applies to ngx-formly sections
+ */
+formly-input-section {
+    flex: auto; // use all remaining space in a row
+}

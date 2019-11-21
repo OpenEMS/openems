@@ -3,14 +3,18 @@ import { SharedModule } from './../../../shared/shared.module';
 
 import { EnergymonitorComponent } from './energymonitor.component';
 import { EnergymonitorChartComponent } from './chart/chart.component';
-import { ConsumptionSectionComponent } from './chart/section/consumptionsection.component';
-import { GridSectionComponent } from './chart/section/gridsection.component';
-import { ProductionSectionComponent } from './chart/section/productionsection.component';
-import { StorageSectionComponent } from './chart/section/storagesection.component';
+import { ConsumptionSectionComponent } from './chart/section/consumption.component';
+import { GridSectionComponent } from './chart/section/grid.component';
+import { ProductionSectionComponent } from './chart/section/production.component';
+import { StorageSectionComponent } from './chart/section/storage.component';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   imports: [
-    SharedModule
+    SharedModule,
+    BrowserModule,
+    BrowserAnimationsModule
   ],
   declarations: [
     EnergymonitorComponent,
@@ -18,7 +22,7 @@ import { StorageSectionComponent } from './chart/section/storagesection.componen
     ConsumptionSectionComponent,
     ProductionSectionComponent,
     GridSectionComponent,
-    StorageSectionComponent
+    StorageSectionComponent,
   ],
   exports: [
     EnergymonitorComponent

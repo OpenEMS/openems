@@ -34,8 +34,10 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		name = "Fenecon.Mini.GridMeter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, //
+				"type=GRID" //
+		})
 public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent implements SymmetricMeter, OpenemsComponent {
 
 	@Reference

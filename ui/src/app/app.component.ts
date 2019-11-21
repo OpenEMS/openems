@@ -33,8 +33,7 @@ export class AppComponent {
     public service: Service,
     public router: Router,
     public toastController: ToastController,
-    public menu: MenuController,
-    public translate: TranslateService
+    public menu: MenuController
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
