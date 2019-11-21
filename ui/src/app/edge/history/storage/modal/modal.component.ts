@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Service, EdgeConfig, Utils } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
+import { EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: StorageModalComponent.SELECTOR,

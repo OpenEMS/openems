@@ -1,16 +1,13 @@
-import { Component, HostListener, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Platform, ToastController, MenuController } from '@ionic/angular';
-import { Subject, Observable, fromEvent } from 'rxjs';
-import { filter, takeUntil, debounce, debounceTime, delay } from 'rxjs/operators';
+import { MenuController, Platform, ToastController } from '@ionic/angular';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
-import { Service, Websocket, Edge } from './shared/shared';
+import { Edge, Service, Websocket } from './shared/shared';
 import { LanguageTag } from './shared/translate/language';
-import { TranslateService } from '@ngx-translate/core';
-
-
 
 @Component({
   selector: 'app-root',

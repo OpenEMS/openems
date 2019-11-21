@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Service, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
+import { EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: ConsumptionModalComponent.SELECTOR,

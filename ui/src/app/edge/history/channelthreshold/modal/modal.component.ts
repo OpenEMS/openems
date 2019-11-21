@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Service, Utils } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
+import { Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: ChannelthresholdModalComponent.SELECTOR,

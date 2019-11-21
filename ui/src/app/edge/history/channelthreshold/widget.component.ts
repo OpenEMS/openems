@@ -1,15 +1,15 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
-import { ActivatedRoute } from '@angular/router';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ModalController } from '@ionic/angular';
-import { ChannelthresholdModalComponent } from './modal/modal.component';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { differenceInHours, differenceInMinutes } from 'date-fns';
 import { DecimalPipe } from '@angular/common';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ModalController } from '@ionic/angular';
+import { differenceInHours, differenceInMinutes } from 'date-fns';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { ChannelthresholdModalComponent } from './modal/modal.component';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,

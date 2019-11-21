@@ -1,20 +1,20 @@
 import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import * as FileSaver from 'file-saver';
+import { fromEvent, Subject } from 'rxjs';
+import { debounceTime, delay, takeUntil } from 'rxjs/operators';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
-import { fromEvent, Subject } from 'rxjs';
-import { takeUntil, debounceTime, delay } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
 import { EnergyModalComponent } from './modal/modal.component';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
-import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { isSameDay, format, isSameMonth, isSameYear } from 'date-fns';
-import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'energy',

@@ -1,10 +1,10 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { Edge, Service, ChannelAddress } from '../../../shared/shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
-import { SelfconsumptionModalComponent } from './modal/modal.component';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, Service } from '../../../shared/shared';
+import { SelfconsumptionModalComponent } from './modal/modal.component';
 
 @Component({
     selector: SelfconsumptionWidgetComponent.SELECTOR,

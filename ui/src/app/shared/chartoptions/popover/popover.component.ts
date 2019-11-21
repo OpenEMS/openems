@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
-
+import { Service } from '../../shared';
 
 @Component({
     selector: 'chartoptionspopover',

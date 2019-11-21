@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { Edge, Service, ChannelAddress } from '../../../shared/shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
+import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, Service } from '../../../shared/shared';
 import { GridModalComponent } from './modal/modal.component';
 
 @Component({

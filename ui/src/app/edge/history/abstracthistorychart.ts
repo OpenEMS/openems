@@ -1,10 +1,9 @@
+import { TranslateService } from '@ngx-translate/core';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
-import { EMPTY_DATASET, Dataset, ChartOptions } from './shared';
-import { EMPTY } from 'rxjs';
-import { TranslateService } from '@ngx-translate/core';
+import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
 
 export abstract class AbstractHistoryChart {
 
