@@ -15,13 +15,13 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -39,9 +39,11 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	@Reference
 	protected ComponentManager componentManager;
 
-	private Config config;
+	@Reference
+	protected Power power;
 
-	private int lastSetActivePower = 0;
+	private Config config;
+	private PidFilter pidFilter;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -69,6 +71,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.pidFilter = this.power.buildPidFilter();
 	}
 
 	@Deactivate
@@ -117,30 +120,21 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		/*
-		 * Calculates required charge/discharge power
+		 * Apply PID filter
 		 */
-		if (Math.abs(this.lastSetActivePower) > 100 && Math.abs(calculatedPower) > 100
-				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
-						* this.config.maxPowerAdjustmentRate())) {
-			if (this.lastSetActivePower > calculatedPower) {
-				calculatedPower = this.lastSetActivePower
-						- (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-			} else {
-				calculatedPower = this.lastSetActivePower
-						+ (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-			}
-		}
+		int minPower = this.power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+		int maxPower = this.power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+		this.pidFilter.setLimits(minPower, maxPower);
+		int pidOutput = (int) this.pidFilter.applyPidFilter(ess.getActivePower().value().orElse(0), calculatedPower);
 
-		Power power = ess.getPower();
-		calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
-
-		// store lastSetActivePower
-		this.lastSetActivePower = calculatedPower;
+		// TODO remove before release
+		this.logInfo(this.log, "Without PID: " + calculatedPower + "; With PID: " + pidOutput);
 
 		/*
 		 * set result
 		 */
-		ess.addPowerConstraintAndValidate("PeakShavingController", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				calculatedPower); //
+//		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
+		ess.getSetActivePowerEquals().setNextWriteValue(pidOutput);
+		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 }
