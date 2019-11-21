@@ -1,4 +1,4 @@
-package io.openems.edge.temperature.sensor.temperaturesensor;
+package io.openems.edge.temperature.sensor;
 
 import io.openems.edge.common.channel.Channel;
 

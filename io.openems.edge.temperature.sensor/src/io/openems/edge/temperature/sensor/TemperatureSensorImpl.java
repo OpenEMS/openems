@@ -1,4 +1,4 @@
-package io.openems.edge.temperature.sensor.temperaturesensor;
+package io.openems.edge.temperature.sensor;
 
 
 import io.openems.common.exceptions.OpenemsError;
@@ -22,16 +22,14 @@ import org.slf4j.LoggerFactory;
 @Component(name = "TemperatureSensor", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 
-public class TemperatureSensorImpl extends AbstractOpenemsComponent implements OpenemsComponent, TemperatureSensoric, TemperatureSensor {
+public class TemperatureSensorImpl extends AbstractOpenemsComponent implements OpenemsComponent, TemperatureSensorChannel, TemperatureSensor {
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     private BridgeSpi bridgeSpi;
 
     @Reference
     ComponentManager cpm;
 
-    private String id;
     private String temperatureBoardId;
-    private String versionId;
     private int spiChannel;
     private int pinPosition;
     private String servicePid;
@@ -42,14 +40,13 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
 
 
     public TemperatureSensorImpl() {
-        super(OpenemsComponent.ChannelId.values(), TemperatureSensoric.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(), TemperatureSensorChannel.ChannelId.values());
     }
 
 
     @Activate
     public void activate(ComponentContext context, Config config) throws ConfigurationException {
         super.activate(context, config.id(), config.alias(), config.enabled());
-        this.id = config.id();
         this.temperatureBoardId = config.temperatureBoardId();
         this.spiChannel = config.spiChannel();
         this.pinPosition = config.pinPosition();
@@ -60,25 +57,34 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
 
     private void createTemperatureDigitalReadTask() throws ConfigurationException {
         try {
+            ConfigurationException[] ex = {null};
             if (cpm.getComponent(temperatureBoardId).isEnabled()) {
-                bridgeSpi.getAdcList().stream().filter(allocate -> allocate.getSpiChannel()
-                        == this.spiChannel).findFirst().ifPresent(value -> {
+                bridgeSpi.getAdcs().stream().filter(
+                        allocate -> allocate.getSpiChannel() == this.spiChannel
+                ).findFirst().ifPresent(value -> {
                     adcForTemperature = value;
-                    value.getPins().stream().filter(allocate -> allocate.getPosition()
-                            == this.pinPosition).findFirst().ifPresent(pinValue -> {
-                        if (!pinValue.isUsed()) {
-                            pinValue.setUsedBy(super.id());
+                    value.getPins().stream().filter(
+                            allocate -> allocate.getPosition() == this.pinPosition
+                    ).findFirst().ifPresent(pinValue -> {
+                        if (pinValue.setUsedBy(super.id())) {
+                            TemperatureDigitalReadTask task = new TemperatureDigitalReadTask(this.getTemperature(),
+                                    adcForTemperature.getVersionId(), adcForTemperature, this.pinPosition, this.temperatureBoardId, super.id());
+                            try {
+                                bridgeSpi.addSpiTask(super.id(), task);
+                            } catch (ConfigurationException e) {
+                                ex[0] = e;
+                            }
+                        } else {
+                            ex[0] = new ConfigurationException("Something went wrong! Check your config file",
+                                    "Couldn't Create Task, check your Config file");
                         }
                     });
                 });
-                if (adcForTemperature.getPins().get(this.pinPosition).getUsedBy().equals(super.id())) {
-                    TemperatureDigitalReadTask task = new TemperatureDigitalReadTask(this.getTemperature(),
-                            this.versionId, adcForTemperature, this.pinPosition, this.temperatureBoardId, super.id());
-                    bridgeSpi.addSpiTask(this.id, task);
-                } else {
-                    throw new ConfigurationException("Something went wrong! Check your config file",
-                            "Couldn't Create Task, check your Config file");
+
+                if (ex[0] != null) {
+                    throw ex[0];
                 }
+
             }
         } catch (OpenemsError.OpenemsNamedException e) {
             e.printStackTrace();
@@ -103,19 +109,24 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
     @Deactivate
     public void deactivate() {
         super.deactivate();
-        bridgeSpi.removeSpiTask(this.id);
+        bridgeSpi.removeSpiTask(super.id());
         adcForTemperature.getPins().get(this.pinPosition).setUnused();
         adcForTemperature = null;
     }
 
     @Override
     public String debugLog() {
-        return "T:" + this.getTemperature().value().asString() + " of TemperatureSensor: " + this.id + this.alias;
+        if (bridgeSpi.getTasks().containsKey(super.id())) {
+            return "T:" + this.getTemperature().value().asString() + " of TemperatureSensor: " + super.id() + this.alias;
+        } else {
+            return "";
+        }
+
     }
 
     @Override
     public String getTemperatureSensorId() {
-        return this.id;
+        return super.id();
     }
 
     @Override

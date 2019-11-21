@@ -1,14 +1,14 @@
 package io.openems.edge.temperature.sensor.task;
 
 import io.openems.edge.bridge.spi.task.SpiTask;
-import io.openems.edge.bridge.spi.task.SpiTaskImpl;
+import io.openems.edge.bridge.spi.task.AbstractSpiTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.temperatureBoard.TemperatureBoardVersions;
 import io.openems.edge.temperatureBoard.api.Adc;
 
 
 //Only for one Pin
-public class TemperatureDigitalReadTask extends SpiTaskImpl implements SpiTask {
+public class TemperatureDigitalReadTask extends AbstractSpiTask implements SpiTask {
 
     private final Channel<Integer> channel;
     private String temperatureSensorId;
@@ -20,13 +20,14 @@ public class TemperatureDigitalReadTask extends SpiTaskImpl implements SpiTask {
     //10 °C
     private int temperatureChange = 100;
     private int timestamp = 3000;
-
+    private String version;
 
     private long pinValue;
 
     public TemperatureDigitalReadTask(Channel<Integer> channel, String version, Adc adc, int pin, String parentCircuitBoard, String temperatureSensorId)  {
         super(adc.getSpiChannel(), parentCircuitBoard);
         this.channel = channel;
+        this.version = version;
         this.temperatureSensorId = temperatureSensorId;
         pinValue = adc.getPins().get(pin).getValue();
         allocateRegressionValues(version);

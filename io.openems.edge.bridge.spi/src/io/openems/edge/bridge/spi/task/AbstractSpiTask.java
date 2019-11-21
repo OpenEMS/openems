@@ -1,13 +1,11 @@
 package io.openems.edge.bridge.spi.task;
 
 
-import org.osgi.service.cm.ConfigurationException;
-
-public abstract class SpiTaskImpl implements SpiTask {
+public abstract class AbstractSpiTask implements SpiTask {
     private final int spiChannel;
     private final String parentCircuitBoard;
 
-    public SpiTaskImpl(int spiChannel, String parentCircuitBoard) {
+    public AbstractSpiTask(int spiChannel, String parentCircuitBoard) {
         this.spiChannel = spiChannel;
         this.parentCircuitBoard = parentCircuitBoard;
     }
@@ -26,5 +24,3 @@ public abstract class SpiTaskImpl implements SpiTask {
         return parentCircuitBoard;
     }
 }
-
-

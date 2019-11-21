@@ -1,15 +1,15 @@
-package io.openems.edge.raspberrypi.sensors.temperaturesensor;
+package io.openems.edge.temperature.sensor;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.osgi.annotation.versioning.ProviderType;
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Doc;
 
 
 @ProviderType
-public interface TemperatureSensoric extends OpenemsComponent {
+public interface TemperatureSensorChannel extends OpenemsComponent {
 
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

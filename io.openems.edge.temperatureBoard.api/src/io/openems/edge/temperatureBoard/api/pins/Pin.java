@@ -9,7 +9,7 @@ public interface Pin {
 
     String getUsedBy();
 
-    void setUsedBy(String usedBy);
+    boolean setUsedBy(String usedBy);
 
     void setUnused();
 }

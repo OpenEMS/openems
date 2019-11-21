@@ -11,7 +11,6 @@ Export-Package:  \
 
 Private-Package:  \
 	io.openems.edge.temperature.sensor,\
-	io.openems.edge.temperature.sensor.temperaturesensor,\
 	io.openems.edge.temperature.sensor.task,\
 
 -includeresource: {readme.md}

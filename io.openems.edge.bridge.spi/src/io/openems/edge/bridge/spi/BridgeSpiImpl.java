@@ -21,9 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Designate(ocd = Config.class, factory = true)
@@ -38,7 +36,7 @@ public class BridgeSpiImpl extends AbstractOpenemsComponent implements BridgeSpi
     //private List<CircuitBoard> circuitBoards = new ArrayList<>();
     //private final Map<String, Task> tasks = new ConcurrentHashMap<>();
 
-    private List<Adc> adcList = new ArrayList<>();
+    private Set<Adc> adcList = new HashSet<>();
     private final SpiWorker worker = new SpiWorker();
     private Map<String, SpiTask> tasks = new ConcurrentHashMap<>();
 
@@ -87,7 +85,7 @@ public class BridgeSpiImpl extends AbstractOpenemsComponent implements BridgeSpi
 
 
     @Override
-    public List<Adc> getAdcList() {
+    public Set<Adc> getAdcs() {
         return this.adcList;
     }
 
@@ -135,6 +133,10 @@ public class BridgeSpiImpl extends AbstractOpenemsComponent implements BridgeSpi
                 task.setResponse(data);
             });
         }
+    }
+
+    public Map<String, SpiTask> getTasks() {
+        return tasks;
     }
 
     @Override

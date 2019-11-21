@@ -17,8 +17,8 @@ Private-Package:  \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.relais;version=latest,\
-	io.openems.edge.raspberrypi;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.temperature.sensor;version=latest,\
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

@@ -2,7 +2,6 @@ package io.openems.edge.temperature.sensor;
 
 import static org.junit.Assert.assertNotNull;
 
-import io.openems.edge.temperature.sensor.temperaturesensor.TemperatureSensorImpl;
 import org.junit.Test;
 
 /*

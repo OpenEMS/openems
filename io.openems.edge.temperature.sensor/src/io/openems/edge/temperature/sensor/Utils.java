@@ -1,4 +1,4 @@
-package io.openems.edge.raspberrypi.sensors.temperaturesensor;
+package io.openems.edge.temperature.sensor;
 
 import io.openems.edge.common.channel.FloatDoc;
 import io.openems.edge.common.channel.FloatReadChannel;
@@ -22,7 +22,7 @@ public class Utils {
                     return new StateCollectorChannel(c, channelId, doc);
             }
             return null;
-        }), Arrays.stream(TemperatureSensoric.ChannelId.values()).map(channelId -> {
+        }), Arrays.stream(TemperatureSensorChannel.ChannelId.values()).map(channelId -> {
 
             switch (channelId) {
                 case TEMPERATURE:

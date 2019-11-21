@@ -1,4 +1,4 @@
-package io.openems.edge.temperature.sensor.temperaturesensor;
+package io.openems.edge.temperature.sensor;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

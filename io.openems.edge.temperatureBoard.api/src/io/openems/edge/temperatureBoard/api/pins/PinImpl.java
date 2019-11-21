@@ -39,11 +39,13 @@ public class PinImpl implements Pin {
     }
 
     @Override
-    public void setUsedBy(String usedBy) {
+    public boolean setUsedBy(String usedBy) {
         if (!isUsed) {
             this.usedBy = usedBy;
             setUsed(true);
+            return true;
         }
+        return false;
     }
 
     @Override

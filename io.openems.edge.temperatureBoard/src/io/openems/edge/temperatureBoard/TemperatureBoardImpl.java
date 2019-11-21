@@ -1,5 +1,6 @@
 package io.openems.edge.temperatureBoard;
 
+import io.openems.edge.bridge.spi.BridgeSpi;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -8,13 +9,9 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
-import io.openems.edge.bridge.spi.BridgeSpi;
 
 import java.nio.CharBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.IntStream;
+import java.util.*;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "CircuitBoard", immediate = true,
@@ -28,7 +25,7 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
     private String circuitBoardId;
     private String versionId;
     private short maxCapacity;
-    private List<Adc> adcList = new ArrayList<>();
+    private Set<Adc> adcList = new HashSet<>();
 
     public TemperatureBoardImpl() {
         super(OpenemsComponent.ChannelId.values());
@@ -51,13 +48,11 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
         } else {
             frequency.add(adcFrequency);
         }
-        CharBuffer.wrap(dipSwitches.toCharArray()).chars().forEach(dipSwitch::add);
-//        for (Character dipSwitchUse : dipSwitches.toCharArray()) {
-//            dipSwitch.add(dipSwitchUse);
-//        }
-//
-        createTemperatureBoard(this.versionId, frequency, dipSwitch);
 
+        for (Character dipSwitchUse : dipSwitches.toCharArray()) {
+            dipSwitch.add(Character.getNumericValue(dipSwitchUse));
+        }
+        createTemperatureBoard(this.versionId, frequency, dipSwitch);
     }
 
     private void createTemperatureBoard(String versionNumber, List<String> frequency, List<Integer> dipSwitch) {
@@ -69,16 +64,12 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
                     createAdc(mcpWantToCreate, frequency.get(counter), dipSwitch.get(counter));
                     counter++;
                 }
-//                TemperatureBoardVersions.TEMPERATURE_BOARD_V_1.getMcpContainer().forEach(value -> {
-//                    createAdc(value, frequency.get(counter), dipSwitch.get(counter));
-//                    counter++;
-//                });
                 break;
         }
     }
 
     private void createAdc(Adc mcpWantToCreate, String frequency, int dipSwitch) {
-        mcpWantToCreate.initialize(dipSwitch, Integer.parseInt(frequency), this.circuitBoardId);
+        mcpWantToCreate.initialize(dipSwitch, Integer.parseInt(frequency), this.circuitBoardId, this.versionId);
         this.adcList.add(mcpWantToCreate);
         spiInital.addAdc(mcpWantToCreate);
     }
@@ -92,8 +83,6 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
     public void deactivate() {
         super.deactivate();
         this.adcList.forEach(adc -> {
-            adc.deactivate();
-            this.adcList.remove(adc);
             spiInital.removeAdc(adc);
         });
     }
@@ -109,7 +98,7 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
     }
 
     @Override
-    public List<Adc> getAdcList() {
+    public Set<Adc> getAdcList() {
         return adcList;
     }
 
