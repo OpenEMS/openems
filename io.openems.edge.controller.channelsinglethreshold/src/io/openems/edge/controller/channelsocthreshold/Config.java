@@ -6,7 +6,7 @@ import io.openems.edge.controller.singlethreshold.Mode;
 
 @ObjectClassDefinition( //
 		name = "Controller Channel SoC Threshold", //
-		description = "This controller switches a Digital Output channel ON, if the value of the input channel is above a configured threshold. This behaviour can be inverted using the 'invert' config option.")
+		description = "This controller switches a Digital Output channel ON, if the value of the SoC is above a configured threshold. This behaviour can be inverted using the 'invert' config option.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

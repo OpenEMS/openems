@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
-import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,6 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 	private final Clock clock;
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
-	@Reference
 	protected ComponentManager componentManager;
 
 	protected abstract ComponentManager getComponentManager();

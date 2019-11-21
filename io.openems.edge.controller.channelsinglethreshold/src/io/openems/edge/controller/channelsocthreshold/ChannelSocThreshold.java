@@ -1,6 +1,5 @@
 package io.openems.edge.controller.channelsocthreshold;
 
-import java.time.Clock;
 import java.time.Duration;
 
 import org.osgi.service.component.ComponentContext;
@@ -24,10 +23,6 @@ public class ChannelSocThreshold extends AbstractSingleThreshold implements Cont
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	public ChannelSocThreshold(Clock clock, String componentId, io.openems.edge.common.channel.ChannelId channelId) {
-		super(clock, componentId, channelId);
-	}
 
 	public ChannelSocThreshold() {
 		super();
@@ -64,7 +59,6 @@ public class ChannelSocThreshold extends AbstractSingleThreshold implements Cont
 	
 	@Override
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
-
-		
+		super.run();
 	}
 }

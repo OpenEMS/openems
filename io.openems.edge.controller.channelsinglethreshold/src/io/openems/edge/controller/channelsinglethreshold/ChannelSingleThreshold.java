@@ -1,6 +1,5 @@
 package io.openems.edge.controller.channelsinglethreshold;
 
-import java.time.Clock;
 import java.time.Duration;
 
 import org.osgi.service.component.ComponentContext;
@@ -24,10 +23,6 @@ public class ChannelSingleThreshold extends AbstractSingleThreshold implements C
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	public ChannelSingleThreshold(Clock clock, String componentId, io.openems.edge.common.channel.ChannelId channelId) {
-		super(clock, componentId, channelId);
-	}
 
 	public ChannelSingleThreshold() {
 		super();
