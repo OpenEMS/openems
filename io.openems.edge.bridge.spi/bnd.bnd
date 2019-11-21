@@ -1,14 +1,16 @@
-Bundle-Name: OpenEMS Edge Relais
+Bundle-Name: OpenEMS Edge SpiBridge
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
 
 Export-Package:  \
-	io.openems.edge.controller.temperature.simple,\
+	io.openems.edge.bridge.spi,\
+	io.openems.edge.bridge.spi.task,\
 
 Private-Package:  \
-	io.openems.edge.controller.temperature.simple
+	io.openems.edge.bridge.spi,\
+	io.openems.edge.bridge.spi.task,\
 
 -includeresource: {readme.md}
 
@@ -16,9 +18,9 @@ Private-Package:  \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.relais;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.temperature.sensor;version=latest,\
+	io.openems.edge.temperatureBoard.api;version=latest,\
+	pi4j-core,\
+
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
