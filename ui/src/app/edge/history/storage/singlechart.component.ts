@@ -1,13 +1,11 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, AfterViewInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
     selector: 'storageSingleChart',
@@ -52,17 +50,21 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
                     // convert datasets
                     let datasets = [];
+
                     // calculate total charge and discharge
                     let effectivePower = [];
                     let effectivePowerL1 = [];
                     let effectivePowerL2 = [];
                     let effectivePowerL3 = [];
+
                     if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
                         result.data['_sum/ProductionDcActualPower'].forEach((value, index) => {
-                            effectivePower[index] = Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
-                            effectivePowerL1[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL1'][index], value / 3);
-                            effectivePowerL2[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL2'][index], value / 3);
-                            effectivePowerL3[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL3'][index], value / 3);
+                            if (result.data['_sum/ProductionDcActualPower'][index] != null) {
+                                effectivePower[index] = Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                                effectivePowerL1[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL1'][index], value / 3);
+                                effectivePowerL2[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL2'][index], value / 3);
+                                effectivePowerL3[index] = Utils.subtractSafely(result.data['_sum/EssActivePowerL3'][index], value / 3);
+                            }
                         });
                     } else {
                         effectivePower = result.data['_sum/EssActivePower'];
@@ -169,7 +171,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'EssActivePower'),
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
@@ -188,11 +190,19 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            // 0.01 to prevent showing Charge or Discharge if value is e.g. 0.00232138
-            if (value < -0.01) {
-                label = translate.instant('General.ChargePower');
-            } else if (value > 0.01) {
-                label = translate.instant('General.DischargePower');
+            // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
+            if (value < -0.005) {
+                if (label.includes(translate.instant('General.Phase'))) {
+                    label += ' ' + translate.instant('General.ChargePower');
+                } else {
+                    label = translate.instant('General.ChargePower');
+                }
+            } else if (value > 0.005) {
+                if (label.includes(translate.instant('General.Phase'))) {
+                    label += ' ' + translate.instant('General.DischargePower');
+                } else {
+                    label = translate.instant('General.DischargePower');
+                }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }

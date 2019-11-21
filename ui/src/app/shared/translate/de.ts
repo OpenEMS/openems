@@ -192,7 +192,8 @@ export const TRANSLATION = {
             Week: "Woche",
             Month: "Monat",
             Year: "Jahr",
-            noData: "keine Daten verfügbar"
+            noData: "keine Daten verfügbar",
+            activeDuration: "Einschaltdauer",
         },
         Config: {
             Index: {

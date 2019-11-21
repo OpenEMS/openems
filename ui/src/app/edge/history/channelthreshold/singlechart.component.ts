@@ -7,7 +7,6 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { TranslateService } from '@ngx-translate/core';
-import { getTime, differenceInMinutes } from 'date-fns/esm';
 import { differenceInHours } from 'date-fns';
 
 @Component({

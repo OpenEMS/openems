@@ -1,13 +1,11 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, AfterViewInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
     selector: 'storageTotalChart',
@@ -28,7 +26,6 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     ) {
         super(service, translate);
     }
-
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
@@ -187,7 +184,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'EssActivePower'),
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
@@ -224,11 +221,11 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            // 0.01 to prevent showing Charge or Discharge if value is e.g. 0.00232138
-            if (value < -0.01) {
-                label += ' ' + translate.instant('General.ChargePower')
-            } else if (value > 0.01) {
-                label += ' ' + translate.instant('General.DischargePower')
+            // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
+            if (value < -0.005) {
+                label += ' ' + translate.instant('General.ChargePower');
+            } else if (value > 0.005) {
+                label += ' ' + translate.instant('General.DischargePower');
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }

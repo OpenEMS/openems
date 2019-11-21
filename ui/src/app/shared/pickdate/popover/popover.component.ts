@@ -80,20 +80,6 @@ export class PickDatePopoverComponent {
                 this.popoverCtrl.dismiss(this.disableArrow);
                 break;
             }
-            case 'month': {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
-                this.service.periodString = period;
-                this.disableArrow = true;
-                this.popoverCtrl.dismiss(this.disableArrow);
-                break;
-            }
-            case 'year': {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
-                this.service.periodString = period;
-                this.disableArrow = true;
-                this.popoverCtrl.dismiss(this.disableArrow);
-                break;
-            }
         }
     }
 
@@ -111,6 +97,7 @@ export class PickDatePopoverComponent {
         this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
         this.service.periodString = 'custom';
         let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+        dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
         if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
             this.disableArrow = true;
         } else {

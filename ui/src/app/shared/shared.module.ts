@@ -12,7 +12,6 @@ import 'hammerjs';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ChartsModule } from 'ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
-import { SocComponent } from '../edge/history/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
 import { PickDateComponent } from './pickdate/pickdate.component';
 /*
@@ -63,7 +62,6 @@ import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
     HasclassPipe,
     UnitvaluePipe,
     // components
-    SocComponent,
     PickDateComponent,
     PercentageBarComponent,
     ChartOptionsComponent
@@ -91,7 +89,6 @@ import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
     FormlyIonicModule,
     NgxLoadingModule,
     // components
-    SocComponent,
     PickDateComponent,
     PercentageBarComponent,
     ChartOptionsComponent

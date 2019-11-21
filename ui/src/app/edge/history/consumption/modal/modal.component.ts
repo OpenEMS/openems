@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, OnChanges } from '@angular/core';
+import { Component } from '@angular/core';
 import { Service, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 

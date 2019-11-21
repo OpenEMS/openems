@@ -2,7 +2,6 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
@@ -36,8 +35,8 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
+            this.service.getCurrentEdge().then(() => {
+                this.service.getConfig().then(() => {
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -48,7 +47,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
                     // convert datasets
                     let datasets = [];
 
-                    Object.keys(result.data).forEach((channel, index) => {
+                    Object.keys(result.data).forEach((channel) => {
                         let address = ChannelAddress.fromString(channel);
                         let data = result.data[channel].map(value => {
                             if (value == null) {
@@ -105,14 +104,6 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            if (label == this.grid) {
-                if (value < 0) {
-                    value *= -1;
-                    label = this.gridBuy;
-                } else {
-                    label = this.gridSell;
-                }
-            }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
         this.options = options;

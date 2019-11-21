@@ -17,7 +17,6 @@ export class EnergyModalComponent implements OnInit {
 
     private static readonly SELECTOR = "energy-modal";
 
-
     private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
     private static readonly EXCEL_EXTENSION = '.xlsx';
 
@@ -40,6 +39,9 @@ export class EnergyModalComponent implements OnInit {
         this.service.getCurrentEdge().then(edge => {
             // TODO the order of these channels should be reflected in the excel file
             let dataChannels = [
+                // Storage Soc
+                new ChannelAddress('_sum', 'EssActivePower'),
+                // Storage
                 new ChannelAddress('_sum', 'EssActivePower'),
                 // Grid
                 new ChannelAddress('_sum', 'GridActivePower'),

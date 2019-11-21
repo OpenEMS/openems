@@ -513,6 +513,4 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     });
     return await modal.present();
   }
-
-
 }

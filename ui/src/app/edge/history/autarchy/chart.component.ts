@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
@@ -37,8 +37,8 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
+            this.service.getCurrentEdge().then(() => {
+                this.service.getConfig().then(() => {
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -123,7 +123,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'GridActivePower'),
                 new ChannelAddress('_sum', 'ConsumptionActivePower')
@@ -138,14 +138,6 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            if (label == this.grid) {
-                if (value < 0) {
-                    value *= -1;
-                    label = this.gridBuy;
-                } else {
-                    label = this.gridSell;
-                }
-            }
             return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
         }
         options.scales.yAxes[0].ticks.max = 100;

@@ -177,7 +177,8 @@ export const TRANSLATION = {
             Week: "Week",
             Month: "Month",
             year: "Year",
-            noData: "No data available"
+            noData: "No data available",
+            activeDuration: "active duration",
         },
         Config: {
             Index: {

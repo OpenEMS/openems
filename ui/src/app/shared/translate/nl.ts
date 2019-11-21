@@ -170,7 +170,8 @@ export const TRANSLATION = {
             Week: "Woche",
             Month: "Maand",
             Year: "Jaar",
-            noData: "geen gegevens beschikbaar"
+            noData: "geen gegevens beschikbaar",
+            activeDuration: "actieve duur",
         },
         Config: {
             Index: {

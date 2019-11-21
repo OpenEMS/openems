@@ -32,6 +32,11 @@
     </ng-container>
     <ng-container *ngIf="!showTotal || showTotal == null">
         <ion-card-content>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 100%" class="ion-padding"></td>
+                </tr>
+            </table>
             <channelthresholdSingleChart [controllerId]="controllerId" [period]="service.historyPeriod">
             </channelthresholdSingleChart>
         </ion-card-content>

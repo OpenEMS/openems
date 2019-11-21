@@ -1,8 +1,7 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
+import { Edge, Service, ChannelAddress } from '../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ModalController } from '@ionic/angular';
 import { AutarchyModalComponent } from './modal/modal.component';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
@@ -45,7 +44,7 @@ export class AutarchyWidgetComponent implements OnInit, OnChanges {
             new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
         ];
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-            this.service.getConfig().then(config => {
+            this.service.getConfig().then(() => {
                 let result = response.result;
                 this.autarchyValue = CurrentData.calculateAutarchy(result.data['_sum/GridBuyActiveEnergy'] / 1000, result.data['_sum/ConsumptionActiveEnergy'] / 1000)
             }).catch(reason => {

@@ -2,12 +2,10 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
     selector: 'storageChargerChart',
@@ -15,7 +13,6 @@ import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/resp
 })
 export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    private static readonly SELECTOR = "storageChargerChart";
 
     @Input() private period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
@@ -30,7 +27,6 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
-        private websocket: Websocket,
     ) {
         super(service, translate);
     }
@@ -44,8 +40,8 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
+            this.service.getCurrentEdge().then(() => {
+                this.service.getConfig().then(() => {
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -57,7 +53,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                     // convert datasets
                     let datasets = [];
 
-                    Object.keys(result.data).forEach((channel, index) => {
+                    Object.keys(result.data).forEach((channel) => {
                         let address = ChannelAddress.fromString(channel);
                         let chargerData = result.data[channel].map(value => {
                             if (value == null) {
@@ -98,7 +94,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ActualPower'),
             ];

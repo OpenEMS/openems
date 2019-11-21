@@ -173,11 +173,19 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            // 0.01 to prevent showing Charge or Discharge if value is e.g. 0.00232138
-            if (value < -0.01) {
-                label = translate.instant('General.GridSell');
-            } else if (value > 0.01) {
-                label = translate.instant('General.GridBuy');
+            // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
+            if (value < -0.005) {
+                if (label.includes(translate.instant('General.Phase'))) {
+                    label += ' ' + translate.instant('General.GridSell');
+                } else {
+                    label = translate.instant('General.GridSell');
+                }
+            } else if (value > 0.005) {
+                if (label.includes(translate.instant('General.Phase'))) {
+                    label += ' ' + translate.instant('General.GridBuy');
+                } else {
+                    label = translate.instant('General.GridBuy');
+                }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }

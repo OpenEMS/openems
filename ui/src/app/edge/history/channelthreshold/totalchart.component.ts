@@ -7,7 +7,6 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { TranslateService } from '@ngx-translate/core';
-import { getTime, differenceInMinutes } from 'date-fns/esm';
 
 @Component({
   selector: 'channelthresholdTotalChart',
@@ -39,7 +38,6 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
-      let periodTime = getTime(this.period.to) - getTime(this.period.to);
       // convert labels
       let labels: Date[] = [];
       for (let timestamp of result.timestamps) {
@@ -47,14 +45,12 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
       }
       this.labels = labels;
 
-      // show Channel-ID if there is more than one Channel
-      let showChannelId = Object.keys(result.data).length > 1 ? true : false;
 
       let datasets = [];
       // convert datasets
       Object.keys(result.data).forEach((channel, index) => {
         let address = ChannelAddress.fromString(channel);
-        let data = result.data[channel].map((value, index) => {
+        let data = result.data[channel].map((value) => {
           if (value == null) {
             return null
           } else {
@@ -115,14 +111,6 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == this.grid) {
-        if (value < 0) {
-          value *= -1;
-          label = this.gridBuy;
-        } else {
-          label = this.gridSell;
-        }
-      }
       return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
     }
     options.scales.yAxes[0].ticks.max = 100;

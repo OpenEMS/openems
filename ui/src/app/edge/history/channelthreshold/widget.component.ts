@@ -8,7 +8,7 @@ import { ChannelthresholdModalComponent } from './modal/modal.component';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { getMinutes, differenceInHours, differenceInMinutes, getHours } from 'date-fns';
+import { differenceInHours, differenceInMinutes } from 'date-fns';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
@@ -22,8 +22,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
     private static readonly SELECTOR = "channelthresholdWidget";
 
-    public timeActiveOverPeriod: number = null;
-    public activeTimeHours: number = null;
+    public activeTimeOverPeriod: string = null;
     public data: Cumulated = null;
     public values: any;
     public edge: Edge = null;
@@ -59,7 +58,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    this.getChannelAddresses(edge, config).then(channelAddresses => {
+                    this.getChannelAddresses(config).then(channelAddresses => {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
@@ -67,16 +66,10 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                             // convert datasets
                             let datasets = [];
                             for (let channel in result.data) {
-                                let address = ChannelAddress.fromString(channel);
                                 let data = result.data[channel].map(value => {
                                     if (value == null) {
                                         return null
                                     } else {
-                                        if (value * 100 > 50) {
-                                            value = 1;
-                                        } else if (value * 100 < 50) {
-                                            value = 0;
-                                        }
                                         return value * 100; // convert to % [0,100]
                                     }
                                 });
@@ -86,28 +79,24 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                                 });
                             }
 
-                            // fills date array with existing dates
-                            let dates = []
-                            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
-                            result.data[outputChannel.toString()].forEach((value, index) => {
-                                if (value != null) {
-                                    let date = new Date(result.timestamps[index]);
-                                    dates.push(date);
-                                }
+                            // calculates the active time of period
+                            let activeSum: number = 0;
+
+                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']).toString();
+                            result.data[outputChannel].forEach(value => {
+                                activeSum += value;
                             })
-                            // fills array with active values only
-                            let activeValues = []
-                            datasets.forEach(dataset => {
-                                Object.values(dataset.data).forEach(data => {
-                                    if (data == 100) {
-                                        activeValues.push(data)
-                                    }
-                                })
-                            })
-                            // gets active time in percent by comparing the active values with the timestamps
-                            let activeTimePercent = (activeValues.length / (result.timestamps.length / 100))
-                            // gets the active time in hours for presenting in widget
-                            this.activeTimeHours = differenceInMinutes(dates[dates.length - 1], dates[0]) / 100 * activeTimePercent / 60;
+
+                            let startDate = new Date(result.timestamps[0]);
+                            let endDate = new Date(result.timestamps[result.timestamps.length - 1]);
+                            let activePercent = activeSum / result.timestamps.length;
+                            let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
+
+                            if (activeTimeMinutes > 60) {
+                                this.activeTimeOverPeriod = this.decimalPipe.transform(differenceInHours(endDate, startDate) * activePercent, '1.0-1') + ' h'
+                            } else {
+                                this.activeTimeOverPeriod = activeTimeMinutes.toString() + ' m'
+                            }
 
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
@@ -121,8 +110,8 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
         });
     }
 
-    getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        return new Promise((resolve, reject) => {
+    getChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
+        return new Promise((resolve) => {
             const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
             let channeladdresses = [outputChannel];
             resolve(channeladdresses);

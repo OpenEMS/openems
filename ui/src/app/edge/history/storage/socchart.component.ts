@@ -127,14 +127,6 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            if (label == this.grid) {
-                if (value < 0) {
-                    value *= -1;
-                    label = this.gridBuy;
-                } else {
-                    label = this.gridSell;
-                }
-            }
             return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
         }
         options.scales.yAxes[0].ticks.max = 100;

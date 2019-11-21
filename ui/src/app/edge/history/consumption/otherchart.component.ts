@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -126,14 +126,6 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
-            if (label == this.grid) {
-                if (value < 0) {
-                    value *= -1;
-                    label = this.gridBuy;
-                } else {
-                    label = this.gridSell;
-                }
-            }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         }
         this.options = options;

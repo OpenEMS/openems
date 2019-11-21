@@ -1,8 +1,7 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
+import { Edge, Service, ChannelAddress } from '../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ModalController } from '@ionic/angular';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
@@ -46,7 +45,7 @@ export class SelfconsumptionWidgetComponent implements OnInit, OnChanges {
             new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
         ];
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-            this.service.getConfig().then(config => {
+            this.service.getConfig().then(() => {
                 let result = response.result;
                 this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
                     result.data['_sum/ProductionActiveEnergy'], result.data['_sum/EssActiveDischargeEnergy']);

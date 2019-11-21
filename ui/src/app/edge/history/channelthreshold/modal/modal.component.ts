@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Service, EdgeConfig, Utils } from '../../../../shared/shared';
+import { Service, Utils } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({

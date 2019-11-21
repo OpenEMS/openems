@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, ChannelAddress } from '../../../shared/shared';
+import { Edge, Service, ChannelAddress } from '../../../shared/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ActivatedRoute } from '@angular/router';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
@@ -19,7 +19,6 @@ export class StorageComponent {
     public data: Cumulated = null;
     public values: any;
     public edge: Edge = null;
-    private config: EdgeConfig = null;
 
     constructor(
         public service: Service,
@@ -29,7 +28,6 @@ export class StorageComponent {
     ) { }
 
     ngOnInit() {
-        this.service.getConfig().then(config => { this.config = config })
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
