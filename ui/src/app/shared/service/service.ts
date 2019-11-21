@@ -1,19 +1,19 @@
-import { Injectable, ErrorHandler } from '@angular/core';
+import { ErrorHandler, Injectable } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { Cookie } from 'ng2-cookies';
-import { DefaultTypes } from './defaulttypes';
-import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 import { Widget, WidgetNature, WidgetFactory, Widgets } from '../type/widget';
-import { ToastController } from '@ionic/angular';
 import { Edge, EdgeConfig } from '../shared';
-import { Language, LanguageTag } from '../translate/language';
 import { filter, first, map } from 'rxjs/operators';
 import { Edges } from '../jsonrpc/shared';
+import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { LoadingController } from '@ionic/angular';
+import { DefaultTypes } from './defaulttypes';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -345,5 +345,12 @@ export class Service implements ErrorHandler {
   public hideLoader() {
     this.loadingController.dismiss();
   }
-
+  /**
+   * Currently selected history period string
+   * 
+   * initialized as day, is getting changed by pickdate component
+   */
+  public periodString: DefaultTypes.PeriodString = 'day';
 }
+
+
