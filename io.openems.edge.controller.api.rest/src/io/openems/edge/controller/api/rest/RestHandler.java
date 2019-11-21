@@ -37,6 +37,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
@@ -232,6 +233,25 @@ public class RestHandler extends AbstractHandler {
 		return this.sendOkResponse(baseRequest, response, j);
 	}
 
+	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {
+		try {
+			response.setContentType("application/json");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			baseRequest.setHandled(true);
+			JsonrpcResponseError message;
+			if (ex instanceof OpenemsNamedException) {
+				// Get Named Exception error response
+				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
+			} else {
+				// Get GENERIC error response
+				message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+			}
+			response.getWriter().write(message.toString());
+		} catch (IOException e) {
+			this.parent.logWarn(this.log, "Unable to send Error-Response: " + e.getMessage());
+		}
+	}
+
 	private boolean sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
 			throws OpenemsException {
 		try {
@@ -305,66 +325,73 @@ public class RestHandler extends AbstractHandler {
 	 * @param user           the User
 	 * @param edgeRpcRequest the EdgeRpcRequest
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
-	 * @throws ExecutionException
-	 * @throws InterruptedException
 	 */
 	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws OpenemsNamedException {
-		// call handler methods
-		if (!httpRequest.getMethod().equals("POST")) {
-			throw new OpenemsException(
-					"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
-		}
-
-		// parse json and add "jsonrpc" and "id" properties if missing
-		JsonObject json = RestHandler.parseJson(baseRequest);
-		if (this.parent.isDebugModeEnabled()) {
-			this.parent.logInfo(this.log,
-					"REST/JsonRpc call by User [" + user.getName() + "]: " + StringUtils.toShortString(json, 100));
-		}
-
-		if (!json.has("jsonrpc")) {
-			json.addProperty("jsonrpc", "2.0");
-		}
-		if (!json.has("id")) {
-			json.addProperty("id", UUID.randomUUID().toString());
-		}
-		if (json.has("params")) {
-			JsonObject params = JsonUtils.getAsJsonObject(json, "params");
-			if (params.has("payload")) {
-				JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
-				if (!payload.has("jsonrpc")) {
-					payload.addProperty("jsonrpc", "2.0");
-				}
-				if (!payload.has("id")) {
-					payload.addProperty("id", UUID.randomUUID().toString());
-				}
-				params.add("payload", payload);
-			}
-			json.add("params", params);
-		}
-
-		// parse JSON-RPC Request
-		JsonrpcMessage message = JsonrpcMessage.from(json);
-		if (!(message instanceof JsonrpcRequest)) {
-			throw new OpenemsException("Only JSON-RPC Request is supported here.");
-		}
-		JsonrpcRequest request = (JsonrpcRequest) message;
-
-		// handle the request
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user, request);
-
-		// wait for response
-		JsonrpcResponseSuccess response;
+			HttpServletResponse httpResponse) {
+		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
-			response = responseFuture.get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new OpenemsException("Unable to get Response: " + e.getMessage());
-		}
+			// call handler methods
+			if (!httpRequest.getMethod().equals("POST")) {
+				throw new OpenemsException(
+						"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
+			}
 
-		// send response
-		this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
+			// parse json and add "jsonrpc" and "id" properties if missing
+			JsonObject json = RestHandler.parseJson(baseRequest);
+			if (this.parent.isDebugModeEnabled()) {
+				this.parent.logInfo(this.log,
+						"REST/JsonRpc call by User [" + user.getName() + "]: " + StringUtils.toShortString(json, 100));
+			}
+
+			if (!json.has("jsonrpc")) {
+				json.addProperty("jsonrpc", "2.0");
+			}
+			if (!json.has("id")) {
+				json.addProperty("id", UUID.randomUUID().toString());
+			}
+			if (json.has("params")) {
+				JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+				if (params.has("payload")) {
+					JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+					if (!payload.has("jsonrpc")) {
+						payload.addProperty("jsonrpc", "2.0");
+					}
+					if (!payload.has("id")) {
+						payload.addProperty("id", UUID.randomUUID().toString());
+					}
+					params.add("payload", payload);
+				}
+				json.add("params", params);
+			}
+
+			// parse JSON-RPC Request
+			JsonrpcMessage message = JsonrpcMessage.from(json);
+			if (!(message instanceof JsonrpcRequest)) {
+				throw new OpenemsException("Only JSON-RPC Request is supported here.");
+			}
+			JsonrpcRequest request = (JsonrpcRequest) message;
+			requestId = request.getId();
+
+			// handle the request
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user, request);
+
+			// wait for response
+			JsonrpcResponseSuccess response;
+			try {
+				response = responseFuture.get();
+			} catch (InterruptedException | ExecutionException e) {
+				this.sendErrorResponse(baseRequest, httpResponse, request.getId(),
+						new OpenemsException("Unable to get Response: " + e.getMessage()));
+				return;
+			}
+
+			// send response
+			this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
+
+		} catch (OpenemsNamedException e) {
+			this.sendErrorResponse(baseRequest, httpResponse, requestId,
+					new OpenemsException("Unable to get Response: " + e.getMessage()));
+		}
 	}
 
 	/**

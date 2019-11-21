@@ -6,10 +6,10 @@ Bundle-Version:	1.0.0.${tstamp}
 Export-Package:  \
 	io.openems.edge.controller.ess.predictivedelaycharge.api;-provide=true
 
-Private-Package:  \
+Private-Package: \
 	io.openems.edge.controller.ess.predictivedelaycharge,\
-	io.openems.edge.controller.ess.acpredictivedelaycharge,\
-	io.openems.edge.controller.ess.dcpredictivedelaycharge
+	io.openems.edge.controller.ess.predictivedelaycharge.dc,\
+	io.openems.edge.controller.ess.predictivedelaycharge.ac
 	
 
 -includeresource: {readme.adoc}

@@ -7,12 +7,15 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -27,7 +30,7 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 @Component(name = "Controller.Asymmetric.PhaseRectification", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class PhaseRectification extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	// private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);
+	private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -71,6 +74,21 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 	public void run() throws OpenemsNamedException {
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		AsymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+
+		/*
+		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
+		 */
+		GridMode gridMode = ess.getGridMode().value().asEnum();
+		if (gridMode.isUndefined()) {
+			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
+		}
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
+			return;
+		}
 
 		int meterL1 = meter.getActivePowerL1().value().orElse(0) * -1;
 		int meterL2 = meter.getActivePowerL2().value().orElse(0) * -1;

@@ -10,7 +10,7 @@ public class MyEdge extends Edge {
 
 	public MyEdge(String id, String apikey, String comment, State state, String version, String producttype,
 			EdgeConfig config, Integer soc, String ipv4, Level sumState) {
-		super(id, comment, state, version, producttype, config, soc, ipv4, sumState);
+		super(id, comment, state, version, producttype, config, soc, ipv4);
 		this.apikey = apikey;
 	}
 

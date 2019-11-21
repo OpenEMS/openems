@@ -61,7 +61,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	 */
 	@SuppressWarnings("unchecked")
 	public default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
-		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
+		if (componentId.equals(OpenemsConstants.COMPONENT_MANAGER_ID)) {
 			return (T) this;
 		}
 		List<OpenemsComponent> components = this.getEnabledComponents();
