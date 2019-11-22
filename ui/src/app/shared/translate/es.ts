@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Inactivo",
         Manually: "a mano",
         Phase: "Fase",
+        Phases: "Fases",
         Autarchy: "Autosuficiencia",
         SelfConsumption: "Autoconsumo",
         Cumulative: "Valores Acumulativos",
@@ -33,10 +34,10 @@ export const TRANSLATION = {
         More: "Más...",
         ChargePower: "Carga",
         DischargePower: "Descarga",
+        ChargeDischarge: "Débito/Descarga",
         ActualPower: "e-car Carga",
         PeriodFromTo: "de {{value1}} para {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
-        DateFormatShort: "dd.MM",
         Search: "Búsqueda",
         Week: {
             Monday: "Lunes",
@@ -46,20 +47,6 @@ export const TRANSLATION = {
             Friday: "Viernes",
             Saturday: "Sábado",
             Sunday: "Domingo"
-        },
-        Month: {
-            January: "Enero",
-            February: "Febrero",
-            March: "Marzo",
-            April: "Abril",
-            May: "Mayo",
-            June: "Junio",
-            July: "Julio",
-            August: "Agosto",
-            September: "Septiembre",
-            October: "Octubre",
-            November: "Noviembre",
-            December: "Diciembre"
         },
         ReportValue: "Reportar datos corruptos"
     },
@@ -104,6 +91,8 @@ export const TRANSLATION = {
                 phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
                 selfconsumptionInfo: "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Umbral bajo",
                     HighThreshold: "Umbral alto"
@@ -144,8 +133,6 @@ export const TRANSLATION = {
                     ClusterConfigError: "Se ha producido un error en la configuración del clúster Evcs.",
                     EnergyLimit: "Límite de la energía",
                     MaxEnergyRestriction: "Limite la energía máxima por carga",
-                    CapacityOrientedCharging: "Carga orientada a la capacidad",
-                    CapacityOrientedChargingDescription: "Establezca la energía máxima para esta carga en Wh. La estación de carga solo carga hasta este límite. '0' no corresponde a límite",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
                         Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
@@ -185,7 +172,9 @@ export const TRANSLATION = {
             Day: "Día",
             Week: "Semana",
             Month: "Mes",
-            Year: "Año"
+            Year: "Año",
+            noData: "sin datos disponibles",
+            activeDuration: "duración activa",
         },
         Config: {
             Index: {

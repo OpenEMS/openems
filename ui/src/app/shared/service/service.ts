@@ -9,7 +9,11 @@ import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 import { Widget, WidgetNature, WidgetFactory, Widgets } from '../type/widget';
 import { Edge, EdgeConfig } from '../shared';
 import { filter, first, map } from 'rxjs/operators';
+import { JsonrpcResponseError } from '../jsonrpc/base';
+import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { Edges } from '../jsonrpc/shared';
+import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { LoadingController } from '@ionic/angular';
@@ -280,6 +284,42 @@ export class Service implements ErrorHandler {
       })
     });
   }
+  /**
+   * Gets the ChannelAdresses for cumulated values that should be queried.
+   * 
+   * @param edge the current Edge
+   */
+  public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
+    return new Promise((resolve) => {
+      resolve(channels);
+    });
+  };
+
+  /**
+   * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
+   * 
+   * @param fromDate the From-Date
+   * @param toDate   the To-Date
+   * @param edge     the current Edge
+   * @param ws       the websocket
+   */
+  public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
+    return new Promise((resolve, reject) => {
+      this.getCurrentEdge().then(edge => {
+        this.getChannelAddresses(edge, channels).then(channelAddresses => {
+          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
+          edge.sendRequest(this.websocket, request).then(response => {
+            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+            if (Object.keys(result.data).length != 0) {
+              resolve(response as QueryHistoricTimeseriesEnergyResponse);
+            } else {
+              reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+            }
+          }).catch(reason => reject(reason));
+        }).catch(reason => reject(reason));
+      })
+    })
+  }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({
@@ -288,6 +328,17 @@ export class Service implements ErrorHandler {
       duration: 2000
     });
     toast.present();
+  }
+
+  /**
+   * checks if fems is allowed to show kWh
+   */
+  public isKwhAllowed(edge: Edge): boolean {
+    if (edge && ['fems7', 'fems66', 'fems566', 'fems888'].includes(edge.id)) {
+      return true;
+    } else {
+      return true;
+    }
   }
 
   /**
@@ -351,6 +402,5 @@ export class Service implements ErrorHandler {
    * initialized as day, is getting changed by pickdate component
    */
   public periodString: DefaultTypes.PeriodString = 'day';
+
 }
-
-

@@ -14,12 +14,12 @@ import { LanguageTag } from './shared/translate/language';
   templateUrl: 'app.component.html'
 })
 export class AppComponent {
+
   public env = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
-
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
