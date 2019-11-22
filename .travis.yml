@@ -26,3 +26,5 @@ matrix:
       script:
        - ./gradlew buildUiForEdge --continue
 
+notifications:
+    webhooks: https://www.travisbuddy.com/
