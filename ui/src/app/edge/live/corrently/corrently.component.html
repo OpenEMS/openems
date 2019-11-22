@@ -1,0 +1,25 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card button (click)="seeCurrentData()">
+            <ion-item lines="full" color="light">
+                <img style="width: 98px" src="assets/img/Corrently.png">
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary as sum">
+                <table class="full_width">
+                    <tr>
+                        <td style="width:65%">GSI</td>
+                        <td style="width:35%" class="align_right">
+                            {{ sum.system.correntlyGsi }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%">Zeit</td>
+                        <td style="width:35%" class="align_right">
+                            {{ getEpochTimeHours() }}&nbsp;Uhr
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

@@ -24,6 +24,8 @@ export module DefaultTypes {
       autarchy: number,
       // self consumption in percent
       selfConsumption: number
+      correntlyGsi: number
+      correntlyBestEpoch: number
     }, storage: {
       soc: number,
       activePowerL1: number,

@@ -1,6 +1,7 @@
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
+import { isUndefined } from 'util';
 
 export class EdgeConfig {
 
@@ -166,6 +167,18 @@ export class EdgeConfig {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Determines if Edge has Corrently Component
+     */
+    public hasCorrently(): boolean {
+        if (isUndefined(this.getComponent('corrently0'))) {
+            return false;
+        } else if (!isUndefined(this.getComponent('corrently0'))) {
+            return true;
+        }
+
     }
 
     /**

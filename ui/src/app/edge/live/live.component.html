@@ -36,9 +36,12 @@
               <consumption></consumption>
             </ion-col>
 
-
-
+            <ion-col *ngSwitchCase="'Corrently'" size="12" size-lg="6" class="ion-no-padding">
+              <corrently></corrently>
+            </ion-col>
           </ng-container>
+
+
 
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
