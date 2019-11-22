@@ -71,7 +71,7 @@
     </ion-col>
   </ion-row>
 
-  <ng-container *ngIf="env.backend === 'OpenEMS Backend' || env.backend === 'App'">
+  <ng-container *ngIf="env.backend === 'OpenEMS Backend' || (env.backend === 'App' && websocket.status === 'online')">
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" size-sm="6" size-md="4">
         <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
