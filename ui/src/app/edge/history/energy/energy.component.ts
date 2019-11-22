@@ -61,6 +61,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
+    this.service.getConfig().then(config => {
+      if (!config.hasProducer()) {
+        this.colors.splice(0, 1);
+      }
+    })
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
@@ -220,14 +225,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               hidden: false
             });
           }
-          // keep colors the same if no producing device
-          if (!config.hasProducer()) {
-            this.colors = this.colors.slice(1, this.colors.length);
-          }
-
           this.datasets = datasets;
           this.loading = false;
-
         }).catch(reason => {
           console.error(reason); // TODO error message
           this.initializeChart();

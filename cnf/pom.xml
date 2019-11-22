@@ -44,7 +44,7 @@
 			<!-- https://mvnrepository.com/artifact/com.github.scribejava/scribejava-core -->
 			<groupId>com.github.scribejava</groupId>
 			<artifactId>scribejava-core</artifactId>
-			<version>6.8.1</version>
+			<version>6.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

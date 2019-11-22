@@ -339,5 +339,4 @@ export module EdgeConfig {
         public name: string = "";
         public factoryIds: string[] = [];
     }
-
 }

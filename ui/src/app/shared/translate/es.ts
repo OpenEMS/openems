@@ -1,7 +1,13 @@
 export const TRANSLATION = {
     General: {
-        On: "conmutada",
-        Off: "apagado",
+        Mode: "Modo",
+        Automatic: "Automático",
+        State: "Estado",
+        On: "Conmutada",
+        Off: "Apagado",
+        Active: "Activo",
+        Inactive: "Inactivo",
+        Manually: "a mano",
         Phase: "Fase",
         Autarchy: "Autosuficiencia",
         SelfConsumption: "Autoconsumo",
@@ -9,8 +15,8 @@ export const TRANSLATION = {
         Grid: "Red",
         GridBuy: "Relación",
         GridSell: "Fuente de alimentación",
-        GridBudyAdvanced: "Bezug",
-        GridSellAdvanced: "Einspeisung",
+        GridBuyAdvanced: "Relación",
+        GridSellAdvanced: "Fuente de alimentación",
         OffGrid: "No hay conexión de red",
         Production: "Producción",
         Consumption: "Consumo",
@@ -102,6 +108,7 @@ export const TRANSLATION = {
                     Error: "Error",
                     NotAuthorized: "No autorizado",
                     Unplugged: "No conectado",
+                    ChargeLimitReached: "Límite de carga alcanzado",
                     ChargingStationPluggedIn: "Estación de carga encufada",
                     ChargingStationPluggedInLocked: "Estación de carga enchufada + bloqueado",
                     ChargingStationPluggedInEV: "Estación de carga + e-Car enchufado",
@@ -120,6 +127,8 @@ export const TRANSLATION = {
                     ChargeMode: "Modo de carga",
                     ActivateCharging: "Activar la estación de carga.",
                     ClusterConfigError: "Se ha producido un error en la configuración del clúster Evcs.",
+                    EnergyLimit: "Límite de la energía",
+                    MaxEnergyRestriction: "Limite la energía máxima por carga",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
                         Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
@@ -127,15 +136,16 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Carga optimizada",
-                        ShortName: "Optimizado",
+                        ShortName: "automáticamente",
                         Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
                         MinInfo: "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
                         MinCharging: "Garantía de carga mínima",
+                        MinChargePower: "velocidad de carga",
                         ChargingPriority: "Dependiendo de la priorización, el componente seleccionado se cargará primero"
                     },
                     ForceChargeMode: {
                         Name: "Carga forzada",
-                        ShortName: "Forzado",
+                        ShortName: "a mano",
                         Info: "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
                         MaxCharging: "Fuerza de carga maxima:",
                         MaxChargingDetails: "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente."
