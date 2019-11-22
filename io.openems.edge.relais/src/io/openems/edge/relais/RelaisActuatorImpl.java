@@ -1,11 +1,12 @@
 package io.openems.edge.relais;
 
-
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.relais.api.ActuatorRelaisChannel;
+import io.openems.edge.relais.api.RelaisActuator;
 import io.openems.edge.relaisBoard.RelaisBoard;
 import io.openems.edge.relaisboardmcp.Mcp;
 import io.openems.edge.relaisboardmcp.Mcp23008;
@@ -24,8 +25,7 @@ import java.util.Optional;
 public class RelaisActuatorImpl extends AbstractOpenemsComponent implements ActuatorRelaisChannel, OpenemsComponent, RelaisActuator {
 
     private Mcp allocatedMcp;
-    private int position;
-    private Optional<Boolean> status;
+    //private int position;
 
     @Reference
     protected ConfigurationAdmin cm;
@@ -43,11 +43,11 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
     @Activate
     void activate(ComponentContext context, Config config) throws OpenemsError.OpenemsNamedException {
         super.activate(context, config.id(), config.alias(), config.enabled());
-//			if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
-//				return;
-//			}
+        //if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
+        //return;
+        //}
         allocateRelaisValue(config.relaisType());
-        this.position = config.position();
+        //        this.position = config.position();
         if (cpm.getComponent(config.relaisBoard_id()) instanceof RelaisBoard) {
             RelaisBoard relaisBoard = cpm.getComponent(config.relaisBoard_id());
             if (relaisBoard.getId().equals(config.relaisBoard_id())) {
@@ -92,7 +92,7 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
     @Override
     public String debugLog() {
         if (this.getRelaisChannelValue().getNextWriteValue().isPresent() && !this.getRelaisChannelValue().getNextWriteValue().equals(Optional.empty())) {
-            this.status = this.getRelaisChannelValue().getNextWriteValue();
+            Optional<Boolean> status = this.getRelaisChannelValue().getNextWriteValue();
             return "Status of " + super.id() + " alias: " + super.alias() + " will be " + this.getRelaisChannel().getNextWriteValue();
         } else {
             return "Status of " + super.id() + " alias " + super.alias() + " is " + this.getRelaisChannel().value().get();

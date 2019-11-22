@@ -34,13 +34,13 @@ public class RelaisActuatorTask extends McpTask {
         return this.position;
     }
 
-    //No Usage here, just for the Gaspedal Stuff
+    //No Usage here, just for the Gaspedal
     @Override
     public WriteChannel<Integer> getPowerLevel() {
         return null;
     }
 
-
+    //Same here
     @Override
     public int getDigitValue() {
         return -666;

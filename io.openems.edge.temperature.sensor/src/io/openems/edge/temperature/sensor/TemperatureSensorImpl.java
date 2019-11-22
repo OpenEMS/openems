@@ -3,13 +3,13 @@ package io.openems.edge.temperature.sensor;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.bridge.spi.BridgeSpi;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.temperature.sensor.task.TemperatureDigitalReadTask;
 import io.openems.edge.temperatureBoard.api.Adc;
+import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 @Component(name = "TemperatureSensor", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 
-public class TemperatureSensorImpl extends AbstractOpenemsComponent implements OpenemsComponent, TemperatureSensorChannel, TemperatureSensor {
+public class TemperatureSensorImpl extends AbstractOpenemsComponent implements OpenemsComponent, Thermometer {
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     private BridgeSpi bridgeSpi;
 
@@ -40,7 +40,7 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
 
 
     public TemperatureSensorImpl() {
-        super(OpenemsComponent.ChannelId.values(), TemperatureSensorChannel.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(), Thermometer.ChannelId.values());
     }
 
 
@@ -124,14 +124,14 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
 
     }
 
-    @Override
-    public String getTemperatureSensorId() {
-        return super.id();
-    }
-
-    @Override
-    public Channel<Integer> getTemperatureOfSensor() {
-        return this.getTemperature();
-    }
+//    @Override
+//    public String getTemperatureSensorId() {
+//        return super.id();
+//    }
+//
+//    @Override
+//    public Channel<Integer> getTemperatureOfSensor() {
+//        return this.getTemperature();
+//    }
 
 }

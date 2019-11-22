@@ -99,6 +99,7 @@
     bnd.identity;id='io.openems.edge.temperatureBoard.api',\
 	bnd.identity;id='io.openems.edge.bridgei2c',\
 	bnd.identity;id='io.openems.edge.relais,'\
+	bnd.identity;id='io.openems.edge.relais.api',\
 	bnd.identity;id='io.openems.edge.relaisBoard',\
 	bnd.identity;id='io.openems.edge.relaisboardapi',\
 	bnd.identity;id='io.openems.edge.controller.temperature.simple',\
@@ -184,6 +185,7 @@
 	io.openems.edge.relaisBoard;version=snapshot,\
 	io.openems.edge.bridgei2c;version=snapshot,\
 	io.openems.edge.relais;version=snapshot,\
+	io.openems.edge.relais.api;version=snapshot,\
 	io.openems.edge.relaisboardapi;version=snapshot,\
 	io.openems.edge.controller.temperature.simple;version=snapshot,\
 	io.openems.edge.gaspedal;version=snapshot,\

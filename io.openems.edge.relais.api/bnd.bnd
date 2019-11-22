@@ -1,23 +1,21 @@
-Bundle-Name: OpenEMS Edge Relais
+Bundle-Name: OpenEMS Edge Relais Api
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
 
-
 Export-Package:  \
-	io.openems.edge.relais,\
+	io.openems.edge.relais.api,\
+
+Private-Package:  \
+	io.openems.edge.relais.api
 
 -includeresource: {readme.md}
 
 -buildpath:  \
 	osgi.enroute.base.api;version=2.1,\
-		io.openems.edge.common;version=latest,\
-    	io.openems.common;version=latest,\
-    	io.openems.edge.relaisBoard;version=latest,\
-    	io.openems.edge.relaisboardapi;version=latest,\
-    	io.openems.edge.relais.api;version=latest,\
-    	pi4j-core,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
 
 
 -testpath: \

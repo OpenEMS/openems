@@ -5,8 +5,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.relais.RelaisActuator;
-import io.openems.edge.temperature.sensor.TemperatureSensor;
+import io.openems.edge.relais.api.RelaisActuator;
+import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,7 +22,7 @@ public class TemperatureRelaisActivationController extends AbstractOpenemsCompon
     @Reference
     ComponentManager cpm;
 
-    private TemperatureSensor temperatureSensor;
+    private Thermometer temperatureSensor;
     private RelaisActuator relaisActuator;
     private float toleranceTemperature;
     private float maxTemp;
@@ -42,16 +42,11 @@ public class TemperatureRelaisActivationController extends AbstractOpenemsCompon
         this.minTemp = config.TemperatureMin();
 
         if (cpm.getComponent(config.relaisId()) instanceof RelaisActuator) {
-            RelaisActuator tempR = cpm.getComponent(config.relaisId());
-            if (tempR.getRelaisId().equals(config.relaisId())) {
-                this.relaisActuator = tempR;
-            }
+            this.relaisActuator = cpm.getComponent(config.relaisId());
         }
-        if (cpm.getComponent(config.temperatureId()) instanceof TemperatureSensor) {
-            TemperatureSensor tempT = cpm.getComponent(config.temperatureId());
-            if (tempT.getTemperatureSensorId().equals(config.temperatureId())) {
-                this.temperatureSensor = tempT;
-            }
+
+        if (cpm.getComponent(config.temperatureId()) instanceof Thermometer) {
+            temperatureSensor = cpm.getComponent(config.temperatureId());
         }
     }
 
@@ -64,7 +59,7 @@ public class TemperatureRelaisActivationController extends AbstractOpenemsCompon
     public void run() throws OpenemsError.OpenemsNamedException {
 
         //		String temperature = temperatureSensor.getTemperatureOfSensor().value().toString().replaceAll("[a-zA-Z _]", "").trim();
-        int temperature = temperatureSensor.getTemperatureOfSensor().value().get();
+        int temperature = temperatureSensor.getTemperature().value().get();
         if (temperature + toleranceTemperature < minTemp) {
             //increase Temperature
             if (relaisActuator.isCloser()) {
