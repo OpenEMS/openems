@@ -15,6 +15,8 @@ import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
+import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
+import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -196,9 +198,9 @@ public class EdgeCache {
 			this.parent.logInfo(this.log,
 					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(diff.toString(), 100));
 
-			this.parent.getPostgresHandler().getQueueWriteWorker()
-					.addTask(new UpdateEdgeConfig(edge.getOdooId(), config));
-			this.parent.getOdooHandler().addChatterMessage(edge, "<p>Configuration Update:</p>" + diff.getAsHtml());
+			QueueWriteWorker queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
+			queueWriteWorker.addTask(new UpdateEdgeConfig(edge.getOdooId(), config));
+			queueWriteWorker.addTask(new InsertEdgeConfigUpdate(edge.getOdooId(), diff));
 		});
 		edge.onSetLastMessage(() -> {
 			// Set LastMessage timestamp in Odoo/Postgres
