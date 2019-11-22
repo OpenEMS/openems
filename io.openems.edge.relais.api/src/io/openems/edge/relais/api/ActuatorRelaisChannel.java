@@ -1,4 +1,4 @@
-package io.openems.edge.relais;
+package io.openems.edge.relais.api;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;

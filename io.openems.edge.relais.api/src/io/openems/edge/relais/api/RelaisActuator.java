@@ -1,4 +1,4 @@
-package io.openems.edge.relais;
+package io.openems.edge.relais.api;
 
 import io.openems.edge.common.channel.WriteChannel;
 
