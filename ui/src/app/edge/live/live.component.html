@@ -60,28 +60,27 @@
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
-                <modbusapi [componentId]="widget.componentId"></modbusapi>
-              </ion-col>
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
-              </ion-col>
+            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
+              <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+            </ion-col>
 
-              <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
-                size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
-              </ion-col>
+            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="12"
+              size-lg="6" class="ion-no-padding">
+              <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+            </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6" class="ion-no-padding">
-                <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
-              </ion-col>
+            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6" class="ion-no-padding">
+              <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
+            </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
-                <chpsoc [componentId]="widget.componentId"></chpsoc>
-              </ion-col>
+            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
+              <chpsoc [componentId]="widget.componentId"></chpsoc>
+            </ion-col>
 
-            </ng-container>
           </ng-container>
 
           <ion-col *ngIf="this.edge.id == 'fems66'" size="12" size-lg="6" class="ion-no-padding">
