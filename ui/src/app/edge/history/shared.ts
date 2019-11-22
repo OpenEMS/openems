@@ -5,7 +5,7 @@ export interface Dataset {
 }
 
 export const EMPTY_DATASET = [{
-    label: "",
+    label: "no Data available",
     data: [],
     hidden: false
 }];

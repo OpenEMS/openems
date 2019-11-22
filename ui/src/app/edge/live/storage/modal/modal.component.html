@@ -1,6 +1,6 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title class="ion-text-start" padding-left translate>General.StorageSystem</ion-title>
+    <ion-toolbar color="primary">
+        <ion-title translate>General.StorageSystem</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -38,64 +38,130 @@
                         </td>
                     </tr>
                 </table>
-
                 <!-- 3 Phases -->
                 <div style="padding-top: 5px;"></div>
                 <table class="full_width"
                     *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
-                    <tr *ngIf="sum.activePowerL1 > 0">
-                        <td style="width:2%"></td>
-                        <td style="width:63%"><span translate>General.Phase</span> L1 <span
-                                translate>General.DischargePower</span></td>
-                        <td style="width:35%" class="align_right">
-                            {{ sum.activePowerL1 | unitvalue:'W' }}
-                        </td>
-                    </tr>
-                    <tr *ngIf="sum.activePowerL1 <= 0">
-                        <td style="width:2%"></td>
-                        <td style="width:63%"><span translate>General.Phase</span> L1 <span
-                                translate>General.ChargePower</span></td>
-                        <td style="width:35%" class="align_right">
-                            {{(sum.activePowerL1 * -1) | unitvalue:'W'}}
-                        </td>
-                    </tr>
-                    <tr *ngIf="sum.activePowerL2 > 0">
-                        <td style="width:2%"></td>
-                        <td style="width:63%"><span translate>General.Phase</span> L2 <span
-                                translate>General.DischargePower</span>
-                        </td>
-                        <td style="width:35%" class="align_right">
-                            {{ sum.activePowerL2 | unitvalue:'W' }}
-                        </td>
-                    </tr>
-                    <tr *ngIf="sum.activePowerL2 <= 0">
-                        <td style="width:2%"></td>
-                        <td style="width:63%"><span translate>General.Phase</span> L2 <span
-                                translate>General.ChargePower</span>
-                        </td>
-                        <td style="width:35%" class="align_right">
-                            {{ (sum.activePowerL2 * -1) | unitvalue:'W' }}
-                        </td>
-                    </tr>
-                    <tr *ngIf="sum.activePowerL3 > 0">
-                        <td style="width:2%">
-                        </td>
-                        <td style="width:63%"><span translate>General.Phase</span> L3 <span
-                                translate>General.DischargePower</span>
-                        </td>
-                        <td style="width:35%" class="align_right">
-                            {{ sum.activePowerL3 | unitvalue:'W' }}
-                        </td>
-                    </tr>
-                    <tr *ngIf="sum.activePowerL3 <= 0">
-                        <td style="width:2%"></td>
-                        <td style="width:63%"><span translate>General.Phase</span> L3 <span
-                                translate>General.ChargePower</span>
-                        </td>
-                        <td style="width:35%" class="align_right">
-                            {{ (sum.activePowerL3 * -1) | unitvalue:'W' }}
-                        </td>
-                    </tr>
+                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                        <tr *ngIf="sum.effectiveActivePowerL1 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                    translate>General.DischargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.effectiveActivePowerL1 | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.effectiveActivePowerL1 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                    translate>General.ChargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.effectiveActivePowerL1 * -1) | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <ng-template #noCharger>
+                        <tr *ngIf="sum.activePowerL1 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                    translate>General.DischargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.activePowerL1 | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL1 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                    translate>General.ChargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.activePowerL1 * -1) | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                        <tr *ngIf="sum.effectiveActivePowerL2 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                    translate>General.DischargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.effectiveActivePowerL2 | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.effectiveActivePowerL2 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                    translate>General.ChargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.effectiveActivePowerL2 * -1) | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <ng-template #noCharger>
+                        <tr *ngIf="sum.activePowerL2 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                    translate>General.DischargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.activePowerL2 | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL2 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                    translate>General.ChargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.activePowerL2 * -1) | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                        <tr *ngIf="sum.effectiveActivePowerL3 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                    translate>General.DischargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.effectiveActivePowerL3 | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.effectiveActivePowerL3 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                    translate>General.ChargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.effectiveActivePowerL3 * -1) | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <ng-template #noCharger>
+                        <tr *ngIf="sum.activePowerL3 > 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                    translate>General.DischargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ sum.activePowerL3 | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                        <tr *ngIf="sum.activePowerL3 <= 0">
+                            <td style="width:2%"></td>
+                            <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                    translate>General.ChargePower</span>
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ (sum.activePowerL3 * -1) | unitvalue:'W' }}
+                            </td>
+                        </tr>
+                    </ng-template>
                 </table>
             </ion-card-content>
         </ng-container>
@@ -131,66 +197,131 @@
                         </td>
                     </tr>
                 </table>
-
                 <!-- 3 Phases -->
                 <ng-container
                     *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
                     <div style="padding-top: 5px;"></div>
                     <table class="full_width">
-                        <tr *ngIf="sum.activePowerL1 > 0">
-                            <td style="width:2%"></td>
-                            <td style="width:63%"><span translate>General.Phase</span> L1 <span
-                                    translate>General.DischargePower</span>
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ sum.activePowerL1 | unitvalue:'W' }}
-                            </td>
-                        </tr>
-                        <tr *ngIf="sum.activePowerL1 <= 0">
-                            <td style="width:2%"></td>
-                            <td style="width:63%"><span translate>General.Phase</span> L1 <span
-                                    translate>General.ChargePower</span>
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ (sum.activePowerL1 * -1) | unitvalue:'W' }}
-                            </td>
-                        </tr>
-                        <tr *ngIf="sum.activePowerL2 > 0">
-                            <td style="width:2%"></td>
-                            <td style="width:63%"><span translate>General.Phase</span> L2 <span
-                                    translate>General.DischargePower</span>
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ sum.activePowerL2 | unitvalue:'W' }}
-                            </td>
-                        </tr>
-                        <tr *ngIf="sum.activePowerL2 <= 0">
-                            <td style="width:2%"></td>
-                            <td style="width:63%"><span translate>General.Phase</span> L2 <span
-                                    translate>General.ChargePower</span>
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ (sum.activePowerL2 * -1) | unitvalue:'W' }}
-                            </td>
-                        </tr>
-                        <tr *ngIf="sum.activePowerL3 > 0">
-                            <td style="width:2%"></td>
-                            <td style="width:63%"><span translate>General.Phase</span> L3 <span
-                                    translate>General.DischargePower</span>
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ sum.activePowerL3 | unitvalue:'W' }}
-                            </td>
-                        </tr>
-                        <tr *ngIf="sum.activePowerL3 <= 0">
-                            <td style="width:2%"></td>
-                            <td style="width:63%"><span translate>General.Phase</span> L3 <span
-                                    translate>General.ChargePower</span>
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ (sum.activePowerL3 * -1) | unitvalue:'W' }}
-                            </td>
-                        </tr>
+                        <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                            <tr *ngIf="sum.effectiveActivePowerL1 > 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                        translate>General.DischargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.effectiveActivePowerL1 | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                            <tr *ngIf="sum.effectiveActivePowerL1 <= 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                        translate>General.ChargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.effectiveActivePowerL1 * -1) | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                        </ng-container>
+                        <ng-template #noCharger>
+                            <tr *ngIf="sum.activePowerL1 > 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                        translate>General.DischargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerL1 | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                            <tr *ngIf="sum.activePowerL1 <= 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L1 <span
+                                        translate>General.ChargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.activePowerL1 * -1) | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                            <tr *ngIf="sum.effectiveActivePowerL2 > 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                        translate>General.DischargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.effectiveActivePowerL2 | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                            <tr *ngIf="sum.effectiveActivePowerL2 <= 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                        translate>General.ChargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.effectiveActivePowerL2 * -1) | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                        </ng-container>
+                        <ng-template #noCharger>
+                            <tr *ngIf="sum.activePowerL2 > 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                        translate>General.DischargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerL2 | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                            <tr *ngIf="sum.activePowerL2 <= 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L2 <span
+                                        translate>General.ChargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.activePowerL2 * -1) | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                            <tr *ngIf="sum.effectiveActivePowerL3 > 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                        translate>General.DischargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.effectiveActivePowerL3 | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                            <tr *ngIf="sum.effectiveActivePowerL3 <= 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                        translate>General.ChargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.effectiveActivePowerL3 * -1) | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                        </ng-container>
+                        <ng-template #noCharger>
+                            <tr *ngIf="sum.activePowerL3 > 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                        translate>General.DischargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ sum.activePowerL3 | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                            <tr *ngIf="sum.activePowerL3 <= 0">
+                                <td style="width:2%"></td>
+                                <td style="width:63%"><span translate>General.Phase</span> L3 <span
+                                        translate>General.ChargePower</span>
+                                </td>
+                                <td style="width:35%" class="align_right">
+                                    {{ (sum.activePowerL3 * -1) | unitvalue:'W' }}
+                                </td>
+                            </tr>
+                        </ng-template>
                     </table>
                 </ng-container>
             </ng-container>
@@ -217,7 +348,6 @@
                                 </td>
                             </tr>
                         </table>
-
                         <!-- Symmetric ESS -->
                         <table
                             *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.SymmetricEss') && currentData[component.id + '/ActivePower'] != null"
@@ -235,7 +365,6 @@
                                 </td>
                             </tr>
                         </table>
-
                         <!-- Asymmetric ESS -->
                         <table *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.AsymmetricEss')"
                             class="full_width">
@@ -346,7 +475,7 @@
     </ng-container>
 
     <!-- DC Charger -->
-    <ng-container *ngIf="chargerComponents != null && essComponents.length != 1">
+    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0 && essComponents.length != 1">
         <ng-container *ngFor="let component of chargerComponents">
             <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
                 <table *ngIf="(edge.currentData | async)['channel'] as currentData" class="full_width">
