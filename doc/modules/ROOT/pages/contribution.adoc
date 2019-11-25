@@ -1,0 +1,19 @@
+:imagesdir: ../assets/images
+:sectnumlevels: 0
+:toclevels: 0
+
+== Contribution Guidelines
+
+- use link:https://www.oracle.com/technetwork/java/codeconventions-150003.pdf[Java Coding Convention]
+- format all files via: autoformat, organized imports, checkstyle
+- remove unnecessary console.logs
+- remove unnecessary empty lines
+- remove all errors & warnings
+- add readme file(s)
+- add comment on selfwritten methods/functions
+- entries in BNDrun files need to be sorted alphabetically
+- choose precise naming of pull request and it's comments
+- dont commit if there are any warnings or errors
+- empty test folder / .gitignore
+- avoid class variables
+- ask for review when pull request is ready for review (not before!)
