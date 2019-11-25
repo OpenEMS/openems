@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.chargetime.ocpp.model.SessionInformation;
-import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
 
 /**
  * Represents an OCPP session with additional information and the matching EVCS.

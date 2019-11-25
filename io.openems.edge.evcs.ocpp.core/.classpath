@@ -8,6 +8,5 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/sebastian.asen/Downloads/http-20070405.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

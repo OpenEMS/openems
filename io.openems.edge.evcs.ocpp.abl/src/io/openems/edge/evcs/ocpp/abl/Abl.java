@@ -20,9 +20,9 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
-import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
-import io.openems.edge.evcs.ocpp.api.OcppInformations;
-import io.openems.edge.evcs.ocpp.api.OcppProfileType;
+import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.core.OcppInformations;
+import io.openems.edge.evcs.ocpp.core.OcppProfileType;
 import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)

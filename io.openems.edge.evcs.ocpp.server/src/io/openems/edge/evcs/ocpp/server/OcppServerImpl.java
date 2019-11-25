@@ -41,8 +41,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.ocpp.api.AbstractOcppEvcsComponent;
-import io.openems.edge.evcs.ocpp.api.OcppServer;
+import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.core.OcppServer;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
