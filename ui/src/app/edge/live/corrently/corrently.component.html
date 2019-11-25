@@ -11,10 +11,12 @@
                         {{ channel['corrently0/BestHourGsi'] | unitvalue:'%' }}
                     </td>
                 </tr>
+            </table>
+            <table class="full_width">
                 <tr>
-                    <td style="width:65%">Uhrzeit</td>
-                    <td style="width:35%" class="align_right">
-                        {{ getEpochTimeHours() | unitvalue:'Uhr' }}
+                    <td style="width:20%">Zeitpunkt</td>
+                    <td style="width:80%" class="align_right">
+                        {{ getEpochTime() }}
                     </td>
                 </tr>
             </table>

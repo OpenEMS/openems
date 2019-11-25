@@ -30,8 +30,8 @@ export class CorrentlyComponent {
     });
   }
 
-  public getEpochTimeHours() {
-    return new Date(this.edge.currentData['_value'].channel['corrently0/BestHourEpochtime']).getHours()
+  public getEpochTime() {
+    return new Date(this.edge.currentData['_value'].channel['corrently0/BestHourEpochtime'] * 1000).toLocaleString('de-DE', { weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }).toString() + ' Uhr';
   }
 
   ngOnDestroy() {
