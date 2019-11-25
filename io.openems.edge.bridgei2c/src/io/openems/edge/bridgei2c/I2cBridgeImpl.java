@@ -7,10 +7,8 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.pwmModule.api.IpcaGpioProvider;
-import io.openems.edge.relaisboardmcp.Mcp;
-import io.openems.edge.relaisboardmcp.Mcp23008;
-import io.openems.edge.relaisboardmcp.Mcp4728;
+import io.openems.edge.pwm.module.api.IpcaGpioProvider;
+import io.openems.edge.relaisboardapi.Mcp;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -83,13 +81,6 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
     @Override
     public void addMcp(Mcp mcp) {
         if (mcp != null) {
-            for (Mcp existingMcp : this.mcpList) {
-                if (existingMcp instanceof Mcp23008 && mcp instanceof Mcp23008) {
-                    if (((Mcp23008) existingMcp).getParentCircuitBoard().equals(((Mcp23008) mcp).getParentCircuitBoard())) {
-                        return;
-                    }
-                }
-            }
             this.mcpList.add(mcp);
         }
     }
@@ -104,16 +95,9 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         Iterator<Mcp> iter = this.mcpList.iterator();
         while (iter.hasNext()) {
             Mcp willBeRemoved = iter.next();
-            if (willBeRemoved instanceof Mcp23008 && toRemove instanceof Mcp23008) {
-                if (((Mcp23008) willBeRemoved).getParentCircuitBoard().equals(((Mcp23008) toRemove).getParentCircuitBoard())) {
-                    iter.remove();
-                    break;
-                }
-            } else if (willBeRemoved instanceof Mcp4728 && toRemove instanceof Mcp4728) {
-                if (((Mcp4728) willBeRemoved).getParentCircuitBoard().equals(((Mcp4728) toRemove).getParentCircuitBoard())) {
-                    iter.remove();
-                    break;
-                }
+            if (willBeRemoved.getParentCircuitBoard().equals(toRemove.getParentCircuitBoard())) {
+                iter.remove();
+                break;
             }
         }
     }
@@ -203,30 +187,6 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
                     }
                 });
             });
-
-//            for (I2cTask task : tasks.values()) {
-//
-//                IpcaGpioProvider gpio = getGpioMap().get(task.getPwmModuleId());
-//                if (gpio != null) {
-//
-//                    //with or without offset?
-//                    int digit = task.calculateDigit(4096);
-//                    if (digit > 4095) {
-//                        digit = 4095;
-//                    } else if (digit < 0) {
-//                        digit = 0;
-//                    }
-//                    if (digit == 0) {
-//                        if (task.isInverse()) {
-//                            gpio.setAlwaysOn(task.getPinPosition());
-//                        } else {
-//                            gpio.setAlwaysOff(task.getPinPosition());
-//                        }
-//                    } else {
-//                        gpio.setPwm(task.getPinPosition(), 0, digit);
-//                    }
-//                }
-//            }
         }
     }
 

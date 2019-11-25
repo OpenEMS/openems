@@ -3,8 +3,8 @@ package io.openems.edge.bridgei2c;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridgei2c.task.I2cTask;
-import io.openems.edge.pwmModule.api.IpcaGpioProvider;
-import io.openems.edge.relaisboardmcp.Mcp;
+import io.openems.edge.pwm.module.api.IpcaGpioProvider;
+import io.openems.edge.relaisboardapi.Mcp;
 
 import java.util.List;
 

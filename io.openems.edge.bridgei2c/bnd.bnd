@@ -18,7 +18,7 @@ Private-Package:  \
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
     io.openems.edge.relaisboardapi;version=latest,\
-    io.openems.edge.pwmModule.api;version=latest,\
+    io.openems.edge.pwm.module.api;version=latest,\
     pi4j-core,\
 
 -testpath: \

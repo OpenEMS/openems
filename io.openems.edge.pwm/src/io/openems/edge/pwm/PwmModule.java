@@ -3,8 +3,6 @@ package io.openems.edge.pwm;
 import java.math.BigDecimal;
 import java.io.IOException;
 
-import com.pi4j.io.gpio.GpioPinPwmOutput;
-import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CFactory;
 
@@ -15,9 +13,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridgei2c.I2cBridge;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.pwmModule.api.IpcaGpioProvider;
-import io.openems.edge.pwmModule.api.Pca9685GpioProvider;
-import io.openems.edge.pwmModule.api.PcaGpioProvider;
+import io.openems.edge.pwm.module.api.IpcaGpioProvider;
+import io.openems.edge.pwm.module.api.Pca9685GpioProvider;
+import io.openems.edge.pwm.module.api.PcaGpioProvider;
 
 
 @Designate(ocd = Config.class, factory = true)
