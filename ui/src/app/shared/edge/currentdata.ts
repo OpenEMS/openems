@@ -17,8 +17,6 @@ export class CurrentData {
         totalPower: null,
         autarchy: null,
         selfConsumption: null,
-        correntlyGsi: null,
-        correntlyBestEpoch: null,
       }, storage: {
         soc: null,
         activePowerL1: null,
@@ -208,14 +206,6 @@ export class CurrentData {
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
       result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.effectiveDischargePower);
-    }
-
-    {
-      /*
-      * Corrently
-      */
-      result.system.correntlyGsi = c['corrently0/BestHourGsi'];
-      result.system.correntlyBestEpoch = c['corrently0/BestHourEpochTime'];
     }
     return result;
   }

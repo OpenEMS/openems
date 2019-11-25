@@ -10,7 +10,7 @@ export class CorrentlyComponent {
 
   private static readonly SELECTOR = "corrently";
 
-  private edge: Edge = null;
+  public edge: Edge = null;
 
   constructor(
     public service: Service,
