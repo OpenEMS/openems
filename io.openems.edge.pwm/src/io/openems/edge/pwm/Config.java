@@ -1,11 +1,10 @@
 package io.openems.edge.pwm;
-import com.sun.corba.se.spi.ior.IdentifiableFactory;
+
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(
-        name = "Consolinno PwmModule",
+        name = "Consolinno Pwm Module",
         description = "Module for Pulse widening modulation"
 )
 @interface Config {

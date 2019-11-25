@@ -8,30 +8,30 @@ package io.openems.edge.pwmModule.api;
  * Thank you!*
  * */
 
-import com.pi4j.io.gpio.exception.ValidationException;
-import com.pi4j.io.i2c.I2CBus;
-import com.pi4j.io.i2c.I2CDevice;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import com.pi4j.io.gpio.exception.ValidationException;
+import com.pi4j.io.i2c.I2CBus;
+import com.pi4j.io.i2c.I2CDevice;
+
 public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProvider {
 
-    public static final int INTERNAL_CLOCK_FREQ = 25000000;
-    public static final BigDecimal MIN_FREQUENCY = new BigDecimal("24");
-    public static final BigDecimal MAX_FREQUENCY = new BigDecimal("1600");
-    public static final BigDecimal ANALOG_SERVO_FREQUENCY = new BigDecimal("45.454");
-    public static final BigDecimal DIGITAL_SERVO_FREQUENCY = new BigDecimal("90.909");
-    public static final BigDecimal DEFAULT_FREQUENCY;
-    public static final int PWM_STEPS = 4096;
+    private static final int INTERNAL_CLOCK_FREQ = 25 * 1000 * 1000; // 25 MHz
+    private static final BigDecimal MIN_FREQUENCY = new BigDecimal("24");
+    private static final BigDecimal MAX_FREQUENCY = new BigDecimal("1600");
+    private static final BigDecimal ANALOG_SERVO_FREQUENCY = new BigDecimal("45.454");
+    private static final BigDecimal DIGITAL_SERVO_FREQUENCY = new BigDecimal("90.909");
+    private static final BigDecimal DEFAULT_FREQUENCY;
+    private static final int PWM_STEPS = 4096;
     //
     private static final int PCA9685A_MODE1 = 0x00;
     private static final int PCA9685A_PRESCALE = 0xFE;
-    private static final int PCA9685A_LED0_ON_L = 0x06;
-    private static final int PCA9685A_LED0_ON_H = 0x07;
-    private static final int PCA9685A_LED0_OFF_L = 0x08;
-    private static final int PCA9685A_LED0_OFF_H = 0x09;
+    //    private static final int PCA9685A_LED0_ON_L = 0x06;
+    //    private static final int PCA9685A_LED0_ON_H = 0x07;
+    //    private static final int PCA9685A_LED0_OFF_L = 0x08;
+    //    private static final int PCA9685A_LED0_OFF_H = 0x09;
 
     private boolean i2cBusOwner;
     private I2CBus bus;
@@ -46,11 +46,13 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
         this.bus = bus;
         allocateAddress(address);
         this.device.write(PCA9685A_MODE1, (byte) 0);
+        //if not working try (PCA9685A_MODE1), (byte) 5
         this.setFrequency(targetFrequency, frequencyCorrectionFactor);
     }
 
     private void allocateAddress(String address) {
         try {
+            //more to come with further versions of PWM module
             switch (address) {
                 default:
                 case "0x55":
@@ -74,9 +76,9 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
         } else {
             try {
                 //6789 bc of Pin Adress arrangement -->LEDX_ON_L: LEDX_ON_H; LED_OFF_L; LED_OFF_H; X == Pin Position
-                this.device.write(6 + 4 * pinPos, (byte) (onPos & 255));
+                this.device.write(6 + 4 * pinPos, (byte) (onPos & 0xFF));
                 this.device.write(7 + 4 * pinPos, (byte) (onPos >> 8));
-                this.device.write(8 + 4 * pinPos, (byte) (offPos & 255));
+                this.device.write(8 + 4 * pinPos, (byte) (offPos & 0xFF));
                 this.device.write(9 + 4 * pinPos, (byte) (offPos >> 8));
             } catch (IOException var6) {
                 throw new RuntimeException("Unable to write to PWM channel [" + pinPos + "] values for ON [" + onPos + "] and OFF [" + offPos + "] position.", var6);
@@ -106,7 +108,7 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
         try {
 
             this.device.write(6 + 4 * pinPos, (byte) 0);
-            this.device.write(7 + 4 * pinPos, (byte) 16);
+            this.device.write(7 + 4 * pinPos, (byte) 10);
             this.device.write(8 + 4 * pinPos, (byte) 0);
             this.device.write(9 + 4 * pinPos, (byte) 0);
         } catch (IOException var6) {
@@ -120,7 +122,7 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
             this.device.write(6 + 4 * pinPos, (byte) 0);
             this.device.write(7 + 4 * pinPos, (byte) 0);
             this.device.write(8 + 4 * pinPos, (byte) 0);
-            this.device.write(9 + 4 * pinPos, (byte) 16);
+            this.device.write(9 + 4 * pinPos, (byte) 10);
         } catch (IOException var6) {
             throw new RuntimeException("Error while trying to set channel [" + pinPos + "] always OFF.", var6);
         }
@@ -136,16 +138,16 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
 
         try {
             int oldMode = this.device.read(0);
-            int newMode = oldMode & 127 | 16;
-            this.device.write(0, (byte) newMode);
-            this.device.write(254, (byte) prescale);
-            this.device.write(0, (byte) oldMode);
+            int newMode = (oldMode & 0x7F) | 0x10;
+            this.device.write(PCA9685A_MODE1, (byte) newMode); //go to sleep
+            this.device.write(PCA9685A_PRESCALE, (byte) prescale);
+            this.device.write(PCA9685A_MODE1, (byte) oldMode);
             Thread.sleep(1L);
-            this.device.write(0, (byte) (oldMode | 128));
-        } catch (IOException var6) {
-            throw new RuntimeException("Unable to set prescale value [" + prescale + "]", var6);
-        } catch (InterruptedException var7) {
-            throw new RuntimeException(var7);
+            this.device.write(0, (byte) (oldMode | 0x80));
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to set prescale value [" + prescale + "]", e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -160,8 +162,8 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
     }
 
     private int calculatePrescale(BigDecimal frequencyCorrectionFactor) {
-        BigDecimal theoreticalPrescale = BigDecimal.valueOf(25000000L);
-        theoreticalPrescale = theoreticalPrescale.divide(BigDecimal.valueOf(4096L), 3, RoundingMode.HALF_UP);
+        BigDecimal theoreticalPrescale = BigDecimal.valueOf(INTERNAL_CLOCK_FREQ);
+        theoreticalPrescale = theoreticalPrescale.divide(BigDecimal.valueOf(PWM_STEPS), 3, RoundingMode.HALF_UP);
         theoreticalPrescale = theoreticalPrescale.divide(this.frequency, 0, RoundingMode.HALF_UP);
         theoreticalPrescale = theoreticalPrescale.subtract(BigDecimal.ONE);
         return theoreticalPrescale.multiply(frequencyCorrectionFactor).intValue();
@@ -169,5 +171,33 @@ public class Pca9685GpioProvider extends PcaGpioProvider implements IpcaGpioProv
 
     static {
         DEFAULT_FREQUENCY = ANALOG_SERVO_FREQUENCY;
+    }
+
+    public static int getInternalClockFreq() {
+        return INTERNAL_CLOCK_FREQ;
+    }
+
+    public static BigDecimal getMinFrequency() {
+        return MIN_FREQUENCY;
+    }
+
+    public static BigDecimal getMaxFrequency() {
+        return MAX_FREQUENCY;
+    }
+
+    public static BigDecimal getAnalogServoFrequency() {
+        return ANALOG_SERVO_FREQUENCY;
+    }
+
+    public static BigDecimal getDigitalServoFrequency() {
+        return DIGITAL_SERVO_FREQUENCY;
+    }
+
+    public static BigDecimal getDefaultFrequency() {
+        return DEFAULT_FREQUENCY;
+    }
+
+    public static int getPwmSteps() {
+        return PWM_STEPS;
     }
 }
