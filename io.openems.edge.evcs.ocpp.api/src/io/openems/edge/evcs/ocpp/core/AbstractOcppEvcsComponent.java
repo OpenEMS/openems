@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.ocpp.api;
+package io.openems.edge.evcs.ocpp.core;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -22,7 +22,7 @@ Export-Package:  \
 	slf4j.api,\
 	io.openems.edge.evcs.api;version=latest,\
     com.google.gson,\
-    io.openems.edge.evcs.ocpp.api;version=latest
+    io.openems.edge.evcs.ocpp.core;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
