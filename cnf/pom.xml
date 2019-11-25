@@ -174,7 +174,6 @@
 			<groupId>com.sun.net.httpserver</groupId>
 			<artifactId>http</artifactId>
 			<version>20070405</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

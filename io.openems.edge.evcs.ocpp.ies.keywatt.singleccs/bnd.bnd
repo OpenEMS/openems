@@ -19,7 +19,7 @@ Private-Package:  \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.evcs.api;version=latest,\
-	io.openems.edge.evcs.ocpp.core;version=latest,\
+	io.openems.edge.evcs.ocpp.core,\
 	io.openems.edge.evcs.ocpp.server;version=latest
 
 -testpath: \
