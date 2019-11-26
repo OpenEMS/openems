@@ -17,7 +17,6 @@ Private-Package:  \
 
 -buildpath:  \
 	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.temperatureBoard.api;version=latest,\
 	io.openems.edge.bridge.spi;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
