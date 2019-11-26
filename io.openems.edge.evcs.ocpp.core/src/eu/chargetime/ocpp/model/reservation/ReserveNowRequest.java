@@ -1,14 +1,16 @@
 package eu.chargetime.ocpp.model.reservation;
 
+import java.util.Calendar;
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Calendar;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /*
  * ChargeTime.eu - Java-OCA-OCPP
@@ -186,10 +188,12 @@ public class ReserveNowRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ReserveNowRequest that = (ReserveNowRequest) o;
 		return Objects.equals(connectorId, that.connectorId) && Objects.equals(expiryDate, that.expiryDate)
 				&& Objects.equals(idTag, that.idTag) && Objects.equals(parentIdTag, that.parentIdTag)

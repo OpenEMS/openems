@@ -1,5 +1,30 @@
 package eu.chargetime.ocpp;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.soap.SOAPMessage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 /*
    ChargeTime.eu - Java-OCA-OCPP
 
@@ -25,19 +50,11 @@ package eu.chargetime.ocpp;
    SOFTWARE.    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 
 */
-
-import eu.chargetime.ocpp.model.*;
-import javax.xml.bind.*;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import eu.chargetime.ocpp.model.CallErrorMessage;
+import eu.chargetime.ocpp.model.CallMessage;
+import eu.chargetime.ocpp.model.CallResultMessage;
+import eu.chargetime.ocpp.model.Message;
+import eu.chargetime.ocpp.model.SOAPHostInfo;
 
 public class SOAPCommunicator extends Communicator {
 	private static final Logger logger = LoggerFactory.getLogger(SOAPCommunicator.class);
@@ -204,10 +221,10 @@ public class SOAPCommunicator extends Communicator {
 		actionHeader.setValue(String.format("/%s", action));
 
 		// Set MessageID
-		SOAPHeaderElement messageIDHeader = soapHeader
+		SOAPHeaderElement messageIdHeader = soapHeader
 				.addHeaderElement(soapFactory.createName(HEADER_MESSAGEID, prefix, namespace));
-		messageIDHeader.setMustUnderstand(true);
-		messageIDHeader.setValue(uniqueId);
+		messageIdHeader.setMustUnderstand(true);
+		messageIdHeader.setValue(uniqueId);
 
 		// Set RelatesTo
 		if (isResponse) {
@@ -240,8 +257,9 @@ public class SOAPCommunicator extends Communicator {
 		Message output = null;
 		SOAPParser soapParser = new SOAPParser((SOAPMessage) message);
 
-		if (soapParser.isAddressedToMe())
+		if (soapParser.isAddressedToMe()) {
 			output = soapParser.parseMessage();
+		}
 
 		return output;
 	}
@@ -268,19 +286,22 @@ public class SOAPCommunicator extends Communicator {
 				String action = getElementValue(HEADER_ACTION);
 
 				if (relatesTo != null && !relatesTo.isEmpty() && action != null && action.endsWith("Response")) {
-					if (soapMessage.getSOAPBody().hasFault())
+					if (soapMessage.getSOAPBody().hasFault()) {
 						output = parseError();
-					else
+					} else {
 						output = parseResult();
+					}
 				} else {
 					output = parseCall();
 				}
 
-				if (action != null && !action.isEmpty())
+				if (action != null && !action.isEmpty()) {
 					output.setAction(action.substring(1));
+				}
 
-				if (!soapMessage.getSOAPBody().hasFault())
+				if (!soapMessage.getSOAPBody().hasFault()) {
 					output.setPayload(soapMessage.getSOAPBody().extractContentAsDocument());
+				}
 
 			} catch (SOAPException e) {
 				logger.warn("parseMessage() failed", e);
@@ -303,10 +324,12 @@ public class SOAPCommunicator extends Communicator {
 			try {
 				SOAPFault fault = soapMessage.getSOAPBody().getFault();
 
-				if (fault.getFaultSubcodes().hasNext())
+				if (fault.getFaultSubcodes().hasNext()) {
 					message.setErrorCode(((QName) fault.getFaultSubcodes().next()).getLocalPart());
-				if (fault.getFaultReasonTexts().hasNext())
+				}
+				if (fault.getFaultReasonTexts().hasNext()) {
 					message.setErrorDescription(fault.getFaultReasonTexts().next().toString());
+				}
 
 			} catch (SOAPException e) {
 				logger.error("Parse error", e);
@@ -337,8 +360,9 @@ public class SOAPCommunicator extends Communicator {
 			String value = null;
 			NodeList elements = soapHeader.getElementsByTagNameNS("*", tagName);
 
-			if (elements.getLength() > 0)
+			if (elements.getLength() > 0) {
 				value = elements.item(0).getChildNodes().item(0).getNodeValue();
+			}
 
 			return value;
 		}

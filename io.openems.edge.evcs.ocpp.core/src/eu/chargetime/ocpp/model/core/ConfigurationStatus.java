@@ -26,7 +26,9 @@ package eu.chargetime.ocpp.model.core;
  * SOFTWARE.
  */
 
-/** Accepted values used with {@link ChangeConfigurationConfirmation}. */
+/**
+ * Accepted values used with {@link ChangeConfigurationConfirmation}. 
+ */
 public enum ConfigurationStatus {
 	Accepted, Rejected, RebootRequired, NotSupported
 }

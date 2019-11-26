@@ -1,5 +1,9 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
 ChargeTime.eu - Java-OCA-OCPP
 Copyright (C) 2015-2016 Thomas Volden <tv@chargetime.eu>
@@ -29,8 +33,6 @@ SOFTWARE.
 
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Sent by the Central System to the Charge Point. Request holds no values and

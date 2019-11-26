@@ -24,6 +24,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import java.util.HashSet;
+import java.util.UUID;
+
 import eu.chargetime.ocpp.feature.Feature;
 import eu.chargetime.ocpp.feature.ProfileFeature;
 import eu.chargetime.ocpp.feature.TriggerMessageFeature;
@@ -31,8 +34,6 @@ import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
-import java.util.HashSet;
-import java.util.UUID;
 
 public class ServerRemoteTriggerProfile implements Profile {
 

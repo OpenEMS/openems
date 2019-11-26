@@ -27,7 +27,9 @@ package eu.chargetime.ocpp.model.firmware;
  * SOFTWARE.
  */
 
-/** Accepted values used with {@link DiagnosticsStatusNotificationRequest}. */
+/**
+ * Accepted values used with {@link DiagnosticsStatusNotificationRequest}.
+ */
 public enum DiagnosticsStatus {
 	Idle, Uploaded, UploadFailed, Uploading
 }

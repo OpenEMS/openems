@@ -45,7 +45,7 @@ import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.core.OcppServer;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Evcs.Ocpp.Server", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -57,6 +57,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * The JSON OCPP server.
+	 * 
 	 * <p>
 	 * Responsible for sending and receiving OCPP JSON commands
 	 */
@@ -91,6 +92,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		startServer();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -152,8 +154,8 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	/**
 	 * Default implementation of the send method.
 	 * 
-	 * @param session
-	 * @param request
+	 * @param session given session
+	 * @param request given request
 	 */
 	public void sendDefault(UUID session, Request request) {
 		try {
@@ -172,9 +174,9 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	/**
 	 * Searching the OcppEvcs Components for the given identifier.
 	 * 
-	 * @param identifier
-	 * @param sessionIndex
-	 * @return List<AbstractOcppEvcsComponent>
+	 * @param identifier   given identifier
+	 * @param sessionIndex given session
+	 * @return List of AbstractOcppEvcsComponents
 	 */
 	private List<AbstractOcppEvcsComponent> searchForComponentWithThatIdentifier(String identifier, UUID sessionIndex) {
 		List<AbstractOcppEvcsComponent> evcssWithThisId = new ArrayList<AbstractOcppEvcsComponent>();
@@ -202,7 +204,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Searching again for all Sessions after the configurations changed
+	 * Searching again for all Sessions after the configurations changed.
 	 */
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {

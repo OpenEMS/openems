@@ -21,8 +21,13 @@ package eu.chargetime.ocpp.utilities;
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 /**
  * This class consists of {@code static} utility methods for operating on
@@ -429,24 +434,6 @@ public final class MoreObjects {
 			return addCollection(name, value);
 		}
 
-		private ToStringHelper addCollection(String name, Collection<?> value) {
-			if (value != null && !outputFullDetails) {
-				helperImplementation.add(name + FIELD_NAME_SIZE_POSTFIX, value.size());
-			} else {
-				helperImplementation.add(name, value);
-			}
-			return this;
-		}
-
-		private ToStringHelper addMap(String name, Map<?, ?> value) {
-			if (value != null && !outputFullDetails) {
-				helperImplementation.add(name + FIELD_NAME_SIZE_POSTFIX, value.size());
-			} else {
-				helperImplementation.add(name, value);
-			}
-			return this;
-		}
-
 		/**
 		 * Add field name and value to output. It's safe to pass null as value.
 		 *
@@ -576,6 +563,24 @@ public final class MoreObjects {
 			return this;
 		}
 
+		private ToStringHelper addCollection(String name, Collection<?> value) {
+			if (value != null && !outputFullDetails) {
+				helperImplementation.add(name + FIELD_NAME_SIZE_POSTFIX, value.size());
+			} else {
+				helperImplementation.add(name, value);
+			}
+			return this;
+		}
+
+		private ToStringHelper addMap(String name, Map<?, ?> value) {
+			if (value != null && !outputFullDetails) {
+				helperImplementation.add(name + FIELD_NAME_SIZE_POSTFIX, value.size());
+			} else {
+				helperImplementation.add(name, value);
+			}
+			return this;
+		}
+
 		/**
 		 * Add field name and mask instead of real value to output. It's safe to pass
 		 * null as value.
@@ -672,6 +677,7 @@ public final class MoreObjects {
 		 *
 		 * @return resulting output string
 		 */
+		@Override
 		public String toString() {
 			return helperImplementation.toString();
 		}
@@ -680,7 +686,8 @@ public final class MoreObjects {
 		 * Creates an instance of {@link ToStringHelperImpl}.
 		 *
 		 * @param self the object to generate the string for (typically {@code this}),
-		 *             used only for its class name
+		 *             used only for its class name.
+		 * @return ToStringHelperImpl
 		 */
 		static ToStringHelperImpl toStringHelper(Object self) {
 			return new ToStringHelperImpl(self.getClass().getSimpleName());
@@ -692,6 +699,7 @@ public final class MoreObjects {
 		 * instead of using an instance's {@link Object#getClass()}.
 		 *
 		 * @param clazz the {@link Class} of the instance
+		 * @return ToStringHelperImpl
 		 */
 		static ToStringHelperImpl toStringHelper(Class<?> clazz) {
 			return new ToStringHelperImpl(clazz.getSimpleName());
@@ -703,6 +711,7 @@ public final class MoreObjects {
 		 * an instance's {@link Object#getClass()}.
 		 *
 		 * @param className the name of the instance type
+		 * @return ToStringHelperImpl
 		 */
 		public static ToStringHelperImpl toStringHelper(String className) {
 			return new ToStringHelperImpl(className);
@@ -729,6 +738,8 @@ public final class MoreObjects {
 		 * properties with null value. The order of calling this method, relative to the
 		 * {@code add()}/{@code
 		 * addValue()} methods, is not significant.
+		 * 
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl omitNullValues() {
 			omitNullValues = true;
@@ -740,6 +751,10 @@ public final class MoreObjects {
 		 * If {@code value} is {@code null}, the string {@code "null"} is used, unless
 		 * {@link #omitNullValues()} is called, in which case this name/value pair will
 		 * not be added.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, Object value) {
 			return addHolder(name, value);
@@ -747,6 +762,10 @@ public final class MoreObjects {
 
 		/**
 		 * Adds a name/value pair to the formatted output in {@code name=value} format.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, Calendar value) {
 			return addHolder(name, value);
@@ -754,6 +773,10 @@ public final class MoreObjects {
 
 		/**
 		 * Adds a name/value pair to the formatted output in {@code name=value} format.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, boolean value) {
 			return addHolder(name, String.valueOf(value));
@@ -761,6 +784,10 @@ public final class MoreObjects {
 
 		/**
 		 * Adds a name/value pair to the formatted output in {@code name=value} format.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, char value) {
 			return addHolder(name, String.valueOf(value));
@@ -768,6 +795,10 @@ public final class MoreObjects {
 
 		/**
 		 * Adds a name/value pair to the formatted output in {@code name=value} format.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, double value) {
 			return addHolder(name, String.valueOf(value));
@@ -775,6 +806,10 @@ public final class MoreObjects {
 
 		/**
 		 * Adds a name/value pair to the formatted output in {@code name=value} format.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, float value) {
 			return addHolder(name, String.valueOf(value));
@@ -782,6 +817,10 @@ public final class MoreObjects {
 
 		/**
 		 * Adds a name/value pair to the formatted output in {@code name=value} format.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, int value) {
 			return addHolder(name, String.valueOf(value));
@@ -789,6 +828,10 @@ public final class MoreObjects {
 
 		/**
 		 * Adds a name/value pair to the formatted output in {@code name=value} format.
+		 * 
+		 * @param name  name.
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl add(String name, long value) {
 			return addHolder(name, String.valueOf(value));
@@ -800,6 +843,9 @@ public final class MoreObjects {
 		 * <p>
 		 * It is strongly encouraged to use {@link #add(String, Object)} instead and
 		 * give value a readable name.
+		 * 
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl addValue(Object value) {
 			return addHolder(value);
@@ -811,6 +857,9 @@ public final class MoreObjects {
 		 * <p>
 		 * It is strongly encouraged to use {@link #add(String, boolean)} instead and
 		 * give value a readable name.
+		 * 
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl addValue(boolean value) {
 			return addHolder(String.valueOf(value));
@@ -822,6 +871,9 @@ public final class MoreObjects {
 		 * <p>
 		 * It is strongly encouraged to use {@link #add(String, char)} instead and give
 		 * value a readable name.
+		 * 
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl addValue(char value) {
 			return addHolder(String.valueOf(value));
@@ -833,6 +885,9 @@ public final class MoreObjects {
 		 * <p>
 		 * It is strongly encouraged to use {@link #add(String, double)} instead and
 		 * give value a readable name.
+		 * 
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl addValue(double value) {
 			return addHolder(String.valueOf(value));
@@ -844,6 +899,9 @@ public final class MoreObjects {
 		 * <p>
 		 * It is strongly encouraged to use {@link #add(String, float)} instead and give
 		 * value a readable name.
+		 * 
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl addValue(float value) {
 			return addHolder(String.valueOf(value));
@@ -855,6 +913,9 @@ public final class MoreObjects {
 		 * <p>
 		 * It is strongly encouraged to use {@link #add(String, int)} instead and give
 		 * value a readable name.
+		 * 
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl addValue(int value) {
 			return addHolder(String.valueOf(value));
@@ -866,6 +927,9 @@ public final class MoreObjects {
 		 * <p>
 		 * It is strongly encouraged to use {@link #add(String, long)} instead and give
 		 * value a readable name.
+		 * 
+		 * @param value value.
+		 * @return ToStringHelperImpl
 		 */
 		public ToStringHelperImpl addValue(long value) {
 			return addHolder(String.valueOf(value));

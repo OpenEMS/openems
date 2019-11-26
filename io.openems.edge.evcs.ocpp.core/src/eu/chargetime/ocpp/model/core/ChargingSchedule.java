@@ -1,5 +1,13 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -28,14 +36,10 @@ package eu.chargetime.ocpp.model.core;
 
 import eu.chargetime.ocpp.model.Validatable;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-/** Class type used with {@link ChargingProfile} */
+/**
+ * Class type used with {@link ChargingProfile}. 
+ */
 @XmlRootElement
 @XmlType(propOrder = { "duration", "startSchedule", "chargingRateUnit", "chargingSchedulePeriod", "minChargingRate" })
 public class ChargingSchedule implements Validatable {
@@ -57,8 +61,9 @@ public class ChargingSchedule implements Validatable {
 	public boolean validate() {
 		boolean valid = chargingRateUnit != null;
 		if (valid &= chargingSchedulePeriod != null) {
-			for (ChargingSchedulePeriod period : chargingSchedulePeriod)
+			for (ChargingSchedulePeriod period : chargingSchedulePeriod) {
 				valid &= period.validate();
+			}
 		}
 		return valid;
 	}
@@ -190,10 +195,12 @@ public class ChargingSchedule implements Validatable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ChargingSchedule that = (ChargingSchedule) o;
 		return Objects.equals(duration, that.duration) && Objects.equals(startSchedule, that.startSchedule)
 				&& chargingRateUnit == that.chargingRateUnit

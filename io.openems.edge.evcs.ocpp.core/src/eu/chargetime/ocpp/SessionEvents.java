@@ -30,7 +30,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/** Call back handler for {@link Session} events. */
+/**
+ * Call back handler for {@link Session} events.
+ */
 public interface SessionEvents {
 
 	/**
@@ -46,6 +48,7 @@ public interface SessionEvents {
 	 *
 	 * @param request the {@link Request}.
 	 * @return a {@link Confirmation} to send as a response.
+	 * @throws UnsupportedFeatureException unsupportedFeatureException
 	 */
 	Confirmation handleRequest(Request request) throws UnsupportedFeatureException;
 

@@ -1,12 +1,14 @@
 package eu.chargetime.ocpp.model.smartcharging;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.core.ChargingProfilePurposeType;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /*
  * ChargeTime.eu - Java-OCA-OCPP
@@ -146,10 +148,12 @@ public class ClearChargingProfileRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ClearChargingProfileRequest that = (ClearChargingProfileRequest) o;
 		return Objects.equals(id, that.id) && Objects.equals(connectorId, that.connectorId)
 				&& Objects.equals(chargingProfilePurpose, that.chargingProfilePurpose)

@@ -25,11 +25,12 @@ package eu.chargetime.ocpp.feature.profile;
    SOFTWARE.
 */
 
+import java.util.UUID;
+
 import eu.chargetime.ocpp.model.firmware.DiagnosticsStatusNotificationConfirmation;
 import eu.chargetime.ocpp.model.firmware.DiagnosticsStatusNotificationRequest;
 import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationConfirmation;
 import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationRequest;
-import java.util.UUID;
 
 public interface ServerFirmwareManagementEventHandler {
 	DiagnosticsStatusNotificationConfirmation handleDiagnosticsStatusNotificationRequest(UUID sessionIndex,

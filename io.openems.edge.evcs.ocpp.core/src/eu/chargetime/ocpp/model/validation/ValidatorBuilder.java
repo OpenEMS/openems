@@ -48,12 +48,13 @@ public class ValidatorBuilder {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Validator build() {
-		Validator validator =new StringValidator(rules.toArray(new IValidationRule[0]));
+		Validator validator = new StringValidator(rules.toArray(new IValidationRule[0]));
 
-		if (required)
+		if (required) {
 			validator = new RequiredDecorator(validator);
-		else
+		} else {
 			validator = new OptionalDecorator(validator);
+		}
 
 		return validator;
 	}

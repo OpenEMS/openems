@@ -1,5 +1,13 @@
 package eu.chargetime.ocpp.feature.profile;
 
+import java.util.HashSet;
+import java.util.UUID;
+
+import eu.chargetime.ocpp.feature.CancelReservationFeature;
+import eu.chargetime.ocpp.feature.Feature;
+import eu.chargetime.ocpp.feature.ProfileFeature;
+import eu.chargetime.ocpp.feature.ReserveNowFeature;
+
 /*
    ChargeTime.eu - Java-OCA-OCPP
 
@@ -27,13 +35,10 @@ package eu.chargetime.ocpp.feature.profile;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.feature.*;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.reservation.CancelReservationRequest;
 import eu.chargetime.ocpp.model.reservation.ReserveNowRequest;
-import java.util.HashSet;
-import java.util.UUID;
 
 public class ClientReservationProfile implements Profile {
 

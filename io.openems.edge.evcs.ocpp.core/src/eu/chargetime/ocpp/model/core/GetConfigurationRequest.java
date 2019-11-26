@@ -1,5 +1,10 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Arrays;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
 ChargeTime.eu - Java-OCA-OCPP
 Copyright (C) 2015-2016 Thomas Volden <tv@chargetime.eu>
@@ -31,9 +36,6 @@ import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Arrays;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /** Sent by the the Central System to the Charge Point. */
 @XmlRootElement
@@ -82,10 +84,12 @@ public class GetConfigurationRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		GetConfigurationRequest that = (GetConfigurationRequest) o;
 		return Arrays.equals(key, that.key);
 	}

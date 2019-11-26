@@ -1,5 +1,12 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Arrays;
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -29,11 +36,6 @@ package eu.chargetime.ocpp.model.core;
 import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Arrays;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * Sent by the Charge Point to the Central System.
@@ -131,10 +133,12 @@ public class MeterValuesRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		MeterValuesRequest that = (MeterValuesRequest) o;
 		return connectorId == that.connectorId && transactionId == that.transactionId
 				&& Arrays.equals(meterValue, that.meterValue);

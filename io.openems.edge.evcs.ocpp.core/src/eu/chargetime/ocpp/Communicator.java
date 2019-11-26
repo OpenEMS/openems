@@ -26,13 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import eu.chargetime.ocpp.model.*;
-import eu.chargetime.ocpp.utilities.SugarUtil;
 import java.util.ArrayDeque;
+
 import javax.xml.soap.SOAPMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+
+import eu.chargetime.ocpp.model.CallErrorMessage;
+import eu.chargetime.ocpp.model.CallMessage;
+import eu.chargetime.ocpp.model.CallResultMessage;
+import eu.chargetime.ocpp.model.Confirmation;
+import eu.chargetime.ocpp.model.Message;
+import eu.chargetime.ocpp.model.Request;
+import eu.chargetime.ocpp.utilities.SugarUtil;
 
 /**
  * Abstract class. Handles basic communication: Pack and send messages. Receive
@@ -57,6 +65,7 @@ public abstract class Communicator {
 	 *
 	 * @param payload the raw formatted payload.
 	 * @param type    the expected return type.
+	 * @param <T>     type.
 	 * @return the unpacked payload.
 	 * @throws Exception error occurred while converting.
 	 */
@@ -96,6 +105,7 @@ public abstract class Communicator {
 	 * @param uniqueId         the id the receiver expects.
 	 * @param errorCode        an OCPP error code.
 	 * @param errorDescription an associated error description.
+	 * @param action           action.
 	 * @return a fully packed message ready to send.
 	 */
 	protected abstract Object makeCallError(String uniqueId, String action, String errorCode, String errorDescription);
@@ -129,8 +139,9 @@ public abstract class Communicator {
 	 */
 	public void connect(String uri, CommunicatorEvents events) {
 		this.events = events;
-		if (radio instanceof Transmitter)
+		if (radio instanceof Transmitter) {
 			((Transmitter) radio).connect(uri, new EventHandler(events));
+		}
 	}
 
 	/**
@@ -140,8 +151,9 @@ public abstract class Communicator {
 	 */
 	public void accept(CommunicatorEvents events) {
 		this.events = events;
-		if (radio instanceof Receiver)
+		if (radio instanceof Receiver) {
 			((Receiver) radio).accept(new EventHandler(events));
+		}
 	}
 
 	/**
@@ -195,7 +207,9 @@ public abstract class Communicator {
 	/**
 	 * Send a {@link Confirmation} reply to a {@link Request}.
 	 *
+	 *
 	 * @param uniqueId     the id the receiver expects.
+	 * @param action       action.
 	 * @param confirmation the outgoing {@link Confirmation}
 	 */
 	public void sendCallResult(String uniqueId, String action, Confirmation confirmation) {
@@ -212,6 +226,7 @@ public abstract class Communicator {
 	 * Send an error. If offline, the message is thrown away.
 	 *
 	 * @param uniqueId         the id the receiver expects a response to.
+	 * @param action           action.
 	 * @param errorCode        an OCPP error Code
 	 * @param errorDescription a associated error description.
 	 */
@@ -228,7 +243,9 @@ public abstract class Communicator {
 		}
 	}
 
-	/** Close down the connection. Uses the {@link Transmitter}. */
+	/**
+	 * Close down the connection. Uses the {@link Transmitter}.
+	 */
 	public void disconnect() {
 		radio.disconnect();
 	}
@@ -291,8 +308,9 @@ public abstract class Communicator {
 	 */
 	private Object getRetryMessage() {
 		Object result = null;
-		if (!transactionQueue.isEmpty())
+		if (!transactionQueue.isEmpty()) {
 			result = transactionQueue.peek();
+		}
 		return result;
 	}
 
@@ -306,8 +324,9 @@ public abstract class Communicator {
 	}
 
 	private void popRetryMessage() {
-		if (!transactionQueue.isEmpty())
+		if (!transactionQueue.isEmpty()) {
 			transactionQueue.pop();
+		}
 	}
 
 	/** Will resend transaction related requests. */
@@ -321,8 +340,9 @@ public abstract class Communicator {
 				while ((call = getRetryMessage()) != null) {
 					radio.send(call);
 					Thread.sleep(DELAY_IN_MILLISECONDS);
-					if (!hasFailed())
+					if (!hasFailed()) {
 						popRetryMessage();
+					}
 				}
 			} catch (Exception ex) {
 				logger.warn("RetryRunner::run() failed", ex);

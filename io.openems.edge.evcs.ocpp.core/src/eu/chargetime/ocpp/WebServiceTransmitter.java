@@ -4,6 +4,7 @@ import javax.xml.soap.SOAPConnection;
 import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +80,9 @@ public class WebServiceTransmitter extends SOAPSyncHelper implements Transmitter
 
 	@Override
 	protected void sendRequest(final SOAPMessage message) throws NotConnectedException {
-		if (!connected)
+		if (!connected) {
 			throw new NotConnectedException();
+		}
 		Thread thread = new Thread(() -> {
 			try {
 				SOAPMessage response = soapConnection.call(message, url);

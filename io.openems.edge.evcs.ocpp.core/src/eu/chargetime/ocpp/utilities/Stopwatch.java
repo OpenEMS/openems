@@ -22,8 +22,13 @@ package eu.chargetime.ocpp.utilities;
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MICROSECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.time.Duration;
 import java.util.Locale;
@@ -54,6 +59,8 @@ public final class Stopwatch {
 	/**
 	 * Creates (but does not start) a new stopwatch using {@link System#nanoTime} as
 	 * its time source.
+	 * 
+	 * @return Stopwatch
 	 */
 	public static Stopwatch createUnstarted() {
 		return new Stopwatch();
@@ -62,6 +69,8 @@ public final class Stopwatch {
 	/**
 	 * Creates (and starts) a new stopwatch using {@link System#nanoTime} as its
 	 * time source.
+	 * 
+	 * @return Stopwatch
 	 */
 	public static Stopwatch createStarted() {
 		return new Stopwatch().start();
@@ -71,6 +80,8 @@ public final class Stopwatch {
 	 * Returns {@code true} if {@link #start()} has been called on this stopwatch,
 	 * and {@link #stop()} has not been called since the last call to
 	 * {@code start()}.
+	 * 
+	 * @return is running
 	 */
 	public boolean isRunning() {
 		return isRunning;
@@ -135,6 +146,9 @@ public final class Stopwatch {
 	 * It is generally not a good idea to use an ambiguous, unitless {@code long} to
 	 * represent elapsed time. Therefore, we recommend using {@link #elapsed()}
 	 * instead, which returns a strongly-typed {@link Duration} instance.
+	 * 
+	 * @param desiredUnit desired unit.
+	 * @return long elapsed
 	 */
 	public long elapsed(TimeUnit desiredUnit) {
 		return desiredUnit.convert(elapsedNanos(), NANOSECONDS);
@@ -144,6 +158,8 @@ public final class Stopwatch {
 	 * Returns the current elapsed time shown on this stopwatch as a
 	 * {@link Duration}. Unlike {@link #elapsed(TimeUnit)}, this method does not
 	 * lose any precision due to rounding.
+	 * 
+	 * @return long elapsed
 	 */
 	public Duration elapsed() {
 		return Duration.ofNanos(elapsedNanos());

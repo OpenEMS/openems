@@ -1,5 +1,10 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
 ChargeTime.eu - Java-OCA-OCPP
 Copyright (C) 2015-2016 Thomas Volden <tv@chargetime.eu>
@@ -29,11 +34,10 @@ SOFTWARE.
 
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
-/** Returned from Charge Point to Central System */
+/**
+ * Returned from Charge Point to Central System.
+ */
 @XmlRootElement(name = "changeConfigurationResponse")
 public class ChangeConfigurationConfirmation implements Confirmation {
 	private ConfigurationStatus status;
@@ -74,10 +78,12 @@ public class ChangeConfigurationConfirmation implements Confirmation {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ChangeConfigurationConfirmation that = (ChangeConfigurationConfirmation) o;
 		return status == that.status;
 	}

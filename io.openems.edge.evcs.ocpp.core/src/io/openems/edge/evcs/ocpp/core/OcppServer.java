@@ -13,6 +13,7 @@ public interface OcppServer {
 
 	/**
 	 * Send message to EVCS.
+	 * 
 	 * <p>
 	 * Example: <blockquote>
 	 * 
@@ -27,9 +28,9 @@ public interface OcppServer {
 	 * @param session Current session
 	 * @param request Request that will be sent
 	 * @return When the request has been sent and a confirmation is received
-	 * @throws NotConnectedException
-	 * @throws UnsupportedFeatureException
-	 * @throws OccurenceConstraintException
+	 * @throws NotConnectedException        notConnectedException
+	 * @throws UnsupportedFeatureException  unsupportedFeatureException
+	 * @throws OccurenceConstraintException occurenceConstraintException
 	 */
 	public CompletionStage<Confirmation> send(UUID session, Request request)
 			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException;

@@ -25,12 +25,13 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.model.Confirmation;
-import eu.chargetime.ocpp.model.Request;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+
+import eu.chargetime.ocpp.model.Confirmation;
+import eu.chargetime.ocpp.model.Request;
 
 public class PromiseRepository implements IPromiseRepository {
 
@@ -41,11 +42,12 @@ public class PromiseRepository implements IPromiseRepository {
 	}
 
 	/**
-	 * Creates call back {@link CompletableFuture} for later use
+	 * Creates call back {@link CompletableFuture} for later use.
 	 *
 	 * @param uniqueId identification for the {@link Request}
 	 * @return call back {@link CompletableFuture}
 	 */
+	@Override
 	public CompletableFuture<Confirmation> createPromise(String uniqueId) {
 		CompletableFuture<Confirmation> promise = new CompletableFuture<>();
 		promises.put(uniqueId, promise);
@@ -58,6 +60,7 @@ public class PromiseRepository implements IPromiseRepository {
 	 * @param uniqueId identification for the {@link Request}
 	 * @return optional of call back {@link CompletableFuture}
 	 */
+	@Override
 	public Optional<CompletableFuture<Confirmation>> getPromise(String uniqueId) {
 		return Optional.ofNullable(promises.get(uniqueId));
 	}
@@ -67,6 +70,7 @@ public class PromiseRepository implements IPromiseRepository {
 	 *
 	 * @param uniqueId identification for the {@link Request}
 	 */
+	@Override
 	public void removePromise(String uniqueId) {
 		promises.remove(uniqueId);
 	}

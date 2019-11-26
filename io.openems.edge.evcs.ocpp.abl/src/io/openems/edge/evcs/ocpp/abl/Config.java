@@ -3,7 +3,7 @@ package io.openems.edge.evcs.ocpp.abl;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "EVCS OCPP ABL", //
 		description = "Implements an OCPP capable ABL electric vehicle charging station whithout the smart charging function.")
 @interface Config {

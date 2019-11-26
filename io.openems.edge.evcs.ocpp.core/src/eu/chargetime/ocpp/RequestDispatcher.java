@@ -25,9 +25,10 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
+import java.util.concurrent.CompletableFuture;
+
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
-import java.util.concurrent.CompletableFuture;
 
 public class RequestDispatcher implements IRequestDispactcher {
 

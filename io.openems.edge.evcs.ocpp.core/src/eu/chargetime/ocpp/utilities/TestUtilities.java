@@ -71,8 +71,9 @@ public final class TestUtilities {
 	public static String join(String delimiter, Object[] array) {
 		StringBuilder output = new StringBuilder();
 
-		for (Object current : array)
+		for (Object current : array) {
 			output.append(String.format("%s%s", delimiter, current));
+		}
 
 		return output.toString().substring(1);
 	}

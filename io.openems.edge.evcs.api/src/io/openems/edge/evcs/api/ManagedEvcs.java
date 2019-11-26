@@ -1,7 +1,5 @@
 package io.openems.edge.evcs.api;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -11,6 +9,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
+import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface ManagedEvcs extends Evcs {
@@ -110,6 +109,12 @@ public interface ManagedEvcs extends Evcs {
 		}
 	}
 
+	/**
+	 * Returns the modbus table for this nature.
+	 * 
+	 * @param accessMode accessMode
+	 * @return nature table
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		// TODO add remaining channels
 		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //

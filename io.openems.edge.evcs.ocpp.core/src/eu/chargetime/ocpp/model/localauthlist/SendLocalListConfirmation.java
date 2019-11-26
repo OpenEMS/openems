@@ -1,5 +1,7 @@
 package eu.chargetime.ocpp.model.localauthlist;
 
+import java.util.Objects;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -29,7 +31,6 @@ package eu.chargetime.ocpp.model.localauthlist;
 import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
 
 public class SendLocalListConfirmation implements Confirmation {
 
@@ -73,10 +74,12 @@ public class SendLocalListConfirmation implements Confirmation {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		SendLocalListConfirmation that = (SendLocalListConfirmation) o;
 		return status == that.status;
 	}

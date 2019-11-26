@@ -1,7 +1,8 @@
 package eu.chargetime.ocpp;
 
-import eu.chargetime.ocpp.model.Request;
 import java.util.UUID;
+
+import eu.chargetime.ocpp.model.Request;
 
 /*
    ChargeTime.eu - Java-OCA-OCPP

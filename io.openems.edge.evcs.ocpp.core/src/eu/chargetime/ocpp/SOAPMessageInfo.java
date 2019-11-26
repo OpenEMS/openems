@@ -1,6 +1,7 @@
 package eu.chargetime.ocpp;
 
 import java.net.InetSocketAddress;
+
 import javax.xml.soap.SOAPMessage;
 
 /** Created by emil on 21.05.2017. */

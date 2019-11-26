@@ -28,7 +28,7 @@ public class WriteHandler implements Runnable {
 	private final AbstractOcppEvcsComponent parent;
 
 	// Minimum pause between two consecutive writes
-	private final static int WRITE_INTERVAL_SECONDS = 30;
+	private static final int WRITE_INTERVAL_SECONDS = 30;
 
 	public WriteHandler(AbstractOcppEvcsComponent parent) {
 		this.parent = parent;
@@ -78,6 +78,7 @@ public class WriteHandler implements Runnable {
 
 	/**
 	 * Sets the current or power from SET_CHARGE_POWER channel.
+	 * 
 	 * <p>
 	 * Depending on the charging type it will send different commands with different
 	 * units. Invalid values are discarded. If the energy limit is reached it will
@@ -106,7 +107,7 @@ public class WriteHandler implements Runnable {
 					return;
 				case AC:
 					int phases = this.parent.getPhases().getNextValue().orElse(3);
-					target = power * 1000 / phases / 230 /* voltage */ ;
+					target = power * 1000 / phases / 230; /* voltage */
 
 					if (target > maxPower / phases / 230) {
 						target = maxPower / phases / 230;

@@ -1,5 +1,11 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -28,10 +34,6 @@ package eu.chargetime.ocpp.model.core;
 
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * Sent by the Central System to the Charge Point in response to a
@@ -46,8 +48,9 @@ public class StartTransactionConfirmation implements Confirmation {
 	@Override
 	public boolean validate() {
 		boolean valid = true;
-		if (valid &= idTagInfo != null)
+		if (valid &= idTagInfo != null) {
 			valid &= idTagInfo.validate();
+		}
 		valid &= transactionId != null;
 		return valid;
 	}
@@ -93,10 +96,12 @@ public class StartTransactionConfirmation implements Confirmation {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		StartTransactionConfirmation that = (StartTransactionConfirmation) o;
 		return Objects.equals(idTagInfo, that.idTagInfo) && Objects.equals(transactionId, that.transactionId);
 	}

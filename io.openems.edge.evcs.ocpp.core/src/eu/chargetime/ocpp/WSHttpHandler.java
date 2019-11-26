@@ -25,14 +25,21 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.xml.soap.*;
+
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 
 public class WSHttpHandler implements HttpHandler {
 	private static final Logger logger = LoggerFactory.getLogger(WSHttpHandler.class);
@@ -84,8 +91,9 @@ public class WSHttpHandler implements HttpHandler {
 
 		byte[] buffer = new byte[2048];
 		int read;
-		while ((read = wsdl.read(buffer)) != -1)
+		while ((read = wsdl.read(buffer)) != -1) {
 			os.write(buffer, 0, read);
+		}
 
 		os.flush();
 		os.close();

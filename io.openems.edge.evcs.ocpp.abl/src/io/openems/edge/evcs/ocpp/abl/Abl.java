@@ -26,7 +26,7 @@ import io.openems.edge.evcs.ocpp.core.OcppProfileType;
 import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Evcs.Ocpp.Abl", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -47,7 +47,7 @@ public class Abl extends AbstractOcppEvcsComponent implements Evcs, MeasuringEvc
 	protected ComponentManager componentManager;
 
 	public Abl() {
-		super( //
+		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //

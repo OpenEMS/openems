@@ -30,6 +30,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.URI;
+
 import javax.net.ssl.SSLSocketFactory;
 
 /** Base implementation of WssSocketBuilder. */

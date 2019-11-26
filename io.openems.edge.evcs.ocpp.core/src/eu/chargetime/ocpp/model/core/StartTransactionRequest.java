@@ -1,5 +1,12 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Calendar;
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -30,11 +37,6 @@ import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Calendar;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /** Sent by the Charge Point to the Central System. */
 @XmlRootElement
@@ -185,10 +187,12 @@ public class StartTransactionRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		StartTransactionRequest that = (StartTransactionRequest) o;
 		return Objects.equals(connectorId, that.connectorId) && Objects.equals(idTag, that.idTag)
 				&& Objects.equals(meterStart, that.meterStart) && Objects.equals(reservationId, that.reservationId)

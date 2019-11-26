@@ -26,13 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.chargetime.ocpp.feature.Feature;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Handles basic client logic: Holds a list of supported features. Keeps track
@@ -53,6 +55,8 @@ public class Client {
 	 *
 	 * @param session Inject session object
 	 * @see Session
+	 * @param promiseRepository promise
+	 * @param featureRepository feature
 	 */
 	public Client(ISession session, IFeatureRepository featureRepository, IPromiseRepository promiseRepository) {
 		this.session = session;
@@ -61,7 +65,7 @@ public class Client {
 	}
 
 	/**
-	 * Connect to server
+	 * Connect to server.
 	 *
 	 * @param uri    url and port of the server
 	 * @param events client events for connect/disconnect
@@ -103,19 +107,21 @@ public class Client {
 
 			@Override
 			public void handleConnectionClosed() {
-				if (events != null)
+				if (events != null) {
 					events.connectionClosed();
+				}
 			}
 
 			@Override
 			public void handleConnectionOpened() {
-				if (events != null)
+				if (events != null) {
 					events.connectionOpened();
+				}
 			}
 		});
 	}
 
-	/** Disconnect from server */
+	/** Disconnect from server. */
 	public void disconnect() {
 		try {
 			session.close();

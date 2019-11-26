@@ -1,5 +1,11 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -30,10 +36,6 @@ import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /** Sent to Charge Point by Central System. */
 @XmlRootElement
@@ -137,10 +139,12 @@ public class RemoteStartTransactionRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		RemoteStartTransactionRequest that = (RemoteStartTransactionRequest) o;
 		return Objects.equals(connectorId, that.connectorId) && Objects.equals(idTag, that.idTag)
 				&& Objects.equals(chargingProfile, that.chargingProfile);

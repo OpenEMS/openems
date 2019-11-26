@@ -26,15 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.chargetime.ocpp.feature.Feature;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Unites outgoing {@link Request} with incoming {@link Confirmation}s or
@@ -54,8 +56,10 @@ public class Session implements ISession {
 	/**
 	 * Handles required injections.
 	 *
-	 * @param communicator send and receive messages.
-	 * @param queue        store and restore requests based on unique ids.
+	 * @param communicator      send and receive messages.
+	 * @param queue             store and restore requests based on unique ids.
+	 * @param fulfiller         fulfiller.
+	 * @param featureRepository feature repository.
 	 */
 	public Session(Communicator communicator, Queue queue, PromiseFulfiller fulfiller,
 			IFeatureRepository featureRepository) {
@@ -70,6 +74,7 @@ public class Session implements ISession {
 	 *
 	 * @return the unique session {@link UUID} identifier
 	 */
+	@Override
 	public UUID getSessionId() {
 		return sessionId;
 	}
@@ -81,6 +86,7 @@ public class Session implements ISession {
 	 * @param payload the {@link Request} payload to send
 	 * @param uuid    unique identification to identify the request
 	 */
+	@Override
 	public void sendRequest(String action, Request payload, String uuid) {
 		communicator.sendCall(uuid, action, payload);
 	}
@@ -91,15 +97,17 @@ public class Session implements ISession {
 	 * @param payload the {@link Request} payload to send
 	 * @return unique identification to identify the request.
 	 */
+	@Override
 	public String storeRequest(Request payload) {
 		return queue.store(payload);
 	}
 
 	/**
-	 * Send a {@link Confirmation} to a {@link Request}
+	 * Send a {@link Confirmation} to a {@link Request}.
 	 *
 	 * @param uniqueId     the unique identification the receiver expects.
 	 * @param confirmation the {@link Confirmation} payload to send.
+	 * @param action       action.
 	 */
 	public void sendConfirmation(String uniqueId, String action, Confirmation confirmation) {
 		communicator.sendCallResult(uniqueId, action, confirmation);
@@ -132,6 +140,7 @@ public class Session implements ISession {
 	 * @param uri          url and port of the remote system.
 	 * @param eventHandler call back handler for connection related events.
 	 */
+	@Override
 	public void open(String uri, SessionEvents eventHandler) {
 		this.events = eventHandler;
 		dispatcher.setEventHandler(eventHandler);
@@ -139,10 +148,12 @@ public class Session implements ISession {
 	}
 
 	/** Close down the connection. */
+	@Override
 	public void close() {
 		communicator.disconnect();
 	}
 
+	@Override
 	public void accept(SessionEvents eventHandler) {
 		this.events = eventHandler;
 		dispatcher.setEventHandler(eventHandler);
@@ -226,10 +237,12 @@ public class Session implements ISession {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		Session session = (Session) o;
 		return MoreObjects.equals(sessionId, session.sessionId);
 	}

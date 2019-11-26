@@ -1,5 +1,12 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Calendar;
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -30,11 +37,6 @@ import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Calendar;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /** Sent by the Charge Point to the Central System. */
 @XmlRootElement
@@ -240,8 +242,9 @@ public class StatusNotificationRequest implements Request {
 	 */
 	@XmlElement
 	public void setVendorErrorCode(String vendorErrorCode) {
-		if (!ModelUtil.validate(vendorErrorCode, 50))
+		if (!ModelUtil.validate(vendorErrorCode, 50)) {
 			throw new PropertyConstraintException(vendorErrorCode.length(), createErrorMessage(50));
+		}
 
 		this.vendorErrorCode = vendorErrorCode;
 	}
@@ -257,10 +260,12 @@ public class StatusNotificationRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		StatusNotificationRequest that = (StatusNotificationRequest) o;
 		return Objects.equals(connectorId, that.connectorId) && errorCode == that.errorCode
 				&& Objects.equals(info, that.info) && status == that.status && Objects.equals(timestamp, that.timestamp)

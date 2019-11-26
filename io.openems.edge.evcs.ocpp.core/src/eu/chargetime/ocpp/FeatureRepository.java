@@ -25,14 +25,15 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import eu.chargetime.ocpp.feature.Feature;
 import eu.chargetime.ocpp.feature.profile.Profile;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 public class FeatureRepository implements IFeatureRepository {
 

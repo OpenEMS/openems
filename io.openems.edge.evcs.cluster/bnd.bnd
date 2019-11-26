@@ -7,15 +7,11 @@ Private-Package: io.openems.edge.evcs.cluster
 
 -includeresource: {readme.adoc}
 
--buildpath: \
-	${buildpath},\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.evcs.api;version=latest,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.ess.api;version=latest
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.evcs.api;version=latest
 
 -testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8

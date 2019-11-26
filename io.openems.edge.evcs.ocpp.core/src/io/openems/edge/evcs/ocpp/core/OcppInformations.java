@@ -1,22 +1,24 @@
 package io.openems.edge.evcs.ocpp.core;
 
-import io.openems.edge.evcs.api.*;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.MeasuringEvcs;
+import io.openems.edge.evcs.api.SocEvcs;
 
 public enum OcppInformations {
 
 	/**
-	 * Instantaneous current flow from EV
+	 * Instantaneous current flow from EV.
 	 */
 	CORE_METER_VALUES_CURRENT_EXPORT("Current.Export", MeasuringEvcs.ChannelId.CURRENT_TO_GRID),
 
 	/**
-	 * Instantaneous current flow to EV
+	 * Instantaneous current flow to EV.
 	 */
 	CORE_METER_VALUES_CURRENT_IMPORT("Current.IMPORT", MeasuringEvcs.ChannelId.CURRENT_TO_EV),
 
 	/**
-	 * Maximum current offered to EV
+	 * Maximum current offered to EV.
 	 */
 	CORE_METER_VALUES_CURRENT_OFFERED("Current.Offered", MeasuringEvcs.ChannelId.CURRENT_OFFERED),
 
@@ -106,12 +108,12 @@ public enum OcppInformations {
 	CORE_METER_VALUES_POWER_ACTIVE_IMPORT("Power.Active.Import", Evcs.ChannelId.CHARGE_POWER),
 
 	/**
-	 * Instantaneous power factor of total energy flow
+	 * Instantaneous power factor of total energy flow.
 	 */
 	CORE_METER_VALUES_POWER_FACTOR("Power.Factor", MeasuringEvcs.ChannelId.POWER_FACTOR),
 
 	/**
-	 * Maximum power offered to EV
+	 * Maximum power offered to EV.
 	 */
 	CORE_METER_VALUES_POWER_OFFERED("Power.Offered", MeasuringEvcs.ChannelId.POWER_OFFERED),
 
@@ -126,12 +128,12 @@ public enum OcppInformations {
 	CORE_METER_VALUES_POWER_REACTIVE_IMPORT("Power.Reactive.Import", MeasuringEvcs.ChannelId.POWER_REACTIVE_TO_EV),
 
 	/**
-	 * Fan speed in RPM
+	 * Fan speed in RPM.
 	 */
 	CORE_METER_VALUES_RPM("RPM", MeasuringEvcs.ChannelId.RPM),
 
 	/**
-	 * State of charge of charging vehicle in percentage
+	 * State of charge of charging vehicle in percentage.
 	 */
 	CORE_METER_VALUES_SOC("SoC", SocEvcs.ChannelId.SOC),
 
@@ -141,7 +143,7 @@ public enum OcppInformations {
 	CORE_METER_VALUES_TEMPERATURE("Temperature", MeasuringEvcs.ChannelId.TEMPERATURE),
 
 	/**
-	 * Instantaneous AC RMS supply voltage
+	 * Instantaneous AC RMS supply voltage.
 	 */
 	CORE_METER_VALUES_VOLTAGE("Voltage", MeasuringEvcs.ChannelId.VOLTAGE);
 

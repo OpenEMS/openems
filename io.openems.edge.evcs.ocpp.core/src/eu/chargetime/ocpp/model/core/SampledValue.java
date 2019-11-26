@@ -25,16 +25,19 @@ package eu.chargetime.ocpp.model.core;
  * SOFTWARE.
  */
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Validatable;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Single sampled value in {@link MeterValue}. Each value can be accompanied by
@@ -193,8 +196,9 @@ public class SampledValue implements Validatable {
 	// TODO: Change to enum, solve format issue and change exception message.
 	@XmlElement
 	public void setMeasurand(String measurand) {
-		if (!isValidMeasurand(measurand))
+		if (!isValidMeasurand(measurand)) {
 			throw new PropertyConstraintException(measurand, "measurand value is not properly defined");
+		}
 
 		this.measurand = measurand;
 	}
@@ -316,10 +320,12 @@ public class SampledValue implements Validatable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		SampledValue that = (SampledValue) o;
 		return Objects.equals(value, that.value) && Objects.equals(context, that.context) && format == that.format
 				&& Objects.equals(measurand, that.measurand) && Objects.equals(phase, that.phase)

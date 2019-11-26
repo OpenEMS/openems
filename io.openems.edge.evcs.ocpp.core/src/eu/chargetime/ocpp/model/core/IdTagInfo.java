@@ -1,5 +1,12 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Calendar;
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
 ChargeTime.eu - Java-OCA-OCPP
 Copyright (C) 2015-2016 Thomas Volden <tv@chargetime.eu>
@@ -29,11 +36,6 @@ SOFTWARE.
 
 import eu.chargetime.ocpp.model.Validatable;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Calendar;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * Contains status information about an identifier. It is returned in
@@ -142,10 +144,12 @@ public class IdTagInfo implements Validatable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		IdTagInfo idTagInfo = (IdTagInfo) o;
 		return Objects.equals(expiryDate, idTagInfo.expiryDate) && Objects.equals(parentIdTag, idTagInfo.parentIdTag)
 				&& status == idTagInfo.status;

@@ -1,13 +1,15 @@
 package eu.chargetime.ocpp.model.core;
 
-import eu.chargetime.ocpp.PropertyConstraintException;
-import eu.chargetime.ocpp.model.Validatable;
-import eu.chargetime.ocpp.utilities.MoreObjects;
 import java.util.Calendar;
 import java.util.Objects;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
+import eu.chargetime.ocpp.PropertyConstraintException;
+import eu.chargetime.ocpp.model.Validatable;
+import eu.chargetime.ocpp.utilities.MoreObjects;
 
 /*
  * ChargeTime.eu - Java-OCA-OCPP
@@ -196,10 +198,12 @@ public class ChargingProfile implements Validatable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ChargingProfile that = (ChargingProfile) o;
 		return Objects.equals(chargingProfileId, that.chargingProfileId)
 				&& Objects.equals(transactionId, that.transactionId) && Objects.equals(stackLevel, that.stackLevel)

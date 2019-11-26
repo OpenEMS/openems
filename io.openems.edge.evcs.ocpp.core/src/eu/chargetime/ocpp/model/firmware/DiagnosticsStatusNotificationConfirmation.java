@@ -26,10 +26,12 @@ package eu.chargetime.ocpp.model.firmware;
  * SOFTWARE.
  */
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Sent by the Central System to the Charge Point in response to an

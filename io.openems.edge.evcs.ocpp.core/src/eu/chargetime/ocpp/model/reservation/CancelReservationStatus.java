@@ -27,7 +27,9 @@ package eu.chargetime.ocpp.model.reservation;
  * SOFTWARE.
  */
 
-/** Accepted values used with {@link CancelReservationRequest} */
+/**
+ * Accepted values used with {@link CancelReservationRequest}.
+ */
 public enum CancelReservationStatus {
 	Accepted, Rejected
 }

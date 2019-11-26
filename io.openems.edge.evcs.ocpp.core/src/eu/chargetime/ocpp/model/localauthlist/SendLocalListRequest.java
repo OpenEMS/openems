@@ -1,5 +1,8 @@
 package eu.chargetime.ocpp.model.localauthlist;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -29,8 +32,6 @@ package eu.chargetime.ocpp.model.localauthlist;
 import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Arrays;
-import java.util.Objects;
 
 public class SendLocalListRequest implements Request {
 
@@ -93,10 +94,12 @@ public class SendLocalListRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		SendLocalListRequest that = (SendLocalListRequest) o;
 		return Objects.equals(listVersion, that.listVersion)
 				&& Arrays.equals(localAuthorizationList, that.localAuthorizationList) && updateType == that.updateType;

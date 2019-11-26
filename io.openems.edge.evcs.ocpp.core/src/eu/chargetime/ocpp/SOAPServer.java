@@ -25,12 +25,13 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
+import java.util.UUID;
+import java.util.concurrent.CompletionStage;
+
 import eu.chargetime.ocpp.feature.profile.Profile;
 import eu.chargetime.ocpp.feature.profile.ServerCoreProfile;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
-import java.util.UUID;
-import java.util.concurrent.CompletionStage;
 
 public class SOAPServer implements IServerAPI {
 

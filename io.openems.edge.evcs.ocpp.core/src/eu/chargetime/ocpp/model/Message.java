@@ -27,7 +27,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/** Wrapper class for a message */
+/**
+ * Wrapper class for a message.
+ */
 public class Message {
 	private String id;
 	private Object payload;

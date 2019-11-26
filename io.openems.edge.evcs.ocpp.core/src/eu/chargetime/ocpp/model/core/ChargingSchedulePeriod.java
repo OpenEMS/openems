@@ -1,5 +1,11 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -28,12 +34,10 @@ package eu.chargetime.ocpp.model.core;
 
 import eu.chargetime.ocpp.model.Validatable;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-/** Class Type used with {@link ChargingSchedule}. */
+/**
+ * Class Type used with {@link ChargingSchedule}. 
+ */
 @XmlRootElement
 @XmlType(propOrder = { "startPeriod", "limit", "numberPhases" })
 public class ChargingSchedulePeriod implements Validatable {
@@ -122,10 +126,12 @@ public class ChargingSchedulePeriod implements Validatable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ChargingSchedulePeriod that = (ChargingSchedulePeriod) o;
 		return Objects.equals(startPeriod, that.startPeriod) && Objects.equals(limit, that.limit)
 				&& Objects.equals(numberPhases, that.numberPhases);

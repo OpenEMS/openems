@@ -26,17 +26,19 @@ package eu.chargetime.ocpp;
  SOFTWARE.
 */
 
-import eu.chargetime.ocpp.wss.WssSocketBuilder;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Proxy;
 import java.net.URI;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.chargetime.ocpp.wss.WssSocketBuilder;
 
 /** Web Socket implementation of the Transmitter. */
 public class WebSocketTransmitter implements Transmitter {
@@ -160,6 +162,7 @@ public class WebSocketTransmitter implements Transmitter {
 		}
 	}
 
+	@Override
 	public boolean isClosed() {
 		return closed;
 	}

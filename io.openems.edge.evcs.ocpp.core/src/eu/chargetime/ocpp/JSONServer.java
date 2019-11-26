@@ -25,24 +25,27 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.feature.profile.Profile;
-import eu.chargetime.ocpp.feature.profile.ServerCoreProfile;
-import eu.chargetime.ocpp.model.Confirmation;
-import eu.chargetime.ocpp.model.Request;
-import eu.chargetime.ocpp.wss.BaseWssFactoryBuilder;
-import eu.chargetime.ocpp.wss.WssFactoryBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
+
 import javax.net.ssl.SSLContext;
+
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.protocols.IProtocol;
 import org.java_websocket.protocols.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.chargetime.ocpp.feature.profile.Profile;
+import eu.chargetime.ocpp.feature.profile.ServerCoreProfile;
+import eu.chargetime.ocpp.model.Confirmation;
+import eu.chargetime.ocpp.model.Request;
+import eu.chargetime.ocpp.wss.BaseWssFactoryBuilder;
+import eu.chargetime.ocpp.wss.WssFactoryBuilder;
 
 public class JSONServer implements IServerAPI {
 
@@ -62,13 +65,13 @@ public class JSONServer implements IServerAPI {
 	 */
 	public JSONServer(ServerCoreProfile coreProfile, JSONConfiguration configuration) {
 		featureRepository = new FeatureRepository();
-		SessionFactory sessionFactory = new SessionFactory(featureRepository);
 
 		ArrayList<IProtocol> protocols = new ArrayList<>();
 		protocols.add(new Protocol("ocpp1.6"));
 		protocols.add(new Protocol(""));
 		draftOcppOnly = new Draft_6455(Collections.emptyList(), protocols);
 
+		SessionFactory sessionFactory = new SessionFactory(featureRepository);
 		this.listener = new WebSocketListener(sessionFactory, configuration, draftOcppOnly);
 		server = new Server(this.listener, featureRepository, new PromiseRepository());
 		featureRepository.addFeatureProfile(coreProfile);

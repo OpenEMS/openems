@@ -26,9 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import java.util.UUID;
+
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
-import java.util.UUID;
 
 /**
  * Abstract class. Feature ties {@link Request} and {@link Confirmation} types

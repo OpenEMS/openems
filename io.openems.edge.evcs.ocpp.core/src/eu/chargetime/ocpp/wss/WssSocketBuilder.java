@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
 
-/** To build SSL {@link Socket} to support WSS scheme. */
+/**
+ * To build SSL {@link Socket} to support WSS scheme.
+ */
 public interface WssSocketBuilder {
 	/**
 	 * Set URI to identify endpoint for the connection.
@@ -43,6 +45,7 @@ public interface WssSocketBuilder {
 	 * Builds SSL {@link Socket} to support WSS scheme.
 	 *
 	 * @return SSL {@link Socket}
+	 * @throws IOException ioexception
 	 */
 	Socket build() throws IOException;
 

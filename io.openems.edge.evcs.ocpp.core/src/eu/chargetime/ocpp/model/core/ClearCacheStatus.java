@@ -26,7 +26,9 @@ package eu.chargetime.ocpp.model.core;
  * SOFTWARE.
  */
 
-/** Accepted values used with {@link ClearCacheConfirmation}. */
+/**
+ * Accepted values used with {@link ClearCacheConfirmation}.
+ */
 public enum ClearCacheStatus {
 	Accepted, Rejected
 }

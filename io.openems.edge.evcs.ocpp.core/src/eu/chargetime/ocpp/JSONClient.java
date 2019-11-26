@@ -1,20 +1,23 @@
 package eu.chargetime.ocpp;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.concurrent.CompletionStage;
+
+import javax.net.ssl.SSLContext;
+
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.protocols.Protocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.chargetime.ocpp.feature.profile.ClientCoreProfile;
 import eu.chargetime.ocpp.feature.profile.Profile;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.wss.BaseWssSocketBuilder;
 import eu.chargetime.ocpp.wss.WssSocketBuilder;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.concurrent.CompletionStage;
-import javax.net.ssl.SSLContext;
-import org.java_websocket.drafts.Draft;
-import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.protocols.Protocol;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * ChargeTime.eu - Java-OCA-OCPP

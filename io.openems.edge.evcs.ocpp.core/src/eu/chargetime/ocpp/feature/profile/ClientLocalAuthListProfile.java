@@ -1,5 +1,8 @@
 package eu.chargetime.ocpp.feature.profile;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 /*
 ChargeTime.eu - Java-OCA-OCPP
 Copyright (C) 2015-2018 Thomas Volden <tv@chargetime.eu>
@@ -35,8 +38,6 @@ import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.localauthlist.GetLocalListVersionRequest;
 import eu.chargetime.ocpp.model.localauthlist.SendLocalListRequest;
-import java.util.ArrayList;
-import java.util.UUID;
 
 public class ClientLocalAuthListProfile implements Profile {
 

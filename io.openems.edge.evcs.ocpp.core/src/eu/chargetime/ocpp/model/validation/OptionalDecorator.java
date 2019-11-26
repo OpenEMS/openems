@@ -35,8 +35,9 @@ public class OptionalDecorator extends Validator<String> {
 
 	@Override
 	public void validate(String value) {
-		if (value == null)
+		if (value == null) {
 			return;
+		}
 
 		this.validator.validate(value);
 	}

@@ -34,6 +34,7 @@ public class StringValidator extends Validator<String> {
 		this.rules = rules;
 	}
 
+	@Override
 	public void validate(String value) throws PropertyConstraintException {
 		for (IValidationRule rule : rules) {
 			rule.validate(value);

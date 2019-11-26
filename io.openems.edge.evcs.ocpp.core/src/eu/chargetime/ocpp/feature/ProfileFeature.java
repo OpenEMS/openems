@@ -25,10 +25,11 @@ package eu.chargetime.ocpp.feature;
    SOFTWARE.
 */
 
+import java.util.UUID;
+
 import eu.chargetime.ocpp.feature.profile.Profile;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
-import java.util.UUID;
 
 public abstract class ProfileFeature implements Feature {
 
@@ -50,6 +51,7 @@ public abstract class ProfileFeature implements Feature {
 	 * @param request      the {@link Request} to be handled.
 	 * @return the {@link Confirmation} to be send back.
 	 */
+	@Override
 	public Confirmation handleRequest(UUID sessionIndex, Request request) {
 		return profile.handleRequest(sessionIndex, request);
 	}

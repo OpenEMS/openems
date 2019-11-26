@@ -26,7 +26,9 @@ package eu.chargetime.ocpp.model.core;
  * SOFTWARE.
  */
 
-/** Accepted values used with {@link DataTransferConfirmation} */
+/**
+ * Accepted values used with {@link DataTransferConfirmation}.
+ */
 public enum DataTransferStatus {
 	Accepted, Rejected, UnknownMessageId, UnknownVendorId
 }

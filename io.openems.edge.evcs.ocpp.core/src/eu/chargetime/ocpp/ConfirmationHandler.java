@@ -1,5 +1,7 @@
 package eu.chargetime.ocpp;
 
+import java.util.function.BiConsumer;
+
 /*
    ChargeTime.eu - Java-OCA-OCPP
 
@@ -27,7 +29,6 @@ package eu.chargetime.ocpp;
 */
 
 import eu.chargetime.ocpp.model.Confirmation;
-import java.util.function.BiConsumer;
 
 class ConfirmationHandler implements BiConsumer<Confirmation, Throwable> {
 

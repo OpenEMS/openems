@@ -25,43 +25,53 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
+import java.util.UUID;
+
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.core.BootNotificationConfirmation;
 import eu.chargetime.ocpp.model.core.RegistrationStatus;
 import eu.chargetime.ocpp.utilities.TimeoutTimer;
-import java.util.UUID;
 
 public class TimeoutSessionDecorator implements ISession {
 
 	private TimeoutTimer timeoutTimer;
 	private final ISession session;
 
-	/** Handles required injections. */
+	/**
+	 * Handles required injections.
+	 * 
+	 * @param timeoutTimer timer.
+	 * @param session      session.
+	 */
 	public TimeoutSessionDecorator(TimeoutTimer timeoutTimer, ISession session) {
 		this.timeoutTimer = timeoutTimer;
 		this.session = session;
 	}
 
 	private void resetTimer(int timeoutInSec) {
-		if (timeoutTimer != null)
+		if (timeoutTimer != null) {
 			timeoutTimer.setTimeout(timeoutInSec * 1000);
+		}
 		resetTimer();
 	}
 
 	private void resetTimer() {
-		if (timeoutTimer != null)
+		if (timeoutTimer != null) {
 			timeoutTimer.reset();
+		}
 	}
 
 	private void stopTimer() {
-		if (timeoutTimer != null)
+		if (timeoutTimer != null) {
 			timeoutTimer.end();
+		}
 	}
 
 	private void startTimer() {
-		if (timeoutTimer != null)
+		if (timeoutTimer != null) {
 			timeoutTimer.begin();
+		}
 	}
 
 	@Override

@@ -25,8 +25,9 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.feature.Feature;
 import java.util.Optional;
+
+import eu.chargetime.ocpp.feature.Feature;
 
 public interface IFeatureRepository {
 	Optional<Feature> findFeature(Object needle);

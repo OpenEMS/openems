@@ -1,5 +1,10 @@
 package eu.chargetime.ocpp.model.reservation;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -29,9 +34,6 @@ package eu.chargetime.ocpp.model.reservation;
 
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Sent by the Charge Point to the Central System in response to an
@@ -76,10 +78,12 @@ public class CancelReservationConfirmation implements Confirmation {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		CancelReservationConfirmation that = (CancelReservationConfirmation) o;
 		return status == that.status;
 	}

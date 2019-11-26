@@ -1,6 +1,23 @@
 package eu.chargetime.ocpp.feature.profile;
 
-import eu.chargetime.ocpp.model.core.*;
+import eu.chargetime.ocpp.model.core.ChangeAvailabilityConfirmation;
+import eu.chargetime.ocpp.model.core.ChangeAvailabilityRequest;
+import eu.chargetime.ocpp.model.core.ChangeConfigurationConfirmation;
+import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
+import eu.chargetime.ocpp.model.core.ClearCacheConfirmation;
+import eu.chargetime.ocpp.model.core.ClearCacheRequest;
+import eu.chargetime.ocpp.model.core.DataTransferConfirmation;
+import eu.chargetime.ocpp.model.core.DataTransferRequest;
+import eu.chargetime.ocpp.model.core.GetConfigurationConfirmation;
+import eu.chargetime.ocpp.model.core.GetConfigurationRequest;
+import eu.chargetime.ocpp.model.core.RemoteStartTransactionConfirmation;
+import eu.chargetime.ocpp.model.core.RemoteStartTransactionRequest;
+import eu.chargetime.ocpp.model.core.RemoteStopTransactionConfirmation;
+import eu.chargetime.ocpp.model.core.RemoteStopTransactionRequest;
+import eu.chargetime.ocpp.model.core.ResetConfirmation;
+import eu.chargetime.ocpp.model.core.ResetRequest;
+import eu.chargetime.ocpp.model.core.UnlockConnectorConfirmation;
+import eu.chargetime.ocpp.model.core.UnlockConnectorRequest;
 
 /*
 ChargeTime.eu - Java-OCA-OCPP

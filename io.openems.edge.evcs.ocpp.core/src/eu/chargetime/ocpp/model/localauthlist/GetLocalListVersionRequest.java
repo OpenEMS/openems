@@ -1,5 +1,7 @@
 package eu.chargetime.ocpp.model.localauthlist;
 
+import java.util.Objects;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -28,7 +30,6 @@ package eu.chargetime.ocpp.model.localauthlist;
 
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
 
 public class GetLocalListVersionRequest implements Request {
 

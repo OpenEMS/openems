@@ -1,10 +1,5 @@
 package eu.chargetime.ocpp;
 
-import com.google.gson.*;
-import eu.chargetime.ocpp.model.CallErrorMessage;
-import eu.chargetime.ocpp.model.CallMessage;
-import eu.chargetime.ocpp.model.CallResultMessage;
-import eu.chargetime.ocpp.model.Message;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
@@ -12,8 +7,26 @@ import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
+import eu.chargetime.ocpp.model.CallErrorMessage;
+import eu.chargetime.ocpp.model.CallMessage;
+import eu.chargetime.ocpp.model.CallResultMessage;
+import eu.chargetime.ocpp.model.Message;
 
 /*
 ChargeTime.eu - Java-OCA-OCPP
@@ -42,7 +55,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/** Communicator for JSON messages */
+/**
+ * Communicator for JSON messages.
+ */
 public class JSONCommunicator extends Communicator {
 
 	private static final Logger logger = LoggerFactory.getLogger(JSONCommunicator.class);
@@ -95,6 +110,7 @@ public class JSONCommunicator extends Communicator {
 	}
 
 	private class CalendarSerializer implements JsonSerializer<Calendar> {
+		@Override
 		public JsonElement serialize(Calendar src, Type typeOfSrc, JsonSerializationContext context) {
 			SimpleDateFormat formatter = new SimpleDateFormat(hasLongDateFormat ? DATE_FORMAT_WITH_MS : DATE_FORMAT);
 			formatter.setTimeZone(TimeZone.getTimeZone("GMT+00:00"));
@@ -103,6 +119,7 @@ public class JSONCommunicator extends Communicator {
 	}
 
 	private class CalendarDeserializer implements JsonDeserializer<Calendar> {
+		@Override
 		public Calendar deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 				throws JsonParseException {
 			try {

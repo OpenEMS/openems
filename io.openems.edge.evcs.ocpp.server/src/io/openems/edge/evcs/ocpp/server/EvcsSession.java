@@ -69,18 +69,23 @@ public class EvcsSession {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		EvcsSession other = (EvcsSession) obj;
 		if (sessionId == null) {
-			if (other.sessionId != null)
+			if (other.sessionId != null) {
 				return false;
-		} else if (!sessionId.equals(other.sessionId))
+			}
+		} else if (!sessionId.equals(other.sessionId)) {
 			return false;
+		}
 		return true;
 	}
 }

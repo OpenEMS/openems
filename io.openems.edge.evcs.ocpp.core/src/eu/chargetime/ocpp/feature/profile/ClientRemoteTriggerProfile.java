@@ -1,13 +1,14 @@
 package eu.chargetime.ocpp.feature.profile;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 import eu.chargetime.ocpp.feature.Feature;
 import eu.chargetime.ocpp.feature.ProfileFeature;
 import eu.chargetime.ocpp.feature.TriggerMessageFeature;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
-import java.util.ArrayList;
-import java.util.UUID;
 
 /*
 ChargeTime.eu - Java-OCA-OCPP

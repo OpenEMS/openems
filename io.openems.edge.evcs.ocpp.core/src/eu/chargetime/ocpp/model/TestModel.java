@@ -1,6 +1,7 @@
 package eu.chargetime.ocpp.model;
 
 import java.util.Calendar;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 

@@ -1,5 +1,7 @@
 package eu.chargetime.ocpp.model.localauthlist;
 
+import java.util.Objects;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -31,7 +33,6 @@ import eu.chargetime.ocpp.model.Validatable;
 import eu.chargetime.ocpp.model.core.IdTagInfo;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
 
 public class AuthorizationData implements Validatable {
 	private String idTag;
@@ -68,10 +69,12 @@ public class AuthorizationData implements Validatable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		AuthorizationData that = (AuthorizationData) o;
 		return Objects.equals(idTag, that.idTag) && Objects.equals(idTagInfo, that.idTagInfo);
 	}

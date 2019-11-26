@@ -1,4 +1,5 @@
-package eu.chargetime.ocpp; /*
+package eu.chargetime.ocpp;
+/*
 							   ChargeTime.eu - Java-OCA-OCPP
 							
 							   MIT License
@@ -26,12 +27,16 @@ package eu.chargetime.ocpp; /*
 
 public interface WebSocketReceiverEvents {
 	/**
+	 * Is closed.
+	 * 
 	 * @return true if connection is closed (either not connected or was
 	 *         disconnected)
 	 */
 	boolean isClosed();
 
-	/** Close connection */
+	/**
+	 * Close connection.
+	 */
 	void close();
 
 	/**

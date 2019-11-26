@@ -1,5 +1,10 @@
 package eu.chargetime.ocpp.model.smartcharging;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -29,9 +34,6 @@ package eu.chargetime.ocpp.model.smartcharging;
 
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "clearChargingProfileResponse")
 public class ClearChargingProfileConfirmation implements Confirmation {
@@ -78,10 +80,12 @@ public class ClearChargingProfileConfirmation implements Confirmation {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ClearChargingProfileConfirmation that = (ClearChargingProfileConfirmation) o;
 		return status == that.status;
 	}

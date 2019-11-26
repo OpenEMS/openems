@@ -25,16 +25,18 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.feature.Feature;
-import eu.chargetime.ocpp.model.Confirmation;
-import eu.chargetime.ocpp.model.Request;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.chargetime.ocpp.feature.Feature;
+import eu.chargetime.ocpp.model.Confirmation;
+import eu.chargetime.ocpp.model.Request;
 
 /**
  * Handles basic server logic: Holds a list of supported features. Keeps track
@@ -54,7 +56,9 @@ public class Server {
 	/**
 	 * Constructor. Handles the required injections.
 	 *
-	 * @param listener injected listener.
+	 * @param listener          injected listener.
+	 * @param featureRepository feature repository.
+	 * @param promiseRepository promise repository.
 	 */
 	public Server(Listener listener, IFeatureRepository featureRepository, IPromiseRepository promiseRepository) {
 		this.listener = listener;
@@ -164,6 +168,7 @@ public class Server {
 	 * @throws UnsupportedFeatureException  Thrown if the feature isn't among the
 	 *                                      list of supported featured.
 	 * @throws OccurenceConstraintException Thrown if the request isn't valid.
+	 * @throws NotConnectedException        not connected exception.
 	 */
 	public CompletableFuture<Confirmation> send(UUID sessionIndex, Request request)
 			throws UnsupportedFeatureException, OccurenceConstraintException, NotConnectedException {
@@ -192,7 +197,7 @@ public class Server {
 	}
 
 	/**
-	 * Close connection to a client
+	 * Close connection to a client.
 	 *
 	 * @param sessionIndex Session index of the client.
 	 */

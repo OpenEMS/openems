@@ -26,11 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import java.util.UUID;
+
 import eu.chargetime.ocpp.feature.Feature;
 import eu.chargetime.ocpp.feature.ProfileFeature;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
-import java.util.UUID;
 
 /** Interface used for Feature Profiles. */
 public interface Profile {
@@ -43,7 +44,7 @@ public interface Profile {
 	ProfileFeature[] getFeatureList();
 
 	/**
-	 * Handle {@link Request}
+	 * Handle {@link Request}.
 	 *
 	 * @param sessionIndex source of the request.
 	 * @param request      the {@link Request} to be handled.

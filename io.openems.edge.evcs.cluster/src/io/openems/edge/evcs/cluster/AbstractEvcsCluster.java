@@ -31,7 +31,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	// Distribute the Power that is not used in a cycle
 	private double totalPowerLeftInACycle = 0; // W
 	private LocalDateTime lastPowerLeftDistribution = LocalDateTime.now();
-	private final int POWER_LEFT_DISTRIBUTION_MIN_TIME = 30; // sec
+	private static final int POWER_LEFT_DISTRIBUTION_MIN_TIME = 30; // sec
 	private int preferredEvcsCounter = 0;
 
 	/**
@@ -62,17 +62,17 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
+	@Override
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		super.activate(context, id, alias, enabled);
 	}
 
 	/**
-	 * Call it in the Implementations
+	 * Call it in the Implementations.
 	 */
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.calculateChannelValues();
 			break;
@@ -80,12 +80,14 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.limitEvcss();
 			break;
+		default:
+			break;
 		}
 	}
 
 	/**
 	 * Calculates the sum of all EVCS charging powers and set it as channel values
-	 * of this clustered EVCS
+	 * of this clustered EVCS.
 	 */
 	private void calculateChannelValues() {
 		final CalculateIntegerSum chargePower = new CalculateIntegerSum();
@@ -110,13 +112,13 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Depending on the excess power, the EVCSs will be charged
+	 * Depending on the excess power, the EVCSs will be charged.
 	 */
 	private void limitEvcss() {
 		try {
 			int totalPowerLimit = this.getMaximumPowerToDistribute();
 
-			/**
+			/*
 			 * If a maximum power is present, e.g. from another cluster, then the limit will
 			 * be that value or lower.
 			 */
@@ -188,7 +190,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				int guarantee = evcs.getMinimumPower().getNextValue().orElse(0);
 
 				// Power left for the single EVCS including their guarantee
-				int powerLeft = totalPowerLeftMinusGuarantee + guarantee;
+				final int powerLeft = totalPowerLeftMinusGuarantee + guarantee;
 
 				int nextChargePower;
 				Optional<Integer> requestedPower = evcs.setChargePowerRequest().getNextWriteValue();
@@ -239,11 +241,12 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Calculate extra power by the unused power in the cycle before
+	 * Calculate extra power by the unused power in the cycle before.
 	 * 
-	 * @param index
-	 * @param evcs
-	 * @return calculated extra power if that evcs is preferred
+	 * @param index           index of the EVCSs
+	 * @param evcs            Charging station
+	 * @param activeEvcssSize Count of all active EVCSs
+	 * @return calculated extra power if that EVCS is preferred
 	 */
 	private int calculateExtraPowerIfPrefered(int index, ManagedEvcs evcs, int activeEvcssSize) {
 		int extraPower = 0;

@@ -27,7 +27,9 @@ package eu.chargetime.ocpp.wss;
 
 import org.java_websocket.WebSocketServerFactory;
 
-/** To build {@link WebSocketServerFactory} factory to support WSS scheme. */
+/**
+ * To build {@link WebSocketServerFactory} factory to support WSS scheme.
+ */
 public interface WssFactoryBuilder {
 
 	/**

@@ -25,12 +25,6 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import com.sun.net.httpserver.HttpServer;
-import eu.chargetime.ocpp.feature.profile.ClientCoreProfile;
-import eu.chargetime.ocpp.feature.profile.Profile;
-import eu.chargetime.ocpp.model.Confirmation;
-import eu.chargetime.ocpp.model.Request;
-import eu.chargetime.ocpp.model.SOAPHostInfo;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
@@ -38,9 +32,19 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javax.xml.soap.SOAPMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.net.httpserver.HttpServer;
+
+import eu.chargetime.ocpp.feature.profile.ClientCoreProfile;
+import eu.chargetime.ocpp.feature.profile.Profile;
+import eu.chargetime.ocpp.model.Confirmation;
+import eu.chargetime.ocpp.model.Request;
+import eu.chargetime.ocpp.model.SOAPHostInfo;
 
 public class SOAPClient implements IClientAPI {
 	private static final Logger logger = LoggerFactory.getLogger(SOAPClient.class);
@@ -85,8 +89,10 @@ public class SOAPClient implements IClientAPI {
 	 * Connect to server and set To header. Client opens a WebService for incoming
 	 * requests.
 	 *
-	 * @param uri url and port of the server
+	 * @param uri    url and port of the server
+	 * @param events client events
 	 */
+	@Override
 	public void connect(String uri, ClientEvents events) {
 		communicator.setToUrl(uri);
 		this.client.connect(uri, events);
@@ -100,6 +106,7 @@ public class SOAPClient implements IClientAPI {
 	}
 
 	/** Disconnect from server Closes down local callback service. */
+	@Override
 	public void disconnect() {
 		this.client.disconnect();
 		if (server != null) {

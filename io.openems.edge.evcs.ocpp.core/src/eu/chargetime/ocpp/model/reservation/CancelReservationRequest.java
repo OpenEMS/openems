@@ -1,10 +1,12 @@
 package eu.chargetime.ocpp.model.reservation;
 
-import eu.chargetime.ocpp.model.Request;
-import eu.chargetime.ocpp.utilities.MoreObjects;
 import java.util.Objects;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import eu.chargetime.ocpp.model.Request;
+import eu.chargetime.ocpp.utilities.MoreObjects;
 
 /*
  * ChargeTime.eu - Java-OCA-OCPP
@@ -76,10 +78,12 @@ public class CancelReservationRequest implements Request {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		CancelReservationRequest that = (CancelReservationRequest) o;
 		return Objects.equals(reservationId, that.reservationId);
 	}

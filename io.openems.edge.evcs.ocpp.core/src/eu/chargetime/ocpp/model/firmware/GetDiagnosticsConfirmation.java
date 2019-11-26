@@ -25,13 +25,15 @@ package eu.chargetime.ocpp.model.firmware;
    SOFTWARE.
 */
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.chargetime.ocpp.PropertyConstraintException;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.ModelUtil;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "getDiagnosticsResponse")
 public class GetDiagnosticsConfirmation implements Confirmation {
@@ -71,10 +73,12 @@ public class GetDiagnosticsConfirmation implements Confirmation {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		GetDiagnosticsConfirmation that = (GetDiagnosticsConfirmation) o;
 		return Objects.equals(fileName, that.fileName);
 	}

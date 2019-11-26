@@ -24,8 +24,9 @@ package eu.chargetime.ocpp.model; /*
 									   SOFTWARE.
 									*/
 
-import eu.chargetime.ocpp.utilities.MoreObjects;
 import java.util.Objects;
+
+import eu.chargetime.ocpp.utilities.MoreObjects;
 
 public class SOAPHostInfo {
 	public static final String NAMESPACE_CHARGEBOX = "urn://Ocpp/Cp/2015/10/";
@@ -125,10 +126,12 @@ public class SOAPHostInfo {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		SOAPHostInfo that = (SOAPHostInfo) o;
 		return isClient == that.isClient && Objects.equals(chargeBoxIdentity, that.chargeBoxIdentity)
 				&& Objects.equals(fromUrl, that.fromUrl) && Objects.equals(toUrl, that.toUrl)

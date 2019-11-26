@@ -25,10 +25,11 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
+import java.util.concurrent.CompletionStage;
+
 import eu.chargetime.ocpp.feature.profile.Profile;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
-import java.util.concurrent.CompletionStage;
 
 public interface IClientAPI {
 	void addFeatureProfile(Profile profile);

@@ -25,9 +25,10 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.model.Confirmation;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import eu.chargetime.ocpp.model.Confirmation;
 
 public interface IPromiseRepository {
 	CompletableFuture<Confirmation> createPromise(String uniqueId);

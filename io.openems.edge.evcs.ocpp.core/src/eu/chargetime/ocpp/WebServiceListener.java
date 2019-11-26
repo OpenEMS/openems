@@ -73,8 +73,9 @@ public class WebServiceListener implements Listener {
 
 	@Override
 	public void close() {
-		if (server != null)
+		if (server != null) {
 			server.stop(1);
+		}
 		closed = true;
 	}
 
@@ -95,8 +96,9 @@ public class WebServiceListener implements Listener {
 		}
 
 		private void removeChargebox(String identity) {
-			if (chargeBoxes.containsKey(identity))
+			if (chargeBoxes.containsKey(identity)) {
 				chargeBoxes.remove(identity);
+			}
 		}
 
 		@Override

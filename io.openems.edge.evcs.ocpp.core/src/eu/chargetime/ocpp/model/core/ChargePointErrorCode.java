@@ -26,7 +26,9 @@ package eu.chargetime.ocpp.model.core;
  * SOFTWARE.
  */
 
-/** Accepted values used with {@link StatusNotificationRequest}. */
+/**
+ * Accepted values used with {@link StatusNotificationRequest}. 
+ */
 public enum ChargePointErrorCode {
 	ConnectorLockFailure, EVCommunicationError, GroundFailure, HighTemperature, InternalError, LocalListConflict,
 	NoError, OtherError, OverCurrentFailure, OverVoltage, PowerMeterFailure, PowerSwitchFailure, ReaderFailure,

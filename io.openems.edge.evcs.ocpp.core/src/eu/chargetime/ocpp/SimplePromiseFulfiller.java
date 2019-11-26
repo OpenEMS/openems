@@ -25,11 +25,13 @@ package eu.chargetime.ocpp;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.model.Confirmation;
-import eu.chargetime.ocpp.model.Request;
 import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.chargetime.ocpp.model.Confirmation;
+import eu.chargetime.ocpp.model.Request;
 
 public class SimplePromiseFulfiller implements PromiseFulfiller {
 	private static final Logger logger = LoggerFactory.getLogger(SimplePromiseFulfiller.class);

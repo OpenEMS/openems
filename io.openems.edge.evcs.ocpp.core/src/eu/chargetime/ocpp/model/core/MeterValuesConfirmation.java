@@ -1,5 +1,9 @@
 package eu.chargetime.ocpp.model.core;
 
+import java.util.Objects;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * ChargeTime.eu - Java-OCA-OCPP
  *
@@ -28,10 +32,10 @@ package eu.chargetime.ocpp.model.core;
 
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.utilities.MoreObjects;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
 
-/** */
+/**
+ * MeterValuesConfirmation.
+ */
 @XmlRootElement(name = "meterValuesResponse")
 public class MeterValuesConfirmation implements Confirmation {
 	@Override

@@ -26,7 +26,9 @@ package eu.chargetime.ocpp.wss;
 */
 
 import java.util.List;
+
 import javax.net.ssl.SSLContext;
+
 import org.java_websocket.WebSocketServerFactory;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 

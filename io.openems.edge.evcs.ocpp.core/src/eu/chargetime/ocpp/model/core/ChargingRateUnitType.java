@@ -26,7 +26,9 @@ package eu.chargetime.ocpp.model.core;
  * SOFTWARE.
  */
 
-/** Accepted values used for {@link ChargingSchedule}. */
+/**
+ * Accepted values used for {@link ChargingSchedule}. 
+ */
 public enum ChargingRateUnitType {
 	W, A
 }

@@ -1,9 +1,9 @@
-package io.openems.edge.evcs.ocpp.keywatt.singleccs;
+package io.openems.edge.evcs.ocpp.ies.keywatt.singleccs;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "EVCS OCPP Ies KeyWatt", //
 		description = "Implements an OCPP capable Ies KeyWatt electric vehicle charging station whithout the smart charging function.")
 @interface Config {

@@ -25,13 +25,19 @@ package eu.chargetime.ocpp.feature.profile;
    SOFTWARE.
 */
 
-import eu.chargetime.ocpp.feature.*;
+import java.util.HashSet;
+import java.util.UUID;
+
+import eu.chargetime.ocpp.feature.DiagnosticsStatusNotificationFeature;
+import eu.chargetime.ocpp.feature.Feature;
+import eu.chargetime.ocpp.feature.FirmwareStatusNotificationFeature;
+import eu.chargetime.ocpp.feature.GetDiagnosticsFeature;
+import eu.chargetime.ocpp.feature.ProfileFeature;
+import eu.chargetime.ocpp.feature.UpdateFirmwareFeature;
 import eu.chargetime.ocpp.model.Confirmation;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.firmware.DiagnosticsStatusNotificationRequest;
 import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationRequest;
-import java.util.HashSet;
-import java.util.UUID;
 
 public class ServerFirmwareManagementProfile implements Profile {
 
