@@ -17,12 +17,12 @@ Private-Package:  \
 
 -buildpath:  \
 	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.temperatureBoard.api;version=latest,\
 	io.openems.edge.bridge.spi;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.temperatureBoard;version=latest,\
+	io.openems.edge.temperature.board.api;version=latest,\
 	io.openems.edge.thermometer.api;version=latest,\
+	io.openems.edge.temperature.board;version=latest,\
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

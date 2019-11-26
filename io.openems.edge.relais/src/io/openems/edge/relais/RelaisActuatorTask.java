@@ -1,9 +1,8 @@
 package io.openems.edge.relais;
 
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.relaisboardmcp.task.McpTask;
-import io.openems.edge.relaisboardmcp.Mcp;
+import io.openems.edge.relais.board.api.task.McpTask;
+import io.openems.edge.relais.board.api.Mcp;
 
 
 public class RelaisActuatorTask extends McpTask {

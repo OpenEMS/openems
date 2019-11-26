@@ -18,7 +18,7 @@ Private-Package:  \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.relaisboardapi;version=latest,\
+	io.openems.edge.relais.board.api;version=latest,\
 	io.openems.edge.gaspedal;version=latest,\
 
 

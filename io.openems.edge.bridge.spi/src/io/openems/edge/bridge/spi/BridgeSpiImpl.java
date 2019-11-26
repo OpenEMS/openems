@@ -1,13 +1,16 @@
 package io.openems.edge.bridge.spi;
 
-import com.pi4j.wiringpi.Spi;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridge.spi.task.SpiTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.temperatureBoard.api.Adc;
+import io.openems.edge.temperature.board.api.Adc;
+
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,11 +21,10 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import com.pi4j.wiringpi.Spi;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "SpiInitial",
@@ -72,7 +74,6 @@ public class BridgeSpiImpl extends AbstractOpenemsComponent implements BridgeSpi
     }
 
     public BridgeSpiImpl() {
-        //super(OpenemsComponent.ChannelId.values(), SpiBridge.ChannelId.values());
         super(OpenemsComponent.ChannelId.values());
     }
 

@@ -17,8 +17,8 @@ Private-Package:  \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.bridgei2c;version=latest,\
-	io.openems.edge.relaisboardapi;version=latest,\
+	io.openems.edge.bridge.i2c;version=latest,\
+	io.openems.edge.relais.board.api;version=latest,\
 	pi4j-core,\
 
 -testpath: \

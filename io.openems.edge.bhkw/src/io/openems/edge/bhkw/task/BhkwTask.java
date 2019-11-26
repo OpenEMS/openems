@@ -1,8 +1,7 @@
 package io.openems.edge.bhkw.task;
 
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.relaisboardmcp.task.McpTask;
-import org.omg.CORBA.INTERNAL;
+import io.openems.edge.relais.board.api.task.McpTask;
 
 public class BhkwTask extends McpTask {
     private int position;
@@ -10,7 +9,7 @@ public class BhkwTask extends McpTask {
     private float percentageRange;
     private float maxValue;
     private float scaling;
-    private int digitScaling = 10;
+    private static final int DIGIT_SCALING = 10;
     private WriteChannel<Integer> powerLevel;
 
 
@@ -42,10 +41,10 @@ public class BhkwTask extends McpTask {
         if (powerLevel.value().isDefined()) {
             String power = powerLevel.value().get().toString().replaceAll("[a-zA-Z _%]", "");
 
-            float singleDigitValue = this.scaling / ((maxValue) * digitScaling);
+            float singleDigitValue = this.scaling / ((maxValue) * DIGIT_SCALING);
 
             float actualAmpere = (Float.parseFloat(power) - this.percentageRange) / ((100.f - percentageRange) / (maxValue - minValue));
-            digitValue = (int) ((actualAmpere + minValue) * digitScaling * singleDigitValue);
+            digitValue = (int) ((actualAmpere + minValue) * DIGIT_SCALING * singleDigitValue);
         }
 
         return digitValue;

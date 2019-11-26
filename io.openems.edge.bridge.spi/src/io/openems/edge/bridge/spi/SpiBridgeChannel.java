@@ -28,7 +28,7 @@ public interface SpiBridgeChannel extends OpenemsComponent {
 
         @Override
         public Doc doc() {
-            return null;
+            return doc;
         }
     }
 

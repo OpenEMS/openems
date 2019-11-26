@@ -14,8 +14,8 @@ Export-Package:  \
 	osgi.enroute.base.api;version=2.1,\
 		io.openems.edge.common;version=latest,\
     	io.openems.common;version=latest,\
-    	io.openems.edge.relaisBoard;version=latest,\
-    	io.openems.edge.relaisboardapi;version=latest,\
+    	io.openems.edge.relais.board;version=latest,\
+    	io.openems.edge.relais.board.api;version=latest,\
     	io.openems.edge.relais.api;version=latest,\
     	pi4j-core,\
 
