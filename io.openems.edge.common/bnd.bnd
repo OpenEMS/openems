@@ -12,6 +12,7 @@ Export-Package: \
 	io.openems.edge.common.channel.internal,\
 	io.openems.edge.common.channel.value,\
 	io.openems.edge.common.channel,\
+	io.openems.edge.common.filter,\
 	io.openems.edge.api.user,\
 	io.openems.edge.common.user,\
 	io.openems.edge.common.type,\

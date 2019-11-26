@@ -81,9 +81,31 @@ public class ReadHandler implements Consumer<String> {
 
 					Plug plug = plugChannel.value().asEnum();
 					Status status = stateChannel.value().asEnum();
-					if (status == Status.NOT_READY_FOR_CHARGING) {
-						if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
+					if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
+
+						// Charging is rejected (by the Software) if the plug is connected but the EVCS
+						// still not ready for charging.
+						if (status.equals(Status.NOT_READY_FOR_CHARGING)) {
 							status = Status.CHARGING_REJECTED;
+						}
+
+						// Charging is Finished if 'Plug' is connected, State was charging or already
+						// finished and the EVCS is still ready for charging.
+						Status evcsStatus = parent.status().value().asEnum();
+						switch (evcsStatus) {
+						case CHARGING_REJECTED:
+						case ENERGY_LIMIT_REACHED:
+						case ERROR:
+						case NOT_READY_FOR_CHARGING:
+						case STARTING:
+						case UNDEFINED:
+							break;
+						case READY_FOR_CHARGING:
+						case CHARGING:
+						case CHARGING_FINISHED:
+							if (status.equals(Status.READY_FOR_CHARGING) && parent.setChargePowerLimit().value().orElse(0) > 0) {
+								status = Status.CHARGING_FINISHED;
+							}
 						}
 					}
 
@@ -98,7 +120,7 @@ public class ReadHandler implements Consumer<String> {
 
 							this.parent.setDisplayText().setNextWriteValue(limit + "Wh erreicht");
 							status = Status.ENERGY_LIMIT_REACHED;
-							this.parent.logInfo(log, "Status: "+ status.getName());
+							this.parent.logInfo(log, "Status: " + status.getName());
 						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
 						}

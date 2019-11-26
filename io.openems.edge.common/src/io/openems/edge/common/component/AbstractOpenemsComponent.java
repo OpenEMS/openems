@@ -2,6 +2,8 @@ package io.openems.edge.common.component;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -10,9 +12,21 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CaseFormat;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.EdgeConfig;
+import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.DoubleDoc;
+import io.openems.edge.common.channel.FloatDoc;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.LongDoc;
+import io.openems.edge.common.channel.ShortDoc;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StringDoc;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -23,6 +37,7 @@ import io.openems.edge.common.channel.StateChannel;
  */
 public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
+	private static final String PROPERTY_CHANNEL_ID_PREFIX = "_PROPERTY_";
 	private static final AtomicInteger NEXT_GENERATED_COMPONENT_ID = new AtomicInteger(-1);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
@@ -106,11 +121,14 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 		this.enabled = enabled;
 		this.componentContext = context;
+
 		if (isEnabled()) {
 			this.logMessage("Activate");
 		} else {
 			this.logMessage("Activate DISABLED");
 		}
+
+		this.addChannelsForProperties(context);
 	}
 
 	/**
@@ -136,6 +154,70 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 					"ComponentContext is null. Please make sure to call AbstractOpenemsComponent.activate()-method early!");
 		}
 		return this.componentContext;
+	}
+
+	/**
+	 * Add a Channel for each Property and set the configured value.
+	 * 
+	 * <p>
+	 * If the Property key is "enabled" then a Channel with the ID
+	 * "_PropertyEnabled" is generated.
+	 * 
+	 * @param context the {@link ComponentContext}
+	 */
+	private void addChannelsForProperties(ComponentContext context) {
+		if (context == null) {
+			return;
+		}
+		Dictionary<String, Object> properties = context.getProperties();
+		if (properties == null) {
+			return;
+		}
+
+		Enumeration<String> keys = properties.keys();
+		while (keys.hasMoreElements()) {
+			try {
+				String key = keys.nextElement();
+				Object value = properties.get(key);
+				if (EdgeConfig.ignorePropertyKey(key)) {
+					// ignore
+					continue;
+				}
+				switch (key) {
+				case "alias":
+					// ignore
+					continue;
+				case "enabled":
+					// special treatment as the value always comes as a String
+					if (value != null && value instanceof String) {
+						value = ((String) value).toLowerCase().equals("true");
+					}
+				}
+				key = key.replace(".", "_");
+
+				String channelName = PROPERTY_CHANNEL_ID_PREFIX
+						+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, key);
+				Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
+				io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
+
+					@Override
+					public String name() {
+						return channelName;
+					}
+
+					@Override
+					public Doc doc() {
+						return doc;
+					}
+				};
+				Channel<?> channel = this.addChannel(channelId);
+				channel.setNextValue(value);
+
+			} catch (OpenemsException e) {
+				this.logWarn(this.log, "Unable to add Property Channel: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -297,5 +379,34 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	protected void logError(Logger log, String message) {
 		log.error("[" + this.id() + "] " + message);
+	}
+
+	/**
+	 * Gets an {@link OpenemsTypeDoc} from an Object.
+	 * 
+	 * @param value the Object
+	 * @return the {@link OpenemsTypeDoc}
+	 * @throws OpenemsException if the TypeDoc cannot be guessed from the Object.
+	 */
+	private static OpenemsTypeDoc<?> getDocFromObject(Object value) throws OpenemsException {
+		if (value instanceof Boolean) {
+			return new BooleanDoc();
+		} else if (value instanceof Float) {
+			return new FloatDoc();
+		} else if (value instanceof Double) {
+			return new DoubleDoc();
+		} else if (value instanceof Short) {
+			return new ShortDoc();
+		} else if (value instanceof Integer) {
+			return new IntegerDoc();
+		} else if (value instanceof Long) {
+			return new LongDoc();
+		} else if (value instanceof String) {
+			return new StringDoc();
+		} else if (value.getClass().isArray()) {
+			return new StringDoc();
+		}
+		throw new OpenemsException(
+				"Unable to find OpenemsType for Class [" + value.getClass() + "] of Object [" + value + "]");
 	}
 }

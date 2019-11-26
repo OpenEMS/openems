@@ -19,6 +19,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
@@ -953,4 +954,27 @@ public class EdgeConfig {
 		return result;
 	}
 
+	/**
+	 * Internal Method to decide whether a configuration property should be ignored.
+	 * 
+	 * @param key the property key
+	 * @return true if it should get ignored
+	 */
+	public static boolean ignorePropertyKey(String key) {
+		if (key.endsWith(".target")) {
+			return true;
+		}
+		switch (key) {
+		case OpenemsConstants.PROPERTY_COMPONENT_ID:
+		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID:
+		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME:
+		case OpenemsConstants.PROPERTY_FACTORY_PID:
+		case OpenemsConstants.PROPERTY_PID:
+		case "webconsole.configurationFactory.nameHint":
+		case "event.topics":
+			return true;
+		default:
+			return false;
+		}
+	}
 }

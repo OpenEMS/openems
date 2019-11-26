@@ -15,7 +15,6 @@ Private-Package: \
 
 -buildpath: ${buildpath},\
 	io.openems.backend.common;version=latest,\
-	io.openems.backend.edgewebsocket.api;version=latest,\
 	io.openems.backend.metadata.api;version=latest,\
 	io.openems.backend.timedata.api;version=latest,\
 	io.openems.common;version=latest,\
