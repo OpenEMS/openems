@@ -1,7 +1,7 @@
 package io.openems.edge.bhkw.task;
 
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.relaisboardapi.task.McpTask;
+import io.openems.edge.relais.board.api.task.McpTask;
 
 public class BhkwTask extends McpTask {
     private int position;

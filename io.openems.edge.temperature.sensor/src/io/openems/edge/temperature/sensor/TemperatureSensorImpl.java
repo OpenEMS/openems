@@ -8,7 +8,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.temperature.sensor.task.TemperatureDigitalReadTask;
-import io.openems.edge.temperatureBoard.api.Adc;
+import io.openems.edge.temperature.board.api.Adc;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class TemperatureSensorImpl extends AbstractOpenemsComponent implements OpenemsComponent, Thermometer {
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-    private BridgeSpi bridgeSpi;
+    BridgeSpi bridgeSpi;
 
     @Reference
     ComponentManager cpm;

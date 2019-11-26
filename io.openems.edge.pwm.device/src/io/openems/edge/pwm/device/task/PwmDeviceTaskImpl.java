@@ -1,7 +1,7 @@
 package io.openems.edge.pwm.device.task;
 
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.edge.bridgei2c.task.I2cTaskImpl;
+import io.openems.edge.bridge.i2c.task.I2cTaskImpl;
 import io.openems.edge.common.channel.WriteChannel;
 
 public class PwmDeviceTaskImpl extends I2cTaskImpl {

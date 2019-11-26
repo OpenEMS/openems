@@ -6,8 +6,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.gaspedal.Gaspedal;
-import io.openems.edge.relaisboardapi.Mcp;
-import io.openems.edge.relaisboardapi.Mcp4728;
+import io.openems.edge.relais.board.api.Mcp;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
@@ -95,15 +94,8 @@ public class BhkwImpl extends AbstractOpenemsComponent implements OpenemsCompone
 
         if (cpm.getComponent(config.gaspedalId()) instanceof Gaspedal) {
             Gaspedal gaspedal = cpm.getComponent(config.gaspedalId());
-            if (gaspedal.getId().equals(config.gaspedalId())) {
-                //TODO Temporary till Controller is implemented
-                int temp = 100;
-                this.getPowerLevelChannel().setNextValue(temp);
-                if (gaspedal.getMcp() instanceof Mcp4728) {
-                    mcp = gaspedal.getMcp();
-                    ((Mcp4728) mcp).addTask(super.id(), new BhkwTask(super.id(), config.position(), config.minLimit(), config.maxLimit(), config.percentageRange(), 4096.f, this.getPowerLevelChannel()));
-                }
-            }
+            mcp = gaspedal.getMcp();
+            mcp.addTask(super.id(), new BhkwTask(super.id(), config.position(), config.minLimit(), config.maxLimit(), config.percentageRange(), 4096.f, this.getPowerLevelChannel()));
         }
 
     }
@@ -111,9 +103,7 @@ public class BhkwImpl extends AbstractOpenemsComponent implements OpenemsCompone
     @Deactivate
     public void deactivate() {
         super.deactivate();
-        if (this.mcp instanceof Mcp4728) {
-            ((Mcp4728) this.mcp).removeTask(super.id());
-        }
+        this.mcp.removeTask(super.id());
     }
 
 

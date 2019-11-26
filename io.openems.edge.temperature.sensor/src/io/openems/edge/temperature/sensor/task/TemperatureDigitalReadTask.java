@@ -3,8 +3,8 @@ package io.openems.edge.temperature.sensor.task;
 import io.openems.edge.bridge.spi.task.SpiTask;
 import io.openems.edge.bridge.spi.task.AbstractSpiTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.temperatureBoard.TemperatureBoardVersions;
-import io.openems.edge.temperatureBoard.api.Adc;
+import io.openems.edge.temperature.board.TemperatureBoardVersions;
+import io.openems.edge.temperature.board.api.Adc;
 
 
 //Only for one Pin

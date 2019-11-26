@@ -18,7 +18,7 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 14;
+	public final static short VERSION_MINOR = 15;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -31,7 +31,7 @@ public class OpenemsConstants {
 	 * The additional version string
 	 */
 	// public final static String VERSION_STRING = "";
-	public final static String VERSION_STRING = "dev.0.90+20191125T145817Z";
+	public final static String VERSION_STRING = "dev.0.101+20191126T083648Z";
 
 	/**
 	 * The complete version as a SemanticVersion.

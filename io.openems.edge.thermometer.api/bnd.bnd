@@ -5,9 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	A Thermometer measures temperature.
 
-Require-Capability: \
-	compile-only
-	
 Export-Package: io.openems.edge.thermometer.api
 
 -includeresource: {readme.adoc}

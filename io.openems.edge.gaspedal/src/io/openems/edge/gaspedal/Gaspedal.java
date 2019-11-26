@@ -1,6 +1,6 @@
 package io.openems.edge.gaspedal;
 
-import io.openems.edge.relaisboardapi.Mcp;
+import io.openems.edge.relais.board.api.Mcp;
 
 public interface Gaspedal {
 

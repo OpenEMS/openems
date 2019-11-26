@@ -7,9 +7,9 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.relais.api.ActuatorRelaisChannel;
 import io.openems.edge.relais.api.RelaisActuator;
-import io.openems.edge.relaisBoard.RelaisBoard;
-import io.openems.edge.relaisboardapi.Mcp;
-import io.openems.edge.relaisboardapi.Mcp23008;
+import io.openems.edge.relais.board.RelaisBoard;
+import io.openems.edge.relais.board.api.Mcp;
+import io.openems.edge.relais.board.api.Mcp23008;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -52,10 +52,10 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
             RelaisBoard relaisBoard = cpm.getComponent(config.relaisBoard_id());
             if (relaisBoard.getId().equals(config.relaisBoard_id())) {
                 if (relaisBoard.getMcp() instanceof Mcp23008) {
-                    Mcp23008 mcp = (Mcp23008) relaisBoard.getMcp();
+                    Mcp mcp =relaisBoard.getMcp();
                     allocatedMcp = mcp;
                     //Value if it's activated always true
-                    mcp.setPosition(config.position(), true);
+                    mcp.setPosition(config.position(), !this.relaisValue);
                     //Value if it's deactivated Opener will be closed and Closer will be opened
                     mcp.addToDefault(config.position(), !this.relaisValue);
                     mcp.shift();

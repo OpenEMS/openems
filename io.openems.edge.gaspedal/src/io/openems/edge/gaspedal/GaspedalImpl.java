@@ -2,11 +2,11 @@ package io.openems.edge.gaspedal;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CFactory;
-import io.openems.edge.bridgei2c.I2cBridge;
+import io.openems.edge.bridge.i2c.I2cBridge;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.relaisboardapi.Mcp;
-import io.openems.edge.relaisboardapi.Mcp4728;
+import io.openems.edge.relais.board.api.Mcp;
+import io.openems.edge.relais.board.api.Mcp4728;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;

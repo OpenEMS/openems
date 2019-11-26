@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.spi;
 
 import io.openems.edge.bridge.spi.task.SpiTask;
-import io.openems.edge.temperatureBoard.api.Adc;
+import io.openems.edge.temperature.board.api.Adc;
 import org.osgi.service.cm.ConfigurationException;
 
 import java.util.Map;
