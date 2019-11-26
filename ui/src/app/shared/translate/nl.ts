@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Inactief",
         Manually: "handmatig",
         Phase: "Fase",
+        Phases: "Fases",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigen consumptie",
         Cumulative: "Cumulatieve Waarden",
@@ -33,10 +34,10 @@ export const TRANSLATION = {
         More: "Meer…",
         ChargePower: "Laad vermogen",
         DischargePower: "Ontlaad vermogen",
+        ChargeDischarge: "Debet/ontlaad",
         ActualPower: "e-car Laad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
-        DateFormatShort: "dd.MM",
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -45,20 +46,6 @@ export const TRANSLATION = {
             Friday: "Vrijdag",
             Saturday: "Zaterdag",
             Sunday: "Zondag"
-        },
-        Month: {
-            January: "Januari",
-            February: "Februari",
-            March: "Maart",
-            April: "April",
-            May: "Mei",
-            June: "Juni",
-            July: "Juli",
-            August: "Augustus",
-            September: "September",
-            October: "Oktober",
-            November: "November",
-            December: "December"
         },
         ReportValue: "Rapporteer beschadigde gegevens"
     },
@@ -101,6 +88,8 @@ export const TRANSLATION = {
                 phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
                 selfconsumptionInfo: "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",
                     HighThreshold: "hoge drempel"
@@ -141,8 +130,6 @@ export const TRANSLATION = {
                     ClusterConfigError: "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
                     EnergyLimit: "Energielimiet",
                     MaxEnergyRestriction: "Beperk de maximale energie per lading",
-                    CapacityOrientedCharging: "Capaciteitsgericht laden",
-                    CapacityOrientedChargingDescription: "Stel de maximale energie voor deze lading in Wh. Het laadstation laadt alleen tot deze limiet op. '0' komt overeen met geen limiet",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
                         Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt"
@@ -181,7 +168,9 @@ export const TRANSLATION = {
             Day: "Dag",
             Week: "Woche",
             Month: "Maand",
-            Year: "Jaar"
+            Year: "Jaar",
+            noData: "geen gegevens beschikbaar",
+            activeDuration: "actieve duur",
         },
         Config: {
             Index: {

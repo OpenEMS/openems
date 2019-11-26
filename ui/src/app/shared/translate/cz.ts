@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Neaktivní",
         Manually: "Ruční",
         Phase: "Fáze",
+        Phases: "Fáze",
         Autarchy: "Soběstačnost",
         SelfConsumption: "Vlastní spotřeba",
         Cumulative: "Kumulativní Hodnoty",
@@ -33,10 +34,10 @@ export const TRANSLATION = {
         More: "Další",
         ChargePower: "Nabíjecí výkon",
         DischargePower: "Vybíjecí výkon",
+        ChargeDischarge: "Debetní/vybíjení",
         ActualPower: "E-Car Nabíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
-        DateFormatShort: "dd.MM",
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -45,20 +46,6 @@ export const TRANSLATION = {
             Friday: "Pátek",
             Saturday: "Sobota",
             Sunday: "Neděle"
-        },
-        Month: {
-            January: "leden",
-            February: "únor",
-            March: "březen",
-            April: "duben",
-            May: "květen",
-            June: "červen",
-            July: "červenec",
-            August: "srpen",
-            September: "září",
-            October: "říjen",
-            November: "listopad",
-            December: "prosinec"
         },
         ReportValue: "Nahlášení poškozených dat"
     },
@@ -103,6 +90,8 @@ export const TRANSLATION = {
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
                 selfconsumptionInfo: "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Nízký práh",
                     HighThreshold: "vysoký práh"
@@ -143,8 +132,6 @@ export const TRANSLATION = {
                     ClusterConfigError: "V konfiguraci clusteru Evcs došlo k chybě",
                     EnergyLimit: "Limit energie",
                     MaxEnergyRestriction: "Omezte maximální energii na jedno nabití",
-                    CapacityOrientedCharging: "Nabíjení podle kapacity",
-                    CapacityOrientedChargingDescription: "Nastavte maximální energii pro tento náboj v Wh. Nabíjecí stanice se nabíjí pouze do výše uvedeného limitu. '0' odpovídá žádnému limitu",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě"
@@ -187,7 +174,9 @@ export const TRANSLATION = {
             Day: "Den",
             Week: "Týden",
             Month: "Měsíc",
-            Year: "Rok"
+            Year: "Rok",
+            noData: "data nejsou k dispozici",
+            activeDuration: "aktivní trvání",
         },
         Config: {
             Index: {

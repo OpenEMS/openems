@@ -29,6 +29,9 @@ export module DefaultTypes {
       activePowerL1: number,
       activePowerL2: number,
       activePowerL3: number,
+      effectiveActivePowerL1: number,
+      effectiveActivePowerL2: number,
+      effectiveActivePowerL3: number,
       chargeActivePower: number,
       chargeActivePowerAc: number,
       chargeActivePowerDc: number,
@@ -139,13 +142,11 @@ export module DefaultTypes {
       else if (isSameDay(this.from, this.to) && isSameDay(this.from, subDays(new Date(), 1))) {
         return translate.instant('Edge.History.Yesterday') + ", " + format(this.from, translate.instant('General.DateFormat'));
       } else {
-        {
-          return translate.instant(
-            'General.PeriodFromTo', {
-            value1: format(this.from, translate.instant('General.DateFormatShort')),
-            value2: format(this.to, translate.instant('General.DateFormat'))
-          })
-        }
+        return translate.instant(
+          'General.PeriodFromTo', {
+          value1: format(this.from, translate.instant('General.DateFormatShort')),
+          value2: format(this.to, translate.instant('General.DateFormat'))
+        })
       }
     }
   }

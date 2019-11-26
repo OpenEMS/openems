@@ -42,8 +42,8 @@
 
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
-            <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
 
+            <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
               <ng-container
                 *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumtion'">
                 <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
@@ -51,37 +51,37 @@
                   </evcs>
                 </ion-col>
               </ng-container>
-
-              <ion-col *ngSwitchCase="'Evcs.Cluster.SelfConsumtion'" size="12" size-lg="6" class="ion-no-padding">
-                <evcsCluster [componentId]="widget.componentId"></evcsCluster>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'Evcs.Cluster.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <evcsCluster [componentId]="widget.componentId"></evcsCluster>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
-                <modbusapi [componentId]="widget.componentId"></modbusapi>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
-                size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6" class="ion-no-padding">
-                <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
-                <chpsoc [componentId]="widget.componentId"></chpsoc>
-              </ion-col>
-
             </ng-container>
+
+            <ion-col *ngSwitchCase="'Evcs.Cluster.SelfConsumtion'" size="12" size-lg="6" class="ion-no-padding">
+              <evcsCluster [componentId]="widget.componentId"></evcsCluster>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Evcs.Cluster.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
+              <evcsCluster [componentId]="widget.componentId"></evcsCluster>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
+              <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="12"
+              size-lg="6" class="ion-no-padding">
+              <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6" class="ion-no-padding">
+              <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
+              <chpsoc [componentId]="widget.componentId"></chpsoc>
+            </ion-col>
+
           </ng-container>
 
           <!-- <ion-col size="12" size-lg="12">
