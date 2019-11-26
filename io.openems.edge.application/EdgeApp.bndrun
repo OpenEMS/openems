@@ -256,7 +256,7 @@
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
 	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
-	pi4j-core;version='[1.0,1.4)'\
+	pi4j-core;version='[1.0,1.4)',\
 	rrd4j;version='[3.5.0,3.5.1)',\
 	com.sun.jna;version='[5.5.0,5.5.1)',\
 	org.openmuc.jmbus;version='[3.2.1,3.2.2)'

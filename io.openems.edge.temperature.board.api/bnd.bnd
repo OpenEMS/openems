@@ -6,17 +6,17 @@ Bundle-Version: 1.0.0.${tstamp}
 
 Export-Package:  \
 	io.openems.edge.temperature.board.api,\
-	io.openems.edge.temperature.board.api.mcpModels.type2,\
-	io.openems.edge.temperature.board.api.mcpModels.type4,\
-	io.openems.edge.temperature.board.api.mcpModels.type8,\
+	io.openems.edge.temperature.board.api.mcpmodels.type2,\
+	io.openems.edge.temperature.board.api.mcpmodels.type4,\
+	io.openems.edge.temperature.board.api.mcpmodels.type8,\
 	io.openems.edge.temperature.board.api.pins,\
 
 Private-Package:  \
 	io.openems.edge.temperature.board.api,\
 	io.openems.edge.temperature.board.api.pins,\
-	io.openems.edge.temperature.board.api.mcpModels.type8,\
-	io.openems.edge.temperature.board.api.mcpModels.type4,\
-	io.openems.edge.temperature.board.api.mcpModels.type2,\
+	io.openems.edge.temperature.board.api.mcpmodels.type2,\
+	io.openems.edge.temperature.board.api.mcpmodels.type4,\
+	io.openems.edge.temperature.board.api.mcpmodels.type8,\
 
 -includeresource: {readme.md}
 
