@@ -1,4 +1,4 @@
-package io.openems.edge.relaisboardmcp.task;
+package io.openems.edge.relaisboardapi.task;
 
 import io.openems.edge.common.channel.WriteChannel;
 

@@ -1,8 +1,8 @@
-package io.openems.edge.relaisboardmcp;
+package io.openems.edge.relaisboardapi;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-import io.openems.edge.relaisboardmcp.task.McpTask;
+import io.openems.edge.relaisboardapi.task.McpTask;
 
 import java.io.IOException;
 import java.util.Map;

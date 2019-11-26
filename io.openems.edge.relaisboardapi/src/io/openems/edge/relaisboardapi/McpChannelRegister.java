@@ -1,9 +1,7 @@
-package io.openems.edge.relaisboardmcp;
+package io.openems.edge.relaisboardapi;
 
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.edge.relaisboardmcp.task.McpTask;
-
-import java.util.List;
+import io.openems.edge.relaisboardapi.task.McpTask;
 
 public interface McpChannelRegister {
     void setPosition(int position, boolean activate);

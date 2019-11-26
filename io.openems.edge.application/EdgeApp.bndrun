@@ -102,6 +102,9 @@
 	bnd.identity;id='io.openems.edge.relais.api',\
 	bnd.identity;id='io.openems.edge.relaisBoard',\
 	bnd.identity;id='io.openems.edge.relaisboardapi',\
+	bnd.identity;id='io.openems.edge.pwm',\
+	bnd.identity;id='io.openems.edge.pwm.device',\
+	bnd.identity;id='io.openems.edge.pwm.module.api',\
 	bnd.identity;id='io.openems.edge.controller.temperature.simple',\
 	bnd.identity;id='io.openems.edge.bhkw',\
 	bnd.identity;id='io.openems.edge.gaspedal',\
@@ -187,6 +190,9 @@
 	io.openems.edge.relais;version=snapshot,\
 	io.openems.edge.relais.api;version=snapshot,\
 	io.openems.edge.relaisboardapi;version=snapshot,\
+	io.openems.edge.pwm;version=snapshot,\
+	io.openems.edge.pwm.module.api;version=snapshot,\
+	io.openems.edge.pwm.device;version=snapshot,\
 	io.openems.edge.controller.temperature.simple;version=snapshot,\
 	io.openems.edge.gaspedal;version=snapshot,\
 	io.openems.edge.bhkw;version=snapshot,\

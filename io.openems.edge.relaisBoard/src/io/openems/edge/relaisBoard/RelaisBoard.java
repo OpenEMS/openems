@@ -1,6 +1,6 @@
 package io.openems.edge.relaisBoard;
 
-import io.openems.edge.relaisboardmcp.Mcp;
+import io.openems.edge.relaisboardapi.Mcp;
 
 public interface RelaisBoard {
 

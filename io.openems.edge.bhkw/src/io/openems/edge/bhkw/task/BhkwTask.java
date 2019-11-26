@@ -1,8 +1,7 @@
 package io.openems.edge.bhkw.task;
 
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.relaisboardmcp.task.McpTask;
-import org.omg.CORBA.INTERNAL;
+import io.openems.edge.relaisboardapi.task.McpTask;
 
 public class BhkwTask extends McpTask {
     private int position;

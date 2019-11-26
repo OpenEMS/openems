@@ -6,12 +6,11 @@ Bundle-Version: 1.0.0.${tstamp}
 
 
 Export-Package:  \
-	io.openems.edge.relaisboardmcp.api,\
-	io.openems.edge.relaisboardmcp,\
-	io.openems.edge.relaisboardmcp.task,\
+	io.openems.edge.relaisboardapi,\
+	io.openems.edge.relaisboardapi.task,\
 
 Private-Package:  \
-	io.openems.edge.relaisboardmcp
+	io.openems.edge.relaisboardapi
 
 -includeresource: {readme.md}
 

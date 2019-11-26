@@ -5,18 +5,19 @@ import com.pi4j.io.i2c.I2CFactory;
 import io.openems.edge.bridgei2c.I2cBridge;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.relaisboardmcp.Mcp;
-import io.openems.edge.relaisboardmcp.Mcp4728;
+import io.openems.edge.relaisboardapi.Mcp;
+import io.openems.edge.relaisboardapi.Mcp4728;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.io.IOException;
 
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Gaspedal")
+@Component(name = "Gaspedal",
+        configurationPolicy = ConfigurationPolicy.REQUIRE,
+        immediate = true)
 public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsComponent, Gaspedal {
 
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

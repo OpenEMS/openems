@@ -6,8 +6,8 @@ import io.openems.edge.bridgei2c.I2cBridge;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
-import io.openems.edge.relaisboardmcp.Mcp;
-import io.openems.edge.relaisboardmcp.Mcp23008;
+import io.openems.edge.relaisboardapi.Mcp;
+import io.openems.edge.relaisboardapi.Mcp23008;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;

@@ -1,4 +1,4 @@
-package io.openems.edge.relaisboardmcp;
+package io.openems.edge.relaisboardapi;
 
 public abstract class Mcp implements McpChannelRegister {
 }
