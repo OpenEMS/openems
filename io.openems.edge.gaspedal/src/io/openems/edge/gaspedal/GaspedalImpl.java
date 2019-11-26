@@ -8,7 +8,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.relais.board.api.Mcp;
 import io.openems.edge.relais.board.api.Mcp4728;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
+
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.io.IOException;
@@ -129,9 +137,7 @@ public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsCom
     public void deactivate() {
 
         super.deactivate();
-        if (this.allocatedMcp instanceof Mcp4728) {
-            ((Mcp4728) this.allocatedMcp).deactivate();
-        }
+        this.allocatedMcp.deactivate();
         this.refI2cBridge.removeMcp(this.allocatedMcp);
     }
 

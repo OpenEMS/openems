@@ -15,7 +15,7 @@ Private-Package: io.openems.edge.timedata.rrd4j
 	com.google.gson,\
 	com.google.guava,\
 	slf4j.api,\
-	rrd4j
+	rrd4j,\
 
 -testpath: ${testpath}
 

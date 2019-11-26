@@ -5,17 +5,20 @@ import io.openems.edge.common.channel.WriteChannel;
 
 public interface I2cTask {
 
-   WriteChannel<Float> getFloatPowerLevel();
+    WriteChannel<Float> getFloatPowerLevel();
 
-   void setFloatPowerLevel(float powerLevel) throws OpenemsError.OpenemsNamedException;
+    void setFloatPowerLevel(float powerLevel) throws OpenemsError.OpenemsNamedException;
 
-   int getPinPosition();
+    int getPinPosition();
 
-   //   int getOffset();
-   //   int getPulseDuration();
-   boolean isInverse();
-   int calculateDigit(int digitRange);
-   String getPwmModuleId();
-   String getDeviceId();
+    //   int getOffset();
+    //   int getPulseDuration();
+    boolean isInverse();
+
+    int calculateDigit(int digitRange);
+
+    String getPwmModuleId();
+
+    String getDeviceId();
 
 }

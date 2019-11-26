@@ -11,6 +11,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public interface ActuatorRelaisChannel extends OpenemsComponent {
     /**
+     * .
      * Is active or not
      *
      * <ul>
@@ -43,7 +44,7 @@ public interface ActuatorRelaisChannel extends OpenemsComponent {
      *
      * @return
      */
-  //  default Boolean isActive() {
+    //  default Boolean isActive() {
     //    return (Boolean) this.channel(ChannelId.ON_OFF).value().get();
     //}
 

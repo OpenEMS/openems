@@ -1,6 +1,5 @@
 package io.openems.edge.temperature.sensor;
 
-
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.bridge.spi.BridgeSpi;
 import io.openems.edge.common.channel.Doc;
@@ -12,7 +11,14 @@ import io.openems.edge.temperature.board.api.Adc;
 import io.openems.edge.thermometer.api.Thermometer;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,14 +130,14 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
 
     }
 
-//    @Override
-//    public String getTemperatureSensorId() {
-//        return super.id();
-//    }
-//
-//    @Override
-//    public Channel<Integer> getTemperatureOfSensor() {
-//        return this.getTemperature();
-//    }
+    //    @Override
+    //    public String getTemperatureSensorId() {
+    //        return super.id();
+    //    }
+    //
+    //    @Override
+    //    public Channel<Integer> getTemperatureOfSensor() {
+    //        return this.getTemperature();
+    //    }
 
 }

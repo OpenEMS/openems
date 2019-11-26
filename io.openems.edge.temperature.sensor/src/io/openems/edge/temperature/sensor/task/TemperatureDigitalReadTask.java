@@ -24,7 +24,7 @@ public class TemperatureDigitalReadTask extends AbstractSpiTask implements SpiTa
 
     private long pinValue;
 
-    public TemperatureDigitalReadTask(Channel<Integer> channel, String version, Adc adc, int pin, String parentCircuitBoard, String temperatureSensorId)  {
+    public TemperatureDigitalReadTask(Channel<Integer> channel, String version, Adc adc, int pin, String parentCircuitBoard, String temperatureSensorId) {
         super(adc.getSpiChannel(), parentCircuitBoard);
         this.channel = channel;
         this.version = version;
@@ -72,7 +72,7 @@ public class TemperatureDigitalReadTask extends AbstractSpiTask implements SpiTa
     }
 
     @Override
-    public String getTemperatureSensorId(){
+    public String getTemperatureSensorId() {
         return this.temperatureSensorId;
     }
 

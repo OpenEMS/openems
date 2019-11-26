@@ -13,7 +13,7 @@ public interface TemperatureSensorChannel extends OpenemsComponent {
 
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-        /**
+        /**.
          * Temperature
          *
          * <ul>
@@ -34,7 +34,7 @@ public interface TemperatureSensorChannel extends OpenemsComponent {
         }
     }
 
-    /**
+    /**.
      * @return Gets the Temperature in [dezidegree celsius].
      */
 

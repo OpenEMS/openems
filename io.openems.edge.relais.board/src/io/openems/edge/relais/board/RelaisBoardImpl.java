@@ -9,9 +9,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.relais.board.api.Mcp;
 import io.openems.edge.relais.board.api.Mcp23008;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
-
 import java.io.IOException;
 import java.util.Map;
 
@@ -24,7 +30,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisB
 
     private String id;
     private String alias;
-    private String VersionNumber;
+    private String versionNumber;
     private I2CBus bus;
     private String address;
     private String i2cBridge;
@@ -43,7 +49,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisB
         super.activate(context,config.id(), config.alias(), config.enabled());
         this.id = config.id();
         this.alias = config.alias();
-        this.VersionNumber = config.version();
+        this.versionNumber = config.version();
         this.address = config.address();
         this.i2cBridge = config.bridge();
         allocateBus(config.bus());

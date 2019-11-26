@@ -8,7 +8,11 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.gaspedal.Gaspedal;
 import io.openems.edge.relais.board.api.Mcp;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.metatype.annotations.Designate;
 
 

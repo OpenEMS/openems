@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 
 
-// TODO refactor
 public abstract class AbstractAdc implements Adc {
     private List<Pin> pins = new ArrayList<>();
     private int spiChannel;
@@ -77,7 +76,7 @@ public abstract class AbstractAdc implements Adc {
     }
 
     @Override
-    public void deactivate(){
+    public void deactivate() {
         //TODO actually nothing to do, for Temperature purposes, but maybe in future
     }
 
@@ -99,7 +98,7 @@ public abstract class AbstractAdc implements Adc {
     }
 
     @Override
-    public String getVersionId(){
+    public String getVersionId() {
         return this.versionId;
     }
 }

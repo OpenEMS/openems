@@ -9,9 +9,14 @@ import io.openems.edge.relais.api.ActuatorRelaisChannel;
 import io.openems.edge.relais.api.RelaisActuator;
 import io.openems.edge.relais.board.RelaisBoard;
 import io.openems.edge.relais.board.api.Mcp;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.util.Optional;

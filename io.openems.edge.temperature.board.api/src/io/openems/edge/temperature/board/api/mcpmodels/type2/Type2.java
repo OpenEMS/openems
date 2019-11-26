@@ -1,4 +1,4 @@
-package io.openems.edge.temperature.board.api.mcpModels.type2;
+package io.openems.edge.temperature.board.api.mcpmodels.type2;
 
 import io.openems.edge.temperature.board.api.AbstractAdc;
 

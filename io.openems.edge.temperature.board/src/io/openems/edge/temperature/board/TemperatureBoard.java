@@ -6,7 +6,10 @@ import java.util.Set;
 
 public interface TemperatureBoard {
     short getMaxCapacity();
+
     String getCircuitBoardId();
+
     String getVersionId();
+
     Set<Adc> getAdcList();
 }

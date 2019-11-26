@@ -9,7 +9,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public interface PwmPowerLevelChannel extends OpenemsComponent {
 
-    /**
+    /**.
      * * * How much percent the Device will use *
      * <ul>
      * <li>Interface: PowerLevel

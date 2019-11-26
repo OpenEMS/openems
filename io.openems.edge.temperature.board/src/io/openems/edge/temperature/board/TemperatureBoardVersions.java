@@ -1,7 +1,7 @@
 package io.openems.edge.temperature.board;
 
 import io.openems.edge.temperature.board.api.Adc;
-import io.openems.edge.temperature.board.api.mcpModels.type8.Mcp3208;
+import io.openems.edge.temperature.board.api.mcpmodels.type8.Mcp3208;
 
 import java.util.ArrayList;
 import java.util.Arrays;
