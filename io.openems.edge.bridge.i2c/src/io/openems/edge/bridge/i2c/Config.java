@@ -2,7 +2,6 @@ package io.openems.edge.bridge.i2c;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(
         name = "Bridge I2C",

@@ -24,11 +24,9 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
     @Reference
     ComponentManager cpm;
 
-    private String pwmModule;
-    private String i2cBridge;
-    private short pinPosition;
-    private boolean isInverse;
-    private float initialValue;
+    //private String pwmModule;
+    //private String i2cBridge;
+    //private float initialValue;
 
     public PwmDevice() {
         super(OpenemsComponent.ChannelId.values(), PwmPowerLevelChannel.ChannelId.values());
@@ -39,16 +37,15 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
     public void activate(ComponentContext context, Config config) {
 
         super.activate(context, config.id(), config.alias(), config.enabled());
-        this.pwmModule = config.pwm_module();
-        this.i2cBridge = config.i2c_id();
-        this.isInverse = config.isInverse();
-        this.initialValue = config.percentage_Initial();
+        //this.pwmModule = config.pwm_module();
+        //this.i2cBridge = config.i2c_id();
+        //this.initialValue = config.percentage_Initial();
 
         try {
 
-            this.getPwmPowerLevelChannel().setNextValue(initialValue);
+            this.getPwmPowerLevelChannel().setNextValue(config.percentage_Initial());
 
-            refI2cBridge.addI2cTask(super.id(), new PwmDeviceTaskImpl(super.id(), this.getPwmPowerLevelChannel(), pwmModule, pinPosition, isInverse));
+            refI2cBridge.addI2cTask(super.id(), new PwmDeviceTaskImpl(super.id(), this.getPwmPowerLevelChannel(), config.pwm_module(), config.pinPosition(), config.isInverse()));
 
         } catch (OpenemsError.OpenemsNamedException e) {
             e.printStackTrace();

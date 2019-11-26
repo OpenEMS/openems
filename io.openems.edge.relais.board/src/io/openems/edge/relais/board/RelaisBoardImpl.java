@@ -65,7 +65,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisB
         super.deactivate();
         if (mcp instanceof Mcp23008) {
             for (Map.Entry<Integer, Boolean> entry : ((Mcp23008) mcp).getValuesPerDefault().entrySet()) {
-                ((Mcp23008) mcp).setPosition(entry.getKey(), entry.getValue());
+                mcp.setPosition(entry.getKey(), entry.getValue());
             }
             ((Mcp23008) mcp).shift();
             this.refI2cBridge.removeMcp(this.mcp);

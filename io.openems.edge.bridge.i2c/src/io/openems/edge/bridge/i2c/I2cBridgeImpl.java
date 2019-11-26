@@ -1,14 +1,8 @@
 package io.openems.edge.bridge.i2c;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.edge.bridge.i2c.task.I2cTask;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.pwm.module.api.IpcaGpioProvider;
-import io.openems.edge.relais.board.api.Mcp;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,8 +13,15 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.worker.AbstractCycleWorker;
+import io.openems.edge.bridge.i2c.task.I2cTask;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.pwm.module.api.IpcaGpioProvider;
+import io.openems.edge.relais.board.api.Mcp;
 
 
 @Designate(ocd = Config.class, factory = true)
