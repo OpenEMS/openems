@@ -36,7 +36,7 @@ public class Undefined implements IState {
 		try {
 			ess = this.componentManager.getComponent(this.config.ess_id());
 		} catch (OpenemsNamedException e) {
-			log.error(e.getMessage());
+			this.log.error(e.getMessage());
 			return this;
 		}
 		Optional<Integer> minCellVoltageOpt = ess.getMinCellVoltage().value().asOptional();
@@ -59,6 +59,6 @@ public class Undefined implements IState {
 
 	@Override
 	public void act() {
-		log.info("act() --> nothing to do");
+		// nothing to do
 	}
 }

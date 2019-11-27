@@ -1,0 +1,112 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
+        <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+    <ng-container *ngIf="componentId ">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ng-container *ngIf="controller">
+                <ion-card-content class="underline">
+                    <table class="full_width">
+                        <tr>
+                            <td translate>
+                                General.Mode
+                            </td>
+                        </tr>
+                    </table>
+                    <ion-segment (ionChange)="updateMode($event, controller)" value="{{controller.properties['mode']}}"
+                        scrollable="false">
+                        <ion-segment-button value="MANUAL_ON">
+                            <ion-label translate>
+                                General.On
+                            </ion-label>
+                            <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+                        </ion-segment-button>
+                        <ion-segment-button value="AUTOMATIC">
+                            <ion-label translate>
+                                General.Automatic
+                            </ion-label>
+                            <ion-icon style="width:40px" name="sunny">
+                            </ion-icon>
+                        </ion-segment-button>
+                        <ion-segment-button value="MANUAL_OFF">
+                            <ion-label translate>
+                                General.Off
+                            </ion-label>
+                            <ion-icon name="power" style="width: 40px"></ion-icon>
+                        </ion-segment-button>
+                    </ion-segment>
+                </ion-card-content>
+                <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
+                    <ion-card-content class="underline">
+                        <table class="full_width">
+                            <tr>
+                                <td style="width: 65%" translate>
+                                    General.Soc
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{currentData.channel[inputChannel] | unitvalue:'%'}}
+                                </td>
+                            </tr>
+                            <div style="padding-top: 5px;"></div>
+                            <tr>
+                                <td style="width: 65%" translate>
+                                    Edge.Index.Widgets.CHP.HighThreshold
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{controller.properties['highThreshold'] | unitvalue:'%'}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 65%" translate>
+                                    Edge.Index.Widgets.CHP.LowThreshold
+                                </td>
+                                <td style="width: 35%" class="align_right">
+                                    {{controller.properties['lowThreshold'] | unitvalue:'%'}}
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="full_width">
+                            <tr>
+                                <ion-range (ionChange)="updateThresholds(controller)" dual-knobs pin color="dark"
+                                    min="15" max="85" [(ngModel)]="thresholds" debounce="500">
+                                    <ion-label slot="start">
+                                        {{15 | unitvalue:'%'}}
+                                    </ion-label>
+                                    <ion-label slot="end">
+                                        {{85 | unitvalue:'%'}}
+                                    </ion-label>
+                                </ion-range>
+                            </tr>
+                        </table>
+                    </ion-card-content>
+                </ng-container>
+                <ion-card-content>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:65%" translate>General.State</td>
+                            <td style="width:35%" class="align_right" translate>
+                                <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+                                <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                                    General.Active
+                                </ng-container>
+                                <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                                    General.Inactive
+                                </ng-container>
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+</ion-content>

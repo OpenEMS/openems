@@ -1,6 +1,6 @@
-import { Component, Input, OnDestroy } from '@angular/core';
-import { ChannelAddress, Edge, Service, Websocket, EdgeConfig, Utils } from '../../../../shared/shared';
+import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: 'production-modal',
@@ -8,20 +8,17 @@ import { ModalController } from '@ionic/angular';
 })
 export class ProductionModalComponent {
 
-    private static readonly SELECTOR = "production-modal";
 
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
-    @Input() edge: Edge;
-    @Input() config: EdgeConfig;
-    @Input() productionMeterComponents: EdgeConfig.Component[];
-    @Input() chargerComponents: EdgeConfig.Component[];
+    @Input() public edge: Edge;
+    @Input() public config: EdgeConfig;
+    @Input() public productionMeterComponents: EdgeConfig.Component[];
+    @Input() public chargerComponents: EdgeConfig.Component[];
 
     constructor(
         public service: Service,
         public modalCtrl: ModalController,
     ) { }
-
-    ngOnInit() { }
 }

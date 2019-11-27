@@ -1,16 +1,23 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Režim",
+        Automatic: "Automaticky",
         On: "zapnutý",
         Off: "Pryč",
+        State: "Stát",
+        Active: "aktivně",
+        Inactive: "Neaktivní",
+        Manually: "Ruční",
         Phase: "Fáze",
+        Phases: "Fáze",
         Autarchy: "Soběstačnost",
         SelfConsumption: "Vlastní spotřeba",
         Cumulative: "Kumulativní Hodnoty",
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
-        GridBudyAdvanced: "Bezug",
-        GridSellAdvanced: "Einspeisung",
+        GridBuyAdvanced: "Nákup",
+        GridSellAdvanced: "Prodej",
         OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
@@ -27,6 +34,7 @@ export const TRANSLATION = {
         More: "Další",
         ChargePower: "Nabíjecí výkon",
         DischargePower: "Vybíjecí výkon",
+        ChargeDischarge: "Debetní/vybíjení",
         ActualPower: "E-Car Nabíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
@@ -82,6 +90,8 @@ export const TRANSLATION = {
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
                 selfconsumptionInfo: "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Nízký práh",
                     HighThreshold: "vysoký práh"
@@ -101,6 +111,7 @@ export const TRANSLATION = {
                     Error: "Chyba",
                     NotAuthorized: "Neautorizovaný",
                     Unplugged: "Odpojena",
+                    ChargeLimitReached: "Bylo dosaženo limitu nabíjení",
                     ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
                     ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
                     ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",
@@ -119,6 +130,8 @@ export const TRANSLATION = {
                     ChargeMode: "režim načítání",
                     ActivateCharging: "Aktivujte nabíjecí stanici",
                     ClusterConfigError: "V konfiguraci clusteru Evcs došlo k chybě",
+                    EnergyLimit: "Limit energie",
+                    MaxEnergyRestriction: "Omezte maximální energii na jedno nabití",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
@@ -126,10 +139,11 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimalizované zatížení",
-                        ShortName: "optimalizované",
+                        ShortName: "automaticky",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
                         MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
                         MinCharging: "Garance minimálního poplatku",
+                        MinChargePower: "nakládací sazba",
                         ChargingPriority: {
                             Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
                             Car: "Car",
@@ -138,7 +152,7 @@ export const TRANSLATION = {
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
-                        ShortName: "vynucený",
+                        ShortName: "Ruční",
                         Info: "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
                         MaxCharging: "Maximální síla náboje",
                         MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."
@@ -157,7 +171,13 @@ export const TRANSLATION = {
             LastMonth: "Poslední měsíc",
             LastYear: "Poslední rok",
             Go: "Jdi!",
-            Export: "stáhnout jako soubor programu Excel"
+            Export: "stáhnout jako soubor programu Excel",
+            Day: "Den",
+            Week: "Týden",
+            Month: "Měsíc",
+            Year: "Rok",
+            noData: "data nejsou k dispozici",
+            activeDuration: "aktivní trvání",
         },
         Config: {
             Index: {

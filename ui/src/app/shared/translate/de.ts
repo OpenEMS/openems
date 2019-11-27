@@ -1,8 +1,15 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Modus",
+        Automatic: "Automatisch",
+        State: "Zustand",
         On: "An",
         Off: "Aus",
+        Active: "Aktiv",
+        Inactive: "Inaktiv",
+        Manually: "Manuell",
         Phase: "Phase",
+        Phases: "Phasen",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigenverbrauch",
         Cumulative: "Kumulierte Werte",
@@ -27,9 +34,11 @@ export const TRANSLATION = {
         More: "Mehr...",
         ChargePower: "Beladung",
         DischargePower: "Entladung",
+        ChargeDischarge: "Be-/Entladung",
         ActualPower: "E-Auto Beladung",
-        PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
+        PeriodFromTo: "{{value1}} - {{value2}}", // value1 = start date, value2 = end date
         DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
+        DateFormatShort: "dd.MM",
         Search: "Suchen",
         Week: {
             Monday: "Montag",
@@ -39,6 +48,20 @@ export const TRANSLATION = {
             Friday: "Freitag",
             Saturday: "Samstag",
             Sunday: "Sonntag"
+        },
+        Month: {
+            January: "Januar",
+            February: "Februar",
+            March: "März",
+            April: "April",
+            May: "Mai",
+            June: "Juni",
+            July: "Juli",
+            August: "August",
+            September: "September",
+            October: "Oktober",
+            November: "November",
+            December: "Dezember"
         },
         ReportValue: "Fehlerhafte Daten melden",
         Capacity: "Kapazität"
@@ -84,6 +107,8 @@ export const TRANSLATION = {
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
                 selfconsumptionInfo: "Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",
                     HighThreshold: "Oberer Schwellenwert"
@@ -103,13 +128,14 @@ export const TRANSLATION = {
                     Error: "Fehler",
                     NotAuthorized: "Nicht authorisiert",
                     Unplugged: "Ausgesteckt",
+                    ChargeLimitReached: "Ladelimit erreicht",
                     ChargingStationPluggedIn: "Ladestation eingesteckt",
                     ChargingStationPluggedInLocked: "Ladestation eingesteckt + gesperrt",
                     ChargingStationPluggedInEV: "Ladestation + E-Auto eingesteckt",
                     ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
                     ChargingLimit: "Lade-Begrenzung",
                     AmountOfChargingStations: "Anzahl der Ladestationen",
-                    ChargingPower: "E-Auto Ladeleistung",
+                    ChargingPower: "Ladeleistung",
                     TotalChargingPower: "Gesamte Lade-Leistung",
                     CurrentCharge: "Aktuelle Beladung",
                     TotalCharge: "Gesamte Beladung",
@@ -117,10 +143,11 @@ export const TRANSLATION = {
                     Cable: "Kabel",
                     CableNotConnected: "Kabel ist nicht angeschlossen",
                     CarFull: "Auto ist voll",
-                    EnergieSinceBeginning: "Energie seit letztem Ladebeginn",
-                    ChargeMode: "Belademodus",
+                    EnergieSinceBeginning: "Energie seit Ladebeginn",
                     ActivateCharging: "Aktivieren der Ladesäule",
                     ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
+                    EnergyLimit: "Energielimit",
+                    MaxEnergyRestriction: "Maximale Energie pro Ladevorgang begrenzen",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
@@ -128,21 +155,22 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimierte Beladung",
-                        ShortName: "Optimiert",
+                        ShortName: "Automatisch",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
                         MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Aufladung garantieren",
+                        MinCharging: "Minimale Beladung garantieren",
+                        MinChargePower: "Minimale Ladestärke",
                         ChargingPriority: {
                             Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
-                            Car: "Auto",
+                            Car: "E-Auto",
                             Storage: "Speicher"
                         }
                     },
                     ForceChargeMode: {
                         Name: "Erzwungene Beladung",
-                        ShortName: "Erzwungen",
+                        ShortName: "Manuell",
                         Info: "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
-                        MaxCharging: "Maximale Ladestärke",
+                        MaxCharging: "Maximale Ladeleistung",
                         MaxChargingDetails: "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt."
                     }
                 }
@@ -159,7 +187,13 @@ export const TRANSLATION = {
             LastMonth: "Letzter Monat",
             LastYear: "Letztes Jahr",
             Go: "Los!",
-            Export: "Download als EXCEL-Datei"
+            Export: "Download als EXCEL-Datei",
+            Day: "Tag",
+            Week: "Woche",
+            Month: "Monat",
+            Year: "Jahr",
+            noData: "keine Daten verfügbar",
+            activeDuration: "Einschaltdauer",
         },
         Config: {
             Index: {

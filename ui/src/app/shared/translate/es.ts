@@ -1,16 +1,23 @@
 export const TRANSLATION = {
     General: {
-        On: "conmutada",
-        Off: "apagado",
+        Mode: "Modo",
+        Automatic: "Automático",
+        State: "Estado",
+        On: "Conmutada",
+        Off: "Apagado",
+        Active: "Activo",
+        Inactive: "Inactivo",
+        Manually: "a mano",
         Phase: "Fase",
+        Phases: "Fases",
         Autarchy: "Autosuficiencia",
         SelfConsumption: "Autoconsumo",
         Cumulative: "Valores Acumulativos",
         Grid: "Red",
         GridBuy: "Relación",
         GridSell: "Fuente de alimentación",
-        GridBudyAdvanced: "Bezug",
-        GridSellAdvanced: "Einspeisung",
+        GridBuyAdvanced: "Relación",
+        GridSellAdvanced: "Fuente de alimentación",
         OffGrid: "No hay conexión de red",
         Production: "Producción",
         Consumption: "Consumo",
@@ -27,6 +34,7 @@ export const TRANSLATION = {
         More: "Más...",
         ChargePower: "Carga",
         DischargePower: "Descarga",
+        ChargeDischarge: "Débito/Descarga",
         ActualPower: "e-car Carga",
         PeriodFromTo: "de {{value1}} para {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
@@ -83,6 +91,8 @@ export const TRANSLATION = {
                 phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
                 selfconsumptionInfo: "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Umbral bajo",
                     HighThreshold: "Umbral alto"
@@ -102,6 +112,7 @@ export const TRANSLATION = {
                     Error: "Error",
                     NotAuthorized: "No autorizado",
                     Unplugged: "No conectado",
+                    ChargeLimitReached: "Límite de carga alcanzado",
                     ChargingStationPluggedIn: "Estación de carga encufada",
                     ChargingStationPluggedInLocked: "Estación de carga enchufada + bloqueado",
                     ChargingStationPluggedInEV: "Estación de carga + e-Car enchufado",
@@ -120,6 +131,8 @@ export const TRANSLATION = {
                     ChargeMode: "Modo de carga",
                     ActivateCharging: "Activar la estación de carga.",
                     ClusterConfigError: "Se ha producido un error en la configuración del clúster Evcs.",
+                    EnergyLimit: "Límite de la energía",
+                    MaxEnergyRestriction: "Limite la energía máxima por carga",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
                         Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
@@ -127,15 +140,16 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Carga optimizada",
-                        ShortName: "Optimizado",
+                        ShortName: "automáticamente",
                         Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
                         MinInfo: "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
                         MinCharging: "Garantía de carga mínima",
+                        MinChargePower: "velocidad de carga",
                         ChargingPriority: "Dependiendo de la priorización, el componente seleccionado se cargará primero"
                     },
                     ForceChargeMode: {
                         Name: "Carga forzada",
-                        ShortName: "Forzado",
+                        ShortName: "a mano",
                         Info: "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
                         MaxCharging: "Fuerza de carga maxima:",
                         MaxChargingDetails: "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente."
@@ -154,7 +168,13 @@ export const TRANSLATION = {
             LastMonth: "El me pasado",
             LastYear: "El año pasado",
             Go: "Nwo!",
-            Export: "descargar como archivo de excel"
+            Export: "descargar como archivo de excel",
+            Day: "Día",
+            Week: "Semana",
+            Month: "Mes",
+            Year: "Año",
+            noData: "sin datos disponibles",
+            activeDuration: "duración activa",
         },
         Config: {
             Index: {

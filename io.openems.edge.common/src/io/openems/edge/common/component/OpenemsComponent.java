@@ -80,11 +80,28 @@ public interface OpenemsComponent {
 	}
 
 	/**
+	 * Returns the Service Factory-PID.
+	 * 
+	 * @return the OSGi Service Factory-PID
+	 */
+	default String serviceFactoryPid() {
+		ComponentContext context = this.getComponentContext();
+		if (context != null) {
+			Dictionary<String, Object> properties = context.getProperties();
+			Object servicePid = properties.get("service.factoryPid");
+			if (servicePid != null) {
+				return servicePid.toString();
+			}
+		}
+		return "";
+	}
+
+	/**
 	 * Returns the ComponentContext.
 	 * 
 	 * @return the OSGi ComponentContext
 	 */
-	public ComponentContext getComponentContext();	
+	public ComponentContext getComponentContext();
 
 	/**
 	 * Returns an undefined Channel defined by its ChannelId string representation.

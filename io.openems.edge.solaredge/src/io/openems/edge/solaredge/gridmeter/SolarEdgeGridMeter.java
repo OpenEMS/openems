@@ -29,7 +29,8 @@ import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+				"type=GRID" //
 		})
 public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {

@@ -2,10 +2,12 @@ site:
   title: Open Energy Management System
   url: https://openems.github.io/openems.io/
   start_page: openems::introduction.adoc
+  robots: allow
 
 content:
   sources:
     - url: ./../../
+      edit_url: https://github.com/OpenEMS/openems/tree/{refname}/{path}
       branches: HEAD
       start_path: doc
 

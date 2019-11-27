@@ -12,42 +12,32 @@ import 'hammerjs';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ChartsModule } from 'ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
-import { SocComponent } from '../edge/history/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
+import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
+import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PickDateComponent } from './pickdate/pickdate.component';
-/*
- * Components
- */
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
-/*
- * Pipes
- */
 import { KeysPipe } from './pipe/keys/keys.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
 import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
-/*
- * Services
- */
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
 import { Language } from './translate/language';
-import { PercentageBarComponent } from './percentagebar/percentagebar.component';
-
 
 @NgModule({
   imports: [
     BrowserAnimationsModule,
+    ChartsModule,
     CommonModule,
     FormsModule,
     IonicModule,
+    MyDateRangePickerModule,
+    NgxLoadingModule,
     ReactiveFormsModule,
     RouterModule,
-    ChartsModule,
-    NgxLoadingModule,
-    MyDateRangePickerModule,
     ToasterModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
@@ -55,51 +45,52 @@ import { PercentageBarComponent } from './percentagebar/percentagebar.component'
   ],
   declarations: [
     // pipes
-    KeysPipe,
     ClassnamePipe,
-    SignPipe,
-    IsclassPipe,
     HasclassPipe,
+    IsclassPipe,
+    KeysPipe,
+    SignPipe,
     UnitvaluePipe,
     // components
-    SocComponent,
+    ChartOptionsComponent,
+    PercentageBarComponent,
     PickDateComponent,
-    PercentageBarComponent
   ],
   exports: [
     // pipes
+    ClassnamePipe,
+    HasclassPipe,
+    IsclassPipe,
     KeysPipe,
     SignPipe,
-    ClassnamePipe,
-    IsclassPipe,
-    HasclassPipe,
     UnitvaluePipe,
     // modules
     BrowserAnimationsModule,
     ChartsModule,
     CommonModule,
+    FormlyIonicModule,
+    FormlyModule,
     FormsModule,
     IonicModule,
-    RouterModule,
-    ReactiveFormsModule,
-    TranslateModule,
     MyDateRangePickerModule,
-    ToasterModule,
-    FormlyModule,
-    FormlyIonicModule,
     NgxLoadingModule,
+    ReactiveFormsModule,
+    RouterModule,
+    ToasterModule,
+    TranslateModule,
     // components
-    SocComponent,
+    ChartOptionsComponent,
+    PercentageBarComponent,
     PickDateComponent,
-    PercentageBarComponent
   ],
   providers: [
-    Utils,
+    DecimalPipe,
     Service,
-    Websocket,
     ToasterService,
+    UnitvaluePipe,
+    Utils,
+    Websocket,
     appRoutingProviders,
-    DecimalPipe
   ]
 })
 export class SharedModule {

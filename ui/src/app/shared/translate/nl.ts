@@ -1,16 +1,23 @@
 export const TRANSLATION = {
     General: {
+        Mode: "Mode",
+        Automatic: "Automatisch",
+        State: "Staat",
         On: "Naar",
         Off: "Van",
+        Active: "Actief",
+        Inactive: "Inactief",
+        Manually: "handmatig",
         Phase: "Fase",
+        Phases: "Fases",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigen consumptie",
         Cumulative: "Cumulatieve Waarden",
         Grid: "Net",
         GridBuy: "Netafname",
         GridSell: "Netteruglevering",
-        GridBudyAdvanced: "Bezug",
-        GridSellAdvanced: "Einspeisung",
+        GridBuyAdvanced: "Netafname",
+        GridSellAdvanced: "Netteruglevering",
         OffGrid: "Geen Netaansluiting!",
         Production: "Opwekking",
         Consumption: "Verbruik",
@@ -27,6 +34,7 @@ export const TRANSLATION = {
         More: "Meer…",
         ChargePower: "Laad vermogen",
         DischargePower: "Ontlaad vermogen",
+        ChargeDischarge: "Debet/ontlaad",
         ActualPower: "e-car Laad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
@@ -80,6 +88,8 @@ export const TRANSLATION = {
                 phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
                 selfconsumptionInfo: "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",
                     HighThreshold: "hoge drempel"
@@ -99,6 +109,7 @@ export const TRANSLATION = {
                     Error: "Fout",
                     NotAuthorized: "Geen bevoegdheid",
                     Unplugged: "Unplugged",
+                    ChargeLimitReached: "Oplaadlimiet bereikt",
                     CharingStationPluggedIn: "Laadstation aangesloten",
                     ChargingStationPluggedInLocked: "Laadstation aangesloten + op slot",
                     ChargingStationPluggedInEV: "Laadstation + E-Auto aangesloten",
@@ -117,6 +128,8 @@ export const TRANSLATION = {
                     ChargeMode: "laadmodus",
                     ActivateCharging: "Activeer het laadstation",
                     ClusterConfigError: "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
+                    EnergyLimit: "Energielimiet",
+                    MaxEnergyRestriction: "Beperk de maximale energie per lading",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
                         Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
@@ -124,15 +137,16 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Geoptimaliseerd laden",
-                        ShortName: "geoptimaliseerde",
+                        ShortName: "Automatisch",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
                         MinInfo: "Als u wilt voorkomen dat de auto 's nachts niet oplaadt, kunt u een minimale lading instellen.",
                         MinCharging: "Minimale vergoeding betalen",
+                        MinChargePower: "Loading rate",
                         ChargingPriority: "Afhankelijk van de prioriteit, wordt het geselecteerde onderdeel eerst geladen"
                     },
                     ForceChargeMode: {
                         Name: "Gedwongen laden",
-                        ShortName: "Gedwongen",
+                        ShortName: "handmatig",
                         Info: "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
                         MaxCharging: "Maximale laadstroom",
                         MaxChargingDetails: "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt."
@@ -151,7 +165,13 @@ export const TRANSLATION = {
             LastMonth: "Vorige maand",
             LastYear: "Vorig jaar",
             Go: "Ga!",
-            Export: "download als Excel-bestand"
+            Export: "download als Excel-bestand",
+            Day: "Dag",
+            Week: "Woche",
+            Month: "Maand",
+            Year: "Jaar",
+            noData: "geen gegevens beschikbaar",
+            activeDuration: "actieve duur",
         },
         Config: {
             Index: {

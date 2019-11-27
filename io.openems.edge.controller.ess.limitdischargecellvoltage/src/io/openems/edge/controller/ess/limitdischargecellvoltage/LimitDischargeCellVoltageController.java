@@ -7,8 +7,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -28,8 +26,6 @@ import io.openems.edge.ess.api.SymmetricEss;
 public class LimitDischargeCellVoltageController extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(LimitDischargeCellVoltageController.class);
-
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -48,7 +44,7 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		checkConfiguration(config);
+		this.checkConfiguration(config);
 		this.config = config;
 		this.stateObject = createInitialStateObject(componentManager, config);
 	}
@@ -60,7 +56,6 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		log.info("run())");
 		this.stateObject.act();
 		this.stateObject = this.stateObject.getNextStateObject();
 		this.writeChannelValues();

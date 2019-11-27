@@ -1,0 +1,13 @@
+= M-Bus
+
+M-Bus is a widely used standard for fieldbus communication. It enables connection to M-Bus devices like meters.																										
+
+== Setup note
+
+This bridge depends on jMbus, a user guide for it can be found at https://www.openmuc.org/m-bus/user-guide/.
+
+Note: For jMbus to work you need to install the native part of RxTx which is a library for serial port
+communication jMbus is dependent on. See paragraph 2.5 for further information.
+
+For Linux users: In case the RxTx library cannot be found under /usr/lib/jni you can try to move all .so files of that directory to
+/usr/lib (see https://community.openems.io/t/loading-library-from-external-jar/134/3[OpenEMS Community]).

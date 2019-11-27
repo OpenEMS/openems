@@ -232,8 +232,10 @@ export class ModalComponentEvcsCluster implements OnInit {
      * @param plug 
      */
     getState(power: Number, state: number, plug: number, currentController: EdgeConfig.Component) {
-        if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
-            return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+        if (currentController != null) {
+            if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
+                return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+            }
         }
 
         if (power == null || power == 0) {
@@ -242,7 +244,9 @@ export class ModalComponentEvcsCluster implements OnInit {
             this.chargePlug = plug;
 
             if (this.chargePlug == null) {
-                return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                if (this.chargeState == null) {
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                }
             } else if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
                 return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
             }
@@ -254,11 +258,15 @@ export class ModalComponentEvcsCluster implements OnInit {
                 case ChargeState.ERROR:
                     return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
                 case ChargeState.READY_FOR_CHARGING:
-                    return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.ReadyForCharging');
                 case ChargeState.NOT_READY_FOR_CHARGING:
                     return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
                 case ChargeState.AUTHORIZATION_REJECTED:
                     return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                case ChargeState.ENERGY_LIMIT_REACHED:
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
+                case ChargeState.CHARGING_FINISHED:
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
             }
         }
         return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
@@ -314,7 +322,9 @@ enum ChargeState {
     READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
     CHARGING,                 //Charging
     ERROR,                    //Error
-    AUTHORIZATION_REJECTED    //Authorization rejected
+    AUTHORIZATION_REJECTED,   //Authorization rejected
+    ENERGY_LIMIT_REACHED,     //Charge limit reached
+    CHARGING_FINISHED         //Charging has finished  
 }
 
 enum ChargePlug {

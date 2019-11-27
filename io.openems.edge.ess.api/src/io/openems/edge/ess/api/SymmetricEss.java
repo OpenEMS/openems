@@ -116,7 +116,6 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
-		
 		/**
 		 * Min Cell Voltage.
 		 * 
@@ -126,11 +125,12 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Unit: mV
 		 * <li>Range: > 0
 		 * </ul>
+		 * 
+		 * @since 2019.12.0
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
 		),
-		
 		;
 
 		private final Doc doc;
