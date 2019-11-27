@@ -129,24 +129,26 @@ public class SingleRack {
 	}
 
 	public int getSoC() {
-		@SuppressWarnings("unchecked")
-		Optional<Integer> socOpt = (Optional<Integer>) this.channelMap.get(KEY_SOC).value().asOptional();
-		int soc = 0;
-		if (socOpt.isPresent()) {
-			soc = socOpt.get();
-		}
-		return soc;
+		return getIntFromChannel(KEY_SOC, 0);
 	}
 
 	public int getMinimalCellVoltage() {
+		return getIntFromChannel(KEY_MIN_CELL_VOLTAGE, -1);
+	}
+	
+	public int getMaximalCellVoltage() {
+		return getIntFromChannel(KEY_MAX_CELL_VOLTAGE, -1);		
+	}
+	
+	private int getIntFromChannel(String key, int defaultValue) {
 		@SuppressWarnings("unchecked")
-		Optional<Integer> minCellOpt = (Optional<Integer>) this.channelMap.get(KEY_MIN_CELL_VOLTAGE).value()
+		Optional<Integer> opt = (Optional<Integer>) this.channelMap.get(key).value()
 				.asOptional();
-		int minCellVoltage = -1;
-		if (minCellOpt.isPresent()) {
-			minCellVoltage = minCellOpt.get();
+		int value = defaultValue;
+		if (opt.isPresent()) {
+			value = opt.get();
 		}
-		return minCellVoltage;
+		return value;
 	}
 
 	private Map<String, Channel<?>> createChannelMap() {
@@ -411,7 +413,10 @@ public class SingleRack {
 						}), //
 				parent.map(channelIds.get(KEY_SOH), getUWE(0x104)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE_ID), getUWE(0x105)), //
-				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE), getUWE(0x106)), //
+				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE), getUWE(0x106)). //
+				onUpdateCallback(val -> {
+					parent.recalculateMaxCellVoltage();
+				}), //
 				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE_ID), getUWE(0x107)), //
 				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE), getUWE(0x108)). //
 						onUpdateCallback(val -> {
