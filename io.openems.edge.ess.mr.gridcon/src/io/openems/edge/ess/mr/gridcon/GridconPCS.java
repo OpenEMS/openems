@@ -159,7 +159,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				// prepare calculated Channels
 				this.calculateGridMode();
 				this.calculateBatteryData();
-				this.calculateSoc();
+				this.calculateSoc();				
 
 				// start state-machine handling
 				this.stateMachine.run();
@@ -228,16 +228,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		int allowedCharge = 0;
 		int allowedDischarge = 0;
 		int capacity = 0;
+		int minCellVoltage = Integer.MAX_VALUE;
 		for (Battery battery : this.getBatteries()) {
 			allowedCharge += battery.getVoltage().value().orElse(0) * battery.getChargeMaxCurrent().value().orElse(0)
 					* -1;
 			allowedDischarge += battery.getVoltage().value().orElse(0)
 					* battery.getDischargeMaxCurrent().value().orElse(0);
 			capacity += battery.getCapacity().value().orElse(0);
+			int minCellBattery = battery.getMinCellVoltage().value().orElse(Integer.MAX_VALUE);
+			minCellVoltage = Math.min(minCellVoltage, minCellBattery);
 		}
+		
 		this.getAllowedCharge().setNextValue(allowedCharge);
 		this.getAllowedDischarge().setNextValue(allowedDischarge);
-		this.getCapacity().setNextValue(capacity);
+		this.getCapacity().setNextValue(capacity);		
+		this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
 	}
 
 	/**
