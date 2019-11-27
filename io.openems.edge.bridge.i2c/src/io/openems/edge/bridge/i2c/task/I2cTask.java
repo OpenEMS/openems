@@ -10,9 +10,9 @@ public interface I2cTask {
     void setFloatPowerLevel(float powerLevel) throws OpenemsError.OpenemsNamedException;
 
     int getPinPosition();
-
     //   int getOffset();
     //   int getPulseDuration();
+
     boolean isInverse();
 
     int calculateDigit(int digitRange);

@@ -28,13 +28,6 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     I2cBridge refI2cBridge;
 
-    @Reference
-    ComponentManager cpm;
-
-    //private String pwmModule;
-    //private String i2cBridge;
-    //private float initialValue;
-
     public PwmDevice() {
         super(OpenemsComponent.ChannelId.values(), PwmPowerLevelChannel.ChannelId.values());
     }
@@ -44,9 +37,6 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
     public void activate(ComponentContext context, Config config) {
 
         super.activate(context, config.id(), config.alias(), config.enabled());
-        //this.pwmModule = config.pwm_module();
-        //this.i2cBridge = config.i2c_id();
-        //this.initialValue = config.percentage_Initial();
 
         try {
 

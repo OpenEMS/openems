@@ -33,7 +33,6 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisB
     private String versionNumber;
     private I2CBus bus;
     private String address;
-    private String i2cBridge;
     private Mcp mcp;
 
 
@@ -42,7 +41,7 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisB
     }
 
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-    public I2cBridge refI2cBridge;
+    I2cBridge refI2cBridge;
 
     @Activate
     public void activate(ComponentContext context, Config config) {
@@ -51,10 +50,10 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisB
         this.alias = config.alias();
         this.versionNumber = config.version();
         this.address = config.address();
-        this.i2cBridge = config.bridge();
         allocateBus(config.bus());
 
         try {
+            //more to come with further versions
             switch (config.version()) {
                 case "1":
                     this.mcp = new Mcp23008(address, this.bus, this.id);
@@ -69,13 +68,11 @@ public class RelaisBoardImpl extends AbstractOpenemsComponent implements RelaisB
     @Deactivate
     public void deactivate() {
         super.deactivate();
-        if (mcp instanceof Mcp23008) {
-            for (Map.Entry<Integer, Boolean> entry : ((Mcp23008) mcp).getValuesPerDefault().entrySet()) {
+            for (Map.Entry<Integer, Boolean> entry : mcp.getValuesPerDefault().entrySet()) {
                 mcp.setPosition(entry.getKey(), entry.getValue());
             }
-            ((Mcp23008) mcp).shift();
+            mcp.shift();
             this.refI2cBridge.removeMcp(this.mcp);
-        }
     }
 
     private void allocateBus(int config) {

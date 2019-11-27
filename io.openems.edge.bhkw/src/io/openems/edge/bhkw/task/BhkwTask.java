@@ -39,11 +39,11 @@ public class BhkwTask extends McpTask {
         //digit
         int digitValue = -69;
         if (powerLevel.value().isDefined()) {
-            String power = powerLevel.value().get().toString().replaceAll("[a-zA-Z _%]", "");
+            float power = powerLevel.value().get();
 
             float singleDigitValue = this.scaling / ((maxValue) * DIGIT_SCALING);
 
-            float actualAmpere = (Float.parseFloat(power) - this.percentageRange) / ((100.f - percentageRange) / (maxValue - minValue));
+            float actualAmpere = (power - this.percentageRange) / ((100.f - percentageRange) / (maxValue - minValue));
             digitValue = (int) ((actualAmpere + minValue) * DIGIT_SCALING * singleDigitValue);
         }
 

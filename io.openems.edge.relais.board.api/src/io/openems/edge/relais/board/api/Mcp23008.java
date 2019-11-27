@@ -17,7 +17,6 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
     private final I2CDevice device;
     private Map<Integer, Boolean> valuesPerDefault = new ConcurrentHashMap<>();
     private final boolean[] shifters;
-    private boolean[] wasOpenerAndActivated = new boolean[this.length];
     private final Map<String, McpTask> tasks = new ConcurrentHashMap<>();
 
     public Mcp23008(String address, I2CBus device, String parentCircuitBoard) throws IOException {
@@ -27,7 +26,6 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
 
         for (int i = 0; i < length; i++) {
             this.shifters[i] = false;
-            this.wasOpenerAndActivated[i] = false;
         }
         switch (address) {
             case "0x22":
@@ -60,6 +58,7 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
         }
     }
 
+    @Override
     public void shift() {
         for (McpTask task : tasks.values()) {
 			task.getWriteChannel().getNextWriteValueAndReset()
@@ -85,6 +84,7 @@ public class Mcp23008 extends Mcp implements McpChannelRegister {
         this.valuesPerDefault.put(position, activate);
     }
 
+    @Override
     public Map<Integer, Boolean> getValuesPerDefault() {
         return valuesPerDefault;
     }

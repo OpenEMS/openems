@@ -6,17 +6,17 @@ import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(
         name = "Bhkw Vitobloc",
-        description = "Depending on VersionId you can activate up to X Devices per Gaspedal"
+        description = "Depending on VersionId you can activate up to X Devices per Bhkw Module."
 )
 
 @interface Config {
 
     String service_pid();
 
-    @AttributeDefinition(name = "Bhkw Name", description = "Name of the Bhkw")
+    @AttributeDefinition(name = "Bhkw Name", description = "Name of the Bhkw.")
     String id() default "Bhkw0";
 
-    @AttributeDefinition(name = "alias", description = "Human readable name of Bhkw")
+    @AttributeDefinition(name = "alias", description = "Human readable name of Bhkw.")
     String alias() default "";
 
     @AttributeDefinition(name = "Bhkw Type", description = "What Bhkw Type do you want to use.",
@@ -43,8 +43,8 @@ import org.osgi.service.metatype.annotations.Option;
             })
     String bhkwType() default "EM_140_207";
 
-    @AttributeDefinition(name = "GaspedalId", description = "Id of the Gaspedal you previously implemented")
-    String gaspedalId() default "Gaspedal0";
+    @AttributeDefinition(name = "BhkwModule", description = "Id of the Gaspedal you previously implemented.")
+    String bhkwModuleid() default "BhkWModule0";
 
     @AttributeDefinition(name = "min Limit of Bhkw", description = "Minimum of your Bhkw API mA.")
     short minLimit() default 0;

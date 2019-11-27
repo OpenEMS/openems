@@ -40,7 +40,6 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
     private int pinPosition;
     private String servicePid;
     private String alias;
-    //private final String sensorType = "Temperature";
     private Adc adcForTemperature;
     private final Logger log = LoggerFactory.getLogger(TemperatureSensorImpl.class);
 
@@ -72,7 +71,7 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
                     value.getPins().stream().filter(
                             allocate -> allocate.getPosition() == this.pinPosition
                     ).findFirst().ifPresent(pinValue -> {
-                        if (pinValue.setUsedBy(super.id())) {
+                        if (pinValue.setUsedBy(super.id()) || pinValue.getUsedBy().equals(super.id())) {
                             TemperatureDigitalReadTask task = new TemperatureDigitalReadTask(this.getTemperature(),
                                     adcForTemperature.getVersionId(), adcForTemperature, this.pinPosition, this.temperatureBoardId, super.id());
                             try {
@@ -97,21 +96,6 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
         }
     }
 
-
-    public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-        ;
-        private final Doc doc;
-
-        private ChannelId(Doc doc) {
-            this.doc = doc;
-        }
-
-        public Doc doc() {
-            return this.doc;
-        }
-    }
-
-
     @Deactivate
     public void deactivate() {
         super.deactivate();
@@ -127,17 +111,5 @@ public class TemperatureSensorImpl extends AbstractOpenemsComponent implements O
         } else {
             return "";
         }
-
     }
-
-    //    @Override
-    //    public String getTemperatureSensorId() {
-    //        return super.id();
-    //    }
-    //
-    //    @Override
-    //    public Channel<Integer> getTemperatureOfSensor() {
-    //        return this.getTemperature();
-    //    }
-
 }

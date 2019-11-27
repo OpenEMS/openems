@@ -1,11 +1,11 @@
 package io.openems.edge.bridge.i2c.task;
 
-public abstract class I2cTaskImpl implements I2cTask {
+public abstract class AbstractI2cTask implements I2cTask {
 
     private String pwmModuleId;
     private String deviceId;
 
-    public I2cTaskImpl(String pwmModuleId, String deviceId) {
+    public AbstractI2cTask(String pwmModuleId, String deviceId) {
         this.pwmModuleId = pwmModuleId;
         this.deviceId = deviceId;
     }

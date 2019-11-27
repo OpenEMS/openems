@@ -20,9 +20,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "Pwm Module Name", description = "Name of the allocated Pwm Module")
     String pwm_module() default "Pwm0";
 
-    @AttributeDefinition(name = "I2C Bridge - ID", description = "ID of I2C Bridge - ID.")
-    String i2c_id() default "I2C0";
-
     @AttributeDefinition(name = "Pin Position", description = "What Channel input you are using with this PWM Device (0-7)")
     short pinPosition() default 0;
 

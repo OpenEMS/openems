@@ -11,9 +11,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     String service_pid();
 
     @AttributeDefinition(name = "I2CBridge-ID", description = "ID of Shiftregister brige.")
-    String id() default "I2C0";
+    String id() default "I2C";
 
-    @AttributeDefinition(name = "Alias", description = "Human readable Name")
+    @AttributeDefinition(name = "Alias", description = "Human readable Name.")
     String alias() default "";
 
     boolean enabled() default true;

@@ -8,8 +8,8 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface PowerLevel extends OpenemsComponent {
-        /**.
-         * How much Percent
+        /**
+         * How much Percent of the Bhkw Power will be used.
          *
          * <ul>
          * <li>Interface: PowerLevel

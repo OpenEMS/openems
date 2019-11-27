@@ -121,11 +121,17 @@ public class Mcp4728 extends Mcp implements McpChannelRegister {
     }
 
     @Override
+    public void setPosition(int position, boolean activate) {
+    }
+
+
+    //not needed yet
+    @Override
     public void addToDefault(int position, boolean activate) {
-        return;
     }
 
     @Override
-    public void setPosition(int position, boolean activate) {
+    public Map<Integer, Boolean> getValuesPerDefault() {
+        return null;
     }
 }

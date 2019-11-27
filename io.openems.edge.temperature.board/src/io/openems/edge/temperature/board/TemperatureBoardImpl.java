@@ -31,7 +31,7 @@ import java.util.Set;
 public class TemperatureBoardImpl extends AbstractOpenemsComponent implements ConsolinnoBoards, OpenemsComponent, TemperatureBoard {
 
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-    public BridgeSpi spiInital;
+    BridgeSpi bridgeSpi;
 
     private String circuitBoardId;
     private String versionId;
@@ -68,6 +68,7 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
 
     private void createTemperatureBoard(String versionNumber, List<String> frequency, List<Integer> dipSwitch) {
         switch (versionNumber) {
+            //more to come with further impl
             case "1":
                 this.maxCapacity = TemperatureBoardVersions.TEMPERATURE_BOARD_V_1.getMaxSize();
                 short counter = 0;
@@ -82,7 +83,7 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
     private void createAdc(Adc mcpWantToCreate, String frequency, int dipSwitch) {
         mcpWantToCreate.initialize(dipSwitch, Integer.parseInt(frequency), this.circuitBoardId, this.versionId);
         this.adcList.add(mcpWantToCreate);
-        spiInital.addAdc(mcpWantToCreate);
+        bridgeSpi.addAdc(mcpWantToCreate);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class TemperatureBoardImpl extends AbstractOpenemsComponent implements Co
     public void deactivate() {
         super.deactivate();
         this.adcList.forEach(adc -> {
-            spiInital.removeAdc(adc);
+            bridgeSpi.removeAdc(adc);
         });
     }
 

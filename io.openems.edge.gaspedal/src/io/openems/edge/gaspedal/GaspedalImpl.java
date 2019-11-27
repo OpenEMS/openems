@@ -29,13 +29,12 @@ import java.io.IOException;
 public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsComponent, Gaspedal {
 
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-    public I2cBridge refI2cBridge;
+    I2cBridge refI2cBridge;
 
     private Mcp allocatedMcp;
     private I2CBus bus;
     private String address;
     private String id;
-    private String i2cBridge;
 
     public GaspedalImpl() {
         super(OpenemsComponent.ChannelId.values());
@@ -110,13 +109,11 @@ public class GaspedalImpl extends AbstractOpenemsComponent implements OpenemsCom
 
     }
 
-    private String name;
 
     @Activate
     public void activate(ComponentContext context, Config config) {
         super.activate(context, config.id(), config.alias(), config.enabled());
         this.id = config.id();
-        this.i2cBridge = config.bridge();
         this.address = config.address();
         allocateBus(config.bus());
 

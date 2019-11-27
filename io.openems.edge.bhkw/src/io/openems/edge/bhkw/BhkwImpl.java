@@ -96,8 +96,8 @@ public class BhkwImpl extends AbstractOpenemsComponent implements OpenemsCompone
 
         }
 
-        if (cpm.getComponent(config.gaspedalId()) instanceof Gaspedal) {
-            Gaspedal gaspedal = cpm.getComponent(config.gaspedalId());
+        if (cpm.getComponent(config.bhkwModuleid()) instanceof Gaspedal) {
+            Gaspedal gaspedal = cpm.getComponent(config.bhkwModuleid());
             mcp = gaspedal.getMcp();
             mcp.addTask(super.id(), new BhkwTask(super.id(),
                     config.position(), config.minLimit(), config.maxLimit(),

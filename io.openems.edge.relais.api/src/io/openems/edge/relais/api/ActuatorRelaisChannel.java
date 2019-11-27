@@ -34,18 +34,14 @@ public interface ActuatorRelaisChannel extends OpenemsComponent {
         }
 
     }
-
+    /**
+     * Gets the On or Off Value as Boolean.
+     *
+     * @return the Channel
+     */
     default BooleanWriteChannel getRelaisChannel() {
         return this.channel(ChannelId.ON_OFF);
     }
 
-    /**
-     * Is active or not.
-     *
-     * @return
-     */
-    //  default Boolean isActive() {
-    //    return (Boolean) this.channel(ChannelId.ON_OFF).value().get();
-    //}
 
 }

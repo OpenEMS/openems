@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Optional;
 
+import io.openems.edge.relais.board.api.McpChannelRegister;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -55,13 +56,11 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
         super.deactivate();
         this.worker.deactivate();
         //Relais will be default (depending on opener and closer) and Bhkw will be 0
-        for (Mcp mcp : mcpList) {
-            mcp.deactivate();
-        }
+        mcpList.forEach(McpChannelRegister::deactivate);
+
         // should always be empty already but to make sure..
-        for (String key : this.gpioMap.keySet()) {
-            removeGpioDevice(key);
-        }
+        this.gpioMap.keySet().forEach(this::removeGpioDevice);
+
     }
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -97,14 +96,7 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     @Override
     public void removeMcp(Mcp toRemove) {
-        Iterator<Mcp> iter = this.mcpList.iterator();
-        while (iter.hasNext()) {
-            Mcp willBeRemoved = iter.next();
-            if (willBeRemoved.getParentCircuitBoard().equals(toRemove.getParentCircuitBoard())) {
-                iter.remove();
-                break;
-            }
-        }
+        this.mcpList.removeIf(value -> value.getParentCircuitBoard().equals(toRemove.getParentCircuitBoard()));
     }
 
     @Override
@@ -114,12 +106,14 @@ public class I2cBridgeImpl extends AbstractOpenemsComponent implements OpenemsCo
 
     @Override
     public void removeGpioDevice(String id) {
-
-        for (I2cTask task : tasks.values()) {
-            if (task.getPwmModuleId().equals(id)) {
-                removeI2cTask(task.getDeviceId());
-            }
-        }
+        this.tasks.values().stream().filter(task -> (task.getPwmModuleId().equals(id))).forEach(value -> {
+            removeI2cTask(value.getDeviceId());
+        });
+        //        for (I2cTask task : tasks.values()) {
+        //            if (task.getPwmModuleId().equals(id)) {
+        //                removeI2cTask(task.getDeviceId());
+        //            }
+        //        }
         this.gpioMap.remove(id);
     }
 

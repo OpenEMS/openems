@@ -18,8 +18,8 @@ public class TemperatureDigitalReadTask extends AbstractSpiTask implements SpiTa
     private int lastValue = -666;
     private long lastTimestamp = 0;
     //10 °C
-    private int temperatureChange = 100;
-    private int timestamp = 3000;
+    private int temperatureChange = 1000;
+    private int timestamp = 300;
     private String version;
 
     private long pinValue;
@@ -35,6 +35,7 @@ public class TemperatureDigitalReadTask extends AbstractSpiTask implements SpiTa
 
     private void allocateRegressionValues(String version) {
         switch (version) {
+            //more to come with further versions
             case "1":
                 this.regressionValueA = TemperatureBoardVersions.TEMPERATURE_BOARD_V_1.getRegressionValueA();
                 this.regressionValueB = TemperatureBoardVersions.TEMPERATURE_BOARD_V_1.getRegressionValueB();

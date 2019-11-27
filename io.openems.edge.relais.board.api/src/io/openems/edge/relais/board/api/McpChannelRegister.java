@@ -1,12 +1,13 @@
 package io.openems.edge.relais.board.api;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.relais.board.api.task.McpTask;
+
+import java.util.Map;
 
 public interface McpChannelRegister {
     void setPosition(int position, boolean activate);
 
-    void shift() throws OpenemsError.OpenemsNamedException;
+    void shift();
 
     void addToDefault(int position, boolean activate);
 
@@ -17,4 +18,7 @@ public interface McpChannelRegister {
     String getParentCircuitBoard();
 
     void deactivate();
+
+    Map<Integer, Boolean> getValuesPerDefault();
+
 }

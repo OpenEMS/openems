@@ -19,11 +19,9 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "alias", description = "Human readable name of Board")
     String alias() default "";
 
-    @AttributeDefinition(name = "VersionNumber", description = "What Version of relaisBoard you are using.")
+    @AttributeDefinition(name = "VersionNumber", description = "What Version of relaisBoard you are using.",
+    options = @Option(label = "Version 1.0", value = "1"))
     String version() default "1";
-
-    @AttributeDefinition(name = "I2CBridge Id", description = "Id of previously activated I2C Bridge.")
-            String bridge() default "I2C0";
 
     @AttributeDefinition(name = "Address", description = "Address you want to use between 0x20/22/24/26")
             String address() default "0x20";

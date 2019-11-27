@@ -5,13 +5,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(
         name = "Bridge Spi",
-        description = "Initial Spi, opens Ch 0 and handles Events etc"
+        description = "Initial Spi, needed for Consolinno Temperature Board and Sensor."
 )
 @interface Config {
     String service_pid();
 
     @AttributeDefinition(name = "SpiInitial", description = "First thing you need to Config, no further SpiInitials needed. Continue with CircuitBoard.")
-    String id() default "spi0";
+    String id() default "Spi";
 
     @AttributeDefinition(name = "Alias", description = "Human readable name for this Component.")
     String alias() default "";

@@ -10,7 +10,6 @@ import io.openems.edge.relais.api.RelaisActuator;
 import io.openems.edge.relais.board.RelaisBoard;
 import io.openems.edge.relais.board.api.Mcp;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.Component;
@@ -29,10 +28,6 @@ import java.util.Optional;
 public class RelaisActuatorImpl extends AbstractOpenemsComponent implements ActuatorRelaisChannel, OpenemsComponent, RelaisActuator {
 
     private Mcp allocatedMcp;
-    //private int position;
-
-    @Reference
-    protected ConfigurationAdmin cm;
 
     @Reference
     protected ComponentManager cpm;
@@ -47,11 +42,9 @@ public class RelaisActuatorImpl extends AbstractOpenemsComponent implements Actu
     @Activate
     void activate(ComponentContext context, Config config) throws OpenemsError.OpenemsNamedException {
         super.activate(context, config.id(), config.alias(), config.enabled());
-        //if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "I2Cregister", config.spiI2c_id())) {
-        //return;
-        //}
+
         allocateRelaisValue(config.relaisType());
-        //        this.position = config.position();
+
         if (cpm.getComponent(config.relaisBoard_id()) instanceof RelaisBoard) {
             RelaisBoard relaisBoard = cpm.getComponent(config.relaisBoard_id());
             if (relaisBoard.getId().equals(config.relaisBoard_id())) {
