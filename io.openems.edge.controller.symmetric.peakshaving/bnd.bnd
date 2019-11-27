@@ -7,13 +7,16 @@ Private-Package: io.openems.edge.controller.symmetric.peakshaving
 
 -includeresource: {readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
-	slf4j.api
+	slf4j.api,\
+	com.google.gson,\
+	com.google.guava
 
 -testpath: ${testpath}
 
