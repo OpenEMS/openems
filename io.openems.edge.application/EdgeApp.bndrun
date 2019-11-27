@@ -103,6 +103,7 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j'
+	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink'
 
 -runbundles: \
 	com.fasterxml.jackson.core.jackson-annotations;version='[2.10.0,2.10.1)',\
@@ -182,6 +183,7 @@
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.pqplus.umd97;version=snapshot,\
+	io.openems.edge.meter.schneider.acti9.smartlink;version=snapshot
 	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
