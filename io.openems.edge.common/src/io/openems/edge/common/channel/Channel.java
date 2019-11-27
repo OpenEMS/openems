@@ -1,5 +1,6 @@
 package io.openems.edge.common.channel;
 
+import java.time.LocalDateTime;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -8,6 +9,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.CircularTreeMap;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -126,6 +128,13 @@ public interface Channel<T> {
 	 * Gets the currently active value, wrapped in a @{link Value}.
 	 */
 	Value<T> value();
+
+	/**
+	 * Gets the past values for this Channel.
+	 * 
+	 * @return a map of recording time and historic value at that time
+	 */
+	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues();
 
 	/**
 	 * Add an onUpdate callback. It is called, after the active value was updated by

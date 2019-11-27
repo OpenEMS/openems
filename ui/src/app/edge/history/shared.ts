@@ -5,7 +5,7 @@ export interface Dataset {
 }
 
 export const EMPTY_DATASET = [{
-    label: "",
+    label: "no Data available",
     data: [],
     hidden: false
 }];
@@ -64,6 +64,7 @@ export type ChartOptions = {
         xAxes: [{
             type: "time",
             time: {
+                minUnit: string,
                 displayFormats: {
                     millisecond: string,
                     second: string,
@@ -122,11 +123,12 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         xAxes: [{
             type: 'time',
             time: {
+                minUnit: 'hour',
                 displayFormats: {
                     millisecond: 'SSS [ms]',
                     second: 'HH:mm:ss a', // 17:20:01
                     minute: 'HH:mm', // 17:20
-                    hour: 'HH:mm', // 17:20
+                    hour: 'HH:[00]', // 17:20
                     day: 'll', // Sep 4 2015
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
                     month: 'MMM YYYY', // Sept 2015
