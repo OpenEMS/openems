@@ -1,7 +1,8 @@
 package io.openems.edge.controller.ess.limitdischargecellvoltage.helper;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
@@ -10,11 +11,12 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 
 public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetricEss {
 
 	public static int MAXIMUM_POWER = 10000;
+	
+	private int currentActivePower = 0;
 
 	protected DummyEss(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -29,6 +31,16 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 	public void setMinimalCellVoltageToUndefined() {
 		this.getMinCellVoltage().setNextValue(null);
 		this.getMinCellVoltage().nextProcessImage();
+	}
+	
+	
+	
+	public int getCurrentActivePower() {
+		return currentActivePower;
+	}
+	
+	public void setCurrentActivePower(int power) {
+		currentActivePower = power;
 	}
 
 	@Override
@@ -65,12 +77,26 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 			}
 
 			@Override
-			public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException {
-				return constraint;
+			public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException {				
+				return addConstraint(constraint);
 			}
 
 			@Override
 			public Constraint addConstraint(Constraint constraint) {
+				switch (constraint.getRelationship()) {
+				case EQUALS:
+					currentActivePower = constraint.getValue().get().intValue();
+					break;
+				case GREATER_OR_EQUALS:
+					currentActivePower = Math.max(currentActivePower, constraint.getValue().get().intValue());
+					break;
+				case LESS_OR_EQUALS:
+					currentActivePower = Math.min(currentActivePower, constraint.getValue().get().intValue());
+					break;
+				default:
+					break;
+				
+				}				
 				return constraint;
 			}
 		};

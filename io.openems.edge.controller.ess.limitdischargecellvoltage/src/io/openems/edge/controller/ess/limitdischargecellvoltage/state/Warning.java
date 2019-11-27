@@ -11,7 +11,9 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.Config;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.IState;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.State;
-import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 
 public class Warning implements IState {
 
@@ -36,7 +38,7 @@ public class Warning implements IState {
 
 		// According to the state machine the next states can be normal, charge or
 		// undefined
-		SymmetricEss ess = null;
+		ManagedSymmetricEss ess = null;
 		try {
 			ess = this.componentManager.getComponent(this.config.ess_id());
 		} catch (OpenemsNamedException e) {
@@ -74,13 +76,28 @@ public class Warning implements IState {
 			this.resetStartTime();
 			return new Charge(this.componentManager, this.config);
 		}
-
+		
 		return this;
 	}
 
 	@Override
 	public void act() {
-		log.info("act() --> nothing to do");
+		// Deny further discharging
+		ManagedSymmetricEss ess = null;
+		try {
+			ess = this.componentManager.getComponent(this.config.ess_id());
+		} catch (OpenemsNamedException e) {
+			this.log.error(e.getMessage());			
+			return;
+		}
+
+		Integer calculatedPower = 0;
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower("DischargeLimitCellVoltage.Warning", ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		try {
+			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+		} catch (OpenemsNamedException e) {
+			this.log.error(e.getMessage());
+		}
 	}
 
 	private void resetStartTime() {

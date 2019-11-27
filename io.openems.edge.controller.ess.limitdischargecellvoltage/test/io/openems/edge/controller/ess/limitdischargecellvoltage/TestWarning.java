@@ -134,10 +134,64 @@ public class TestWarning {
 	}
 
 	@Test
-	public final void testAct() {
-		// There is nothing to do
+	public final void testActEssIsDischarging() {
+		// Discharging should be denied, i.e. if ESS discharges it should be stopped
+		
+		DummyEss ess = null;
+		try {
+			ess = componentManager.getComponent(CreateTestConfig.ESS_ID);
+		} catch (Exception e) {
+			fail();
+		}
+		if (ess == null) {
+			fail("Ess was null");
+		}
+		
+		assertEquals(0, ess.getCurrentActivePower());
+		
+		// Simulate a discharging ess
+		ess.setCurrentActivePower(DummyEss.MAXIMUM_POWER);
+		
+		assertEquals(DummyEss.MAXIMUM_POWER, ess.getCurrentActivePower());
+		
 		try {
 			sut.act();
+			int activePower = ess.getCurrentActivePower();
+			if (activePower > 0) {
+				fail("Active power is > 0");
+			}
+		} catch (Exception e) {
+			fail();
+		}
+	}
+	
+	@Test
+	public final void testActEssIsCharging() {
+		// Charging should be still allowed, i.e. if ess is charging, there should be no change
+		DummyEss ess = null;
+		try {
+			ess = componentManager.getComponent(CreateTestConfig.ESS_ID);
+		} catch (Exception e) {
+			fail();
+		}
+		if (ess == null) {
+			fail("Ess was null");
+		}
+		
+		assertEquals(0, ess.getCurrentActivePower());
+		
+		// Simulate a charging ess
+		ess.setCurrentActivePower(-1 * DummyEss.MAXIMUM_POWER);
+		
+		assertEquals(-1 * DummyEss.MAXIMUM_POWER, ess.getCurrentActivePower());
+		
+		try {
+			sut.act();
+			int activePower = ess.getCurrentActivePower();
+			if (activePower > 0) {
+				fail("Active power is > 0");
+			}
+			assertEquals(-1 * DummyEss.MAXIMUM_POWER, ess.getCurrentActivePower());
 		} catch (Exception e) {
 			fail();
 		}
