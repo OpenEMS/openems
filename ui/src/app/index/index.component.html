@@ -6,10 +6,11 @@
       <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
         <ion-item color="primary" lines="full">
           <ion-icon slot="start" name="contact"></ion-icon>
-          <ion-label>Login</ion-label>
+          <ion-label>Login zum Online-Monitoring</ion-label>
         </ion-item>
 
-        <ion-card-content>
+        <!-- Regular Login -->
+        <!-- <ion-card-content>
           <form (ngSubmit)="doLogin(password.value)">
             <div class="ion-padding">
               <ion-item>
@@ -26,7 +27,30 @@
               </ion-button>
             </div>
           </form>
+        </ion-card-content> -->
+
+        <!-- Backend Login -->
+        <ion-card-content>
+          <form (ngSubmit)="doLogin(password.value)">
+            <div class="ion-padding">
+              <ion-item>
+                <ion-label position="floating">E-Mail/Benutzername</ion-label>
+                <ion-input #password required type="password" placeholder="Passwort" value="user"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">Passwort</ion-label>
+                <ion-input #password required type="password" placeholder="Passwort" value="user"></ion-input>
+              </ion-item>
+              <ion-button class="ion-float-right" type="submit">
+                <ion-icon slot="icon-only" name="log-in"></ion-icon>
+              </ion-button>
+              <ion-button class="ion-float-right">
+                <ion-label>Passwort zurücksetzen</ion-label>
+              </ion-button>
+            </div>
+          </form>
         </ion-card-content>
+
 
       </ion-card>
     </ion-col>
