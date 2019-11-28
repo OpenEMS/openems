@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.limitdischargecellvoltage.helper;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
@@ -98,6 +99,11 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 				
 				}				
 				return constraint;
+			}
+
+			@Override
+			public PidFilter buildPidFilter() {
+				return null;
 			}
 		};
 	}

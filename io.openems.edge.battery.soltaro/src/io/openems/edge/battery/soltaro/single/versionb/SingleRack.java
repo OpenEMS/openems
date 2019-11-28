@@ -61,7 +61,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Bms.Soltaro.SingleRack.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -622,7 +622,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			timeAfterAutoId = LocalDateTime.now();
 			nextConfiguringProcess = ConfiguringProcess.CHECK_TEMPERATURE_ID_AUTO_CONFIGURING;
 		} catch (OpenemsNamedException e) {
-			log.error("Setting temperature id auto set not successful"); // Set was not successful, it will be tried until it succeeded
+			log.error("Setting temperature id auto set not successful"); // Set was not successful, it will be tried
+																			// until it succeeded
 		}
 	}
 
@@ -652,7 +653,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			nextConfiguringProcess = ConfiguringProcess.CHECK_ID_AUTO_CONFIGURING;
 		} catch (OpenemsNamedException e) {
 			// Set was not successful, it will be tried until it succeeded
-			log.error("Setting slave numbers not successful"); 
+			log.error("Setting slave numbers not successful");
 		}
 	}
 
@@ -665,7 +666,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			nextConfiguringProcess = ConfiguringProcess.SET_ID_AUTO_CONFIGURING;
 		} catch (OpenemsNamedException e) {
 			// Set was not successful, it will be tried until it succeeded
-			log.error("Setting slave numbers not successful"); 
+			log.error("Setting slave numbers not successful");
 		}
 	}
 
@@ -1208,7 +1209,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 							new UnsignedWordElement(0x2061)) //
 			);
 
-			//	Warn parameter
+			// Warn parameter
 			Task writeWarnParameters = new FC16WriteRegistersTask(0x2080, //
 					m(SingleRackChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_ALARM, new UnsignedWordElement(0x2080)), //
 					m(SingleRackChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_RECOVER, new UnsignedWordElement(0x2081)), //
