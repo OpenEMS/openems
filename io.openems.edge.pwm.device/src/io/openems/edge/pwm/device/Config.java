@@ -26,9 +26,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "Is Inverse", description = "If the Device is powered at a low Flank set true")
     boolean isInverse() default false;
 
-    @AttributeDefinition(name = "Initial Value", description = "Percentage of the High Value of the Device")
-    float percentage_Initial() default 100;
-
     boolean enabled() default true;
 
     String webconsole_configurationFactory_nameHint() default "Pwm Device [{id}]";

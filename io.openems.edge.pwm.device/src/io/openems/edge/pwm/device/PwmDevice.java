@@ -40,8 +40,6 @@ public class PwmDevice extends AbstractOpenemsComponent implements OpenemsCompon
 
         try {
 
-            this.getPwmPowerLevelChannel().setNextValue(config.percentage_Initial());
-
             refI2cBridge.addI2cTask(super.id(), new PwmDeviceTaskImpl(super.id(), this.getPwmPowerLevelChannel(), config.pwm_module(), config.pinPosition(), config.isInverse()));
 
         } catch (OpenemsError.OpenemsNamedException e) {

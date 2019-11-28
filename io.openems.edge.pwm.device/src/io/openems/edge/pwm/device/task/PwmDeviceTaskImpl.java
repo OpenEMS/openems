@@ -13,6 +13,7 @@ public class PwmDeviceTaskImpl extends AbstractI2cTask {
     private int offset;
     private boolean isInverse;
     private static final float SCALING = 10.f;
+    int digitValue = -5;
 
 
     public PwmDeviceTaskImpl(String deviceId, WriteChannel<Float> powerLevel, String pwmModule, short pinPosition, boolean isInverse) {
@@ -45,16 +46,17 @@ public class PwmDeviceTaskImpl extends AbstractI2cTask {
 
     @Override
     public int calculateDigit(int digitRange) {
-        int digitValue = -5;
+
         float singleDigitValue = (float) (digitRange) / (100 * SCALING);
 
-        if (this.powerLevel.value().isDefined()) {
+        if (this.powerLevel.getNextWriteValue().isPresent()) {
 
-            float power = powerLevel.getNextValue().get();
+            float power = powerLevel.getNextWriteValue().get();
 
             if (isInverse) {
                 power = 100 - power;
             }
+            digitValue = (int) (power * singleDigitValue * SCALING);
             return (int) (power * singleDigitValue * SCALING);
         } else {
             return digitValue;

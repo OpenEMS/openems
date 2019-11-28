@@ -10,6 +10,7 @@ public class BhkwTask extends McpTask {
     private float maxValue;
     private float scaling;
     private static final int DIGIT_SCALING = 10;
+    int prevDigitValue = -69;
     private WriteChannel<Integer> powerLevel;
 
 
@@ -37,17 +38,16 @@ public class BhkwTask extends McpTask {
     @Override
     public int getDigitValue() {
         //digit
-        int digitValue = -69;
-        if (powerLevel.value().isDefined()) {
-            float power = powerLevel.value().get();
+        if (powerLevel.getNextWriteValue().isPresent()) {
+            float power = powerLevel.getNextWriteValue().get();
 
             float singleDigitValue = this.scaling / ((maxValue) * DIGIT_SCALING);
 
             float actualAmpere = (power - this.percentageRange) / ((100.f - percentageRange) / (maxValue - minValue));
-            digitValue = (int) ((actualAmpere + minValue) * DIGIT_SCALING * singleDigitValue);
+            prevDigitValue = (int) ((actualAmpere + minValue) * DIGIT_SCALING * singleDigitValue);
         }
 
-        return digitValue;
+        return prevDigitValue;
     }
 
     @Override
