@@ -30,6 +30,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
@@ -180,7 +181,8 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+				AsymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				SinglePhaseMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 }
