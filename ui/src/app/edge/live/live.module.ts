@@ -30,6 +30,7 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
+import { CorrentlyComponent } from './corrently/corrently.component';
 
 @NgModule({
   imports: [
@@ -52,6 +53,7 @@ import { OfflineComponent } from './offline/offline.component';
     FixDigitalOutputModalComponent,
   ],
   declarations: [
+    CorrentlyComponent,
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,

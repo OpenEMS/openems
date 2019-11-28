@@ -16,7 +16,7 @@ export class CurrentData {
       system: {
         totalPower: null,
         autarchy: null,
-        selfConsumption: null
+        selfConsumption: null,
       }, storage: {
         soc: null,
         activePowerL1: null,
