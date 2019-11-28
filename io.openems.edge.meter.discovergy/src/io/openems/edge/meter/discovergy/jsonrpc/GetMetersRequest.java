@@ -25,7 +25,7 @@ public class GetMetersRequest extends JsonrpcRequest {
 		return new GetMetersRequest(r.getId());
 	}
 
-	public final static String METHOD = "getMeters";
+	public static final String METHOD = "getMeters";
 
 	public GetMetersRequest() {
 		this(UUID.randomUUID());
