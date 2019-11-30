@@ -77,9 +77,9 @@ mockito-deps: org.objenesis; version=2.6.0,\
 
 # OpenEMS bnd.bnd defaults
 buildpath: \
-	osgi.annotation; version=6.0.1,\
-	osgi.core; version=6.0,\
-	osgi.cmpn; version=6.0
+	osgi.annotation; version=7.0.0,\
+	osgi.core; version=7.0.0,\
+	osgi.cmpn; version=7.0.0
 
 testpath: \
 	\${junit}
