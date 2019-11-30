@@ -36,10 +36,11 @@
 		name="Debug Bundles"
 -plugin.6.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		releaseUrl=http://repo.maven.apache.org/maven2/; \
+		releaseUrls=https://repo1.maven.org/maven2/; \
 		pom=${build}/pom.xml; \
-		readOnly=true; \
-		name="Maven Central"
+		name="Maven Central"; \
+		location=${build}/cache/enroute-pom.xml
+
 -plugin.7.Local: \
 	aQute.bnd.deployer.repository.LocalIndexedRepo; \
 		name = Local; \
@@ -57,6 +58,13 @@
 		name = Release; \
 		pretty = true; \
 		local = ${build}/release
+
+-plugin.9x.enroute.distro = \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		releaseUrls=https://repo1.maven.org/maven2/; \
+		revision=org.osgi:osgi.enroute.pom.distro:2.1.0; \
+		name=Distro; \
+		location=${build}/cache/enroute-distro.xml
 
 -releaserepo: Release
 -baselinerepo: Release
