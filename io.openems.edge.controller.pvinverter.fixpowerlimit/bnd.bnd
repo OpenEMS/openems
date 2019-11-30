@@ -11,7 +11,8 @@ Private-Package: io.openems.edge.controller.pvinverter.fixpowerlimit
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.meter.api;version=latest
+	io.openems.edge.meter.api;version=latest,\
+	slf4j.api
 
 -testpath: ${testpath}
 

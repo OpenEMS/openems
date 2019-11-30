@@ -10,7 +10,8 @@ Export-Package: io.openems.shared.influxdb
 	io.openems.common;version=latest,\
 	io.openems.wrapper.influxdb-java;version=latest,\
 	com.google.gson,\
-	com.google.guava
+	com.google.guava,\
+	slf4j.api
 
 -testpath: ${testpath}
 

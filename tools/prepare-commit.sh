@@ -42,8 +42,10 @@ for D in *; do
 					touch ${D}/test/.gitignore
 				fi
 
-				# restore .classpath file from develop branch
-				git checkout origin/develop ${D}/.classpath
+				# Set default .classpath file
+				if [ -f "${D}/.classpath" ]; then
+					git checkout origin/develop ${D}/.classpath
+				fi
 				;;
 		esac
 	fi

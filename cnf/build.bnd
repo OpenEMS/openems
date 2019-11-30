@@ -1,72 +1,88 @@
-buildpath: osgi.enroute.base.api;version=2.1
-testpath:\
-	osgi.enroute.junit.wrapper;version=4.12,\
-    osgi.enroute.hamcrest.wrapper;version=1.3
-
--plugin.9x.enroute.distro = \
+# Configure Repositories
+-plugin.1.R7.API: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		releaseUrls=https://repo1.maven.org/maven2/; \
-		revision=org.osgi:osgi.enroute.pom.distro:2.1.0; \
-		name=Distro; \
-		location=${build}/cache/enroute-distro.xml
-
--runblacklist.enroute:	\
-	osgi.identity;filter:='(osgi.identity=osgi.enroute.base.api)', \
-	osgi.identity;filter:='(osgi.identity=osgi.cmpn)', \
-	osgi.identity;filter:='(osgi.identity=osgi.core)', \
-	osgi.identity;filter:='(osgi.identity=biz.aQute.junit)', \
-	osgi.identity;filter:='(osgi.identity=biz.aQute.launcher)', \
-	osgi.identity;filter:='(osgi.identity=biz.aQute.remote.launcher)'
-
--runproperties.eqnx: 				\
-	org.apache.felix.http.jettyEnabled=true, \
-	org.apache.felix.http.whiteboardEnabled=true,\
-	osgi.console=, \
-	osgi.console.enable.builtin=false
-
--runpath.eqnx: 					osgi.enroute.equinox.log.adapter
--runrequires.eqnx: \
-	osgi.identity;filter:='(osgi.identity=org.apache.felix.log)'
-
--runsystempackages.eqnx:		javax.script
--runsystemcapabilities.dflt: 	${native_capability}
-
-debug-bundles: \
-	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
-	osgi.implementation;filter:='(osgi.implementation=osgi.metatype)',\
-	osgi.implementation;filter:='(osgi.implementation=osgi.log)',\
-	osgi.implementation;filter:='(osgi.implementation=osgi.event)',\
-	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
-	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)', \
-	osgi.identity;filter:='(osgi.identity=osgi.enroute.base.debug.provider)'
-	
-javac.source: 			1.8
-javac.target: 			1.8
--runee:					JavaSE-1.8
-
--dsannotations: 		*
--metatypeannotations:	*
--contract:				*
-
-test-cases: 			${classes;NAMED;*Test}
--resolve.effective:		resolve, active
--releaserepo:           Release
-
--plugin.4.Central: \
+		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
+		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		revision=org.osgi.enroute:osgi-api:7.0.0; \
+		readOnly=true; \
+		name="OSGi R7 API"
+-plugin.2.Enterprise.API: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		releaseUrls=https://repo1.maven.org/maven2/; \
+		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
+		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		revision=org.osgi.enroute:enterprise-api:7.0.0; \
+		readOnly=true; \
+		name="Enterprise Java APIs"
+-plugin.3.R7.Impl: \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
+		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		revision=org.osgi.enroute:impl-index:7.0.0; \
+		readOnly=true; \
+		name="OSGi R7 Reference Implementations"
+-plugin.4.Test: \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
+		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		revision=org.osgi.enroute:test-bundles:7.0.0; \
+		readOnly=true; \
+		name="Testing Bundles"
+-plugin.5.Debug: \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
+		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		revision=org.osgi.enroute:debug-bundles:7.0.0; \
+		readOnly=true; \
+		name="Debug Bundles"
+-plugin.6.Central: \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		releaseUrl=http://repo.maven.apache.org/maven2/; \
 		pom=${build}/pom.xml; \
-		name="Maven Central"; \
-		location=${build}/cache/enroute-pom.xml
+		readOnly=true; \
+		name="Maven Central"
+-plugin.7.Local: \
+	aQute.bnd.deployer.repository.LocalIndexedRepo; \
+		name = Local; \
+		pretty = true; \
+		local = ${build}/local
 
--plugin.6.Local: \
-        aQute.bnd.deployer.repository.LocalIndexedRepo; \
-            name                =       Local ; \
-            pretty              =       true ; \
-            local               =       ${build}/local
+-plugin.8.Templates: \
+	aQute.bnd.deployer.repository.LocalIndexedRepo; \
+		name = Templates; \
+		pretty = true; \
+		local = ${build}/templates
 
 -plugin.9.Release: \
-        aQute.bnd.deployer.repository.LocalIndexedRepo; \
-            name                =       Release ; \
-            pretty              =       true ; \
-            local               =       ${build}/release
+	aQute.bnd.deployer.repository.LocalIndexedRepo; \
+		name = Release; \
+		pretty = true; \
+		local = ${build}/release
+
+-releaserepo: Release
+-baselinerepo: Release
+
+# Always use contracts
+-contract: *
+
+# Set Git revision information in the manifests of built bundles
+Git-Descriptor:           ${system-allow-fail;git describe --dirty --always}
+Git-SHA:                  ${system-allow-fail;git rev-list -1 HEAD}
+
+# JUnit
+junit: org.apache.servicemix.bundles.junit; version=4.12
+mockito: org.mockito.mockito-core; version=2.13.0
+mockito-deps: org.objenesis; version=2.6.0,\
+  net.bytebuddy.byte-buddy; version=1.7.9,\
+  net.bytebuddy.byte-buddy-agent; version=1.7.9 
+
+# OpenEMS bnd.bnd defaults
+buildpath: \
+	osgi.annotation; version=6.0.1,\
+	osgi.core; version=6.0,\
+	osgi.cmpn; version=6.0
+
+testpath: \
+	\${junit}
+
+javac.source: 1.8
+javac.target: 1.8
