@@ -15,6 +15,7 @@ Private-Package: \
 -includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
+	io.openems.common;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
 	io.openems.edge.common;version=latest
