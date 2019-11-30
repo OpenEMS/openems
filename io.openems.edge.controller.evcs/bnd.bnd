@@ -15,7 +15,8 @@ Export-Package: io.openems.edge.controller.api
 	io.openems.edge.evcs.keba.kecontact;version=latest,\
 	com.google.guava,\
 	com.google.gson,\
-	io.openems.edge.ess.api
+	io.openems.edge.ess.api,\
+	slf4j.api
 
 -testpath: ${testpath}
 
