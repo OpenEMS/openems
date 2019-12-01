@@ -41,7 +41,8 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
+				"type=PRODUCTION" //
 		})
 public class PvInverterCluster extends AbstractOpenemsComponent
 		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
@@ -55,7 +56,7 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		EXECUTION_FAILED(Doc.of(Level.FAULT).text("Execution failed"));
-		;
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {

@@ -21,14 +21,14 @@ public class Fieldbus501DO2Ch extends FieldbusModule {
 		BooleanWriteChannel channel1;
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
-					.accessMode(AccessMode.WRITE_ONLY);
+					.accessMode(AccessMode.READ_WRITE);
 			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C1", doc);
 			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
 		}
 		BooleanWriteChannel channel2;
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
-					.accessMode(AccessMode.WRITE_ONLY);
+					.accessMode(AccessMode.READ_WRITE);
 			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C2", doc);
 			channel2 = (BooleanWriteChannel) parent.addChannel(channelId);
 		}

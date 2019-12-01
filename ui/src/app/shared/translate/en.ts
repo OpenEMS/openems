@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Inactive",
         Manually: "Manually",
         Phase: "Phase",
+        Phases: "Phases",
         Autarchy: "Autarchy",
         SelfConsumption: "Self Consumption",
         Cumulative: "Cumulative Values",
@@ -32,6 +33,7 @@ export const TRANSLATION = {
         More: "More...",
         ChargePower: "Charge power",
         DischargePower: "Discharge power",
+        ChargeDischarge: "Charge/Discharge power",
         ActualPower: "e-car Charge power",
         PeriodFromTo: "from {{value1}} to {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "yyyy-MM-dd", // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
@@ -89,6 +91,8 @@ export const TRANSLATION = {
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
                 selfconsumptionInfo: "Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Low Threshold",
                     HighThreshold: "High Threshold"
@@ -168,7 +172,13 @@ export const TRANSLATION = {
             LastMonth: "Last month",
             LastYear: "Last year",
             Go: "Go!",
-            Export: "download as excel file"
+            Export: "download as excel file",
+            Day: "Day",
+            Week: "Week",
+            Month: "Month",
+            year: "Year",
+            noData: "No data available",
+            activeDuration: "active duration",
         },
         Config: {
             Index: {

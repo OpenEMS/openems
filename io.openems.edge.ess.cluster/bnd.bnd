@@ -15,7 +15,8 @@ Private-Package: io.openems.edge.ess.cluster
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest
+	io.openems.edge.ess.api;version=latest,\
+	slf4j.api
 
 -testpath: ${testpath}
 

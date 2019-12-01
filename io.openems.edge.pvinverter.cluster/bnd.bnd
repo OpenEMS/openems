@@ -12,7 +12,8 @@ Private-Package: io.openems.edge.pvinverter.cluster
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.meter.api;version=latest
+	io.openems.edge.meter.api;version=latest,\
+	slf4j.api
 
 -testpath: ${testpath}
 

@@ -1,10 +1,10 @@
 <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
-            <ion-title *ngIf="evcsComponent.alias == evcsComponent.id" style="padding-left: 20px;" translate>
+            <ion-title *ngIf="evcsComponent.alias == evcsComponent.id" translate>
                 Edge.Index.Widgets.EVCS.ChargingStation
             </ion-title>
-            <ion-title *ngIf="evcsComponent.alias != evcsComponent.id" style="padding-left: 20px;">
+            <ion-title *ngIf="evcsComponent.alias != evcsComponent.id">
                 {{evcsComponent.alias}}
             </ion-title>
             <ion-buttons slot="end">
@@ -15,47 +15,47 @@
         </ion-toolbar>
     </ion-header>
     <ion-content>
-
         <ng-container *ngIf="currentData[componentId + '/State'] != 3">
+
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width:20%" translate>
+                            Edge.Index.Widgets.EVCS.Status
+                        </td>
+                        <td style="width:80%" class="align_right">
+                            {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"]) }}
+                        </td>
+                    </tr>
+                </table>
+                <table class="full_width">
+                    <tr>
+                        <td style="width:65%" translate>
+                            Edge.Index.Widgets.EVCS.ChargingPower
+                        </td>
+                        <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0;else empty">
+                            <td style="width:35%" class="align_right">
+                                {{ currentData[componentId + "/ChargePower"] | number:'1.0-0' }}&nbsp;W&nbsp;
+                            </td>
+                        </ng-container>
+                        <ng-template #empty>
+                            <td style="width:35%" class="align_right">
+                                -&nbsp;
+                            </td>
+                        </ng-template>
+                    </tr>
+                    <tr
+                        *ngIf="currentData[componentId + '/ChargePower'] > 0 || currentData[componentId + '/Status'] == 2">
+                        <td style="width:65%" translate>
+                            Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+                        <td style="width:35%" class="align_right">
+                            {{ currentData[componentId + "/EnergySession"] | number:'1.0-0' }}&nbsp;Wh
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
             <ng-container *ngIf="controller">
                 <!--Controllable Evcs-->
-                <ion-card-content class="underline">
-                    <table class="full_width">
-                        <tr>
-                            <td style="width:20%" translate>
-                                Edge.Index.Widgets.EVCS.Status
-                            </td>
-                            <td style="width:80%" class="align_right">
-                                {{ getState(currentData[componentId + "/Status"], currentData[componentId + "/Plug"]) }}
-                            </td>
-                        </tr>
-                    </table>
-                    <table class="full_width">
-                        <tr>
-                            <td style="width:65%" translate>
-                                Edge.Index.Widgets.EVCS.ChargingPower
-                            </td>
-                            <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0;else empty">
-                                <td style="width:35%" class="align_right">
-                                    {{ currentData[componentId + "/ChargePower"] | number:'1.0-0' }}&nbsp;W&nbsp;
-                                </td>
-                            </ng-container>
-                            <ng-template #empty>
-                                <td style="width:35%" class="align_right">
-                                    -&nbsp;
-                                </td>
-                            </ng-template>
-                        </tr>
-                        <tr
-                            *ngIf="currentData[componentId + '/ChargePower'] > 0 || currentData[componentId + '/Status'] == 2">
-                            <td style="width:65%" translate>
-                                Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
-                            <td style="width:35%" class="align_right">
-                                {{ currentData[componentId + "/EnergySession"] | number:'1.0-0' }}&nbsp;Wh
-                            </td>
-                        </tr>
-                    </table>
-                </ion-card-content>
                 <ion-card-content>
                     <table class="full_width">
                         <tr>
@@ -243,18 +243,6 @@
             </ng-container>
             <!--Uncontrollable Evcs-->
             <ng-container *ngIf="!controller">
-                <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
-                    <table class="full_width">
-                        <tr>
-                            <td style="width:50%" translate>
-                                Edge.Index.Widgets.EVCS.ChargingPower
-                            </td>
-                            <td style="width:50%" class="align_right">
-                                {{ getState(currentData[componentId + "/ChargePower"] | number:'1.0-0',currentData[componentId + "/Status"], currentData[componentId + "/Plug"]) }}
-                            </td>
-                        </tr>
-                    </table>
-                </ion-item>
                 <ion-item>
                     <ion-label translate>
                         Diese Ladesäule kann nicht gesteuert werden
@@ -262,6 +250,7 @@
                 </ion-item>
             </ng-container>
         </ng-container>
+
         <ion-item class="normalFontSize" style="padding-top: 20px" *ngIf="currentData[componentId + '/State'] == 3">
             <tr>
                 <td translate>

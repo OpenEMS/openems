@@ -9,15 +9,28 @@
 @import '~@ionic/angular/css/text-alignment.css';
 @import '~@ionic/angular/css/text-transformation.css';
 @import '~@ionic/angular/css/flex-utils.css';
+@import '~@ionic/angular/css/display.css';
+
+.active {
+    color: #2d8fab;
+}
 
 //252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content{
-    width: 252px;
+    width: 251px;
     position: center;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 ion-label {
     font-family: Arial, Helvetica, sans-serif;
+}
+
+// used in history for better chart visibility
+.wide-modal .modal-wrapper {
+    width: 101%;
+    height: 101%;
 }
 
 mat-card.single {
@@ -65,4 +78,11 @@ button.activated {
 .no-scroll {
     overflow-y: hidden;
     overflow-x: hidden;
+}
+
+/*
+ * Applies to ngx-formly sections
+ */
+formly-input-section {
+    flex: auto; // use all remaining space in a row
 }
