@@ -652,7 +652,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		int soc = 0;
 
 		for (SingleRack rack : this.racks.values()) {
-			this.logInfo(this.log, "Rack " + rack.getRackNumber() + " has a SoC of " + rack.getSoC() + " %!");
 			soc = soc + rack.getSoC();
 			i++;
 		}
@@ -661,9 +660,22 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			soc = soc / i;
 		}
 
-		// this.log.info("Calculated SoC: " + soc);
-
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
+	}
+
+	protected void recalculateMinCellVoltage() {
+
+		int minCellVoltage = Integer.MAX_VALUE;
+
+		for (SingleRack rack : this.racks.values()) {
+			int mcv = rack.getMinimalCellVoltage();			
+			if (mcv > 0) {
+				minCellVoltage = Math.min(minCellVoltage, mcv);
+			}
+
+		}
+
+		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
 	}
 
 	@Override
