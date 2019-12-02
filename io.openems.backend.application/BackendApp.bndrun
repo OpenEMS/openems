@@ -1,4 +1,4 @@
--runfw: org.eclipse.osgi
+-runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
 
 -runprovidedcapabilities: ${native_capability}
 
@@ -65,4 +65,4 @@
 	io.openems.wrapper.influxdb-java;version='[2.16.0,2.16.1)',\
 	io.openems.wrapper.opczip;version='[1.0.2,1.0.3)',\
 	io.openems.wrapper.websocket;version='[1.4.0,1.4.1)',\
-	org.mariadb.jdbc;version='[2.5.1,2.5.2)'
+	org.mariadb.jdbc;version='[1.1.7,1.1.8)'
