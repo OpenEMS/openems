@@ -298,11 +298,19 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			};
 			break;
 		case "integer":
-			handler = (builder, value) -> {
+			handler = (builder, jValue) -> {
+				String value = jValue.toString().replace("\"", "");
 				try {
-					builder.addField(field, Long.parseLong(value.toString().replace("\"", "")));
+					builder.addField(field, Long.parseLong(value));
 				} catch (NumberFormatException e1) {
-					this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to integer");
+					if (field.equalsIgnoreCase("false")) {
+						builder.addField(field, 0l);
+					} else if (field.equalsIgnoreCase("true")) {
+						builder.addField(field, 1l);
+					} else {
+						this.logInfo(this.log,
+								"Unable to convert field [" + field + "] value [" + value + "] to integer");
+					}
 				}
 			};
 			break;
