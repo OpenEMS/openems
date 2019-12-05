@@ -21,11 +21,9 @@ export class HeatingElementModalComponent implements OnInit {
     @Input() public outputChannelPhaseThree: ChannelAddress;
 
     private static readonly SELECTOR = "heatingelement-modal";
-    customPickerOptions: any;
-    selectOptions: any;
-    time: any = '17:00';
-    timeStandardValue: any = "17:00";
-    modimode: string = 'ZEIT';
+
+    public pickerOptions: any;
+    public endTime = new Date();
 
     constructor(
         protected service: Service,
@@ -34,35 +32,42 @@ export class HeatingElementModalComponent implements OnInit {
         protected translate: TranslateService,
         public modalCtrl: ModalController,
     ) {
-        this.customPickerOptions = {
-            buttons: [{
-                text: 'OK',
-                handler: (value: any): void => {
-                    if (this.edge != null) {
-                        let oldTime = this.controller.properties['endTime'];
-                        this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-                            { name: 'endTime', value: value['hour'].value.toString() + ':' + value['minute'].value.toString() }
-                        ]).then(() => {
-                            this.controller.properties['endTime'] = value['hour'].value.toString() + ':' + value['minute'].value.toString();
-                            this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
-                        }).catch(reason => {
-                            this.controller.properties['endTime'] = oldTime;
-                            this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
-                            console.warn(reason);
-                        });
-                    }
+        this.pickerOptions = {
+            buttons: [
+                {
+                    text: 'Cancel',
+                    role: 'cancel',
                 },
-            },
-            {
-                text: 'Abbrechen',
-                role: 'cancel', // has no effect
-                handler: (value: any): void => { },
-            }
+                {
+                    text: 'OK',
+                    handler: (value: any): void => {
+                        if (this.edge != null) {
+                            let endTime;
+                            if (value['minute'].value < 10) {
+                                endTime = value['hour'].value.toString() + ':' + "0" + value['minute'].value.toString()
+                            } else {
+                                endTime = value['hour'].value.toString() + ':' + value['minute'].value.toString()
+                            }
+                            let oldTime = this.controller.properties['endTime'];
+                            this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+                                { name: 'endTime', value: endTime }
+                            ]).then(() => {
+                                this.controller.properties['endTime'] = endTime;
+                                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                            }).catch(reason => {
+                                this.controller.properties['endTime'] = oldTime;
+                                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                                console.warn(reason);
+                            });
+                        }
+                    },
+                },
             ],
         }
     }
 
-    ngOnInit() { };
+    ngOnInit() {
+    };
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldMode = currentController.properties.mode;
@@ -94,6 +99,37 @@ export class HeatingElementModalComponent implements OnInit {
         }
     }
 
+    /**  
+     * Updates the Charge-Mode of the EVCS-Controller.
+     * 
+     * @param event 
+     */
+    updateProcedureMode(event: CustomEvent, currentController: EdgeConfig.Component) {
+        if (this.edge != null) {
+            let oldProcedureMode = this.controller.properties['priority'];
+            let newProcedureMode: string;
+
+            switch (event.detail.value) {
+                case 'TIME':
+                    newProcedureMode = 'TIME';
+                    break;
+                case 'KILO_WATT_HOUR':
+                    newProcedureMode = 'KILO_WATT_HOUR'
+                    break;
+            }
+            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+                { name: 'priority', value: newProcedureMode },
+            ]).then(() => {
+                currentController.properties.priority = newProcedureMode;
+                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+            }).catch(reason => {
+                currentController.properties.priority = oldProcedureMode;
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                console.warn(reason);
+            });
+        }
+    }
+
     updateEndTime(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldTime = currentController.properties['endTime'];
         let newTime = event.detail.value;
@@ -113,8 +149,10 @@ export class HeatingElementModalComponent implements OnInit {
     }
 
     showData() {
-        console.log(this.controller.properties['endTime'].slice(0, -3))
+        console.log(this.controller.properties['endTime'])
     }
+
+
 
     ngOnDestroy() { }
 }

@@ -89,17 +89,17 @@
             <ion-row class="ion-justify-content-center">
                 <ion-item lines="none">
                     Endzeit:
-                    <ion-datetime (ionChange)="updateEndTime($event, controller)"
-                        value="{{controller.properties['endTime']}}" [pickerOptions]="customPickerOptions"
-                        displayFormat="HH:mm">
-                    </ion-datetime>
                 </ion-item>
+                <ion-datetime value="{{controller.properties['endTime']}}" [pickerOptions]="pickerOptions"
+                    displayFormat="hh:mm">
+                </ion-datetime>
             </ion-row>
             <!-- for spacing -->
             <div style="padding-top: 10px;"></div>
             <ion-row class="ion-justify-content-center">
-                <ion-segment value={{modimode}} class="small">
-                    <ion-segment-button value="ZEIT">
+                <ion-segment (ionChange)="updateProcedureMode($event, controller)"
+                    value="{{controller.properties['priority']}}" class="small">
+                    <ion-segment-button value="TIME">
                         <ion-item lines="none">
                             <ion-icon style="width:40px" name="sunny">
                             </ion-icon>
@@ -108,7 +108,7 @@
                             </ion-label>
                         </ion-item>
                     </ion-segment-button>
-                    <ion-segment-button value="KWH">
+                    <ion-segment-button value="KILO_WATT_HOUR">
                         <ion-item lines="none">
                             <ion-img style="width:30px" src="assets/img/gridStorage.png">
                             </ion-img>
