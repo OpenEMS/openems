@@ -21,7 +21,8 @@ Private-Package:  \
 	io.openems.edge.predictor.api;version=latest,\
 	io.openems.edge.common;version=latest,\
 	com.google.gson,\
-	com.google.guava
+	com.google.guava,\
+	slf4j.api
 	
 -testpath: ${testpath}
 

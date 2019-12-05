@@ -3,9 +3,12 @@ package io.openems.edge.common.test;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -64,6 +67,29 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		public long getChangeCount() {
 			return 0;
 		}
+
+		@Override
+		public Dictionary<String, Object> getProcessedProperties(ServiceReference<?> reference) {
+			return this.properties;
+		}
+
+		@Override
+		public boolean updateIfDifferent(Dictionary<String, ?> properties) throws IOException {
+			return false;
+		}
+
+		@Override
+		public void addAttributes(ConfigurationAttribute... attrs) throws IOException {
+		}
+
+		@Override
+		public Set<ConfigurationAttribute> getAttributes() {
+			return new HashSet<>();
+		}
+
+		@Override
+		public void removeAttributes(ConfigurationAttribute... attrs) throws IOException {
+		}
 	}
 
 	private final DummyConfiguration dummyConfiguration = new DummyConfiguration();
@@ -91,6 +117,16 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 	@Override
 	public Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
 		return new Configuration[] { this.dummyConfiguration };
+	}
+
+	@Override
+	public Configuration getFactoryConfiguration(String factoryPid, String name, String location) throws IOException {
+		return this.dummyConfiguration;
+	}
+
+	@Override
+	public Configuration getFactoryConfiguration(String factoryPid, String name) throws IOException {
+		return this.dummyConfiguration;
 	}
 
 }
