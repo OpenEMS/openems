@@ -14,7 +14,8 @@ Export-Package: \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	org.openmuc.jmbus;version=3.2,\
-	org.openmuc.jrxtx;version=1.0
+	org.openmuc.jrxtx;version=1.0,\
+	slf4j.api
 
 -testpath: ${testpath}
 

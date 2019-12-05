@@ -18,16 +18,12 @@
       <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="4" size-xl="2">
         <consumptionWidget [period]="service.historyPeriod"></consumptionWidget>
       </ion-col>
-      <ng-container *ngIf="edge && service.isKwhAllowed(edge)">
-        <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="4" size-xl="2">
-          <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>
-        </ion-col>
-      </ng-container>
-      <ng-container *ngIf="edge && service.isKwhAllowed(edge)">
-        <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="4" size-xl="2">
-          <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
-        </ion-col>
-      </ng-container>
+      <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="4" size-xl="2">
+        <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>
+      </ion-col>
+      <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="4" size-xl="2">
+        <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
+      </ion-col>
     </ng-container>
     <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
       <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.ChannelThreshold'">
