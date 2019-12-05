@@ -38,6 +38,8 @@ export const TRANSLATION = {
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         DateFormatShort: "dd.MM",
         Search: "Búsqueda",
+        ChangeAccepted: "Cambio aceptado",
+        ChangeFailed: "Cambio fallido",
         Week: {
             Monday: "Lunes",
             Tuesday: "Martes",

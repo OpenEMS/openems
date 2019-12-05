@@ -1,13 +1,10 @@
 <ng-container *ngIf="controller && service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card button (click)="presentModal()">
-
             <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="danger" name="flame"></ion-icon>
-                <!-- No logic: controller.alias becomes controller.id -> talk to pooran -->
-                <!-- <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
-                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label> -->
-                <ion-label>{{controller.id}}</ion-label>
+                <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
+                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
             </ion-item>
             <ion-card-content>
                 <table class="full_width">
@@ -29,38 +26,40 @@
                         </td>
                     </tr>
                     <tr>
-                        <td style="width: 65%" translate>
-                            General.State
-                        </td>
-                        <!-- <ng-container                            *ngIf="currentData.channel[outputChannelAdress1] == 1 || currentData.channel[outputChannelAddress2] == 1 || currentData.channel[outputChannelAddress3] == 1; else inactive"> -->
-                        <td class="align_right" style="width:35%" translate>
-                            General.Active
-                        </td>
-                        <!-- </ng-container> -->
-                        <!-- <ng-template #inactive>
-                            <td style="width:35%" class="align_right" translate>
+                        <td style="width:65%" translate>General.State</td>
+                        <td style="width:35%" class="align_right" translate>
+                            <ion-icon *ngIf="currentData.channel[outputChannelPhaseOne] == null && currentData.channel[outputChannelPhaseTwo] == null 
+                                && currentData.channel[outputChannelPhaseThree] == null" name="help"></ion-icon>
+                            <ng-container *ngIf="currentData.channel[outputChannelPhaseOne] == 1 || currentData.channel[outputChannelPhaseTwo] == 1 
+                                || currentData.channel[outputChannelPhaseThree] == 1">
+                                General.Active
+                            </ng-container>
+                            <ng-container *ngIf="currentData.channel[outputChannelPhaseOne] == 0 || currentData.channel[outputChannelPhaseOne] == 0 
+                                || currentData.channel[outputChannelPhaseOne] == 0">
                                 General.Inactive
-                            </td>
-                        </ng-template> -->
+                            </ng-container>
+                        </td>
                     </tr>
-                    <tr>
+                    <tr *ngIf="currentData.channel[outputChannelPhaseOne] == 1 || currentData.channel[outputChannelPhaseTwo] == 1 
+                    || currentData.channel[outputChannelPhaseThree] == 1">
                         <td style="width: 65%">
                             Aktive Phasen
                         </td>
                         <td style="width:35%" class="align_right">
-                            2</td>
+                            {{ getActivePhases() }}</td>
                     </tr>
-                    <tr>
+                    <tr *ngIf="controller.properties['priority'] == 'TIME'">
                         <td style="width:65%">
                             Endzeit</td>
                         <td style="width:35%" class="align_right">
-                            17:00</td>
+                            {{ controller.properties['endTime'] }}
+                        </td>
                     </tr>
-                    <tr>
+                    <tr *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'">
                         <td style="width:65%">
                             Minimale Energiemenge</td>
                         <td style="width:35%" class="align_right">
-                            5 kWh</td>
+                            {{controller.properties['minkwh'] | unitvalue:'kWh'}}</td>
                     </tr>
                 </table>
             </ion-card-content>

@@ -35,19 +35,34 @@ export class HeatingElementComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.controller = config.components[this.componentId];
-                // this.outputChannelPhaseOne = ChannelAddress.fromString(
-                //     this.controller.properties['outputChannelAddress2']);
-                // this.outputChannelPhaseTwo = ChannelAddress.fromString(
-                //     this.controller.properties['outputChannelAddress2']);
-                // this.outputChannelPhaseThree = ChannelAddress.fromString(
-                //     this.controller.properties['outputChannelAddress3']);
-                // edge.subscribeChannels(this.websocket, HeatingElementComponent.SELECTOR + this.componentId, [
-                // this.outputChannelPhaseOne,
-                // this.outputChannelPhaseTwo,
-                // this.outputChannelPhaseThree
-                // ]);
+                this.outputChannelPhaseOne = ChannelAddress.fromString(
+                    this.controller.properties['outputChannelAddress1']);
+                this.outputChannelPhaseTwo = ChannelAddress.fromString(
+                    this.controller.properties['outputChannelAddress2']);
+                this.outputChannelPhaseThree = ChannelAddress.fromString(
+                    this.controller.properties['outputChannelAddress3']);
+                edge.subscribeChannels(this.websocket, HeatingElementComponent.SELECTOR + this.componentId, [
+                    this.outputChannelPhaseOne,
+                    this.outputChannelPhaseTwo,
+                    this.outputChannelPhaseThree
+                ]);
             });
         });
+    }
+
+    getActivePhases(): number {
+        let activePhases: number = 0;
+        let phaseChannels = [
+            this.edge.currentData['_value'].channel[this.controller.properties['outputChannelAddress1']],
+            this.edge.currentData['_value'].channel[this.controller.properties['outputChannelAddress2']],
+            this.edge.currentData['_value'].channel[this.controller.properties['outputChannelAddress3']]
+        ];
+        phaseChannels.forEach(channel => {
+            if (channel == 1) {
+                activePhases += 1;
+            }
+        })
+        return activePhases;
     }
 
     ngOnDestroy() {
@@ -62,7 +77,9 @@ export class HeatingElementComponent {
             componentProps: {
                 controller: this.controller,
                 edge: this.edge,
-                componentId: this.componentId,
+                outputChannelPhaseOne: this.outputChannelPhaseOne,
+                outputChannelPhaseTwo: this.outputChannelPhaseTwo,
+                outputChannelPhaseThree: this.outputChannelPhaseThree
             }
         });
         console.log("CONTROLLER", this.controller)
