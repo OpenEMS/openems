@@ -7,9 +7,8 @@ public enum State implements OptionsEnum {
 	ACTIVE_LIMIT(0, "Active Limit"), //
 	PASSED_TARGET_HOUR(1, "Passed target Hour"), //
 	NO_REMAINING_CAPACITY(2, "No remaining capacity"), //
-	PASSED_BUFFER_HOUR(3, "Passed buffer hour, charge with full available Production value"),
-	TARGET_HOUR_NOT_CALCULATED(4, "target hour not calculated, initial run not done"), //
-	REDUCING_THE_FEED_IN_POWER(5, "Reducing the feed in power to max capability"); //
+	TARGET_HOUR_NOT_CALCULATED(3, "target hour not calculated, initial run not done"), //
+	REDUCING_THE_FEED_IN_POWER(4, "Reducing the feed in power to max capability"); //
 
 	private final int value;
 	private final String name;

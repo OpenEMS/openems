@@ -33,15 +33,15 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	private Integer[] hourlyProduction = new Integer[24];
 	private Integer[] hourlyConsumption = new Integer[24];
 
-	private IntegerReadChannel targetHourvalue = this.channel(ChannelId.TARGET_HOUR);
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")),
 		CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.text("Charge-Power limitation")),
-		TARGET_HOUR(Doc.of(OpenemsType.INTEGER) //
-				.text("Target hour"));
+		TARGET_HOUR_ACTUAL(Doc.of(OpenemsType.INTEGER) //
+				.text("Actual Target hour calculated from prediction")),
+		TARGET_HOUR_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
+				.text("Actual Target hour calculated from prediction"));
 
 		private final Doc doc;
 
@@ -105,30 +105,20 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			this.executed = false;
 		}
 
-		// target hour = 0 --> not enough production or Initial run(no values)
+		// target hour = null --> not enough production or Initial run(no values)
 		if (this.targetHour == null) {
+			
 			this.setChannels(State.TARGET_HOUR_NOT_CALCULATED, 0);
-
 			return null;
 		}
-
-		// buffer hour --> limits are not applied from this hour.
-		int bufferHour = this.targetHour - this.bufferHour;
 
 		// remaining time in seconds till the target point.
 		int remainingTime = calculateRemainingTime();
 
-		// reached buffer hour
-		if (now.getHour() > bufferHour) {
-
-			if (remainingTime < 0) {
-				// crossed the target point
-				this.setChannels(State.PASSED_TARGET_HOUR, 0);
-				return null;
-			} else {
-				this.setChannels(State.PASSED_BUFFER_HOUR, 0);
-			}
-
+		// crossed target hour
+		if (now.getHour() > this.targetHour) {
+			
+			this.setChannels(State.PASSED_TARGET_HOUR, 0);
 			return null;
 		}
 
@@ -158,7 +148,8 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 		// counter --> last hour when production > consumption.
 		int lastHour = 0;
-		Integer targetHour = null;
+		Integer targetHourActual = null;
+		Integer targetHourAdjusted = null;
 
 		for (int i = 0; i < 24; i++) {
 			// to avoid null and negative consumption values.
@@ -169,14 +160,22 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 				}
 			}
 		}
-		if (lastHour != 0) {
+		if (lastHour > 0) {
 			// target hour --> immediate next hour from the last Hour
-			targetHour = this.predictionStartHour.plusHours(lastHour).plusHours(1).getHour();
+			targetHourActual = this.predictionStartHour.plusHours(lastHour).plusHours(1).getHour();
+			
+			// target hour adjusted based on buffer hour.
+			targetHourAdjusted = targetHourActual - this.bufferHour;
 		}
 
-		// Setting the Target hour channel id
-		targetHourvalue.setNextValue(this.targetHour);
-		return targetHour;
+		//setting the channel id values
+		IntegerReadChannel targetHourActualValue = this.channel(ChannelId.TARGET_HOUR_ACTUAL);
+		targetHourActualValue.setNextValue(targetHourActual);
+		
+		IntegerReadChannel targetHourAdjustedValue = this.channel(ChannelId.TARGET_HOUR_ADJUSTED);
+		targetHourAdjustedValue.setNextValue(targetHourAdjusted);
+
+		return targetHourAdjusted;
 	}
 
 	// number of seconds left to the target hour.
