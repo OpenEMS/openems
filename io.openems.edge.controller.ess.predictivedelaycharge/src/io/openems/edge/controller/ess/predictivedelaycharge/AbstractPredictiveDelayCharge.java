@@ -180,7 +180,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 	// number of seconds left to the target hour.
 	private int calculateRemainingTime() {
-		int targetSecondOfDay = targetHour * 3600;
+		int targetSecondOfDay = this.targetHour * 3600;
 		int remainingTime = targetSecondOfDay - currentSecondOfDay();
 
 		return remainingTime;
