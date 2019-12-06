@@ -103,8 +103,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                             // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
                             activeTimeHours.toFixed(1).toString().split('').forEach((letter, index) => {
                                 if (index == activeTimeHours.toFixed(1).toString().length - 1 && letter == "0" && activeTimeMinutes > 60) {
-                                    console.log("actifveblabla", activeTimeHours)
-                                    this.activeTimeOverPeriod = activeTimeHours.toFixed(1).toString().slice(0, -1) + ' h'
+                                    this.activeTimeOverPeriod = activeTimeHours.toFixed(1).toString().slice(0, -2) + ' h'
                                 }
 
                             });
