@@ -91,9 +91,8 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                             let endDate = new Date(result.timestamps[result.timestamps.length - 1]);
                             let activePercent = activeSum / result.timestamps.length;
                             let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
-
                             if (activeTimeMinutes > 60) {
-                                this.activeTimeOverPeriod = this.decimalPipe.transform(differenceInHours(endDate, startDate) * activePercent, '1.0-1') + ' h'
+                                this.activeTimeOverPeriod = this.decimalPipe.transform(Math.round(activeTimeMinutes / 60).toString(), '1.0-1') + ' h'
                             } else {
                                 this.activeTimeOverPeriod = this.decimalPipe.transform(activeTimeMinutes.toString(), '1.0-1') + ' m'
                             }
