@@ -55,15 +55,10 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
 
                     // gather EVCS consumption
-                    // is null @ fems1 todo:talk so sebastschn
                     let totalEvcsConsumption: number[] = [];
                     config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
                         totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
-                            if (value == null) {
-                                return null
-                            } else {
-                                return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
-                            }
+                            return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
                         });
                     })
 
@@ -71,11 +66,12 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     let otherConsumption: number[] = [];
                     if (totalEvcsConsumption != []) {
                         otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
-                            if (value != null && totalEvcsConsumption[index] != 0 && totalEvcsConsumption[index] != null) {
+                            if (value != null && totalEvcsConsumption[index] != null) {
                                 return Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]);
                             }
                         })
                     }
+
                     // convert datasets
                     let datasets = [];
 
@@ -168,8 +164,8 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         hidden: false
                                     });
                                     this.colors.push({
-                                        backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        backgroundColor: 'rgba(0,223,0,0.00)',
+                                        borderColor: 'rgba(0,223,0,05)',
                                     })
                                 }
                             }

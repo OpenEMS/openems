@@ -54,24 +54,20 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
 
                     // gather EVCS consumption
                     let totalEvcsConsumption: number[] = [];
-                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster')).forEach(component => {
+                    config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion')).forEach(component => {
                         totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
-                            if (value == null) {
-                                return null
-                            } else {
-                                return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
-                            }
+                            return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
                         });
                     })
 
-                    // gather other consumption
+
+
+                    // gather other Consumption (Total - EVCS)
                     let otherConsumption: number[] = [];
                     if (totalEvcsConsumption != []) {
                         otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
-                            if (value / 1000 >= totalEvcsConsumption[index]) {
+                            if (value != null && totalEvcsConsumption[index] != null) {
                                 return Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]);
-                            } else {
-                                return Utils.subtractSafely(totalEvcsConsumption[index], value / 1000);
                             }
                         })
                     }

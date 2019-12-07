@@ -21,9 +21,9 @@ export class IndexComponent {
   public form: FormGroup;
   public filter: string = '';
   public filteredEdges: Edge[] = [];
+  public slice: number = 20;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  private slice: number = 20;
 
   constructor(
     public websocket: Websocket,

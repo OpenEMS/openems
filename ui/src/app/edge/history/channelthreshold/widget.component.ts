@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { differenceInHours, differenceInMinutes } from 'date-fns';
+import { differenceInHours, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -79,7 +79,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                                 });
                             }
 
-                            // calculates the active time of period
+                            // calculate active time of period in minutes and hours
                             let activeSum: number = 0;
 
                             let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']).toString();
@@ -87,13 +87,22 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                                 activeSum += value;
                             })
 
-                            let startDate = new Date(result.timestamps[0]);
-                            let endDate = new Date(result.timestamps[result.timestamps.length - 1]);
+                            // start-/endOfTheDay because last timestamp is 23:55
+                            let startDate = startOfDay(new Date(result.timestamps[0]));
+                            let endDate = endOfDay(new Date(result.timestamps[result.timestamps.length - 1]));
                             let activePercent = activeSum / result.timestamps.length;
                             let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
+                            let activeTimeHours: string = (activeTimeMinutes / 60).toFixed(1).toString();
 
-                            if (activeTimeMinutes > 60) {
-                                this.activeTimeOverPeriod = this.decimalPipe.transform(differenceInHours(endDate, startDate) * activePercent, '1.0-1') + ' h'
+                            if (activeTimeMinutes > 59) {
+                                this.activeTimeOverPeriod = activeTimeHours + ' h'
+                                // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
+                                activeTimeHours.split('').forEach((letter, index) => {
+                                    if (index == activeTimeHours.length - 1 && letter == "0" && activeTimeMinutes > 60) {
+                                        this.activeTimeOverPeriod = activeTimeHours.slice(0, -2) + ' h'
+                                    }
+
+                                });
                             } else {
                                 this.activeTimeOverPeriod = this.decimalPipe.transform(activeTimeMinutes.toString(), '1.0-1') + ' m'
                             }

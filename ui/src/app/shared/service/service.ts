@@ -274,7 +274,8 @@ export class Service implements ErrorHandler {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: 2000
+      duration: 2000,
+      cssClass: 'container'
     });
     toast.present();
   }

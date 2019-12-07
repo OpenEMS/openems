@@ -1,4 +1,4 @@
-<ion-grid *ngIf="edge && edge.isOnline">
+<ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
   <ion-row class="ion-justify-content-center">
     <!-- Energymonitor -->
     <ion-col size="12" size-md="8" size-lg="3" class="ion-no-padding">
@@ -95,6 +95,12 @@
       </ion-grid>
     </ion-col>
   </ion-row>
+</ion-grid>
+
+<!-- show loading bar until subscribeChannelResponse is received
+  prevents showing 'null' values in widgets -->
+<ion-grid *ngIf="edge && edge.isOnline && !edge.subscribeChannelsSuccessful">
+  <ion-progress-bar type="indeterminate"></ion-progress-bar>
 </ion-grid>
 
 <ion-grid *ngIf="edge && !edge.isOnline">
