@@ -31,6 +31,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
 import { CorrentlyComponent } from './corrently/corrently.component';
+import { CorrentlyModalComponent } from './corrently/modal/modal.component';
+import { CorrentlyChartComponent } from './corrently/modal/chart.component';
 
 @NgModule({
   imports: [
@@ -43,6 +45,7 @@ import { CorrentlyComponent } from './corrently/corrently.component';
     StorageModalComponent,
     GridModalComponent,
     ConsumptionModalComponent,
+    CorrentlyModalComponent,
     ProductionModalComponent,
     EvcsModalComponent,
     ModalComponentEvcsCluster,
@@ -54,6 +57,8 @@ import { CorrentlyComponent } from './corrently/corrently.component';
   ],
   declarations: [
     CorrentlyComponent,
+    CorrentlyModalComponent,
+    CorrentlyChartComponent,
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,

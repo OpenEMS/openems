@@ -34,6 +34,7 @@ import { InputTypeComponent } from './edge/settings/component/shared/input';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -47,6 +48,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   entryComponents: [PickDatePopoverComponent],
   imports: [
     BrowserModule,
+    HttpClientModule,
     IonicModule.forRoot(),
     FormlyModule.forRoot({
       types: [
