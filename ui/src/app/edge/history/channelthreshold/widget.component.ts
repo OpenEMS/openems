@@ -94,19 +94,19 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                             let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
                             let activeTimeHours = activeTimeMinutes / 60;
 
-                            if (activeTimeMinutes > 60) {
+                            if (activeTimeMinutes > 59) {
                                 this.activeTimeOverPeriod = activeTimeHours.toFixed(1).toString() + ' h'
+                                // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
+                                activeTimeHours.toFixed(1).split('').forEach((letter, index) => {
+                                    if (index == activeTimeHours.toFixed(1).length - 1 && letter == "0" && activeTimeMinutes > 60) {
+                                        this.activeTimeOverPeriod = activeTimeHours.toFixed(1).slice(0, -2) + ' h'
+                                    }
+
+                                });
                             } else {
                                 this.activeTimeOverPeriod = this.decimalPipe.transform(activeTimeMinutes.toString(), '1.0-1') + ' m'
                             }
 
-                            // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
-                            activeTimeHours.toFixed(1).toString().split('').forEach((letter, index) => {
-                                if (index == activeTimeHours.toFixed(1).toString().length - 1 && letter == "0" && activeTimeMinutes > 60) {
-                                    this.activeTimeOverPeriod = activeTimeHours.toFixed(1).toString().slice(0, -2) + ' h'
-                                }
-
-                            });
 
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
