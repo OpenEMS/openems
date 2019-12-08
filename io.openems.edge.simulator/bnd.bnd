@@ -2,7 +2,16 @@ Bundle-Name: OpenEMS Edge Simulator
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Private-Package: \
+Export-Package:\
+	io.openems.edge.battery.api;provide:=true,\
+	io.openems.edge.ess.api;provide:=true,\
+	io.openems.edge.ess.dccharger.api;provide:=true,\
+	io.openems.edge.io.api;provide:=true,\
+	io.openems.edge.meter.api;provide:=true,\
+	io.openems.edge.pvinverter.api;provide:=true,\
+	io.openems.edge.evcs.api;provide:=true
+	
+-privatepackage:\
 	io.openems.edge.simulator,\
 	io.openems.edge.simulator.meter.grid.acting,\
 	io.openems.edge.simulator.meter.grid.reacting,\
@@ -20,19 +29,8 @@ Private-Package: \
 	io.openems.edge.simulator.evcs,\
 	io.openems.edge.simulator.modbus
 
-Export-Package: \
-	io.openems.edge.ess.api,\
-	io.openems.edge.ess.symmetric.api,\
-	io.openems.edge.ess.symmetric.readonly.api,\
-	io.openems.edge.ess.dccharger.api,\
-	io.openems.edge.ess.asymmetric.api,\
-	io.openems.edge.ess.power.api,\
-	io.openems.edge.battery.api,\
-	io.openems.edge.io.api,\
-	io.openems.edge.pvinverter.api,\
-	io.openems.edge.evcs.api
-	
--includeresource: {readme.md}
+-includeresource:\
+	{readme.md}
 
 -buildpath: \
 	${buildpath},\
@@ -44,12 +42,12 @@ Export-Package: \
 	io.openems.edge.evcs.api;version=latest,\
 	io.openems.edge.io.api;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
+	io.openems.edge.pvinverter.api;version=latest,\
 	io.openems.edge.timedata.api;version=latest,\
+	com.ghgande.j2mod;version=2.5.5,\
 	com.google.gson,\
 	com.google.guava,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

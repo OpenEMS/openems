@@ -2,15 +2,17 @@ Bundle-Name: OpenEMS Backend Timedata Dummy
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:  \
-	io.openems.backend.timedata.dummy.api;-provide=true
+Export-Package:\
+	io.openems.backend.timedata.dummy.api;provide:=true
 
-Private-Package:  \
+-privatepackage:\
 	io.openems.backend.timedata.dummy
 
--includeresource: {readme.md}
+-includeresource:\
+	{readme.md}
 
--buildpath: ${buildpath},\
+-buildpath:\
+	${buildpath},\
 	io.openems.backend.common;version=latest,\
 	io.openems.backend.metadata.api;version=latest,\
 	io.openems.backend.timedata.api;version=latest,\
@@ -20,7 +22,5 @@ Private-Package:  \
 	com.google.guava,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

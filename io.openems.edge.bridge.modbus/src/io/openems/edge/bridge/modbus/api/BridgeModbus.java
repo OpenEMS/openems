@@ -2,8 +2,11 @@ package io.openems.edge.bridge.modbus.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,5 +47,32 @@ public interface BridgeModbus extends OpenemsComponent {
 	 * @param sourceId the unique source identifier
 	 */
 	public void removeProtocol(String sourceId);
+
+	/**
+	 * After how many errors should a element be invalidated?.
+	 * 
+	 * @return value
+	 */
+	public int invalidateElementsAfterReadErrors();
+
+	/**
+	 * Creates a new Modbus Transaction on an open Modbus connection.
+	 * 
+	 * @return the Modbus Transaction
+	 * @throws OpenemsException on error
+	 */
+	public ModbusTransaction getNewModbusTransaction() throws OpenemsException;
+
+	/**
+	 * Gets the log verbosity.
+	 * 
+	 * @return the log verbosity
+	 */
+	public LogVerbosity getLogVerbosity();
+
+	/**
+	 * Closes the Modbus connection.
+	 */
+	public void closeModbusConnection();
 
 }

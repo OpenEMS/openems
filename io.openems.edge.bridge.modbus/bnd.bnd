@@ -4,15 +4,18 @@ Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.bridge.modbus.api,\
-	io.openems.edge.bridge.modbus.api.task,\
 	io.openems.edge.bridge.modbus.api.element,\
-	io.openems.edge.bridge.modbus.api.facade,\
-	io.openems.edge.bridge.modbus.sunspec,\
+	io.openems.edge.bridge.modbus.api.task,\
+	io.openems.edge.bridge.modbus.sunspec
+
+-privatepackage:\
 	io.openems.edge.bridge.modbus
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	com.google.gson,\
@@ -20,7 +23,5 @@ Export-Package: \
 	com.ghgande.j2mod;version=2.5.5,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

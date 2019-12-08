@@ -2,20 +2,22 @@ Bundle-Name: OpenEMS Edge Controller Asymmetric Fix-ActivePower
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.controller.api
-Private-Package:  \
+Export-Package:\
+	io.openems.edge.controller.api
+
+-privatepackage:\
 	io.openems.edge.controller.asymmetric.fixactivepower
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.common;version=latest,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

@@ -2,11 +2,16 @@ Bundle-Name: OpenEMS Edge Controller Electric Vehicle Charging Station
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.controller.api
+Export-Package:\
+	io.openems.edge.controller.api
 
--includeresource: {readme.adoc}
+-privatepackage:\
+	io.openems.edge.controller.evcs
 
--buildpath: \
+-includeresource:\
+	{readme.adoc}
+
+-buildpath:\
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
@@ -18,8 +23,5 @@ Export-Package: io.openems.edge.controller.api
 	io.openems.edge.ess.api,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
--privatepackage: io.openems.edge.controller.evcs
+-testpath:\
+	${testpath}

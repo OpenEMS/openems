@@ -2,14 +2,15 @@ Bundle-Name: OpenEMS Edge Core
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Private-Package: \
-	io.openems.edge.core.meta,\
-	io.openems.edge.core.sum,\
-	io.openems.edge.core.cycle,\
+
+-privatepackage:\
 	io.openems.edge.core.componentmanager,\
-	io.openems.edge.core.host
+	io.openems.edge.core.cycle,\
+	io.openems.edge.core.host,\
+	io.openems.edge.core.meta,\
+	io.openems.edge.core.sum
 	
--buildpath: \
+-buildpath:\
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
@@ -17,12 +18,10 @@ Private-Package: \
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\
-	com.google.gson,\
-	slf4j.api,\
+	io.openems.edge.timedata.api;version=latest,\
 	io.openems.wrapper.sdnotify;version=latest,\
-	io.openems.edge.timedata.api;version=latest
+	com.google.gson,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

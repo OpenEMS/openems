@@ -5,11 +5,15 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.power.api
-Private-Package: io.openems.edge.ess.kaco.blueplanet.gridsave50
 
--includeresource: {readme.adoc}
+-privatepackage:\
+	io.openems.edge.ess.kaco.blueplanet.gridsave50
 
--buildpath: ${buildpath},\
+-includeresource:\
+	{readme.adoc}
+
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.battery.api;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
@@ -17,7 +21,5 @@ Private-Package: io.openems.edge.ess.kaco.blueplanet.gridsave50
 	io.openems.edge.ess.api;version=latest,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

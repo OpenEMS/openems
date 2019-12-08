@@ -12,9 +12,10 @@ import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
@@ -33,7 +34,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		this.priority = priority;
 	}
 
-	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(BridgeModbus bridge) throws OpenemsException {
 		T[] response;
 		try {
 			/*
@@ -69,7 +70,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		return 1;
 	}
 
-	protected T[] readElements(AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
+	protected T[] readElements(BridgeModbus bridge) throws OpenemsException, ModbusException {
 		ModbusRequest request = this.getRequest();
 		int unitId = this.getParent().getUnitId();
 		ModbusResponse response = Utils.getResponse(request, this.getParent().getUnitId(), bridge);
@@ -79,7 +80,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
-			bridge.logInfo(this.log, this.getActiondescription() //
+			OpenemsComponent.logInfo(this.log, bridge, this.getActiondescription() //
 					+ " [" + unitId + ":" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
 					+ "]: " //
 					+ Arrays.stream(result).map(r -> {

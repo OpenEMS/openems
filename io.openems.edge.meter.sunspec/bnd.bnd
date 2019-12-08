@@ -2,12 +2,14 @@ Bundle-Name: OpenEMS Edge Meter SunSpec
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
+Export-Package:\
+	io.openems.edge.meter.api;provide:=true,\
+	io.openems.edge.meter.sunspec
 
-Export-Package: io.openems.edge.meter.sunspec
+-includeresource:\
+	{readme.adoc}
 
--includeresource: {readme.adoc}
-
--buildpath: \
+-buildpath:\
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
@@ -16,7 +18,5 @@ Export-Package: io.openems.edge.meter.sunspec
 	slf4j.api,\
 	com.google.guava
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

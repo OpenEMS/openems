@@ -12,7 +12,7 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
 
 public class Utils {
 
@@ -33,7 +33,7 @@ public class Utils {
 		return bools;
 	}
 
-	public static ModbusResponse getResponse(ModbusRequest request, int unitId, AbstractModbusBridge bridge)
+	public static ModbusResponse getResponse(ModbusRequest request, int unitId, BridgeModbus bridge)
 			throws OpenemsException, ModbusException {
 		request.setUnitID(unitId);
 		ModbusTransaction transaction = bridge.getNewModbusTransaction();

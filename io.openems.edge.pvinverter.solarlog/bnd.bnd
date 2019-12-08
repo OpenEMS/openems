@@ -2,24 +2,24 @@ Bundle-Name: OpenEMS Edge PV Inverter Solar Log
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
+Export-Package:\
+	io.openems.edge.meter.api;provide:=true,\
+	io.openems.edge.pvinverter.api;provide:=true
 
-Export-Package: \
-	io.openems.edge.pvinverter.api,\
-	io.openems.edge.meter.api
-
-Private-Package:  \
+-privatepackage:\
 	io.openems.edge.pvinverter.solarlog
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
+	io.openems.edge.pvinverter.api;version=latest,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

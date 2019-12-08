@@ -1,5 +1,5 @@
 -sub: *.bnd
--buildpath: \
+-buildpath:\
 	info.faljse:SDNotify;version=1.3,\
 	com.squareup.moshi:moshi;version=1.9.2,\
 	org.influxdb:influxdb-java;version=2.15,\

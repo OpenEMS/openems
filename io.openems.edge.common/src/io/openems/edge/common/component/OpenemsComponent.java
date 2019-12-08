@@ -8,6 +8,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
@@ -327,5 +328,35 @@ public interface OpenemsComponent {
 		} catch (IOException | SecurityException e) {
 			System.out.println("ERROR: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Log an info message including the Component ID.
+	 * 
+	 * @param log     the Logger instance
+	 * @param message the message
+	 */
+	public static void logInfo(Logger log, OpenemsComponent component, String message) {
+		log.info("[" + component.id() + "] " + message);
+	}
+
+	/**
+	 * Log a warning message including the Component ID.
+	 * 
+	 * @param log     the Logger instance
+	 * @param message the message
+	 */
+	public static void logWarn(Logger log, OpenemsComponent component, String message) {
+		log.warn("[" + component.id() + "] " + message);
+	}
+
+	/**
+	 * Log an error message including the Component ID.
+	 * 
+	 * @param log     the Logger instance
+	 * @param message the message
+	 */
+	public static void logError(Logger log, OpenemsComponent component, String message) {
+		log.error("[" + component.id() + "] " + message);
 	}
 }

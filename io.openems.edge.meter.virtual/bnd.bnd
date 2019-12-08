@@ -2,20 +2,17 @@ Bundle-Name: OpenEMS Edge Meter Virtual Add
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: The provider bundle for io.openems.edge.meter.virtual.add. This virtual \
-	meter is used to sum up the values from the different components and calculate \
-	the average of those values.
+Bundle-Description: This virtual meter is used to sum up the values of other meters.
+Export-Package:\
+	io.openems.edge.meter.api;provide:=true
+	
+-privatepackage:\
+	io.openems.edge.meter.virtual.symmetric.add
 
-Export-Package:  \
-	io.openems.edge.meter.api,\
-	io.openems.edge.meter.asymmetric.api,\
-	io.openems.edge.meter.symmetric.api
+-includeresource:\
+	{readme.adoc}
 
-Private-Package: io.openems.edge.meter.virtual.symmetric.add
-
--includeresource: {readme.adoc}
-
--buildpath: \
+-buildpath:\
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
@@ -23,7 +20,5 @@ Private-Package: io.openems.edge.meter.virtual.symmetric.add
 	io.openems.edge.meter.api;version=latest,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

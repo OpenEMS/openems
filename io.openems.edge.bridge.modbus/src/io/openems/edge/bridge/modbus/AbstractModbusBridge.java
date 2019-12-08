@@ -5,10 +5,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 
-import com.ghgande.j2mod.modbus.io.ModbusTransaction;
-
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -20,7 +18,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements BridgeModbus, EventHandler {
 
 	/**
-	 * Default Modbus timeout in [ms].
+	 * Default Modbus timeout in [ms]. getNewModbusTransaction
 	 * 
 	 * <p>
 	 * Modbus library default is 3000 ms
@@ -93,19 +91,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			break;
 		}
 	}
-
-	/**
-	 * Creates a new Modbus Transaction on an open Modbus connection.
-	 * 
-	 * @return the Modbus Transaction
-	 * @throws OpenemsException on error
-	 */
-	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
-
-	/**
-	 * Closes the Modbus connection.
-	 */
-	public abstract void closeModbusConnection();
 
 	/**
 	 * Gets the instance for Channel "SlaveCommunicationFailed".

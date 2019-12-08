@@ -2,17 +2,18 @@ Bundle-Name: OpenEMS Edge Controller IOAlarm
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Vendor: FENECON GmbH
 Bundle-Version:	1.0.0.${tstamp}
-Bundle-Description: The provider bundle for io.openems.edge.controller.io.alarm. This Controller \
+Bundle-Description: The provider bundle for io.openems.edge.controller.io.alarm. This Controller\
 	can be used to describe the alarms in multiple different levels.
-
-Export-Package:  io.openems.edge.controller.api
+Export-Package:\
+	io.openems.edge.controller.api
 	
-Private-Package:  \
+-privatepackage:\
 	io.openems.edge.controller.io.alarm
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: \
+-buildpath:\
 	${buildpath},\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.common;version=latest,\
@@ -23,7 +24,5 @@ Private-Package:  \
 	com.google.gson,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

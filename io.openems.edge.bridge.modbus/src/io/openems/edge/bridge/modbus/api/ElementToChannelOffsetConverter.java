@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 
 /**
  * Converts between Element and Channel by applying an offset.

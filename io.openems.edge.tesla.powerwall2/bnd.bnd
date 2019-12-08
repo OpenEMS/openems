@@ -3,23 +3,22 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-Private-Package: \
+-privatepackage:\
 	io.openems.edge.tesla.powerwall2.core,\
 	io.openems.edge.tesla.powerwall2.battery
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: \
+-buildpath:\
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
 	io.openems.edge.common;version=latest,\
-	slf4j.api,\
 	io.openems.edge.ess.api;version=latest,\
 	com.google.gson,\
-	com.google.guava
+	com.google.guava,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

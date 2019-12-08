@@ -2,25 +2,25 @@ Bundle-Name: OpenEMS Edge Controller Sell-to-Grid Limit
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
+Export-Package:\
+	io.openems.edge.meter.api,\
+	io.openems.edge.pvinverter.api
 
-Export-Package: \
-	io.openems.edge.pvinverter.api,\
-	io.openems.edge.meter.api
-
-Private-Package:  \
+-privatepackage:\
 	io.openems.edge.controller.selltogridlimit
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
 	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
-	slf4j.api
+	io.openems.edge.pvinverter.api;version=latest,\
+	slf4j.api,\
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

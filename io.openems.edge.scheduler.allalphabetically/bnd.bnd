@@ -2,11 +2,16 @@ Bundle-Name: OpenEMS Edge Scheduler All-Alphabetically
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Private-Package: io.openems.edge.scheduler.allalphabetically
+Export-Package:\
+	io.openems.edge.scheduler.api;provide:=true
 
--includeresource: {readme.adoc}
+-privatepackage:\
+	io.openems.edge.scheduler.allalphabetically
 
--buildpath: \
+-includeresource:\
+	{readme.adoc}
+
+-buildpath:\
 	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
@@ -16,7 +21,5 @@ Private-Package: io.openems.edge.scheduler.allalphabetically
 	com.google.gson,\
 	com.google.guava
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

@@ -2,21 +2,21 @@ Bundle-Name: OpenEMS Edge FENECON Mini
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.ess.symmetric.readonly.api,\
-	io.openems.edge.ess.api,\
-	io.openems.edge.ess.symmetric.api,\
-	io.openems.edge.ess.power.symmetric,\
-	io.openems.edge.ess.power.api
-Private-Package: \
+Export-Package:\
+	io.openems.edge.ess.api;provide:=true,\
+	io.openems.edge.meter.api;provide:=true
+	
+-privatepackage:\
 	io.openems.edge.fenecon.mini.pvmeter,\
 	io.openems.edge.fenecon.mini,\
 	io.openems.edge.fenecon.mini.ess,\
 	io.openems.edge.fenecon.mini.gridmeter
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common;version=latest,\
@@ -24,7 +24,5 @@ Private-Package: \
 	io.openems.edge.meter.api;version=latest,\
 	com.google.guava
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

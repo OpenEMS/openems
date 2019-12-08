@@ -3,16 +3,19 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.edge.controller.api
-Private-Package:  \
-	io.openems.edge.controller.api.rest
 	
--includeresource: {readme.adoc}
+-privatepackage:\
+	io.openems.edge.controller.api.rest
 
--buildpath: ${buildpath},\
+-includeresource:\
+	{readme.adoc}
+
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.controller.api.core;version=latest,\
+	io.openems.edge.controller.api.common;version=latest,\
 	io.openems.edge.timedata.api;version=latest,\
 	org.eclipse.jetty.server,\
 	org.apache.felix.http.jetty,\
@@ -20,7 +23,5 @@ Private-Package:  \
 	slf4j.api,\
 	javax.servlet-api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

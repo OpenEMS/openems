@@ -12,9 +12,13 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
@@ -103,6 +107,29 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 
 	@Override
 	public void removeProtocol(String sourceId) {
+		// ignore
+	}
+
+	@Override
+	public int invalidateElementsAfterReadErrors() {
+		// ignore
+		return 0;
+	}
+
+	@Override
+	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		// ignore
+		return null;
+	}
+
+	@Override
+	public LogVerbosity getLogVerbosity() {
+		// ignore
+		return null;
+	}
+
+	@Override
+	public void closeModbusConnection() {
 		// ignore
 	}
 

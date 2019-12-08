@@ -2,24 +2,23 @@ Bundle-Name: OpenEMS Edge ESS SMA SunnyIsland 6.0H
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.ess.api,\
-	io.openems.edge.ess.power.api
-
-Private-Package: \
+Export-Package:\
+	io.openems.edge.ess.api;provide:=true
+	
+-privatepackage:\
 	io.openems.edge.sma,\
 	io.openems.edge.sma.enums
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

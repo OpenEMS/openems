@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
 /**
@@ -76,7 +77,7 @@ public interface ModbusElement<T> {
 	 * @param the {@link AbstractModbusBridge}
 	 * @return true if Channel was invalidated
 	 */
-	public boolean invalidate(AbstractModbusBridge bridge);
+	public boolean invalidate(BridgeModbus bridge);
 
 	/**
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear

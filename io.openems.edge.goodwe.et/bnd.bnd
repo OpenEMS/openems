@@ -2,28 +2,25 @@ Bundle-Name: OpenEMS Edge GoodweET
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Vendor: FENECON GmbH
 Bundle-Version: 1.0.0.${tstamp}
-
-Export-Package:  \
-	io.openems.edge.ess.api,\
-	io.openems.edge.ess.dccharger.api,\
-	io.openems.edge.ess.power.api
+Export-Package:\
+	io.openems.edge.ess.api;provide:=true,\
+	io.openems.edge.ess.dccharger.api;provide:=true,\
+	io.openems.edge.meter.api;provide:=true
 	
-Private-Package:  \
+-privatepackage:\
 	io.openems.edge.goodwe.et,\
 	io.openems.edge.goodwe.et.charger,\
 	io.openems.edge.goodwe.et.ess,\
 	io.openems.edge.goodwe.et.gridmeter
 
--buildpath: \
+-buildpath:\
 	${buildpath},\
-	io.openems.common,\
-	io.openems.edge.bridge.modbus,\
-	io.openems.edge.common,\
-	io.openems.edge.ess.api,\
-	com.google.guava,\
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.ess.api;version=latest,\
+	com.google.guava;version=latest,\
 	io.openems.edge.meter.api;version=latest
 	
--testpath: ${testpath}
-	
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

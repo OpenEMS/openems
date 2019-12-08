@@ -2,22 +2,23 @@ Bundle-Name: OpenEMS Edge ESS KOSTAL PIKO
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.ess.symmetric.readonly.api,\
-	io.openems.edge.ess.api,\
-	io.openems.edge.ess.symmetric.api,\
-	io.openems.edge.ess.power.symmetric,\
-	io.openems.edge.ess.power.api
-Private-Package: \
-	io.openems.edge.kostal.piko.core.impl,\
-	io.openems.edge.kostal.piko.core.api,\
+Export-Package:\
+	io.openems.edge.ess.api;provide:=true,\
+	io.openems.edge.ess.dccharger.api;provide:=true,\
+	io.openems.edge.meter.api;provide:=true
+	
+-privatepackage:\
 	io.openems.edge.kostal.piko.charger,\
+	io.openems.edge.kostal.piko.core.api,\
+	io.openems.edge.kostal.piko.core.impl,\
 	io.openems.edge.kostal.piko.ess,\
 	io.openems.edge.kostal.piko.gridmeter
 
--includeresource: {readme.adoc}
+-includeresource:\
+	{readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath:\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
@@ -25,7 +26,5 @@ Private-Package: \
 	com.google.guava,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath:\
+	${testpath}

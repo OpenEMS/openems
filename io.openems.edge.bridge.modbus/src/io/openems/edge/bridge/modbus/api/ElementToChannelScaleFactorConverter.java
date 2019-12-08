@@ -2,6 +2,7 @@ package io.openems.edge.bridge.modbus.api;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
