@@ -40,6 +40,8 @@ export const TRANSLATION = {
         DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         DateFormatShort: "dd.MM",
         Search: "Suchen",
+        ChangeAccepted: "Änderung übernommen",
+        ChangeFailed: "Änderung fehlgeschlagen",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",

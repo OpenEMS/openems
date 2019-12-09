@@ -66,8 +66,10 @@ export class ChpsocModalComponent implements OnInit {
                 { name: 'mode', value: newMode }
             ]).then(() => {
                 currentController.properties.mode = newMode;
+                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.mode = oldMode;
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
                 console.warn(reason);
             });
         }
@@ -92,9 +94,11 @@ export class ChpsocModalComponent implements OnInit {
             ]).then(() => {
                 currentController.properties['lowThreshold'] = newLowerThreshold;
                 currentController.properties['highThreshold'] = newUpperThreshold;
+                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties['lowThreshold'] = oldLowerThreshold;
                 currentController.properties['highThreshold'] = oldUpperThreshold;
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
                 console.warn(reason);
             })
         }

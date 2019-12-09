@@ -10,10 +10,9 @@
     <table class="full_width">
       <tr>
         <td style="width:65%">Aktueller Status</td>
-        <td style="width:25%" class="align_right" *ngIf="channel[outputChannel] == null">-</td>
-        <td style="width:25%" class="align_right" *ngIf="channel[outputChannel] == 1">Ein</td>
-        <td style="width:25%" class="align_right" *ngIf="channel[outputChannel] == 0">Aus</td>
-        <td style="width:10%"></td>
+        <td style="width:35%" class="align_right" *ngIf="channel[outputChannel] == null">-</td>
+        <td style="width:35%" class="align_right" *ngIf="channel[outputChannel] == 1" translate>General.On</td>
+        <td style="width:35%" class="align_right" *ngIf="channel[outputChannel] == 0" translate>General.Off</td>
       </tr>
     </table>
   </ion-card-content>
