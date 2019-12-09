@@ -83,7 +83,13 @@
 
           </ng-container>
 
-          <ion-col *ngIf="this.edge.id == 'fems66'" size="12" size-lg="6" class="ion-no-padding">
+          <ion-col *ngIf="this.edge.id == 'fems2023' && config.getComponent('corrently0') != null" size="12" size-lg="6"
+            class="ion-no-padding">
+            <corrently></corrently>
+          </ion-col>
+
+          <ion-col *ngIf="this.edge.id == 'fems66' || this.edge.id == 'fems2023'" size="12" size-lg="6"
+            class="ion-no-padding">
             <awattar></awattar>
           </ion-col>
 

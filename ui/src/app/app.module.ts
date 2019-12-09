@@ -25,6 +25,7 @@ import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popo
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { SharedModule } from './shared/shared.module';
 import { Language } from './shared/translate/language';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { Language } from './shared/translate/language';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     IonicModule.forRoot(),
     FormlyModule.forRoot({
       types: [

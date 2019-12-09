@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title class="ion-text-start ion-padding-left">corrently</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card-content class="ion-padding">
+    <correntlyChart (startDateForecast)="getStartDate($event)" (endDateForecast)="getEndDate($event)"
+      (zipCode)="getZipCode($event)" (city)="getCity($event)">
+    </correntlyChart>
+  </ion-card-content>
+  <ion-card-content *ngIf="startDate != null">
+    <ion-row>
+      <ion-col size-xl="6" size-lg="6" size-sm="6" size-xs="12">
+        <table class="full_width">
+          <tr>
+            <td>Vorhersage vom {{startDate}} bis {{endDate}}</td>
+          </tr>
+          <tr>
+            <td>Stadt: {{city}}, PLZ: {{zipCode}}</td>
+          </tr>
+        </table>
+      </ion-col>
+      <ion-col size-xl="6" size-lg="6" size-sm="6" size-xs="12">
+        <ion-item button href="https://www.corrently.de/" target="_blank" lines="none" class="ion-float-right">
+          <ion-label>mehr Infos zu &nbsp;</ion-label>
+          <img style="width: 98px" src="assets/img/Corrently.png">
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-card-content>
+</ion-content>

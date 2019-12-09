@@ -1,0 +1,41 @@
+<ng-container *ngIf="edge">
+    <ion-card>
+        <ion-item button (click)="presentModal()" lines="full" color="light">
+            <img style="width: 98px" src="assets/img/Corrently.png">
+        </ion-item>
+        <ion-card-content *ngIf="(edge.currentData | async).channel as channel">
+            <table class="full_width">
+                <tr>
+                    <td style="width:65%">GSI</td>
+                    <td style="width:35%" class="align_right">
+                        {{ channel['corrently0/BestHourGsi'] | unitvalue:'%' }}
+                    </td>
+                </tr>
+            </table>
+            <table class="full_width">
+                <tr>
+                    <td style="width:20%">Zeitpunkt</td>
+                    <td style="width:80%" class="align_right">
+                        {{ getEpochTime() }}
+                    </td>
+                </tr>
+            </table>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 30%">
+                        gewählte PLZ:
+                    </td>
+                    <td style="width: 55%" class="align_right">
+                        <ion-input placeholder="{{config.getComponent('corrently0').properties['zipCode']}}"
+                            [(ngModel)]="zipCode"></ion-input>
+                    </td>
+                    <td style="width: 15%" class="align_right">
+                        <ion-button size="small" (click)="pickZipCode()">
+                            <ion-icon name="checkmark"></ion-icon>
+                        </ion-button>
+                    </td>
+                </tr>
+            </table>
+        </ion-card-content>
+    </ion-card>
+</ng-container>

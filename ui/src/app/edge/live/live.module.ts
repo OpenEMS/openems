@@ -33,6 +33,9 @@ import { OfflineComponent } from './offline/offline.component';
 import { AwattarComponent } from './awattar/awattar.component';
 import { AwattarModalComponent } from './awattar/modal/modal.component';
 import { AwattarChartComponent } from './awattar/modal/chart.component';
+import { CorrentlyModalComponent } from './corrently/modal/modal.component';
+import { CorrentlyComponent } from './corrently/corrently.component';
+import { CorrentlyChartComponent } from './corrently/modal/chart.component';
 
 @NgModule({
   imports: [
@@ -43,6 +46,7 @@ import { AwattarChartComponent } from './awattar/modal/chart.component';
   ],
   entryComponents: [
     AwattarModalComponent,
+    CorrentlyModalComponent,
     StorageModalComponent,
     GridModalComponent,
     ConsumptionModalComponent,
@@ -59,6 +63,9 @@ import { AwattarChartComponent } from './awattar/modal/chart.component';
     AwattarComponent,
     AwattarModalComponent,
     AwattarChartComponent,
+    CorrentlyComponent,
+    CorrentlyModalComponent,
+    CorrentlyChartComponent,
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,

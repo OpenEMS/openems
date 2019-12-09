@@ -1,0 +1,9 @@
+<div [hidden]="!apiCallSuccessful" style="width: 100%; height: 100%; position:relative">
+  <canvas baseChart [style.height.px]="getChartHeight()" [datasets]="barChartData" [labels]="barChartLabels"
+    [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType">
+  </canvas>
+</div>
+
+<ng-container *ngIf="!apiCallSuccessful">
+  <ion-progress-bar type="indeterminate"></ion-progress-bar>
+</ng-container>
