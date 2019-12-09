@@ -76,6 +76,12 @@ button.activated {
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+// 360px is aproximate min. width of mobile devices
+ion-toast.container {
+    text-align: center;
+    --max-width: 360px;
+}
+
 .no-scroll {
     overflow-y: hidden;
     overflow-x: hidden;

@@ -104,23 +104,32 @@ export class CorrentlyChartComponent {
         }
 
         if (object["gsi"] >= 0) {
+          this.barChartData[0].backgroundColor[index] = 'rgba(0,0,0, 0.2)'
+          this.barChartData[0].borderColor[index] = 'rgba(0,0,0, 0.2)'
+          this.barChartData[0].hoverBackgroundColor[index] = 'rgba(0,0,0, 0.2)'
+
           this.barChartData[1].backgroundColor[index] = 'rgba(255,53,0, 1)'
           this.barChartData[1].borderColor[index] = 'rgba(255,53,0, 1)'
           this.barChartData[1].hoverBackgroundColor[index] = 'rgba(255,53,0, 1)'
         }
         if (object["gsi"] > 41) {
+          this.barChartData[0].backgroundColor[index] = 'rgba(0,0,0, 0.2)'
+          this.barChartData[0].borderColor[index] = 'rgba(0,0,0, 0.2)'
+          this.barChartData[0].hoverBackgroundColor[index] = 'rgba(0,0,0, 0.2)'
+
           this.barChartData[1].backgroundColor[index] = 'rgba(255,255,0, 1)'
           this.barChartData[1].borderColor[index] = 'rgba(255,53,0, 1)'
           this.barChartData[1].hoverBackgroundColor[index] = 'rgba(255,255,0, 1)'
         }
         if (object["gsi"] > 60) {
+          this.barChartData[0].backgroundColor[index] = 'rgba(0,0,0, 0.2)'
+          this.barChartData[0].borderColor[index] = 'rgba(0,0,0, 0.2)'
+          this.barChartData[0].hoverBackgroundColor[index] = 'rgba(0,0,0, 0.2)'
+
           this.barChartData[1].backgroundColor[index] = 'rgba(0,223,0, 1)'
           this.barChartData[1].borderColor[index] = 'rgba(255,53,0, 1)'
           this.barChartData[1].hoverBackgroundColor[index] = 'rgba(0,223,0, 1)'
         }
-        this.barChartData[0].backgroundColor[index] = 'rgba(255,255,255,0.5)';
-        this.barChartData[0].borderColor[index] = 'rgba(255,255,255,0.5)';
-        this.barChartData[0].hoverBackgroundColor[index] = 'rgba(255,255,255,0.5)';
 
         let kwhPrice: number = 2 - (2 / 100 * object["gsi"])
         this.barChartData[0].data.push(Math.round(kwhPrice * 100) / 100)
@@ -132,6 +141,6 @@ export class CorrentlyChartComponent {
   }
 
   public getChartHeight(): number {
-    return window.innerHeight / 21 * 9;
+    return window.innerHeight / 21 * 12;
   }
 }

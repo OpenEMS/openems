@@ -51,8 +51,10 @@ export class CorrentlyComponent {
         { name: 'zipCode', value: this.zipCode }
       ]).then(() => {
         this.config.getComponent("corrently0").properties.zipCode = this.zipCode;
+        this.service.toast('Änderung übernommen', 'success');
       }).catch(reason => {
         this.config.getComponent("corrently0").properties.zipCode = oldZipCode;
+        this.service.toast('Änderung fehlgeschlagen' + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
