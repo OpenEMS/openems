@@ -70,9 +70,9 @@ export const TRANSLATION = {
         Index: "Übersicht",
         AboutUI: "Über OpenEMS UI",
         GeneralSettings: 'Allgemeine Einstellungen',
-        EdgeSettings: 'hy-control Einstellungen',
+        EdgeSettings: 'FEMS Einstellungen',
         Menu: 'Menü',
-        Overview: 'hy-control Übersicht',
+        Overview: 'FEMS Übersicht',
         Logout: 'Abmelden'
     },
     Index: {
@@ -80,19 +80,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.", // value = name of websocket
         ConnectionFailed: "Verbindung zu {{value}} getrennt.", // value = name of websocket
         ToEnergymonitor: "Zum Energiemonitor...",
-        IsOffline: "hy-control ist offline!",
-        PleaseLogin: "Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich anzumelden.",
-        Username: "Benutzername / Email",
-        Password: "Passwort",
-        LostPassword: "Passwort vergessen",
-        FormInvalid: "Bitte füllen Sie das Formular komplett aus.",
-        Connecting: "Verbindung wird aufgebaut.",
-        LoginWrong: "Benutzername / Passwort falsch.",
-        NotOnline: "Das Gerät ist nicht verbunden.",
-        Type: "Typ:",
-        ConnectedAs: "Angemeldet als:",
-        MoreDevices: "Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.",
-        SaveLogin: "Login Daten speichern"
+        IsOffline: "OpenEMS ist offline!"
     },
     Edge: {
         Index: {
@@ -221,6 +209,7 @@ export const TRANSLATION = {
             Apr: "Apr",
             May: "Mai",
             Jun: "Jun",
+            Jul: "Jul",
             Aug: "Aug",
             Sep: "Sep",
             Oct: "Okt",
@@ -293,19 +282,5 @@ export const TRANSLATION = {
         LoggedIn: "Angemeldet.",
         AuthenticationFailed: "Keine Verbindung: Authentifizierung fehlgeschlagen.",
         Closed: "Verbindung beendet."
-    },
-    Alerts: {
-        Error: "Fehler",
-        Default: "Etwas is schief gelaufen. Bitte versuchen Sie es noch einmal.",
-        RetrievePwdHeader: "Passwort vergessen",
-        RetrievePwdMsg: "Bitte geben Sie Ihre(n) Email / Benutzernamen um ein neues Passwort zu erstellen.",
-        RetrievePwdPlaceholder: "Email/Benutzername",
-        Cancel: "Abbrechen",
-        Send: "Senden",
-        RetrievePwdSent: "Ein Link zur Wiederherstellung Ihres Passworts wurde an Sie gesendet. Bitte überprüfen Sie Ihre Emails.",
-        RetrievePwdError: "Bei der Wiederherstellung Ihres Passworts is ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Eingabe und versuchen es erneut.",
-        ClearLoginHeader: "Login Daten löschen",
-        ClearLoginMsg: "Wenn Sie Ihre Login Daten löschen, müssen Sie Ihren Benutzernamen und Ihr Passwort bei der nächsten Anmeldung erneut eingeben. Jetz Login Daten löschen?",
-        ClearLoginDone: "Login Daten gelöscht."
     }
 }
