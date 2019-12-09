@@ -27,7 +27,7 @@ export class IndexComponent {
   public filteredEdges: Edge[] = [];
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  private slice: number = 20;
+  public slice: number = 20;
 
   constructor(
     public websocket: Websocket,

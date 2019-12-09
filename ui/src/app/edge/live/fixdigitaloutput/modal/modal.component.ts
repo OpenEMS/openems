@@ -35,8 +35,10 @@ export class FixDigitalOutputModalComponent {
         { name: 'isOn', value: newMode }
       ]).then(() => {
         this.controller.properties.isOn = newMode;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         this.controller.properties.isOn = oldMode;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
