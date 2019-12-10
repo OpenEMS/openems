@@ -7,7 +7,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.evcs.api.Status;
 
 public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
-	
+
 	ALIAS(Doc.of(OpenemsType.STRING).text("A human-readable name of this Component")),
 	/*
 	 * Report 1
@@ -38,8 +38,9 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	TIMEOUT_CT(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)
 			.text("Shows the remaining time until the current value is accepted")), //
 	OUTPUT(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF).text("State of the output X2")), //
-	INPUT(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF).text(
-			"State of the potential free Enable input X1. When using the input, please pay attention to the information in the installation manual.")), //
+	INPUT(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)
+			.text("State of the potential free Enable input X1. When using the input, "
+					+ "please pay attention to the information in the installation manual.")), //
 	/*
 	 * Report 3
 	 */
@@ -52,13 +53,10 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")), //
 	COS_PHI(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).text("Power factor")), //
 	// TODO: 0.1 Wh
-	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text(
-			"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //
+	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
+			.text("Total power consumption (persistent) without current loading session. "
+					+ "Is summed up after each completed charging session")), //
 
-	/*
-	 * Fail State Channels
-	 */
-	CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT)),
 	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING));
 
 	private final Doc doc;

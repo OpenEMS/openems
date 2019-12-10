@@ -32,6 +32,9 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
@@ -45,8 +48,8 @@ import io.openems.edge.evcs.api.Status;
 public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
-	private final static int CHARGE_POWER_BUFFER = 100;
-	private final static double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.05; // 5%
+	private static final int CHARGE_POWER_BUFFER = 100;
+	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.05; // 5%
 
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 
@@ -123,6 +126,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -152,6 +156,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 */
 		boolean isClustered = evcs.isClustered().value().orElse(false);
 		if (isClustered) {
+
 			Status status = evcs.status().value().asEnum();
 			switch (status) {
 			case ERROR:
@@ -236,7 +241,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 						nextChargePower = 0;
 					} else {
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
-						evcs.getMaximumPower().setNextValue(nextChargePower); 
+						evcs.getMaximumPower().setNextValue(nextChargePower);
 					}
 					this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
 				} else {
@@ -257,8 +262,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	/**
 	 * Calculates the next charging power, depending on the current PV production
-	 * and house consumption
+	 * and house consumption.
 	 * 
+	 * @param evcs Electric Vehicle Charging Station
 	 * @return the available excess power for charging
 	 * @throws OpenemsNamedException on error
 	 */
@@ -290,8 +296,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 */
 	private int calculateExcessPowerAfterEss(ManagedEvcs evcs, SymmetricEss ess) {
 		int maxEssCharge;
-		if (ess instanceof ManagedEvcs) {
-			maxEssCharge = ((ManagedSymmetricEss) ess).getAllowedCharge().value().orElse(0);
+		if (ess instanceof ManagedSymmetricEss) {
+			ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
+			Power power = ((ManagedSymmetricEss) ess).getPower();
+			maxEssCharge = power.getMinPower(e, Phase.ALL, Pwr.ACTIVE);
+			maxEssCharge = Math.abs(maxEssCharge);
 		} else {
 			maxEssCharge = ess.getMaxApparentPower().value().orElse(0);
 		}
@@ -317,7 +326,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Controller.getModbusSlaveNatureTable(accessMode));
 	}

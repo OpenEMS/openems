@@ -136,8 +136,7 @@ export const TRANSLATION = {
                     MaxEnergyRestriction: "Omezte maximální energii na jedno nabití",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
-                        Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
-                        Help1_1: "Při opětovném zapnutí se objeví IP nabíjecí stanice"
+                        Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě"
                     },
                     OptimizedChargeMode: {
                         Name: "Optimalizované zatížení",

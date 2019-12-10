@@ -137,8 +137,7 @@ export const TRANSLATION = {
                     MaxEnergyRestriction: "Limit maximum energy per charge",
                     NoConnection: {
                         Description: "No connection to the charging station.",
-                        Help1: "Check if the charging station is switched on and can be reached via the network.",
-                        Help1_1: "The IP of the charging station appears when switching on again"
+                        Help1: "Check if the charging station is switched on and can be reached via the network."
                     },
                     OptimizedChargeMode: {
                         Name: "Optimized charging",

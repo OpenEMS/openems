@@ -1,0 +1,25 @@
+Bundle-Name: OpenEMS Edge EVCS OCPP Server
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+Export-Package:  \
+	io.openems.edge.evcs.ocpp.server
+
+-includeresource: {readme.adoc} \
+	
+-buildpath: ${buildpath},\
+ 	com.google.gson,\
+    io.openems.edge.evcs.ocpp.core;version=latest,\
+	com.sun.jna,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.evcs.api;version=latest,\
+	org.java-websocket:Java-WebSocket,\
+	org.ops4j.pax.logging.pax-logging-api,\
+	osgi.enroute.base.api;version=2.1,\
+	osgi.enroute.logger.simple.provider,\
+	slf4j.api
+
+-testpath: ${testpath}
+

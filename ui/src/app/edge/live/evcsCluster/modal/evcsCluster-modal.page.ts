@@ -35,6 +35,7 @@ export class ModalComponentEvcsCluster implements OnInit {
     public firstEvcs: string;
     public lastEvcs: string;
     public prioritizedEvcsList: string[];
+    public evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
 
     constructor(
         protected service: Service,
@@ -47,10 +48,18 @@ export class ModalComponentEvcsCluster implements OnInit {
     }
 
     ngOnInit() {
+
+
         this.prioritizedEvcsList = this.config.properties["evcs.ids"];
         this.evcsAmount = this.prioritizedEvcsList.length;
         this.lastEvcs = this.prioritizedEvcsList[this.evcsAmount - 1]
         this.firstEvcs = this.prioritizedEvcsList[0];
+
+        this.service.getConfig().then(config => {
+            this.prioritizedEvcsList.forEach(evcsId => {
+                this.evcsConfigMap[evcsId] = config.getComponent(evcsId);
+            });
+        });
     }
 
     doReorder(ev: any) {
@@ -251,7 +260,6 @@ export class ModalComponentEvcsCluster implements OnInit {
                 return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
             }
         }
-
         if (power == null || power == 0) {
 
             this.chargeState = state;

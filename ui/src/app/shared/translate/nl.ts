@@ -134,8 +134,7 @@ export const TRANSLATION = {
                     MaxEnergyRestriction: "Beperk de maximale energie per lading",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
-                        Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
-                        Help1_1: "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen"
+                        Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt"
                     },
                     OptimizedChargeMode: {
                         Name: "Geoptimaliseerd laden",

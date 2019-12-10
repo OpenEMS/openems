@@ -137,8 +137,7 @@ export const TRANSLATION = {
                     MaxEnergyRestriction: "Limite la energía máxima por carga",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
-                        Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
-                        Help1_1: "La IP de la estación de carga aparece cuando se enciende nuevamente"
+                        Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red"
                     },
                     OptimizedChargeMode: {
                         Name: "Carga optimizada",

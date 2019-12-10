@@ -2,10 +2,10 @@
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
             <ion-title>
-                <ion-label *ngIf="currentData[componentId + '/Alias'] as alias">
+                <ion-label *ngIf="config.properties.alias as alias">
                     {{ alias }}
                 </ion-label>
-                <ion-label *ngIf="!currentData[componentId + '/Alias']" translate>
+                <ion-label *ngIf="!config.properties.alias" translate>
                     Edge.Index.Widgets.EVCS.ChargingStationCluster
                 </ion-label>
             </ion-title>
@@ -53,7 +53,8 @@
                         </table>
                     </ion-item>
                     <ion-item padding-bottom padding-top lines="none">
-                        <evcsChart style="width: 90%" [evcsMap]="evcsMap" [edge]="edge" [currentData]="currentData">
+                        <evcsChart style="width: 90%" [evcsMap]="evcsMap" [edge]="edge" [currentData]="currentData"
+                            [evcsConfigMap]="evcsConfigMap" [componentId]="componentId">
                         </evcsChart>
                     </ion-item>
                     <ion-label>
@@ -62,10 +63,10 @@
                             <ion-item *ngFor="let evcs of prioritizedEvcsList; let i = index" [attr.data-index]="i"
                                 lines="full">
                                 <ion-text>{{i+1}}.&nbsp;</ion-text>
-                                <ion-label *ngIf="currentData[evcs + '/Alias'] as alias">
-                                    {{ alias }}
+                                <ion-label *ngIf="evcsConfigMap[evcs] as evcsConfig">
+                                    {{ evcsConfig.properties.alias }}
                                 </ion-label>
-                                <ion-label *ngIf="!currentData[evcs + '/Alias']">
+                                <ion-label *ngIf="!evcsConfigMap[evcs]">
                                     {{ evcs }}
                                 </ion-label>
                                 <ion-reorder slot="end"></ion-reorder>
@@ -86,10 +87,10 @@
                                                 size="large" slot="start" name="arrow-dropleft">
                                             </ion-icon>
                                             <ion-title style="text-align: center">
-                                                <ion-label *ngIf="currentData[evcs_id + '/Alias'] as alias">
-                                                    {{ alias }}
+                                                <ion-label *ngIf="evcsConfigMap[evcs_id] as evcsConfig">
+                                                    {{ evcsConfig.properties.alias }}
                                                 </ion-label>
-                                                <ion-label *ngIf="(!currentData[evcs_id + '/Alias'])">
+                                                <ion-label *ngIf="!evcsConfigMap[evcs_id]">
                                                     {{ evcs_id }}
                                                 </ion-label>
                                             </ion-title>
@@ -306,10 +307,6 @@
                                             <td>
                                                 <ul>
                                                     <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
-                                                    <ul>
-                                                        <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1
-                                                        </li>
-                                                    </ul>
                                                 </ul>
                                             </td>
                                         </tr>

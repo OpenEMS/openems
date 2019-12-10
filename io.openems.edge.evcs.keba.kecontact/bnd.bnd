@@ -10,13 +10,10 @@ Private-Package: \
 -includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
+	com.google.gson,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.evcs.api;version=latest,\
-	com.google.gson,\
 	slf4j.api
 
 -testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8

@@ -152,8 +152,7 @@ export const TRANSLATION = {
                     MaxEnergyRestriction: "Maximale Energie pro Ladevorgang begrenzen",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
-                        Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
-                        Help1_1: "Die IP der Ladesäule erscheint beim erneuten einschalten"
+                        Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist"
                     },
                     OptimizedChargeMode: {
                         Name: "Optimierte Beladung",
