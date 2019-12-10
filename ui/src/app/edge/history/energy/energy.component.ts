@@ -13,7 +13,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, ChartOptionsTwoYAxis, DEFAULT_TIME_CHART_OPTIONS_TWO_Y_AXIS } from './../shared';
 import { EnergyModalComponent } from './modal/modal.component';
 
 @Component({
@@ -112,6 +112,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
       this.getChartHeight();
     });
+    this.setAxes()
   }
 
   ngOnDestroy() {
@@ -140,6 +141,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
           }
 
+          // PUSH DATA FOR LEFT Y AXSIS
           if ('_sum/ProductionActivePower' in result.data) {
             /*
             * Production
@@ -155,7 +157,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.Production'),
               data: productionData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(45,143,171,0.05)',
@@ -180,7 +184,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.GridBuy'),
               data: buyFromGridData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(0,0,0,0.05)',
@@ -202,7 +208,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.GridSell'),
               data: sellToGridData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(0,0,200,0.05)',
@@ -224,7 +232,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.Consumption'),
               data: consumptionData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(253,197,7,0.05)',
@@ -256,7 +266,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.ChargePower'),
               data: chargeData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(0,223,0,0.05)',
@@ -277,14 +289,39 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.DischargePower'),
               data: dischargeData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(200,0,0,0.05)',
               borderColor: 'rgba(200,0,0,1)',
             })
           }
+          if ('_sum/EssSoc' in result.data) {
+            let socData = result.data['_sum/EssSoc'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 100 || value < 0) {
+                return null;
+              } else {
+                return value;
+              }
+            })
+            datasets.push({
+              label: this.translate.instant('General.Soc'),
+              data: socData,
+              hidden: false,
+              yAxisID: 'yAxis2',
+              position: 'right'
+            })
+            this.colors.push({
+              backgroundColor: 'rgba(200,0,0,0.05)',
+              borderColor: 'rgba(200,0,0,1)',
+            })
+          }
           this.datasets = datasets;
+          console.log("datasets", this.datasets)
           this.loading = false;
         }).catch(reason => {
           console.error(reason); // TODO error message
@@ -316,6 +353,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
               break;
             case 'Storage':
+              result.push(new ChannelAddress('_sum', 'EssSoc'))
               result.push(new ChannelAddress('_sum', 'EssActivePower'));
               break;
             case 'Production':
@@ -362,22 +400,19 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected setLabel() {
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <ChartOptionsTwoYAxis>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_TWO_Y_AXIS);
+    options.scales.yAxes[1].scaleLabel.labelString = "%"
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == this.grid) {
-        if (value < 0) {
-          value *= -1;
-          label = this.gridBuy;
-        } else {
-          label = this.gridSell;
-        }
-      }
       return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
     this.options = options;
+  }
+
+  private setAxes() {
+    console.log("options", console.log(this.options.scales))
   }
 
   private getAsymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {

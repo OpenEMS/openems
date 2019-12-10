@@ -3,7 +3,7 @@ import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
-import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
+import { ChartOptions, Dataset, EMPTY_DATASET, ChartOptionsTwoYAxis } from './shared';
 
 export abstract class AbstractHistoryChart {
 
@@ -11,7 +11,7 @@ export abstract class AbstractHistoryChart {
 
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
-    protected options: ChartOptions;
+    protected options: ChartOptions | ChartOptionsTwoYAxis;
     protected colors = []
 
     // Colors for Phase 1-3
