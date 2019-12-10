@@ -112,7 +112,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
       this.getChartHeight();
     });
-    this.setAxes()
   }
 
   ngOnDestroy() {
@@ -298,6 +297,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               borderColor: 'rgba(200,0,0,1)',
             })
           }
+
+          // PUSH DATA FOR RIGHT Y AXSIS
           if ('_sum/EssSoc' in result.data) {
             let socData = result.data['_sum/EssSoc'].map(value => {
               if (value == null) {
@@ -316,12 +317,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               position: 'right'
             })
             this.colors.push({
-              backgroundColor: 'rgba(200,0,0,0.05)',
-              borderColor: 'rgba(200,0,0,1)',
+              backgroundColor: 'rgba(0,223,0,0.15)',
+              borderColor: 'rgba(0,223,0,0.15)',
             })
           }
           this.datasets = datasets;
-          console.log("datasets", this.datasets)
           this.loading = false;
         }).catch(reason => {
           console.error(reason); // TODO error message
@@ -400,19 +400,21 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected setLabel() {
+    let translate = this.translate;
     let options = <ChartOptionsTwoYAxis>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_TWO_Y_AXIS);
     options.scales.yAxes[1].scaleLabel.labelString = "%"
+    options.scales.yAxes[1].ticks.max = 100;
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      if (label == translate.instant('General.Soc')) {
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+      } else {
+        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      }
     }
     this.options = options;
-  }
-
-  private setAxes() {
-    console.log("options", console.log(this.options.scales))
   }
 
   private getAsymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {
