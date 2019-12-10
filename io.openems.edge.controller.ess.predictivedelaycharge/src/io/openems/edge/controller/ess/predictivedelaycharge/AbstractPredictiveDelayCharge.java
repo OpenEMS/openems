@@ -116,7 +116,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 		int remainingTime = calculateRemainingTime();
 
 		// crossed target hour
-		if (now.getHour() > this.targetHour) {
+		if (now.getHour() >= this.targetHour) {
 			
 			this.setChannels(State.PASSED_TARGET_HOUR, 0);
 			return null;

@@ -21,7 +21,6 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -103,10 +102,6 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 
 			// Adjusting the limit to the maximum feed-in.
 			int calculatedPower = this.gridPower + this.config.Maximum_Feed_In();
-
-			Power power = ess.getPower();
-			calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
-
 			/*
 			 * set result
 			 */

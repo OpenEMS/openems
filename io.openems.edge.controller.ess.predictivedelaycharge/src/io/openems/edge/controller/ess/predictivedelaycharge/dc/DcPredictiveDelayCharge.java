@@ -16,7 +16,6 @@ import io.openems.edge.controller.ess.predictivedelaycharge.AbstractPredictiveDe
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
@@ -25,20 +24,18 @@ import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Ess.DcPredictiveDelayCharge", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
-		implements Controller, OpenemsComponent {
+public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge implements Controller, OpenemsComponent {
 
 	private Config config;
 
 	@Reference
 	protected ComponentManager componentManager;
-	
+
 	@Reference
 	protected ProductionHourlyPredictor productionHourlyPredictor;
-	
-	@Reference
-	protected ConsumptionHourlyPredictor consumptionHourlyPredictor;	
 
+	@Reference
+	protected ConsumptionHourlyPredictor consumptionHourlyPredictor;
 
 	public DcPredictiveDelayCharge() {
 		super();
@@ -46,7 +43,8 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.meter_id(), config.ess_id(), config.buffer_hour());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.meter_id(), config.ess_id(),
+				config.buffer_hour());
 		this.config = config;
 	}
 
@@ -58,7 +56,8 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		Integer calculatedPower = super.getCalculatedPower(productionHourlyPredictor, consumptionHourlyPredictor, componentManager);
+		Integer calculatedPower = super.getCalculatedPower(productionHourlyPredictor, consumptionHourlyPredictor,
+				componentManager);
 
 		// Get required variables
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
@@ -66,18 +65,13 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge
 
 		int productionPower = charger.getActualPower().value().orElse(0);
 
-
 		// checking if power per second is calculated
 		if (calculatedPower != null) {
 
-			int calculatedMinPower = productionPower - calculatedPower;
+			calculatedPower = productionPower - calculatedPower;
 
 			// avoiding buying power from grid to charge the battery.
-			if (calculatedMinPower > 0) {
-				// Set limitation for ChargePower
-				Power power = ess.getPower();
-				calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-						calculatedMinPower);
+			if (calculatedPower > 0) {
 				/*
 				 * set result
 				 */

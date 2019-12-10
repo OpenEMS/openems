@@ -15,7 +15,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.predictivedelaycharge.AbstractPredictiveDelayCharge;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
@@ -30,10 +29,10 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 
 	@Reference
 	protected ComponentManager componentManager;
-	
+
 	@Reference
 	protected ProductionHourlyPredictor productionHourlyPredictor;
-	
+
 	@Reference
 	protected ConsumptionHourlyPredictor consumptionHourlyPredictor;
 
@@ -64,16 +63,11 @@ public class AcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 
 		// checking if power per second is calculated
 		if (calculatedPower != null) {
-
-			// Set limitation for ChargePower
-			Power power = ess.getPower();
-			calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-					(calculatedPower * -1));
 			/*
 			 * set result
 			 */
 			ess.addPowerConstraintAndValidate("AcPredictiveDelayCharge", Phase.ALL, Pwr.ACTIVE,
-					Relationship.GREATER_OR_EQUALS, calculatedPower);
+					Relationship.GREATER_OR_EQUALS, (calculatedPower * -1));
 		}
 	}
 }
