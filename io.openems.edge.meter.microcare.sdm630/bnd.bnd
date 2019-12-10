@@ -2,18 +2,13 @@ Bundle-Name: OpenEMS Edge Meter Microcare SDM 630 Smart Meter
 Bundle-Vendor: Microcare (Destrier Electronics Pty Ltd)
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-License: Proprietary (for now)
-Export-Package: io.openems.edge.meter.microcare.sdm630.api;-provide=true
-Private-Package: io.openems.edge.meter.microcare.sdm630
 
--includeresource: {readme.adoc}
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.meter.api;version=latest
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

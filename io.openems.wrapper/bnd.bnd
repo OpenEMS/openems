@@ -1,3 +1,6 @@
+Bundle-Name: OpenEMS Wrapper
+Bundle-Description: This wraps external java libraries that do not have OSGi headers
+
 -sub: *.bnd
 -buildpath: \
 	info.faljse:SDNotify;version=1.3,\

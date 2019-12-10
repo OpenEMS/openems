@@ -157,10 +157,5 @@
 			<artifactId>rrd4j</artifactId>
 			<version>3.5</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.8.0-beta4</version>
-		</dependency>
 	</dependencies>
 </project>
