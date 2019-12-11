@@ -3,13 +3,32 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
+Export-Package: \
+	com.dalsemi.onewire,\
+	com.dalsemi.onewire.adapter,\
+	com.dalsemi.onewire.application.file,\
+	com.dalsemi.onewire.application.monitor,\
+	com.dalsemi.onewire.application.sha,\
+	com.dalsemi.onewire.application.tag,\
+	com.dalsemi.onewire.container,\
+	com.dalsemi.onewire.debug,\
+	io.openems.edge.bridge.onewire,\
+	com.dalsemi.onewire.utils,\
+	gnu.io
+
+Include-Resource: \
+	@lib/RXTXcomm.jar;lib:=true
+
+-privatepackage: \
+	io.openems.edge.bridge.onewire.impl
+
 -buildpath: \
 	${buildpath},\
 	com.google.gson,\
 	com.google.guava,\
 	io.openems.common,\
 	io.openems.edge.common,\
-	io.openems.wrapper.rxtx,\
+	lib/RXTXcomm.jar;version=file,\
 	slf4j.api
 
 -testpath: \
