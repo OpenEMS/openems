@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.backend.timedata.core" increment="1575986050594">
+  <resource>
+    <capability namespace="osgi.identity">
+      <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
+      <attribute name="osgi.identity" value="io.openems.backend.timedata.core"/>
+      <attribute name="type" value="osgi.bundle"/>
+      <attribute name="version" value="1.0.0.201912101354" type="Version"/>
+    </capability>
+    <capability namespace="osgi.wiring.bundle">
+      <attribute name="bundle-version" value="1.0.0.201912101354" type="Version"/>
+      <attribute name="osgi.wiring.bundle" value="io.openems.backend.timedata.core"/>
+    </capability>
+    <capability namespace="osgi.wiring.host">
+      <attribute name="bundle-version" value="1.0.0.201912101354" type="Version"/>
+      <attribute name="osgi.wiring.host" value="io.openems.backend.timedata.core"/>
+    </capability>
+    <capability namespace="osgi.wiring.package">
+      <directive name="uses" value="com.google.gson,io.openems.common.types"/>
+      <attribute name="version" value="1.0.0" type="Version"/>
+      <attribute name="osgi.wiring.package" value="io.openems.backend.timedata.core"/>
+    </capability>
+    <capability namespace="osgi.content">
+      <attribute name="size" value="4913" type="Long"/>
+      <attribute name="url" value="generated/io.openems.backend.timedata.core.jar"/>
+      <attribute name="mime" value="application/vnd.osgi.bundle"/>
+      <attribute name="osgi.content" value="BA4D44E389994669C99B02338AE9F38584CB325FA307CA38E705FAF630EA4FBE"/>
+    </capability>
+    <capability namespace="bndtools.workspace">
+      <attribute name="bndtools.workspace" value="file:/C:/Users/hummelsberger/hy-control"/>
+      <attribute name="project.path" value="/io.openems.backend.timedata.core"/>
+    </capability>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=com.google.gson)(&amp;(version&gt;=2.8.0)(!(version&gt;=3.0.0))))"/>
+    </requirement>
+    <requirement namespace="osgi.wiring.package">
+      <directive name="filter" value="(&amp;(osgi.wiring.package=io.openems.common.types)(&amp;(version&gt;=1.0.0)(!(version&gt;=2.0.0))))"/>
+    </requirement>
+    <requirement namespace="osgi.ee">
+      <directive name="filter" value="(&amp;(osgi.ee=JavaSE)(version=1.8))"/>
+    </requirement>
+  </resource>
+</repository>

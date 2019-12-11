@@ -8,25 +8,17 @@ Bundle-Description: \
 	\
 	${warning;Please update this Bundle-Description in io.openems.edge.controller.symmetric.peaklimiting/api.bnd}
 
-Export-Package:  \
-	io.openems.edge.controller.api;
-
-Private-Package:  \
-	io.openems.edge.controller.symmetric.peaklimiting
-
--includeresource: {readme.adoc}
-
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.common,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.timedata.api,\
-	com.google.gson
+	com.google.gson,\
+	slf4j.api
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${testpath}
 

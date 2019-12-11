@@ -1,19 +1,10 @@
-#
-# io.openems.backend.uiwebsocket.energydepot PROVIDER BUNDLE
-#
-
+Bundle-Name: OpenEMS Backend UiWebsocket EnergyDepot
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Vendor: KACO new energy GmbH
 Bundle-Version:					1.0.0.${tstamp}
 
-Export-Package:  \
-	io.openems.backend.uiwebsocket.api;
-
-Private-Package:  \
-	io.openems.backend.uiwebsocket.energydepot
-
--includeresource: {readme.md}
-
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	${buildpath},\
 	com.google.gson,\
 	io.openems.backend.edgewebsocket.api,\
 	io.openems.backend.metadata.api,\
@@ -22,13 +13,8 @@ Private-Package:  \
 	io.openems.common,\
 	io.openems.wrapper.websocket,\
 	com.google.guava;version=27,\
-	json,\
-	io.openems.backend.common
+	io.openems.backend.common,\
+	slf4j.api
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
-
-Bundle-Name: OpenEMS Backend UiWebsocket EnergyDepot
-Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Vendor: KACO new energy GmbH
+	${testpath}

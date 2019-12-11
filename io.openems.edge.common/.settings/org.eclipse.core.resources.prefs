@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/common/channel/internal/package-info.java=UTF-8
+encoding//src/io/openems/edge/common/component/package-info.java=UTF-8
+encoding//src/io/openems/edge/common/event/package-info.java=UTF-8
+encoding//test/.gitignore=UTF-8
+encoding/bnd.bnd=UTF-8
