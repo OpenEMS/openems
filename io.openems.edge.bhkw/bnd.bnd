@@ -3,26 +3,12 @@ Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-
-
-Export-Package:  \
-	io.openems.edge.bhkw,\
-	io.openems.edge.bhkw.task,\
-
-Private-Package:  \
-	io.openems.edge.bhkw
-
--includeresource: {readme.md}
-
--buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.relais.board.api;version=latest,\
-	io.openems.edge.gaspedal;version=latest,\
-
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.gaspedal,\
+	io.openems.edge.relais.board.api
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
-
+	${testpath}

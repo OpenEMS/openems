@@ -3,24 +3,14 @@ Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-
-
-Export-Package:  \
-	io.openems.edge.relais,\
-
--includeresource: {readme.md}
-
--buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
-		io.openems.edge.common;version=latest,\
-    	io.openems.common;version=latest,\
-    	io.openems.edge.relais.board;version=latest,\
-    	io.openems.edge.relais.board.api;version=latest,\
-    	io.openems.edge.relais.api;version=latest,\
-    	pi4j-core,\
-
+-buildpath: \
+	${buildpath},\
+    io.openems.common,\
+	io.openems.edge.common,\
+    io.openems.edge.relais.api,\
+    io.openems.edge.relais.board,\
+    io.openems.edge.relais.board.api,\
+    pi4j-core
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
-
+	${testpath}

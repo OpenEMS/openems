@@ -3,28 +3,15 @@ Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-
-Export-Package:  \
-	io.openems.edge.temperature.sensor,\
-	io.openems.edge.temperature.sensor.task,\
-	io.openems.edge.temperature.sensor.temperaturesensor,\
-
-Private-Package:  \
-	io.openems.edge.temperature.sensor,\
-	io.openems.edge.temperature.sensor.task,\
-
--includeresource: {readme.md}
-
--buildpath:  \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.bridge.spi;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.edge.temperature.board.api;version=latest,\
-	io.openems.edge.thermometer.api;version=latest,\
-	io.openems.edge.temperature.board;version=latest,\
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.spi,\
+	io.openems.edge.common,\
+	io.openems.edge.temperature.board,\
+	io.openems.edge.temperature.board.api,\
+	io.openems.edge.thermometer.api,\
+	slf4j.api
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
-
+	${testpath}
