@@ -2,35 +2,34 @@ Bundle-Name: OpenEMS Edge Bridge OneWire
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
+
 Export-Package: \
 	com.dalsemi.onewire,\
 	com.dalsemi.onewire.adapter,\
-	com.dalsemi.onewire.container,\
 	com.dalsemi.onewire.application.file,\
 	com.dalsemi.onewire.application.monitor,\
 	com.dalsemi.onewire.application.sha,\
 	com.dalsemi.onewire.application.tag,\
+	com.dalsemi.onewire.container,\
 	com.dalsemi.onewire.debug,\
-	com.dalsemi.onewire.utils,\
 	io.openems.edge.bridge.onewire,\
+	com.dalsemi.onewire.utils,\
 	gnu.io
-	
-Private-Package: \
+
+Include-Resource: \
+	@lib/RXTXcomm.jar;lib:=true
+
+-privatepackage: \
 	io.openems.edge.bridge.onewire.impl
 
--includeresource: \
-	@lib/RXTXcomm.jar; lib:=true, \
-	{readme.adoc}
-
--buildpath: ${buildpath},\
-	lib/RXTXcomm.jar;version=file,\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
+-buildpath: \
+	${buildpath},\
 	com.google.gson,\
 	com.google.guava,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	lib/RXTXcomm.jar;version=file,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

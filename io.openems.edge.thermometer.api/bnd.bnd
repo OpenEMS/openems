@@ -2,19 +2,14 @@ Bundle-Name: OpenEMS Edge Thermometer Api
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
+Bundle-Description:\
 	A Thermometer measures temperature.
 
-Export-Package: io.openems.edge.thermometer.api
-
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

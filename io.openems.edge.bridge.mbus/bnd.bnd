@@ -3,20 +3,13 @@ Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-Export-Package: \
-	io.openems.edge.bridge.mbus.api;-provide=true,\
-	io.openems.edge.bridge.mbus,\
-	io.openems.edge.bridge.mbus.api.task
-
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
 	org.openmuc.jmbus;version=3.2,\
-	org.openmuc.jrxtx;version=1.0
+	org.openmuc.jrxtx;version=1.0,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

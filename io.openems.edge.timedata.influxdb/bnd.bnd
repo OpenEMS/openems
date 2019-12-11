@@ -2,23 +2,17 @@ Bundle-Name: OpenEMS Edge Timedata InfluxDB
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.timedata.api
-Private-Package: io.openems.edge.timedata.influxdb
 
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.timedata.api;version=latest,\
-	io.openems.shared.influxdb;version=latest,\
-	io.openems.wrapper.influxdb-java;version=latest,\
-	org.influxdb:influxdb-java,\
+-buildpath: \
+	${buildpath},\
 	com.google.gson,\
 	com.google.guava,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.timedata.api,\
+	io.openems.shared.influxdb,\
+	io.openems.wrapper.influxdb-java,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

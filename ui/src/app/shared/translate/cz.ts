@@ -38,6 +38,8 @@ export const TRANSLATION = {
         ActualPower: "E-Car Nabíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        ChangeAccepted: "Změna byla přijata",
+        ChangeFailed: "Změna se nezdařila",
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -178,6 +180,27 @@ export const TRANSLATION = {
             Year: "Rok",
             noData: "data nejsou k dispozici",
             activeDuration: "aktivní trvání",
+            BeginDate: "Vyberte datum zahájení",
+            EndDate: "Vyberte datum ukončení",
+            Sun: "Ned",
+            Mon: "Pon",
+            Tue: "Úte",
+            Wed: "Stř",
+            Thu: "Čtv",
+            Fri: "Pát",
+            Sat: "Sob",
+            Jan: "Led",
+            Feb: "Úno",
+            Mar: "Bře",
+            Apr: "Dub",
+            May: "Kvě",
+            Jun: "ČeN",
+            Jul: "ČeC",
+            Aug: "Srp",
+            Sep: "Zář",
+            Oct: "Říj",
+            Nov: "Lis",
+            Dec: "Pro"
         },
         Config: {
             Index: {

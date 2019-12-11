@@ -2,24 +2,14 @@ Bundle-Name: OpenEMS Edge
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Private-Package: \
-	io.openems.edge.application
-EnRoute-Application: io.openems.edge.application
 
--includeresource: \
-	{readme.md}
-
--buildpath: ${buildpath},\
-info.faljse:SDNotify;version=1.1,\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.scheduler.api;version=latest,\
+-buildpath: \
+	${buildpath},\
 	com.google.guava,\
-	slf4j.api,\
-	io.openems.wrapper.sdnotify;version=latest
+	io.openems.common,\
+	io.openems.wrapper.sdnotify,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}
+	

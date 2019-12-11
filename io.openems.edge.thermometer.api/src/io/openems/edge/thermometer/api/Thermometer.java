@@ -11,38 +11,38 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Thermometer extends OpenemsComponent {
 
-    public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-        /**
-         * Temperature.
-         *
-         * <ul>
-         * <li>Interface: Thermometer
-         * <li>Type: Integer
-         * <li>Unit: degree celsius
-         * </ul>
-         */
-        TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-                .unit(Unit.DEZIDEGREE_CELSIUS));
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/**
+		 * Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: Thermometer
+		 * <li>Type: Integer
+		 * <li>Unit: degree celsius
+		 * </ul>
+		 */
+		TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEZIDEGREE_CELSIUS));
 
-        private final Doc doc;
+		private final Doc doc;
 
-        private ChannelId(Doc doc) {
-            this.doc = doc;
-        }
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
 
-        @Override
-        public Doc doc() {
-            return this.doc;
-        }
-    }
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
-    /**
-     * Gets the Temperature in [degree celsius].
-     *
-     * @return the Channel
-     */
-    default Channel<Integer> getTemperature() {
-        return this.channel(ChannelId.TEMPERATURE);
-    }
+	/**
+	 * Gets the Temperature in [degree celsius].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getTemperature() {
+		return this.channel(ChannelId.TEMPERATURE);
+	}
 
 }

@@ -3,6 +3,8 @@ package io.openems.edge.bridge.modbus;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
+
 @ObjectClassDefinition(//
 		name = "Bridge Modbus/TCP", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/TCP device.")

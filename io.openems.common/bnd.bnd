@@ -2,38 +2,15 @@ Bundle-Name: OpenEMS Common
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.common,\
-	io.openems.common.api,\
-	io.openems.common.channel,\
-	io.openems.common.config,\
-	io.openems.common.exceptions,\
-	io.openems.common.jsonrpc,\
-	io.openems.common.jsonrpc.base,\
-	io.openems.common.jsonrpc.notification,\
-	io.openems.common.jsonrpc.request,\
-	io.openems.common.jsonrpc.response,\
-	io.openems.common.jsonrpc.shared,\
-	io.openems.common.session,\
-	io.openems.common.timedata,\
-	io.openems.common.types,\
-	io.openems.common.utils,\
-	io.openems.common.websocket,\
-	io.openems.common.worker
-
--includeresource: {readme.md}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.wrapper.websocket;version=latest,\
-	org.apache.felix.configadmin;version=1.8,\
-	com.google.guava,\
 	com.google.gson,\
-	org.java-websocket:Java-WebSocket;version=1.3,\
+	com.google.guava,\
+	io.openems.wrapper.fastexcel,\
+	io.openems.wrapper.websocket,\
 	org.ops4j.pax.logging.pax-logging-api,\
-	org.dhatim:fastexcel
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}
