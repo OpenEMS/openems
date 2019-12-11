@@ -16,11 +16,10 @@ import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
-import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Implements a Write Holding Registers abstractTask, using Modbus function code
@@ -58,7 +57,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public int _execute(BridgeModbus bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		int noOfWrittenRegisters = 0;
 		List<CombinedWriteRegisters> writes = mergeWriteRegisters();
 		// Execute combined writes
@@ -86,7 +85,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 		return noOfWrittenRegisters;
 	}
 
-	private void writeMultipleRegisters(BridgeModbus bridge, int unitId, int startAddress, Register[] registers)
+	private void writeMultipleRegisters(AbstractModbusBridge bridge, int unitId, int startAddress, Register[] registers)
 			throws ModbusException, OpenemsException {
 		WriteMultipleRegistersRequest request = new WriteMultipleRegistersRequest(startAddress, registers);
 		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
@@ -94,7 +93,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
-			OpenemsComponent.logInfo(this.log, bridge, "FC16WriteRegisters " //
+			bridge.logInfo(this.log, "FC16WriteRegisters " //
 					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
 					+ Arrays.stream(registers) //
 							.map(r -> String.format("%4s", Integer.toHexString(r.getValue())).replace(' ', '0')) //

@@ -2,26 +2,16 @@ Bundle-Name: OpenEMS Edge PV Inverter KACO blueplanet
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.edge.meter.api;provide:=true;-split-package:=merge-last,\
-	io.openems.edge.pvinverter.api;provide:=true;-split-package:=merge-last
 
--privatepackage:\
-	io.openems.edge.pvinverter.kaco.blueplanet
-
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.meter.api;version=latest,\
-	io.openems.edge.pvinverter.api;version=latest,\
-	io.openems.edge.pvinverter.sunspec;version=latest,\
-	com.google.guava,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.pvinverter.api,\
+	io.openems.edge.pvinverter.sunspec,\
 	slf4j.api
 
--testpath:\
+-testpath: \
 	${testpath}

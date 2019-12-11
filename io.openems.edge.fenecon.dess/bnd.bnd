@@ -2,29 +2,15 @@ Bundle-Name: OpenEMS Edge FENECON DESS (PRO Hybrid, PRO Compact)
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.edge.ess.api;provide:=true,\
-	io.openems.edge.ess.dccharger.api;provide:=true,\
-	io.openems.edge.meter.api;provide:=true
-	
--privatepackage:\
-	io.openems.edge.fenecon.dess,\
-	io.openems.edge.fenecon.dess.ess,\
-	io.openems.edge.fenecon.dess.charger,\
-	io.openems.edge.fenecon.dess.gridmeter,\
-	io.openems.edge.fenecon.dess.pvmeter
 
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
+	com.google.guava,\
+	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.meter.api;version=latest,\
-	com.google.guava
+	io.openems.edge.common,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.meter.api
 
--testpath:\
+-testpath: \
 	${testpath}

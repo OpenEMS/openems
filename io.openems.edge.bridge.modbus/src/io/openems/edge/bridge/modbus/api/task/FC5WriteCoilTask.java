@@ -11,11 +11,10 @@ import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
 import com.ghgande.j2mod.modbus.msg.WriteCoilResponse;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Implements a Write Single Coil abstractTask, using Modbus function code 5
@@ -30,7 +29,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public int _execute(BridgeModbus bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		int noOfWrittenCoils = 0;
 		ModbusElement<?> element = this.getElements()[0];
 		if (element instanceof ModbusCoilElement) {
@@ -58,13 +57,12 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 				}
 			}
 		} else {
-			OpenemsComponent.logWarn(this.log, bridge,
-					"Unable to execute Write for ModbusElement [" + element + "]: No ModbusCoilElement!");
+			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusCoilElement!");
 		}
 		return noOfWrittenCoils;
 	}
 
-	private void writeCoil(BridgeModbus bridge, int unitId, int startAddress, boolean value)
+	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
 			throws OpenemsException, ModbusException {
 		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);
 		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
@@ -72,7 +70,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
-			OpenemsComponent.logInfo(this.log, bridge, "FC5WriteCoil " //
+			bridge.logInfo(this.log, "FC5WriteCoil " //
 					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
 					+ value);
 			break;

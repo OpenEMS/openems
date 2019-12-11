@@ -2,52 +2,22 @@ Bundle-Name: OpenEMS Edge Simulator
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.edge.battery.api;provide:=true,\
-	io.openems.edge.ess.api;provide:=true,\
-	io.openems.edge.ess.dccharger.api;provide:=true,\
-	io.openems.edge.io.api;provide:=true,\
-	io.openems.edge.meter.api;provide:=true,\
-	io.openems.edge.pvinverter.api;provide:=true,\
-	io.openems.edge.evcs.api;provide:=true
-	
--privatepackage:\
-	io.openems.edge.simulator,\
-	io.openems.edge.simulator.meter.grid.acting,\
-	io.openems.edge.simulator.meter.grid.reacting,\
-	io.openems.edge.simulator.meter.production.acting,\
-	io.openems.edge.simulator.meter.nrc.acting,\
-	io.openems.edge.simulator.datasource.api,\
-	io.openems.edge.simulator.datasource.csv,\
-	io.openems.edge.simulator.ess.symmetric.reacting,\
-	io.openems.edge.simulator.ess.asymmetric.reacting,\
-	io.openems.edge.simulator.ess.singlephase.reacting,\
-	io.openems.edge.simulator.io,\
-	io.openems.edge.simulator.battery,\
-	io.openems.edge.simulator.pvinverter,\
-	io.openems.edge.simulator.timedata,\
-	io.openems.edge.simulator.evcs,\
-	io.openems.edge.simulator.modbus
-
--includeresource:\
-	{readme.md}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.battery.api;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.evcs.api;version=latest,\
-	io.openems.edge.io.api;version=latest,\
-	io.openems.edge.meter.api;version=latest,\
-	io.openems.edge.pvinverter.api;version=latest,\
-	io.openems.edge.timedata.api;version=latest,\
-	com.ghgande.j2mod;version=2.5.5,\
 	com.google.gson,\
 	com.google.guava,\
+	io.openems.common,\
+	io.openems.edge.battery.api,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.evcs.api,\
+	io.openems.edge.io.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.pvinverter.api,\
+	io.openems.edge.timedata.api,\
 	slf4j.api
 
--testpath:\
+-testpath: \
 	${testpath}

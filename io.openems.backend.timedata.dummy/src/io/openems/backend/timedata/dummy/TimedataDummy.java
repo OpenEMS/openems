@@ -21,8 +21,8 @@ import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.timedata.api.EdgeCache;
 import io.openems.backend.timedata.api.Timedata;
-import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;

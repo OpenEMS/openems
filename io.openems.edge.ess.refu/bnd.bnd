@@ -2,16 +2,8 @@ Bundle-Name: OpenEMS Edge ESS Refu
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.edge.ess.refu.api;provide:=true
 
--privatepackage:\
-	io.openems.edge.ess.refu
-
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
@@ -19,5 +11,5 @@ Export-Package:\
 	io.openems.edge.ess.api,\
 	slf4j.api
 
--testpath:\
+-testpath: \
 	${testpath}

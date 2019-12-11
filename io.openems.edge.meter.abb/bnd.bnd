@@ -2,21 +2,13 @@ Bundle-Name: OpenEMS Edge Meter ABB
 Bundle-Vendor: Consolinno Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version:	1.0.0.${tstamp}
-Export-Package:\
-	io.openems.edge.meter.api;provide:=true
-	
--privatepackage:\
-	io.openems.edge.meter.abb.b32
 
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.mbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.meter.api;version=latest
+	io.openems.common,\
+	io.openems.edge.bridge.mbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api
 
--testpath:\
+-testpath: \
 	${testpath}

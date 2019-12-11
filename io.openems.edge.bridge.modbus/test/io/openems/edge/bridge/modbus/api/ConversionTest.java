@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-
 public class ConversionTest {
 
 	@Test

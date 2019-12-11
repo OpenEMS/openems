@@ -1,8 +1,8 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.ManagedTask;
 
@@ -51,7 +51,7 @@ public interface Task extends ManagedTask {
 	 * @throws OpenemsException on error
 	 * @return the number of executed Sub-Tasks
 	 */
-	<T> int execute(BridgeModbus bridge) throws OpenemsException;
+	<T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
 
 	/**
 	 * Gets whether this ReadTask has been successfully executed before.

@@ -28,8 +28,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40Impl;
-import io.openems.edge.ess.fenecon.commercial40.ess.EssFeneconCommercial40Impl;
+import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40Impl;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -93,7 +93,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 	@Override
 	public void run() throws OpenemsNamedException {
 		EssFeneconCommercial40Impl ess = this.componentManager.getComponent(this.config.ess_id());
-		EssDcChargerFeneconCommercial40Impl charger = this.componentManager.getComponent(this.config.charger_id());
+		EssDcChargerFeneconCommercial40 charger = this.componentManager.getComponent(this.config.charger_id());
 		LocalTime offTime = LocalTime.parse(this.config.offTime());
 
 		boolean areSurplusConditionsMet = this.areSurplusConditionsMet(ess, charger);
@@ -161,7 +161,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 
 	}
 
-	private boolean areSurplusConditionsMet(EssFeneconCommercial40Impl ess, EssDcChargerFeneconCommercial40Impl charger) {
+	private boolean areSurplusConditionsMet(EssFeneconCommercial40Impl ess, EssDcChargerFeneconCommercial40 charger) {
 		if (charger == null) {
 			return false;
 		}
@@ -182,10 +182,10 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 		// Is PV NOT producing?
 		if (Math.max(//
 						// InputVoltage 0
-				((IntegerReadChannel) charger.channel(EssDcChargerFeneconCommercial40Impl.ChannelId.PV_DCDC0_INPUT_VOLTAGE))
+				((IntegerReadChannel) charger.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC0_INPUT_VOLTAGE))
 						.value().orElse(0), //
 				// InputVoltage 1
-				((IntegerReadChannel) charger.channel(EssDcChargerFeneconCommercial40Impl.ChannelId.PV_DCDC1_INPUT_VOLTAGE))
+				((IntegerReadChannel) charger.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC1_INPUT_VOLTAGE))
 						.value().orElse(0) //
 		) < 100_000) {
 			return false;
@@ -194,7 +194,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 		return true;
 	}
 
-	private void setSurplusFeedInPower(EssFeneconCommercial40Impl ess, EssDcChargerFeneconCommercial40Impl charger,
+	private void setSurplusFeedInPower(EssFeneconCommercial40Impl ess, EssDcChargerFeneconCommercial40 charger,
 			int value, boolean limitPv) throws OpenemsNamedException {
 		/*
 		 * Limit PV production power
@@ -220,7 +220,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 			}
 		}
 		IntegerWriteChannel setPvPowerLimit = charger
-				.channel(EssDcChargerFeneconCommercial40Impl.ChannelId.SET_PV_POWER_LIMIT);
+				.channel(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT);
 		setPvPowerLimit.setNextWriteValue(pvPowerLimit);
 
 		/*

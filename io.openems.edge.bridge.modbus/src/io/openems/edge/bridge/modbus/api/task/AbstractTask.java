@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
@@ -74,7 +74,7 @@ public abstract class AbstractTask implements Task {
 	 * @return the number of executed Sub-Tasks
 	 * @throws OpenemsException on error
 	 */
-	public final synchronized int execute(BridgeModbus bridge) throws OpenemsException {
+	public final synchronized int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		this.stopwatch.reset();
 		this.stopwatch.start();
 		try {
@@ -89,7 +89,7 @@ public abstract class AbstractTask implements Task {
 		}
 	}
 
-	protected abstract int _execute(BridgeModbus bridge) throws OpenemsException;
+	protected abstract int _execute(AbstractModbusBridge bridge) throws OpenemsException;
 
 	/*
 	 * Enable Debug mode for this Element. Activates verbose logging. TODO:
@@ -112,7 +112,7 @@ public abstract class AbstractTask implements Task {
 	 * @param bridge the parent Bridge
 	 * @return the combined LogVerbosity
 	 */
-	protected LogVerbosity getLogVerbosity(BridgeModbus bridge) {
+	protected LogVerbosity getLogVerbosity(AbstractModbusBridge bridge) {
 		if (this.isDebug) {
 			return LogVerbosity.READS_AND_WRITES;
 		}

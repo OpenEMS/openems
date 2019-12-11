@@ -2,25 +2,15 @@ Bundle-Name: OpenEMS Edge FENECON Pro 9-12
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.edge.ess.api;provide:=true,\
-	io.openems.edge.meter.api;provide:=true
 
--privatepackage:\
-	io.openems.edge.fenecon.pro.ess,\
-	io.openems.edge.fenecon.pro.pvmeter
-
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.meter.api;version=latest,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.meter.api,\
 	slf4j.api
 
--testpath:\
+-testpath: \
 	${testpath}

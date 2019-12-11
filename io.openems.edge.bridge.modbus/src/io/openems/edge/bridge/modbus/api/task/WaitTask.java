@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -50,7 +50,7 @@ public class WaitTask implements Task {
 	}
 
 	@Override
-	public <T> int execute(BridgeModbus bridge) throws OpenemsException {
+	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		try {
 			Thread.sleep(delay);
 		} catch (InterruptedException e) {

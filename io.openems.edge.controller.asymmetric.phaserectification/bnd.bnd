@@ -2,16 +2,8 @@ Bundle-Name: OpenEMS Edge Controller Asymmetric Phase-Rectification
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.edge.controller.api
 
--privatepackage:\
-	io.openems.edge.controller.asymmetric.phaserectification
-
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.common,\
@@ -20,5 +12,5 @@ Export-Package:\
 	io.openems.edge.meter.api,\
 	slf4j.api
 
--testpath:\
+-testpath: \
 	${testpath}

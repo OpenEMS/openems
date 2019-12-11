@@ -2,23 +2,13 @@ Bundle-Name: OpenEMS Edge Meter Artemes AM-2
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: This bundle implments the Artemes AM2 meter.
 
-Export-Package:\
-	io.openems.edge.meter.api;provide:=true
-	
--privatepackage:\
-	io.openems.edge.meter.artemes.am2
-
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.meter.api;version=latest
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api
 
--testpath:\
+-testpath: \
 	${testpath}

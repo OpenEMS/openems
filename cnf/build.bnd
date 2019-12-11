@@ -36,11 +36,10 @@
 		name="Debug Bundles"
 -plugin.6.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		releaseUrls=https://repo1.maven.org/maven2/; \
+		releaseUrls=https://repo.maven.apache.org/maven2/; \
 		pom=${build}/pom.xml; \
-		name="Maven Central"; \
-		location=${build}/cache/enroute-pom.xml
-
+		readOnly=true; \
+		name="Maven Central"
 -plugin.7.Local: \
 	aQute.bnd.deployer.repository.LocalIndexedRepo; \
 		name = Local; \

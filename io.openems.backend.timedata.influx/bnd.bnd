@@ -2,27 +2,18 @@ Bundle-Name: OpenEMS Backend Timedata InfluxDB
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.backend.timedata.api;provide:=true
 
--privatepackage:\
-	io.openems.backend.timedata.influx
-
--includeresource:\
-	{readme.md}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
-	io.openems.backend.common;version=latest,\
-	io.openems.backend.timedata.api;version=latest,\
-	io.openems.backend.timedata.core;version=latest,\
-	io.openems.backend.metadata.api;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.shared.influxdb;version=latest,\
-	io.openems.wrapper.influxdb-java;version=latest,\
 	com.google.gson,\
 	com.google.guava,\
+	io.openems.backend.common,\
+	io.openems.backend.metadata.api,\
+	io.openems.backend.timedata.api,\
+	io.openems.common,\
+	io.openems.shared.influxdb,\
+	io.openems.wrapper.influxdb-java,\
 	slf4j.api
 
--testpath:\
+-testpath: \
 	${testpath}

@@ -12,11 +12,10 @@ import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.AbstractWordElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.common.component.OpenemsComponent;
 
 public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 
@@ -27,7 +26,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public int _execute(BridgeModbus bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		int noOfWrittenRegisters = 0;
 		ModbusElement<?> element = this.getElements()[0];
 
@@ -76,7 +75,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 		return "FC6 WriteRegister";
 	}
 
-	private void writeSingleRegister(BridgeModbus bridge, int unitId, int startAddress, Register register)
+	private void writeSingleRegister(AbstractModbusBridge bridge, int unitId, int startAddress, Register register)
 			throws ModbusException, OpenemsException {
 		WriteSingleRegisterRequest request = new WriteSingleRegisterRequest(startAddress, register);
 		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
@@ -85,7 +84,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
 		case WRITES:
-			OpenemsComponent.logInfo(this.log, bridge, "FC6WriteRegister " //
+			bridge.logInfo(this.log, "FC6WriteRegister " //
 					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
 					+ String.format("%4s", Integer.toHexString(register.getValue())).replace(' ', '0'));
 			break;

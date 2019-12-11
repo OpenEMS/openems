@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.modbus.api;
 
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-
 public class ElementToChannelConverterChain extends ElementToChannelConverter {
 
 	public ElementToChannelConverterChain(ElementToChannelConverter converter1, ElementToChannelConverter converter2) {

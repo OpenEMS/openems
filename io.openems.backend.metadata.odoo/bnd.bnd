@@ -2,29 +2,18 @@ Bundle-Name: OpenEMS Backend Odoo Impl
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
-	io.openems.backend.metadata.api;provide:=true
 
--privatepackage:\
-	io.openems.backend.metadata.odoo,\
-	io.openems.backend.metadata.odoo.odoo,\
-	io.openems.backend.metadata.odoo.postgres,\
-	io.openems.backend.metadata.odoo.odoo.jsonrpc
-
--includeresource:\
-	{readme.md}
-
--buildpath:\
+-buildpath: \
 	${buildpath},\
-	io.openems.backend.common;version=latest,\
-	io.openems.backend.edgewebsocket.api;version=latest,\
-	io.openems.backend.metadata.api;version=latest,\
-	io.openems.common;version=latest,\
 	com.google.gson,\
 	com.google.guava,\
+	io.openems.backend.common,\
+	io.openems.backend.edgewebsocket.api,\
+	io.openems.backend.metadata.api,\
+	io.openems.common,\
 	org.apache.servicemix.bundles.xmlrpc-client,\
 	org.postgresql.jdbc42,\
 	slf4j.api
 
--testpath:\
+-testpath: \
 	${testpath}

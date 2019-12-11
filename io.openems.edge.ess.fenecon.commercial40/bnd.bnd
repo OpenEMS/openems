@@ -2,29 +2,16 @@ Bundle-Name: OpenEMS Edge ESS FENECON Commercial40
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:\
+
+-buildpath: \
+	${buildpath},\
+	com.google.guava,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.ess.dccharger.api,\
-	io.openems.edge.ess.fenecon.commercial40
+	slf4j.api
 
--privatepackage:\
-	io.openems.edge.ess.fenecon.commercial40.charger,\
-	io.openems.edge.ess.fenecon.commercial40.ess,\
-	io.openems.edge.ess.fenecon.commercial40.surplusfeedin
-
--includeresource:\
-	{readme.adoc}
-
--buildpath:\
-	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	slf4j.api,\
-	com.google.guava
-
--testpath:\
+-testpath: \
 	${testpath}

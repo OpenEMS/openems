@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
 /**
@@ -102,7 +102,7 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	@Override
-	public boolean invalidate(BridgeModbus bridge) {
+	public boolean invalidate(AbstractModbusBridge bridge) {
 		this.invalidValueCounter++;
 		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
 			this.setValue(null);
