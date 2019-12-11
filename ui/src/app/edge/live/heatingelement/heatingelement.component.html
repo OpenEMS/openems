@@ -2,9 +2,9 @@
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card button (click)="presentModal()">
             <ion-item lines="full" color="light">
-                <ion-icon slot="start" size="large" color="danger" name="flame"></ion-icon>
+                <ion-icon class="ion-no-margin" slot="start" size="large" color="danger" name="flame"></ion-icon>
                 <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
-                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
+                <ion-label *ngIf="controller.alias == controller.id">Heizelement</ion-label>
             </ion-item>
             <ion-card-content>
                 <table class="full_width">
@@ -47,6 +47,16 @@
                         </td>
                         <td style="width:35%" class="align_right">
                             {{ getActivePhases() }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%">
+                            Priorität
+                        </td>
+                        <td style="width:35%" class="align_right"
+                            *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'">
+                            Energie</td>
+                        <td style="width:35%" class="align_right" *ngIf="controller.properties['priority'] == 'TIME'">
+                            Zeit</td>
                     </tr>
                     <tr *ngIf="controller.properties['priority'] == 'TIME'">
                         <td style="width:65%">
