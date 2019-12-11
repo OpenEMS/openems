@@ -67,7 +67,7 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>converter-moshi</artifactId>
-			<version>2.6.2</version>
+			<version>2.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup.retrofit2</groupId>
@@ -112,13 +112,13 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.9</version>
+			<version>0.10.11</version>
 		</dependency>
 		<dependency>
 			<!-- https://mvnrepository.com/artifact/org.influxdb/influxdb-java -->
 			<groupId>org.influxdb</groupId>
 			<artifactId>influxdb-java</artifactId>
-			<version>2.16</version>
+			<version>2.17</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
@@ -128,7 +128,7 @@
 		<dependency>
 			<groupId>org.msgpack</groupId>
 			<artifactId>msgpack-core</artifactId>
-			<version>0.8.19</version>
+			<version>0.8.20</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>
