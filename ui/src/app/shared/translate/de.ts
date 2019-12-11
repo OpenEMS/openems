@@ -40,6 +40,8 @@ export const TRANSLATION = {
         DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         DateFormatShort: "dd.MM",
         Search: "Suchen",
+        ChangeAccepted: "Änderung übernommen",
+        ChangeFailed: "Änderung fehlgeschlagen",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
@@ -193,6 +195,27 @@ export const TRANSLATION = {
             Year: "Jahr",
             noData: "keine Daten verfügbar",
             activeDuration: "Einschaltdauer",
+            BeginDate: "Startdatum wählen",
+            EndDate: "Enddatum wählen",
+            Sun: "So",
+            Mon: "Mo",
+            Tue: "Di",
+            Wed: "Mi",
+            Thu: "Do",
+            Fri: "Fr",
+            Sat: "Sa",
+            Jan: "Jan",
+            Feb: "Feb",
+            Mar: "Mär",
+            Apr: "Apr",
+            May: "Mai",
+            Jun: "Jun",
+            Jul: "Jul",
+            Aug: "Aug",
+            Sep: "Sep",
+            Oct: "Okt",
+            Nov: "Nov",
+            Dec: "Dez"
         },
         Config: {
             Index: {

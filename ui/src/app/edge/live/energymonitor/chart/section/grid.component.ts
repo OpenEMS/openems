@@ -127,7 +127,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
                 arrowIndicate);
         } else {
             this.name = this.translate.instant('General.Grid')
-            super.updateSectionData(null, null, null);
+            super.updateSectionData(0, null, null);
         }
 
         // set grid mode
@@ -155,7 +155,6 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-
         return this.unitpipe.transform(value, 'kW');
     }
 

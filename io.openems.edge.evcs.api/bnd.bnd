@@ -2,16 +2,11 @@ Bundle-Name: OpenEMS Edge EVCS Api
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-    io.openems.edge.evcs.api;-provide=true, \
-    io.openems.edge.evcs.test \
 
-Require-Capability: compile-only
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common
 
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest
-
--testpath: ${testpath}
+-testpath: \
+	${testpath}

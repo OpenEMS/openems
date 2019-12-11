@@ -35,8 +35,8 @@ import com.google.gson.JsonPrimitive;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.timedata.api.EdgeCache;
 import io.openems.backend.timedata.api.Timedata;
-import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -298,11 +298,19 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			};
 			break;
 		case "integer":
-			handler = (builder, value) -> {
+			handler = (builder, jValue) -> {
+				String value = jValue.toString().replace("\"", "");
 				try {
-					builder.addField(field, Long.parseLong(value.toString().replace("\"", "")));
+					builder.addField(field, Long.parseLong(value));
 				} catch (NumberFormatException e1) {
-					this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to integer");
+					if (field.equalsIgnoreCase("false")) {
+						builder.addField(field, 0l);
+					} else if (field.equalsIgnoreCase("true")) {
+						builder.addField(field, 1l);
+					} else {
+						this.logInfo(this.log,
+								"Unable to convert field [" + field + "] value [" + value + "] to integer");
+					}
 				}
 			};
 			break;

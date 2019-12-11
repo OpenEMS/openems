@@ -2,6 +2,7 @@ Bundle-Name: OpenEMS Edge EVCS OCPP Server
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
+
 Export-Package: \
 	eu.chargetime.ocpp,\
 	eu.chargetime.ocpp.feature,\
@@ -16,20 +17,18 @@ Export-Package: \
 	eu.chargetime.ocpp.model.validation,\
 	eu.chargetime.ocpp.utilities,\
 	eu.chargetime.ocpp.wss,\
-	io.openems.edge.evcs.ocpp.core;-provide=true
+	io.openems.edge.evcs.ocpp.core
 
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	com.google.gson,\
 	com.sun.jna,\
 	com.sun.net.httpserver:http,\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.evcs.api;version=latest,\
-	org.java-websocket:Java-WebSocket,\
-	osgi.enroute.base.api;version=2.1
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.evcs.api,\
+	io.openems.wrapper.websocket,\
+	slf4j.api;version=1.8
 
--testpath: ${testpath}
-
-
+-testpath: \
+	${testpath}

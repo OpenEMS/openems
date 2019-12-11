@@ -2,23 +2,15 @@ Bundle-Name: OpenEMS Edge EVCS OCPP implementation of ABL
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:  \
-	io.openems.edge.evcs.ocpp.abl.api;-provide=true
 
-Private-Package:  \
-	io.openems.edge.evcs.ocpp.abl
-
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.backend.common;version=latest,\
-	io.openems.common;version=latest,\
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
 	io.openems.edge.common,\
-	io.openems.edge.evcs.api;version=latest,\
-	io.openems.edge.evcs.ocpp.core;version=latest,\
-	io.openems.edge.evcs.ocpp.server;version=latest,\
-	osgi.enroute.base.api;version=2.1
-	
--testpath: ${testpath}
-	
+	io.openems.edge.evcs.api,\
+	io.openems.edge.evcs.ocpp.core,\
+	io.openems.edge.evcs.ocpp.server,\
+	slf4j.api
 
+-testpath: \
+	${testpath}
