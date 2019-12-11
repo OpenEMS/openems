@@ -328,7 +328,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 
 		// boolean isEndTimeCheck = false;
-		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime) && !this.isEndTime) {
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isBefore(currentEndtime) && !this.isEndTime) {
 			switch (this.priority) {
 			case TIME:
 				this.checkMinTime(excessPower);
