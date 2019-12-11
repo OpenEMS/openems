@@ -2,22 +2,13 @@ Bundle-Name: OpenEMS Edge Meter Weidmueller 525
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.meter.api,\
-	io.openems.edge.meter.asymmetric.api,\
-	io.openems.edge.meter.symmetric.api
-Private-Package: \
-	io.openems.edge.meter.weidmueller
-	
--includeresource: {readme.adoc}
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.meter.api;version=latest
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

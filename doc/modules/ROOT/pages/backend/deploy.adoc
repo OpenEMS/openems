@@ -1,4 +1,4 @@
-= Deploy OpenEMS Edge
+= Deploy OpenEMS Backend
 :sectnums:
 :sectnumlevels: 4
 :toc:
