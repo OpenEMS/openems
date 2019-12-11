@@ -44,6 +44,7 @@ head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bnd
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.eclipse.equinox.metatype',\\" >> "$bndrun.new"
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
