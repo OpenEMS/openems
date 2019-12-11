@@ -663,34 +663,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
 	}
 
-	protected void recalculateMinCellVoltage() {
-
-		int minCellVoltage = Integer.MAX_VALUE;
-
-		for (SingleRack rack : this.racks.values()) {
-			int mcv = rack.getMinimalCellVoltage();			
-			if (mcv > 0) {
-				minCellVoltage = Math.min(minCellVoltage, mcv);
-			}
-		}
-
-		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
-	}
-	
-	protected void recalculateMaxCellVoltage() {
-
-		int maxCellVoltage = Integer.MIN_VALUE;
-
-		for (SingleRack rack : this.racks.values()) {
-			int mcv = rack.getMaximalCellVoltage();			
-			if (mcv > 0) {
-				maxCellVoltage = Math.max(maxCellVoltage, mcv);
-			}
-		}
-
-		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(maxCellVoltage);
-	}
-
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
