@@ -82,7 +82,6 @@ export class HeatingElementComponent {
                 outputChannelPhaseThree: this.outputChannelPhaseThree
             }
         });
-        console.log(this.controller.properties['priority'])
         return await modal.present();
     }
 }

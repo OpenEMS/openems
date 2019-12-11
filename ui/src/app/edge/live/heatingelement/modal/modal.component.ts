@@ -3,6 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { RangeValue } from '@ionic/core';
 
 type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
@@ -23,7 +24,9 @@ export class HeatingElementModalComponent implements OnInit {
     private static readonly SELECTOR = "heatingelement-modal";
 
     public pickerOptions: any;
-    public endTime = new Date();
+
+    public minTime: RangeValue;
+    public minKwh: RangeValue;
 
     constructor(
         protected service: Service,
@@ -36,7 +39,7 @@ export class HeatingElementModalComponent implements OnInit {
             buttons: [
                 {
                     text: 'Cancel',
-                    role: 'cancel',
+                    role: 'cancel'
                 },
                 {
                     text: 'OK',
@@ -99,6 +102,51 @@ export class HeatingElementModalComponent implements OnInit {
         }
     }
 
+    /**
+     * Updates the minimum active time
+     *
+     * @param event
+     */
+    updateMinTime(event: CustomEvent, currentController: EdgeConfig.Component) {
+        let oldMinTime = currentController.properties.minTime;
+        let newMinTime = event;
+        if (this.edge != null) {
+            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+                { name: 'minTime', value: newMinTime }
+            ]).then(() => {
+                currentController.properties.minTime = newMinTime;
+                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+            }).catch(reason => {
+                currentController.properties.minTime = oldMinTime;
+                console.warn(reason);
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+            });
+        }
+    }
+
+    /**
+     * Updates the minimum energy to be active
+     *
+     * @param event
+     */
+    updateMinKwh(event: CustomEvent, currentController: EdgeConfig.Component) {
+        let oldMinKwh = currentController.properties.minkwh;
+        let newMinKwh = event;
+        if (this.edge != null) {
+            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+                { name: 'minkwh', value: newMinKwh }
+            ]).then(() => {
+                currentController.properties.minkwh = newMinKwh;
+                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+            }).catch(reason => {
+                currentController.properties.minkwh = oldMinKwh;
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                console.warn(reason);
+            });
+        }
+    }
+
+
     /**  
      * Updates the Charge-Mode of the EVCS-Controller.
      * 
@@ -147,12 +195,6 @@ export class HeatingElementModalComponent implements OnInit {
             });
         }
     }
-
-    showData() {
-        console.log(this.controller.properties['endTime'])
-    }
-
-
 
     ngOnDestroy() { }
 }

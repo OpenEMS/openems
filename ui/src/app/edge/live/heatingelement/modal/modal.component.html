@@ -120,40 +120,33 @@
                 </ion-segment>
             </ion-row>
         </ion-grid>
-        <table class="full_width">
+        <table class="full_width" *ngIf="controller.properties['priority'] == 'TIME'">
             <tr>
-                <ion-item lines="none" class="ion-no-padding">
-                    <ion-label class="heating">Phasen</ion-label>
-                    <ion-select cancelText='Abbrechen' multiple="true" [interfaceOptions]="selectOptions"
-                        class="align_right">
-                        <ion-select-option class="heating">Phase 1</ion-select-option>
-                        <ion-select-option class="heating">Phase 2</ion-select-option>
-                        <ion-select-option class="heating">Phase 3</ion-select-option>
-                    </ion-select>
-                </ion-item>
-            </tr>
-        </table>
-        <table class="full_width">
-            <tr>
-                <td style="width: 65%">
-                    Mindestlaufzeit</td>
-                <td style="width: 35%" class="align_right">
-                    {{5 | unitvalue:'H'}}</td>
-            </tr>
-        </table>
-        <table class="full_width" *ngIf="modimode == 'ZEIT'">
-            <tr>
-                <ion-range style="width: 100%" min="0" max="8" color="dark" pin="true" style="padding-top: 8px;"
-                    step="100" debounce="500" value="{{controller.properties['forceChargeMinPower']}}">
+                <ion-range (ngModelChange)="updateMinTime($event, controller)" style="width: 100%" color="dark"
+                    pin="true" min="0" max="10" style="padding-top: 8px;" [(ngModel)]="controller.properties['minTime']"
+                    debounce="500">
                     <ion-label slot="start">
                         {{ 0 | unitvalue:'H'}}
                     </ion-label>
                     <ion-label slot="end">
-                        {{ 8 | unitvalue:'H'}}
+                        {{ 10 | unitvalue:'H'}}
                     </ion-label>
                 </ion-range>
             </tr>
         </table>
-        <ion-button (click)="showData()">do sum shit</ion-button>
+        <table class="full_width" *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'">
+            <tr>
+                <ion-range (ngModelChange)="updateMinKwh($event, controller)" style="width: 100%" min="0" max="60"
+                    color="dark" pin="true" style="padding-top: 8px;" debounce="500"
+                    [(ngModel)]="controller.properties['minkwh']">
+                    <ion-label slot="start">
+                        {{ 0 | unitvalue:'kWH'}}
+                    </ion-label>
+                    <ion-label slot="end">
+                        {{ 60 | unitvalue:'kWH'}}
+                    </ion-label>
+                </ion-range>
+            </tr>
+        </table>
     </ion-card-content>
 </ion-content>
