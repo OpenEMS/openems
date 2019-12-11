@@ -76,6 +76,7 @@ export class HeatingElementComponent {
             component: HeatingElementModalComponent,
             componentProps: {
                 controller: this.controller,
+                componentId: this.componentId,
                 edge: this.edge,
                 outputChannelPhaseOne: this.outputChannelPhaseOne,
                 outputChannelPhaseTwo: this.outputChannelPhaseTwo,

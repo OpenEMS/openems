@@ -84,7 +84,7 @@
             </ion-segment-button>
         </ion-segment>
     </ion-card-content>
-    <ion-card-content>
+    <ion-card-content *ngIf="controller.properties['mode'] == 'AUTOMATIC'">
         <ion-grid>
             <ion-row class="ion-justify-content-center">
                 <ion-item lines="none">

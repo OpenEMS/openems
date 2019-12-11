@@ -15,6 +15,7 @@ type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 export class HeatingElementModalComponent implements OnInit {
 
 
+    @Input() private componentId: string;
     @Input() public edge: Edge;
     @Input() public controller: EdgeConfig.Component;
     @Input() public outputChannelPhaseOne: ChannelAddress;
@@ -45,12 +46,7 @@ export class HeatingElementModalComponent implements OnInit {
                     text: 'OK',
                     handler: (value: any): void => {
                         if (this.edge != null) {
-                            let endTime;
-                            if (value['minute'].value < 10) {
-                                endTime = value['hour'].value.toString() + ':' + "0" + value['minute'].value.toString()
-                            } else {
-                                endTime = value['hour'].value.toString() + ':' + value['minute'].value.toString()
-                            }
+                            let endTime = value.hour.text + ':' + value.minute.text;
                             let oldTime = this.controller.properties['endTime'];
                             this.edge.updateComponentConfig(this.websocket, this.controller.id, [
                                 { name: 'endTime', value: endTime }
@@ -70,6 +66,10 @@ export class HeatingElementModalComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.componentId, [
+            new ChannelAddress(this.componentId, 'TotalPhasePower'),
+            new ChannelAddress(this.componentId, 'TotalPhaseTime')
+        ]);
     };
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
@@ -152,12 +152,12 @@ export class HeatingElementModalComponent implements OnInit {
      * 
      * @param event 
      */
-    updateProcedureMode(event: CustomEvent, currentController: EdgeConfig.Component) {
+    updateProcedureMode(event: any, currentController: EdgeConfig.Component) {
         if (this.edge != null) {
             let oldProcedureMode = this.controller.properties['priority'];
             let newProcedureMode: string;
 
-            switch (event.detail.value) {
+            switch (event) {
                 case 'TIME':
                     newProcedureMode = 'TIME';
                     break;
@@ -196,5 +196,9 @@ export class HeatingElementModalComponent implements OnInit {
         }
     }
 
-    ngOnDestroy() { }
+    ngOnDestroy() {
+        if (this.edge != null) {
+            this.edge.unsubscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.componentId);
+        }
+    }
 }
