@@ -2,22 +2,16 @@ Bundle-Name: OpenEMS Backend Metadata Dummy
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.backend.metadata.api
-Private-Package: io.openems.backend.metadata.dummy
-
--includeresource: {readme.md}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.backend.common;version=latest,\
-	io.openems.backend.edgewebsocket.api;version=latest,\
-	io.openems.backend.metadata.api;version=latest,\
-	io.openems.common;version=latest,\
 	com.google.gson,\
-	slf4j.api,\
-	com.google.guava
+	com.google.guava,\
+	io.openems.backend.common,\
+	io.openems.backend.edgewebsocket.api,\
+	io.openems.backend.metadata.api,\
+	io.openems.common,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

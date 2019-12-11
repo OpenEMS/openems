@@ -2,23 +2,16 @@ Bundle-Name: OpenEMS Edge Controller Ess Delay Charge
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.controller.api
-Private-Package:  \
-	io.openems.edge.controller.ess.delaycharge
-
--includeresource: {readme.adoc}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	slf4j.api,\
+	com.google.gson,\
 	com.google.guava,\
-	com.google.gson
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}
