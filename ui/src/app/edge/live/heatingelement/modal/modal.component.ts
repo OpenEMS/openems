@@ -30,7 +30,7 @@ export class HeatingElementModalComponent implements OnInit {
     public minKwh: RangeValue;
 
     constructor(
-        protected service: Service,
+        public service: Service,
         public websocket: Websocket,
         public router: Router,
         protected translate: TranslateService,
