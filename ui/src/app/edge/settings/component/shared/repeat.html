@@ -1,9 +1,10 @@
 <ion-grid class="ion-no-padding">
     <ion-row>
-        <ion-col size-md="12" size-xl="4" class="ion-no-padding">
+        <ion-col size="12" size-md="12" size-xl="4" class="ion-no-padding">
             <ion-item>{{ to.label }}</ion-item>
         </ion-col>
-        <ion-col *ngIf="field.fieldGroup.length > 0; else noValues" size-md="12" size-xl="8" class="ion-no-padding">
+        <ion-col *ngIf="field.fieldGroup.length > 0; else noValues" size="12" size-md="12" size-xl="8"
+            class="ion-no-padding">
             <ion-item *ngFor="let field of field.fieldGroup; let i=index; last as isLast" class="noPadding">
                 <ion-icon class="ion-no-padding; ion-no-margin" *ngIf="isLast" name="add" (click)="add()" slot="end">
                 </ion-icon>
