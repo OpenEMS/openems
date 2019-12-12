@@ -15,5 +15,3 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath}
-
--runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
