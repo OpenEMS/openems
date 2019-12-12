@@ -1,4 +1,4 @@
-package io.openems.edge.controller.singlethreshold;
+package io.openems.edge.controller.channelsinglethreshold;
 
 import io.openems.common.types.OptionsEnum;
 

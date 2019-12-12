@@ -3,9 +3,11 @@ package io.openems.edge.controller.channelsinglethreshold;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.controller.singlethreshold.Mode;
+// TODO:
+// - add switchedLoadPower config here and in logic
+// - add tests, see LimitTotalDischargeTest
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Channel Single Threshold", //
 		description = "This controller switches a Digital Output channel ON, if the value of the input channel is above a configured threshold. This behaviour can be inverted using the 'invert' config option.")
 @interface Config {
@@ -18,24 +20,24 @@ import io.openems.edge.controller.singlethreshold.Mode;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
-	
+
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is within a configured threshold, the output channel is switched ON.")
-	String input_channel_address();
-	
+	String inputChannelAddress();
+
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String output_channel_address();
-	
+	String outputChannelAddress();
+
 	@AttributeDefinition(name = "Threshold", description = "Threshold boundary value")
 	int threshold();
-	
+
 	@AttributeDefinition(name = "Hysteresis", description = "The hysteresis is applied to threshold to avoid continuous switching")
 	int hysteresis() default 30;
-	
+
 	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour is inverted, i.e. the Digital Output channel is switched OFF if the value of the input channel is within a configured threshold")
 	boolean invert() default false;
-	
+
 	String webconsole_configurationFactory_nameHint() default "Controller Channel single Threshold [{id}]";
 }
