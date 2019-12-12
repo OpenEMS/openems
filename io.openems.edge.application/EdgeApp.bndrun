@@ -43,8 +43,8 @@
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
+	bnd.identity;id='io.openems.edge.controller.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
-	bnd.identity;version='latest';id='io.openems.edge.controller.HeatingElementController',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
@@ -86,6 +86,7 @@
 	bnd.identity;id='io.openems.edge.meter.janitza.umg96rme',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
+	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
 	bnd.identity;id='io.openems.edge.meter.socomec',\
 	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
@@ -141,6 +142,7 @@
 	io.openems.edge.controller.ess.onefullcycle;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.evcs;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.evcs.fixactivepower;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.heatingelement;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.highloadtimeslot;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.alarm;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.fixdigitaloutput;version='[1.0.0,1.0.1)',\
@@ -187,6 +189,7 @@
 	io.openems.edge.meter.janitza.umg96rme;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.microcare.sdm630;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.pqplus.umd97;version='[1.0.0,1.0.1)',\
+	io.openems.edge.meter.schneider.acti9.smartlink;version='[0.0.0,0.0.1)',\
 	io.openems.edge.meter.socomec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.sunspec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.virtual;version='[1.0.0,1.0.1)',\
