@@ -3,23 +3,12 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version:	1.0.0.${tstamp}
 
-Export-Package:  \
-	io.openems.edge.controller.channelsinglethreshold.api;-provide=true
-
-Private-Package:  \
-	io.openems.edge.controller.channelsinglethreshold,\
-	io.openems.edge.controller.channelsocthreshold,\
-	io.openems.edge.controller.singlethreshold
-
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

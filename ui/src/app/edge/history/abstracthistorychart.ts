@@ -1,12 +1,36 @@
+import { TranslateService } from '@ngx-translate/core';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { ChartOptions, Dataset, EMPTY_DATASET, ChartOptionsTwoYAxis } from './shared';
 
 export abstract class AbstractHistoryChart {
 
+    public loading: boolean = true;
+
+    protected labels: Date[] = [];
+    protected datasets: Dataset[] = EMPTY_DATASET;
+    protected options: ChartOptions | ChartOptionsTwoYAxis;
+    protected colors = []
+
+    // Colors for Phase 1-3
+    protected phase1Color = {
+        backgroundColor: 'rgba(255,0,0,0.05)',
+        borderColor: 'rgba(255,0,0,1)',
+    }
+    protected phase2Color = {
+        backgroundColor: 'rgba(0,0,255,0.1)',
+        borderColor: 'rgba(0,0,255,1)',
+    }
+    protected phase3Color = {
+        backgroundColor: 'rgba(128,128,0,0.1)',
+        borderColor: 'rgba(128,128,0,1)',
+    }
+
     constructor(
-        protected service: Service
+        protected service: Service,
+        protected translate: TranslateService
     ) { }
 
     /**
@@ -44,4 +68,29 @@ export abstract class AbstractHistoryChart {
             });
         });
     }
+
+    /**
+     * Sets the Label of Chart
+     */
+    protected abstract setLabel()
+
+    /**
+     * Updates and Fills the Chart
+     */
+    protected abstract updateChart()
+
+    /**
+     * Initializes empty chart on error
+     */
+    protected initializeChart() {
+        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
+        this.datasets = EMPTY_DATASET;
+        this.labels = [];
+        this.loading = false;
+    }
+
+    /**
+     * Sets Chart Height
+     */
+    protected abstract getChartHeight()
 }

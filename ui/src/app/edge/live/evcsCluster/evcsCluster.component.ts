@@ -16,7 +16,7 @@ export class EvcsClusterComponent {
 
   private static readonly SELECTOR = "evcsCluster";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   public edge: Edge = null;
   public config: EdgeConfig.Component = new EdgeConfig.Component;
@@ -35,7 +35,6 @@ export class EvcsClusterComponent {
 
 
   ngOnInit() {
-
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
