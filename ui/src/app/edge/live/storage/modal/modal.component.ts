@@ -28,5 +28,6 @@ export class StorageModalComponent implements OnInit {
         public websocket: Websocket,
     ) { }
 
-    ngOnInit() { }
+    ngOnInit() {
+    }
 }

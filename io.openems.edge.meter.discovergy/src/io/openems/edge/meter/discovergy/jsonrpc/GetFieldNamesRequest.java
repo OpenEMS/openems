@@ -29,7 +29,7 @@ public class GetFieldNamesRequest extends JsonrpcRequest {
 		return new GetFieldNamesRequest(r.getId(), meterId);
 	}
 
-	public final static String METHOD = "getFieldNames";
+	public static final String METHOD = "getFieldNames";
 
 	private final String meterId;
 

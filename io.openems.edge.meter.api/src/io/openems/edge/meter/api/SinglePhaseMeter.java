@@ -2,7 +2,9 @@ package io.openems.edge.meter.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 
 @ProviderType
 public interface SinglePhaseMeter extends AsymmetricMeter {
@@ -54,5 +56,10 @@ public interface SinglePhaseMeter extends AsymmetricMeter {
 			});
 			break;
 		}
+	}
+	
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(SinglePhaseMeter.class, accessMode, 100) //
+				.build();
 	}
 }
