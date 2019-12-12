@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title>Heizstab</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <ion-card-content class="underline">
+        <table class="full_width">
+          <tr>
+            <td style="width:65%" translate>General.State</td>
+            <td style="width: 35%" class="align_right" *ngIf="getState() == 'OFF'" translate>
+              General.Off</td>
+            <td style="width: 35%" class="align_right" *ngIf="getState() == 'ON'" translate>
+              General.On</td>
+          </tr>
+        </table>
+      </ion-card-content>
+    </ng-container>
+  </ng-container>
+  <ion-card-content class="underline">
+    <table class="full_width">
+      <tr>
+        <td translate>
+          General.Mode
+        </td>
+      </tr>
+    </table>
+    <ion-segment (ionChange)="updateMode($event)" value="{{mode}}" scrollable="false">
+      <ion-segment-button value="ON">
+        <ion-label translate>
+          General.On
+        </ion-label>
+        <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="AUTOMATIC">
+        <ion-label translate>
+          General.Automatic
+        </ion-label>
+        <ion-icon style="width:40px" name="sunny">
+        </ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="OFF">
+        <ion-label translate>
+          General.Off
+        </ion-label>
+        <ion-icon name="power" style="width: 40px"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-card-content>
+</ion-content>

@@ -30,6 +30,8 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
+import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
+import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -47,6 +49,7 @@ import { OfflineComponent } from './offline/offline.component';
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
+    SinglethresholdModalComponent,
     EvcsPopoverComponent,
     ChpsocModalComponent,
     FixDigitalOutputModalComponent,
@@ -55,6 +58,7 @@ import { OfflineComponent } from './offline/offline.component';
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,
+    SinglethresholdComponent,
     EvcsComponent,
     ModbusApiComponent,
     StorageComponent,
@@ -78,6 +82,7 @@ import { OfflineComponent } from './offline/offline.component';
     AutarchyModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
+    SinglethresholdModalComponent,
     EvcsPopoverComponent,
     OfflineComponent
   ]
