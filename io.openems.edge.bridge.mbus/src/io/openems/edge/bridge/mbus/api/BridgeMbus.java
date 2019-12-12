@@ -5,7 +5,6 @@ import org.openmuc.jmbus.MBusConnection;
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.bridge.mbus.api.task.MbusTask;
 import io.openems.edge.common.channel.Doc;
 
 public interface BridgeMbus {

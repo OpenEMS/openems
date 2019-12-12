@@ -39,6 +39,8 @@ export const TRANSLATION = {
         PeriodFromTo: "de {{value1}} para {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Search: "Búsqueda",
+        ChangeAccepted: "Cambio aceptado",
+        ChangeFailed: "Cambio fallido",
         Week: {
             Monday: "Lunes",
             Tuesday: "Martes",
@@ -175,6 +177,27 @@ export const TRANSLATION = {
             Year: "Año",
             noData: "sin datos disponibles",
             activeDuration: "duración activa",
+            BeginDate: "Seleccionar fecha de inicio",
+            EndDate: "Seleccionar fecha de finalización",
+            Sun: "Dom",
+            Mon: "Lun",
+            Tue: "Mar",
+            Wed: "Mié",
+            Thu: "Jue",
+            Fri: "Vie",
+            Sat: "Sáb",
+            Jan: "Ene",
+            Feb: "Feb",
+            Mar: "Mar",
+            Apr: "Abr",
+            May: "May",
+            Jun: "Jun",
+            Jul: "Jul",
+            Aug: "Ago",
+            Sep: "Sep",
+            Oct: "Oct",
+            Nov: "Nov",
+            Dec: "Dic"
         },
         Config: {
             Index: {

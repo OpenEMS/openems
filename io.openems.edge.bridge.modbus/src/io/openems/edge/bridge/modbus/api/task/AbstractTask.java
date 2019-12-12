@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
