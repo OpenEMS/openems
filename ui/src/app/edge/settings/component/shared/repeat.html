@@ -1,14 +1,15 @@
-<ion-grid>
+<ion-grid class="ion-no-padding">
     <ion-row>
-        <ion-col>
+        <ion-col size-md="12" size-xl="4" class="ion-no-padding">
             <ion-item>{{ to.label }}</ion-item>
         </ion-col>
-        <ion-col *ngIf="field.fieldGroup.length > 0; else noValues">
-            <ion-item class="noPadding" *ngFor="let field of field.fieldGroup; let i=index; last as isLast">
-                <formly-field [field]="field"></formly-field>
-                <ion-icon class="ion-no-padding; ion-no-margin" name="trash" (click)="remove(i)" slot="end"></ion-icon>
+        <ion-col *ngIf="field.fieldGroup.length > 0; else noValues" size-md="12" size-xl="8" class="ion-no-padding">
+            <ion-item *ngFor="let field of field.fieldGroup; let i=index; last as isLast" class="noPadding">
                 <ion-icon class="ion-no-padding; ion-no-margin" *ngIf="isLast" name="add" (click)="add()" slot="end">
                 </ion-icon>
+                <ion-icon class="ion-no-padding; ion-no-margin" name="trash" (click)="remove(i)" slot="end">
+                </ion-icon>
+                <formly-field [field]="field"></formly-field>
             </ion-item>
         </ion-col>
         <ng-template #noValues>
