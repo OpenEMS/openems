@@ -78,6 +78,8 @@ export class ProfileComponent {
         .filter(component => {
           return !categorizedComponentIds.includes(component.id);
         })
+        // remove duplicates
+        .filter((e, i, arr) => arr.indexOf(e) === i);
     if (components.length > 0) {
       components.forEach(component => {
         categorizedComponentIds.push(component.id);

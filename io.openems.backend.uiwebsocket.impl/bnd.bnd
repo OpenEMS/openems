@@ -2,24 +2,19 @@ Bundle-Name: OpenEMS Backend UiWebsocket Impl
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.backend.uiwebsocket.api
-Private-Package: io.openems.backend.uiwebsocket.impl
 
--includeresource: {readme.md}
-
--buildpath: ${buildpath},\
-	io.openems.backend.common;version=latest,\
-	io.openems.backend.edgewebsocket.api;version=latest,\
-	io.openems.backend.metadata.api;version=latest,\
-	io.openems.backend.uiwebsocket.api;version=latest,\
-	io.openems.backend.timedata.api;version=latest,\
-	io.openems.common;version=latest,\
-	io.openems.wrapper.websocket;version=latest,\
-	com.google.guava,\
+-buildpath: \
+	${buildpath},\
 	com.google.gson,\
+	com.google.guava,\
+	io.openems.backend.common,\
+	io.openems.backend.edgewebsocket.api,\
+	io.openems.backend.metadata.api,\
+	io.openems.backend.timedata.api,\
+	io.openems.backend.uiwebsocket.api,\
+	io.openems.common,\
+	io.openems.wrapper.websocket,\
 	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

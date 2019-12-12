@@ -1,10 +1,12 @@
+// Available to customize the build
+
 plugins {
     id "com.github.node-gradle.node" version "1.3.0"
     id "org.ajoberstar.reckon" version "0.9.0"
 }
 
-wrapper {
-    jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
+tasks.named('wrapper') {
+  jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
 reckon {
