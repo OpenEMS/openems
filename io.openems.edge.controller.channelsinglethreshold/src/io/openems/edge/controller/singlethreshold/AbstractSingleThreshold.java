@@ -1,10 +1,12 @@
 package io.openems.edge.controller.singlethreshold;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,18 +30,16 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 	private final Clock clock;
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
-	protected abstract ComponentManager getComponentManager();
-
-	protected ChannelAddress inputChannelAddress;
-	protected ChannelAddress outputChannelAddress;
-	protected int threshold = 0;
-	protected boolean invertOutput = false;
-	protected TemporalAmount hysteresis;
+	private ChannelAddress inputChannelAddress;
+	private ChannelAddress outputChannelAddress;
+	private int threshold = 0;
+	private boolean invertOutput = false;
+	private TemporalAmount hysteresis;
 
 	protected State state = State.UNDEFINED;
-	protected Mode mode;
+	private Mode mode;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		MODE(Doc.of(Mode.values()) //
@@ -69,17 +69,23 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 		this.clock = Clock.systemDefaultZone();
 	}
 
-	public AbstractSingleThreshold(Clock clock, String componentId,
-			io.openems.edge.common.channel.ChannelId channelId) {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Controller.ChannelId.values(), //
-				ChannelId.values()//
-		);
-		this.clock = clock;
+	protected void activate(ComponentContext context, String id, String alias) {
+		throw new IllegalArgumentException("Use the other activate method");
 	}
 
-	public void run() throws IllegalArgumentException, OpenemsNamedException {
+	public void activate(ComponentContext context, String id, String alias, boolean enabled, int threshold,
+			int hysteresis, boolean invert, String inputChannelAddress, String outputChannelAddress, Mode mode,
+			ComponentManager componentManager) throws OpenemsNamedException {
+		super.activate(context, id, alias, enabled);
+		this.threshold = threshold;
+		this.hysteresis = Duration.ofMinutes(hysteresis);
+		this.inputChannelAddress = ChannelAddress.fromString(inputChannelAddress);
+		this.outputChannelAddress = ChannelAddress.fromString(outputChannelAddress);
+		this.mode = mode;
+		this.componentManager = componentManager;
+	}
+
+	public void applyThreshold() throws IllegalArgumentException, OpenemsNamedException {
 
 		boolean modeChanged;
 
@@ -110,7 +116,7 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 		 */
 		int value;
 		try {
-			Channel<?> inputChannel = this.getComponentManager().getChannel(this.inputChannelAddress);
+			Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
 			value = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
 		} catch (Exception e) {
 			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -151,7 +157,7 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 
 		case ABOVE_THRESHOLD:
 			/*
-			 * Value is bigger than the high threshold -> always OFF
+			 * Value is bigger than the high threshold -> always ON
 			 */
 			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
 				if (value <= this.threshold) {
@@ -195,7 +201,7 @@ public abstract class AbstractSingleThreshold extends AbstractOpenemsComponent i
 	 */
 	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
-			WriteChannel<Boolean> outputChannel = this.getComponentManager().getChannel(this.outputChannelAddress);
+			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
 			if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
 				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "

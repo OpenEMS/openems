@@ -1,7 +1,5 @@
 package io.openems.edge.controller.channelsinglethreshold;
 
-import java.time.Duration;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -11,7 +9,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -28,11 +25,6 @@ public class ChannelSingleThreshold extends AbstractSingleThreshold implements C
 		super();
 	}
 
-	@Override
-	protected ComponentManager getComponentManager() {
-		return this.componentManager;
-	}
-
 	/**
 	 * Length of hysteresis. States are not changed quicker than this.
 	 */
@@ -42,14 +34,9 @@ public class ChannelSingleThreshold extends AbstractSingleThreshold implements C
 		/*
 		 * parse config
 		 */
-		this.threshold = config.threshold();
-		this.hysteresis = Duration.ofMinutes(config.hysteresis());
-		this.invertOutput = config.invert();
-		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
-		this.mode = config.mode();
-
-		super.activate(context, config.id(), config.alias(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.threshold(), config.hysteresis(),
+				config.invert(), config.input_channel_address(), config.output_channel_address(), config.mode(),
+				componentManager);
 	}
 
 	@Deactivate
@@ -63,7 +50,7 @@ public class ChannelSingleThreshold extends AbstractSingleThreshold implements C
 
 	@Override
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
-		super.run();
+		super.applyThreshold();
 	}
 
 }

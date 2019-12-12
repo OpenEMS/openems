@@ -3,6 +3,7 @@ package io.openems.edge.controller.channelsocthreshold;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.controller.singlethreshold.Mode;
+import io.openems.edge.controller.channelsocthreshold.InputChannelAddress;
 
 @ObjectClassDefinition( //
 		name = "Controller Channel SoC Threshold", //
@@ -20,9 +21,12 @@ import io.openems.edge.controller.singlethreshold.Mode;
 	
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
+	
+	@AttributeDefinition(name = "Input Address", description = "Set the Input channel.")
+	InputChannelAddress input_channel() default InputChannelAddress.SOC;
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress();
+	String output_channel_address();
 
 	@AttributeDefinition(name = "Threshold", description = "Threshold boundary value")
 	int threshold();

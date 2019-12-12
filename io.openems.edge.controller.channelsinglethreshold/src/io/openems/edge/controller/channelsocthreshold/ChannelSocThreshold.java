@@ -1,7 +1,5 @@
 package io.openems.edge.controller.channelsocthreshold;
 
-import java.time.Duration;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -11,26 +9,21 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.singlethreshold.AbstractSingleThreshold;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.ChannelSocThreshold", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class ChannelSocThreshold extends AbstractSingleThreshold implements Controller, OpenemsComponent {
+public class ChannelSocThreshold extends AbstractSingleThreshold implements OpenemsComponent {
 
 	@Reference
 	protected ComponentManager componentManager;
 
+	// private String inpuptAddress = "_sum/EssSoc";
+
 	public ChannelSocThreshold() {
 		super();
-	}
-
-	@Override
-	protected ComponentManager getComponentManager() {
-		return this.componentManager;
 	}
 
 	/**
@@ -42,23 +35,18 @@ public class ChannelSocThreshold extends AbstractSingleThreshold implements Cont
 		/*
 		 * parse config
 		 */
-		this.threshold = config.threshold();
-		this.hysteresis = Duration.ofMinutes(config.hysteresis());
-		this.invertOutput = config.invert();
-		this.inputChannelAddress = ChannelAddress.fromString("_sum/EssSoc");
-		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
-		this.mode = config.mode();
-
-		super.activate(context, config.id(), config.alias(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.threshold(), config.hysteresis(),
+				config.invert(), config.input_channel().getName(), config.output_channel_address(), config.mode(),
+				componentManager);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
-	
+
 	@Override
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
-		super.run();
+		super.applyThreshold();
 	}
 }

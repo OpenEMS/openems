@@ -23,10 +23,10 @@ import io.openems.edge.controller.singlethreshold.Mode;
 	Mode mode() default Mode.AUTOMATIC;
 	
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is within a configured threshold, the output channel is switched ON.")
-	String inputChannelAddress();
+	String input_channel_address();
 	
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress();
+	String output_channel_address();
 	
 	@AttributeDefinition(name = "Threshold", description = "Threshold boundary value")
 	int threshold();
