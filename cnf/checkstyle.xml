@@ -201,10 +201,6 @@
       <property name="exceptionVariableName" value="expected"/>
     </module>
     <module name="CommentsIndentation"/>
-    <module name="JavadocMethod">
-      <property name="allowMissingJavadoc" value="true"/>
-      <property name="suppressLoadErrors" value="true"/>
-    </module>
     <module name="SuppressionCommentFilter"/>
   </module>
   <module name="FileTabCharacter">
