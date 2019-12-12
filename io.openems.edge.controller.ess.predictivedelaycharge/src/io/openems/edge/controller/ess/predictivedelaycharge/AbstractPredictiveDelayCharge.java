@@ -107,17 +107,14 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 		// target hour = null --> not enough production or Initial run(no values)
 		if (this.targetHour == null) {
-			
+
 			this.setChannels(State.TARGET_HOUR_NOT_CALCULATED, 0);
 			return null;
 		}
 
-		// remaining time in seconds till the target point.
-		int remainingTime = calculateRemainingTime();
-
 		// crossed target hour
 		if (now.getHour() >= this.targetHour) {
-			
+
 			this.setChannels(State.PASSED_TARGET_HOUR, 0);
 			return null;
 		}
@@ -133,6 +130,9 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			this.setChannels(State.NO_REMAINING_CAPACITY, 0);
 			return null;
 		}
+
+		// remaining time in seconds till the target point.
+		int remainingTime = calculateRemainingTime();
 
 		// calculate charge power limit
 		calculatedPower = remainingCapacity / remainingTime;
@@ -163,15 +163,15 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 		if (lastHour > 0) {
 			// target hour --> immediate next hour from the last Hour
 			targetHourActual = this.predictionStartHour.plusHours(lastHour).plusHours(1).getHour();
-			
+
 			// target hour adjusted based on buffer hour.
 			targetHourAdjusted = targetHourActual - this.bufferHour;
 		}
 
-		//setting the channel id values
+		// setting the channel id values
 		IntegerReadChannel targetHourActualValue = this.channel(ChannelId.TARGET_HOUR_ACTUAL);
 		targetHourActualValue.setNextValue(targetHourActual);
-		
+
 		IntegerReadChannel targetHourAdjustedValue = this.channel(ChannelId.TARGET_HOUR_ADJUSTED);
 		targetHourAdjustedValue.setNextValue(targetHourAdjusted);
 
