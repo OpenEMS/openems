@@ -36,6 +36,8 @@ import { AwattarChartComponent } from './awattar/modal/chart.component';
 import { CorrentlyModalComponent } from './corrently/modal/modal.component';
 import { CorrentlyComponent } from './corrently/corrently.component';
 import { CorrentlyChartComponent } from './corrently/modal/chart.component';
+import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
+import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 
 @NgModule({
   imports: [
@@ -55,6 +57,7 @@ import { CorrentlyChartComponent } from './corrently/modal/chart.component';
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
+    HeatingElementModalComponent,
     EvcsPopoverComponent,
     ChpsocModalComponent,
     FixDigitalOutputModalComponent,
@@ -81,6 +84,7 @@ import { CorrentlyChartComponent } from './corrently/modal/chart.component';
     StorageModalComponent,
     GridModalComponent,
     ChpSocComponent,
+    HeatingElementComponent,
     ConsumptionModalComponent,
     ProductionModalComponent,
     EvcsClusterComponent,
@@ -92,6 +96,7 @@ import { CorrentlyChartComponent } from './corrently/modal/chart.component';
     AutarchyModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
+    HeatingElementModalComponent,
     EvcsPopoverComponent,
     OfflineComponent
   ]

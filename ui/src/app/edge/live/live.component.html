@@ -81,6 +81,10 @@
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.HeatingElement'" size="12" size-lg="6">
+              <heatingelement [componentId]="widget.componentId"></heatingelement>
+            </ion-col>
+
           </ng-container>
 
           <ion-col *ngIf="this.edge.id == 'fems2023' && config.getComponent('corrently0') != null" size="12" size-lg="6"

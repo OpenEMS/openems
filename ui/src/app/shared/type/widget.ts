@@ -21,7 +21,8 @@ export enum WidgetFactory {
     'Controller.Api.ModbusTcp',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
-    'Controller.CHP.SoC'
+    'Controller.CHP.SoC',
+    'Controller.HeatingElement'
 }
 
 export class Widget {

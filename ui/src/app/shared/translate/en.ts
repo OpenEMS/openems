@@ -1,5 +1,7 @@
 export const TRANSLATION = {
     General: {
+        Ok: "Ok",
+        Cancel: "Cancel",
         Mode: "Mode",
         Automatic: "Automatically",
         State: "State",

@@ -1,0 +1,176 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
+        <ion-title *ngIf="controller.alias == controller.id">Heizelement</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ng-container *ngIf="controller && service.currentEdge | async as edge">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ion-card-content class="underline" *ngIf="currentData.channel[outputChannelPhaseOne] != null && currentData.channel[outputChannelPhaseTwo] != null
+            && currentData.channel[outputChannelPhaseThree] != null">
+                <table class="full_width">
+                    <tr>
+                        <td style="width:65%"><span translate>General.Phase</span>&nbsp;L1</td>
+                        <td class="align_right" style="width: 35%"
+                            *ngIf="currentData.channel[outputChannelPhaseOne] == 1" translate>
+                            General.Active
+                        </td>
+                        <td class="align_right" style="width: 35%"
+                            *ngIf="currentData.channel[outputChannelPhaseOne] == 0" translate>
+                            General.Inactive
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%"><span translate>General.Phase</span>&nbsp;L2</td>
+                        <td class="align_right" style="width: 35%"
+                            *ngIf="currentData.channel[outputChannelPhaseTwo] == 1" translate>
+                            General.Active
+                        </td>
+                        <td class="align_right" style="width: 35%"
+                            *ngIf="currentData.channel[outputChannelPhaseTwo] == 0" translate>
+                            General.Inactive
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:65%"><span translate>General.Phase</span>&nbsp;L3</td>
+                        <td class="align_right" style="width: 35%"
+                            *ngIf="currentData.channel[outputChannelPhaseThree] == 1" translate>
+                            General.Active
+                        </td>
+                        <td class="align_right" style="width: 35%"
+                            *ngIf="currentData.channel[outputChannelPhaseThree] == 0" translate>
+                            General.Inactive
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
+    <ion-card-content class="underline">
+        <table class="full_width">
+            <tr>
+                <td translate>
+                    General.Mode
+                </td>
+            </tr>
+        </table>
+        <ion-segment (ionChange)="updateMode($event, controller)" value="{{controller.properties['mode']}}"
+            scrollable="false">
+            <ion-segment-button value="MANUAL_ON">
+                <ion-label translate>
+                    General.On
+                </ion-label>
+                <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="AUTOMATIC">
+                <ion-label translate>
+                    General.Automatic
+                </ion-label>
+                <ion-icon style="width:40px" name="sunny">
+                </ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="MANUAL_OFF">
+                <ion-label translate>
+                    General.Off
+                </ion-label>
+                <ion-icon name="power" style="width: 40px"></ion-icon>
+            </ion-segment-button>
+        </ion-segment>
+    </ion-card-content>
+    <ion-card-content *ngIf="controller.properties['mode'] == 'AUTOMATIC'">
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-item lines="none">
+                    Endzeit:
+                    <ion-datetime mode="md" value="{{controller.properties['endTime']}}" [pickerOptions]="pickerOptions"
+                        displayFormat="HH:mm" pickerFormat="HH:mm">
+                    </ion-datetime>
+                </ion-item>
+            </ion-row>
+            <!-- for spacing -->
+            <div style="padding-top: 10px;"></div>
+            <ion-row class="ion-justify-content-center">
+                <ion-segment (ionChange)="updateProcedureMode($event, controller)"
+                    value="{{controller.properties['priority']}}" class="small">
+                    <ion-segment-button value="TIME">
+                        <ion-item lines="none">
+                            <ion-icon style="width:40px" name="sunny">
+                            </ion-icon>
+                            <ion-label>
+                                ZEIT
+                            </ion-label>
+                        </ion-item>
+                    </ion-segment-button>
+                    <ion-segment-button value="KILO_WATT_HOUR">
+                        <ion-item lines="none">
+                            <ion-img style="width:30px" src="assets/img/gridStorage.png">
+                            </ion-img>
+                            <ion-label>
+                                KWH
+                            </ion-label>
+                        </ion-item>
+                    </ion-segment-button>
+                </ion-segment>
+            </ion-row>
+        </ion-grid>
+        <ng-container *ngIf="controller.properties['priority'] == 'TIME'">
+            <table class="full_width">
+                <tr>
+                    <ion-range (ngModelChange)="updateMinTime($event, controller)" style="width: 100%" color="dark"
+                        pin="true" min="0" max="10" style="padding-top: 8px;"
+                        [(ngModel)]="controller.properties['minTime']" debounce="500">
+                        <ion-label slot="start">
+                            {{ 0 | unitvalue:'H'}}
+                        </ion-label>
+                        <ion-label slot="end">
+                            {{ 10 | unitvalue:'H'}}
+                        </ion-label>
+                    </ion-range>
+                </tr>
+            </table>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 65%">
+                        Mindestlaufzeit:
+                    </td>
+                    <td style="width: 35%" class="align_right">
+                        {{controller.properties['minTime'] }}&nbsp;kWh
+                    </td>
+                </tr>
+            </table>
+        </ng-container>
+        <ng-container *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'">
+            <table class="full_width">
+                <tr>
+                    <ion-range (ngModelChange)="updateMinKwh($event, controller)" style="width: 100%" min="0" max="60"
+                        color="dark" pin="true" style="padding-top: 8px;" debounce="500"
+                        [(ngModel)]="controller.properties['minkwh']">
+                        <ion-label slot="start">
+                            {{ 0 | unitvalue:'kWH'}}
+                        </ion-label>
+                        <ion-label slot="end">
+                            {{ 60 | unitvalue:'kWH'}}
+                        </ion-label>
+                    </ion-range>
+                </tr>
+            </table>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 65%">
+                        Mindestenergiemenge:
+                    </td>
+                    <td style="width: 35%" class="align_right">
+                        {{ controller.properties['minkwh'] }}&nbsp;kWh
+                    </td>
+                </tr>
+            </table>
+        </ng-container>
+    </ion-card-content>
+</ion-content>
