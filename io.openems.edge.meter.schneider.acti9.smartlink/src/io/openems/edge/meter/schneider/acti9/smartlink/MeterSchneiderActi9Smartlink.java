@@ -27,7 +27,11 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.Schneider.Acti9.Smartlink", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Meter.Schneider.Acti9.Smartlink", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
 
@@ -69,55 +73,43 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		final int OFFSET = 1;
+		final int offset = 1;
 		/**
-		 * See Datasheet PDF-file in doc directory
+		 * See Datasheet PDF-file in doc directory.
+		 * 
+		 * Phase specific reactive Power, Single Current and Voltage figures are not
+		 * implemented by this meter.
 		 */
 		return new ModbusProtocol(this, //
-				new FC4ReadInputRegistersTask(3000 - OFFSET, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.CURRENT_L1,
-								new FloatDoublewordElement(3000 - OFFSET),
+				new FC4ReadInputRegistersTask(3000 - offset, Priority.HIGH,
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3000 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2,
-								new FloatDoublewordElement(3002 - OFFSET),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3002 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3,
-								new FloatDoublewordElement(3004 - OFFSET),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3004 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
-				new FC4ReadInputRegistersTask(3028 - OFFSET, Priority.LOW,
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
-								new FloatDoublewordElement(3028 - OFFSET),
+				new FC4ReadInputRegistersTask(3028 - offset, Priority.LOW,
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3028 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2,
-								new FloatDoublewordElement(3030 - OFFSET),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3030 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3,
-								new FloatDoublewordElement(3032 - OFFSET),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3032 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
-				new FC4ReadInputRegistersTask(3054 - OFFSET, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
-								new FloatDoublewordElement(3054 - OFFSET)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2,
-								new FloatDoublewordElement(3056 - OFFSET)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
-								new FloatDoublewordElement(3058 - OFFSET)),
-						// Phase specific reactive Power is not implemented by this meter
-						// Max and Min Active Power are not implemented by this meter
-						// Single Current and Voltage figures not implemented by meter.
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
-								new FloatDoublewordElement(3060 - OFFSET)),
-						new DummyRegisterElement(3062 - OFFSET, 3067 - OFFSET),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
-								new FloatDoublewordElement(3068 - OFFSET))),
-				new FC4ReadInputRegistersTask(3110 - OFFSET, Priority.LOW,
-						m(SymmetricMeter.ChannelId.FREQUENCY,
-								new FloatDoublewordElement(3110 - OFFSET),
+				new FC4ReadInputRegistersTask(3054 - offset, Priority.HIGH,
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset)),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset)),
+						new DummyRegisterElement(3062 - offset, 3067 - offset),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset))),
+				new FC4ReadInputRegistersTask(3110 - offset, Priority.LOW,
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
-				new FC4ReadInputRegistersTask(3208 - OFFSET, Priority.LOW,
+				new FC4ReadInputRegistersTask(3208 - offset, Priority.LOW,
 						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
-								new UnsignedQuadruplewordElement(3208 - OFFSET)),
+								new UnsignedQuadruplewordElement(3208 - offset)),
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								new UnsignedQuadruplewordElement(3212 - OFFSET))));
+								new UnsignedQuadruplewordElement(3212 - offset))));
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Meter Schneider Acti9 Smartlink", //
 		description = "Implements the Schneider Acti9 Smartlink meter.")
 @interface Config {
