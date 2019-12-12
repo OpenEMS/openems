@@ -1,6 +1,7 @@
 package io.openems.edge.application;
 
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.osgi.framework.InvalidSyntaxException;
@@ -49,9 +50,17 @@ public class PreConfig {
 				influx.put("port", 8086);
 				influx.put("retentionPolicy", "autogen");
 				influx.put("username", "root");
+				influx.put("noOfCycles", 300);
 				factory.update(influx);
 			} else {
-				System.out.println("Influx already active");
+				System.out.println("Influx already active. Checking no of Cycles");
+				Configuration oldinfluxconf = configs[0];
+				Dictionary<String, Object> influxprops = oldinfluxconf.getProperties();
+				int oldcycles = (int) influxprops.get("noOfCycles");
+				if(oldcycles != 300) {
+					influxprops.put("noOfCycles", 300);
+					oldinfluxconf.update(influxprops);
+				}
 			}
 		} catch (IOException | InvalidSyntaxException e) {
 			// TODO Auto-generated catch block
