@@ -103,7 +103,7 @@ export class SinglethresholdComponent {
     modal.onDidDismiss().then(value => {
       this.mode = value.data.mode;
       this.inputMode = value.data.inputMode;
-      this.threshold = Number(value.data.threshold)
+      this.threshold = value.data.threshold;
     })
     return await modal.present();
   }

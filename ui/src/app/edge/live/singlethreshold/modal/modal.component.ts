@@ -15,6 +15,8 @@ export class SinglethresholdModalComponent {
 
   private static readonly SELECTOR = "singlethreshold-modal";
 
+  public selectedText: string = null;
+
   @Input() public edge: Edge;
   @Input() public mode: mode;
   @Input() public inputMode: inputMode;
@@ -25,6 +27,24 @@ export class SinglethresholdModalComponent {
     public modalCtrl: ModalController,
     public translate: TranslateService,
   ) { }
+
+  ngOnInit() {
+
+  }
+
+  codeSelected() {
+    switch (this.inputMode) {
+      case "SOC":
+        this.selectedText = "Ladezustand";
+        break;
+      case "GRIDSELL":
+        this.selectedText = "Netzeinspeisung";
+        break;
+      case "PRODUCTION":
+        this.selectedText = "Production";
+        break;
+    }
+  }
 
   updateMode(event: CustomEvent) {
     this.mode = event.detail.value;
@@ -76,7 +96,7 @@ export class SinglethresholdModalComponent {
     let values = {
       mode: this.mode,
       inputMode: this.inputMode,
-      threshold: this.threshold.toString(),
+      threshold: this.threshold,
     }
     this.modalCtrl.dismiss(values)
   }

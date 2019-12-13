@@ -25,7 +25,7 @@
               General.On
             </td>
             <td style="width: 35%" class="align_right" *ngIf="mode == 'OFF'" translate>
-              General.OFF
+              General.Off
             </td>
             <td style="width: 35%" class="align_right" *ngIf="mode == 'AUTOMATIC'" translate>
               General.Automatic
@@ -66,8 +66,11 @@
           <tr>
             <td style="width: 65%;">
               Schwellenwert</td>
-            <td style="width: 35%" class="align_right">
-              {{threshold}}
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
+              {{threshold | unitvalue:'%'}}
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode != 'SOC'">
+              {{threshold | unitvalue: 'kW'}}
             </td>
           </tr>
         </table>
