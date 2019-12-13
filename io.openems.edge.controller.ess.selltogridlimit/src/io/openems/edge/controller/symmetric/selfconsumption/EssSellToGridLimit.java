@@ -26,15 +26,13 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Symmetric.SelfConsmption", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class SelfConsumption extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+@Component(name = "Controller.Ess.SellToGridLimit", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+public class EssSellToGridLimit extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+
+	private final Logger log = LoggerFactory.getLogger(EssSellToGridLimit.class);
 
 	@Reference
-	protected ComponentManager componentManager;
-
-	private int gridPower;
-
-	private final Logger log = LoggerFactory.getLogger(SelfConsumption.class);
+	private ComponentManager componentManager;
 
 	private Config config = null;
 
@@ -54,7 +52,7 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 		}
 	}
 
-	public SelfConsumption() {
+	public EssSellToGridLimit() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -91,21 +89,20 @@ public class SelfConsumption extends AbstractOpenemsComponent implements Control
 		}
 
 		// Calculating the actual grid power
-		this.gridPower = meter.getActivePower().value().orElse(0); /* current buy-from/sell-to grid */
+		int gridPower = meter.getActivePower().value().orElse(0); /* current buy-from/sell-to grid */
 
-		// Setting the Target hour channel id
+		// Setting the Actual Grid-Power channel
 		IntegerReadChannel actualGridPower = this.channel(ChannelId.GRID_POWER);
-		actualGridPower.setNextValue(this.gridPower);
+		actualGridPower.setNextValue(gridPower);
 
 		// Checking if the grid power is above the maximum feed-in
-		if ((this.gridPower * -1) > this.config.Maximum_Feed_In()) {
+		if (gridPower * -1 > this.config.maximumSellToGridPower()) {
 
 			// Adjusting the limit to the maximum feed-in.
-			int calculatedPower = this.gridPower + this.config.Maximum_Feed_In();
-			/*
-			 * set result
-			 */
-			ess.addPowerConstraintAndValidate("SelfConsmption-OptimizationController", Phase.ALL, Pwr.ACTIVE,
+			int calculatedPower = gridPower + this.config.maximumSellToGridPower();
+
+			// set result
+			ess.addPowerConstraintAndValidate("Controller.Ess.SellToGridLimit", Phase.ALL, Pwr.ACTIVE,
 					Relationship.GREATER_OR_EQUALS, calculatedPower); //
 		}
 	}

@@ -1,5 +1,0 @@
-= Symmetric Self-Consumption
-
-Limits the maximum feed-in to the grid by 70% of the max peak power generation.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.selfconsumption[Source Code icon:github[]]
