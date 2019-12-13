@@ -56,9 +56,9 @@ export const TRANSLATION = {
         Index: "Index",
         AboutUI: "About OpenEMS UI",
         GeneralSettings: 'General Settings',
-        EdgeSettings: 'FEMS Settings',
+        EdgeSettings: 'hy-control Settings',
         Menu: 'Menu',
-        Overview: 'FEMS Overview',
+        Overview: 'hy-control Overview',
         Logout: 'Sign Out'
     },
     Index: {
