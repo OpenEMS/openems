@@ -38,6 +38,8 @@ export const TRANSLATION = {
         ActualPower: "e-car Laad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        ChangeAccepted: "Wijziging geaccepteerd",
+        ChangeFailed: "Wijziging mislukt",
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -172,6 +174,27 @@ export const TRANSLATION = {
             Year: "Jaar",
             noData: "geen gegevens beschikbaar",
             activeDuration: "actieve duur",
+            BeginDate: "Selecteer startdatum",
+            EndDate: "Selecteer einddatum",
+            Sun: "Zon",
+            Mon: "Maa",
+            Tue: "Din",
+            Wed: "Woe",
+            Thu: "Don",
+            Fri: "Vri",
+            Sat: "Zat",
+            Jan: "Jan",
+            Feb: "Feb",
+            Mar: "Maa",
+            Apr: "Apr",
+            May: "Mei",
+            Jun: "Jun",
+            Jul: "Jul",
+            Aug: "Aug",
+            Sep: "Sep",
+            Oct: "Okt",
+            Nov: "Nov",
+            Dec: "Dec"
         },
         Config: {
             Index: {

@@ -1,4 +1,4 @@
-<ion-grid *ngIf="edge && edge.isOnline">
+<ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
   <ion-row class="ion-justify-content-center">
     <!-- Energymonitor -->
     <ion-col size="12" size-md="8" size-lg="3" class="ion-no-padding">
@@ -35,7 +35,6 @@
             <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="6" class="ion-no-padding">
               <consumption></consumption>
             </ion-col>
-
 
 
           </ng-container>
@@ -92,6 +91,10 @@
       </ion-grid>
     </ion-col>
   </ion-row>
+</ion-grid>
+
+<ion-grid *ngIf="edge && edge.isOnline && !edge.subscribeChannelsSuccessful">
+  <ion-progress-bar type="indeterminate"></ion-progress-bar>
 </ion-grid>
 
 <ion-grid *ngIf="edge && !edge.isOnline">
