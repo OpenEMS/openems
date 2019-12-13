@@ -13,7 +13,9 @@
         <ng-container *ngFor="let entry of item.filteredEntries">
           <ion-item *ngIf="entry.isFiltered" [routerLink]="[entry.component.id]">
             <ion-label>
-              <h2>{{ entry.component.id }}</h2>
+              <h2>{{ entry.component.id }} <span
+                  *ngIf="entry.component.alias != entry.component.id">&nbsp;({{entry.component.alias}})
+                </span></h2>
               <p>{{ entry.factory.description }}</p>
             </ion-label>
           </ion-item>
