@@ -140,6 +140,32 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
           }
 
+          // push data for right y-axis
+          if ('_sum/EssSoc' in result.data) {
+            let socData = result.data['_sum/EssSoc'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 100 || value < 0) {
+                return null;
+              } else {
+                return value;
+              }
+            })
+            datasets.push({
+              label: this.translate.instant('General.Soc'),
+              data: socData,
+              hidden: false,
+              yAxisID: 'yAxis2',
+              position: 'right',
+              borderDash: [10, 10]
+            })
+            this.colors.push({
+              backgroundColor: 'rgba(189, 195, 199,0.05)',
+              borderColor: 'rgba(189, 195, 199,1)',
+            })
+          }
+
+          // push data for left y-axis
           if ('_sum/ProductionActivePower' in result.data) {
             /*
             * Production
@@ -155,7 +181,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.Production'),
               data: productionData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(45,143,171,0.05)',
@@ -180,7 +208,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.GridBuy'),
               data: buyFromGridData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(0,0,0,0.05)',
@@ -202,7 +232,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.GridSell'),
               data: sellToGridData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(0,0,200,0.05)',
@@ -224,7 +256,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.Consumption'),
               data: consumptionData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(253,197,7,0.05)',
@@ -256,7 +290,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.ChargePower'),
               data: chargeData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(0,223,0,0.05)',
@@ -277,7 +313,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.DischargePower'),
               data: dischargeData,
-              hidden: false
+              hidden: false,
+              yAxisID: 'yAxis1',
+              position: 'left'
             });
             this.colors.push({
               backgroundColor: 'rgba(200,0,0,0.05)',
@@ -316,6 +354,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
               break;
             case 'Storage':
+              result.push(new ChannelAddress('_sum', 'EssSoc'))
               result.push(new ChannelAddress('_sum', 'EssActivePower'));
               break;
             case 'Production':
@@ -362,20 +401,35 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected setLabel() {
+    let translate = this.translate;
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+
+    // adds second y-axis to chart
+    options.scales.yAxes.push({
+      id: 'yAxis2',
+      position: 'right',
+      scaleLabel: {
+        display: true,
+        labelString: "%"
+      },
+      gridLines: {
+        display: false
+      },
+      ticks: {
+        beginAtZero: true,
+        max: 100
+      }
+    })
+    options.scales.yAxes[0].id = "yAxis1"
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == this.grid) {
-        if (value < 0) {
-          value *= -1;
-          label = this.gridBuy;
-        } else {
-          label = this.gridSell;
-        }
+      if (label == translate.instant('General.Soc')) {
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+      } else {
+        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
       }
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
     this.options = options;
   }

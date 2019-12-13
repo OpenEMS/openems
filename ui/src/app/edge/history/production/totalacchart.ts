@@ -60,7 +60,7 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
                             if (!data) {
                                 return;
                             } else {
-                                if (channelAddress.channelId == 'ActivePower') {
+                                if (channelAddress.channelId == 'ProductionAcActivePower') {
                                     datasets.push({
                                         label: this.translate.instant('General.Production'),
                                         data: data

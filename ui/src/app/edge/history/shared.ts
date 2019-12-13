@@ -52,9 +52,14 @@ export type ChartOptions = {
     },
     scales: {
         yAxes: [{
+            id?: string,
+            position: string,
             scaleLabel: {
                 display: boolean,
                 labelString: string
+            },
+            gridLines?: {
+                display: boolean
             },
             ticks: {
                 beginAtZero: boolean,
@@ -112,6 +117,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     },
     scales: {
         yAxes: [{
+            position: 'left',
             scaleLabel: {
                 display: true,
                 labelString: ""
@@ -150,4 +156,3 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         }
     }
 };
-

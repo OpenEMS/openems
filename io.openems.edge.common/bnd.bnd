@@ -2,39 +2,13 @@ Bundle-Name: OpenEMS Edge Common
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.bridge.modbus.api,\
-	io.openems.edge.common.component,\
-	io.openems.edge.common.channel.doc,\
-	io.openems.edge.common.event,\
-	io.openems.edge.common.channel.calculate,\
-	io.openems.edge.common.converter,\
-	io.openems.edge.common.channel.internal,\
-	io.openems.edge.common.channel.value,\
-	io.openems.edge.common.channel,\
-	io.openems.edge.common.filter,\
-	io.openems.edge.api.user,\
-	io.openems.edge.common.user,\
-	io.openems.edge.common.type,\
-	io.openems.edge.common.type.slidingvalue,\
-	io.openems.edge.common.taskmanager,\
-	io.openems.edge.common.modbusslave,\
-	io.openems.edge.common.meta,\
-	io.openems.edge.common.jsonapi,\
-	io.openems.edge.common.test,\
-	io.openems.edge.common.sum
 
--includeresource: {readme.md}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.wrapper.websocket;version=latest,\
-	org.apache.felix.scr,\
+-buildpath: \
+	${buildpath},\
 	com.google.gson,\
-	slf4j.api,\
-	com.google.guava
+	com.google.guava,\
+	io.openems.common,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}
