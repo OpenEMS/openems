@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.google.gson.JsonPrimitive;
 
-import io.openems.backend.timedata.core.EdgeCache;
+import io.openems.backend.timedata.api.EdgeCache;
 import io.openems.common.types.ChannelAddress;
 
 public class ChannelFormula {

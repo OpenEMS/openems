@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridge.mbus.api.BridgeMbus;
-import io.openems.edge.bridge.mbus.api.task.MbusTask;
+import io.openems.edge.bridge.mbus.api.MbusTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;

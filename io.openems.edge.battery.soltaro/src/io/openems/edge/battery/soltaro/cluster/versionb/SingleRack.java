@@ -151,6 +151,17 @@ public class SingleRack {
 		return value;
 	}
 
+	public int getMinimalCellVoltage() {
+		@SuppressWarnings("unchecked")
+		Optional<Integer> minCellOpt = (Optional<Integer>) this.channelMap.get(KEY_MIN_CELL_VOLTAGE).value()
+				.asOptional();
+		int minCellVoltage = -1;
+		if (minCellOpt.isPresent()) {
+			minCellVoltage = minCellOpt.get();
+		}
+		return minCellVoltage;
+	}
+
 	private Map<String, Channel<?>> createChannelMap() {
 		Map<String, Channel<?>> channels = new HashMap<>();
 

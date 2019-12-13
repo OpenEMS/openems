@@ -40,7 +40,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
-      let periodTime = differenceInHours(this.period.from, this.period.to);
       // convert labels
       let labels: Date[] = [];
       for (let timestamp of result.timestamps) {
@@ -56,11 +55,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
           if (value == null) {
             return null
           } else {
-            if (value * 100 > 50) {
-              value = 1;
-            } else if (value * 100 < 50) {
-              value = 0;
-            }
             return value * 100; // convert to % [0,100]
           }
         });
@@ -75,17 +69,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
       }
       this.datasets = datasets;
       this.loading = false;
-
-      // calculate the effective active time in percent for widget (TODO!!)
-      let compareArray = []
-      this.datasets.forEach(dataset => {
-        Object.values(dataset.data).forEach(data => {
-          if (data == 100) {
-            compareArray.push(data)
-          }
-        })
-      })
-      let timeActiveEffective = (compareArray.length / (result.timestamps.length / 100));
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
