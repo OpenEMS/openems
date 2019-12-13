@@ -155,7 +155,6 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-
         return this.unitpipe.transform(value, 'kW');
     }
 

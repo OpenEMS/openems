@@ -81,8 +81,8 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
                             // calculate active time of period in minutes and hours
                             let activeSum: number = 0;
-
                             let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']).toString();
+
                             result.data[outputChannel].forEach(value => {
                                 activeSum += value;
                             })
@@ -92,7 +92,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                             let endDate = endOfDay(new Date(result.timestamps[result.timestamps.length - 1]));
                             let activePercent = activeSum / result.timestamps.length;
                             let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
-                            let activeTimeHours: string = (activeTimeMinutes / 60).toFixed(1).toString();
+                            let activeTimeHours: string = (activeTimeMinutes / 60).toFixed(1);
 
                             if (activeTimeMinutes > 59) {
                                 this.activeTimeOverPeriod = activeTimeHours + ' h'
@@ -101,11 +101,11 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                                     if (index == activeTimeHours.length - 1 && letter == "0" && activeTimeMinutes > 60) {
                                         this.activeTimeOverPeriod = activeTimeHours.slice(0, -2) + ' h'
                                     }
-
                                 });
                             } else {
                                 this.activeTimeOverPeriod = this.decimalPipe.transform(activeTimeMinutes.toString(), '1.0-1') + ' m'
                             }
+
 
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);

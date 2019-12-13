@@ -37,11 +37,11 @@
             </ion-col>
 
 
-
           </ng-container>
 
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+
             <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
               <ng-container
                 *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumtion'">
@@ -81,21 +81,7 @@
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.HeatingElement'" size="12" size-lg="6">
-              <heatingelement [componentId]="widget.componentId"></heatingelement>
-            </ion-col>
-
           </ng-container>
-
-          <ion-col *ngIf="this.edge.id == 'fems2023' && config.getComponent('corrently0') != null" size="12" size-lg="6"
-            class="ion-no-padding">
-            <corrently></corrently>
-          </ion-col>
-
-          <ion-col *ngIf="this.edge.id == 'fems66' || this.edge.id == 'fems2023'" size="12" size-lg="6"
-            class="ion-no-padding">
-            <awattar></awattar>
-          </ion-col>
 
           <!-- <ion-col size="12" size-lg="12">
             <info></info>
@@ -107,8 +93,6 @@
   </ion-row>
 </ion-grid>
 
-<!-- show loading bar until subscribeChannelResponse is received
-  prevents showing 'null' values in widgets -->
 <ion-grid *ngIf="edge && edge.isOnline && !edge.subscribeChannelsSuccessful">
   <ion-progress-bar type="indeterminate"></ion-progress-bar>
 </ion-grid>

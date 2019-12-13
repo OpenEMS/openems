@@ -35,8 +35,8 @@ import com.google.gson.JsonPrimitive;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.timedata.api.EdgeCache;
 import io.openems.backend.timedata.api.Timedata;
-import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -526,6 +526,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 							new ChannelFormula(Function.PLUS, 9_000), //
 					};
 				case "Pro Hybrid 10-Serie":
+				case "Kostal PIKO + B-Box HV":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 10_000), //
 					};

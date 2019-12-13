@@ -60,8 +60,6 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                         });
                     })
 
-
-
                     // gather other Consumption (Total - EVCS)
                     let otherConsumption: number[] = [];
                     if (totalEvcsConsumption != []) {

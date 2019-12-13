@@ -354,7 +354,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
               break;
             case 'Storage':
-              result.push(new ChannelAddress('_sum', 'EssSoc'));
+              result.push(new ChannelAddress('_sum', 'EssSoc'))
               result.push(new ChannelAddress('_sum', 'EssActivePower'));
               break;
             case 'Production':

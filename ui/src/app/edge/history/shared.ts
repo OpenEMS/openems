@@ -156,4 +156,3 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         }
     }
 };
-
