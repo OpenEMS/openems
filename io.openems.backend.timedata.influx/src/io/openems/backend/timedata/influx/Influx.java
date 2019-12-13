@@ -298,7 +298,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		switch (requiredType) {
 		case "string":
 			handler = (builder, value) -> {
-				builder.addField(field, value.toString());
+				builder.addField(field, value.toString().replace("\"", ""));
 			};
 			break;
 		case "integer":
