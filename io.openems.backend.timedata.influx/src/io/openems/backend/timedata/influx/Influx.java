@@ -307,9 +307,9 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				try {
 					builder.addField(field, Long.parseLong(value));
 				} catch (NumberFormatException e1) {
-					if (field.equalsIgnoreCase("false")) {
+					if (value.equalsIgnoreCase("false")) {
 						builder.addField(field, 0l);
-					} else if (field.equalsIgnoreCase("true")) {
+					} else if (value.equalsIgnoreCase("true")) {
 						builder.addField(field, 1l);
 					} else {
 						this.logInfo(this.log,
