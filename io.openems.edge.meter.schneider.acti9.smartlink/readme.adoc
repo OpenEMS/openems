@@ -1,0 +1,10 @@
+= Schneider Acti9 Smartlink Meter
+
+Implemented Natures::
+
+ * SymmetricMeter  
+ * AsymmetricMeter
+
+To configure the meter, first add a modbus tcp bridge connecting to the correct IP address, then configure this meter to use the configured modbus bridge. The unit ID is by default 1.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.schneider.acti9.smartlink[Source Code icon:github[]]
