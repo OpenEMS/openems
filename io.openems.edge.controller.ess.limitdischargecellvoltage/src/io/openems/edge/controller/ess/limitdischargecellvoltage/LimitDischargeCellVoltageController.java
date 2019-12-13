@@ -14,7 +14,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Undefined;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.StateController;
 import io.openems.edge.ess.api.SymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
@@ -46,7 +46,8 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 
 		this.checkConfiguration(config);
 		this.config = config;
-		this.stateObject = createInitialStateObject(componentManager, config);
+		StateController.init(componentManager, config);
+		this.stateObject = StateController.getStateObject(State.UNDEFINED);
 	}
 
 	@Deactivate
@@ -57,7 +58,8 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 	@Override
 	public void run() throws OpenemsNamedException {
 		this.stateObject.act();
-		this.stateObject = this.stateObject.getNextStateObject();
+		State nextState = this.stateObject.getNextState();
+		this.stateObject = StateController.getStateObject(nextState);
 		this.writeChannelValues();
 	}
 
@@ -69,20 +71,25 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 
 		this.channel(io.openems.edge.controller.ess.limitdischargecellvoltage.ChannelId.MIN_CELL_VOLTAGE)
 				.setNextValue(ess.getMinCellVoltage().value());
+		this.channel(io.openems.edge.controller.ess.limitdischargecellvoltage.ChannelId.MAX_CELL_VOLTAGE)
+				.setNextValue(ess.getMaxCellVoltage().value());
+		this.channel(io.openems.edge.controller.ess.limitdischargecellvoltage.ChannelId.MIN_CELL_TEMPERATURE)
+				.setNextValue(ess.getMinCellTemperature().value());
+		this.channel(io.openems.edge.controller.ess.limitdischargecellvoltage.ChannelId.MAX_CELL_TEMPERATURE)
+				.setNextValue(ess.getMaxCellTemperature().value());
 		this.channel(io.openems.edge.controller.ess.limitdischargecellvoltage.ChannelId.ESS_POWER)
 				.setNextValue(ess.getActivePower().value());
+		this.channel(io.openems.edge.controller.ess.limitdischargecellvoltage.ChannelId.ESS_SOC)
+				.setNextValue(ess.getSoc().value());
 	}
 
-	private IState createInitialStateObject(ComponentManager manager, Config config) {
-		return new Undefined(manager, config);
-	}
-
-	private void checkConfiguration(Config config) throws OpenemsException {
+	protected void checkConfiguration(Config config) throws OpenemsException {
 		if (config.chargePowerPercent() <= 0 || config.chargePowerPercent() > 100) {
-			throw new OpenemsException("Charge power percentage must be > 0 and < 100");
+			throw new OpenemsException("ForceCharge power percentage must be > 0 and < 100");
 		}
-		if (config.criticalCellVoltage() >= config.warningCellVoltage()) {
-			throw new OpenemsException("Critical cell voltage must be lower than warning cell voltage");
+		if (config.criticalLowCellVoltage() >= config.warningLowCellVoltage()) {
+			throw new OpenemsException("Critical low cell voltage must be lower than warning low cell voltage");
 		}
+		//TODO finish checks
 	}
 }

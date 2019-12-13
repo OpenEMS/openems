@@ -53,11 +53,11 @@ public class Normal implements IState {
 		int minCellVoltage = minCellVoltageOpt.get();
 
 		if (minCellVoltage < this.config.criticalCellVoltage()) {
-			return new Critical(this.componentManager, this.config);
+			return new Limit(this.componentManager, this.config);
 		}
 
 		if (minCellVoltage < this.config.warningCellVoltage()) {
-			return new Warning(this.componentManager, this.config);
+			return new Limit(this.componentManager, this.config);
 		}
 
 		return this;

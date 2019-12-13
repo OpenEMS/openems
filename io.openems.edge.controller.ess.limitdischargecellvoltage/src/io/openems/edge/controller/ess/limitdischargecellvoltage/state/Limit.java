@@ -15,15 +15,15 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 
-public class Warning implements IState {
+public class Limit implements IState {
 
-	private final Logger log = LoggerFactory.getLogger(Warning.class);
+	private final Logger log = LoggerFactory.getLogger(Limit.class);
 
 	private ComponentManager componentManager;
 	private Config config;
 	private LocalDateTime startTime = null;
 
-	public Warning(ComponentManager componentManager, Config config) {
+	public Limit(ComponentManager componentManager, Config config) {
 		this.componentManager = componentManager;
 		this.config = config;
 	}
@@ -65,7 +65,7 @@ public class Warning implements IState {
 		int minCellVoltage = minCellVoltageOpt.get();
 
 		if (minCellVoltage < this.config.criticalCellVoltage()) {
-			return new Critical(this.componentManager, this.config);
+			return new Limit(this.componentManager, this.config);
 		}
 
 		if (minCellVoltage > this.config.warningCellVoltage()) {
@@ -74,7 +74,7 @@ public class Warning implements IState {
 
 		if (this.startTime.plusSeconds(this.config.warningCellVoltageTime()).isBefore(LocalDateTime.now())) {
 			this.resetStartTime();
-			return new Charge(this.componentManager, this.config);
+			return new ForceCharge(this.componentManager, this.config);
 		}
 		
 		return this;

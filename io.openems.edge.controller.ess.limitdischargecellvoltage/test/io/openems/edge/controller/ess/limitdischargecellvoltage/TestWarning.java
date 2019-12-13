@@ -11,11 +11,11 @@ import org.junit.Test;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.CreateTestConfig;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyComponentManager;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyEss;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Charge;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Critical;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.ForceCharge;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Limit;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Normal;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Undefined;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Warning;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Limit;
 
 public class TestWarning {
 
@@ -31,7 +31,7 @@ public class TestWarning {
 	@Before
 	public void setUp() throws Exception {
 		componentManager = new DummyComponentManager();
-		sut = new Warning(componentManager, config);
+		sut = new Limit(componentManager, config);
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class TestWarning {
 		}
 		ess.setMinimalCellVoltage(TestWarning.config.warningCellVoltage() - 1);
 		IState next = sut.getNextStateObject();
-		assertTrue(next instanceof Warning);
+		assertTrue(next instanceof Limit);
 		assertEquals(State.WARNING, next.getState());
 	}
 
@@ -71,7 +71,7 @@ public class TestWarning {
 		ess.setMinimalCellVoltage(TestWarning.config.warningCellVoltage() - 1);
 
 		IState next = sut.getNextStateObject();
-		assertTrue(next instanceof Warning);
+		assertTrue(next instanceof Limit);
 		assertEquals(State.WARNING, next.getState());
 
 		// Wait the defined time, then the next state should be charge
@@ -82,7 +82,7 @@ public class TestWarning {
 		}
 
 		next = sut.getNextStateObject();
-		assertTrue(next instanceof Charge);
+		assertTrue(next instanceof ForceCharge);
 		assertEquals(State.CHARGE, next.getState());
 	}
 
@@ -129,7 +129,7 @@ public class TestWarning {
 		ess.setMinimalCellVoltage(TestWarning.config.criticalCellVoltage() - 1);
 
 		IState next = sut.getNextStateObject();
-		assertTrue(next instanceof Critical);
+		assertTrue(next instanceof Limit);
 		assertEquals(State.CRITICAL, next.getState());
 	}
 

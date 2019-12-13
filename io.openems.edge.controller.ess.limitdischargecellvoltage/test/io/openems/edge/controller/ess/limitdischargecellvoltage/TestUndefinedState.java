@@ -13,10 +13,10 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.CreateTestConfig;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyComponentManager;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyEss;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Critical;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Limit;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Normal;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Undefined;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Warning;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Limit;
 
 public class TestUndefinedState {
 
@@ -56,7 +56,7 @@ public class TestUndefinedState {
 			fail();
 		}
 		IState next = sut.getNextStateObject();
-		assertTrue(next instanceof Critical);
+		assertTrue(next instanceof Limit);
 		assertEquals(State.CRITICAL, next.getState());
 	}
 
@@ -70,7 +70,7 @@ public class TestUndefinedState {
 		}
 		IState next = sut.getNextStateObject();
 		assertEquals(State.WARNING, next.getState());
-		assertTrue(next instanceof Warning);
+		assertTrue(next instanceof Limit);
 	}
 
 	@Test

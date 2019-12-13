@@ -15,14 +15,14 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 
-public class Charge implements IState {
+public class ForceCharge implements IState {
 
-	private final Logger log = LoggerFactory.getLogger(Charge.class);
+	private final Logger log = LoggerFactory.getLogger(ForceCharge.class);
 	private ComponentManager componentManager;
 	private Config config;
 	private LocalDateTime startTime = null;
 
-	public Charge(ComponentManager componentManager, Config config) {
+	public ForceCharge(ComponentManager componentManager, Config config) {
 		this.componentManager = componentManager;
 		this.config = config;
 	}

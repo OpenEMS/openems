@@ -12,7 +12,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.CreateTestConfig;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyComponentManager;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.helper.DummyEss;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Charge;
+import io.openems.edge.controller.ess.limitdischargecellvoltage.state.ForceCharge;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Normal;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.state.Undefined;
 
@@ -30,7 +30,7 @@ public class TestCharge {
 	@Before
 	public void setUp() throws Exception {
 		componentManager = new DummyComponentManager();
-		sut = new Charge(componentManager, config);
+		sut = new ForceCharge(componentManager, config);
 	}
 
 	@Test
@@ -41,14 +41,14 @@ public class TestCharge {
 	@Test
 	public final void testGetNextStateObjectNoChanges() {
 		IState next = sut.getNextStateObject();
-		assertTrue(next instanceof Charge);
+		assertTrue(next instanceof ForceCharge);
 		assertEquals(State.CHARGE, next.getState());
 	}
 
 	@Test
 	public final void testGetNextStateObjectNormalAfterWaitingPeriod() {
 		IState next = sut.getNextStateObject();
-		assertTrue(next instanceof Charge);
+		assertTrue(next instanceof ForceCharge);
 		assertEquals(State.CHARGE, next.getState());
 
 		// Wait the defined time, then the next state should always be normal
@@ -66,7 +66,7 @@ public class TestCharge {
 	@Test
 	public final void testGetNextStateObjectUndefined() {
 		IState next = sut.getNextStateObject();
-		assertTrue(next instanceof Charge);
+		assertTrue(next instanceof ForceCharge);
 		assertEquals(State.CHARGE, next.getState());
 
 		componentManager.destroyEss();

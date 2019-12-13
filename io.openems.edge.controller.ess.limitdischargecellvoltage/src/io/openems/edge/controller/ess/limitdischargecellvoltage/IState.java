@@ -12,12 +12,12 @@ public interface IState {
 	State getState();
 
 	/**
-	 * Depending on the circumstances the next state object according to the state
+	 * Depending on the circumstances the next state according to the state
 	 * machine is returned.
 	 * 
-	 * @return the next state object
+	 * @return the next state
 	 */
-	IState getNextStateObject();
+	State getNextState();
 
 	/**
 	 * in this method everything should be executed what there is to do in this
