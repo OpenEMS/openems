@@ -26,7 +26,7 @@ import com.google.gson.JsonSyntaxException;
 
 import io.openems.common.exceptions.OpenemsException;
 
-public class DBUtils {
+public class DbUtils {
 	private String password;
 	private Connection conn;
 	private String url;
@@ -35,9 +35,9 @@ public class DBUtils {
 	private String dbname;
 	private String dburl;
 
-	private final Logger log = LoggerFactory.getLogger(DBUtils.class);
+	private final Logger log = LoggerFactory.getLogger(DbUtils.class);
 
-	public DBUtils(String dbuser, String p, String dbname, String dburl, String wpurl) {
+	public DbUtils(String dbuser, String p, String dbname, String dburl, String wpurl) {
 		this.password = p;
 		this.wpurl = wpurl;
 		this.dbuser = dbuser;
@@ -77,7 +77,7 @@ public class DBUtils {
 
 	}
 
-	public ResultSet getWPEdges() {
+	public ResultSet getWpEdges() {
 		try {
 			Connection conn = DriverManager
 					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
@@ -94,26 +94,26 @@ public class DBUtils {
 
 		return null;
 	}
-	
+
 	public boolean addEdge(String apikey, String mac, String version) {
 		Connection conn;
 		try {
 			conn = DriverManager
 					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
 			Statement stmt = conn.createStatement();
-			String sql = "INSERT INTO wp_participants_database (apikey,mac,producttype,edge_name,edge_comment,serial) VALUES('" + apikey +"', '" + mac +"', 'blueplanet hybrid 10.0 TL3', '" + version + "', '" + apikey + "', '" + apikey + "')";
+			String sql = "INSERT INTO wp_participants_database (apikey,mac,producttype,edge_name,edge_comment,serial) VALUES('"
+					+ apikey + "', '" + mac + "', 'blueplanet hybrid 10.0 TL3', '" + version + "', '" + apikey + "', '"
+					+ apikey + "')";
 			int result = stmt.executeUpdate(sql);
-			if(result == 1) {
+			if (result == 1) {
 				return true;
 			}
 		} catch (SQLException e) {
 			return false;
 		}
-		
-		
-		
+
 		return false;
-		
+
 	}
 
 	public void writeEdge(String apikey, String name, String comment, String producttype, int id) {
@@ -147,39 +147,36 @@ public class DBUtils {
 
 		}
 
-		JsonObject j = getWPResponse("/user/get_user_meta/?cookie=" + sessionId);
+		JsonObject j = getWpResponse("/user/get_user_meta/?cookie=" + sessionId);
 		if (j == null) {
 			throw new OpenemsException("no response from Wordpress");
 		}
-		
+
 		String nick = j.get("nickname").getAsString();
 		JsonElement hasrole = j.get("primusrole");
 		String role = null;
 		String primus;
 		ArrayList<String> edges = null;
-		if(hasrole != null) {
+		if (hasrole != null) {
 			role = hasrole.getAsString();
 			primus = j.get("primus").getAsString();
 			edges = new ArrayList<String>(Arrays.asList(primus.split(",")));
 		}
 
-		
-		JsonObject j2 = getWPResponse("/user/get_currentuserinfo/?cookie=" + sessionId);
+		JsonObject j2 = getWpResponse("/user/get_currentuserinfo/?cookie=" + sessionId);
 		if (j2 == null) {
 			throw new OpenemsException("no response from Wordpress");
 		}
 		JsonObject userinfo = j2.getAsJsonObject("user");
 		String userid = userinfo.get("id").getAsString();
-		
-		if(edges == null) {
+
+		if (edges == null) {
 			String serial = j.get("bp_serial").getAsString();
 			String mac = j.get("bp_mac").getAsString();
 			edges = checkNewUser(serial, mac);
 			role = "owner";
 			updateNewUser(userid, edges, role);
 		}
-
-		
 
 		String name = userinfo.get("firstname").getAsString() + " " + userinfo.get("lastname").getAsString();
 		if (!name.matches(".*\\w.*")) {
@@ -197,12 +194,14 @@ public class DBUtils {
 			conn = DriverManager
 					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
 			Statement stmt = conn.createStatement();
-			String sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid +"', 'primus', '" + edges.get(0) + "')";
+			String sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid + "', 'primus', '"
+					+ edges.get(0) + "')";
 			int result = stmt.executeUpdate(sql);
-			if(result == 1) {
-				sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid +"', 'primusrole', '" + role + "')";
+			if (result == 1) {
+				sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid + "', 'primusrole', '"
+						+ role + "')";
 				result = stmt.executeUpdate(sql);
-				if(result == 1) {
+				if (result == 1) {
 					return true;
 				}
 			}
@@ -210,23 +209,23 @@ public class DBUtils {
 			throw new OpenemsException("Couldn't update user: " + e.getMessage());
 		}
 		return false;
-		
+
 	}
 
 	private ArrayList<String> checkNewUser(String serial, String mac) throws OpenemsException {
-		
-		if(serial == null || mac == null) {
+
+		if (serial == null || mac == null) {
 			throw new OpenemsException("No valid User");
 		}
-		
+
 		String id = getEdgeIdFromDB(serial, mac);
-		if(id != null) {
-			
+		if (id != null) {
+
 			ArrayList<String> edges = new ArrayList<String>();
 			edges.add(id);
 			return edges;
 		}
-		
+
 		return null;
 	}
 
@@ -235,15 +234,14 @@ public class DBUtils {
 			Connection conn = DriverManager
 					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
 			Statement stmt = conn.createStatement();
-			String sql = "SELECT * FROM wp_participants_database WHERE apikey = " + serial + " AND mac = '" + mac +"'";
+			String sql = "SELECT * FROM wp_participants_database WHERE apikey = " + serial + " AND mac = '" + mac + "'";
 			ResultSet result = stmt.executeQuery(sql);
 			conn.close();
-					if(result.first()) {
-						return result.getString("id");
-					}
-			
-					throw new OpenemsException("No valid Edge in Database found!");
-			
+			if (result.first()) {
+				return result.getString("id");
+			}
+
+			throw new OpenemsException("No valid Edge in Database found!");
 
 		} catch (SQLException e) {
 
@@ -252,7 +250,7 @@ public class DBUtils {
 		return null;
 	}
 
-	public JsonObject getWPResponse(String urlparams) throws OpenemsException {
+	public JsonObject getWpResponse(String urlparams) throws OpenemsException {
 		HttpsURLConnection connection = null;
 
 		try {

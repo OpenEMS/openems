@@ -51,21 +51,21 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	private final Logger log = LoggerFactory.getLogger(Wordpress.class);
 
 	/**
-	 * Maps User-ID to User
+	 * Maps User-ID to User.
 	 */
 	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
 	private Map<String, MyEdge> edges = new HashMap<>();
 	private final ExecutorService readEdgeExecutor = Executors.newSingleThreadExecutor();
 	private Future<?> readEdgeFuture = null;
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
-	private DBUtils dbu = null;
+	private DbUtils dbu = null;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	private volatile EdgeWebsocket edgeWebsocket;
 
 	@Activate
 	void activate(Config config) {
-		this.dbu = new DBUtils(config.user(), config.password(), config.dbname(), config.dburl(), config.wpurl());
+		this.dbu = new DbUtils(config.user(), config.password(), config.dbname(), config.dburl(), config.wpurl());
 		log.info("Activate EnergyDepot DB");
 		this.edges.clear();
 
@@ -114,7 +114,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 
 			boolean valid = false;
 
-			JsonObject j = this.dbu.getWPResponse("/auth/validate_auth_cookie/?cookie=" + sessionId);
+			JsonObject j = this.dbu.getWpResponse("/auth/validate_auth_cookie/?cookie=" + sessionId);
 
 			valid = j.get("valid").getAsBoolean();
 
@@ -131,9 +131,10 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 						user.addEdgeRole(edgeId, Role.ADMIN);
 					}
 				} else {
-					for (String edgeId : user.getEdgeids())
-
+					for (String edgeId : user.getEdgeids()) {
 						user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
+					}
+
 				}
 
 				synchronized (this.users) {
@@ -152,6 +153,38 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		}
 		return null;
 
+	}
+	
+	@Override
+	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
+
+		try {
+
+			String valid;
+
+			JsonObject j = this.dbu
+					.getWpResponse("/auth/generate_auth_cookie/?username=" + username + "&password=" + password);
+
+			valid = j.get("status").getAsString();
+
+			if (valid.equals("ok")) {
+
+				String cookie = j.get("cookie").getAsString();
+
+				log.debug("Cookie: " + cookie);
+
+				return authenticate(cookie);
+
+			} else {
+				throw new OpenemsException("User Login not valid!");
+			}
+		} catch (JsonSyntaxException e) {
+
+			e.printStackTrace();
+
+		}
+
+		return null;
 	}
 
 	@Override
@@ -177,7 +210,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		/*
 		 * ResultSet result = this.dbu.getEdges();
 		 */
-		ResultSet result = this.dbu.getWPEdges();
+		ResultSet result = this.dbu.getWpEdges();
 
 		try {
 			while (result.next()) {
@@ -199,8 +232,8 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 				EdgeConfig config = new EdgeConfig();
 
 				Role role = Role.getRole("ADMIN");
-				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION.toString(), producttype,
-						config, role, 0, "");
+				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION.toString(),
+						producttype, config, role, 0, "");
 
 				this.addListeners(edge);
 
@@ -277,45 +310,11 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		});
 	}
 
+
 	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-		
-		try {
-
-			String valid;
-			
-			
-
-			JsonObject j = this.dbu.getWPResponse("/auth/generate_auth_cookie/?username=" + username + "&password=" + password);
-
-			valid = j.get("status").getAsString();
-
-			if (valid.equals("ok")) {
-				
-				String cookie = j.get("cookie").getAsString();
-				
-				log.debug("Cookie: " + cookie);
-				
-				return authenticate(cookie);
-				
-
-			} else {
-				throw new OpenemsException("User Login not valid!");
-			}
-		} catch (JsonSyntaxException e) {
-
-			e.printStackTrace();
-
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public
-	Optional<String> addEdgeToDB(String apikey, String mac, String version){
+	public Optional<String> addEdgeToDB(String apikey, String mac, String version) {
 		if (this.dbu.addEdge(apikey, mac, version)) {
-			this.logInfo(log, "Added new hy-control to Wordpress: Apikey " + apikey + ", MAC " + mac );
+			this.logInfo(log, "Added new hy-control to Wordpress: Apikey " + apikey + ", MAC " + mac);
 			this.updateEdges();
 			return this.getEdgeIdForApikey(apikey);
 		}

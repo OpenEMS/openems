@@ -104,6 +104,14 @@ public class UiWebsocketKaco extends AbstractOpenemsBackendComponent implements 
 		return wsData.send(request);
 	}
 
+	@Override
+	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
+		List<WsData> wsDatas = this.getWsDatasForEdgeId(edgeId);
+		for (WsData wsData : wsDatas) {
+			wsData.send(notification);
+		}
+	}
+
 	/**
 	 * Gets the WebSocket connection attachment for a UI token.
 	 * 
@@ -122,14 +130,6 @@ public class UiWebsocketKaco extends AbstractOpenemsBackendComponent implements 
 			}
 		}
 		throw OpenemsError.BACKEND_NO_UI_WITH_TOKEN.exception(token);
-	}
-
-	@Override
-	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
-		List<WsData> wsDatas = this.getWsDatasForEdgeId(edgeId);
-		for (WsData wsData : wsDatas) {
-			wsData.send(notification);
-		}
 	}
 
 	/**

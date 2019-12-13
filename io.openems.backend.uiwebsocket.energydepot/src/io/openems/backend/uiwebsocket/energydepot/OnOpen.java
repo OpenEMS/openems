@@ -48,8 +48,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		authorization = ws.getResourceDescriptor();
 		if (authorization.startsWith("/?auth=")) {
 			authorization = authorization.substring(7);
-		}
-		else {
+		} else {
 			authorization = null;
 		}
 

@@ -3,7 +3,7 @@ package io.openems.backend.uiwebsocket.energydepot;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Energydepot UiWebsocketKaco", //
 		description = "Configures the Websockets to Primus UI")
 @interface Config {
