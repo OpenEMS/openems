@@ -16,22 +16,21 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
+import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 
 public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	private final Clock clock;
 
-	private String essId;
-	private int bufferHour;
+	/**
+	 * The number of buffer hours to make sure the battery still charges full, even
+	 * on prediction errors.
+	 */
+	private int noOfBufferHours;
 
-	private boolean executed = false;
+	private boolean isTargetHourCalculated = false;
 	private Integer targetHour;
-
-	private LocalDateTime predictionStartHour;
-
-	private Integer[] hourlyProduction = new Integer[24];
-	private Integer[] hourlyConsumption = new Integer[24];
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
@@ -56,53 +55,86 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	}
 
 	protected AbstractPredictiveDelayCharge() {
+		this(Clock.systemDefaultZone());
+	}
+
+	protected AbstractPredictiveDelayCharge(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values()//
 		);
-		this.clock = Clock.systemDefaultZone();
+		this.clock = clock;
 	}
 
 	protected void activate(ComponentContext context, String id, String alias) {
 		throw new IllegalArgumentException("Use the other activate method");
 	}
 
+	/**
+	 * Abstract activator.
+	 * 
+	 * @param context         the Bundle context
+	 * @param id              the Component-ID
+	 * @param alias           the Component Alias
+	 * @param enabled         is the Component enabled?
+	 * @param meterId         the Meter-ID
+	 * @param noOfBufferHours the number of buffer hours to make sure the battery
+	 *                        still charges full, even on prediction errors
+	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, String meterId,
-			String essId, int bufferHour) {
+			int noOfBufferHours) {
 		super.activate(context, id, alias, enabled);
-		this.essId = essId;
-		this.bufferHour = bufferHour;
+		this.noOfBufferHours = noOfBufferHours;
 	}
 
-	public Integer getCalculatedPower(ProductionHourlyPredictor productionHourlyPredictor,
+	/**
+	 * Calculates the charging power limit for the current cycle.
+	 * 
+	 * @param productionHourlyPredictor  the {@link ProductionHourlyPredictor}
+	 * @param consumptionHourlyPredictor the {@link ConsumptionHourlyPredictor}
+	 * @param componentManager           the {@link ComponentManager}
+	 * @return the calculated charging power limit or null if no limit should be
+	 *         applied
+	 * @throws OpenemsNamedException on error
+	 */
+	public Integer getCalculatedPower(ManagedSymmetricEss ess, ProductionHourlyPredictor productionHourlyPredictor,
 			ConsumptionHourlyPredictor consumptionHourlyPredictor, ComponentManager componentManager)
 			throws OpenemsNamedException {
-
-		// Get required variables
-		ManagedSymmetricEss ess = componentManager.getComponent(this.essId);
 
 		LocalDateTime now = LocalDateTime.now(this.clock);
 
 		Integer calculatedPower = null;
 
-		// resets during midnight.
-		if (now.getHour() == 0 && !this.executed) {
-			this.hourlyProduction = productionHourlyPredictor.get24hPrediction().getValues();
-			this.hourlyConsumption = consumptionHourlyPredictor.get24hPrediction().getValues();
+		/*
+		 * Calculate the target hour once at midnight.
+		 * 
+		 * Possible improvement: calculate the target hour more often, e.g. once every
+		 * hour to incorporate more accurate prediction during the day.
+		 * 
+		 * TODO: make sure target hour is calculated immediately at start of OpenEMS and
+		 * not only at next midnight.
+		 * 
+		 * TODO: update production and consumption predictor to use local timeseries
+		 * data.
+		 */
+		if (now.getHour() == 0 && !this.isTargetHourCalculated) {
+			HourlyPrediction productionHourlyPredition = productionHourlyPredictor.get24hPrediction();
+			Integer[] hourlyProduction = productionHourlyPredition.getValues();
+			Integer[] hourlyConsumption = consumptionHourlyPredictor.get24hPrediction().getValues();
 
 			// Start hour of the predicted values
-			this.predictionStartHour = productionHourlyPredictor.get24hPrediction().getStart();
+			LocalDateTime predictionStartHour = productionHourlyPredition.getStart();
 
 			// calculating target hour
-			this.targetHour = calculateTargetHour();
+			this.targetHour = this.calculateTargetHour(hourlyProduction, hourlyConsumption, predictionStartHour);
 
 			// for running once
-			this.executed = true;
+			this.isTargetHourCalculated = true;
 		}
 
-		if (now.getHour() == 1 && this.executed) {
-			this.executed = false;
+		if (now.getHour() == 1 && this.isTargetHourCalculated) {
+			this.isTargetHourCalculated = false;
 		}
 
 		// target hour = null --> not enough production or Initial run(no values)
@@ -141,10 +173,22 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 		// seconds
 		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().value().orElse(0));
 
+		this.setChannels(State.ACTIVE_LIMIT, calculatedPower);
+
 		return calculatedPower;
 	}
 
-	private Integer calculateTargetHour() {
+	/**
+	 * Calculates the target hour from hourly production and consumption
+	 * predictions.
+	 * 
+	 * @param hourlyProduction    the production prediction
+	 * @param hourlyConsumption   the consumption prediction
+	 * @param predictionStartHour
+	 * @return the target hour
+	 */
+	private Integer calculateTargetHour(Integer[] hourlyProduction, Integer[] hourlyConsumption,
+			LocalDateTime predictionStartHour) {
 
 		// counter --> last hour when production > consumption.
 		int lastHour = 0;
@@ -153,19 +197,18 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 		for (int i = 0; i < 24; i++) {
 			// to avoid null and negative consumption values.
-			if ((this.hourlyProduction[i] != null && this.hourlyConsumption[i] != null
-					&& this.hourlyConsumption[i] >= 0)) {
-				if (this.hourlyProduction[i] > this.hourlyConsumption[i]) {
+			if ((hourlyProduction[i] != null && hourlyConsumption[i] != null && hourlyConsumption[i] >= 0)) {
+				if (hourlyProduction[i] > hourlyConsumption[i]) {
 					lastHour = i;
 				}
 			}
 		}
 		if (lastHour > 0) {
 			// target hour --> immediate next hour from the last Hour
-			targetHourActual = this.predictionStartHour.plusHours(lastHour).plusHours(1).getHour();
+			targetHourActual = predictionStartHour.plusHours(lastHour).getHour();
 
 			// target hour adjusted based on buffer hour.
-			targetHourAdjusted = targetHourActual - this.bufferHour;
+			targetHourAdjusted = targetHourActual - this.noOfBufferHours;
 		}
 
 		// setting the channel id values
@@ -178,19 +221,34 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 		return targetHourAdjusted;
 	}
 
-	// number of seconds left to the target hour.
+	/**
+	 * Calculates the number of seconds left to the target hour.
+	 * 
+	 * @return the remaining time
+	 */
 	private int calculateRemainingTime() {
 		int targetSecondOfDay = this.targetHour * 3600;
-		int remainingTime = targetSecondOfDay - currentSecondOfDay();
+		int remainingTime = targetSecondOfDay - this.currentSecondOfDay();
 
 		return remainingTime;
 	}
 
+	/**
+	 * Gets the current second of the day.
+	 * 
+	 * @return the current second of the day
+	 */
 	private int currentSecondOfDay() {
 		LocalDateTime now = LocalDateTime.now();
 		return now.getHour() * 3600 + now.getMinute() * 60 + now.getSecond();
 	}
 
+	/**
+	 * Update the StateMachine and ChargePowerLimit channels.
+	 * 
+	 * @param state the {@link State}
+	 * @param limit the ChargePowerLimit
+	 */
 	private void setChannels(State state, int limit) {
 		EnumReadChannel stateMachineChannel = this.channel(AbstractPredictiveDelayCharge.ChannelId.STATE_MACHINE);
 		stateMachineChannel.setNextValue(state);

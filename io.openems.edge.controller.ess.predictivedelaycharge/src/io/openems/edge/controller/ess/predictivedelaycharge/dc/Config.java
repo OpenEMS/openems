@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
 		name = "Controller Predictive Delay Charge DC", //
-		description = "controller delays the charging of the DC storage system based on the predicted PV generation values")
+		description = "Delays the charging of the DC storage system based on predicted production and consumption")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -26,8 +26,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Charger-ID", description = "ID of Charger.")
 	String charger_id() default "charger0";
 
-	@AttributeDefinition(name = "Buffer hour", description = "Number of hours that can act as a backup so that restrictions from the controller dosent apply.")
-	int buffer_hour() default 2;
+	@AttributeDefinition(name = "Number of buffer hours", description = "The number of buffer hours to make sure the battery still "
+			+ "charges full, even on prediction errors.")
+	int noOfBufferHours() default 2;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Predictive Delay Charge DC [{id}]";
 }
