@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { format, getDay, isSameDay, subDays } from 'date-fns';
+import { EdgeConfig } from '../shared';
 
 export module DefaultTypes {
 
@@ -85,6 +86,14 @@ export module DefaultTypes {
     message: string;
     code?: number,
     params?: string[]
+  }
+
+  // used to list components for Edge-Settings
+  export class ListComponent {
+    constructor(
+      public title: string,
+      public components: EdgeConfig.Component[]
+    ) { }
   }
 
   export type PeriodString = 'day' | 'week' | 'custom';

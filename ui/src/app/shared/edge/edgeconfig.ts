@@ -1,6 +1,7 @@
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
+import { DefaultTypes } from '../service/defaulttypes';
 
 export class EdgeConfig {
 
@@ -226,8 +227,6 @@ export class EdgeConfig {
         }
         return false;
     }
-
-
 
     /**
      * Get the implemented Natures by Component-ID.
