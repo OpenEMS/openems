@@ -119,66 +119,6 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Lists Components for Edge-Settings
-   * 
-   */
-  public listComponents(category: string, categorizedComponentIds: string[], componentsArray: EdgeConfig.Component[][], returnArray: DefaultTypes.ListComponent[]): DefaultTypes.ListComponent[] {
-    console.log("cArray", componentsArray)
-    let components =
-      // create one flat array
-      [].concat(...componentsArray)
-        // remove Components from list that have already been listed before
-        .filter(component => {
-          return !categorizedComponentIds.includes(component.id);
-        })
-        // remove duplicates
-        .filter((e, i, arr) => arr.indexOf(e) === i);
-    if (components.length > 0) {
-      components.forEach(component => {
-        categorizedComponentIds.push(component.id);
-      });
-      returnArray.push({ title: category, components: components })
-      return returnArray;
-    }
-  }
-  // todo set heading
-  public setNatureHeading(natureId: string): string {
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-    if (natureId.includes('io.openems.edge.bridge.modbus.api')) {
-      return 'Bridge'
-    }
-  }
-
-  /**
    * Parses the route params and sets the current edge
    */
   public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {

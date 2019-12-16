@@ -20,8 +20,6 @@ export class IndexComponent implements OnInit {
     filteredFactories: EdgeConfig.Factory[]
   }[] = [];
   public showAllFactories = false;
-  public components: DefaultTypes.ListComponent[] = [];
-
 
   constructor(
     private route: ActivatedRoute,
@@ -33,50 +31,6 @@ export class IndexComponent implements OnInit {
   ngOnInit() {
     this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AddComponents'), this.route);
     this.service.getConfig().then(config => {
-      let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum"];
-
-      for (let natureId in config.natures) {
-
-        if (natureId.includes('bridge.modbus.api')) {
-          this.service.listComponents("Modbus-Verbindungen", categorizedComponentIds, [
-            config.getComponentsImplementingNature(natureId),
-          ], this.components);
-        }
-      }
-
-      // this.service.listComponents("Zähler", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-      // ], this.components);
-      // this.service.listComponents("Speichersysteme", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss"),
-      //   config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-      // ], this.components);
-      // this.service.listComponents("Batterien", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.battery.api.Battery")
-      // ], this.components);
-      // this.service.listComponents("I/Os", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.io.api.DigitalOutput"),
-      //   config.getComponentsImplementingNature("io.openems.edge.io.api.DigitalInput")
-      // ], this.components);
-      // this.service.listComponents("E-Auto Ladestationen", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs"),
-      // ], this.components);
-      // this.service.listComponents("Standard-Controller", categorizedComponentIds, [
-      //   config.getComponentsByFactory("Controller.Api.Backend"),
-      //   config.getComponentsByFactory("Controller.Api.Rest"),
-      //   config.getComponentsByFactory("Controller.Api.Websocket"),
-      //   config.getComponentsByFactory("Controller.Debug.Log")
-      // ], this.components);
-      // this.service.listComponents("Spezial-Controller", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.controller.api.Controller")
-      // ], this.components);
-      // this.service.listComponents("Scheduler", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.scheduler.api.Scheduler")
-      // ], this.components);
-      // this.service.listComponents("Sonstige", categorizedComponentIds, [
-      //   config.getComponentsImplementingNature("io.openems.edge.common.component.OpenemsComponent")
-      // ], this.components);
-
       for (let natureId in config.natures) {
         if (IGNORE_NATURES.includes(natureId)) {
           continue;
@@ -94,7 +48,6 @@ export class IndexComponent implements OnInit {
           filteredFactories: factories
         });
       }
-      console.log("list", this.list)
       this.updateFilter("");
     });
   }

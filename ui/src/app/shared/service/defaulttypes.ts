@@ -88,14 +88,6 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  // used to list components for Edge-Settings
-  export class ListComponent {
-    constructor(
-      public title: string,
-      public components: EdgeConfig.Component[]
-    ) { }
-  }
-
   export type PeriodString = 'day' | 'week' | 'custom';
 
   export class HistoryPeriod {
