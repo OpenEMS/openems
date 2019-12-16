@@ -1,11 +1,12 @@
-<ng-container *ngIf="service.currentEdge | async as edge">
+<ng-container *ngIf="controller && service.currentEdge | async as edge">
   <ng-container *ngIf="edge.currentData | async as currentData">
-    <ion-card button (click)="presentModal()" *ngIf="currentData.summary as sum">
+    <ion-card button (click)="presentModal()">
       <ion-item lines="full" color="light">
         <ion-avatar slot="start">
           <ion-icon color="primary" size="large" name="aperture"></ion-icon>
         </ion-avatar>
-        <ion-label>Heizstab</ion-label>
+        <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
+        <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
       </ion-item>
       <ion-card-content>
         <table class="full_width">
@@ -13,64 +14,86 @@
             <td style="width: 65%" translate>
               General.State
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="getState() == 'OFF'" translate>
-              General.Off</td>
-            <td style="width: 35%" class="align_right" *ngIf="getState() == 'ON'" translate>
-              General.On</td>
+            <td style="width: 35%" class="align_right" translate>
+              <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+              <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                General.Active
+              </ng-container>
+              <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                General.Inactive
+              </ng-container>
+            </td>
           </tr>
           <tr>
             <td style="width: 65%;">
               Modus</td>
-            <td style="width: 35%" class="align_right" *ngIf="mode == 'ON'" translate>
+            <td *ngIf="controller.properties['mode'] == 'ON'" style="width: 35%" class="align_right" translate>
               General.On
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="mode == 'OFF'" translate>
+            <td *ngIf="controller.properties['mode'] == 'OFF'" style="width: 35%" class="align_right" translate>
               General.Off
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="mode == 'AUTOMATIC'" translate>
+            <td *ngIf="controller.properties['mode'] == 'AUTOMATIC'" style="width: 35%" class="align_right" translate>
               General.Automatic
             </td>
           </tr>
           <tr>
             <td style="width: 65%">
               Abhängig von</td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
-              Ladezustand
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'" translate>
+              General.Soc
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'PRODUCTION'">
-              Produktion
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'" translate>
+              General.Production
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'GRIDSELL'">
-              Netzeinspeisung
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'" translate>
+              General.GridSell
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'OTHER'">
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'
+            && controller.properties.inputChannelAddress != '_sum/ProductionActivePower' && controller.properties.inputChannelAddress != null">
               Sonstige
             </td>
           </tr>
-          <tr>
+          <tr *ngIf="controller.properties.inputChannelAddress != null">
             <td style="width: 65%">
               Aktueller Wert</td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
-              {{sum.storage.soc | unitvalue:'%'}}
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
+              {{currentData.channel[inputChannel] | unitvalue:'%'}}
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'PRODUCTION'">
-              {{sum.production.activePower | unitvalue:'kW'}}
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'">
+              {{currentData.channel[inputChannel] | unitvalue:'kW'}}
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'GRIDSELL'">
-              {{sum.grid.sellActivePower | unitvalue:'kW'}}
-            </td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'OTHER'">
-              {{1337 | unitvalue:'kW'}}
-            </td>
+            <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
+              <td style="width: 35%" class="align_right" *ngIf="currentData.channel[inputChannel] < 0; else noGridSell">
+                {{(currentData.channel[inputChannel] * -1)  | unitvalue:'kW'}}
+              </td>
+              <ng-template #noGridSell>
+                <td style="width:35%" class="align_right">
+                  {{ 0 | unitvalue: 'kW'}}
+                </td>
+              </ng-template>
+            </ng-container>
           </tr>
           <tr>
             <td style="width: 65%;">
               Schwellenwert</td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
-              {{threshold | unitvalue:'%'}}
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
+              {{controller.properties['threshold'] | unitvalue:'%'}}
             </td>
-            <td style="width: 35%" class="align_right" *ngIf="inputMode != 'SOC'">
-              {{threshold | unitvalue: 'kW'}}
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
+              {{controller.properties['threshold'] | unitvalue: 'kW'}}
+            </td>
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
+              {{(controller.properties['threshold'] * -1) | unitvalue: 'kW'}}
             </td>
           </tr>
         </table>

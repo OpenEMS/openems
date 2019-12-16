@@ -1,8 +1,9 @@
 <ion-header>
   <ion-toolbar class="ion-justify-content-center" color="primary">
-    <ion-title>Heizstab</ion-title>
+    <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
+    <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()">
+      <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -16,11 +17,18 @@
         <ion-card-content class="underline">
           <table class="full_width">
             <tr>
-              <td style="width:65%" translate>General.State</td>
-              <td style="width: 35%" class="align_right" *ngIf="getState() == 'OFF'" translate>
-                General.Off</td>
-              <td style="width: 35%" class="align_right" *ngIf="getState() == 'ON'" translate>
-                General.On</td>
+              <td style="width: 65%" translate>
+                General.State
+              </td>
+              <td style="width: 35%" class="align_right" translate>
+                <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+                <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                  General.Active
+                </ng-container>
+                <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                  General.Inactive
+                </ng-container>
+              </td>
             </tr>
           </table>
         </ion-card-content>
@@ -32,7 +40,7 @@
               </td>
             </tr>
           </table>
-          <ion-segment (ionChange)="updateMode($event)" value="{{mode}}" scrollable="false">
+          <ion-segment (ionChange)="updateMode($event)" value="{{controller.properties['mode']}}" scrollable="false">
             <ion-segment-button value="ON">
               <ion-label translate>
                 General.On
@@ -54,11 +62,11 @@
             </ion-segment-button>
           </ion-segment>
         </ion-card-content>
-        <ion-row>
+        <ion-row *ngIf="inputMode != null">
           <ion-col class="ion-no-padding" size="12">
             <ion-item lines="none">
               <ion-label class="heating">Abhängig von</ion-label>
-              <ion-select [(ngModel)]="inputMode" [selectedText]="selectedText" (ionChange)="codeSelected()">
+              <ion-select value="{{inputMode}}" (ionChange)="updateInputMode($event)">
                 <ion-select-option value="SOC" translate>General.Soc</ion-select-option>
                 <ion-select-option value="GRIDSELL" translate>General.GridSell</ion-select-option>
                 <ion-select-option value="PRODUCTION" translate>General.Production</ion-select-option>
@@ -66,35 +74,55 @@
             </ion-item>
           </ion-col>
         </ion-row>
+
+
+
         <ion-card-content>
           <table class="full_width">
-            <tr>
+            <tr *ngIf="controller.properties.inputChannelAddress != null">
               <td style="width: 65%">
-                Aktueller Wert
+                Aktueller Wert</td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
+                {{currentData.channel[inputChannel] | unitvalue:'%'}}
               </td>
-              <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
-                {{sum.storage.soc | unitvalue:'%'}}
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'">
+                {{currentData.channel[inputChannel] | unitvalue:'kW'}}
               </td>
-              <td style="width: 35%" class="align_right" *ngIf="inputMode == 'GRIDSELL'">
-                {{sum.grid.sellActivePower | unitvalue:'W'}}
+              <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
+                <td style="width: 35%" class="align_right"
+                  *ngIf="currentData.channel[inputChannel] < 0; else noGridSell">
+                  {{(currentData.channel[inputChannel] * -1)  | unitvalue:'kW'}}
+                </td>
+                <ng-template #noGridSell>
+                  <td style="width:35%" class="align_right">
+                    {{ 0 | unitvalue: 'kW'}}
+                  </td>
+                </ng-template>
+              </ng-container>
+            </tr>
+          </table>
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%;">
+                Schwellenwert</td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
+                {{controller.properties['threshold'] | unitvalue:'%'}}
               </td>
-              <td style="width: 35%" class="align_right" *ngIf="inputMode == 'PRODUCTION'">
-                {{sum.production.activePower | unitvalue:'W'}}
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
+                {{controller.properties['threshold'] | unitvalue: 'kW'}}
+              </td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
+                {{(controller.properties['threshold'] * -1) | unitvalue: 'kW'}}
               </td>
             </tr>
           </table>
           <ng-container *ngIf="inputMode == 'SOC'">
-            <table class="full_width">
-              <tr>
-                <td style="width: 65%">
-                  Schwellenwert</td>
-                <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
-                  {{threshold | unitvalue:'%'}}</td>
-                <td style="width: 35%" class="align_right" *ngIf="inputMode != 'SOC'">
-                  {{threshold | unitvalue:'W'}}</td>
-              </tr>
-            </table>
-            <table class="full_width">
+            <!-- <table class="full_width">
               <tr>
                 <ion-range pin color="dark" min="0" max="100" [(ngModel)]="threshold" debounce="500">
                   <ion-label slot="start">
@@ -115,7 +143,7 @@
                   <ion-input [(ngModel)]="threshold"></ion-input>
                 </td>
               </tr>
-            </table>
+            </table> -->
           </ng-container>
         </ion-card-content>
       </ion-content>
