@@ -1,0 +1,80 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+  <ng-container *ngIf="edge.currentData | async as currentData">
+    <ion-card button (click)="presentModal()" *ngIf="currentData.summary as sum">
+      <ion-item lines="full" color="light">
+        <ion-avatar slot="start">
+          <ion-icon color="primary" size="large" name="aperture"></ion-icon>
+        </ion-avatar>
+        <ion-label>Heizstab</ion-label>
+      </ion-item>
+      <ion-card-content>
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              General.State
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="getState() == 'OFF'" translate>
+              General.Off</td>
+            <td style="width: 35%" class="align_right" *ngIf="getState() == 'ON'" translate>
+              General.On</td>
+          </tr>
+          <tr>
+            <td style="width: 65%;">
+              Modus</td>
+            <td style="width: 35%" class="align_right" *ngIf="mode == 'ON'" translate>
+              General.On
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="mode == 'OFF'" translate>
+              General.Off
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="mode == 'AUTOMATIC'" translate>
+              General.Automatic
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 65%">
+              Abhängig von</td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
+              Ladezustand
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'PRODUCTION'">
+              Produktion
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'GRIDSELL'">
+              Netzeinspeisung
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'OTHER'">
+              Sonstige
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 65%">
+              Aktueller Wert</td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
+              {{sum.storage.soc | unitvalue:'%'}}
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'PRODUCTION'">
+              {{sum.production.activePower | unitvalue:'kW'}}
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'GRIDSELL'">
+              {{sum.grid.sellActivePower | unitvalue:'kW'}}
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'OTHER'">
+              {{1337 | unitvalue:'kW'}}
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 65%;">
+              Schwellenwert</td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
+              {{threshold | unitvalue:'%'}}
+            </td>
+            <td style="width: 35%" class="align_right" *ngIf="inputMode != 'SOC'">
+              {{threshold | unitvalue: 'kW'}}
+            </td>
+          </tr>
+        </table>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+</ng-container>

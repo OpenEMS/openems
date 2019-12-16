@@ -1,0 +1,124 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title>Heizstab</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ng-container *ngIf="service.currentEdge | async as edge">
+  <ng-container *ngIf="edge.currentData | async as currentData">
+    <ng-container *ngIf="currentData.summary as sum">
+      <ion-content>
+        <ion-card-content class="underline">
+          <table class="full_width">
+            <tr>
+              <td style="width:65%" translate>General.State</td>
+              <td style="width: 35%" class="align_right" *ngIf="getState() == 'OFF'" translate>
+                General.Off</td>
+              <td style="width: 35%" class="align_right" *ngIf="getState() == 'ON'" translate>
+                General.On</td>
+            </tr>
+          </table>
+        </ion-card-content>
+        <ion-card-content class="underline">
+          <table class="full_width">
+            <tr>
+              <td translate>
+                General.Mode
+              </td>
+            </tr>
+          </table>
+          <ion-segment (ionChange)="updateMode($event)" value="{{mode}}" scrollable="false">
+            <ion-segment-button value="ON">
+              <ion-label translate>
+                General.On
+              </ion-label>
+              <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="AUTOMATIC">
+              <ion-label translate>
+                General.Automatic
+              </ion-label>
+              <ion-icon style="width:40px" name="sunny">
+              </ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="OFF">
+              <ion-label translate>
+                General.Off
+              </ion-label>
+              <ion-icon name="power" style="width: 40px"></ion-icon>
+            </ion-segment-button>
+          </ion-segment>
+        </ion-card-content>
+        <ion-row>
+          <ion-col class="ion-no-padding" size="12">
+            <ion-item lines="none">
+              <ion-label class="heating">Abhängig von</ion-label>
+              <ion-select [(ngModel)]="inputMode" [selectedText]="selectedText" (ionChange)="codeSelected()">
+                <ion-select-option value="SOC" translate>General.Soc</ion-select-option>
+                <ion-select-option value="GRIDSELL" translate>General.GridSell</ion-select-option>
+                <ion-select-option value="PRODUCTION" translate>General.Production</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-card-content>
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%">
+                Aktueller Wert
+              </td>
+              <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
+                {{sum.storage.soc | unitvalue:'%'}}
+              </td>
+              <td style="width: 35%" class="align_right" *ngIf="inputMode == 'GRIDSELL'">
+                {{sum.grid.sellActivePower | unitvalue:'W'}}
+              </td>
+              <td style="width: 35%" class="align_right" *ngIf="inputMode == 'PRODUCTION'">
+                {{sum.production.activePower | unitvalue:'W'}}
+              </td>
+            </tr>
+          </table>
+          <ng-container *ngIf="inputMode == 'SOC'">
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%">
+                  Schwellenwert</td>
+                <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
+                  {{threshold | unitvalue:'%'}}</td>
+                <td style="width: 35%" class="align_right" *ngIf="inputMode != 'SOC'">
+                  {{threshold | unitvalue:'W'}}</td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <ion-range pin color="dark" min="0" max="100" [(ngModel)]="threshold" debounce="500">
+                  <ion-label slot="start">
+                    {{0 | unitvalue:'%'}}
+                  </ion-label>
+                  <ion-label slot="end">
+                    {{100 | unitvalue:'%'}}
+                  </ion-label>
+                </ion-range>
+              </tr>
+            </table>
+          </ng-container>
+          <ng-container *ngIf="inputMode != 'SOC'">
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%">Schwellenwert</td>
+                <td style="width: 35%" class="align_right">
+                  <ion-input [(ngModel)]="threshold"></ion-input>
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+        </ion-card-content>
+      </ion-content>
+    </ng-container>
+  </ng-container>
+</ng-container>
