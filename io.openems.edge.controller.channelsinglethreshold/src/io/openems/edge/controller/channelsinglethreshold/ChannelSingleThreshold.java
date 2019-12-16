@@ -107,11 +107,21 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	 * @throws OpenemsNamedException on error
 	 */
 	private void automaticMode() throws OpenemsNamedException {
+		
 		ChannelAddress inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
+		ChannelAddress outputChannelAddress = ChannelAddress.fromString(this.config.outputChannelAddress());
 
 		// Get input value
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
 		int value = inputChannel.value().getOrError();
+		
+		// Get output status (true or false)
+		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(outputChannelAddress);
+		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		
+		if((currentValueOpt.isPresent() ^ this.config.invert()) == true) {
+			value -= this.config.switchedLoadPower();
+		}
 
 		// State Machine
 		switch (this.state) {
@@ -154,7 +164,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	 * @param nextState the target state
 	 */
 	private void changeState(State nextState) {
-		Duration hysteresis = Duration.ofMinutes(this.config.hysteresis());
+		Duration hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
 		if (this.state != nextState) {
 			if (this.lastStateChange.plus(hysteresis).isBefore(LocalDateTime.now(this.clock))) {
 				this.state = nextState;
