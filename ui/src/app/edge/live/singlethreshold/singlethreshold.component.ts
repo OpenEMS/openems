@@ -109,6 +109,7 @@ export class SinglethresholdComponent {
         inputChannel: this.inputChannel
       }
     });
+    console.log("controller", this.controller)
     return await modal.present();
   }
 

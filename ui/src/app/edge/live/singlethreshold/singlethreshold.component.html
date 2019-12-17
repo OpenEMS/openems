@@ -17,10 +17,10 @@
             <td style="width: 35%" class="align_right" translate>
               <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
               <ng-container *ngIf="currentData.channel[outputChannel] == 1">
-                General.Active
+                General.On
               </ng-container>
               <ng-container *ngIf="currentData.channel[outputChannel] == 0">
-                General.Inactive
+                General.Off
               </ng-container>
             </td>
           </tr>
@@ -63,15 +63,15 @@
               Aktueller Wert</td>
             <td style="width: 35%" class="align_right"
               *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
-              {{currentData.channel[inputChannel] | unitvalue:'%'}}
+              {{currentData.channel[this.controller.properties['inputChannelAddress']] | unitvalue:'%'}}
             </td>
             <td style="width: 35%" class="align_right"
               *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'">
-              {{currentData.channel[inputChannel] | unitvalue:'kW'}}
+              {{currentData.channel[this.controller.properties['inputChannelAddress']] | unitvalue:'kW'}}
             </td>
             <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
               <td style="width: 35%" class="align_right" *ngIf="currentData.channel[inputChannel] < 0; else noGridSell">
-                {{(currentData.channel[inputChannel] * -1)  | unitvalue:'kW'}}
+                {{(currentData.channel[this.controller.properties['inputChannelAddress']] * -1)  | unitvalue:'kW'}}
               </td>
               <ng-template #noGridSell>
                 <td style="width:35%" class="align_right">

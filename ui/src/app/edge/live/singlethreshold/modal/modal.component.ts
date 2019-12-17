@@ -15,6 +15,8 @@ export class SinglethresholdModalComponent {
   private static readonly SELECTOR = "singlethreshold-modal";
 
   public inputMode: inputMode = null;
+  public threshold: number = null;
+  public minimumSwitchtingTime: number = null;
 
   @Input() public edge: Edge;
   @Input() public controller: EdgeConfig.Component;
@@ -40,11 +42,11 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  updateInputMode(event: CustomEvent) {
+  updateInputMode(event: CustomEvent, currentController: EdgeConfig.Component) {
     let oldInputChannel: string = this.controller.properties.inputChannelAddress
     let newInputChannel: string;
     let oldThreshold: number = this.controller.properties.threshold;
-    let newThreshold: number;
+    let newThreshold: number = this.controller.properties.threshold;
 
     switch (event.detail.value) {
       case "SOC":
@@ -52,62 +54,41 @@ export class SinglethresholdModalComponent {
         newInputChannel = '_sum/EssSoc';
         if (Math.abs(this.controller.properties.threshold) < 0 || Math.abs(this.controller.properties.threshold) > 100) {
           newThreshold = 50;
+        } else if (this.controller.properties.threshold < 0) {
+          newThreshold = newThreshold * -1;
         }
         break;
       case "GRIDSELL":
         this.inputMode = 'GRIDSELL';
         newInputChannel = '_sum/GridActivePower'
-        if ()
-          break;
+        if (this.controller.properties.threshold > 0) {
+          newThreshold = newThreshold * -1;
+        }
+        break;
       case "PRODUCTION":
         this.inputMode = 'PRODUCTION';
         newInputChannel = '_sum/ProductionActivePower'
+        if (this.controller.properties.threshold < 0) {
+          newThreshold = newThreshold * -1;
+        }
         break;
     }
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { name: 'inputChannelAddress', value: newInputChannel }
+        { name: 'inputChannelAddress', value: newInputChannel },
+        { name: 'threshold', value: newThreshold }
       ]).then(() => {
         this.controller.properties.inputChannelAddress = newInputChannel;
+        this.controller.properties.threshold = newThreshold;
         this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         this.controller.properties.inputChannelAddress = oldInputChannel;
+        this.controller.properties.threshold = oldThreshold;
         this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
-
-    if (event.detail.value == 'SOC') {
-      if (Math.abs(this.controller.properties.threshold) < 0 || Math.abs(this.controller.properties.threshold) > 100) {
-        let oldThreshold: number = this.controller.properties.threshold;
-        let newThreshold: number = 50;
-        if (this.edge != null) {
-          this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-            { name: 'threshold', value: newThreshold }
-          ]).then(() => {
-            this.controller.properties.threshold = newThreshold;
-          }).catch(reason => {
-            this.controller.properties.threshold = oldThreshold;
-            console.warn(reason);
-          });
-        }
-      }
-    } else if (event.detail.value == 'PRODUCTION' || event.detail.value == 'GRIDSELL') {
-      let oldThreshold: number = this.controller.properties.threshold;
-      let newThreshold: number = this.controller.properties.threshold * -1;
-      if (this.edge != null) {
-        this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-          { name: 'threshold', value: newThreshold }
-        ]).then(() => {
-          this.controller.properties.threshold = newThreshold;
-        }).catch(reason => {
-          this.controller.properties.threshold = oldThreshold;
-          console.warn(reason);
-        });
-      }
-    }
-    console.log("threshold", this.controller.properties.threshold)
   }
 
   updateMode(event: CustomEvent) {
@@ -137,6 +118,106 @@ export class SinglethresholdModalComponent {
         this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
+    }
+  }
+
+  updateSocThreshold(event: CustomEvent) {
+    let oldThreshold = this.controller.properties.threshold;
+    let newThreshold = event;
+
+    if (this.edge != null) {
+      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+        { name: 'threshold', value: newThreshold }
+      ]).then(() => {
+        this.controller.properties['threshold'] = newThreshold;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+      }).catch(reason => {
+        this.controller.properties['threshold'] = oldThreshold;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        console.warn(reason);
+      })
+    }
+  }
+
+  updateNonSocThresholdInput(event: CustomEvent) {
+    if (isNaN(event.detail.value)) {
+      event.detail.value = null;
+    } else {
+      if (this.inputMode == 'GRIDSELL') {
+        this.threshold = event.detail.value * -1;
+      } else {
+        this.threshold = event.detail.value;
+      }
+    }
+  }
+
+  setInvert() {
+    let oldInvert = this.controller.properties.invert;
+    let newInvert;
+
+    if (this.controller.properties.invert == true) {
+      newInvert = false;
+    } else if (this.controller.properties.invert == false) {
+      newInvert = true;
+    }
+
+    if (this.edge != null) {
+      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+        { name: 'invert', value: newInvert },
+      ]).then(() => {
+        this.controller.properties.invert = newInvert;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+      }).catch(reason => {
+        this.controller.properties.invert = oldInvert;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        console.warn(reason);
+      })
+    }
+  }
+
+  updateMinimumSwitchtingTimeInput(event: CustomEvent) {
+    this.minimumSwitchtingTime = event.detail.value;
+  }
+
+  applyChanges() {
+    let oldMinimumSwitchingTime;
+    let newMinimumSwitchingTime;
+    let oldThreshold;
+    let newThreshold;
+
+    if (this.minimumSwitchtingTime != null) {
+      oldMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
+      newMinimumSwitchingTime = this.minimumSwitchtingTime;
+    } else if (this.minimumSwitchtingTime == null) {
+      oldMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
+      newMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
+    }
+    if (this.threshold != null) {
+      oldThreshold = this.controller.properties.threshold;
+      newThreshold = this.threshold;
+    } else if (this.threshold == null) {
+      oldThreshold = this.controller.properties.threshold;
+      newThreshold = this.controller.properties.threshold;
+    }
+
+    if (this.edge != null) {
+      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+        { name: 'minimumSwitchingTime', value: newMinimumSwitchingTime },
+        { name: 'threshold', value: newThreshold }
+      ]).then(() => {
+        this.controller.properties.minimumSwitchingTime = newMinimumSwitchingTime;
+        this.controller.properties['threshold'] = newThreshold;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.threshold = null;
+        this.minimumSwitchtingTime = null;
+      }).catch(reason => {
+        this.controller.properties['threshold'] = oldThreshold;
+        this.controller.properties.minimumSwitchingTime = oldMinimumSwitchingTime;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.threshold = null;
+        this.minimumSwitchtingTime = null;
+        console.warn(reason);
+      })
     }
   }
 }
