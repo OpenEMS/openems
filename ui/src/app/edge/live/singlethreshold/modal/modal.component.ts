@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Service, Edge, EdgeConfig, ChannelAddress, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { Validators, FormBuilder, FormGroup, FormControl, AbstractControl } from '@angular/forms';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
-type inputMode = 'SOC' | 'GRIDSELL' | 'PRODUCTION'
+type inputMode = 'SOC' | 'GRIDSELL' | 'PRODUCTION' | 'OTHER'
 
 @Component({
   selector: SinglethresholdModalComponent.SELECTOR,
@@ -13,6 +14,8 @@ type inputMode = 'SOC' | 'GRIDSELL' | 'PRODUCTION'
 export class SinglethresholdModalComponent {
 
   private static readonly SELECTOR = "singlethreshold-modal";
+
+  public formGroup: FormGroup;
 
   public inputMode: inputMode = null;
   public threshold: number = null;
@@ -27,8 +30,31 @@ export class SinglethresholdModalComponent {
     public service: Service,
     public modalCtrl: ModalController,
     public translate: TranslateService,
-    public websocket: Websocket
-  ) { }
+    public websocket: Websocket,
+    public formBuilder: FormBuilder
+  ) {
+    this.formGroup = this.formBuilder.group({
+      minimumSwitchingTime: new FormControl('', Validators.compose([
+        Validators.min(10),
+      ])),
+      socThreshold: new FormControl('', Validators.compose([
+        Validators.min(1),
+        Validators.max(100)
+      ])),
+      regularThreshold: new FormControl('', Validators.compose([
+        Validators.min(0)
+      ])),
+      switchedLoadPower: new FormControl('', Validators.compose([
+        Validators.min(1)
+      ])),
+      // todo: isChannelName (component.id + '/' + string) validator bauen
+      otherChannel: new FormControl('', Validators.compose([
+        Validators.min(1)
+      ])),
+      mode: new FormControl()
+    })
+  }
+
 
   ngOnInit() {
     if (this.controller.properties.inputChannelAddress == '_sum/GridActivePower') {
@@ -37,8 +63,8 @@ export class SinglethresholdModalComponent {
       this.inputMode = 'PRODUCTION';
     } else if (this.controller.properties.inputChannelAddress == '_sum/EssSoc') {
       this.inputMode = 'SOC';
-    } else {
-      this.inputMode = null;
+    } else if (this.controller.properties.inputChannelAddress != null) {
+      this.inputMode = 'OTHER';
     }
   }
 
@@ -57,6 +83,7 @@ export class SinglethresholdModalComponent {
         } else if (this.controller.properties.threshold < 0) {
           newThreshold = newThreshold * -1;
         }
+        this.formGroup.value.mode = 'SOC'
         break;
       case "GRIDSELL":
         this.inputMode = 'GRIDSELL';
@@ -64,6 +91,7 @@ export class SinglethresholdModalComponent {
         if (this.controller.properties.threshold > 0) {
           newThreshold = newThreshold * -1;
         }
+        this.formGroup.value.mode = 'GRIDSELL'
         break;
       case "PRODUCTION":
         this.inputMode = 'PRODUCTION';
@@ -71,24 +99,29 @@ export class SinglethresholdModalComponent {
         if (this.controller.properties.threshold < 0) {
           newThreshold = newThreshold * -1;
         }
+        this.formGroup.value.mode = 'PRODUCTION'
+        break;
+      case "OTHER":
+        this.inputMode = 'OTHER';
+        this.formGroup.value.mode = 'OTHER'
         break;
     }
 
-    if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { name: 'inputChannelAddress', value: newInputChannel },
-        { name: 'threshold', value: newThreshold }
-      ]).then(() => {
-        this.controller.properties.inputChannelAddress = newInputChannel;
-        this.controller.properties.threshold = newThreshold;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
-      }).catch(reason => {
-        this.controller.properties.inputChannelAddress = oldInputChannel;
-        this.controller.properties.threshold = oldThreshold;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
-        console.warn(reason);
-      });
-    }
+    // if (this.edge != null) {
+    //   this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+    //     { name: 'inputChannelAddress', value: newInputChannel },
+    //     { name: 'threshold', value: newThreshold }
+    //   ]).then(() => {
+    //     this.controller.properties.inputChannelAddress = newInputChannel;
+    //     this.controller.properties.threshold = newThreshold;
+    //     this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+    //   }).catch(reason => {
+    //     this.controller.properties.inputChannelAddress = oldInputChannel;
+    //     this.controller.properties.threshold = oldThreshold;
+    //     this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+    //     console.warn(reason);
+    //   });
+    // }
   }
 
   updateMode(event: CustomEvent) {
@@ -180,44 +213,49 @@ export class SinglethresholdModalComponent {
   }
 
   applyChanges() {
-    let oldMinimumSwitchingTime;
-    let newMinimumSwitchingTime;
-    let oldThreshold;
-    let newThreshold;
+    // let oldMinimumSwitchingTime;
+    // let newMinimumSwitchingTime;
+    // let oldThreshold;
+    // let newThreshold;
 
-    if (this.minimumSwitchtingTime != null) {
-      oldMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
-      newMinimumSwitchingTime = this.minimumSwitchtingTime;
-    } else if (this.minimumSwitchtingTime == null) {
-      oldMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
-      newMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
-    }
-    if (this.threshold != null) {
-      oldThreshold = this.controller.properties.threshold;
-      newThreshold = this.threshold;
-    } else if (this.threshold == null) {
-      oldThreshold = this.controller.properties.threshold;
-      newThreshold = this.controller.properties.threshold;
-    }
+    // if (this.minimumSwitchtingTime != null) {
+    //   oldMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
+    //   newMinimumSwitchingTime = this.minimumSwitchtingTime;
+    // } else if (this.minimumSwitchtingTime == null) {
+    //   oldMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
+    //   newMinimumSwitchingTime = this.controller.properties.minimumSwitchingTime;
+    // }
+    // if (this.threshold != null) {
+    //   oldThreshold = this.controller.properties.threshold;
+    //   newThreshold = this.threshold;
+    // } else if (this.threshold == null) {
+    //   oldThreshold = this.controller.properties.threshold;
+    //   newThreshold = this.controller.properties.threshold;
+    // }
 
-    if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { name: 'minimumSwitchingTime', value: newMinimumSwitchingTime },
-        { name: 'threshold', value: newThreshold }
-      ]).then(() => {
-        this.controller.properties.minimumSwitchingTime = newMinimumSwitchingTime;
-        this.controller.properties['threshold'] = newThreshold;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
-        this.threshold = null;
-        this.minimumSwitchtingTime = null;
-      }).catch(reason => {
-        this.controller.properties['threshold'] = oldThreshold;
-        this.controller.properties.minimumSwitchingTime = oldMinimumSwitchingTime;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
-        this.threshold = null;
-        this.minimumSwitchtingTime = null;
-        console.warn(reason);
-      })
-    }
+    // if (this.edge != null) {
+    //   this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+    //     { name: 'minimumSwitchingTime', value: newMinimumSwitchingTime },
+    //     { name: 'threshold', value: newThreshold }
+    //   ]).then(() => {
+    //     this.controller.properties.minimumSwitchingTime = newMinimumSwitchingTime;
+    //     this.controller.properties['threshold'] = newThreshold;
+    //     this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+    //     this.threshold = null;
+    //     this.minimumSwitchtingTime = null;
+    //   }).catch(reason => {
+    //     this.controller.properties['threshold'] = oldThreshold;
+    //     this.controller.properties.minimumSwitchingTime = oldMinimumSwitchingTime;
+    //     this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+    //     this.threshold = null;
+    //     this.minimumSwitchtingTime = null;
+    //     console.warn(reason);
+    //   })
+    // }
+    console.log("input:", this.formGroup.value)
+  }
+
+  onSubmit(values) {
+    console.log("value", values)
   }
 }
