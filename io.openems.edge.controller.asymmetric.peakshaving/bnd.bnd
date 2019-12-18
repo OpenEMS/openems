@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge EVCS Cluster
+Bundle-Name: OpenEMS Edge Controller Asymmetric Peakshaving
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
@@ -8,9 +8,11 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.evcs.api,\
 	slf4j.api,\
-	io.openems.edge.ess.api;version=latest
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	com.google.gson,\
+	com.google.guava
 
 -testpath: \
 	${testpath}
