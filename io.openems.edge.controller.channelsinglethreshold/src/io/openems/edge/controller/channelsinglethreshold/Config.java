@@ -3,10 +3,6 @@ package io.openems.edge.controller.channelsinglethreshold;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-// TODO:
-// - add switchedLoadPower config here and in logic
-// - add tests, see LimitTotalDischargeTest
-
 @ObjectClassDefinition(//
 		name = "Controller Channel Single Threshold", //
 		description = "This controller switches a Digital Output channel ON, if the value of the input channel is above a configured threshold. This behaviour can be inverted using the 'invert' config option.")
@@ -20,9 +16,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
-	@AttributeDefinition(name = "Grid-Meter-Id", description = "ID of the Grid-Meter.")
-	String meter_id() default "meter0";
 
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
@@ -35,11 +28,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Threshold", description = "Threshold boundary value")
 	int threshold();
-	
-	@AttributeDefinition(name = "Switched Load Power", description = "load power value")
+
+	@AttributeDefinition(name = "Switched Load Power", description = "load power value of the device that needs to be switched on/off")
 	int switchedLoadPower();
 
-	@AttributeDefinition(name = "Minimum switching time between two states", description = "The hysteresis is applied to threshold to avoid continuous switching")
+	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time is applied to avoid continuous switching between on and off based on threshold")
 	int minimumSwitchingTime() default 60;
 
 	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour is inverted, i.e. the Digital Output channel is switched OFF if the value of the input channel is within a configured threshold")

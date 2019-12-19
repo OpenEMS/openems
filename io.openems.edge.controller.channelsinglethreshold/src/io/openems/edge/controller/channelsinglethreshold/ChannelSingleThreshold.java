@@ -67,6 +67,10 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	private State state = State.UNDEFINED;
 
 	public ChannelSingleThreshold() {
+		this(Clock.systemDefaultZone());
+	}
+
+	public ChannelSingleThreshold(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -88,15 +92,21 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 
 	@Override
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
+		ChannelAddress outputChannelAddress = ChannelAddress.fromString(this.config.outputChannelAddress());
+
+		// Get output status (true or false)
+		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(outputChannelAddress);
+		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+
 		switch (this.config.mode()) {
 		case ON:
-			this.setOutput(true);
+			this.setOutput(outputChannel, currentValueOpt, true);
 			break;
 		case OFF:
-			this.setOutput(false);
+			this.setOutput(outputChannel, currentValueOpt, false);
 			break;
 		case AUTOMATIC:
-			this.automaticMode();
+			this.automaticMode(outputChannel, currentValueOpt);
 			break;
 		}
 	}
@@ -104,22 +114,31 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	/**
 	 * Automated control.
 	 * 
+	 * @param currentValueOpt
+	 * @param outputChannel
+	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	private void automaticMode() throws OpenemsNamedException {
-		
+	private void automaticMode(WriteChannel<Boolean> outputChannel, Optional<Boolean> currentValueOpt)
+			throws OpenemsNamedException {
+
 		ChannelAddress inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
-		ChannelAddress outputChannelAddress = ChannelAddress.fromString(this.config.outputChannelAddress());
 
 		// Get input value
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
 		int value = inputChannel.value().getOrError();
-		
-		// Get output status (true or false)
-		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(outputChannelAddress);
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
-		
-		if((currentValueOpt.isPresent() ^ this.config.invert()) == true) {
+
+		/*
+		 * Condition applies only when the input channel is the Grid Active Power
+		 * 
+		 * Power value of the output device is added to the input channel value to avoid
+		 * immediate switching based on threshold.
+		 * 
+		 * example use case: if the feed-in is more than threshold, the output device is switched
+		 * on and next second feed-in reduces below threshold and immediately switches off the
+		 * device.
+		 */
+		if ((currentValueOpt.isPresent() ^ this.config.invert()) == true) {
 			value -= this.config.switchedLoadPower();
 		}
 
@@ -134,7 +153,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			} else {
 				this.changeState(State.ABOVE_THRESHOLD);
 			}
-			this.setOutput(false);
+			this.setOutput(outputChannel, currentValueOpt, false);
 			break;
 
 		case BELOW_THRESHOLD:
@@ -144,7 +163,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			if (value >= this.config.threshold()) {
 				this.changeState(State.ABOVE_THRESHOLD);
 			}
-			this.setOutput(false);
+			this.setOutput(outputChannel, currentValueOpt, false);
 			break;
 
 		case ABOVE_THRESHOLD:
@@ -154,7 +173,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			if (value <= this.config.threshold()) {
 				this.changeState(State.BELOW_THRESHOLD);
 			}
-			this.setOutput(true);
+			this.setOutput(outputChannel, currentValueOpt, true);
 		}
 	}
 
@@ -180,15 +199,16 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 
 	/**
 	 * Helper function to switch an output if it was not switched before.
+	 * 
+	 * @param currentValueOpt2
+	 * @param outputChannel2
 	 *
-	 * @param value true to switch ON, false to switch ON; is inverted if
-	 *              'invertOutput' config is set
+	 * @param value            true to switch ON, false to switch ON; is inverted if
+	 *                         'invertOutput' config is set
 	 * @throws OpenemsNamedException on error
 	 */
-	private void setOutput(boolean value) throws OpenemsNamedException {
-		ChannelAddress outputChannelAddress = ChannelAddress.fromString(this.config.outputChannelAddress());
-		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(outputChannelAddress);
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+	private void setOutput(WriteChannel<Boolean> outputChannel, Optional<Boolean> currentValueOpt, boolean value)
+			throws OpenemsNamedException {
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.config.invert())) {
 			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
 					+ (value ^ this.config.invert() ? "ON" : "OFF") + ".");
