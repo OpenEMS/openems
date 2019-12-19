@@ -3,7 +3,15 @@
     <ion-card button (click)="presentModal()">
       <ion-item lines="full" color="light">
         <ion-avatar slot="start">
-          <ion-icon color="primary" size="large" name="aperture"></ion-icon>
+          <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+            <ion-icon color="primary" size="large" name="aperture"></ion-icon>
+          </ng-container>
+          <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+            <ion-icon color="primary" size="large" name="radio-button-off"></ion-icon>
+          </ng-container>
+          <ng-container *ngIf="currentData.channel[outputChannel] == null">
+            <ion-icon size="large" name="help-circle-outline"></ion-icon>
+          </ng-container>
         </ion-avatar>
         <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
         <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
@@ -49,8 +57,14 @@
               General.Production
             </td>
             <td style="width: 35%" class="align_right"
-              *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'" translate>
+              *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold < 0"
+              translate>
               General.GridSell
+            </td>
+            <td style="width: 35%" class="align_right"
+              *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold > 0"
+              translate>
+              General.GridBuy
             </td>
             <td style="width: 35%" class="align_right"
               *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'
@@ -66,19 +80,19 @@
               {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue:'%'}}
             </td>
             <td style="width: 35%" class="align_right"
-              *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'">
-              {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue:'kW'}}
+              *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc'">
+              <ng-container
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold < 0">
+                {{currentData.summary.grid.sellActivePower | unitvalue: 'kW'}}
+              </ng-container>
+              <ng-container
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold > 0">
+                {{currentData.summary.grid.buyActivePower | unitvalue: 'kW'}}
+              </ng-container>
+              <ng-container *ngIf="controller.properties.inputChannelAddress != '_sum/GridActivePower'">
+                {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue:'kW'}}
+              </ng-container>
             </td>
-            <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
-              <td style="width: 35%" class="align_right" *ngIf="currentData.channel[inputChannel] < 0; else noGridSell">
-                {{(currentData.channel[controller.properties['inputChannelAddress']] * -1)  | unitvalue:'kW'}}
-              </td>
-              <ng-template #noGridSell>
-                <td style="width:35%" class="align_right">
-                  {{ 0 | unitvalue: 'kW'}}
-                </td>
-              </ng-template>
-            </ng-container>
           </tr>
           <tr>
             <td style="width: 65%;">
@@ -88,12 +102,13 @@
               {{controller.properties['threshold'] | unitvalue:'%'}}
             </td>
             <td style="width: 35%" class="align_right"
-              *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
-              {{controller.properties['threshold'] | unitvalue: 'kW'}}
-            </td>
-            <td style="width: 35%" class="align_right"
-              *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
-              {{(controller.properties['threshold'] * -1) | unitvalue: 'kW'}}
+              *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc'">
+              <ng-container *ngIf="controller.properties.threshold < 0">
+                {{controller.properties['threshold'] * -1 | unitvalue: 'kW'}}
+              </ng-container>
+              <ng-container *ngIf="controller.properties.threshold > 0">
+                {{controller.properties['threshold'] | unitvalue: 'kW'}}
+              </ng-container>
             </td>
           </tr>
         </table>

@@ -57,48 +57,6 @@ export class SinglethresholdComponent {
     });
   }
 
-  getState(): state {
-    if (this.edge != null) {
-      if (this.mode == 'OFF') {
-        return 'OFF'
-      } else if (this.mode == 'ON') {
-        return 'ON'
-      } else if (this.mode == 'AUTOMATIC') {
-        switch (this.inputMode) {
-          case 'SOC': {
-            if (this.threshold < this.edge.currentData.value.channel['_sum/EssSoc']) {
-              return 'ON';
-            } else if (this.threshold > this.edge.currentData.value.channel['_sum/EssSoc']) {
-              return 'OFF';
-            } else {
-              return 'OFF';
-            }
-          }
-          case 'GRIDSELL': {
-            if (this.edge.currentData.value.channel['_sum/GridActivePower'] * -1 >= 0) {
-              if (this.threshold < this.edge.currentData.value.channel['_sum/GridActivePower'] * -1) {
-                return 'ON';
-              } else if (this.threshold > this.edge.currentData.value.channel['_sum/GridActivePower'] * -1) {
-                return 'OFF';
-              }
-            } else {
-              return 'OFF';
-            }
-          }
-          case 'PRODUCTION': {
-            if (this.threshold < this.edge.currentData.value.channel['_sum/ProductionActivePower']) {
-              return 'ON';
-            } else if (this.threshold > this.edge.currentData.value.channel['_sum/ProductionActivePower']) {
-              return 'OFF';
-            } else {
-              return 'OFF';
-            }
-          }
-        }
-      }
-    }
-  }
-
   async presentModal() {
     const modal = await this.modalCtrl.create({
       component: SinglethresholdModalComponent,

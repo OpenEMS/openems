@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar class="ion-justify-content-center" color="primary">
+  <ion-toolbar mode="md" class="ion-justify-content-center" color="primary">
     <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
     <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
     <ion-buttons slot="end">
@@ -14,6 +14,7 @@
   <ng-container *ngIf="edge.currentData | async as currentData">
     <ng-container *ngIf="currentData.summary as sum">
       <ion-content>
+
         <ion-card-content class="underline">
           <table class="full_width">
             <tr>
@@ -32,6 +33,7 @@
             </tr>
           </table>
         </ion-card-content>
+
         <ion-card-content class="underline">
           <table class="full_width">
             <tr>
@@ -62,120 +64,97 @@
             </ion-segment-button>
           </ion-segment>
         </ion-card-content>
-        <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC'">
-          <ion-card-content class="ion-no-padding" [class.underline]="inputMode == 'OTHER'">
-            <ion-row *ngIf="inputMode != null">
-              <ion-col class="ion-no-padding" size="12">
-                <ion-item lines="none">
-                  <ion-label class="heating">Abhängig von</ion-label>
-                  <ion-select value="{{inputMode}}" (ionChange)="updateInputMode($event)">
-                    <ion-select-option value="SOC" translate>General.Soc</ion-select-option>
-                    <ion-select-option value="GRIDSELL" translate>General.GridSell</ion-select-option>
-                    <ion-select-option value="PRODUCTION" translate>General.Production</ion-select-option>
-                    <ion-select-option value="OTHER">Sonstige</ion-select-option>
-                  </ion-select>
-                </ion-item>
-              </ion-col>
-            </ion-row>
-          </ion-card-content>
 
+        <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC' && loading == false">
           <form [formGroup]="formGroup">
-            <ng-container *ngIf="inputMode == 'OTHER'">
+            <ng-container *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' &&
+            controller.properties.inputChannelAddress != '_sum/GridActivePower' &&
+            controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
               <ion-card-content class="underline">
                 <table class="full_width">
                   <tr>
-                    <td style="width: 65%">
-                      Aktiver Channel
+                    <td style="width: 50%">
+                      Abhängig von:
                     </td>
-                    <td style="width: 35%" class="align_right">
-                      {{controller.properties.inputChannelAddress}}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="width: 65%">
-                      Channel ändern:
-                    </td>
-                    <td style="width: 35%" class="align_right">
-                      <ion-item lines="inset" class="noPadding">
-                        <ion-input formControlName="socThreshold" type="text" style="direction: rtl">
-                        </ion-input>
-                      </ion-item>
+                    <td style="width: 50%" class="align_right">
+                      Sonstige ({{controller.properties.inputChannelAddress}})
                     </td>
                   </tr>
                 </table>
               </ion-card-content>
-              <ion-card-content class="underline">
+            </ng-container>
+            <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc' ||
+                controller.properties.inputChannelAddress == '_sum/GridActivePower' || 
+                controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
+              <ion-card-content class="ion-no-padding">
+                <ion-row>
+                  <ion-col class="ion-no-padding" size="12">
+                    <ion-item lines="none" class="noPadding">
+                      <ion-label class="regularFont">Abhängig von</ion-label>
+                      <ion-select formControlName="inputMode" [value]="inputMode" (ionChange)="updateInputMode($event)">
+                        <ion-select-option value="SOC" translate>General.Soc</ion-select-option>
+                        <ion-select-option value="PRODUCTION" translate>General.Production</ion-select-option>
+                        <ion-select-option value="GRIDSELL" translate>General.GridSell</ion-select-option>
+                        <ion-select-option value="GRIDBUY" translate>General.GridBuy</ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-card-content>
+            </ng-container>
+
+            <ng-container *ngIf="inputMode != 'SOC'">
+              <ion-card-content class="underline" style="padding-top: 0;">
                 <table class="full_width">
                   <tr>
                     <td style="width: 65%">
-                      Eingesteller Verbrauch
-                    </td>
-                    <td style="width: 35%" class="align_right">
-                      {{controller.properties.switchedLoadPower | unitvalue:'kW'}}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="width: 65%">
-                      Gerätverbrauch ändern
+                      Geschaltete Last
                     </td>
                     <td style="width: 35%" class="align_right">
                       <ion-item lines="inset" class="noPadding">
-                        <ion-input formControlName="switchedLoadPower" type="number" style="direction: rtl">
+                        <ion-input class="regularFont" [value]="formGroup.value.switchedLoadPower"
+                          formControlName="switchedLoadPower" style="text-align: end;">
                         </ion-input>
+                        <ion-label class="regularFont">&nbsp;W</ion-label>
                       </ion-item>
                     </td>
                   </tr>
                 </table>
               </ion-card-content>
             </ng-container>
+
             <ion-card-content class="underline">
               <table class="full_width">
-                <tr *ngIf="controller.properties.inputChannelAddress != null">
+                <tr>
                   <td style="width: 65%">
                     Aktueller Wert</td>
-                  <td style="width: 35%" class="align_right"
-                    *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
-                    {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue:'%'}}
+                  <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
+                    {{sum.storage.soc | unitvalue:'%'}}
                   </td>
-                  <td style="width: 35%" class="align_right"
-                    *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'">
-                    {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue:'kW'}}
-                  </td>
-                  <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
-                    <td style="width: 35%" class="align_right"
-                      *ngIf="currentData.channel[inputChannel] < 0; else noGridSell">
-                      {{(currentData.channel[controller.properties['inputChannelAddress']] * -1)  | unitvalue:'kW'}}
-                    </td>
-                    <ng-template #noGridSell>
-                      <td style="width:35%" class="align_right">
-                        {{ 0 | unitvalue: 'kW'}}
-                      </td>
-                    </ng-template>
-                  </ng-container>
-                </tr>
-              </table>
-              <table class="full_width">
-                <tr>
-                  <td style="width: 65%;">
-                    Schwellenwert</td>
-                  <td style="width: 35%" class="align_right"
-                    *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
-                    {{controller.properties.threshold | unitvalue:'%'}}
-                  </td>
-                  <td style="width: 35%" class="align_right"
-                    *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
-                    {{controller.properties.threshold | unitvalue: 'kW'}}
-                  </td>
-                  <td style="width: 35%" class="align_right"
-                    *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'">
-                    {{(controller.properties.threshold * -1) | unitvalue: 'kW'}}
+                  <td style="width: 35%" class="align_right" *ngIf="inputMode != 'SOC'">
+                    <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                      {{sum.grid.sellActivePower | unitvalue: 'W'}}
+                    </ng-container>
+                    <ng-container *ngIf="inputMode != 'GRIDSELL'">
+                      {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue: 'W'}}
+                    </ng-container>
                   </td>
                 </tr>
               </table>
-              <ng-container *ngIf="inputMode == 'SOC'; else noSoc">
+              <ng-container *ngIf="inputMode == 'SOC'">
                 <table class="full_width">
                   <tr>
-                    <ion-range pin color="dark" min="0" max="100" (ngModelChange)="updateSocThreshold($event)">
+                    <td style="width: 65%;">
+                      Schwellenwert</td>
+                    <td style="width: 35%" class="align_right">
+                      {{formGroup.value.threshold | unitvalue:'%'}}
+                    </td>
+                  </tr>
+                </table>
+                <table class="full_width">
+                  <tr>
+                    <ion-range formControlName="threshold" pin color="dark" min="0" max="100"
+                      [value]="formGroup.value.threshold">
                       <ion-label slot="start">
                         {{0 | unitvalue:'%'}}
                       </ion-label>
@@ -186,78 +165,128 @@
                   </tr>
                 </table>
               </ng-container>
-              <ng-template #noSoc>
-                <table class="full_width">
-                  <tr>
-                    <td style="width: 65%">
-                      Neuer Schwellenwert:
-                    </td>
-                    <td style="width: 35%" class="align_right">
-                      <ion-item lines="inset" class="noPadding">
-                        <ion-input (ionChange)="updateNonSocThresholdInput($event)" style="direction: rtl"></ion-input>
-                      </ion-item>
-                    </td>
-                  </tr>
-                </table>
-              </ng-template>
+              <ng-container *ngIf="inputMode != 'SOC'">
+                <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                  <table class="full_width">
+                    <tr>
+                      <td style="width: 65%">
+                        Schwellenwert
+                      </td>
+                      <td style="width: 35%" class="align_right">
+                        <ion-item lines="inset" class="noPadding">
+                          <ion-input class="regularFont" style="text-align: end;"
+                            [value]="formGroup.value.threshold * -1" formControlName="threshold">
+                          </ion-input>
+                          <ion-label class="regularFont">&nbsp;W</ion-label>
+                        </ion-item>
+                      </td>
+                    </tr>
+                  </table>
+                </ng-container>
+                <ng-container *ngIf="inputMode != 'GRIDSELL'">
+                  <table class="full_width">
+                    <tr>
+                      <td style="width: 65%">
+                        Schwellenwert
+                      </td>
+                      <td style="width: 35%" class="align_right">
+                        <ion-item lines="inset" class="noPadding">
+                          <ion-input class="regularFont" style="text-align: end;" [value]="formGroup.value.threshold"
+                            formControlName="threshold">
+                          </ion-input>
+                          <ion-label class="regularFont">&nbsp;W</ion-label>
+                        </ion-item>
+                      </td>
+                    </tr>
+                  </table>
+                </ng-container>
+              </ng-container>
             </ion-card-content>
+
             <ion-card-content class="underline">
               <table class="full_width">
                 <tr>
                   <td style="width: 65%" translate>
-                    Mindestumschaltzeit
-                  </td>
-                  <td style="width: 35%" class="align_right" translate>
-                    {{controller.properties.minimumSwitchingTime | unitvalue: 's'}}
+                    Verhalten
                   </td>
                 </tr>
+              </table>
+              <ion-segment formControlName="invertBehaviour" scrollable="false"
+                [value]="formGroup.value.invertBehaviour">
+                <ion-segment-button value="false">
+                  <ion-label>
+                    <ng-container *ngIf="inputMode == 'SOC'; else noSocNoInvert">
+                      Über {{formGroup.value.threshold | unitvalue:'%'}} einschalten
+                    </ng-container>
+                    <ng-template #noSocNoInvert>
+                      <ng-container *ngIf="!formGroup.value.threshold; else notNull">
+                        Über {{ 0 | unitvalue:'W'}} einschalten
+                      </ng-container>
+                      <ng-template #notNull>
+                        <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                          Über {{formGroup.value.threshold * -1 | unitvalue:'W'}} einschalten
+                        </ng-container>
+                        <ng-container *ngIf="inputMode != 'GRIDSELL'">
+                          Über {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                        </ng-container>
+                      </ng-template>
+                    </ng-template>
+                  </ion-label>
+                  <ion-icon style="width:40px" name="arrow-round-up"></ion-icon>
+                </ion-segment-button>
+                <ion-segment-button value="true">
+                  <ion-label>
+                    <ng-container *ngIf="inputMode == 'SOC'; else noSocInvert">
+                      Unter {{formGroup.value.threshold | unitvalue:'%'}} einschalten
+                    </ng-container>
+                    <ng-template #noSocInvert>
+                      <ng-container *ngIf="!formGroup.value.threshold; else notNull">
+                        Über {{ 0 | unitvalue:'W'}} einschalten
+                      </ng-container>
+                      <ng-template #notNull>
+                        <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                          Unter {{formGroup.value.threshold * -1 | unitvalue:'W'}} einschalten
+                        </ng-container>
+                        <ng-container *ngIf="inputMode != 'GRIDSELL'">
+                          Unter {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                        </ng-container>
+                      </ng-template>
+                    </ng-template>
+                  </ion-label>
+                  <ion-icon style="width:40px" name="arrow-round-down"></ion-icon>
+                </ion-segment-button>
+              </ion-segment>
+            </ion-card-content>
+
+            <ion-card-content>
+              <table class="full_width">
                 <tr>
                   <td style="width: 65%">
-                    Neue Mindestumschaltzeit:
+                    Mindestumschaltzeit
                   </td>
                   <td style="width: 35%" class="align_right">
                     <ion-item lines="inset" class="noPadding">
-                      <ion-input formControlName="minimumSwitchingTime" type="number" style="direction: rtl">
+                      <ion-input class="regularFont" [value]="formGroup.value.minimumSwitchingTime"
+                        formControlName="minimumSwitchingTime" inputmode="decimal" style="text-align: end;">
                       </ion-input>
+                      <ion-label class="regularFont">&nbsp;s</ion-label>
                     </ion-item>
                   </td>
                 </tr>
               </table>
             </ion-card-content>
           </form>
-          <ion-card-content>
-            <table class="full_width">
-              <tr>
-                <td style="width: 65%">
-                  Verhalten invertieren
-                </td>
-                <td style="width: 35%" class="align_right">
-                  <ion-radio [checked]="controller.properties.invert" (click)="setInvert()" slot="end"></ion-radio>
-                </td>
-              </tr>
-            </table>
-          </ion-card-content>
-          <ion-button expand="full" color="primary" (click)="applyChanges()">
-            Änderungen übernehmen</ion-button>
-
-
-          <ion-grid class="ion-padding-top">
-            <ion-row class="ion-align-items-center ion-justify-content-center">
-              <ion-col size="2" class="ion-text-center">
-                <ion-icon class="ion-padding-right" color="primary" size="large" name="alert"></ion-icon>
-              </ion-col>
-              <ion-col size="10">
-                <ion-note class="ion-text-wrap" *ngIf="controller.properties.invert == 0">
-                  <small translate>Edge.Index.Widgets.singleThresholdInfoNoInvert</small>
-                </ion-note>
-                <ion-note class="ion-text-wrap" *ngIf="controller.properties.invert == 1">
-                  <small translate>Edge.Index.Widgets.singleThresholdInfoInvert</small>
-                </ion-note>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+          <ion-fab *ngIf="showApplyChanges()" class="ion-padding-bottom" vertical="end" horizontal="center"
+            slot="fixed">
+            <ion-fab-button (click)="applyChanges()">
+              <ion-icon size="large" name="checkmark-circle-outline">
+              </ion-icon>
+            </ion-fab-button>
+          </ion-fab>
         </ng-container>
-
+        <ion-grid *ngIf="loading == true">
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+        </ion-grid>
       </ion-content>
     </ng-container>
   </ng-container>
