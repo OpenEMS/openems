@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.ManagedTask;

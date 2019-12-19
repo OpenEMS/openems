@@ -37,7 +37,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.EdgeUser;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiWorker;
+import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
