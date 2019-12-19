@@ -151,6 +151,11 @@ export class SinglethresholdModalComponent {
     }
   }
 
+  // todo finish method
+  convertToInputMode(inputChannelAddress: string): inputMode {
+    return 'SOC'
+  }
+
   showApplyChanges(): boolean {
     if (this.formGroup.dirty) {
       return true;
@@ -159,59 +164,43 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  getData() {
-    console.log("inputMode", this.inputMode);
-    console.log("formInputMode", this.formGroup.value.inputMode)
-  }
-
+  // todo if inputMode == gridsell -> multiply threshold value by -1
   applyChanges() {
-    let newValues = [
-      { minimumSwitchingTime: this.formGroup.value.minimumSwitchingTime },
-      { threshold: this.formGroup.value.threshold },
-      { switchedLoadPower: this.formGroup.value.switchedLoadPower },
-      { inputChannelAddress: this.formGroup.value.inputMode },
-      { invert: this.formGroup.value.invertBehaviour }
-    ];
-
-    let oldValues = [
-      { minimumSwitchingTime: this.controller.properties.minimumSwitchingTime },
-      { threshold: this.controller.properties.threshold },
-      { switchedLoadPower: this.controller.properties.switchedLoadPower },
-      { inputChannelAddress: this.controller.properties.inputChannelAddress },
-      { invert: this.controller.properties.invert }
-    ];
-
     let updateComponentArray = [];
 
-    newValues.forEach((values, index) => {
-      if (Object.values(values)[0] != Object.values(oldValues[index])[0]) {
-        updateComponentArray.push({ name: Object.keys(values)[0], value: Object.values(values)[0] })
+    Object.keys(this.formGroup.controls).forEach((element, index) => {
+      if (this.formGroup.controls[element].dirty) {
+        // catch inputMode and convert it to inputChannelAddress
+        if (Object.keys(this.formGroup.controls)[index] == 'inputMode') {
+          updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) })
+        } else {
+          updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+        }
       }
     });
 
-    console.log("updateComponentArray", updateComponentArray)
-
     this.loading = true;
-    this.formGroup.markAsPristine()
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, updateComponentArray).then(() => {
         this.controller.properties.minimumSwitchingTime = this.formGroup.value.minimumSwitchingTime;
         this.controller.properties.threshold = this.formGroup.value.threshold;
         this.controller.properties.switchedLoadPower = this.formGroup.value.switchedLoadPower;
-        // this.controller.properties.inputChannelAddress = this.convertToChannelAddress(this.formGroup.value.inputMode);
+        this.controller.properties.inputChannelAddress = this.convertToChannelAddress(this.formGroup.value.inputMode);
         this.controller.properties.invert = this.formGroup.value.invertBehaviour;
         this.loading = false;
         this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         this.loading = false;
-        // this.formGroup.controls['minimumSwitchingTime'].setValue(this.controller.properties.minimumSwitchingTime);
-        // this.formGroup.controls['threshold'].setValue(this.controller.properties.threshold);
-        // this.formGroup.controls['switchedLoadPower'].setValue(this.controller.properties.switchedLoadPower);
-        // this.formGroup.controls['inputChannelAddress'].setValue(this.controller.properties.inputChannelAddress);
-        // this.formGroup.controls['invert'].setValue(this.controller.properties.invert);
+        this.formGroup.controls['minimumSwitchingTime'].setValue(this.controller.properties.minimumSwitchingTime);
+        this.formGroup.controls['threshold'].setValue(this.controller.properties.threshold);
+        this.formGroup.controls['switchedLoadPower'].setValue(this.controller.properties.switchedLoadPower);
+        // todo use unfinished method convert to convertToInputMode
+        this.formGroup.controls['inputMode'].setValue(this.controller.properties.inputChannelAddress);
+        this.formGroup.controls['invert'].setValue(this.controller.properties.invert);
         this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
+    this.formGroup.markAsPristine()
   }
 }

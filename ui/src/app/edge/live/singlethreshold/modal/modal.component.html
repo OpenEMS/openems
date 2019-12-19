@@ -154,7 +154,7 @@
                 <table class="full_width">
                   <tr>
                     <ion-range formControlName="threshold" pin color="dark" min="0" max="100"
-                      [value]="formGroup.value.threshold">
+                      [value]="controller.properties.threshold">
                       <ion-label slot="start">
                         {{0 | unitvalue:'%'}}
                       </ion-label>
@@ -175,7 +175,7 @@
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
                           <ion-input class="regularFont" style="text-align: end;"
-                            [value]="formGroup.value.threshold * -1" formControlName="threshold">
+                            [value]="controller.properties.threshold * -1" formControlName="threshold">
                           </ion-input>
                           <ion-label class="regularFont">&nbsp;W</ion-label>
                         </ion-item>
@@ -191,8 +191,8 @@
                       </td>
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
-                          <ion-input class="regularFont" style="text-align: end;" [value]="formGroup.value.threshold"
-                            formControlName="threshold">
+                          <ion-input class="regularFont" style="text-align: end;"
+                            [value]="controller.properties.threshold" formControlName="threshold">
                           </ion-input>
                           <ion-label class="regularFont">&nbsp;W</ion-label>
                         </ion-item>
