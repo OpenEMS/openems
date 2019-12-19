@@ -17,11 +17,14 @@ export class SinglethresholdComponent {
 
   private static readonly SELECTOR = "singlethreshold";
 
-  // @Input() private componentId: string;
+  @Input() private componentId: string;
 
   public edge: Edge = null;
-  public outputChannel: ChannelAddress = null;
-  public component: EdgeConfig.Component = null;
+
+  public controller: EdgeConfig.Component = null;
+  public inputChannel: ChannelAddress;
+  public outputChannel: ChannelAddress;
+
 
   public threshold: number = 34;
   public mode: mode = 'ON';
@@ -38,13 +41,19 @@ export class SinglethresholdComponent {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-      let channels = [];
-      channels.push(
-        new ChannelAddress('_sum', 'EssSoc'),
-        new ChannelAddress('_sum', 'GridActivePower'),
-        new ChannelAddress('_sum', 'ProductionActivePower'),
-      )
-      this.edge.subscribeChannels(this.websocket, SinglethresholdComponent.SELECTOR, channels);
+      this.service.getConfig().then(config => {
+        this.controller = config.getComponent(this.componentId);
+        this.outputChannel = ChannelAddress.fromString(
+          this.controller.properties['outputChannelAddress']);
+        this.inputChannel = ChannelAddress.fromString(
+          this.controller.properties['inputChannelAddress']);
+        edge.subscribeChannels(this.websocket, SinglethresholdComponent.SELECTOR + this.componentId, [
+          this.inputChannel,
+          this.outputChannel
+        ]);
+        console.log("componento", config.getComponent(this.componentId), "inputChannel", ChannelAddress.fromString(
+          this.controller.properties['inputChannelAddress']))
+      })
     });
   }
 
@@ -94,17 +103,13 @@ export class SinglethresholdComponent {
     const modal = await this.modalCtrl.create({
       component: SinglethresholdModalComponent,
       componentProps: {
+        controller: this.controller,
         edge: this.edge,
-        mode: this.mode,
-        inputMode: this.inputMode,
-        threshold: this.threshold
+        outputChannel: this.outputChannel,
+        inputChannel: this.inputChannel
       }
     });
-    modal.onDidDismiss().then(value => {
-      this.mode = value.data.mode;
-      this.inputMode = value.data.inputMode;
-      this.threshold = value.data.threshold;
-    })
+    console.log("controller", this.controller)
     return await modal.present();
   }
 

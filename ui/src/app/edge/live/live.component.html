@@ -81,11 +81,12 @@
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.ChannelSingleThreshold'" size="12" size-lg="6" class="ion-no-padding">
+              <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+            </ion-col>
+
           </ng-container>
 
-          <ion-col size="12" size-lg="6" class="ion-no-padding">
-            <singlethreshold></singlethreshold>
-          </ion-col>
 
           <!-- <ion-col size="12" size-lg="12">
             <info></info>
