@@ -45,11 +45,11 @@ public class TestController {
 			ManagedSymmetricEss ess = new DummyManagedSymmetricEss(CreateTestConfig.ESS_ID);
 			new ControllerTest(controller, componentManager, ess, controller) //
 					.next(new TestCase() //
-							.input(ctrl0MinCellVoltage, config.warningCellVoltage() - 1) //
-							.output(ctrl0State, State.WARNING.getValue())) //
+							.input(ctrl0MinCellVoltage, config.warningLowCellVoltage() - 1) //
+							.output(ctrl0State, State.LIMIT.getValue())) //
 					.next(new TestCase() //
-							.input(ctrl0MinCellVoltage, config.criticalCellVoltage() - 1) //
-							.output(ctrl0State, State.CRITICAL.getValue())) //
+							.input(ctrl0MinCellVoltage, config.criticalLowCellVoltage() - 1) //
+							.output(ctrl0State, State.FORCE_CHARGE.getValue())) //
 					.run();
 		} catch (Exception e) {
 			fail(e.getMessage());

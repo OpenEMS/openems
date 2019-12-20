@@ -151,17 +151,6 @@ public class SingleRack {
 		return value;
 	}
 
-	public int getMinimalCellVoltage() {
-		@SuppressWarnings("unchecked")
-		Optional<Integer> minCellOpt = (Optional<Integer>) this.channelMap.get(KEY_MIN_CELL_VOLTAGE).value()
-				.asOptional();
-		int minCellVoltage = -1;
-		if (minCellOpt.isPresent()) {
-			minCellVoltage = minCellOpt.get();
-		}
-		return minCellVoltage;
-	}
-
 	private Map<String, Channel<?>> createChannelMap() {
 		Map<String, Channel<?>> channels = new HashMap<>();
 
@@ -425,7 +414,7 @@ public class SingleRack {
 				parent.map(channelIds.get(KEY_SOH), getUWE(0x104)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE_ID), getUWE(0x105)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE), getUWE(0x106)). //
-				onUpdateCallback(val -> {
+						onUpdateCallback(val -> {
 					parent.recalculateMaxCellVoltage();
 				}), //
 				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE_ID), getUWE(0x107)), //

@@ -1,26 +1,39 @@
 package io.openems.edge.controller.ess.limitdischargecellvoltage.state;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.Config;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.IState;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.State;
-import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-public class Normal implements IState {
+public class Normal  extends BaseState implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(Normal.class);
-	private ComponentManager componentManager;
-	private Config config;
 
-	public Normal(ComponentManager componentManager, Config config) {
-		this.componentManager = componentManager;
-		this.config = config;
+	int warningLowCellVoltage;
+	int criticalHighCellVoltage;
+	int warningSoC;
+	int lowTemperature;
+	int highTemperature;
+	long unusedTime;
+
+	public Normal(//
+			ManagedSymmetricEss ess, //
+			int warningLowCellVoltage, //
+			int criticalHighCellVoltage, //
+			int warningSoC, //
+			int lowTemperature, //
+			int highTemperature, //
+			long unusedTime
+	) {
+		super(ess);
+		this.warningLowCellVoltage = warningLowCellVoltage;
+		this.criticalHighCellVoltage = criticalHighCellVoltage;
+		this.warningSoC = warningSoC;
+		this.lowTemperature = lowTemperature;
+		this.highTemperature = highTemperature;
+		this.unusedTime = unusedTime;
 	}
 
 	@Override
@@ -29,42 +42,44 @@ public class Normal implements IState {
 	}
 
 	@Override
-	public IState getNextStateObject() {
-		// According to the state machine the next states can be normal, critical,
-		// warning or undefined
-		SymmetricEss ess = null;
-
-		try {
-			ess = this.componentManager.getComponent(this.config.ess_id());
-		} catch (OpenemsNamedException e) {
-			this.log.error(e.getMessage());
-			return new Undefined(this.componentManager, this.config);
+	public State getNextState() {
+		// According to the state machine the next states can be: 
+		// NORMAL: Ess is still under normal operation conditions
+		// UNDEFINED: at least one important value (soc, cell voltages/temperatures) is not available
+		// LIMIT: one important values has reached its limit
+		// FULL_CHARGE: ess was not used for defined time
+		if (isNextStateUndefined()) {
+			return State.UNDEFINED;
 		}
 
-		if (ess == null) {
-			return new Undefined(this.componentManager, this.config);
+		if (getEssMinCellVoltage() < warningLowCellVoltage) {
+			return State.LIMIT;
 		}
 
-		Optional<Integer> minCellVoltageOpt = ess.getMinCellVoltage().value().asOptional();
-		if (!minCellVoltageOpt.isPresent()) {
-			return new Undefined(this.componentManager, this.config);
+		if (getEssMaxCellVoltage() > criticalHighCellVoltage) {
+			return State.LIMIT;
+		}
+		
+		if (getEssMinCellTemperature() < lowTemperature) {
+			return State.LIMIT;
+		}
+		
+		if (getEssMaxCellTemperature() > highTemperature) {
+			return State.LIMIT;
+		}
+		
+		if (getEssSoC() < warningSoC) {
+			return State.LIMIT;
 		}
 
-		int minCellVoltage = minCellVoltageOpt.get();
-
-		if (minCellVoltage < this.config.criticalCellVoltage()) {
-			return new Limit(this.componentManager, this.config);
-		}
-
-		if (minCellVoltage < this.config.warningCellVoltage()) {
-			return new Limit(this.componentManager, this.config);
-		}
-
-		return this;
+		//TODO unused time
+		
+		return State.NORMAL;
 	}
 
 	@Override
 	public void act() {
+		log.info("act");
 		// nothing to do
 	}
 }

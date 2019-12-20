@@ -1,106 +1,101 @@
 package io.openems.edge.controller.ess.limitdischargecellvoltage.state;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.Config;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.IState;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
-public class Limit implements IState {
+public class Limit  extends BaseState implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(Limit.class);
 
-	private ComponentManager componentManager;
-	private Config config;
-	private LocalDateTime startTime = null;
+	int warningLowCellVoltage;
+	int criticalLowCellVoltage;
+	int criticalHighCellVoltage;
+	int warningSoC;
+	int lowTemperature;
+	int highTemperature;
+	long unusedTime;
 
-	public Limit(ComponentManager componentManager, Config config) {
-		this.componentManager = componentManager;
-		this.config = config;
+	public Limit(//
+			ManagedSymmetricEss ess, //
+			int warningLowCellVoltage, //
+			int criticalLowCellVoltage, //
+			int criticalHighCellVoltage, //
+			int warningSoC, //
+			int lowTemperature, //
+			int highTemperature, //
+			long unusedTime
+	) {
+		super(ess);
+		this.warningLowCellVoltage = warningLowCellVoltage;
+		this.criticalLowCellVoltage = criticalLowCellVoltage;
+		this.criticalHighCellVoltage = criticalHighCellVoltage;
+		this.warningSoC = warningSoC;
+		this.lowTemperature = lowTemperature;
+		this.highTemperature = highTemperature;
+		this.unusedTime = unusedTime;
 	}
-
 	@Override
 	public State getState() {
-		return State.WARNING;
+		return State.LIMIT;
 	}
 
 	@Override
-	public IState getNextStateObject() {
+	public State getNextState() {
 
-		// According to the state machine the next states can be normal, charge or
-		// undefined
-		ManagedSymmetricEss ess = null;
-		try {
-			ess = this.componentManager.getComponent(this.config.ess_id());
-		} catch (OpenemsNamedException e) {
-			log.error(e.getMessage());
-			this.resetStartTime();
-			return new Undefined(this.componentManager, this.config);
+		// According to the state machine the next states can be:
+		// NORMAL: ess is under normal operation conditions
+		// FORCE_CHARGE: minimal cell voltage has been fallen under critical value
+		// UNDEFINED: at least one value is not available
+		// FULL_CHARGE: system has done nothing within the configured time
+		
+		if (isNextStateUndefined()) {
+			return State.UNDEFINED;
 		}
 
-		if (ess == null) {
-			this.resetStartTime();
-			return new Undefined(this.componentManager, this.config);
-		}
-
-		Optional<Integer> minCellVoltageOpt = ess.getMinCellVoltage().value().asOptional();
-		if (!minCellVoltageOpt.isPresent()) {
-			this.resetStartTime();
-			return new Undefined(this.componentManager, this.config);
-		}
-
-		if (this.startTime == null) {
-			this.startTime = LocalDateTime.now();
-		}
-
-		int minCellVoltage = minCellVoltageOpt.get();
-
-		if (minCellVoltage < this.config.criticalCellVoltage()) {
-			return new Limit(this.componentManager, this.config);
-		}
-
-		if (minCellVoltage > this.config.warningCellVoltage()) {
-			return new Normal(this.componentManager, this.config);
-		}
-
-		if (this.startTime.plusSeconds(this.config.warningCellVoltageTime()).isBefore(LocalDateTime.now())) {
-			this.resetStartTime();
-			return new ForceCharge(this.componentManager, this.config);
+		if (getEssMinCellVoltage() < criticalLowCellVoltage) {
+			return State.FORCE_CHARGE;
 		}
 		
-		return this;
+		if ( //
+			getEssMinCellVoltage() > warningLowCellVoltage && //
+			getEssMaxCellVoltage() < criticalHighCellVoltage && //
+			getEssMinCellTemperature() > lowTemperature && //
+			getEssMaxCellTemperature() < highTemperature && // 
+			getEssSoC() > warningSoC // && unused time
+		) {
+			return State.NORMAL;
+		}
+		
+		//TODO unused time
+		
+		return State.LIMIT;
 	}
 
 	@Override
 	public void act() {
-		// Deny further discharging
-		ManagedSymmetricEss ess = null;
-		try {
-			ess = this.componentManager.getComponent(this.config.ess_id());
-		} catch (OpenemsNamedException e) {
-			this.log.error(e.getMessage());			
-			return;
+		log.info("act");
+		// Deny further discharging or charging
+		
+		if (getEssMinCellTemperature() <= lowTemperature || getEssMaxCellTemperature() >= highTemperature) {
+			denyCharge();
+			denyDischarge();
 		}
 
-		Integer calculatedPower = 0;
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower("DischargeLimitCellVoltage.Warning", ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
-		try {
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
-		} catch (OpenemsNamedException e) {
-			this.log.error(e.getMessage());
+		if (getEssMinCellVoltage() <= warningLowCellVoltage) {
+			denyDischarge();
+		}
+		
+		if (getEssMaxCellVoltage() >= criticalHighCellVoltage) {
+			denyCharge();
+		}
+		
+		if (getEssSoC() <= warningSoC) {
+			denyDischarge();
 		}
 	}
 
-	private void resetStartTime() {
-		this.startTime = null;
-	}
 }

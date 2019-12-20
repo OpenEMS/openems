@@ -92,4 +92,8 @@ public class DummyComponentManager implements ComponentManager {
 	public void destroyEss() {
 		this.ess = null;
 	}
+	
+	public void initEss() {
+		this.ess = createEss();
+	}
 }

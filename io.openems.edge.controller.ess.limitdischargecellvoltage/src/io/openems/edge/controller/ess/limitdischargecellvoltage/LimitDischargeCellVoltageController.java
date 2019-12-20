@@ -57,9 +57,9 @@ public class LimitDischargeCellVoltageController extends AbstractOpenemsComponen
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		this.stateObject.act();
 		State nextState = this.stateObject.getNextState();
 		this.stateObject = StateController.getStateObject(nextState);
+		this.stateObject.act();
 		this.writeChannelValues();
 	}
 

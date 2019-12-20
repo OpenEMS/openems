@@ -1,23 +1,15 @@
 package io.openems.edge.controller.ess.limitdischargecellvoltage.state;
 
-import java.util.Optional;
-
-import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.controller.ess.limitdischargecellvoltage.Config;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.IState;
 import io.openems.edge.controller.ess.limitdischargecellvoltage.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
 
-public class Undefined implements IState {
+public class Undefined extends BaseState implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
-	private ManagedSymmetricEss ess;
 
 	int warningLowCellVoltage;
 	int criticalHighCellVoltage;
@@ -33,7 +25,7 @@ public class Undefined implements IState {
 			int lowTemperature, //
 			int highTemperature//
 	) {
-		this.ess = ess;
+		super(ess);
 		this.warningLowCellVoltage = warningLowCellVoltage;
 		this.criticalHighCellVoltage = criticalHighCellVoltage;
 		this.warningSoC = warningSoC;
@@ -48,29 +40,36 @@ public class Undefined implements IState {
 
 	@Override
 	public State getNextState() {
-		// According to the state machine the next states can be normal, critical,
-		// warning or undefined
-
-		Optional<Integer> minCellVoltageOpt = ess.getMinCellVoltage().value().asOptional();
-		if (!minCellVoltageOpt.isPresent()) {
+		// According to the state machine the next states can be NORMAL or LIMIT
+		if (isNextStateUndefined()) {
 			return State.UNDEFINED;
 		}
-
-		int minCellVoltage = minCellVoltageOpt.get();
-
-		if (minCellVoltage < this.config.criticalCellVoltage()) {
+		
+		if (getEssMinCellVoltage() < warningLowCellVoltage) {
 			return State.LIMIT;
 		}
 
-		if (minCellVoltage < this.config.warningCellVoltage()) {
+		if (getEssMaxCellVoltage() > criticalHighCellVoltage) {
 			return State.LIMIT;
 		}
-
-		return return State.NORMAL;;
+		
+		if (getEssMinCellTemperature() < lowTemperature) {
+			return State.LIMIT;
+		}
+	
+		if (getEssMaxCellTemperature() > highTemperature) {
+			return State.LIMIT;
+		}
+		
+		if (getEssSoC() < warningSoC) {
+				return State.LIMIT;
+		}
+	
+		return State.NORMAL;
 	}
 
 	@Override
 	public void act() {
-		// nothing to do
+		log.info("Nothing to do!");
 	}
 }

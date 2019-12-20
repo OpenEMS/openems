@@ -22,6 +22,7 @@ public class CreateTestConfig {
 	public static final int LOW_TEMPERATURE = 0;
 	public static final int HIGH_TEMPERATURE = 60;
 	
+	public static final long UNUSED_TIME = 3;
 	
 	public static final String ID = "ctrl0";
 
@@ -107,6 +108,11 @@ public class CreateTestConfig {
 			@Override
 			public int highTemperature() {
 				return HIGH_TEMPERATURE;
+			}
+
+			@Override
+			public long unusedTime() {
+				return UNUSED_TIME;
 			}
 		};
 	}

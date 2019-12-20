@@ -22,10 +22,10 @@ public @interface Config {
 	String ess_id();
 
 	@AttributeDefinition(name = "Warning Low Cell Voltage [mV]", description = "If voltage is below this value discharging is stopped.")
-	int warningLowCellVoltage() default 3000;
+	int warningLowCellVoltage() default 2900;
 
 	@AttributeDefinition(name = "Critical Low Cell Voltage [mV]", description = "Charging is forced when minimal cell voltage is below this value.")
-	int criticalLowCellVoltage() default 2900;
+	int criticalLowCellVoltage() default 2800;
 
 	@AttributeDefinition(name = "Critical High Cell Voltage [mV]", description = "Charging is stopped when minimal cell voltage is above this value.")
 	int criticalHighCellVoltage() default 3650;
@@ -50,6 +50,9 @@ public @interface Config {
 
 	@AttributeDefinition(name = "ForceCharge Power Time [s]", description = "Defines how long force charging is executed in seconds")
 	int chargingTime() default 600;
+	
+	@AttributeDefinition(name = "Unused Time [s]", description = "Defines time period how long an ess is allowed to do nothing until full charge is triggered")
+	long unusedTime() default 60 * 60 * 24 * 14; //two weeks	
 
 	String webconsole_configurationFactory_nameHint() default "Controller Ess Limit Total Discharge [{id}]";
 
