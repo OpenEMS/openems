@@ -1,9 +1,12 @@
 <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
   <ion-row class="ion-justify-content-center">
     <!-- Energymonitor -->
-    <ion-col size="12" size-md="8" size-lg="3" class="ion-no-padding">
-      <energymonitor></energymonitor>
-    </ion-col>
+    <ng-container *ngIf="config != null">
+      <ion-col *ngIf="config.hasProducer == true || config.hasMeter == true || config.hasStorage() == true" size="12"
+        size-md="8" size-lg="3" class="ion-no-padding">
+        <energymonitor></energymonitor>
+      </ion-col>
+    </ng-container>
 
     <!-- Widgets -->
     <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
