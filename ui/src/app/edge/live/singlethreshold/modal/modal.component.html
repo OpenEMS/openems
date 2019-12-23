@@ -64,12 +64,9 @@
             </ion-segment-button>
           </ion-segment>
         </ion-card-content>
-
         <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC' && loading == false">
           <form [formGroup]="formGroup">
-            <ng-container *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' &&
-            controller.properties.inputChannelAddress != '_sum/GridActivePower' &&
-            controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
+            <ng-container *ngIf="inputMode == 'OTHER'">
               <ion-card-content class="underline">
                 <table class="full_width">
                   <tr>
@@ -83,9 +80,7 @@
                 </table>
               </ion-card-content>
             </ng-container>
-            <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc' ||
-                controller.properties.inputChannelAddress == '_sum/GridActivePower' || 
-                controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
+            <ng-container *ngIf="inputMode != 'OTHER'">
               <ion-card-content class="ion-no-padding">
                 <ion-row>
                   <ion-col class="ion-no-padding" size="12">
@@ -128,17 +123,20 @@
                 <tr>
                   <td style="width: 65%">
                     Aktueller Wert</td>
-                  <td style="width: 35%" class="align_right" *ngIf="inputMode == 'SOC'">
-                    {{sum.storage.soc | unitvalue:'%'}}
-                  </td>
-                  <td style="width: 35%" class="align_right" *ngIf="inputMode != 'SOC'">
-                    <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                  <ng-container [ngSwitch]="inputMode">
+                    <td style="width: 35%" class="align_right" *ngSwitchCase="'SOC'">
+                      {{sum.storage.soc | unitvalue:'%'}}
+                    </td>
+                    <td style="width: 35%" class="align_right" *ngSwitchCase="'GRIDSELL'">
                       {{sum.grid.sellActivePower | unitvalue: 'W'}}
-                    </ng-container>
-                    <ng-container *ngIf="inputMode != 'GRIDSELL'">
-                      {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue: 'W'}}
-                    </ng-container>
-                  </td>
+                    </td>
+                    <td style="width: 35%" class="align_right" *ngSwitchCase="'GRIDBUY'">
+                      {{sum.grid.buyActivePower | unitvalue: 'W'}}
+                    </td>
+                    <td style="width: 35%" class="align_right" *ngSwitchCase="'PRODUCTION'">
+                      {{sum.production.activePower | unitvalue: 'W'}}
+                    </td>
+                  </ng-container>
                 </tr>
               </table>
               <ng-container *ngIf="inputMode == 'SOC'">
@@ -154,7 +152,7 @@
                 <table class="full_width">
                   <tr>
                     <ion-range formControlName="threshold" pin color="dark" min="0" max="100"
-                      [value]="controller.properties.threshold">
+                      [value]="formGroup.value.threshold">
                       <ion-label slot="start">
                         {{0 | unitvalue:'%'}}
                       </ion-label>
@@ -166,40 +164,28 @@
                 </table>
               </ng-container>
               <ng-container *ngIf="inputMode != 'SOC'">
-                <ng-container *ngIf="inputMode == 'GRIDSELL'">
-                  <table class="full_width">
-                    <tr>
-                      <td style="width: 65%">
-                        Schwellenwert
-                      </td>
-                      <td style="width: 35%" class="align_right">
-                        <ion-item lines="inset" class="noPadding">
-                          <ion-input class="regularFont" style="text-align: end;"
-                            [value]="controller.properties.threshold * -1" formControlName="threshold">
+                <table class="full_width">
+                  <tr>
+                    <td style="width: 65%">
+                      Schwellenwert
+                    </td>
+                    <td style="width: 35%" class="align_right">
+                      <ion-item lines="inset" class="noPadding">
+                        <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                          <ion-input class="regularFont" style="text-align: end;" [value]="threshold * -1"
+                            formControlName="threshold">
                           </ion-input>
-                          <ion-label class="regularFont">&nbsp;W</ion-label>
-                        </ion-item>
-                      </td>
-                    </tr>
-                  </table>
-                </ng-container>
-                <ng-container *ngIf="inputMode != 'GRIDSELL'">
-                  <table class="full_width">
-                    <tr>
-                      <td style="width: 65%">
-                        Schwellenwert
-                      </td>
-                      <td style="width: 35%" class="align_right">
-                        <ion-item lines="inset" class="noPadding">
-                          <ion-input class="regularFont" style="text-align: end;"
-                            [value]="controller.properties.threshold" formControlName="threshold">
+                        </ng-container>
+                        <ng-container *ngIf="inputMode != 'GRIDSELL'">
+                          <ion-input class="regularFont" style="text-align: end;" [value]="formGroup.value.threshold"
+                            formControlName="threshold">
                           </ion-input>
-                          <ion-label class="regularFont">&nbsp;W</ion-label>
-                        </ion-item>
-                      </td>
-                    </tr>
-                  </table>
-                </ng-container>
+                        </ng-container>
+                        <ion-label class="regularFont">&nbsp;W</ion-label>
+                      </ion-item>
+                    </td>
+                  </tr>
+                </table>
               </ng-container>
             </ion-card-content>
 
@@ -276,7 +262,7 @@
               </table>
             </ion-card-content>
           </form>
-          <ion-fab *ngIf="showApplyChanges()" class="ion-padding-bottom" vertical="end" horizontal="center"
+          <ion-fab *ngIf="showApplyChanges()" class="ion-padding-bottom" vertical="bottom" horizontal="center"
             slot="fixed">
             <ion-fab-button (click)="applyChanges()">
               <ion-icon size="large" name="checkmark-circle-outline">

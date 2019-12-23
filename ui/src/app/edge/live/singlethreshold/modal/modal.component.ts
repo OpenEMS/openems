@@ -41,6 +41,7 @@ export class SinglethresholdModalComponent {
         Validators.pattern('^[0-9]*$'),
       ])),
       threshold: new FormControl(this.controller.properties.threshold),
+      sellThreshold: new FormControl(this.controller.properties.threshold * -1),
       switchedLoadPower: new FormControl(this.controller.properties.switchedLoadPower, Validators.compose([
         Validators.min(1)
       ])),
@@ -151,9 +152,19 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  // todo finish method
-  convertToInputMode(inputChannelAddress: string): inputMode {
-    return 'SOC'
+  convertToInputMode(inputChannelAddress: string, threshold: number): inputMode {
+    switch (inputChannelAddress) {
+      case '_sum/EssSoc':
+        return 'SOC'
+      case '_sum/ProductionActivePower':
+        return 'PRODUCTION'
+      case '_sum/GridActivePower':
+        if (threshold > 0) {
+          return 'GRIDBUY'
+        } else if (threshold < 0) {
+          return 'GRIDSELL'
+        }
+    }
   }
 
   showApplyChanges(): boolean {
@@ -164,7 +175,6 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  // todo if inputMode == gridsell -> multiply threshold value by -1
   applyChanges() {
     let updateComponentArray = [];
 
@@ -178,15 +188,9 @@ export class SinglethresholdModalComponent {
         }
       }
     });
-
     this.loading = true;
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, updateComponentArray).then(() => {
-        this.controller.properties.minimumSwitchingTime = this.formGroup.value.minimumSwitchingTime;
-        this.controller.properties.threshold = this.formGroup.value.threshold;
-        this.controller.properties.switchedLoadPower = this.formGroup.value.switchedLoadPower;
-        this.controller.properties.inputChannelAddress = this.convertToChannelAddress(this.formGroup.value.inputMode);
-        this.controller.properties.invert = this.formGroup.value.invertBehaviour;
         this.loading = false;
         this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
@@ -194,8 +198,7 @@ export class SinglethresholdModalComponent {
         this.formGroup.controls['minimumSwitchingTime'].setValue(this.controller.properties.minimumSwitchingTime);
         this.formGroup.controls['threshold'].setValue(this.controller.properties.threshold);
         this.formGroup.controls['switchedLoadPower'].setValue(this.controller.properties.switchedLoadPower);
-        // todo use unfinished method convert to convertToInputMode
-        this.formGroup.controls['inputMode'].setValue(this.controller.properties.inputChannelAddress);
+        this.formGroup.controls['inputMode'].setValue(this.convertToInputMode(this.controller.properties.inputChannelAddress, this.controller.properties.treshold));
         this.formGroup.controls['invert'].setValue(this.controller.properties.invert);
         this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
