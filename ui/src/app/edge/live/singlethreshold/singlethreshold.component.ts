@@ -20,6 +20,7 @@ export class SinglethresholdComponent {
   @Input() private componentId: string;
 
   public edge: Edge = null;
+  public config: EdgeConfig = null;
 
   public controller: EdgeConfig.Component = null;
   public inputChannel: ChannelAddress;
@@ -42,6 +43,7 @@ export class SinglethresholdComponent {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
+        this.config = config;
         this.controller = config.getComponent(this.componentId);
         this.outputChannel = ChannelAddress.fromString(
           this.controller.properties['outputChannelAddress']);
@@ -51,8 +53,6 @@ export class SinglethresholdComponent {
           this.inputChannel,
           this.outputChannel
         ]);
-        console.log("componento", config.getComponent(this.componentId), "inputChannel", ChannelAddress.fromString(
-          this.controller.properties['inputChannelAddress']))
       })
     });
   }
@@ -67,7 +67,6 @@ export class SinglethresholdComponent {
         inputChannel: this.inputChannel
       }
     });
-    console.log("controller", this.controller)
     return await modal.present();
   }
 

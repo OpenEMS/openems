@@ -151,7 +151,7 @@
                 </table>
                 <table class="full_width">
                   <tr>
-                    <ion-range formControlName="threshold" pin color="dark" min="0" max="100"
+                    <ion-range formControlName="threshold" pin color="dark" min="1" max="100"
                       [value]="formGroup.value.threshold">
                       <ion-label slot="start">
                         {{0 | unitvalue:'%'}}
@@ -171,16 +171,9 @@
                     </td>
                     <td style="width: 35%" class="align_right">
                       <ion-item lines="inset" class="noPadding">
-                        <ng-container *ngIf="inputMode == 'GRIDSELL'">
-                          <ion-input class="regularFont" style="text-align: end;" [value]="threshold * -1"
-                            formControlName="threshold">
-                          </ion-input>
-                        </ng-container>
-                        <ng-container *ngIf="inputMode != 'GRIDSELL'">
-                          <ion-input class="regularFont" style="text-align: end;" [value]="formGroup.value.threshold"
-                            formControlName="threshold">
-                          </ion-input>
-                        </ng-container>
+                        <ion-input class="regularFont" style="text-align: end;" [value]="formGroup.value.threshold"
+                          formControlName="threshold">
+                        </ion-input>
                         <ion-label class="regularFont">&nbsp;W</ion-label>
                       </ion-item>
                     </td>
@@ -197,8 +190,7 @@
                   </td>
                 </tr>
               </table>
-              <ion-segment formControlName="invertBehaviour" scrollable="false"
-                [value]="formGroup.value.invertBehaviour">
+              <ion-segment formControlName="invert" scrollable="false" [value]="formGroup.value.invert">
                 <ion-segment-button value="false">
                   <ion-label>
                     <ng-container *ngIf="inputMode == 'SOC'; else noSocNoInvert">
@@ -210,7 +202,7 @@
                       </ng-container>
                       <ng-template #notNull>
                         <ng-container *ngIf="inputMode == 'GRIDSELL'">
-                          Über {{formGroup.value.threshold * -1 | unitvalue:'W'}} einschalten
+                          Über {{formGroup.value.threshold | unitvalue:'W'}} einschalten
                         </ng-container>
                         <ng-container *ngIf="inputMode != 'GRIDSELL'">
                           Über {{formGroup.value.threshold | unitvalue:'W'}} einschalten
@@ -231,7 +223,7 @@
                       </ng-container>
                       <ng-template #notNull>
                         <ng-container *ngIf="inputMode == 'GRIDSELL'">
-                          Unter {{formGroup.value.threshold * -1 | unitvalue:'W'}} einschalten
+                          Unter {{formGroup.value.threshold | unitvalue:'W'}} einschalten
                         </ng-container>
                         <ng-container *ngIf="inputMode != 'GRIDSELL'">
                           Unter {{formGroup.value.threshold | unitvalue:'W'}} einschalten
