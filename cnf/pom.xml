@@ -55,7 +55,7 @@
 			<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>3.14.4</version>
+			<version>4.3.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
