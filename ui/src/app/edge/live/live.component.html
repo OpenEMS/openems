@@ -1,12 +1,14 @@
 <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
-  <ion-row class="ion-justify-content-center">
+  <ion-row class="ion-justify-content-center" *ngIf="widgets">
     <!-- Energymonitor -->
-    <ion-col size="12" size-md="8" size-lg="3" class="ion-no-padding">
-      <energymonitor></energymonitor>
-    </ion-col>
+    <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+      <ion-col *ngSwitchCase="'Energymonitor'" size="12" size-md="8" size-lg="3" class="ion-no-padding">
+        <energymonitor></energymonitor>
+      </ion-col>
+    </ng-container>
 
     <!-- Widgets -->
-    <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
+    <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
       <ion-grid class="ion-no-padding">
         <ion-row>
           <!-- Regular Widgets -->
@@ -73,7 +75,7 @@
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6" class="ion-no-padding">
+            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
               <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
             </ion-col>
 
