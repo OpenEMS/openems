@@ -50,7 +50,7 @@
           <ion-list>
             <ng-container *ngFor="let category of components">
               <ion-item-group>
-                {{ category.title }}
+                {{ category.category.title }}
               </ion-item-group>
               <ion-item *ngFor="let item of category.components">
                 <ion-label (click)="item.showProperties = !item.showProperties" style="cursor: pointer"

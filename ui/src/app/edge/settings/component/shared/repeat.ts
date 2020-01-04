@@ -8,6 +8,7 @@ import { FieldArrayType } from '@ngx-formly/core';
 export class RepeatTypeComponent extends FieldArrayType {
 
     public add(i?: number, initialModel?: any): void {
+        i = Number(i) + 1;
         super.add(i, initialModel);
         this.formControl.markAsDirty();
     }

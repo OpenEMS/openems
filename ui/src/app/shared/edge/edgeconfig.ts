@@ -2,6 +2,14 @@ import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
 
+export interface CategorizedComponents {
+    category: {
+        title: string,
+        icon: string
+    },
+    components: EdgeConfig.Component[]
+};
+
 export class EdgeConfig {
 
     constructor(edge: Edge, source?: EdgeConfig) {
@@ -169,6 +177,17 @@ export class EdgeConfig {
     }
 
     /**
+     * Determines if Edge has a Meter device
+     */
+    public hasMeter(): boolean {
+        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.SymmetricMeter').length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Determines if Edge has a producing device
      */
     public hasProducer(): boolean {
@@ -227,7 +246,56 @@ export class EdgeConfig {
         return false;
     }
 
-
+    public listActiveComponents(ignoreComponentIds: string[]): CategorizedComponents[] {
+        let allComponents = [
+            { category: { title: 'Modbus-Verbindungen', icon: 'swap' }, components: [this.getComponentsImplementingNature("io.openems.edge.bridge.modbus.api.BridgeModbus")] },
+            { category: { title: 'Zähler', icon: 'speedometer' }, components: [this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")] },
+            {
+                category: { title: 'Speichersysteme', icon: 'battery-charging' },
+                components: [
+                    this.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss"),
+                    this.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                ]
+            },
+            { category: { title: 'Batterien', icon: 'battery-full' }, components: [this.getComponentsImplementingNature("io.openems.edge.battery.api.Battery")] },
+            {
+                category: { title: 'I/Os', icon: 'log-in' },
+                components: [
+                    this.getComponentsImplementingNature("io.openems.edge.io.api.DigitalOutput"),
+                    this.getComponentsImplementingNature("io.openems.edge.io.api.DigitalInput")
+                ]
+            },
+            { category: { title: 'E-Auto-Ladestation', icon: 'car' }, components: [this.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")] },
+            {
+                category: { title: 'Standard-Controller', icon: 'resize' }, components: [
+                    this.getComponentsByFactory("Controller.Api.Backend"),
+                    this.getComponentsByFactory("Controller.Api.Rest"),
+                    this.getComponentsByFactory("Controller.Api.Websocket"),
+                    this.getComponentsByFactory("Controller.Debug.Log")
+                ]
+            },
+            { category: { title: 'Spezial-Controller', icon: 'repeat' }, components: [this.getComponentsImplementingNature("io.openems.edge.controller.api.Controller")] },
+            { category: { title: 'Scheduler', icon: 'stopwatch' }, components: [this.getComponentsImplementingNature("io.openems.edge.scheduler.api.Scheduler")] },
+            { category: { title: 'Sonstige', icon: 'funnel' }, components: [this.getComponentsImplementingNature("io.openems.edge.common.component.OpenemsComponent")] }
+        ];
+        let result: CategorizedComponents[] = [];
+        allComponents.forEach(item => {
+            let components =
+                // create one flat array
+                [].concat(...item.components)
+                    // remove Components from list that have already been listed before
+                    .filter(component => !ignoreComponentIds.includes(component.id))
+                    // remove duplicates
+                    .filter((e, i, arr) => arr.indexOf(e) === i);
+            if (components.length > 0) {
+                components.forEach(component => {
+                    ignoreComponentIds.push(component.id);
+                });
+                result.push({ category: item.category, components: components })
+            }
+        })
+        return result;
+    }
 
     /**
      * Get the implemented Natures by Component-ID.
