@@ -35,6 +35,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
@@ -128,6 +129,8 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
+	private Config config;
+
 	public PowerComponent() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -150,6 +153,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.debugMode = config.debugMode();
 		this.solver.setDebugMode(config.debugMode());
 		this.solver.setStrategy(config.strategy());
+		this.config = config;
 	}
 
 	@Deactivate
@@ -315,5 +319,19 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	@Override
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
+	}
+
+	/**
+	 * Builds a PidFilter instance with the configured P, I and D variables. If no
+	 * configuration is found, it falls back to default PidFilter values.
+	 * 
+	 * @return an instance of {@link PidFilter}
+	 */
+	public PidFilter buildPidFilter() {
+		try {
+			return new PidFilter(this.config.p(), this.config.i(), this.config.d());
+		} catch (NullPointerException e) {
+			return new PidFilter();
+		}
 	}
 }

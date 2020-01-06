@@ -1,0 +1,19 @@
+Bundle-Name: OpenEMS Backend Core
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version:	1.0.0.${tstamp}
+Bundle-Description: Supportive services that are used throughout OpenEMS Backend
+
+-buildpath: \
+	${buildpath},\
+	com.google.gson,\
+	com.google.guava,\
+	io.openems.backend.common,\
+	io.openems.backend.edgewebsocket.api,\
+	io.openems.backend.metadata.api,\
+	io.openems.backend.timedata.api,\
+	io.openems.common,\
+	slf4j.api
+
+-testpath: \
+	${testpath}

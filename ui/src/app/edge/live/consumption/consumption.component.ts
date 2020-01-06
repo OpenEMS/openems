@@ -27,7 +27,7 @@ export class ConsumptionComponent {
     let channels = [];
     this.service.getConfig().then(config => {
       this.config = config;
-      this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster') && !component.isEnabled == false)
+      this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumtion') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
       for (let component of this.evcsComponents) {
         channels.push(
           new ChannelAddress(component.id, 'ChargePower'),

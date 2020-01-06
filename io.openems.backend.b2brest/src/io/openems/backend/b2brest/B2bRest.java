@@ -13,9 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
+import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.timedata.api.Timedata;
 import io.openems.common.exceptions.OpenemsException;
 
 @Designate(ocd = Config.class, factory = true)
@@ -33,13 +32,10 @@ public class B2bRest extends AbstractOpenemsBackendComponent {
 	private Server server = null;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile EdgeWebsocket edgeWebsocket;
+	protected volatile JsonRpcRequestHandler jsonRpcRequestHandler;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
-
-	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile Timedata timeData;
 
 	public B2bRest() {
 		super("Backend2Backend.Rest");
