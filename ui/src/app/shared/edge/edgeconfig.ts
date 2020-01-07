@@ -169,6 +169,17 @@ export class EdgeConfig {
     }
 
     /**
+     * Determines if Edge has a Meter device
+     */
+    public hasMeter(): boolean {
+        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.SymmetricMeter').length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Determines if Edge has a producing device
      */
     public hasProducer(): boolean {

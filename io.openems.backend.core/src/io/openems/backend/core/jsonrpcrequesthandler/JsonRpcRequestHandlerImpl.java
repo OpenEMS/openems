@@ -220,7 +220,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 				edgeId, //
 				request.getFromDate(), //
 				request.getToDate(), //
-				request.getChannels());
+				request.getChannels(), request.getResolution().orElse(0));
 
 		// JSON-RPC response
 		return CompletableFuture

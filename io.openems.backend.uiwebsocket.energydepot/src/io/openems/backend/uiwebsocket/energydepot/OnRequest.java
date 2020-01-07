@@ -228,7 +228,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				edgeId, //
 				request.getFromDate(), //
 				request.getToDate(), //
-				request.getChannels());
+				request.getChannels(), request.getResolution().orElse(0));
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
