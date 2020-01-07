@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesExportXlsxResponse;
 import io.openems.common.types.ChannelAddress;
@@ -39,29 +40,13 @@ public interface CommonTimedataService {
 	}
 
 	/**
-	 * Queries historic data. The 'resolution' of the query is calculated
-	 * dynamically according to the length of the period.
-	 * 
-	 * @param edgeId   the Edge-ID
-	 * @param fromDate the From-Date
-	 * @param toDate   the To-Date
-	 * @param channels the Channels
-	 */
-	public default SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-		// calculate resolution based on the length of the period
-		int resolution = calculateResolution(fromDate, toDate);
-		return this.queryHistoricData(edgeId, fromDate, toDate, channels, resolution);
-	}
-
-	/**
 	 * Calculates the time resolution for the period in seconds.
 	 * 
 	 * @param fromDate the From-Date
 	 * @param toDate   the To-Date
 	 * @return the resolution in seconds
 	 */
-	public default int calculateResolution(ZonedDateTime fromDate, ZonedDateTime toDate) {
+	public static int calculateResolution(ZonedDateTime fromDate, ZonedDateTime toDate) {
 		int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 		int resolution;
 		if (days <= 1) {
@@ -88,6 +73,24 @@ public interface CommonTimedataService {
 			resolution = 24 * 60 * 60; // 1 Day
 		}
 		return resolution;
+	}
+
+	/**
+	 * Queries historic data. The 'resolution' of the query is calculated
+	 * dynamically according to the length of the period.
+	 * 
+	 * @param edgeId   the Edge-ID
+	 * @param fromDate the From-Date
+	 * @param toDate   the To-Date
+	 * @param channels the Channels
+	 */
+	public default SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
+			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
+		// calculate resolution based on the length of the period
+		int resolution = request.getResolution()
+				.orElse(calculateResolution(request.getFromDate(), request.getToDate()));
+		return this.queryHistoricData(edgeId, request.getFromDate(), request.getToDate(), request.getChannels(),
+				resolution);
 	}
 
 	/**
