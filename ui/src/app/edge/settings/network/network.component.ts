@@ -91,7 +91,8 @@ export class NetworkComponent {
           key: 'gateway',
           type: 'input',
           templateOptions: {
-            label: 'Gateway (z.B. "192.168.0.1")'
+            label: 'Gateway',
+            placeholder: 'z.B. "192.168.0.1"'
           },
         },
         {
@@ -99,7 +100,8 @@ export class NetworkComponent {
           key: 'dns',
           type: 'input',
           templateOptions: {
-            label: 'DNS (z.B. "192.168.0.1")'
+            label: 'DNS',
+            input: 'z.B. "192.168.0.1"'
           },
         },
         {
