@@ -2,6 +2,7 @@ package io.openems.backend.metadata.odoo.odoo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,8 +13,8 @@ import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.backend.metadata.odoo.odoo.OdooUtils.JsonrpcResponseSuccessAndHeaders;
 import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
-import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -76,11 +77,19 @@ public class OdooHandler {
 	public String authenticate(String username, String password) throws OpenemsNamedException {
 		AuthenticateWithUsernameAndPasswordRequest request = new AuthenticateWithUsernameAndPasswordRequest(
 				this.credentials.getDatabase(), username, password);
-		JsonrpcResponseSuccess origResponse = OdooUtils
+		JsonrpcResponseSuccessAndHeaders response = OdooUtils
 				.sendJsonrpcRequest(this.credentials.getUrl() + "/web/session/authenticate", request);
-		AuthenticateWithUsernameAndPasswordResponse response = AuthenticateWithUsernameAndPasswordResponse
-				.from(origResponse);
-		return response.getSessionId();
+		List<String> setCookieHeaders = response.headers.get("Set-Cookie");
+		if(setCookieHeaders != null && !setCookieHeaders.isEmpty()) {
+			final String[] setCookieHeader = setCookieHeaders.get(0).split(";");
+			for(String entry : setCookieHeader) {
+				String[] values = entry.split("=", 2);
+				if(values.length == 2 && values[0].equals("session_id")) {
+					return values[1];
+				}
+			}
+		}
+		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
 	/**
@@ -99,7 +108,7 @@ public class OdooHandler {
 		} catch (UnsupportedEncodingException e) {
 			throw OpenemsError.GENERIC.exception(e.getMessage());
 		}
-		return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info?" + query, request);
+		return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info?" + query, request).response;
 	}
 
 }

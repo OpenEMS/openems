@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -30,7 +31,8 @@ import io.openems.common.utils.JsonUtils;
  *     "timezone": Number,
  *     "fromDate": YYYY-MM-DD,
  *     "toDate": YYYY-MM-DD,
- *     "channels": ChannelAddress[]
+ *     "channels": ChannelAddress[],
+ *     "resolution"?: Number
  *   }
  * }
  * </pre>
@@ -47,7 +49,9 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		QueryHistoricTimeseriesDataRequest result = new QueryHistoricTimeseriesDataRequest(r.getId(), fromDate, toDate);
+		Integer resolution = JsonUtils.getAsOptionalInt(p, "resolution").orElse(null);
+		QueryHistoricTimeseriesDataRequest result = new QueryHistoricTimeseriesDataRequest(r.getId(), fromDate, toDate,
+				resolution);
 		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
 			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
@@ -65,7 +69,12 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 	private final ZonedDateTime toDate;
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
-	public QueryHistoricTimeseriesDataRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate)
+	/**
+	 * Resolution of the data in seconds or null for automatic.
+	 */
+	private final Integer resolution;
+
+	public QueryHistoricTimeseriesDataRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate, Integer resolution)
 			throws OpenemsNamedException {
 		super(id, METHOD);
 
@@ -76,11 +85,12 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 
 		this.fromDate = fromDate;
 		this.toDate = toDate;
+		this.resolution = resolution;
 	}
 
-	public QueryHistoricTimeseriesDataRequest(ZonedDateTime fromDate, ZonedDateTime toDate)
+	public QueryHistoricTimeseriesDataRequest(ZonedDateTime fromDate, ZonedDateTime toDate, Integer resolution)
 			throws OpenemsNamedException {
-		this(UUID.randomUUID(), fromDate, toDate);
+		this(UUID.randomUUID(), fromDate, toDate, resolution);
 	}
 
 	private void addChannel(ChannelAddress address) {
@@ -98,6 +108,7 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 				.addProperty("fromDate", FORMAT.format(this.fromDate)) //
 				.addProperty("toDate", FORMAT.format(this.toDate)) //
 				.add("channels", channels) //
+				.addPropertyIfNotNull("resolution", this.resolution) //
 				.build();
 	}
 
@@ -111,6 +122,10 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 
 	public TreeSet<ChannelAddress> getChannels() {
 		return channels;
+	}
+
+	public Optional<Integer> getResolution() {
+		return Optional.ofNullable(resolution);
 	}
 
 }
