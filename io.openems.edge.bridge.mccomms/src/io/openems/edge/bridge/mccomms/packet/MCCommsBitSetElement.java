@@ -13,7 +13,7 @@ import io.openems.edge.common.channel.Channel;
  */
 public class MCCommsBitSetElement extends MCCommsElement {
 	/**
-	 * The channels, in order of which bit the pertain to
+	 * The channels, in order of which bit they pertain to
 	 */
 	private final Channel<Boolean>[] channels;
 
@@ -38,7 +38,7 @@ public class MCCommsBitSetElement extends MCCommsElement {
 	 */
 	@SafeVarargs
 	private MCCommsBitSetElement(Range<Integer> addressRange, Channel<Boolean>... channels) throws OpenemsException {
-		super(addressRange, true, 1.0, null);
+		super(addressRange, true, null, null);
 		if (((addressRange.upperEndpoint() - addressRange.lowerEndpoint()) * 8) < channels.length) {
 			throw new OpenemsException("Number of channels exceeds number of bits");
 		}
@@ -46,7 +46,7 @@ public class MCCommsBitSetElement extends MCCommsElement {
 	}
 
 	/**
-	 * Static puplic constructor for instantiating a new MCCommsBitSetElement
+	 * Static public constructor for instantiating a new MCCommsBitSetElement
 	 * 
 	 * @param startAddress the index of the first byte of this element within the
 	 *                     packet order
@@ -85,17 +85,6 @@ public class MCCommsBitSetElement extends MCCommsElement {
 	}
 
 	/**
-	 * Not used for BitSets
-	 * 
-	 * @param scaleFactor not used
-	 * @return this instance
-	 */
-	@Override
-	public MCCommsElement setScaleFactor(double scaleFactor) {
-		return this;
-	}
-
-	/**
 	 * Constructs a {@link BitSet} from the internal
 	 * {@link MCCommsElement#valueBuffer} and assigns boolean values to the channels
 	 * bound to this element
@@ -108,6 +97,14 @@ public class MCCommsBitSetElement extends MCCommsElement {
 				channels[i].setNextValue(bitSet.get(i));
 			}
 		}
+	}
+	
+	/**\
+	 * Gets the element value as a {@link BitSet}
+	 * @return the element value as a {@link BitSet}
+	 */
+	public BitSet getBitSet() {
+		return BitSet.valueOf(getValueBuffer());
 	}
 
 	/**
