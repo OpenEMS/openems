@@ -29,9 +29,9 @@ public class MCCommsElement {
 	 */
 	private boolean isUnsigned;
 	/**
-	 * Amount by which to scale values when pulling and pushing values to the buffer
+	 * Channel for the scaler values for the current element's value
 	 */
-	private double scaleFactor;
+	private final Channel<Double> scalerChannel;
 	/**
 	 * {@link Channel} bound to this element
 	 */
@@ -44,16 +44,30 @@ public class MCCommsElement {
 	 *                     order
 	 * @param isUnsigned   Whether to treat values as unsigned during buffer
 	 *                     operations
-	 * @param scaleFactor  Amount by which to scale values when pulling and pushing
-	 *                     values to the buffer
+	 * @param scaleFactor  Channel for the scaler values for the current element's
+	 * 					   value
 	 * @param channel      {@link Channel} to bind to this element
 	 */
-	MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, double scaleFactor, Channel<?> channel) {
+	MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, Channel<Double> scalerChannel, Channel<?> channel) {
 		this.addressRange = addressRange;
 		this.valueBuffer = ByteBuffer.allocate(addressRange.upperEndpoint() - addressRange.lowerEndpoint() + 1);
 		this.isUnsigned = isUnsigned;
-		this.scaleFactor = scaleFactor;
+		this.scalerChannel = scalerChannel;
 		this.channel = channel;
+	}
+	
+	/**
+	 * Constructor used for scaler duplex elements
+	 * 
+	 * @param addressRange the address of the scaler duplex element within the packet byte
+	 *                     order
+	 */
+	public MCCommsElement(int address) {
+		this.addressRange = Range.closed(address, address);
+		this.valueBuffer = ByteBuffer.allocate(1);
+		this.isUnsigned = false;
+		this.scalerChannel = null;
+		this.channel = null;
 	}
 
 	/**
@@ -75,7 +89,7 @@ public class MCCommsElement {
 	public static MCCommsElement newUnscaledNumberInstance(int startAddress, int numBytes, Number value,
 			boolean isUnsigned) throws OpenemsException {
 		MCCommsElement element = new MCCommsElement(Range.closed(startAddress, (startAddress + numBytes - 1)),
-				isUnsigned, 1.0, null);
+				isUnsigned, null, null);
 		switch (numBytes) {
 		case 0:
 			throw new OpenemsException("Zero length buffer");
@@ -100,15 +114,16 @@ public class MCCommsElement {
 	 * Static constructor to create an MCCommsElement bound to a specified
 	 * {@link Channel}
 	 * 
-	 * @param startAddress the index of the first byte of this element within a
-	 *                     {@link MCCommsPacket} buffer
-	 * @param numBytes     the number of bytes within a {@link MCCommsPacket} buffer
-	 *                     this element uses
-	 * @param channel      {@link Channel} to bind to this element
-	 * @return a new MCCommsElement instance with a bound channel
+	 * @param startAddress  the index of the first byte of this element within a
+	 *                      {@link MCCommsPacket} buffer
+	 * @param numBytes      the number of bytes within a {@link MCCommsPacket} buffer
+	 *                      this element uses
+	 * @param scalerChannel {@link Channel} carrying the scaling factor values for this element
+	 * @param channel       {@link Channel} to bind to this element
+	 * @return a new MCCommsElement instance with bound scaler and value channels
 	 */
-	public static MCCommsElement newInstanceFromChannel(int startAddress, int numBytes, Channel<?> channel) {
-		return new MCCommsElement(Range.closed(startAddress, (startAddress + numBytes - 1)), true, 1.0, channel);
+	public static MCCommsElement newInstanceFromChannel(int startAddress, int numBytes, Channel<Double> scalerChannel, Channel<?> channel) {
+		return new MCCommsElement(Range.closed(startAddress, (startAddress + numBytes - 1)), true, scalerChannel, channel);
 	}
 
 	/**
@@ -184,19 +199,11 @@ public class MCCommsElement {
 	 *         the buffer
 	 */
 	public double getScaleFactor() {
-		return scaleFactor;
-	}
-
-	/**
-	 * Sets the amount by which to scale values when pulling and pushing values to
-	 * the buffer
-	 * 
-	 * @param scaleFactor the amount by which to scale values
-	 * @return the current instance
-	 */
-	public MCCommsElement setScaleFactor(double scaleFactor) {
-		this.scaleFactor = scaleFactor;
-		return this;
+		if (scalerChannel != null) {
+			return scalerChannel.value().get().doubleValue();
+		} else {
+			return 1.0;
+		}
 	}
 
 	/**
@@ -250,24 +257,24 @@ public class MCCommsElement {
 			throw new OpenemsException("Zero length buffer");
 		case 1:
 			if (isUnsigned) {
-				return UnsignedBytes.toInt(valueBuffer.get(0)) * scaleFactor;
+				return UnsignedBytes.toInt(valueBuffer.get(0)) * getScaleFactor();
 			}
-			return valueBuffer.get(0) * scaleFactor;
+			return valueBuffer.get(0) * getScaleFactor();
 		case 2:
 			if (isUnsigned) {
-				return Short.toUnsignedInt(valueBuffer.getShort(0)) * scaleFactor;
+				return Short.toUnsignedInt(valueBuffer.getShort(0)) * getScaleFactor();
 			}
 			return valueBuffer.getShort(0);
 		case 4:
 			if (isUnsigned) {
-				return UnsignedInts.toLong(valueBuffer.getInt(0)) * scaleFactor;
+				return UnsignedInts.toLong(valueBuffer.getInt(0)) * getScaleFactor();
 			}
-			return valueBuffer.getInt(0) * scaleFactor;
+			return valueBuffer.getInt(0) * getScaleFactor();
 		case 8:
 			if (isUnsigned) {
 				throw new OpenemsException("Unsigned values not supported for 64-bit buffers");
 			}
-			return valueBuffer.getLong(0) * scaleFactor;
+			return valueBuffer.getLong(0) * getScaleFactor();
 		default:
 			throw new OpenemsException("Abnormal buffer length (not a power of 2, or longer than 8 bytes)");
 		}
@@ -293,7 +300,7 @@ public class MCCommsElement {
 			case INTEGER:
 			case SHORT:
 			case LONG:
-				long channelValue = (long) (((long) channel.value().getOrError()) / scaleFactor);
+				long channelValue = (long) (((long) channel.value().getOrError()) / getScaleFactor());
 				switch (valueBuffer.capacity()) {
 				case 0:
 					throw new OpenemsException("Zero length buffer");
