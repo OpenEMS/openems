@@ -10,11 +10,8 @@
                 </ion-icon>
             </ion-item>
 
-            <ion-item lines="none" *ngFor="let field of field.fieldGroup; let i=index; last as isLast"
-                class="noPadding">
-                <ion-label class="ion-text-right">
-                    <formly-field [field]="field"></formly-field>
-                </ion-label>
+            <ion-item lines="none" *ngFor="let field of field.fieldGroup; let i=index" class="noPadding">
+                <formly-field slot="end" [field]="field"></formly-field>
                 <ion-icon class="ion-no-padding; ion-no-margin" name="add" (click)="add(field.key)" slot="end">
                 </ion-icon>
                 <ion-icon class="ion-no-padding; ion-no-margin" name="trash" (click)="remove(i)" slot="end">

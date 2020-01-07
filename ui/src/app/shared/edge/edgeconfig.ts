@@ -1,7 +1,6 @@
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
-import { DefaultTypes } from '../service/defaulttypes';
 
 export interface CategorizedComponents {
     category: {

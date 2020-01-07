@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { Service, Utils, Websocket, EdgeConfig } from '../../../../shared/shared';
 import { IGNORE_NATURES } from '../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 @Component({
   selector: IndexComponent.SELECTOR,
