@@ -81,6 +81,12 @@
 			<artifactId>retrofit</artifactId>
 			<version>2.6.1</version>
 		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.ocpp.core -->
+			<groupId>com.sun.net.httpserver</groupId>
+			<artifactId>http</artifactId>
+			<version>20070405</version>
+		</dependency>
 		<!-- info -->
 		<dependency>
 			<groupId>info.faljse</groupId>
