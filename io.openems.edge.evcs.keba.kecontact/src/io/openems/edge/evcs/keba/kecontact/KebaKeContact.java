@@ -37,15 +37,14 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
-		name = "Evcs.Keba.KeContact", //
+@Component(name = "Evcs.Keba.KeContact", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class KebaKeContact extends AbstractOpenemsComponent
 		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
-	public final static int UDP_PORT = 7090;
+	public static final int UDP_PORT = 7090;
 
 	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
@@ -56,6 +55,9 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
 
+	/**
+	 * Constructor.
+	 */
 	public KebaKeContact() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -121,16 +123,16 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	/**
 	 * Send UDP message to KEBA KeContact. Returns true if sent successfully
 	 *
-	 * @param s
-	 * @return
+	 * @param s Message to send
+	 * @return true if sent
 	 */
 	protected boolean send(String s) {
 		byte[] raw = s.getBytes();
 		DatagramPacket packet = new DatagramPacket(raw, raw.length, ip, KebaKeContact.UDP_PORT);
-		DatagramSocket dSocket = null;
+		DatagramSocket datagrammSocket = null;
 		try {
-			dSocket = new DatagramSocket();
-			dSocket.send(packet);
+			datagrammSocket = new DatagramSocket();
+			datagrammSocket.send(packet);
 			return true;
 		} catch (SocketException e) {
 			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + ip.getHostAddress()
@@ -139,15 +141,15 @@ public class KebaKeContact extends AbstractOpenemsComponent
 			this.logError(this.log,
 					"Unable to send [" + s + "] UDP message to [" + ip.getHostAddress() + "]: " + e.getMessage());
 		} finally {
-			if (dSocket != null) {
-				dSocket.close();
+			if (datagrammSocket != null) {
+				datagrammSocket.close();
 			}
 		}
 		return false;
 	}
 
 	/**
-	 * Triggers an immediate execution of query reports
+	 * Triggers an immediate execution of query reports.
 	 */
 	protected void triggerQuery() {
 		this.readWorker.triggerNextRun();
@@ -172,7 +174,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Resets all channel values except the Communication_Failed channel
+	 * Resets all channel values except the Communication_Failed channel.
 	 */
 	private void resetChannelValues() {
 		for (KebaChannelId c : KebaChannelId.values()) {
@@ -209,8 +211,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(72, KebaChannelId.CURR_FAILSAFE, ModbusType.UINT16)
 				.channel(73, KebaChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
 				.channel(74, KebaChannelId.CURR_TIMER, ModbusType.UINT16)
-				.channel(75, KebaChannelId.TIMEOUT_CT, ModbusType.UINT16)
-				.uint16Reserved(76)
+				.channel(75, KebaChannelId.TIMEOUT_CT, ModbusType.UINT16).uint16Reserved(76)
 				.channel(77, KebaChannelId.OUTPUT, ModbusType.UINT16)
 				.channel(78, KebaChannelId.INPUT, ModbusType.UINT16)
 
@@ -222,8 +223,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(83, KebaChannelId.CURRENT_L2, ModbusType.UINT16)
 				.channel(84, KebaChannelId.CURRENT_L3, ModbusType.UINT16)
 				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
-				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16)
-				.uint16Reserved(87)
+				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
 				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
 	}
 }

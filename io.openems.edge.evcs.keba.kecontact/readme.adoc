@@ -1,6 +1,7 @@
 = KEBA KeContact c-series Charging Station
 
-Implemented Natures::
-- Evcs (Electric Vehicle Charging Station)
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station
+* ManagedEvcs
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.keba.kecontact[Source Code icon:github[]]

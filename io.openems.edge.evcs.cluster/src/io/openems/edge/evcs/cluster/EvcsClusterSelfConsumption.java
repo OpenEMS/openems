@@ -1,5 +1,11 @@
 package io.openems.edge.evcs.cluster;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.ManagedEvcs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +27,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.sum.Sum;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.ManagedEvcs;
-
 @Designate(ocd = ConfigSelfConsumption.class, factory = true)
 @Component(//
 		name = "Evcs.Cluster.SelfConsumtion", //
@@ -44,7 +43,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	// Used EVCSs
 	private String[] evcsIds = new String[0];
 	private final List<Evcs> sortedEvcss = new ArrayList<>();
-	private Map<String, Evcs> _evcss = new ConcurrentHashMap<>();
+	private Map<String, Evcs> evcss = new ConcurrentHashMap<>();
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -52,6 +51,9 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	@Reference
 	protected Sum sum;
 
+	/**
+	 * Constructor.
+	 */
 	public EvcsClusterSelfConsumption() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -64,7 +66,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 			return;
 		}
 		this.setClusteredState(evcs);
-		this._evcss.put(evcs.id(), evcs);
+		this.evcss.put(evcs.id(), evcs);
 		this.updateSortedEvcss();
 	}
 
@@ -73,7 +75,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 			return;
 		}
 		this.resetClusteredState(evcs);
-		this._evcss.remove(evcs.id());
+		this.evcss.remove(evcs.id());
 		this.updateSortedEvcss();
 	}
 
@@ -101,12 +103,12 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	}
 
 	/**
-	 * Fills sortedEvcss using the order of evcs_ids property in the config
+	 * Fills sortedEvcss using the order of evcs_ids property in the configuration.
 	 */
 	private synchronized void updateSortedEvcss() {
 		this.sortedEvcss.clear();
 		for (String id : this.evcsIds) {
-			Evcs evcs = this._evcss.get(id);
+			Evcs evcs = this.evcss.get(id);
 			if (evcs == null) {
 				this.logWarn(this.log, "Required Evcs [" + id + "] is not available.");
 			} else {
@@ -116,9 +118,9 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	}
 
 	/**
-	 * Sets the cluster channel to false and resets all depending channels
+	 * Sets the cluster channel to false and resets all depending channels.
 	 * 
-	 * @param evcs
+	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void resetClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
@@ -129,9 +131,9 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	}
 
 	/**
-	 * Sets the cluster channel to true
+	 * Sets the cluster channel to true.
 	 * 
-	 * @param evcs
+	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void setClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {

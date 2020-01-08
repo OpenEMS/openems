@@ -12,7 +12,7 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 
 public class Utils {
 

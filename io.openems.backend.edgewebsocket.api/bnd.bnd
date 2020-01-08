@@ -2,17 +2,11 @@ Bundle-Name: OpenEMS Backend EdgeWebsocket Api
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.backend.edgewebsocket.api
-Require-Capability: \
-	compile-only
 
--includeresource: {readme.md}
+-buildpath: \
+	${buildpath},\
+	com.google.gson,\
+	io.openems.common
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	com.google.gson
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

@@ -13,6 +13,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Current to EV (import).
 		 * 
+		 * <p>
 		 * Instantaneous current flow to EV
 		 * 
 		 * <ul>
@@ -28,6 +29,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Current to grid (export).
 		 * 
+		 * <p>
 		 * Instantaneous current flow from EV
 		 * 
 		 * <ul>
@@ -43,6 +45,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Current offered.
 		 * 
+		 * <p>
 		 * Maximum current offered to EV
 		 * 
 		 * <ul>
@@ -58,6 +61,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Active energy to grid (export).
 		 * 
+		 * <p>
 		 * Numerical value read from the "active electrical energy" (Wh or kWh) register
 		 * of the (most authoritative) electrical meter measuring energy exported (to
 		 * the grid).
@@ -77,6 +81,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Reactive energy to grid (export).
 		 * 
+		 * <p>
 		 * Numerical value read from the "reactive electrical energy" (VARh or kVARh)
 		 * register of the (most authoritative) electrical meter measuring energy
 		 * exported (to the grid).
@@ -94,6 +99,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Reactive energy to EV (import).
 		 * 
+		 * <p>
 		 * Numerical value read from the "reactive electrical energy" (VARh or kVARh)
 		 * register of the (most authoritative) electrical meter measuring energy
 		 * imported (from the grid supply).
@@ -111,6 +117,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Active energy to grid (export) in an interval.
 		 * 
+		 * <p>
 		 * Absolute amount of "active electrical energy" (Wh or kWh) exported (to the
 		 * grid) during an associated time "interval", specified by a Metervalues
 		 * ReadingContext, and applicable interval duration configuration values (in
@@ -129,6 +136,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Active energy to EV (import) in an interval.
 		 * 
+		 * <p>
 		 * Absolute amount of "active electrical energy" (Wh or kWh) imported (from the
 		 * grid supply) during an associated time "interval", specified by a Metervalues
 		 * ReadingContext, and applicable interval duration configuration values (in
@@ -147,6 +155,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Reactive energy to grid (export) in an interval.
 		 * 
+		 * <p>
 		 * Absolute amount of "reactive electrical energy" (VARh or kVARh) exported (to
 		 * the grid) during an associated time "interval", specified by a Metervalues
 		 * ReadingContext, and applicable interval duration configuration values (in
@@ -165,6 +174,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Reactive energy to EV (import) in an interval.
 		 * 
+		 * <p>
 		 * Absolute amount of "reactive electrical energy" (VARh or kVARh) imported
 		 * (from the grid supply) during an associated time "interval", specified by a
 		 * Metervalues ReadingContext, and applicable interval duration configuration
@@ -184,6 +194,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Frequency.
 		 * 
+		 * <p>
 		 * Instantaneous reading of powerline frequency. NOTE: OCPP 1.6 does not have a
 		 * UnitOfMeasure for frequency, the UnitOfMeasure for any SampledValue with
 		 * measurand: Frequency is Hertz.
@@ -200,6 +211,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Active power to grid (export)
 		 * 
+		 * <p>
 		 * Instantaneous active power exported by EV. (W or kW)
 		 * 
 		 * <ul>
@@ -217,6 +229,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Power factor.
 		 * 
+		 * <p>
 		 * Instantaneous power factor of total energy flow
 		 * 
 		 * <ul>
@@ -230,6 +243,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Power offered.
 		 * 
+		 * <p>
 		 * Maximum power offered to EV
 		 * 
 		 * <ul>
@@ -245,6 +259,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Reactive power to grid (export).
 		 * 
+		 * <p>
 		 * Instantaneous reactive power exported by EV. (var or kvar)
 		 * 
 		 * <ul>
@@ -260,6 +275,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Reactive power to EV (import).
 		 * 
+		 * <p>
 		 * Instantaneous reactive power imported by EV. (var or kvar)
 		 * 
 		 * <ul>
@@ -275,6 +291,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Fan speed.
 		 * 
+		 * <p>
 		 * Fan speed in RPM
 		 * 
 		 * <ul>
@@ -288,6 +305,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Temperature.
 		 * 
+		 * <p>
 		 * Temperature reading inside Charge Point.
 		 * 
 		 * <ul>
@@ -303,6 +321,7 @@ public interface MeasuringEvcs extends Evcs {
 		/**
 		 * Voltage.
 		 * 
+		 * <p>
 		 * Instantaneous AC RMS supply voltage
 		 * 
 		 * <ul>
@@ -329,7 +348,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Current to EV (import).
 	 * 
+	 * <p>
 	 * Instantaneous current flow to EV.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getCurrentToEV() {
 		return this.channel(ChannelId.CURRENT_TO_EV);
@@ -338,7 +360,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Current to grid (export).
 	 * 
+	 * <p>
 	 * Instantaneous current flow from EV.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getCurrentToGrid() {
 		return this.channel(ChannelId.CURRENT_TO_GRID);
@@ -347,7 +372,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Current offered.
 	 * 
+	 * <p>
 	 * Maximum current offered to EV.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getCurrentOffered() {
 		return this.channel(ChannelId.CURRENT_OFFERED);
@@ -356,9 +384,12 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Active energy to grid (export).
 	 * 
+	 * <p>
 	 * Numerical value read from the "active electrical energy" (Wh) register of the
 	 * (most authoritative) electrical meter measuring energy exported (to the
 	 * grid).
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getActiveEnergyToGrid() {
 		return this.channel(ChannelId.ENERGY_ACTIVE_TO_GRID_REGISTER);
@@ -367,9 +398,12 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Reactive energy to grid (export).
 	 * 
+	 * <p>
 	 * Numerical value read from the "reactive electrical energy" (VARh) register of
 	 * the (most authoritative) electrical meter measuring energy exported (to the
 	 * grid).
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getReactiveEnergyToGrid() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_GRID_REGISTER);
@@ -378,9 +412,12 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Reactive energy to EV (import).
 	 * 
+	 * <p>
 	 * Numerical value read from the "reactive electrical energy" (VARh) register of
 	 * the (most authoritative) electrical meter measuring energy imported (from the
 	 * grid supply).
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getReactiveEnergyToEV() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_EV_REGISTER);
@@ -389,10 +426,13 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Active energy to grid (export) in an interval.
 	 * 
+	 * <p>
 	 * Absolute amount of "active electrical energy" (Wh) exported (to the grid)
 	 * during an associated time "interval", specified by a Metervalues
 	 * ReadingContext, and applicable interval duration configuration values (in
 	 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getActiveEnergyToGridInInterval() {
 		return this.channel(ChannelId.ENERGY_ACTIVE_TO_GRID_INTERVAL);
@@ -401,22 +441,28 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Active energy to EV (import) in an interval.
 	 * 
+	 * <p>
 	 * Absolute amount of "active electrical energy" (Wh) imported (from the grid
 	 * supply) during an associated time "interval", specified by a Metervalues
 	 * ReadingContext, and applicable interval duration configuration values (in
 	 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
+	 * 
+	 * @return IntegerReadChannel
 	 */
-	public default IntegerReadChannel getActiveEnergyToEVInInterval() {
+	public default IntegerReadChannel getActiveEnergyToEvInInterval() {
 		return this.channel(ChannelId.ENERGY_ACTIVE_TO_EV_INTERVAL);
 	}
 
 	/**
 	 * Reactive energy to grid (export) in an interval.
 	 * 
+	 * <p>
 	 * Absolute amount of "reactive electrical energy" (VARh) exported (to the grid)
 	 * during an associated time "interval", specified by a Metervalues
 	 * ReadingContext, and applicable interval duration configuration values (in
 	 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getReactiveEnergyToGridInInterval() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_GRID_INTERVAL);
@@ -425,10 +471,13 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Reactive energy to EV (import) in an interval.
 	 * 
+	 * <p>
 	 * Absolute amount of "reactive electrical energy" (VARh) imported (from the
 	 * grid supply) during an associated time "interval", specified by a Metervalues
 	 * ReadingContext, and applicable interval duration configuration values (in
 	 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getReactiveEnergyToEvInInterval() {
 		return this.channel(ChannelId.ENERGY_REACTIVE_TO_EV_INTERVAL);
@@ -437,9 +486,12 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Frequency.
 	 * 
+	 * <p>
 	 * Instantaneous reading of powerline frequency. NOTE: OCPP 1.6 does not have a
 	 * UnitOfMeasure for frequency, the UnitOfMeasure for any SampledValue with
 	 * measurand: Frequency is Hertz.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getFrequency() {
 		return this.channel(ChannelId.FREQUENCY);
@@ -448,7 +500,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Active power to grid (export)
 	 * 
+	 * <p>
 	 * Instantaneous active power exported by EV. (W).
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getActivePowerToGrid() {
 		return this.channel(ChannelId.POWER_ACTIVE_TO_GRID);
@@ -457,7 +512,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Power factor.
 	 * 
+	 * <p>
 	 * Instantaneous power factor of total energy flow.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getPowerFactor() {
 		return this.channel(ChannelId.POWER_FACTOR);
@@ -466,7 +524,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Power offered.
 	 * 
+	 * <p>
 	 * Maximum power offered to EV.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getPowerOffered() {
 		return this.channel(ChannelId.POWER_OFFERED);
@@ -475,7 +536,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Reactive power to grid (export).
 	 * 
+	 * <p>
 	 * Instantaneous reactive power exported by EV. (var).
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getReactivePowerToGrid() {
 		return this.channel(ChannelId.POWER_REACTIVE_TO_GRID);
@@ -484,7 +548,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Reactive power to EV (import).
 	 * 
+	 * <p>
 	 * Instantaneous reactive power imported by EV. (var).
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getReactivePowerToEV() {
 		return this.channel(ChannelId.POWER_REACTIVE_TO_EV);
@@ -493,7 +560,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Fan speed.
 	 * 
+	 * <p>
 	 * Fan speed in RPM.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getFanSpeed() {
 		return this.channel(ChannelId.RPM);
@@ -502,7 +572,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Temperature.
 	 * 
+	 * <p>
 	 * Temperature reading inside Charge Point.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getTemperature() {
 		return this.channel(ChannelId.TEMPERATURE);
@@ -511,7 +584,10 @@ public interface MeasuringEvcs extends Evcs {
 	/**
 	 * Voltage.
 	 * 
+	 * <p>
 	 * Instantaneous AC RMS supply voltage.
+	 * 
+	 * @return IntegerReadChannel
 	 */
 	public default IntegerReadChannel getVoltage() {
 		return this.channel(ChannelId.VOLTAGE);

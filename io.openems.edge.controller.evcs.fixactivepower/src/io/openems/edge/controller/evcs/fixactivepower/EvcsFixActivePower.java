@@ -66,6 +66,7 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

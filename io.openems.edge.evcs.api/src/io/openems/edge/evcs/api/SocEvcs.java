@@ -10,7 +10,7 @@ public interface SocEvcs extends Evcs {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
-		 * Current SoC
+		 * Current SoC.
 		 * 
 		 * <p>
 		 * The current state of charge of the car

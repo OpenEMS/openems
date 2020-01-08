@@ -48,8 +48,8 @@ import io.openems.edge.evcs.api.Status;
 public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
-	private final static int CHARGE_POWER_BUFFER = 100;
-	private final static double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.05; // 5%
+	private static final int CHARGE_POWER_BUFFER = 100;
+	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.05; // 5%
 
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 
@@ -126,6 +126,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -261,8 +262,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	/**
 	 * Calculates the next charging power, depending on the current PV production
-	 * and house consumption
+	 * and house consumption.
 	 * 
+	 * @param evcs Electric Vehicle Charging Station
 	 * @return the available excess power for charging
 	 * @throws OpenemsNamedException on error
 	 */
@@ -295,8 +297,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	private int calculateExcessPowerAfterEss(ManagedEvcs evcs, SymmetricEss ess) {
 		int maxEssCharge;
 		if (ess instanceof ManagedSymmetricEss) {
-			ManagedSymmetricEss e = (ManagedSymmetricEss)ess;
-			Power power = ((ManagedSymmetricEss)ess).getPower();
+			ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
+			Power power = ((ManagedSymmetricEss) ess).getPower();
 			maxEssCharge = power.getMinPower(e, Phase.ALL, Pwr.ACTIVE);
 			maxEssCharge = Math.abs(maxEssCharge);
 		} else {
@@ -324,7 +326,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Controller.getModbusSlaveNatureTable(accessMode));
 	}
