@@ -1,51 +1,51 @@
 package io.openems.edge.evcs.ocpp.server;
 
 public enum Unit {
-	
+
 	/**
 	 * Watt-hours (energy). Default.
 	 */
-	WH, 
-	
+	WH,
+
 	/**
 	 * kiloWatt-hours (energy).
 	 */
-	KWH, 
+	KWH,
 
 	/**
 	 * Var-hours (reactive energy).
 	 */
-	VARH, 
+	VARH,
 
 	/**
 	 * kilovar-hours (reactive energy).
 	 */
-	KVARH, 
+	KVARH,
 
 	/**
 	 * Watts (power).
 	 */
-	W, 
+	W,
 
 	/**
 	 * kilowatts (power).
 	 */
-	KW, 
+	KW,
 
 	/**
 	 * VoltAmpere (apparent power).
 	 */
-	VA,  
+	VA,
 
 	/**
 	 * kiloVolt Ampere (apparent power).
 	 */
-	KVA, 
+	KVA,
 
 	/**
 	 * Vars (reactive power).
 	 */
-	VAR, 
+	VAR,
 
 	/**
 	 * kilovars (reactive power).
@@ -55,33 +55,33 @@ public enum Unit {
 	/**
 	 * Amperes (current).
 	 */
-	A, 
+	A,
 
 	/**
 	 * Voltage (r.m.s. AC).
 	 */
-	V, 
+	V,
 
 	/**
 	 * Degrees (temperature).
 	 */
-	CELSIUS, 
+	CELSIUS,
 
 	/**
 	 * Fahrenheit Degrees (temperature).
 	 */
-	FAHRENHEIT, 
+	FAHRENHEIT,
 
 	/**
 	 * Kelvin (temperature).
 	 */
-	K, 
+	K,
 
 	/**
 	 * Percentage.
 	 */
 	Percent;
-	
+
 	private Unit() {
 	}
 }

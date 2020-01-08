@@ -3,7 +3,7 @@ package io.openems.edge.evcs.ocpp.server;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "EVCS OCPP Server", //
 		description = "Implements a OCPP Server. Only one Server needed.")
 @interface Config {

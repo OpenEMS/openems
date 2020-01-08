@@ -21,12 +21,12 @@ public class WriteHandler implements Runnable {
 
 	private final KebaKeContact parent;
 
-	/**
-	 * Minimum pause between two consecutive writes
+	/*
+	 * Minimum pause between two consecutive writes.
 	 */
-	private final static int WRITE_INTERVAL_SECONDS = 5;
-	private final static int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
-	private final static int WRITE_ENERGY_SESSION_INTERVAL_SECONDS = 10;
+	private static final  int WRITE_INTERVAL_SECONDS = 5;
+	private static final int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
+	private static final int WRITE_ENERGY_SESSION_INTERVAL_SECONDS = 10;
 
 	public WriteHandler(KebaKeContact parent) {
 		this.parent = parent;
@@ -35,7 +35,8 @@ public class WriteHandler implements Runnable {
 	@Override
 	public void run() {
 
-		Channel<Boolean> communicationChannel = this.parent.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+		Channel<Boolean> communicationChannel = this.parent
+				.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
 		if (communicationChannel.value().orElse(true)) {
 			return;
 		}
@@ -48,8 +49,9 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextDisplayWrite = LocalDateTime.MIN;
 
 	/**
-	 * Sets the display text from SET_DISPLAY channel
+	 * Sets the display text from SET_DISPLAY channel.
 	 * 
+	 * <p>
 	 * Note:
 	 * <ul>
 	 * <li>Maximum 23 ASCII characters can be used.
@@ -81,8 +83,9 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextCurrentWrite = LocalDateTime.MIN;
 
 	/**
-	 * Sets the current from SET_CHARGE_POWER channel
+	 * Sets the current from SET_CHARGE_POWER channel.
 	 * 
+	 * <p>
 	 * Allowed loading current are between 6000mA and 63000mA. Invalid values are
 	 * discarded. The value is also depending on the DIP-switch settings and the
 	 * used cable of the charging station.
@@ -95,7 +98,7 @@ public class WriteHandler implements Runnable {
 
 			Integer power = valueOpt.get();
 			Channel<Integer> phases = this.parent.getPhases();
-			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
+			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
 			// limits the charging value because KEBA knows only values between 6000 and
 			// 63000
 			if (current > 63000) {
@@ -129,15 +132,16 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextEnergySessionWrite = LocalDateTime.MIN;
 
 	/**
-	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel
+	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel.
 	 * 
+	 * <p>
 	 * Allowed values for the command setenergy are 0; 1-999999999 the value of the
 	 * command is 0.1 Wh. The charging station will charge till this limit.
 	 */
 	private void setEnergySession() {
-		
+
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		
+
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 
@@ -147,9 +151,10 @@ public class WriteHandler implements Runnable {
 			if (energyTarget < 0) {
 				return;
 			}
-			
-			/**
-			 *  limits the target value because KEBA knows only values between 0 and 999999999 0.1Wh
+
+			/*
+			 * limits the target value because KEBA knows only values between 0 and
+			 * 999999999 0.1Wh
 			 */
 			energyTarget = energyTarget > 99999999 ? 99999999 : energyTarget;
 			energyTarget = energyTarget > 0 && energyTarget < 1 ? 1 : energyTarget;
@@ -162,7 +167,7 @@ public class WriteHandler implements Runnable {
 
 				boolean sentSuccessfully = parent.send("setenergy " + energyTarget);
 				if (sentSuccessfully) {
-					
+
 					try {
 						if (energyTarget > 0) {
 							this.parent.setDisplayText().setNextWriteValue("Max: " + energyTarget / 10 + "Wh");
@@ -170,7 +175,7 @@ public class WriteHandler implements Runnable {
 					} catch (OpenemsNamedException e) {
 						e.printStackTrace();
 					}
-					
+
 					this.nextEnergySessionWrite = LocalDateTime.now()
 							.plusSeconds(WRITE_ENERGY_SESSION_INTERVAL_SECONDS);
 					this.lastEnergySession = energyTarget;

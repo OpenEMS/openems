@@ -18,7 +18,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * The Status of the EVCS charging station.
-		 * 
+		 *
 		 * <p>
 		 * Undefined, Starting, Not ready for Charging, Ready for Charging, Charging,
 		 * Error, Authorization rejected.
@@ -49,6 +49,7 @@ public interface Evcs extends OpenemsComponent {
 		/**
 		 * Charging Type.
 		 * 
+		 * <p>
 		 * Type of charging.
 		 * 
 		 * <ul>
@@ -58,7 +59,7 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGING_TYPE(Doc.of(ChargingType.values()).accessMode(AccessMode.READ_ONLY)), //
-		
+
 		/**
 		 * Count of phases, the EV is charging with.
 		 * 
@@ -149,7 +150,6 @@ public interface Evcs extends OpenemsComponent {
 				.unit(Unit.WATT_HOURS) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-
 		/**
 		 * Failed state channel for a failed communication to the EVCS.
 		 * 
@@ -159,9 +159,8 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Level: FAULT
 		 * </ul>
 		 */
-		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT)
-				.accessMode(AccessMode.READ_ONLY));
-		
+		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT).accessMode(AccessMode.READ_ONLY));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -200,7 +199,7 @@ public interface Evcs extends OpenemsComponent {
 	public default EnumReadChannel getChargingType() {
 		return this.channel(ChannelId.CHARGING_TYPE);
 	}
-	
+
 	/**
 	 * Count of phases, the EV is charging with.
 	 * 
@@ -258,7 +257,13 @@ public interface Evcs extends OpenemsComponent {
 	public default StateChannel getChargingstationCommunicationFailed() {
 		return this.channel(ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
 	}
-	
+
+	/**
+	 * Returns the modbus table for this nature.
+	 * 
+	 * @param accessMode accessMode
+	 * @return nature table
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		// TODO add remaining channels
 		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //
