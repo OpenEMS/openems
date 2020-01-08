@@ -218,9 +218,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData = this.timeData.queryHistoricData(//
 				edgeId, //
-				request.getFromDate(), //
-				request.getToDate(), //
-				request.getChannels(), request.getResolution().orElse(0));
+				request);
 
 		// JSON-RPC response
 		return CompletableFuture

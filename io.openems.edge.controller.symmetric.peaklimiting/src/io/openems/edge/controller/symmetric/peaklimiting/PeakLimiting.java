@@ -299,7 +299,7 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> history;
 		try {
-			history = this.getTimedata().queryHistoricData(null, fromDate, dateTime, channels);
+			history = this.getTimedata().queryHistoricData(null, fromDate, dateTime, channels, 5);
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
