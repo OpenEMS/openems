@@ -707,6 +707,34 @@ public class JsonUtils {
 			return this;
 		}
 
+		public JsonObjectBuilder addPropertyIfNotNull(String property, String value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Integer value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Long value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Boolean value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
 		public JsonObjectBuilder add(String property, JsonElement value) {
 			j.add(property, value);
 			return this;
