@@ -132,11 +132,7 @@ public class EdgeRpcRequestHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData = this.parent.timeData
-				.queryHistoricData(//
-						edgeId, //
-						request.getFromDate(), //
-						request.getToDate(), //
-						request.getChannels());
+				.queryHistoricData(edgeId, request);
 
 		// JSON-RPC response
 		return CompletableFuture

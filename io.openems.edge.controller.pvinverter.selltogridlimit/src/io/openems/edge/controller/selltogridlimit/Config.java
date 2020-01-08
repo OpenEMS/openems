@@ -4,12 +4,12 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller Sell-to-Grid Limit", //
-		description = "Reduces the Sell-to-Grid power to a defined limit.")
+		name = "Controller PV-Inverter Sell-to-Grid Limit", //
+		description = "Reduces PV-Inverter power to limit the Sell-to-Grid power.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "ctrlSellToGridLimit0";
+	String id() default "ctrlPvInverterSellToGridLimit0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -23,9 +23,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Power limit", description = "The target limit for sell-to-grid power.")
-	int powerLimit() default 0;
+	@AttributeDefinition(name = "Maximum allowed Sell-To-Grid power", description = "The target limit for sell-to-grid power.")
+	int maximumSellToGridPower() default 5_000;
 
-	String webconsole_configurationFactory_nameHint() default "Controller Sell-to-Grid Limit [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Controller PV-Inverter Sell-to-Grid Limit [{id}]";
 
 }

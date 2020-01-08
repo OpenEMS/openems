@@ -80,7 +80,8 @@ public class WebSocketTransmitter implements Transmitter {
 
 			@Override
 			public void onClose(int code, String reason, boolean remote) {
-				logger.debug("On connection close (code: {}, reason: {}, remote: {})", code, reason, remote);
+				logger.debug(
+						"On connection close (code: " + code + ", reason: " + reason + ", remote: " + remote + ")");
 
 				events.disconnected();
 			}

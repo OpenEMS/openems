@@ -53,6 +53,11 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 	private InfluxConnector influxConnector = null;
 
+	// Counts the number of Cycles till data is written to InfluxDB.
+	private int cycleCount = 0;
+
+	private Config config;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
@@ -89,6 +94,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
 							+ StringUtils.toShortString(pointsString, 100));
 				});
+		this.config = config;
 	}
 
 	@Deactivate
@@ -113,56 +119,62 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 	protected synchronized void collectAndWriteChannelValues() {
 		long timestamp = System.currentTimeMillis() / 1000;
-		final Builder point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.SECONDS);
-		final AtomicBoolean addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
-		this.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
-			component.channels().forEach(channel -> {
-				Optional<?> valueOpt = channel.value().asOptional();
-				if (!valueOpt.isPresent()) {
-					// ignore not available channels
-					return;
-				}
-				Object value = valueOpt.get();
-				String address = channel.address().toString();
-				try {
-					switch (channel.getType()) {
-					case BOOLEAN:
-						point.addField(address, ((Boolean) value ? 1 : 0));
-						break;
-					case SHORT:
-						point.addField(address, (Short) value);
-						break;
-					case INTEGER:
-						point.addField(address, (Integer) value);
-						break;
-					case LONG:
-						point.addField(address, (Long) value);
-						break;
-					case FLOAT:
-						point.addField(address, (Float) value);
-						break;
-					case DOUBLE:
-						point.addField(address, (Double) value);
-						break;
-					case STRING:
-						point.addField(address, (String) value);
-						break;
+		if (++this.cycleCount >= this.config.noOfCycles()) {
+			this.cycleCount = 0;
+			final Builder point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.SECONDS);
+			final AtomicBoolean addedAtLeastOneChannelValue = new AtomicBoolean(false);
+
+			this.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
+				component.channels().forEach(channel -> {
+					Optional<?> valueOpt = channel.value().asOptional();
+					if (!valueOpt.isPresent()) {
+						// ignore not available channels
+						return;
 					}
-				} catch (IllegalArgumentException e) {
-					this.log.warn("Unable to add Channel [" + address + "] value [" + value + "]: " + e.getMessage());
-					return;
-				}
-				addedAtLeastOneChannelValue.set(true);
+					Object value = valueOpt.get();
+					String address = channel.address().toString();
+					try {
+						switch (channel.getType()) {
+						case BOOLEAN:
+							point.addField(address, ((Boolean) value ? 1 : 0));
+							break;
+						case SHORT:
+							point.addField(address, (Short) value);
+							break;
+						case INTEGER:
+							point.addField(address, (Integer) value);
+							break;
+						case LONG:
+							point.addField(address, (Long) value);
+							break;
+						case FLOAT:
+							point.addField(address, (Float) value);
+							break;
+						case DOUBLE:
+							point.addField(address, (Double) value);
+							break;
+						case STRING:
+							point.addField(address, (String) value);
+							break;
+						}
+					} catch (IllegalArgumentException e) {
+						this.log.warn(
+								"Unable to add Channel [" + address + "] value [" + value + "]: " + e.getMessage());
+						return;
+					}
+					addedAtLeastOneChannelValue.set(true);
+				});
 			});
-		});
 
-		if (addedAtLeastOneChannelValue.get()) {
-			try {
-				this.influxConnector.write(point.build());
-			} catch (OpenemsException e) {
-				this.logError(this.log, e.getMessage());
+			if (addedAtLeastOneChannelValue.get()) {
+				try {
+					this.influxConnector.write(point.build());
+				} catch (OpenemsException e) {
+					this.logError(this.log, e.getMessage());
+				}
 			}
+
 		}
 	}
 

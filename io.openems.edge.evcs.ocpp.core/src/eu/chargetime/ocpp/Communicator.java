@@ -231,9 +231,8 @@ public abstract class Communicator {
 	 * @param errorDescription a associated error description.
 	 */
 	public void sendCallError(String uniqueId, String action, String errorCode, String errorDescription) {
-		logger.error(
-				"An error occurred. Sending this information: uniqueId {}: action: {}, errorCore: {}, errorDescription: {}",
-				uniqueId, action, errorCode, errorDescription);
+		logger.error("An error occurred. Sending this information: uniqueId " + uniqueId + ": action: " + action
+				+ ", errorCore: " + errorCode + ", errorDescription: " + errorDescription);
 		try {
 			radio.send(makeCallError(uniqueId, action, errorCode, errorDescription));
 		} catch (NotConnectedException ex) {

@@ -27,18 +27,11 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 
 	private final ChannelAddress channelAddress;
 	private final Clock clock;
+	private boolean executed;
+	private long currentEnergy;
+	LocalDateTime prevHour = LocalDateTime.now();
 
-	private static class EnergyData {
-		private final long total;
-		private final Integer delta;
-
-		public EnergyData(long total, Integer delta) {
-			this.total = total;
-			this.delta = delta;
-		}
-	}
-
-	private final TreeMap<LocalDateTime, EnergyData> hourlyEnergyData = new TreeMap<LocalDateTime, EnergyData>();
+	private final TreeMap<LocalDateTime, Integer> hourlyEnergyData = new TreeMap<LocalDateTime, Integer>();
 
 	protected AbstractPersistenceModelPredictor(Clock clock, String componentId,
 			io.openems.edge.common.channel.ChannelId channelId) {
@@ -95,17 +88,18 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 		long energy = energyOpt.get();
 
 		LocalDateTime currentHour = LocalDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0);
-		Entry<LocalDateTime, EnergyData> lastEntry = this.hourlyEnergyData.lastEntry();
 
-		if (lastEntry == null) {
-			// Map is still empty -> record the current value
-			this.hourlyEnergyData.put(currentHour, new EnergyData(energy, null));
-
-		} else if (currentHour.isAfter(lastEntry.getKey())) {
+		if (!executed) {
+			// First time execution - Map is still empty
+			this.currentEnergy = energy;
+			this.prevHour = currentHour;
+			this.executed = true;
+		} else if (currentHour.isAfter(this.prevHour)) {
 			// hour changed -> calculate delta and record value
-			int delta = (int) (energy - lastEntry.getValue().total);
-			this.hourlyEnergyData.put(currentHour, new EnergyData(energy, delta));
-
+			int delta = (int) (energy - this.currentEnergy);
+			this.hourlyEnergyData.put(this.prevHour, delta);
+			this.prevHour = currentHour;
+			this.currentEnergy = energy;
 		} else {
 			// hour did not change -> return
 			return;
@@ -122,8 +116,8 @@ public abstract class AbstractPersistenceModelPredictor extends AbstractOpenemsC
 		Integer[] values = new Integer[24];
 		int i = Math.max(0, 24 - this.hourlyEnergyData.size());
 
-		for (Entry<LocalDateTime, EnergyData> entry : this.hourlyEnergyData.entrySet()) {
-			values[i++] = entry.getValue().delta;
+		for (Entry<LocalDateTime, Integer> entry : this.hourlyEnergyData.entrySet()) {
+			values[i++] = entry.getValue();
 		}
 		LocalDateTime currentHour = LocalDateTime.now(this.clock).withNano(0).withMinute(0).withSecond(0);
 

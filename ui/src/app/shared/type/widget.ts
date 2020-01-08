@@ -8,6 +8,7 @@ export enum WidgetClass {
     'Grid',
     'Production',
     'Consumption',
+    'Energymonitor'
 }
 
 export enum WidgetNature {
@@ -41,10 +42,16 @@ export class Widgets {
                     return true;
                 }
                 switch (clazz) {
-                    case 'Grid':
-                    case 'Consumption':
                     case 'Autarchy':
-                        return true; // Always show Grid + Consumption + Autarchy
+                    case 'Grid':
+                        return config.hasMeter();
+                    case 'Energymonitor':
+                    case 'Consumption':
+                        if (config.hasMeter() == true || config.hasProducer() == true || config.hasStorage() == true) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     case 'Storage':
                         return config.hasStorage();
                     case 'Production':
