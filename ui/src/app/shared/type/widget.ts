@@ -23,7 +23,7 @@ export enum WidgetFactory {
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.CHP.SoC',
-    'Controller.ChannelSingleThreshold'
+    'Controller.IO.ChannelSingleThreshold'
 }
 
 export class Widget {
