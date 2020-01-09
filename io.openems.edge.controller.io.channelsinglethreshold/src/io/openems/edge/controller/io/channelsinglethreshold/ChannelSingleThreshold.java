@@ -1,4 +1,4 @@
-package io.openems.edge.controller.channelsinglethreshold;
+package io.openems.edge.controller.io.channelsinglethreshold;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -28,7 +28,7 @@ import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.ChannelSingleThreshold", //
+		name = "Controller.IO.ChannelSingleThreshold", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

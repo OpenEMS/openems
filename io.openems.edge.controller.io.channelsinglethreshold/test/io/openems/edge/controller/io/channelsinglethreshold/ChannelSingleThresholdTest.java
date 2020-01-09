@@ -1,4 +1,4 @@
-package io.openems.edge.controller.channelsinglethreshold;
+package io.openems.edge.controller.io.channelsinglethreshold;
 
 import org.junit.Test;
 

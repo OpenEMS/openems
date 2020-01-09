@@ -1,10 +1,10 @@
-package io.openems.edge.controller.channelsinglethreshold;
+package io.openems.edge.controller.io.channelsinglethreshold;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller Channel Single Threshold", //
+		name = "Controller IO Channel Single Threshold", //
 		description = "This controller switches a Digital Output channel ON, if the value of the input channel is above a configured threshold. This behaviour can be inverted using the 'invert' config option.")
 @interface Config {
 
@@ -38,5 +38,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour is inverted, i.e. the Digital Output channel is switched OFF if the value of the input channel is within a configured threshold")
 	boolean invert() default false;
 
-	String webconsole_configurationFactory_nameHint() default "Controller Channel single Threshold [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Controller IO Channel Single Threshold [{id}]";
 }
