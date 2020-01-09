@@ -153,7 +153,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			} else {
 				this.changeState(State.ABOVE_THRESHOLD);
 			}
-			this.setOutput(outputChannel, currentValueOpt, false);
+			this.setOutput(outputChannel, currentValueOpt, false ^ this.config.invert());
 			break;
 
 		case BELOW_THRESHOLD:
@@ -163,7 +163,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			if (value >= this.config.threshold()) {
 				this.changeState(State.ABOVE_THRESHOLD);
 			}
-			this.setOutput(outputChannel, currentValueOpt, false);
+			this.setOutput(outputChannel, currentValueOpt, false ^ this.config.invert());
 			break;
 
 		case ABOVE_THRESHOLD:
@@ -173,7 +173,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			if (value <= this.config.threshold()) {
 				this.changeState(State.BELOW_THRESHOLD);
 			}
-			this.setOutput(outputChannel, currentValueOpt, true);
+			this.setOutput(outputChannel, currentValueOpt, true ^ this.config.invert());
 		}
 	}
 
@@ -203,16 +203,14 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	 * @param currentValueOpt2
 	 * @param outputChannel2
 	 *
-	 * @param value            true to switch ON, false to switch ON; is inverted if
-	 *                         'invertOutput' config is set
+	 * @param value            true to switch ON, false to switch ON
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setOutput(WriteChannel<Boolean> outputChannel, Optional<Boolean> currentValueOpt, boolean value)
 			throws OpenemsNamedException {
-		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.config.invert())) {
-			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
-					+ (value ^ this.config.invert() ? "ON" : "OFF") + ".");
-			outputChannel.setNextWriteValue(value ^ this.config.invert());
+		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
+			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value ? "ON" : "OFF") + ".");
+			outputChannel.setNextWriteValue(value);
 		}
 	}
 }
