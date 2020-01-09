@@ -54,14 +54,14 @@ OpenEMS is funded by several federal and EU funding projects. If you are a devel
 * OpenEMS Edge 
 * OpenEMS Backend
 
-Copyright (C) 2016-2019 FENECON GmbH.
+Copyright (C) 2016-2020 FENECON GmbH.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [Eclipse Public License version 2.0](LICENSE-EPL-2.0). 
 
  * OpenEMS UI
 
-Copyright (C) 2016-2019 FENECON GmbH.
+Copyright (C) 2016-2020 FENECON GmbH.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [GNU Affero General Public License version 3](LICENSE-AGPL-3.0).

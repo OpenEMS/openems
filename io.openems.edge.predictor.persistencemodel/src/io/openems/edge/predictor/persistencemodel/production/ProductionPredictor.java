@@ -43,7 +43,7 @@ public class ProductionPredictor extends AbstractPersistenceModelPredictor
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.alias(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Deactivate
