@@ -3,6 +3,8 @@ package io.openems.edge.battery.microcare.ubmu;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,10 +26,13 @@ import io.openems.edge.bridge.mccomms.api.AbstractMCCommsComponent;
 import io.openems.edge.bridge.mccomms.packet.MCCommsBitSetElement;
 import io.openems.edge.bridge.mccomms.packet.MCCommsElement;
 import io.openems.edge.bridge.mccomms.packet.MCCommsPacket;
+import io.openems.edge.bridge.mccomms.packet.MCCommsScalerDuplexElement;
+import io.openems.edge.bridge.mccomms.packet.MCCommsScalerElement;
 import io.openems.edge.bridge.mccomms.task.ListenTask;
 import io.openems.edge.bridge.mccomms.task.QueryTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -67,21 +72,103 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		 * Signed value representing the current being used to charge the battery being
 		 * managed by the MCUBMU
 		 * <ul>
-		 * <li>Type: Integer</li>
-		 * <li>Unit: MilliAmperes</li>
+		 * <li>Type: Double</li>
+		 * <li>Unit: Amperes</li>
 		 * </ul>
 		 */
-		CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
+		CHARGE_CURRENT(Doc.of(OpenemsType.DOUBLE).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
 		/**
 		 * Signed value representing the current flowing out of the battery being
 		 * managed by the MCUBMU
 		 * <ul>
-		 * <li>Type: Integer</li>
-		 * <li>Unit: MilliAmperes</li>
+		 * <li>Type: Double</li>
+		 * <li>Unit: Amperes</li>
 		 * </ul>
 		 */
-		DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE));
-
+		DISCHARGE_CURRENT(Doc.of(OpenemsType.DOUBLE).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for percentage values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		PERCENTAGE_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for voltage limit values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		VOLTAGE_LIMIT_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for battery voltage values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		BATTERY_VOLTAGE_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for cell voltage values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		CELL_VOLTAGE_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for battery current values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		BATTERY_CURRENT_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for battery amp hour values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		BATTERY_AMP_HOURS_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for battery watt hour values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		BATTERY_WATT_HOURS_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Value for the scaling factor for cell celsius temperature values
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: None</li>
+		 * </ul>
+		 */
+		CELL_TEMPERATURE_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
+		//TODO JavaDoc comments
+	    GENERAL_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_HIGH_VOLTAGE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_LOW_VOLTAGE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_HIGH_TEMPERATURE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_LOW_TEMPERATURE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_HIGH_TEMPERATURE_CHARGE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_LOW_TEMPERATURE_CHARGE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_HIGH_DISCHARGE_CURRENT_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_HIGH_CHARGE_CURRENT_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    CONTACTOR_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    SHORT_CIRCUIT_OR_OPEN_CELL_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+		BMS_INTERNAL_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    CELL_IMBALANCE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BATTERY_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BMU_CRITICAL_VALUE_READ_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
+	    BAD_CONFIGURATION_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY));
+	    
+	    
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -100,10 +187,65 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		super(OpenemsComponent.ChannelId.values(), Battery.ChannelId.values(), ChannelId.values());
 		this.queryTasks = new HashSet<>();
 		this.netCurrentChannelUpdater = new NetCurrentChannelUpdater();
-		channel(ChannelId.DISCHARGE_CURRENT)
+		
+		//Calculate net current on value updates
+		((BooleanReadChannel) channel(ChannelId.DISCHARGE_CURRENT))
 				.onSetNextValue(value -> netCurrentChannelUpdater.dischargeCurrentChannelUpdated());
-		channel(ChannelId.CHARGE_CURRENT)
+		((BooleanReadChannel) channel(ChannelId.CHARGE_CURRENT))
 				.onSetNextValue(value -> netCurrentChannelUpdater.chargeCurrentChannelUpdated());
+		
+		//reset READY_FOR_WORKING to true when image is processed
+		channel(io.openems.edge.battery.api.Battery.ChannelId.READY_FOR_WORKING).onUpdate(value -> {
+			channel(io.openems.edge.battery.api.Battery.ChannelId.READY_FOR_WORKING).setNextValue(true);
+		});
+		
+		//callbacks to set READY_FOR_WORKING state on error channel value updates
+		((BooleanReadChannel) channel(ChannelId.GENERAL_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_HIGH_VOLTAGE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BAD_CONFIGURATION_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_COMMUNICATION_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_HIGH_CHARGE_CURRENT_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_HIGH_DISCHARGE_CURRENT_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_HIGH_TEMPERATURE_CHARGE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_HIGH_TEMPERATURE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_HIGH_VOLTAGE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_LOW_TEMPERATURE_CHARGE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_LOW_TEMPERATURE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BATTERY_LOW_VOLTAGE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BMS_INTERNAL_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.BMU_CRITICAL_VALUE_READ_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.CELL_IMBALANCE_ERROR))
+				.onSetNextValue(this::setReadyState);
+		((BooleanReadChannel) channel(ChannelId.SHORT_CIRCUIT_OR_OPEN_CELL_ERROR))
+				.onSetNextValue(this::setReadyState);
+
+		//static scaler value
+		channel(ChannelId.PERCENTAGE_SCALER).setNextValue(0.01);
+		channel(ChannelId.PERCENTAGE_SCALER).nextProcessImage();
+	}
+	
+	/**
+	 * Callback method to set the ready state to false if an error is present
+	 * @param errorIsPresent true if an error is present
+	 */
+	private void setReadyState(Value<Boolean> errorIsPresent) {
+		if (errorIsPresent.get()) {
+			channel(io.openems.edge.battery.api.Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
+		}
 	}
 
 	/**
@@ -132,44 +274,77 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		this.config = config;
 		try {
 			// noinspection unchecked
-			queryTasks.add(constructQueryTask(56, 57,
-					MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.SOC)).setScaleFactor(0.01),
-					MCCommsElement.newInstanceFromChannel(9, 2, channel(Battery.ChannelId.SOH)).setScaleFactor(0.01),
-					MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.VOLTAGE))
-							.setScaleFactor(0.001),
-					MCCommsElement.newInstanceFromChannel(13, 2, channel(ChannelId.CHARGE_CURRENT)).setScaleFactor(100),
-					MCCommsElement.newInstanceFromChannel(15, 2, channel(ChannelId.DISCHARGE_CURRENT))
-							.setScaleFactor(100),
-					MCCommsBitSetElement.newInstanceFromChannels(18, 2, channel(Battery.ChannelId.READY_FOR_WORKING)))
-							.queryRepeatedly(config.RTDrefreshMS(), TimeUnit.MILLISECONDS));
-			queryTasks.add(constructQueryTask(58, 59,
-					MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE))
-							.setScaleFactor(0.001),
-					MCCommsElement.newInstanceFromChannel(9, 2, channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE))
-							.setScaleFactor(0.001),
-					MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.CHARGE_MAX_CURRENT))
-							.setScaleFactor(0.1),
-					MCCommsElement.newInstanceFromChannel(13, 2, channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT))
-							.setScaleFactor(0.1)).queryRepeatedly(config.RTDrefreshMS(), TimeUnit.MILLISECONDS));
-			queryTasks.add(constructQueryTask(60, 61,
-					MCCommsElement.newInstanceFromChannel(7, 2, channel(Battery.ChannelId.MAX_CELL_VOLTAGE)),
-					MCCommsElement.newInstanceFromChannel(11, 2, channel(Battery.ChannelId.MIN_CELL_VOLTAGE)),
-					MCCommsElement.newInstanceFromChannel(17, 1, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE))
+			//RTD1
+			queryTasks.add
+				(
+					constructQueryTask(56, 57,
+						MCCommsScalerDuplexElement.newInstanceFromChannels(17, channel(ChannelId.BATTERY_VOLTAGE_SCALER), channel(ChannelId.BATTERY_CURRENT_SCALER)),
+						MCCommsElement.newInstanceFromChannel(7, 2, channel(ChannelId.PERCENTAGE_SCALER), channel(Battery.ChannelId.SOC)),
+						MCCommsElement.newInstanceFromChannel(9, 2, channel(ChannelId.PERCENTAGE_SCALER), channel(Battery.ChannelId.SOH)),
+						MCCommsElement.newInstanceFromChannel(11, 2, channel(ChannelId.BATTERY_VOLTAGE_SCALER), channel(Battery.ChannelId.VOLTAGE)),
+						MCCommsElement.newInstanceFromChannel(13, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(ChannelId.CHARGE_CURRENT)),
+						MCCommsElement.newInstanceFromChannel(15, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(ChannelId.DISCHARGE_CURRENT)),
+						MCCommsBitSetElement.newInstanceFromChannels(18, 2, 
+							channel(ChannelId.GENERAL_ERROR),
+							channel(ChannelId.BATTERY_HIGH_VOLTAGE_ERROR),
+							channel(ChannelId.BATTERY_LOW_VOLTAGE_ERROR),
+							channel(ChannelId.BATTERY_HIGH_TEMPERATURE_ERROR),
+							channel(ChannelId.BATTERY_LOW_TEMPERATURE_ERROR),
+							channel(ChannelId.BATTERY_HIGH_TEMPERATURE_CHARGE_ERROR),
+							channel(ChannelId.BATTERY_LOW_TEMPERATURE_CHARGE_ERROR),
+							channel(ChannelId.BATTERY_HIGH_DISCHARGE_CURRENT_ERROR),
+							channel(ChannelId.BATTERY_HIGH_CHARGE_CURRENT_ERROR),
+							channel(ChannelId.CONTACTOR_ERROR),
+							channel(ChannelId.SHORT_CIRCUIT_OR_OPEN_CELL_ERROR),
+							channel(ChannelId.BMS_INTERNAL_ERROR),
+							channel(ChannelId.CELL_IMBALANCE_ERROR),
+							channel(ChannelId.BATTERY_COMMUNICATION_ERROR),
+							channel(ChannelId.BMU_CRITICAL_VALUE_READ_ERROR),
+							channel(ChannelId.BAD_CONFIGURATION_ERROR)							
+						)
+					).queryRepeatedly(config.RTDrefreshMS(), TimeUnit.MILLISECONDS)
+				);
+			//RTD2
+			queryTasks.add
+				(
+					constructQueryTask(58, 59,
+						MCCommsScalerDuplexElement.newInstanceFromChannels(17, channel(ChannelId.VOLTAGE_LIMIT_SCALER), channel(ChannelId.BATTERY_CURRENT_SCALER)),
+						MCCommsElement.newInstanceFromChannel(7, 2, channel(ChannelId.VOLTAGE_LIMIT_SCALER), channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)),
+						MCCommsElement.newInstanceFromChannel(9, 2, channel(ChannelId.VOLTAGE_LIMIT_SCALER), channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)),
+						MCCommsElement.newInstanceFromChannel(11, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(Battery.ChannelId.CHARGE_MAX_CURRENT))
 							.setUnsigned(false),
-					MCCommsElement.newInstanceFromChannel(19, 1, channel(Battery.ChannelId.MIN_CELL_TEMPERATURE))
-							.setUnsigned(false)).queryRepeatedly(config.statusRefreshMS(), TimeUnit.MILLISECONDS));
-			queryTasks
-					.add(constructQueryTask(64, 65,
-							MCCommsElement.newInstanceFromChannel(19, 2, channel(Battery.ChannelId.CAPACITY))
-									.setScaleFactor(100)).queryRepeatedly(config.statusRefreshMS(),
-											TimeUnit.MILLISECONDS));
+						MCCommsElement.newInstanceFromChannel(13, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT))
+							.setUnsigned(false)
+					).queryRepeatedly(config.RTDrefreshMS(), TimeUnit.MILLISECONDS)
+				);
+			//Cell Data
+			queryTasks.add
+				(
+					constructQueryTask(60, 61,
+						MCCommsScalerElement.newInstanceFromChannel(20, channel(ChannelId.CELL_VOLTAGE_SCALER)),
+						MCCommsElement.newInstanceFromChannel(7, 2, channel(ChannelId.CELL_VOLTAGE_SCALER), channel(Battery.ChannelId.MAX_CELL_VOLTAGE)),
+						MCCommsElement.newInstanceFromChannel(11, 2, channel(ChannelId.CELL_VOLTAGE_SCALER), channel(Battery.ChannelId.MIN_CELL_VOLTAGE)),
+						MCCommsElement.newInstanceFromChannel(17, 1, null, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE))
+							.setUnsigned(false),
+						MCCommsElement.newInstanceFromChannel(19, 1, null, channel(Battery.ChannelId.MIN_CELL_TEMPERATURE))
+							.setUnsigned(false)
+					).queryRepeatedly(config.statusRefreshMS(), TimeUnit.MILLISECONDS)
+				);
+			//Capacity
+			queryTasks.add
+				(
+					constructQueryTask(64, 65,
+							MCCommsScalerDuplexElement.newInstanceFromChannels(17, channel(ChannelId.BATTERY_WATT_HOURS_SCALER), channel(ChannelId.BATTERY_AMP_HOURS_SCALER)),
+							MCCommsElement.newInstanceFromChannel(19, 2,channel(ChannelId.BATTERY_WATT_HOURS_SCALER), channel(Battery.ChannelId.CAPACITY))
+					).queryRepeatedly(config.statusRefreshMS(),TimeUnit.MILLISECONDS)
+				);
 		} catch (OpenemsException e) {
 			logError(logger, e.getMessage());
 		}
 	}
 
 	/**
-	 * Convenenience method to construct {@link QueryTask}s for this component
+	 * Convenience method to construct {@link QueryTask}s for this component
 	 * 
 	 * @param queryCommand           the command value to use when querying the
 	 *                               MCUBMU
@@ -181,7 +356,6 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 	 */
 	private QueryTask constructQueryTask(int queryCommand, int responseCommand,
 			MCCommsElement... responsePacketElements) throws OpenemsException {
-		// noinspection unchecked
 		return QueryTask.newCommandOnlyQuery(getMCCommsBridge(), config.openemsMCCommsAddress(),
 				config.UBMUmcCommsAddress(), queryCommand, config.queryTimeoutMS(), TimeUnit.MILLISECONDS,
 				new ListenTask(config.UBMUmcCommsAddress(), config.openemsMCCommsAddress(), responseCommand,

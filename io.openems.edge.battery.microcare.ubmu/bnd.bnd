@@ -16,7 +16,8 @@ Export-Package: \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.bridge.mccomms;version=latest,\
-	io.openems.edge.battery.api;version=latest
+	io.openems.edge.battery.api;version=latest,\
+	slf4j.api
 
 -testpath: ${testpath}
 
