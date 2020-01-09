@@ -8,6 +8,10 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.evcs.api.MeasuringEvcs;
+import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.core.OcppInformations;
 import eu.chargetime.ocpp.feature.profile.ServerCoreEventHandler;
 import eu.chargetime.ocpp.model.core.AuthorizationStatus;
 import eu.chargetime.ocpp.model.core.AuthorizeConfirmation;
@@ -33,10 +37,6 @@ import eu.chargetime.ocpp.model.core.StatusNotificationRequest;
 import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
-import io.openems.edge.evcs.api.MeasuringEvcs;
-import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
-import io.openems.edge.evcs.ocpp.core.OcppInformations;
 
 public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
@@ -268,12 +268,11 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		server.logInfo(this.log, "Handle StopTransactionRequest: " + request);
 
+		StopTransactionConfirmation response = new StopTransactionConfirmation();
 		IdTagInfo tag = new IdTagInfo();
 		tag.setParentIdTag(request.getIdTag());
 		tag.setStatus(AuthorizationStatus.Accepted);
 		tag.validate();
-		
-		StopTransactionConfirmation response = new StopTransactionConfirmation();
 		response.setIdTagInfo(tag);
 		response.validate();
 		return response;
@@ -304,14 +303,13 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	/**
 	 * Get the EVCSs that are in this session.
-	 * 
 	 * <p>
 	 * One charging station has one session but can have more connectors. Every
 	 * connector is one EVCS in our System because each can be managed and monitored
 	 * by itself.
 	 * 
-	 * @param sessionIndex given session
-	 * @return List of AbstractOcppEvcsComponent
+	 * @param sessionIndex
+	 * @return
 	 */
 	private List<AbstractOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
 		int index = this.server.getActiveSessions().indexOf(new EvcsSession(sessionIndex));
@@ -320,14 +318,13 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	/**
 	 * Get the EVCS that are in this session and with the given connector id.
-	 * 
 	 * <p>
 	 * One charging station has one session but can have more connectors. Every
 	 * connector is one EVCS in our System because each can be managed and monitored
 	 * by itself.
 	 * 
-	 * @param sessionIndex given session
-	 * @param connectorId  given connector id
+	 * @param sessionIndex
+	 * @param connectorId
 	 * @return EVCS Component with the given session and connectorId.
 	 */
 	private AbstractOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
@@ -343,9 +340,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	}
 
 	/**
-	 * Return the decimal value of the given Hexadecimal value.
+	 * Return the decimal value of the given Hexadecimal value
 	 * 
-	 * @param hex given value in hex
+	 * @param hex
 	 * @return Decimal value as String
 	 */
 	public String fromHexToDezString(String hex) {
@@ -354,9 +351,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	}
 
 	/**
-	 * Divide the given String value by thousand.
+	 * Divide the given String value by thousand
 	 * 
-	 * @param val value
+	 * @param val
 	 * @return Value / 1000 as String
 	 */
 	private String divideByThousand(String val) {

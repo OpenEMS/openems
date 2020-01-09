@@ -60,7 +60,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 				this.getChargingstationCommunicationFailed().setNextValue(false);
 			}
 			if (this.status().getNextValue().asEnum().equals(Status.CHARGING_FINISHED)) {
-				this.resetMeasuredChannelValues();
+				this.resetChannelValues();
 			}
 			writeHandler.run();
 
@@ -78,7 +78,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		/**
 		 * Session Id.
 		 * 
-		 * <p>
 		 * Id is set if there is a new Session between - the EVCS implemented by this
 		 * Component and the Server. If this value is empty, no communication was
 		 * established
@@ -94,7 +93,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		/**
 		 * Ocpp id.
 		 * 
-		 * <p>
 		 * Id that is defined in every EVCS which implements OCPP
 		 * 
 		 * <ul>
@@ -107,7 +105,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		/**
 		 * Ocpp connector id.
 		 * 
-		 * <p>
 		 * Id that is defined for every connector on an EVCS that implements OCPP.
 		 * Defines which plug is used (Like two plugs/connectors in ABL).
 		 * 
@@ -163,10 +160,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	 */
 	public abstract OcppRequests getSupportedRequests();
 
-	/**
-	 * Reset all measured channel values.
-	 */
-	private void resetMeasuredChannelValues() {
+	private void resetChannelValues() {
 		for (MeasuringEvcs.ChannelId c : MeasuringEvcs.ChannelId.values()) {
 			Channel<?> channel = this.channel(c);
 			channel.setNextValue(null);
@@ -177,12 +171,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	/**
 	 * Session Id.
 	 * 
-	 * <p>
 	 * Id is set if there is a new Session between - the EVCS implemented by this
 	 * Component and the Server. If this value is empty, no communication was
 	 * established.
-	 * 
-	 * @return StringReadChannel
 	 */
 	public StringReadChannel getChargingSessionId() {
 		return this.channel(ChannelId.CHARGING_SESSION_ID);
@@ -191,10 +182,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	/**
 	 * Ocpp id.
 	 * 
-	 * <p>
 	 * Id that is defined in every EVCS which implements OCPP.
-	 * 
-	 * @return StringReadChannel
 	 */
 	public StringReadChannel getOcppId() {
 		return this.channel(ChannelId.OCPP_ID);
@@ -203,11 +191,8 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	/**
 	 * Ocpp connector id.
 	 * 
-	 * <p>
 	 * Id that is defined for every connector on an EVCS that implements OCPP.
 	 * Defines which plug is used (Like two plugs/connectors in ABL).
-	 * 
-	 * @return StringReadChannel
 	 */
 	public IntegerReadChannel getConnectorId() {
 		return this.channel(ChannelId.CONNECTOR_ID);
