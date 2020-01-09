@@ -74,8 +74,10 @@ public abstract class AbstractMCCommsComponent extends AbstractOpenemsComponent 
 		super.activate(context, id, alias, enabled);
 		this.mcCommsAddress = mcCommsAddress;
 		// update filter for 'MCCommsBridge'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "mcCommsBridge", mcCommsBridgeID)) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "MCCommsBridge", mcCommsBridgeID)) {
 			logInfo(logger, "reference filter updated");
+		} else {
+			logError(logger, "failed to update reference filter");
 		}
 	}
 

@@ -20,7 +20,7 @@ Export-Package: \
 	com.google.guava,\
 	com.fazecast.jSerialComm;version=2.5.1,\
 	io.openems.common;version=latest,\
-
+	slf4j.api
 -testpath: ${testpath}
 
 javac.source: 1.8

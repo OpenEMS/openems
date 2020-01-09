@@ -104,6 +104,10 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	 * {@see https://gta.fandom.com/wiki/Logger_Beer}
 	 */
 	private Logger logger;
+	/**
+	 * Config for this component
+	 */
+	private Config config;
 
 	/**
 	 * {@inheritDoc}
@@ -181,6 +185,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.config = config;
 		packetWindowNs = config.packetWindowMS() * 1000000L;
 		serialPort = SerialPort.getCommPort(config.serialPortDescriptor());
 		serialPort.setComPortParameters(9600, 8, 1, SerialPort.NO_PARITY);

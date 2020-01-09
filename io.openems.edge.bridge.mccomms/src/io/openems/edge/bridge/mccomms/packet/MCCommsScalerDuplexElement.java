@@ -59,7 +59,9 @@ public class MCCommsScalerDuplexElement extends MCCommsElement{
 	    firstScaler = Math.pow(10, a);
 	    secondScaler = Math.pow(10, b);
 	    firstScalerChannel.setNextValue(firstScaler);
+	    firstScalerChannel.nextProcessImage();
 	    secondScalerChannel.setNextValue(secondScaler);
+	    secondScalerChannel.nextProcessImage();
 		return this;
 	}
 

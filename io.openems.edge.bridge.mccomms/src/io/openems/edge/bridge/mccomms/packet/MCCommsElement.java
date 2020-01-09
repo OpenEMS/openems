@@ -48,7 +48,7 @@ public class MCCommsElement {
 	 * 					   value
 	 * @param channel      {@link Channel} to bind to this element
 	 */
-	MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, Channel<Double> scalerChannel, Channel<?> channel) {
+	protected MCCommsElement(Range<Integer> addressRange, boolean isUnsigned, Channel<Double> scalerChannel, Channel<?> channel) {
 		this.addressRange = addressRange;
 		this.valueBuffer = ByteBuffer.allocate(addressRange.upperEndpoint() - addressRange.lowerEndpoint() + 1);
 		this.isUnsigned = isUnsigned;
@@ -62,7 +62,7 @@ public class MCCommsElement {
 	 * @param addressRange the address of the scaler duplex element within the packet byte
 	 *                     order
 	 */
-	public MCCommsElement(int address) {
+	protected MCCommsElement(int address) {
 		this.addressRange = Range.closed(address, address);
 		this.valueBuffer = ByteBuffer.allocate(1);
 		this.isUnsigned = false;
@@ -205,6 +205,13 @@ public class MCCommsElement {
 			return 1.0;
 		}
 	}
+	
+	/**
+	 * @return the channel bound to the current element, which may be null
+	 */
+	public Channel<?> getBoundChannel() {
+		return this.channel;
+	}
 
 	/**
 	 * Reads the element value from the internal {@link ByteBuffer}, scales it, and
@@ -300,7 +307,7 @@ public class MCCommsElement {
 			case INTEGER:
 			case SHORT:
 			case LONG:
-				long channelValue = (long) (((long) channel.value().getOrError()) / getScaleFactor());
+				long channelValue = (long) ((Long) channel.value().getOrError() / getScaleFactor());
 				switch (valueBuffer.capacity()) {
 				case 0:
 					throw new OpenemsException("Zero length buffer");
@@ -321,7 +328,7 @@ public class MCCommsElement {
 				}
 				break;
 			case BOOLEAN:
-				Arrays.fill(valueBuffer.array(), ((boolean) channel.value().getOrError()) ? ((byte) 1) : ((byte) 0));
+				Arrays.fill(valueBuffer.array(), ((Boolean) channel.value().getOrError()) ? ((byte) 1) : ((byte) 0));
 				break;
 			default:
 				throw new OpenemsException("Type not supported: " + channel.getType().name());
