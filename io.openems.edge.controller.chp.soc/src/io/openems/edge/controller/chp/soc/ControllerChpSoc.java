@@ -66,6 +66,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	private ChannelAddress outputChannelAddress;
 	private int lowThreshold = 0;
 	private int highThreshold = 0;
+	private boolean invertOutput = false;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -80,6 +81,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 		this.mode = config.mode();
 		this.channel(ChannelId.MODE).setNextValue(mode);
+		this.invertOutput = config.invert();
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
@@ -155,7 +157,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 				if (this.lowThreshold < value && value < this.highThreshold) {
 					break; // do nothing
 				}
-				this.on();
+				this.setOutput(true ^ this.invertOutput);
 				break;
 			case OFF:
 				/*
@@ -172,7 +174,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 				if (this.lowThreshold < value && value < this.highThreshold) {
 					break; // do nothing
 				}
-				this.off();
+				this.setOutput(false ^ this.invertOutput);
 				break;
 			}
 		} while (stateChanged); // execute again if the state changed
@@ -194,26 +196,6 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		} else {
 			return false;
 		}
-	}
-
-	/**
-	 * Switch the output ON.
-	 * 
-	 * @throws OpenemsNamedException    on error
-	 * @throws IllegalArgumentException on error
-	 */
-	private void on() throws IllegalArgumentException, OpenemsNamedException {
-		this.setOutput(true);
-	}
-
-	/**
-	 * Switch the output OFF.
-	 * 
-	 * @throws OpenemsNamedException    on error
-	 * @throws IllegalArgumentException on error
-	 */
-	private void off() throws IllegalArgumentException, OpenemsNamedException {
-		this.setOutput(false);
 	}
 
 	/**
