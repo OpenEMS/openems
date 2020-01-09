@@ -30,14 +30,8 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
-import { AwattarComponent } from './awattar/awattar.component';
-import { AwattarModalComponent } from './awattar/modal/modal.component';
-import { AwattarChartComponent } from './awattar/modal/chart.component';
-import { CorrentlyModalComponent } from './corrently/modal/modal.component';
-import { CorrentlyComponent } from './corrently/corrently.component';
-import { CorrentlyChartComponent } from './corrently/modal/chart.component';
-import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
-import { HeatingElementComponent } from './heatingelement/heatingelement.component';
+import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
+import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -47,8 +41,6 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     BrowserAnimationsModule
   ],
   entryComponents: [
-    AwattarModalComponent,
-    CorrentlyModalComponent,
     StorageModalComponent,
     GridModalComponent,
     ConsumptionModalComponent,
@@ -57,21 +49,16 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
-    HeatingElementModalComponent,
+    SinglethresholdModalComponent,
     EvcsPopoverComponent,
     ChpsocModalComponent,
     FixDigitalOutputModalComponent,
   ],
   declarations: [
-    AwattarComponent,
-    AwattarModalComponent,
-    AwattarChartComponent,
-    CorrentlyComponent,
-    CorrentlyModalComponent,
-    CorrentlyChartComponent,
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,
+    SinglethresholdComponent,
     EvcsComponent,
     ModbusApiComponent,
     StorageComponent,
@@ -84,7 +71,6 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     StorageModalComponent,
     GridModalComponent,
     ChpSocComponent,
-    HeatingElementComponent,
     ConsumptionModalComponent,
     ProductionModalComponent,
     EvcsClusterComponent,
@@ -96,7 +82,7 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     AutarchyModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
-    HeatingElementModalComponent,
+    SinglethresholdModalComponent,
     EvcsPopoverComponent,
     OfflineComponent
   ]
