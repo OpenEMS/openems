@@ -1,0 +1,25 @@
+Bundle-Name: OpenEMS Edge Controller TimeslotPeakshaving
+Bundle-Vendor: FENECON GmbH
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for io.openems.edge.controller.timeslotpeakshaving. \
+	
+
+Export-Package: io.openems.edge.controller.api
+Private-Package: io.openems.edge.controller.timeslotpeakshaving
+
+-includeresource: {readme.adoc}
+
+-buildpath: ${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	com.google.guava,\
+	slf4j.api
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
