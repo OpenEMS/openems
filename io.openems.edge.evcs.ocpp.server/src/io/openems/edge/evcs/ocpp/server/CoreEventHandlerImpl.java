@@ -153,7 +153,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL:
 						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_INTERVAL:
 							if (unit.equals(Unit.KWH)) {
-								val = divideByThousand(val);
+								correctValue = divideByThousand(val);
 							}
 							break;
 
@@ -162,7 +162,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_INTERVAL:
 						case CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_INTERVAL:
 							if (unit.equals(Unit.KVARH)) {
-								val = divideByThousand(val);
+								correctValue = divideByThousand(val);
 							}
 							break;
 
@@ -170,19 +170,19 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_POWER_ACTIVE_IMPORT:
 						case CORE_METER_VALUES_POWER_OFFERED:
 							if (unit.equals(Unit.KW)) {
-								val = divideByThousand(val);
+								correctValue = divideByThousand(val);
 							}
 							break;
 
 						case CORE_METER_VALUES_POWER_REACTIVE_EXPORT:
 						case CORE_METER_VALUES_POWER_REACTIVE_IMPORT:
 							if (unit.equals(Unit.KVAR)) {
-								val = divideByThousand(val);
+								correctValue = divideByThousand(val);
 							}
 							break;
 
 						case CORE_METER_VALUES_VOLTAGE:
-							evcs.getVoltage().setNextValue(Math.round(Double.valueOf(val)));
+							correctValue = (int) Math.round(Double.valueOf(val));
 							break;
 
 						case CORE_METER_VALUES_RPM:
@@ -264,7 +264,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		tag.setParentIdTag(request.getIdTag());
 		tag.setStatus(AuthorizationStatus.Accepted);
 		tag.validate();
-		
+
 		StopTransactionConfirmation response = new StopTransactionConfirmation();
 		response.setIdTagInfo(tag);
 		response.validate();
