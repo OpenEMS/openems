@@ -21,7 +21,6 @@ public class PhaseDef {
 	long totalPhaseTime = 0;
 	long totalPhasePower = 0;
 	ChannelAddress outputChannelAddress;
-	int powerOfPhase = 0;
 
 	ComponentManager componentManager;
 	boolean isSwitchOn = false;
@@ -72,7 +71,16 @@ public class PhaseDef {
 			// phase one is not started, or still running
 			totalPhaseTime = 0;
 		}
+		// just for testing
+		//displayObject();
 	}
+	
+//	private void displayObject() {
+//		this.logInfo(this.LOGGER, " phaseTimeOn : "+ phaseTimeOn +
+//		 ", phaseTimeOff : " + phaseTimeOff +
+//		", totalPhaseTime : " + totalPhaseTime +
+//		", totalPhasePower : " + totalPhasePower );
+//	}
 
 	/**
 	 * function to calculates the Kilowatthour, using the power of each phase

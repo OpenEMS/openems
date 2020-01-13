@@ -68,7 +68,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
-	private final TemporalAmount hysteresis = Duration.ofMinutes(5);
+	private final TemporalAmount hysteresis = Duration.ofSeconds(5);
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	private ChannelAddress inputChannelAddress;
@@ -77,22 +77,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private ChannelAddress outputChannelAddress3;
 	protected int powerOfPhase = 0;
 
-	LocalDateTime phaseTimeOn = null;
-	LocalDateTime phaseTimeOff = null;
-	LocalDateTime phaseOneTimeOn = null;
-	LocalDateTime phaseOneTimeOff = null;
-	LocalDateTime phaseTwoTimeOn = null;
-	LocalDateTime phaseTwoTimeOff = null;
-	LocalDateTime phaseThreeTimeOn = null;
-	LocalDateTime phaseThreeTimeOff = null;
-
-	long totalPhaseOneTime = 0;
-	long totalPhaseTwoTime = 0;
-	long totalPhaseThreeTime = 0;
 	long totalPhaseTime = 0;
-	double totalPhaseOnePower = 0;
-	double totalPhaseTwoPower = 0;
-	double totalPhaseThreePower = 0;
 	double totalPhasePower = 0;
 
 	private static enum Phase {
@@ -280,40 +265,33 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		// Get the input channel addresses
 		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
 		int gridActivePower = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
-		long excessPower;
+		this.logInfo(this.log, "gridActivePower : "+ gridActivePower);
+		long excessPower = 0;
 
 		// Calculate the Excess power
 		if (gridActivePower > 0) {
 			excessPower = 0;
 		} else {
 			excessPower = Math.abs(gridActivePower);
-			excessPower += noRelaisSwitchedOn * 2000;
+			excessPower += noRelaisSwitchedOn * powerOfPhase;
+			this.logInfo(this.log, "excess power is 5 : "+ excessPower);
 		}
+		this.logInfo(this.log, "No of relais : "+ noRelaisSwitchedOn);
 
 		// resetting the variables if there is change in the day.
 		if (checkChangeInDay()) {
-
-			phaseTimeOn = null;
-			phaseTimeOff = null;
-			phaseOneTimeOn = null;
-			phaseOneTimeOff = null;
-			phaseTwoTimeOn = null;
-			phaseTwoTimeOff = null;
-			phaseThreeTimeOn = null;
-			phaseThreeTimeOff = null;
-
-			totalPhaseOneTime = 0;
-			totalPhaseTwoTime = 0;
-			totalPhaseThreeTime = 0;
-			totalPhaseTime = 0;
-			totalPhaseOnePower = 0;
-			totalPhaseTwoPower = 0;
-			totalPhaseThreePower = 0;
-			totalPhasePower = 0;
+			
+			for (PhaseDef p : phases.values()) {
+				p.phaseTimeOn = null;
+				p.phaseTimeOff = null;
+				p.totalPhasePower = 0;
+				p.totalPhaseTime = 0;
+			}
 
 			minTime = this.config.minTime();
 			minKwh = this.config.minkwh();
 			currentEndtime = LocalTime.parse(this.config.endTime());
+			return;
 		}
 
 		// Setting the outputchannel for each phases
@@ -328,7 +306,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 
 		// boolean isEndTimeCheck = false;
-		if (LocalTime.parse(formatter.format(LocalTime.now())).isBefore(currentEndtime) && !this.isEndTime) {
+		System.out.println("Local time : "+ LocalTime.parse(formatter.format(LocalTime.now())));
+		System.out.println("Current End time : " + currentEndtime);
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime.minusSeconds((long) this.minTime)) && !this.isEndTime) {
 			switch (this.priority) {
 			case TIME:
 				this.checkMinTime(excessPower);
@@ -412,9 +392,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 
 	private void checkMinTime(long excessPower) throws IllegalArgumentException, OpenemsNamedException {
+		System.out.println("totalPhaseTime : " + this.totalPhaseTime);
+		System.out.println("mintime : " + minTime);
 		if (this.totalPhaseTime < minTime) {
 			this.isNoEndTime = false;
-			long deltaTime = (long) (minTime - this.totalPhaseTime);
+			//long deltaTime = (long) (minTime - this.totalPhaseTime);
 			// Switch-On all the 3 Phases
 			for (PhaseDef p : phases.values()) {
 				p.isSwitchOn = true;
@@ -422,7 +404,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			this.computeTime(phases);
 			noRelaisSwitchedOn = 3;
 			// update the endtime
-			currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
+			//currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
 			// update the minTime
 			this.minTime = 0;
 		} else {
