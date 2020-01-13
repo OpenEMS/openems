@@ -32,6 +32,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
 import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
+import { AwattarComponent } from './awattar/awattar.component';
+import { AwattarModalComponent } from './awattar/modal/modal.component';
+import { AwattarChartComponent } from './awattar/modal/chart.component';
+import { CorrentlyComponent } from './corrently/corrently.component';
+import { CorrentlyModalComponent } from './corrently/modal/modal.component';
+import { CorrentlyChartComponent } from './corrently/modal/chart.component';
+import { HeatingElementComponent } from './heatingelement/heatingelement.component';
+import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -41,6 +49,8 @@ import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.com
     BrowserAnimationsModule
   ],
   entryComponents: [
+    AwattarModalComponent,
+    CorrentlyModalComponent,
     StorageModalComponent,
     GridModalComponent,
     ConsumptionModalComponent,
@@ -49,12 +59,19 @@ import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.com
     ModalComponentEvcsCluster,
     AutarchyModalComponent,
     SelfconsumptionModalComponent,
+    HeatingElementModalComponent,
     SinglethresholdModalComponent,
     EvcsPopoverComponent,
     ChpsocModalComponent,
     FixDigitalOutputModalComponent,
   ],
   declarations: [
+    AwattarComponent,
+    AwattarModalComponent,
+    AwattarChartComponent,
+    CorrentlyComponent,
+    CorrentlyModalComponent,
+    CorrentlyChartComponent,
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,
@@ -71,6 +88,8 @@ import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.com
     StorageModalComponent,
     GridModalComponent,
     ChpSocComponent,
+    HeatingElementComponent,
+    HeatingElementModalComponent,
     ConsumptionModalComponent,
     ProductionModalComponent,
     EvcsClusterComponent,
