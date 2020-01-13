@@ -99,7 +99,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbusReference The name of the @Reference setter method for the
 	 *                        Modbus bridge - e.g. 'Modbus' if you have a
 	 *                        setModbus()-method
-	 * @param modbusId        The ID of the Modbus brige. Typically
+	 * @param modbusId        The ID of the Modbus bridge. Typically
 	 *                        'config.modbus_id()'
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.

@@ -73,9 +73,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
 	private static final int OFFSET_CONTACTOR_CONTROL = 0x10;
 
-	private static final double MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT = 50;
-	private static final double MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT = 400;
-
 	// Helper that holds general information about single racks, independent if they
 	// are used or not
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
@@ -98,15 +95,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	// determined at once
 	private LocalDateTime pendingTimestamp;
 
-	private Map<Integer, Double> lastMinCellVoltages = new HashMap<>();
-	private Map<Integer, Double> lastMaxCellVoltages = new HashMap<>();
-
 	private ResetState resetState = ResetState.NONE;
-	
-	private LocalDateTime handleOneCellDriftHandlingStarted = null;
-	private int handleOneCellDriftHandlingCounter = 0;
-	private static final int SECONDS_TOLERANCE_CELL_DRIFT = 15 * 60;
-	
+	private boolean resetDone;
 
 	public Cluster() {
 		super(//
@@ -142,8 +132,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
 		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
 				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue(this.config.racks().length * this.config.numberOfSlaves()
-				* ModuleParameters.CAPACITY_WH.getValue());
+		this.channel(Battery.ChannelId.CAPACITY).setNextValue(
+				this.config.racks().length * this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh());
 	}
 
 	@Override
@@ -163,22 +153,23 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private void handleBatteryState() {
 		switch (this.batteryState) {
 		case DEFAULT:
-			handleStateMachine();
+			this.handleStateMachine();
 			break;
 		case OFF:
-			stopSystem();
+			this.stopSystem();
 			break;
 		case ON:
-			startSystem();
+			this.startSystem();
 			break;
 		case CONFIGURE:
-			System.out.println("Cluster cannot be configured currently!");
+			this.logWarn(this.log, "Cluster cannot be configured currently!");
 			break;
 		}
 	}
 
 	private void handleStateMachine() {
-		log.info("Cluster.doNormalHandling(): State: " + this.getStateMachineState());
+		// log.info("Cluster.doNormalHandling(): State: " +
+		// this.getStateMachineState());
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
@@ -187,15 +178,21 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			setStateMachineState(State.ERRORDELAY);
 			break;
 		case ERRORDELAY:
+			// If we are in the error delay time, the system is resetted, this can help
+			// handling the rrors
 			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
 				errorDelayIsOver = null;
+				resetDone = false;
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
 				} else {
-					this.setStateMachineState(State.OFF);
+					this.setStateMachineState(State.UNDEFINED);
 				}
+			} else if (!resetDone) {
+				this.handleErrorsWithReset();
 			}
 			break;
+
 		case INIT:
 			if (this.isSystemRunning()) {
 				this.setStateMachineState(State.RUNNING);
@@ -228,10 +225,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 					readyForWorking = true;
 					this.setStateMachineState(State.RUNNING);
 				}
-			} else if (this.isCellVoltagesDrift()) {
-				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);
-			} else if (this.isOneCellDrifting()) {
-				this.setStateMachineState(State.ONE_CELL_DRIFTING);
 			} else {
 				this.setStateMachineState(State.UNDEFINED);
 			}
@@ -278,17 +271,14 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				}
 			}
 			break;
-		case ERROR_CELL_VOLTAGES_DRIFT:
-			this.handleCellDrift();
-			break;
-		case ONE_CELL_DRIFTING:
-			this.handleOneCellDrifting();
+		case ERROR_HANDLING:
+			this.handleErrorsWithReset();
 			break;
 		}
 		this.getReadyForWorking().setNextValue(readyForWorking);
 	}
 
-	private void handleCellDrift() {
+	private void handleErrorsWithReset() {
 		// To reset the cell drift phenomenon, first sleep and then reset the system
 		switch (this.resetState) {
 		case NONE:
@@ -304,72 +294,30 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			break;
 		case FINISHED:
 			this.resetState = ResetState.NONE;
-			this.setStateMachineState(State.UNDEFINED);
+			this.setStateMachineState(State.ERRORDELAY);
+			resetDone = true;
 			break;
 		}
 	}
 
-	private void handleOneCellDrifting() {
-		if (this.handleOneCellDriftHandlingStarted == null) {	
-			this.handleOneCellDriftHandlingStarted = LocalDateTime.now();			
-		}
-		
-		if (this.resetState == ResetState.NONE) {
-			handleOneCellDriftHandlingCounter++; // only increase one time per reset cycle
-		}
-		
-		this.handleCellDrift();
-		
-		
-		if (this.handleOneCellDriftHandlingCounter > 5 && this.handleOneCellDriftHandlingStarted.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isAfter(LocalDateTime.now())) {
-			this.setStateMachineState(State.ERROR);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private boolean isOneCellDrifting() {
-		/*
-		 * If voltage of one cell is going down immediately(Cell Voltage Low) and the
-		 * other cells do not (Cell diff high) that's an indicator for this error
-		 */
-
-		for (SingleRack r : this.racks.values()) {
-
-			Optional<Boolean> cellVoltLowOpt = (Optional<Boolean>) r
-					.getChannel(SingleRack.KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW).getNextValue().asOptional();
-			Optional<Boolean> cellDiffHighOpt = (Optional<Boolean>) r
-					.getChannel(SingleRack.KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH).getNextValue().asOptional();
-
-			if (!cellVoltLowOpt.isPresent() || !cellDiffHighOpt.isPresent()) {
-				continue;
-			}
-
-			if (cellVoltLowOpt.get() && cellDiffHighOpt.get()) {
-				return true;
-			}
-		}
-		return false;
-
-	}
-
 	private boolean isError() {
 		// still TODO define what is exactly an error
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
 			return true;
 		}
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
 			return true;
 		}
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
 			return true;
 		}
-		if (readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
+		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
 			return true;
 		}
 
 		// Check for communication errors
 		for (int key : this.racks.keySet()) {
-			if (readValueFromStateChannel(RACK_INFO.get(key).subMasterCommunicationAlarmChannelId)) {
+			if (this.readValueFromStateChannel(RACK_INFO.get(key).subMasterCommunicationAlarmChannelId)) {
 				return true;
 			}
 		}
@@ -421,89 +369,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		return b && !isSystemRunning() && !isSystemStopped();
 	}
 
-	/*
-	 * This function tries to find out if cell voltages has been drifted away see
-	 * \doc\cell_drift.png If this phenomenon has happened, a system reset is
-	 * necessary
-	 */
-	@SuppressWarnings("unchecked")
-	private boolean isCellVoltagesDrift() {
-		boolean hasDrifted = false;
-
-		for (SingleRack r : this.racks.values()) {
-
-			Optional<Integer> maxCellVoltageOpt = (Optional<Integer>) r.getChannel(SingleRack.KEY_MAX_CELL_VOLTAGE)
-					.getNextValue().asOptional();
-			Optional<Integer> minCellVoltageOpt = (Optional<Integer>) r.getChannel(SingleRack.KEY_MIN_CELL_VOLTAGE)
-					.getNextValue().asOptional();
-
-			if (!maxCellVoltageOpt.isPresent() || !minCellVoltageOpt.isPresent()) {
-				continue; // no new values, comparison not possible
-			}
-
-			double currentMaxCellVoltage = maxCellVoltageOpt.get();
-			double currentMinCellVoltage = minCellVoltageOpt.get();
-
-			if (!lastMaxCellVoltages.containsKey(r.getRackNumber())) {
-				lastMaxCellVoltages.put(r.getRackNumber(), Double.MIN_VALUE);
-			}
-
-			if (!lastMinCellVoltages.containsKey(r.getRackNumber())) {
-				lastMinCellVoltages.put(r.getRackNumber(), Double.MIN_VALUE);
-			}
-
-			double lastMaxCellVoltage = lastMaxCellVoltages.get(r.getRackNumber());
-			double lastMinCellVoltage = lastMinCellVoltages.get(r.getRackNumber());
-
-			if (lastMaxCellVoltage == Double.MIN_VALUE || lastMinCellVoltage == Double.MIN_VALUE) {
-				// Not all values has been set yet, check is not possible
-				lastMaxCellVoltage = currentMaxCellVoltage;
-				lastMinCellVoltage = currentMinCellVoltage;
-
-				lastMaxCellVoltages.put(r.getRackNumber(), lastMaxCellVoltage);
-				lastMinCellVoltages.put(r.getRackNumber(), lastMinCellVoltage);
-
-				continue;
-			}
-			double deltaMax = lastMaxCellVoltage - currentMaxCellVoltage;
-			double deltaMin = lastMinCellVoltage - currentMinCellVoltage;
-			double deltaMinMax = currentMaxCellVoltage - currentMinCellVoltage;
-
-			// Store current values to map
-			lastMaxCellVoltages.put(r.getRackNumber(), currentMaxCellVoltage);
-			lastMinCellVoltages.put(r.getRackNumber(), currentMinCellVoltage);
-
-			if (deltaMax < 0 && deltaMin > 0) { // max cell rises, min cell falls
-				// at least one of them changes faster than typically
-				if (deltaMinMax > MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT && //
-						(Math.abs(deltaMax) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT
-								|| Math.abs(deltaMin) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT)) {
-
-					// If cells are neighbours then there is a drift error
-					Optional<Integer> minCellVoltageIdOpt = (Optional<Integer>) r
-							.getChannel(SingleRack.KEY_MIN_CELL_VOLTAGE_ID).getNextValue().asOptional();
-					Optional<Integer> maxCellVoltageIdOpt = (Optional<Integer>) r
-							.getChannel(SingleRack.KEY_MAX_CELL_VOLTAGE_ID).getNextValue().asOptional();
-
-					if (!minCellVoltageIdOpt.isPresent() || !maxCellVoltageIdOpt.isPresent()) {
-						hasDrifted = hasDrifted || false;
-					}
-
-					int minCellVoltageId = minCellVoltageIdOpt.get();
-					int maxCellVoltageId = maxCellVoltageIdOpt.get();
-
-					if (Math.abs(minCellVoltageId - maxCellVoltageId) == 1) {
-						hasDrifted = true;
-					}
-
-				}
-
-			}
-		}
-
-		return hasDrifted;
-	}
-
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
@@ -518,22 +383,29 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			try {
 				sleepChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
-				log.error("Error while trying to sleep the system!");
+				this.logError(this.log, "Error while trying to sleep the system!");
 			}
 			this.setStateMachineState(State.UNDEFINED);
 		}
 	}
 
 	private void resetSystem() {
-		// Write sleep and reset to all racks
+		// Write reset to all racks and the master
+
+		IntegerWriteChannel resetMasterChannel = (IntegerWriteChannel) this.channel(ClusterChannelId.RESET);
+		try {
+			resetMasterChannel.setNextWriteValue(0x1);
+		} catch (OpenemsNamedException e) {
+			this.logError(this.log, "Error while trying to reset the master!");
+		}
+
 		for (SingleRack rack : this.racks.values()) {
 			IntegerWriteChannel resetChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_RESET);
 			try {
 				resetChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
-				log.error("Error while trying to reset the system!");
+				this.logError(this.log, "Error while trying to reset the system!");
 			}
-			this.setStateMachineState(State.UNDEFINED);
 		}
 	}
 
@@ -551,7 +423,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				}
 			}
 		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to start system\n" + e.getMessage());
+			this.logError(this.log, "Error while trying to start system\n" + e.getMessage());
 		}
 	}
 
@@ -565,7 +437,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
 			}
 		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to stop system\n" + e.getMessage());
+			this.logError(this.log, "Error while trying to stop system\n" + e.getMessage());
 		}
 	}
 
@@ -586,6 +458,10 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
+				new FC16WriteRegistersTask(0x1004, //
+						m(ClusterChannelId.RESET, new UnsignedWordElement(0x1004)) //
+				), //
+
 				new FC16WriteRegistersTask(0x1017, //
 						m(ClusterChannelId.START_STOP, new UnsignedWordElement(0x1017)), //
 						m(ClusterChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
@@ -776,7 +652,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		int soc = 0;
 
 		for (SingleRack rack : this.racks.values()) {
-			this.log.info("Rack " + rack.getRackNumber() + " has a SoC of " + rack.getSoC() + " %!");
 			soc = soc + rack.getSoC();
 			i++;
 		}
@@ -785,9 +660,22 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			soc = soc / i;
 		}
 
-		this.log.info("Calculated SoC: " + soc);
-
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
+	}
+
+	protected void recalculateMinCellVoltage() {
+
+		int minCellVoltage = Integer.MAX_VALUE;
+
+		for (SingleRack rack : this.racks.values()) {
+			int mcv = rack.getMinimalCellVoltage();			
+			if (mcv > 0) {
+				minCellVoltage = Math.min(minCellVoltage, mcv);
+			}
+
+		}
+
+		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
 	}
 
 	@Override

@@ -13,6 +13,7 @@
   <property name="charset" value="UTF-8"/>
   <property name="fileExtensions" value="java, properties, xml"/>
   <module name="TreeWalker">
+    <module name="RequireThis"/>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -200,10 +201,6 @@
       <property name="exceptionVariableName" value="expected"/>
     </module>
     <module name="CommentsIndentation"/>
-    <module name="JavadocMethod">
-      <property name="allowMissingJavadoc" value="true"/>
-      <property name="suppressLoadErrors" value="true"/>
-    </module>
     <module name="SuppressionCommentFilter"/>
   </module>
   <module name="FileTabCharacter">

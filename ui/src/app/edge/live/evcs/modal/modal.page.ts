@@ -15,7 +15,6 @@ export class EvcsModalComponent implements OnInit {
 
   @Input() public edge: Edge;
   @Input() public controller: EdgeConfig.Component;
-  @Input() public getState: () => String;
   @Input() public componentId: string;
   @Input() public evcsComponent: EdgeConfig.Component;
 
@@ -31,11 +30,58 @@ export class EvcsModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.controller.properties.enabledCharging) {
-      this.chargeMode = this.controller.properties.chargeMode;
+    if (this.controller != null) {
+      if (this.controller.properties.enabledCharging) {
+        this.chargeMode = this.controller.properties.chargeMode;
+      }
+      else {
+        this.chargeMode = 'OFF';
+      }
     }
-    else {
-      this.chargeMode = 'OFF';
+  }
+
+  /**
+   * Returns the state of the EVCS
+   * 
+   * @param state 
+   * @param plug 
+   * 
+   */
+  getState(state: number, plug: number) {
+
+    if (this.controller != null) {
+      if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+      }
+    }
+    let chargeState = state;
+    let chargePlug = plug;
+
+    if (chargePlug == null) {
+      if (chargeState == null) {
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+      }
+    } else if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+      return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
+    }
+    switch (chargeState) {
+      case ChargeState.STARTING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
+      case ChargeState.UNDEFINED:
+      case ChargeState.ERROR:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+      case ChargeState.READY_FOR_CHARGING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ReadyForCharging');
+      case ChargeState.NOT_READY_FOR_CHARGING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
+      case ChargeState.AUTHORIZATION_REJECTED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+      case ChargeState.CHARGING:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
+      case ChargeState.ENERGY_LIMIT_REACHED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
+      case ChargeState.CHARGING_FINISHED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
     }
   }
 
@@ -77,9 +123,11 @@ export class EvcsModalComponent implements OnInit {
       ]).then(() => {
         currentController.properties.enabledCharging = newEnabledCharging;
         currentController.properties.chargeMode = newChargeMode;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.enabledCharging = oldEnabledCharging;
         currentController.properties.chargeMode = oldChargeMode;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -106,8 +154,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'priority', value: newPriority }
       ]).then(() => {
         currentController.properties.priority = newPriority;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.priority = oldPriority;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -127,8 +177,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'forceChargeMinPower', value: newMinChargePower }
       ]).then(() => {
         currentController.properties.forceChargeMinPower = newMinChargePower;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.forceChargeMinPower = oldMinChargePower;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -149,8 +201,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'energySessionLimit', value: newLimit }
       ]).then(() => {
         currentController.properties.energySessionLimit = newLimit;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       })
     }
@@ -176,8 +230,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'energySessionLimit', value: newLimit }
       ]).then(() => {
         currentController.properties.energySessionLimit = newLimit;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       })
     }
@@ -199,8 +255,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(() => {
         currentController.properties.defaultChargeMinPower = newMinChargePower;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.defaultChargeMinPower = oldMinChargePower;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -223,7 +281,9 @@ export class EvcsModalComponent implements OnInit {
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(() => {
         currentController.properties['defaultChargeMinPower'] = newMinChargePower;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         currentController.properties['defaultChargeMinPower'] = oldMinChargePower;
         console.warn(reason);
       });
@@ -244,8 +304,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'enabledCharging', value: newChargingState }
       ]).then(() => {
         currentController.properties.enabledCharging = newChargingState;
+        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.enabledCharging = oldChargingState;
+        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -276,4 +338,24 @@ export class EvcsModalComponent implements OnInit {
   }
 }
 
+enum ChargeState {
+  UNDEFINED = -1,           //Undefined
+  STARTING,                 //Starting
+  NOT_READY_FOR_CHARGING,   //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
+  READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
+  CHARGING,                 //Charging
+  ERROR,                    //Error
+  AUTHORIZATION_REJECTED,   //Authorization rejected
+  ENERGY_LIMIT_REACHED,     //Energy limit reached
+  CHARGING_FINISHED         //Charging has finished
+}
+
+enum ChargePlug {
+  UNDEFINED = -1,                           //Undefined
+  UNPLUGGED,                                //Unplugged
+  PLUGGED_ON_EVCS,                          //Plugged on EVCS
+  PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
+  PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
+  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7  //Plugged on EVCS and on EV and locked
+}
 

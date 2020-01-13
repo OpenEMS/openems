@@ -1,7 +1,7 @@
 = OpenEMS - Open Energy Management System
 ifndef::toc[]
 (c) 2019 OpenEMS Association e.V.
-Version 2019.14.0-SNAPSHOT
+Version 2019.18.0-SNAPSHOT
 :sectnums:
 :sectnumlevels: 4
 :toc:

@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Inaktiv",
         Manually: "Manuell",
         Phase: "Phase",
+        Phases: "Phasen",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigenverbrauch",
         Cumulative: "Kumulierte Werte",
@@ -33,10 +34,14 @@ export const TRANSLATION = {
         More: "Mehr...",
         ChargePower: "Beladung",
         DischargePower: "Entladung",
+        ChargeDischarge: "Be-/Entladung",
         ActualPower: "E-Auto Beladung",
-        PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
+        PeriodFromTo: "{{value1}} - {{value2}}", // value1 = start date, value2 = end date
         DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
+        DateFormatShort: "dd.MM",
         Search: "Suchen",
+        ChangeAccepted: "Änderung übernommen",
+        ChangeFailed: "Änderung fehlgeschlagen",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
@@ -45,6 +50,20 @@ export const TRANSLATION = {
             Friday: "Freitag",
             Saturday: "Samstag",
             Sunday: "Sonntag"
+        },
+        Month: {
+            January: "Januar",
+            February: "Februar",
+            March: "März",
+            April: "April",
+            May: "Mai",
+            June: "Juni",
+            July: "Juli",
+            August: "August",
+            September: "September",
+            October: "Oktober",
+            November: "November",
+            December: "Dezember"
         },
         ReportValue: "Fehlerhafte Daten melden",
         Capacity: "Kapazität"
@@ -90,6 +109,8 @@ export const TRANSLATION = {
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
                 selfconsumptionInfo: "Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",
                     HighThreshold: "Oberer Schwellenwert"
@@ -168,7 +189,34 @@ export const TRANSLATION = {
             LastMonth: "Letzter Monat",
             LastYear: "Letztes Jahr",
             Go: "Los!",
-            Export: "Download als EXCEL-Datei"
+            Export: "Download als EXCEL-Datei",
+            Day: "Tag",
+            Week: "Woche",
+            Month: "Monat",
+            Year: "Jahr",
+            noData: "keine Daten verfügbar",
+            activeDuration: "Einschaltdauer",
+            BeginDate: "Startdatum wählen",
+            EndDate: "Enddatum wählen",
+            Sun: "So",
+            Mon: "Mo",
+            Tue: "Di",
+            Wed: "Mi",
+            Thu: "Do",
+            Fri: "Fr",
+            Sat: "Sa",
+            Jan: "Jan",
+            Feb: "Feb",
+            Mar: "Mär",
+            Apr: "Apr",
+            May: "Mai",
+            Jun: "Jun",
+            Jul: "Jul",
+            Aug: "Aug",
+            Sep: "Sep",
+            Oct: "Okt",
+            Nov: "Nov",
+            Dec: "Dez"
         },
         Config: {
             Index: {

@@ -9,6 +9,7 @@ export const TRANSLATION = {
         Inactive: "Inactief",
         Manually: "handmatig",
         Phase: "Fase",
+        Phases: "Fases",
         Autarchy: "Autarkie",
         SelfConsumption: "Eigen consumptie",
         Cumulative: "Cumulatieve Waarden",
@@ -33,9 +34,12 @@ export const TRANSLATION = {
         More: "Meer…",
         ChargePower: "Laad vermogen",
         DischargePower: "Ontlaad vermogen",
+        ChargeDischarge: "Debet/ontlaad",
         ActualPower: "e-car Laad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
+        ChangeAccepted: "Wijziging geaccepteerd",
+        ChangeFailed: "Wijziging mislukt",
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -86,6 +90,8 @@ export const TRANSLATION = {
                 phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
                 selfconsumptionInfo: "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
+                twoWayInfoStorage: "Negative Werte entsprechen Speicher Beladung, Positive Werte entsprechen Speicher Entladung",
+                twoWayInfoGrid: "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 CHP: {
                     LowThreshold: "Lage drempelwaarde",
                     HighThreshold: "hoge drempel"
@@ -161,7 +167,34 @@ export const TRANSLATION = {
             LastMonth: "Vorige maand",
             LastYear: "Vorig jaar",
             Go: "Ga!",
-            Export: "download als Excel-bestand"
+            Export: "download als Excel-bestand",
+            Day: "Dag",
+            Week: "Woche",
+            Month: "Maand",
+            Year: "Jaar",
+            noData: "geen gegevens beschikbaar",
+            activeDuration: "actieve duur",
+            BeginDate: "Selecteer startdatum",
+            EndDate: "Selecteer einddatum",
+            Sun: "Zon",
+            Mon: "Maa",
+            Tue: "Din",
+            Wed: "Woe",
+            Thu: "Don",
+            Fri: "Vri",
+            Sat: "Zat",
+            Jan: "Jan",
+            Feb: "Feb",
+            Mar: "Maa",
+            Apr: "Apr",
+            May: "Mei",
+            Jun: "Jun",
+            Jul: "Jul",
+            Aug: "Aug",
+            Sep: "Sep",
+            Oct: "Okt",
+            Nov: "Nov",
+            Dec: "Dec"
         },
         Config: {
             Index: {

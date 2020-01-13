@@ -15,8 +15,12 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.meter.discovergy.MeterDiscovergy.ChannelId;
+import io.openems.edge.meter.discovergy.jsonrpc.DiscovergyMeter;
+import io.openems.edge.meter.discovergy.jsonrpc.Field;
 
 public class DiscovergyWorker extends AbstractCycleWorker {
+
+	private static final int LAST_READING_TOO_OLD_SECONDS = 30;
 
 	private final Logger log = LoggerFactory.getLogger(DiscovergyWorker.class);
 	private final MeterDiscovergy parent;
@@ -44,23 +48,42 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 		Integer activePowerL2 = null;
 		Integer activePowerL3 = null;
 		Integer voltageL1 = null;
-		Long energy = null;
+		Integer voltageL2 = null;
+		Integer voltageL3 = null;
+		Long productionEnergy = null;
+		Long consumptionEnergy = null;
 		boolean restApiFailed = true;
+		boolean lastReadingTooOld = false;
 
 		try {
 			// Asserts that we have a valid MeterId
 			this.assertMeterId();
 
 			// Retrieve Channel-Values
-			JsonObject reading = this.apiClient.getLastReading(this.meterId, "power", "power1", "power2", "power3",
-					"voltage1", "energy");
-			JsonObject values = JsonUtils.getAsJsonObject(reading, "values");
-			activePower = JsonUtils.getAsInt(values, "power") / 1000;
-			activePowerL1 = JsonUtils.getAsInt(values, "power1") / 1000;
-			activePowerL2 = JsonUtils.getAsInt(values, "power2") / 1000;
-			activePowerL3 = JsonUtils.getAsInt(values, "power3") / 1000;
-			voltageL1 = JsonUtils.getAsInt(values, "voltage1");
-			energy = JsonUtils.getAsLong(values, "energy") / 10_000_000;
+			JsonObject reading = this.apiClient.getLastReading(this.meterId, //
+					Field.POWER, Field.POWER_L1, Field.POWER_L2, Field.POWER_L3, //
+					Field.VOLTAGE_L1, Field.VOLTAGE_L2, Field.VOLTAGE_L3, //
+					Field.ENERGY_IN, Field.ENERGY_OUT);
+			Long time = JsonUtils.getAsLong(reading, "time");
+			if (System.currentTimeMillis() / 1000 - LAST_READING_TOO_OLD_SECONDS < time) {
+				// Values are valid
+				JsonObject values = JsonUtils.getAsJsonObject(reading, "values");
+				activePower = JsonUtils.getAsInt(values, "power") / 1000;
+				activePowerL1 = JsonUtils.getAsInt(values, "power1") / 1000;
+				activePowerL2 = JsonUtils.getAsInt(values, "power2") / 1000;
+				activePowerL3 = JsonUtils.getAsInt(values, "power3") / 1000;
+				voltageL1 = JsonUtils.getAsInt(values, "voltage1");
+				voltageL2 = JsonUtils.getAsInt(values, "voltage2");
+				voltageL3 = JsonUtils.getAsInt(values, "voltage3");
+				productionEnergy = JsonUtils.getAsLong(values, "energy") / 10_000_000;
+				consumptionEnergy = JsonUtils.getAsLong(values, "energyOut") / 10_000_000;
+				lastReadingTooOld = false;
+
+			} else {
+				// Values are too old
+				lastReadingTooOld = true;
+			}
+
 			restApiFailed = false;
 
 		} catch (OpenemsException e) {
@@ -72,8 +95,13 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 			this.parent.getActivePowerL2().setNextValue(activePowerL2);
 			this.parent.getActivePowerL3().setNextValue(activePowerL3);
 			this.parent.getVoltage().setNextValue(voltageL1);
-			this.parent.getActiveProductionEnergy().setNextValue(energy);
+			this.parent.getVoltageL1().setNextValue(voltageL1);
+			this.parent.getVoltageL2().setNextValue(voltageL2);
+			this.parent.getVoltageL3().setNextValue(voltageL3);
+			this.parent.getActiveProductionEnergy().setNextValue(productionEnergy);
+			this.parent.getActiveConsumptionEnergy().setNextValue(consumptionEnergy);
 			this.parent.channel(ChannelId.REST_API_FAILED).setNextValue(restApiFailed);
+			this.parent.channel(ChannelId.LAST_READING_TOO_OLD).setNextValue(lastReadingTooOld);
 		}
 	}
 
@@ -101,8 +129,8 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 		if (!this.config.fullSerialNumber().trim().isEmpty()) {
 			// search for given fullSerialNumber
 			for (DiscovergyMeter meter : meters) {
-				if (meter.fullSerialNumber.equalsIgnoreCase(this.config.fullSerialNumber())) {
-					this.meterId = meter.meterId;
+				if (meter.getFullSerialNumber().equalsIgnoreCase(this.config.fullSerialNumber())) {
+					this.meterId = meter.getMeterId();
 					return;
 				}
 			}
@@ -113,8 +141,8 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 		if (!this.config.serialNumber().trim().isEmpty()) {
 			// search for given serialNumber
 			for (DiscovergyMeter meter : meters) {
-				if (meter.fullSerialNumber.equalsIgnoreCase(this.config.serialNumber())) {
-					this.meterId = meter.meterId;
+				if (meter.getFullSerialNumber().equalsIgnoreCase(this.config.serialNumber())) {
+					this.meterId = meter.getMeterId();
 					return;
 				}
 			}
@@ -133,48 +161,8 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 
 		// exactly one
 		DiscovergyMeter meter = meters.get(0);
-		this.meterId = meter.meterId;
+		this.meterId = meter.getMeterId();
 		this.parent.logInfo(this.log, "Updated Discovergy MeterId [" + this.meterId + "]");
-	}
-
-	private static class DiscovergyMeter {
-
-		public static DiscovergyMeter fromJson(JsonElement j) throws OpenemsNamedException {
-			String meterId = JsonUtils.getAsString(j, "meterId");
-			String manufacturerId = JsonUtils.getAsOptionalString(j, "manufacturerId").orElse(""); // e.g. "ESY"
-			String serialNumber = JsonUtils.getAsOptionalString(j, "serialNumber").orElse(""); // e.g. "12345678"
-			String fullSerialNumber = JsonUtils.getAsOptionalString(j, "fullSerialNumber").orElse(""); // e.g.
-																										// 1ESY1234567890
-			String type = JsonUtils.getAsOptionalString(j, "type").orElse(""); // e.g. "EASYMETER"
-			String measurementType = JsonUtils.getAsOptionalString(j, "measurementType").orElse(""); // e.g.
-																										// "ELECTRICITY"
-			return new DiscovergyMeter(meterId, manufacturerId, serialNumber, fullSerialNumber, type, measurementType);
-		}
-
-		private final String meterId;
-		private final String manufacturerId;
-		private final String serialNumber;
-		private final String fullSerialNumber;
-		private final String type;
-		private final String measurementType;
-
-		private DiscovergyMeter(String meterId, String manufacturerId, String serialNumber, String fullSerialNumber,
-				String type, String measurementType) {
-			this.meterId = meterId;
-			this.manufacturerId = manufacturerId;
-			this.serialNumber = serialNumber;
-			this.fullSerialNumber = fullSerialNumber;
-			this.type = type;
-			this.measurementType = measurementType;
-		}
-
-		@Override
-		public String toString() {
-			return "[meterId=" + meterId + ", manufacturerId=" + manufacturerId + ", serialNumber=" + serialNumber
-					+ ", fullSerialNumber=" + fullSerialNumber + ", type=" + type + ", measurementType="
-					+ measurementType + "]";
-		}
-
 	}
 
 }
