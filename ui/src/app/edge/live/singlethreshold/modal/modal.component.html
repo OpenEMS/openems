@@ -136,6 +136,12 @@
                     <td style="width: 35%" class="align_right" *ngSwitchCase="'PRODUCTION'">
                       {{sum.production.activePower | unitvalue: 'W'}}
                     </td>
+                    <td style="width: 35%" class="align_right" *ngSwitchCase="'OTHER'">
+                      {{currentData.channel[controller.properties['inputChannelAddress']]}}
+                      <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                        &nbsp;{{config.getChannel(inputChannel)['unit']}}
+                      </div>
+                    </td>
                   </ng-container>
                 </tr>
               </table>
@@ -174,7 +180,12 @@
                         <ion-input class="regularFont" style="text-align: end;" [value]="formGroup.value.threshold"
                           formControlName="threshold">
                         </ion-input>
-                        <ion-label class="regularFont">&nbsp;W</ion-label>
+                        <ion-label *ngIf="inputMode != 'OTHER'" class="regularFont">&nbsp;W</ion-label>
+                        <ion-label *ngIf="inputMode == 'OTHER'" class="regularFont">
+                          <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                            &nbsp;{{config.getChannel(inputChannel)['unit']}}
+                          </div>
+                        </ion-label>
                       </ion-item>
                     </td>
                   </tr>

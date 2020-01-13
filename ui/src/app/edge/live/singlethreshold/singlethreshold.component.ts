@@ -62,6 +62,7 @@ export class SinglethresholdComponent {
       component: SinglethresholdModalComponent,
       componentProps: {
         controller: this.controller,
+        config: this.config,
         edge: this.edge,
         outputChannel: this.outputChannel,
         inputChannel: this.inputChannel

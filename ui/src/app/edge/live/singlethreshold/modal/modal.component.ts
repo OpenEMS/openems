@@ -14,6 +14,7 @@ type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
 export class SinglethresholdModalComponent {
 
   @Input() public edge: Edge;
+  @Input() public config: EdgeConfig;
   @Input() public controller: EdgeConfig.Component;
   @Input() public outputChannel: ChannelAddress;
   @Input() public inputChannel: ChannelAddress;
