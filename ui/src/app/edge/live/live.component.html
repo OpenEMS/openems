@@ -11,6 +11,9 @@
     <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
       <ion-grid class="ion-no-padding">
         <ion-row>
+          <ion-col *ngIf="service.isPartnerAllowed(edge)" size="12" size-lg="6" class="ion-no-padding">
+            <partner></partner>
+          </ion-col>
           <!-- Regular Widgets -->
           <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 

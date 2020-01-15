@@ -7,7 +7,6 @@ import { TranslateService } from '@ngx-translate/core';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
 type inputMode = 'SOC' | 'GRIDSELL' | 'PRODUCTION' | 'OTHER'
-type state = 'ON' | 'OFF'
 
 @Component({
   selector: SinglethresholdComponent.SELECTOR,
@@ -62,6 +61,7 @@ export class SinglethresholdComponent {
       component: SinglethresholdModalComponent,
       componentProps: {
         controller: this.controller,
+        config: this.config,
         edge: this.edge,
         outputChannel: this.outputChannel,
         inputChannel: this.inputChannel

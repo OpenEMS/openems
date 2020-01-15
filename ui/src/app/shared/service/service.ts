@@ -297,6 +297,20 @@ export class Service implements ErrorHandler {
   }
 
   /**
+   * checks if fems is allowed to show partner widget
+   */
+  // TODO: encapsulate data for different partners
+  public isPartnerAllowed(edge: Edge): boolean {
+    if (!edge) {
+      return false;
+    }
+    if (['fems1267', 'fems1495', 'fems1886'].includes(edge.id)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Currently selected history period
    */
   public historyPeriod: DefaultTypes.HistoryPeriod;

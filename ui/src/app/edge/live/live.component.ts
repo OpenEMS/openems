@@ -15,7 +15,7 @@ export class LiveComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
-    private service: Service,
+    public service: Service,
   ) {
   }
 

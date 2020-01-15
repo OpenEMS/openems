@@ -89,6 +89,17 @@ export const TRANSLATION = {
                 ProductionDC: "Generación DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    dependendOn: 'Dependiendo de',
+                    currentValue: 'Valor actual',
+                    threshold: 'Thresholded',
+                    minSwitchingTime: 'Conmutación mínimo',
+                    other: 'Otro',
+                    switchedLoadPower: 'Carga conmutada',
+                    behaviour: 'Comportamiento',
+                    above: 'Sobre',
+                    below: 'Por debajo'
+                },
                 Channeltreshold: {
                     Output: "Salida"
                 },

@@ -88,6 +88,17 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    dependendOn: 'Podle toho',
+                    currentValue: 'Aktuální hodnota',
+                    threshold: 'Prahována',
+                    minSwitchingTime: 'Minimální přepínací',
+                    other: 'Ostatní',
+                    switchedLoadPower: 'Spínané zatížení',
+                    behaviour: 'Chování',
+                    above: 'O',
+                    below: 'Níže'
+                },
                 Channeltreshold: {
                     Output: "Výstup"
                 },

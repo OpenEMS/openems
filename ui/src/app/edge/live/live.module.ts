@@ -40,6 +40,7 @@ import { CorrentlyModalComponent } from './corrently/modal/modal.component';
 import { CorrentlyChartComponent } from './corrently/modal/chart.component';
 import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
+import { PartnerComponent } from './partner/partner.component';
 
 @NgModule({
   imports: [
@@ -81,6 +82,7 @@ import { HeatingElementModalComponent } from './heatingelement/modal/modal.compo
     StorageComponent,
     GridComponent,
     ConsumptionComponent,
+    PartnerComponent,
     ProductionComponent,
     InfoComponent,
     FixDigitalOutputComponent,

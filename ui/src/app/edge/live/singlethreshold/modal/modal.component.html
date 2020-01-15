@@ -70,11 +70,12 @@
               <ion-card-content class="underline">
                 <table class="full_width">
                   <tr>
-                    <td style="width: 50%">
-                      Abhängig von:
+                    <td style="width: 50%" translate>
+                      Edge.Index.Widgets.Singlethreshold.dependendOn
                     </td>
                     <td style="width: 50%" class="align_right">
-                      Sonstige ({{controller.properties.inputChannelAddress}})
+                      <span translate>Edge.Index.Widgets.Singlethreshold.other</span>
+                      ({{controller.properties.inputChannelAddress}})
                     </td>
                   </tr>
                 </table>
@@ -85,7 +86,8 @@
                 <ion-row>
                   <ion-col class="ion-no-padding" size="12">
                     <ion-item lines="none" class="noPadding">
-                      <ion-label class="regularFont">Abhängig von</ion-label>
+                      <ion-label class="regularFont" translate>Edge.Index.Widgets.Singlethreshold.dependendOn
+                      </ion-label>
                       <ion-select formControlName="inputMode" [value]="inputMode" (ionChange)="updateInputMode($event)">
                         <ion-select-option value="SOC" translate>General.Soc</ion-select-option>
                         <ion-select-option value="PRODUCTION" translate>General.Production</ion-select-option>
@@ -102,8 +104,8 @@
               <ion-card-content class="underline" style="padding-top: 0;">
                 <table class="full_width">
                   <tr>
-                    <td style="width: 65%">
-                      Geschaltete Last
+                    <td style="width: 65%" translate>
+                      Edge.Index.Widgets.Singlethreshold.switchedLoadPower
                     </td>
                     <td style="width: 35%" class="align_right">
                       <ion-item lines="inset" class="noPadding">
@@ -121,8 +123,8 @@
             <ion-card-content class="underline">
               <table class="full_width">
                 <tr>
-                  <td style="width: 65%">
-                    Aktueller Wert</td>
+                  <td style="width: 65%" translate>
+                    Edge.Index.Widgets.Singlethreshold.currentValue</td>
                   <ng-container [ngSwitch]="inputMode">
                     <td style="width: 35%" class="align_right" *ngSwitchCase="'SOC'">
                       {{sum.storage.soc | unitvalue:'%'}}
@@ -136,14 +138,20 @@
                     <td style="width: 35%" class="align_right" *ngSwitchCase="'PRODUCTION'">
                       {{sum.production.activePower | unitvalue: 'W'}}
                     </td>
+                    <td style="width: 35%" class="align_right" *ngSwitchCase="'OTHER'">
+                      {{currentData.channel[controller.properties['inputChannelAddress']]}}
+                      <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                        &nbsp;{{config.getChannel(inputChannel)['unit']}}
+                      </div>
+                    </td>
                   </ng-container>
                 </tr>
               </table>
               <ng-container *ngIf="inputMode == 'SOC'">
                 <table class="full_width">
                   <tr>
-                    <td style="width: 65%;">
-                      Schwellenwert</td>
+                    <td style="width: 65%;" translate>
+                      Edge.Index.Widgets.Singlethreshold.threshold</td>
                     <td style="width: 35%" class="align_right">
                       {{formGroup.value.threshold | unitvalue:'%'}}
                     </td>
@@ -166,15 +174,20 @@
               <ng-container *ngIf="inputMode != 'SOC'">
                 <table class="full_width">
                   <tr>
-                    <td style="width: 65%">
-                      Schwellenwert
+                    <td style="width: 65%" translate>
+                      Edge.Index.Widgets.Singlethreshold.threshold
                     </td>
                     <td style="width: 35%" class="align_right">
                       <ion-item lines="inset" class="noPadding">
                         <ion-input class="regularFont" style="text-align: end;" [value]="formGroup.value.threshold"
                           formControlName="threshold">
                         </ion-input>
-                        <ion-label class="regularFont">&nbsp;W</ion-label>
+                        <ion-label *ngIf="inputMode != 'OTHER'" class="regularFont">&nbsp;W</ion-label>
+                        <ion-label *ngIf="inputMode == 'OTHER'" class="regularFont">
+                          <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                            &nbsp;{{config.getChannel(inputChannel)['unit']}}
+                          </div>
+                        </ion-label>
                       </ion-item>
                     </td>
                   </tr>
@@ -186,7 +199,7 @@
               <table class="full_width">
                 <tr>
                   <td style="width: 65%" translate>
-                    Verhalten
+                    Edge.Index.Widgets.Singlethreshold.behaviour
                   </td>
                 </tr>
               </table>
@@ -194,18 +207,22 @@
                 <ion-segment-button value="false">
                   <ion-label>
                     <ng-container *ngIf="inputMode == 'SOC'; else noSocNoInvert">
-                      Über {{formGroup.value.threshold | unitvalue:'%'}} einschalten
+                      <span translate>Edge.Index.Widgets.Singlethreshold.above</span>
+                      {{formGroup.value.threshold | unitvalue:'%'}} einschalten
                     </ng-container>
                     <ng-template #noSocNoInvert>
                       <ng-container *ngIf="!formGroup.value.threshold; else notNull">
-                        Über {{ 0 | unitvalue:'W'}} einschalten
+                        <span translate>Edge.Index.Widgets.Singlethreshold.above</span> {{ 0 | unitvalue:'W'}}
+                        einschalten
                       </ng-container>
                       <ng-template #notNull>
                         <ng-container *ngIf="inputMode == 'GRIDSELL'">
-                          Über {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                          <span translate>Edge.Index.Widgets.Singlethreshold.above</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
                         </ng-container>
                         <ng-container *ngIf="inputMode != 'GRIDSELL'">
-                          Über {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                          <span translate>Edge.Index.Widgets.Singlethreshold.above</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
                         </ng-container>
                       </ng-template>
                     </ng-template>
@@ -215,18 +232,22 @@
                 <ion-segment-button value="true">
                   <ion-label>
                     <ng-container *ngIf="inputMode == 'SOC'; else noSocInvert">
-                      Unter {{formGroup.value.threshold | unitvalue:'%'}} einschalten
+                      <span translate>Edge.Index.Widgets.Singlethreshold.below</span>
+                      {{formGroup.value.threshold | unitvalue:'%'}} einschalten
                     </ng-container>
                     <ng-template #noSocInvert>
                       <ng-container *ngIf="!formGroup.value.threshold; else notNull">
-                        Über {{ 0 | unitvalue:'W'}} einschalten
+                        <span translate>Edge.Index.Widgets.Singlethreshold.above</span> {{ 0 | unitvalue:'W'}}
+                        einschalten
                       </ng-container>
                       <ng-template #notNull>
                         <ng-container *ngIf="inputMode == 'GRIDSELL'">
-                          Unter {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                          <span translate>Edge.Index.Widgets.Singlethreshold.below</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
                         </ng-container>
                         <ng-container *ngIf="inputMode != 'GRIDSELL'">
-                          Unter {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                          <span translate>Edge.Index.Widgets.Singlethreshold.below</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
                         </ng-container>
                       </ng-template>
                     </ng-template>
@@ -239,8 +260,8 @@
             <ion-card-content>
               <table class="full_width">
                 <tr>
-                  <td style="width: 65%">
-                    Mindestumschaltzeit
+                  <td style="width: 65%" translate>
+                    Edge.Index.Widgets.Singlethreshold.minSwitchingTime
                   </td>
                   <td style="width: 35%" class="align_right">
                     <ion-item lines="inset" class="noPadding">
