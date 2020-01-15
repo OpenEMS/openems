@@ -7,7 +7,6 @@ import { TranslateService } from '@ngx-translate/core';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
 type inputMode = 'SOC' | 'GRIDSELL' | 'PRODUCTION' | 'OTHER'
-type state = 'ON' | 'OFF'
 
 @Component({
   selector: SinglethresholdComponent.SELECTOR,

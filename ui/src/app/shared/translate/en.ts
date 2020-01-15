@@ -40,6 +40,7 @@ export const TRANSLATION = {
         Search: "Search",
         ChangeAccepted: "Change accepted",
         ChangeFailed: "Change failed",
+        InputNotValid: "Input not valid",
         Week: {
             Monday: "Monday",
             Tuesday: "Tuesday",
@@ -87,6 +88,17 @@ export const TRANSLATION = {
                 ProductionDC: "Production DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    dependendOn: 'Dependend on',
+                    currentValue: 'Current value',
+                    threshold: 'Threshold',
+                    minSwitchingTime: 'Minimum swichting time',
+                    other: 'Other',
+                    switchedLoadPower: 'Switched load power',
+                    behaviour: 'Behaviour',
+                    above: 'Above',
+                    below: 'Below'
+                },
                 Channeltreshold: {
                     Output: "Output"
                 },

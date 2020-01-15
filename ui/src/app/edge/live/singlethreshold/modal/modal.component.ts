@@ -41,14 +41,15 @@ export class SinglethresholdModalComponent {
       minimumSwitchingTime: new FormControl(this.controller.properties.minimumSwitchingTime, Validators.compose([
         Validators.min(10),
         Validators.pattern('^[0-9]*$'),
+        Validators.required
       ])),
       threshold: new FormControl(this.inputMode == 'GRIDSELL' ? this.controller.properties.threshold * -1 : this.controller.properties.threshold, Validators.compose([
-        Validators.min(1),
         Validators.pattern('^[0-9]*$'),
+        Validators.required
       ])),
       switchedLoadPower: new FormControl(this.controller.properties.switchedLoadPower, Validators.compose([
-        Validators.min(1),
         Validators.pattern('^[0-9]*$'),
+        Validators.required
       ])),
       inputMode: new FormControl(this.controller.properties.inputChannelAddress),
       invert: new FormControl(this.controller.properties.invert, Validators.requiredTrue)
@@ -178,7 +179,7 @@ export class SinglethresholdModalComponent {
     }
   }
 
-  applyChanges() {
+  applyChanges(currentController: EdgeConfig.Component) {
     // todo specific error messages depending on validation
     if (this.formGroup.controls['minimumSwitchingTime'].valid && this.formGroup.controls['threshold'].valid && this.formGroup.controls['switchedLoadPower'].valid) {
       let updateComponentArray = [];

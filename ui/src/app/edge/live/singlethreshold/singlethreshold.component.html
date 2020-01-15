@@ -33,8 +33,8 @@
             </td>
           </tr>
           <tr>
-            <td style="width: 65%;">
-              Modus</td>
+            <td style="width: 65%;" translate>
+              General.Mode</td>
             <td *ngIf="controller.properties['mode'] == 'ON'" style="width: 35%" class="align_right" translate>
               General.On
             </td>
@@ -49,8 +49,8 @@
         <div *ngIf="controller.properties['mode'] == 'AUTOMATIC'">
           <table class="full_width">
             <tr>
-              <td style="width: 65%">
-                Abhängig von</td>
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.Singlethreshold.dependendOn</td>
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'" translate>
                 General.Soc
@@ -72,12 +72,13 @@
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'
             && controller.properties.inputChannelAddress != '_sum/ProductionActivePower' && controller.properties.inputChannelAddress != null">
-                Sonstige&nbsp;({{controller.properties.inputChannelAddress}})
+                <span
+                  translate>Edge.Index.Widgets.Singlethreshold.other</span>&nbsp;({{controller.properties.inputChannelAddress}})
               </td>
             </tr>
             <tr *ngIf="controller.properties.inputChannelAddress != null">
-              <td style="width: 65%">
-                Aktueller Wert</td>
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.Singlethreshold.currentValue</td>
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
                 {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue:'%'}}
@@ -105,16 +106,24 @@
               </td>
             </tr>
             <tr>
-              <td style="width: 65%;">
-                Schwellenwert</td>
+              <td style="width: 65%;" translate>
+                Edge.Index.Widgets.Singlethreshold.threshold</td>
               <!-- SOC -->
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
+                <ion-icon *ngIf="controller.properties.invert == true" name="arrow-round-down">
+                </ion-icon>
+                <ion-icon *ngIf="controller.properties.invert == false" name="arrow-round-up">
+                </ion-icon>
                 {{controller.properties['threshold'] | unitvalue:'%'}}
               </td>
               <!-- GRIDSELL/BUY || PRODUCTION -->
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && (controller.properties.inputChannelAddress == '_sum/GridActivePower' ||controller.properties.inputChannelAddress == '_sum/ProductionActivePower')">
+                <ion-icon *ngIf="controller.properties.invert == true" name="arrow-round-down">
+                </ion-icon>
+                <ion-icon *ngIf="controller.properties.invert == false" name="arrow-round-up">
+                </ion-icon>
                 <ng-container *ngIf="controller.properties.threshold < 0">
                   {{controller.properties['threshold'] * -1 | unitvalue: 'kW'}}
                 </ng-container>
@@ -125,6 +134,10 @@
               <!-- OTHER -->
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower' && controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
+                <ion-icon *ngIf="controller.properties.invert == true" name="arrow-round-down">
+                </ion-icon>
+                <ion-icon *ngIf="controller.properties.invert == false" name="arrow-round-up">
+                </ion-icon>
                 <ng-container *ngIf="controller.properties.threshold < 0">
                   {{controller.properties['threshold'] * -1 }}
                   <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
@@ -140,8 +153,8 @@
               </td>
             </tr>
             <tr>
-              <td style="width: 65%">
-                Mindestumschaltzeit</td>
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.Singlethreshold.minSwitchingTime</td>
               <td style="width: 35%" class="align_right">
                 {{controller.properties.minimumSwitchingTime | unitvalue: 's'}}
               </td>

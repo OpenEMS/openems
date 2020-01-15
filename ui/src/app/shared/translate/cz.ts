@@ -40,6 +40,7 @@ export const TRANSLATION = {
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         ChangeAccepted: "Změna byla přijata",
         ChangeFailed: "Změna se nezdařila",
+        InputNotValid: "Vstup je neplatný",
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -86,6 +87,17 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    dependendOn: 'Podle toho',
+                    currentValue: 'Aktuální hodnota',
+                    threshold: 'Prahována',
+                    minSwitchingTime: 'Minimální přepínací',
+                    other: 'Ostatní',
+                    switchedLoadPower: 'Spínané zatížení',
+                    behaviour: 'Chování',
+                    above: 'O',
+                    below: 'Níže'
+                },
                 Channeltreshold: {
                     Output: "Výstup"
                 },
