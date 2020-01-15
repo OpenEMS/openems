@@ -9,6 +9,7 @@ import { NetworkComponent } from './network/network.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
+import { KacoComponent } from './kaco/kaco.component';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     ComponentUpdateComponent,
     NetworkComponent,
     ProfileComponent,
-    SystemExecuteComponent
+    SystemExecuteComponent,
+    KacoComponent
   ]
 })
 export class SettingsModule { }

@@ -266,6 +266,13 @@ export const TRANSLATION = {
             Bridge: {
                 NewDevice: "Neues Gerät...",
                 NewConnection: "Neue Verbindung..."
+            },
+            Kaco: {
+                ChangePassword: "Wechselrichter Passwort ändern",
+                EnterNewPassword: "Geben Sie das neue Passwort ein",
+                UpdatePassword: "Passwort aktualisieren",
+                UpdateSuccess: "Aktualisierung des Passworts erfolgreich!",
+                UpdateError: "Fehler beim Aktualisieren des Passworts"
             }
         }
     },

@@ -251,6 +251,13 @@ export const TRANSLATION = {
             Bridge: {
                 NewDevice: "New device...",
                 NewConnection: "New connection..."
+            },
+            Kaco: {
+                ChangePassword: "Change inverter password",
+                EnterNewPassword: "Enter new inverter password",
+                UpdatePassword: "Update password",
+                UpdateSuccess: "Succesfully updated password!",
+                UpdateError: "Error updating the password"
             }
         }
     },

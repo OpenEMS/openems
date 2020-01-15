@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, Service, Utils } from '../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from 'src/environments';
+
 
 @Component({
   selector: 'settings',
@@ -9,7 +11,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SettingsComponent implements OnInit {
 
-  public edge: Edge = null
+  public edge: Edge = null;
+  public env = environment;
 
   constructor(
     private route: ActivatedRoute,

@@ -1,0 +1,28 @@
+<ion-grid>
+    <ion-row class="ion-justify-content-center">
+
+        <ion-col size="12" size-sm="6">
+            <ion-card>
+                <ion-item>
+                    <ion-icon slot="start" name="lock" color="primary"></ion-icon>
+                    <ion-label>
+                        <ion-card-title translate>Edge.Config.Kaco.ChangePassword</ion-card-title>
+                    </ion-label>
+                </ion-item>
+                <ion-card-content>
+                    <form [formGroup]="form" (ngSubmit)="submit(password.value)">
+                        <ion-item>
+                            <ion-label position="floating" translate>Edge.Config.Kaco.EnterNewPassword</ion-label>
+                            <ion-input #password formControlName="password" required type="password"></ion-input>
+                        </ion-item>
+                        <ion-item>
+                            <ion-button type="submit" color="primary" translate>Edge.Config.Kaco.UpdatePassword
+                            </ion-button>
+                        </ion-item>
+                    </form>
+                </ion-card-content>
+            </ion-card>
+        </ion-col>
+
+    </ion-row>
+</ion-grid>
