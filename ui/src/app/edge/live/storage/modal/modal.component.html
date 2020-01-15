@@ -42,7 +42,7 @@
                 <div style="padding-top: 5px;"></div>
                 <table class="full_width"
                     *ngIf="sum.activePowerL1 != null && sum.activePowerL2 != null && sum.activePowerL3 != null">
-                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noChargerL1">
                         <tr *ngIf="sum.effectiveActivePowerL1 > 0">
                             <td style="width:2%"></td>
                             <td style="width:63%"><span translate>General.Phase</span> L1 <span
@@ -62,7 +62,7 @@
                             </td>
                         </tr>
                     </ng-container>
-                    <ng-template #noCharger>
+                    <ng-template #noChargerL1>
                         <tr *ngIf="sum.activePowerL1 > 0">
                             <td style="width:2%"></td>
                             <td style="width:63%"><span translate>General.Phase</span> L1 <span
@@ -82,7 +82,7 @@
                             </td>
                         </tr>
                     </ng-template>
-                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noChargerL2">
                         <tr *ngIf="sum.effectiveActivePowerL2 > 0">
                             <td style="width:2%"></td>
                             <td style="width:63%"><span translate>General.Phase</span> L2 <span
@@ -102,7 +102,7 @@
                             </td>
                         </tr>
                     </ng-container>
-                    <ng-template #noCharger>
+                    <ng-template #noChargerL2>
                         <tr *ngIf="sum.activePowerL2 > 0">
                             <td style="width:2%"></td>
                             <td style="width:63%"><span translate>General.Phase</span> L2 <span
@@ -122,7 +122,7 @@
                             </td>
                         </tr>
                     </ng-template>
-                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noCharger">
+                    <ng-container *ngIf="chargerComponents != null && chargerComponents.length != 0;else noChargerL3">
                         <tr *ngIf="sum.effectiveActivePowerL3 > 0">
                             <td style="width:2%"></td>
                             <td style="width:63%"><span translate>General.Phase</span> L3 <span
@@ -142,7 +142,7 @@
                             </td>
                         </tr>
                     </ng-container>
-                    <ng-template #noCharger>
+                    <ng-template #noChargerL3>
                         <tr *ngIf="sum.activePowerL3 > 0">
                             <td style="width:2%"></td>
                             <td style="width:63%"><span translate>General.Phase</span> L3 <span
