@@ -41,13 +41,15 @@
 	bnd.identity;id='io.openems.edge.controller.ess.limitdischargecellvoltage',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
+	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
+	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
-	bnd.identity;id='io.openems.edge.controller.selltogridlimit',\
+	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixactivepower',\
@@ -85,6 +87,7 @@
 	bnd.identity;id='io.openems.edge.meter.janitza.umg96rme',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
+	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
 	bnd.identity;id='io.openems.edge.meter.socomec',\
 	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
@@ -138,13 +141,15 @@
 	io.openems.edge.controller.ess.limitdischargecellvoltage;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.limittotaldischarge;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.onefullcycle;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.ess.predictivedelaycharge;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.ess.selltogridlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.evcs;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.evcs.fixactivepower;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.highloadtimeslot;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.alarm;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.fixdigitaloutput;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version='[1.0.0,1.0.1)',\
-	io.openems.edge.controller.selltogridlimit;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.pvinverter.selltogridlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.symmetric.balancing;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.symmetric.balancingschedule;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.symmetric.fixactivepower;version='[1.0.0,1.0.1)',\
@@ -178,7 +183,6 @@
 	io.openems.edge.io.wago;version='[1.0.0,1.0.1)',\
 	io.openems.edge.kostal.piko;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.abb;version='[1.0.0,1.0.1)',\
-	io.openems.edge.meter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.artemes.am2;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.bcontrol.em300;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.carlo.gavazzi.em300;version='[1.0.0,1.0.1)',\
@@ -186,6 +190,7 @@
 	io.openems.edge.meter.janitza.umg96rme;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.microcare.sdm630;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.pqplus.umd97;version='[1.0.0,1.0.1)',\
+	io.openems.edge.meter.schneider.acti9.smartlink;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.socomec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.sunspec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.virtual;version='[1.0.0,1.0.1)',\
