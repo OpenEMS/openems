@@ -322,7 +322,7 @@ public class ErrorHandler {
 			this.parent.parent.setHardResetContactor(true);
 			return State.HARD_RESET;
 		}
-
+		
 		if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isAfter(LocalDateTime.now())) {
 			// just wait and keep the contactor closed
 			this.parent.parent.setHardResetContactor(true);
@@ -337,7 +337,8 @@ public class ErrorHandler {
 		}
 
 		// switch-off-time and reload-time passed
-		this.parent.parent.setHardResetContactor(false); // Keep contactor open
+		this.parent.parent.setHardResetContactor(false); // Keep contactor open 
+		//TODO hier muss ein fehler vorliegen, da lt. beobachtung an der hardware das relais alle 2-3 sekunden geschaltet wurde...
 		// Mr Gridcon should be back, so reset everything to start conditions
 		this.lastHardReset = null;
 		return State.FINISH_ERROR_HANDLING;

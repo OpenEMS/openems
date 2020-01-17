@@ -81,7 +81,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
 
-	public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
+	public static final int MAX_POWER_PER_INVERTER = 42_000; 
 	
 	public static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
 	public static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
@@ -317,6 +317,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsException {
 		if (this.stateMachine.getState() != StateMachine.State.ONGRID) {
+			//evtl ergänzen: wenn gridcon nicht im RUN-State ist 
 			return new Constraint[] {
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
@@ -339,8 +340,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		 * MAX_APPARENT_POWER. So 0.1 => 10% of max power. Values should never take
 		 * values lower than -1 or higher than 1.
 		 */
-		float activePowerFactor = -activePower / maxApparentPower;
-		float reactivePowerFactor = -reactivePower / maxApparentPower;
+		float activePowerFactor = (-1) * activePower / maxApparentPower;
+		float reactivePowerFactor = (-1) * reactivePower / maxApparentPower;
 
 		FloatWriteChannel pRefChannel = this.channel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF);
 		FloatWriteChannel qRefChannel = this.channel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF);

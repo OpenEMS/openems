@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.bridge.modbus.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.FloatReadChannel;
