@@ -11,7 +11,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
+import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 
@@ -28,7 +28,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	private WebsocketServer server = null;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile EdgeWebsocket edgeWebsocket;
+	protected volatile JsonRpcRequestHandler jsonRpcRequestHandler;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;

@@ -43,6 +43,10 @@ export class Edge {
   // holds config
   private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
 
+  // determine if subscribe on channels was successful
+  // used in live component to hide elements while no channel data available
+  public subscribeChannelsSuccessful: boolean = false;
+
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
    * 
@@ -138,7 +142,12 @@ export class Edge {
           channels.push.apply(channels, this.subscribedChannels[componentId]);
         }
         let request = new SubscribeChannelsRequest(channels);
-        this.sendRequest(websocket, request);
+        this.sendRequest(websocket, request).then(() => {
+          this.subscribeChannelsSuccessful = true;
+        }).catch(reason => {
+          this.subscribeChannelsSuccessful = false;
+          console.warn(reason);
+        });
       }, 100);
     }
   }

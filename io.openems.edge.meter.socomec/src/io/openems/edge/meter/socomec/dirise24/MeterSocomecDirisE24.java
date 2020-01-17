@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -22,6 +23,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -33,7 +36,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.SOCOMEC.DirisE24", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MeterSocomecDirisE24 extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -133,30 +136,20 @@ public class MeterSocomecDirisE24 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.invert)) //
 				));
 
-		// TODO Check
-//		if (this.invert) {  
-//			protocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
-//					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC702),
-//							ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-//					new DummyRegisterElement(0xC704, 0xC707), // PRODUCTION_REACTIVE_ENERGY
-//					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC708),
-//							ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-//			));
-//		} else {
-//			protocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
-//					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
-//							ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-//					new DummyRegisterElement(0xC704, 0xC707), // PRODUCTION_REACTIVE_ENERGY
-//					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
-//							ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-//			));
-//		}
-
 		return protocol;
 	}
 
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().value().asString();
+	}
+	
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {		
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 }

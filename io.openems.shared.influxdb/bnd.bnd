@@ -2,17 +2,14 @@ Bundle-Name: OpenEMS Edge Shared InfluxDB
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.shared.influxdb
 
--includeresource: {readme.md}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.wrapper.influxdb-java;version=latest,\
+-buildpath: \
+	${buildpath},\
 	com.google.gson,\
-	com.google.guava
+	com.google.guava,\
+	io.openems.common,\
+	io.openems.wrapper.influxdb-java,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

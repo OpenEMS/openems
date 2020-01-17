@@ -1,0 +1,20 @@
+= OneWire
+
+OneWire is a widely used protocol for home automation. It is used by sensors like thermometers.
+
+This implementation directly talks to the OneWire busmaster, e.g. a DS9490R USB dongle, without requiring the OneWire File System (OWFS). 
+It therefore requires the natively compiled C library by the manufacturer of the OneWire chip Maxim Integrated.
+This library is then accessed using Java JNI.
+
+To compile the native library follow the guide on https://www.maximintegrated.com/en/design/technical-documents/app-notes/5/5917.html.
+
+. Download the OneWireViewer-Linux.zip file
+. Unzip the file (`unzip OneWireViewer-Linux.zip`)
+. Prepare compile environment (`sudo apt-get install libusb-dev build-essential`)
+. Install Java JDK (e.g. `sudo apt-get install openjdk-8-jdk`)
+. Compile (`cd OneWireViewer-Linux/PDKAdapterUSB && make && sudo make install`)
+
+The library needs exclusive access to the busmaster.
+
+. Unload the default Linux driver: `rmmod ds2490`
+. Block the driver from loading on next boot `echo blacklist ds2490 > /etc/modprobe.d/ds2490.conf`

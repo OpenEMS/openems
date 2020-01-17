@@ -121,7 +121,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
-
+	
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
@@ -1266,6 +1266,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getMaxApparentPower().setNextValue(maxPower);		
 	}
 
+	protected BridgeModbus getModbus() {
+		return super.getModbus();
+	}
+	
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //

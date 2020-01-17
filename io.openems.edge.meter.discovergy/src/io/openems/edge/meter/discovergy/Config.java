@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Meter Discovergy", //
 		description = "Implements the Discovergy smart meter.")
 @interface Config {

@@ -20,7 +20,7 @@ import io.openems.edge.meter.discovergy.jsonrpc.Field;
 
 public class DiscovergyWorker extends AbstractCycleWorker {
 
-	private final static int LAST_READING_TOO_OLD_SECONDS = 30;
+	private static final int LAST_READING_TOO_OLD_SECONDS = 30;
 
 	private final Logger log = LoggerFactory.getLogger(DiscovergyWorker.class);
 	private final MeterDiscovergy parent;

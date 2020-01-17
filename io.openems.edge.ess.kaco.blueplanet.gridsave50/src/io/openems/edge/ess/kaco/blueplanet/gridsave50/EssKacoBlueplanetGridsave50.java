@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
@@ -43,6 +44,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -215,6 +217,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// do always
 		setBatteryRanges();
 		setWatchdog();
+		setErrorStateChannel();
 
 		EnumReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
 		CurrentState currentState = currentStateChannel.value().asEnum();
@@ -243,6 +246,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			// Do nothing because these states are only temporarily reached
 			break;
 		}
+	}
+
+	private void setErrorStateChannel() {
+		EnumReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
+		CurrentState currentState = currentStateChannel.value().asEnum();
+		boolean isError = currentState == CurrentState.ERROR;
+
+		StateChannel inverterErrorChannel = this.channel(ChannelId.INVERTER_ERROR);
+		inverterErrorChannel.setNextValue(isError);
 	}
 
 	private void doStandbyHandling() {
@@ -467,10 +479,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		INVERTER_ERROR(Doc.of(Level.FAULT)), //
 		/*
 		 * DEBUG
 		 */
-		DEBUG_REQUESTED_STATE(Doc.of(OpenemsType.INTEGER)),
+		DEBUG_REQUESTED_STATE(Doc.of(OpenemsType.INTEGER)),		
 		/*
 		 * SUNSPEC_103
 		 */
