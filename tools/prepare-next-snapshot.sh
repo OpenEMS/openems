@@ -45,3 +45,6 @@ sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1tree\/dev
 sed --in-place "s/\(.*About.Build.*: \).*\(<\/a>\)/\1$new_version\2/" $about_component
 
 echo "# Finished"
+
+echo ""
+echo "# Ready for commit: \"Start development of version $new_version\""
