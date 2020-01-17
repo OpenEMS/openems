@@ -41,6 +41,28 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Which days?", description = "On which days should the algorithm run?")
 	WeekdayFilter weekdayFilter() default WeekdayFilter.EVERDAY;
 	
+	@AttributeDefinition(name = "Monday?", description = "Algorithm to be run on monday?")
+	boolean monday() default true;
+	
+	@AttributeDefinition(name = "tuesday?", description = "Algorithm to be run on tuesday?")
+	boolean tuesday() default true;
+	
+	@AttributeDefinition(name = "wednesday?", description = "Algorithm to be run on wednesday?")
+	boolean wednesday() default true;
+	
+	@AttributeDefinition(name = "thursday?", description = "Algorithm to be run on thursday?")
+	boolean thursday() default true;
+	
+	@AttributeDefinition(name = "friday?", description = "Algorithm to be run on friday?")
+	boolean friday() default true;
+	
+	@AttributeDefinition(name = "saturday?", description = "Algorithm to be run on saturday?")
+	boolean saturday() default true;
+	
+	@AttributeDefinition(name = "sunday?", description = "Algorithm to be run on sunday?")
+	boolean sunday() default true;
+	
+	
 	@AttributeDefinition(name = "Peak-Shaving power", description = "Grid purchase power above this value is considered a peak and shaved to this value.")
 	int peakShavingPower();
 

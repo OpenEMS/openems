@@ -48,13 +48,13 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	@Reference
 	protected Power power;
 	
+	private Config config;
+	
 	private PidFilter pidFilter;
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 	private final Clock clock;
 
-	private String essId;
-	private String meterId;
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private LocalTime startTime;
@@ -112,8 +112,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {		
-		this.essId = config.ess();
-		this.meterId = config.meter_id();
 		this.startDate = convertDate(config.startDate());
 		this.endDate = convertDate(config.endDate());
 		this.startTime = convertTime(config.startTime());
@@ -126,8 +124,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		this.chargePower = config.chargePower();
 		this.channel(ChannelId.CHARGE_POWER).setNextValue(this.chargePower);
 		this.hysteresisSoc = config.hysteresisSoc();
-		this.weekdayDayFilter = config.weekdayFilter();		
+//		this.weekdayDayFilter = config.weekdayFilter();		
 		this.forceChargeMinutes = calculateTimeforForceCharge(this.slowStartTime,  this.startTime);
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.pidFilter = this.power.buildPidFilter();
 	}
@@ -150,8 +149,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
-		SymmetricMeter meter = this.componentManager.getComponent(this.meterId);
+		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess());
+		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		int power = getPower(ess, meter);
 		
@@ -311,6 +310,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @return
 	 */
 	private boolean isHighLoadTimeslot(LocalDateTime dateTime) {
+//		if(!isConfiguredActiveDay(this.config, dateTime)) {
+//			return false;
+//		}
 		if (!isActiveWeekday(this.weekdayDayFilter, dateTime)) {
 			return false;
 		}
@@ -323,6 +325,38 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		// all tests passed
 		return true;
 	}
+	
+	
+//	private static boolean isConfiguredActiveDay(Config config, LocalDateTime dateTime) {
+//		DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
+//		boolean configuredDay = false;
+//		if (config.monday() || config.tuesday() || config.wednesday() || config.thursday() || config.friday()
+//				|| config.saturday() || config.sunday()) {
+//			configuredDay
+//		}
+//		
+//		
+//		
+//		if (config.monday()) {
+//			configuredDay =  (dayOfWeek == DayOfWeek.MONDAY);
+//		} else if (config.tuesday()) {
+//			configuredDay = (dayOfWeek == DayOfWeek.TUESDAY);
+//		} else if (config.wednesday()) {
+//			configuredDay = (dayOfWeek == DayOfWeek.WEDNESDAY);
+//		} else if (config.thursday()) {
+//			configuredDay =  (dayOfWeek == DayOfWeek.THURSDAY);
+//		} else if (config.friday()) {
+//			configuredDay = (dayOfWeek == DayOfWeek.FRIDAY);
+//		} else if (config.saturday()) {
+//			configuredDay = (dayOfWeek == DayOfWeek.SATURDAY);
+//		} else  if(config.sunday()) {
+//			configuredDay = (dayOfWeek == DayOfWeek.SUNDAY);
+//		} else {
+//			configuredDay = false;
+//		}
+//		return configuredDay;
+//	}
+	
 
 	/**
 	 * Is 'dateTime' within the ActiveWeekdayFilter?
@@ -331,7 +365,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @param dateTime
 	 * @return
 	 */
-	protected static boolean isActiveWeekday(WeekdayFilter activeDayFilter, LocalDateTime dateTime) {
+	protected static boolean isActiveWeekday(WeekdayFilter activeDayFilter, LocalDateTime dateTime) {		
 		switch (activeDayFilter) {
 		case EVERDAY:
 			return true;

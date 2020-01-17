@@ -35,10 +35,18 @@ public class ControllerTimeslotPeakshavingTest {
 		private final String slowStartTime;
 		private final WeekdayFilter weekdayFilter;
 		private final int hysteresisSoc;
+		
+		private final boolean monday;
+		private final boolean tuesday;
+		private final boolean wednesday;
+		private final boolean thursday;
+		private final boolean friday;
+		private final boolean saturday;
+		private final boolean sunday;
 
 		public MyConfig(String id, String essId, String meterId, int peakShavingPower, int rechargePower, int chargePower,
 				String startDate, String endDate, String startTime, String endTime, String slowStartTime, WeekdayFilter weekdayFilter,
-				int hysteresisSoc) {
+				int hysteresisSoc, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
 			super(Config.class, id);
 			this.essId = essId;
 			this.meterId = meterId;
@@ -52,6 +60,15 @@ public class ControllerTimeslotPeakshavingTest {
 			this.endTime = endTime;
 			this.weekdayFilter = weekdayFilter;
 			this.hysteresisSoc = hysteresisSoc;
+			
+			this.monday =  monday;
+			this.tuesday = tuesday;
+			this.wednesday = wednesday;
+			this.thursday = thursday;
+			this.friday = friday;
+			this.saturday = saturday;
+			this.sunday = sunday;
+					
 
 		}
 
@@ -114,6 +131,41 @@ public class ControllerTimeslotPeakshavingTest {
 		public String slowStartTime() {
 			return this.slowStartTime;
 		}
+
+		@Override
+		public boolean monday() {
+			return this.monday;
+		}
+
+		@Override
+		public boolean tuesday() {
+			return this.tuesday;
+		}
+
+		@Override
+		public boolean wednesday() {
+			return this.wednesday;
+		}
+
+		@Override
+		public boolean thursday() {
+			return this.thursday;
+		}
+
+		@Override
+		public boolean friday() {
+			return this.friday;
+		}
+
+		@Override
+		public boolean saturday() {
+			return this.saturday;
+		}
+
+		@Override
+		public boolean sunday() {
+			return this.sunday;
+		}
 	}
 
 	@Test
@@ -129,7 +181,7 @@ public class ControllerTimeslotPeakshavingTest {
 		ctrl.power = power;
 
 		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 100000, 50000, 50000, "18.11.2019", "18.11.2019", "10:00",
-				"11:00", "04:00", WeekdayFilter.ONLY_WEEKDAYS, 50);
+				"11:00", "04:00", WeekdayFilter.ONLY_WEEKDAYS, 50, true, true, true, true, true, true, true);
 		
 		ctrl.activate(null, config);
 		ctrl.activate(null, config);
