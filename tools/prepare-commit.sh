@@ -16,51 +16,6 @@
 #   to origin.
 #
 
-# Update EdgeApp.bndrun
-bndrun='io.openems.edge.application/EdgeApp.bndrun'
-head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
-for D in io.openems.edge.*; do
-	if [[ "$D" == *api ]]; then
-		continue # ignore api bundle
-	fi
-	echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
-done
-runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
-tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-diff "$bndrun" "$bndrun.new"
-if [ $? -ne 0 ]; then
-	echo "EdgeApp.bndrun changed! Run ./gradlew resolve.EdgeApp"
-	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-	exit 1
-fi
-rm "$bndrun.new"
-
-# Update BackendApp.bndrun
-bndrun='io.openems.backend.application/BackendApp.bndrun'
-head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.eclipse.equinox.metatype',\\" >> "$bndrun.new"
-for D in io.openems.backend.*; do
-	if [[ "$D" == *api ]]; then
-		continue # ignore api bundle
-	fi
-	echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
-done
-runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
-tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-diff "$bndrun" "$bndrun.new"
-if [ $? -ne 0 ]; then
-	echo "BackendApp.bndrun changed! Run ./gradlew resolve.BackendApp"
-	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-	exit 1
-fi
-rm "$bndrun.new"
-
 # Check bundles
 for D in *; do
 	if [ -d "${D}" ]; then
@@ -68,6 +23,19 @@ for D in *; do
 			build|cnf|doc|edge|ui|tools)
 				;;
 			*)
+
+				# check for empty/non-project directories
+				if [ ! -d "${D}/src" ]; then
+					echo "${D} is empty. Delete directory?"
+					select yn in "Yes" "No"; do
+						case $yn in
+							Yes ) rm -rf "${D}"; break;;
+							No ) ;;
+						esac
+					done
+					continue
+				fi
+
 				echo "# preparing " ${D}
 
 				# verify the project .gitignore file
@@ -116,3 +84,47 @@ for D in *; do
 		esac
 	fi
 done
+
+# Update EdgeApp.bndrun
+bndrun='io.openems.edge.application/EdgeApp.bndrun'
+head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
+echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
+for D in io.openems.edge.*; do
+	if [[ "$D" == *api ]]; then
+		continue # ignore api bundle
+	fi
+	echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
+done
+runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
+tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
+diff "$bndrun" "$bndrun.new"
+if [ $? -ne 0 ]; then
+	echo "EdgeApp.bndrun changed! Run ./gradlew resolve.EdgeApp"
+	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
+fi
+rm "$bndrun.new"
+
+# Update BackendApp.bndrun
+bndrun='io.openems.backend.application/BackendApp.bndrun'
+head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
+echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.eclipse.equinox.metatype',\\" >> "$bndrun.new"
+for D in io.openems.backend.*; do
+	if [[ "$D" == *api ]]; then
+		continue # ignore api bundle
+	fi
+	echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
+done
+runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
+tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
+diff "$bndrun" "$bndrun.new"
+if [ $? -ne 0 ]; then
+	echo "BackendApp.bndrun changed! Run ./gradlew resolve.BackendApp"
+	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
+fi
+rm "$bndrun.new"
+
