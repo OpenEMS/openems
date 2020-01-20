@@ -2,6 +2,7 @@ package io.openems.edge.timedata.rrd4j;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.OptionalDouble;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
@@ -48,6 +49,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 	// Record queue
 	private LinkedBlockingQueue<Record> records = new LinkedBlockingQueue<>();
+
+	// keeps the last recorded timestamp
 	private LocalDateTime lastRecordedTimestamp = LocalDateTime.MIN;
 
 	public RecordWorker(Rrd4jTimedata parent) {
@@ -60,13 +63,20 @@ public class RecordWorker extends AbstractImmediateWorker {
 	 * RRD4J.
 	 */
 	public void collectData() {
+		LocalDateTime recordTimestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+
 		// Increase CycleCount
 		if (++this.cycleCount < this.noOfCycles) {
 			// Stop here if not reached CycleCount
 			return;
 		}
 
-		LocalDateTime recordTimestamp = LocalDateTime.now();
+		// Same second as last run? -> RRD4j can only handle one sample per second per
+		// database. Timestamps are all stored "truncated to seconds".
+		if (recordTimestamp.isEqual(this.lastRecordedTimestamp)) {
+			return;
+		}
+
 		long timestamp = recordTimestamp.toEpochSecond(ZoneOffset.UTC);
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
@@ -81,7 +91,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 				Function<DoubleStream, OptionalDouble> channelAggregateFunction = getChannelAggregateFunction(
 						channel.channelDoc().getUnit());
 
-				OptionalDouble value = channelAggregateFunction.apply( //
+				OptionalDouble value = channelAggregateFunction.apply(//
 						channel.getPastValues() //
 								.tailMap(this.lastRecordedTimestamp, false) // new values since last recording
 								.values().stream() //
@@ -132,26 +142,26 @@ public class RecordWorker extends AbstractImmediateWorker {
 		}
 	}
 
-	private final static ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = (value) -> {
 		return (Boolean) value ? 1d : 0d;
 	};
 
-	private final static ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = (value) -> {
 		return ((Short) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = (value) -> {
 		return ((Integer) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = (value) -> {
 		return ((Long) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = (value) -> {
 		return ((Float) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = (value) -> {
 		return (Double) value;
 	};
-	private final static ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = (value) -> {
 		return 0d;
 	};
 
