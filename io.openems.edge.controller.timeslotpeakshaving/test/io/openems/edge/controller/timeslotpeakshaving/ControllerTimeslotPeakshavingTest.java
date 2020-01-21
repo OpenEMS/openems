@@ -33,7 +33,6 @@ public class ControllerTimeslotPeakshavingTest {
 		private final String startTime;
 		private final String endTime;
 		private final String slowStartTime;
-		private final WeekdayFilter weekdayFilter;
 		private final int hysteresisSoc;
 		
 		private final boolean monday;
@@ -45,7 +44,7 @@ public class ControllerTimeslotPeakshavingTest {
 		private final boolean sunday;
 
 		public MyConfig(String id, String essId, String meterId, int peakShavingPower, int rechargePower, int chargePower,
-				String startDate, String endDate, String startTime, String endTime, String slowStartTime, WeekdayFilter weekdayFilter,
+				String startDate, String endDate, String startTime, String endTime, String slowStartTime, 
 				int hysteresisSoc, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
 			super(Config.class, id);
 			this.essId = essId;
@@ -58,7 +57,6 @@ public class ControllerTimeslotPeakshavingTest {
 			this.startTime = startTime;
 			this.slowStartTime = slowStartTime;
 			this.endTime = endTime;
-			this.weekdayFilter = weekdayFilter;
 			this.hysteresisSoc = hysteresisSoc;
 			
 			this.monday =  monday;
@@ -100,11 +98,6 @@ public class ControllerTimeslotPeakshavingTest {
 		@Override
 		public String endTime() {
 			return this.endTime;
-		}
-
-		@Override
-		public WeekdayFilter weekdayFilter() {
-			return this.weekdayFilter;
 		}
 
 		@Override
@@ -181,7 +174,7 @@ public class ControllerTimeslotPeakshavingTest {
 		ctrl.power = power;
 
 		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 100000, 50000, 50000, "18.11.2019", "18.11.2019", "10:00",
-				"11:00", "04:00", WeekdayFilter.ONLY_WEEKDAYS, 50, true, true, true, true, true, true, true);
+				"11:00", "04:00",  50, false, true, true, true, true, true, true);
 		
 		ctrl.activate(null, config);
 		ctrl.activate(null, config);

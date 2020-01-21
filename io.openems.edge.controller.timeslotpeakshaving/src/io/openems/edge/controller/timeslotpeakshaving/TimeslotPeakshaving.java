@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -64,7 +65,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	private int rechargePower;
 	private int chargePower;
 	private int hysteresisSoc;
-	private WeekdayFilter weekdayDayFilter;
+	//private WeekdayFilter weekdayDayFilter;
 	private int forceChargeMinutes;
 	
 	boolean isInTimeslot = false;
@@ -310,12 +311,12 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @return
 	 */
 	private boolean isHighLoadTimeslot(LocalDateTime dateTime) {
-//		if(!isConfiguredActiveDay(this.config, dateTime)) {
-//			return false;
-//		}
-		if (!isActiveWeekday(this.weekdayDayFilter, dateTime)) {
+		if(!isConfiguredActiveDay(this.config, dateTime)) {
 			return false;
 		}
+//		if (!isActiveWeekday(this.weekdayDayFilter, dateTime)) {
+//			return false;
+//		}
 		if (!isActiveDate(this.startDate, this.endDate, dateTime)) {
 			return false;
 		}
@@ -326,38 +327,52 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		return true;
 	}
 	
-	
-//	private static boolean isConfiguredActiveDay(Config config, LocalDateTime dateTime) {
-//		DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
-//		boolean configuredDay = false;
-//		if (config.monday() || config.tuesday() || config.wednesday() || config.thursday() || config.friday()
-//				|| config.saturday() || config.sunday()) {
-//			configuredDay
-//		}
-//		
-//		
-//		
-//		if (config.monday()) {
-//			configuredDay =  (dayOfWeek == DayOfWeek.MONDAY);
-//		} else if (config.tuesday()) {
-//			configuredDay = (dayOfWeek == DayOfWeek.TUESDAY);
-//		} else if (config.wednesday()) {
-//			configuredDay = (dayOfWeek == DayOfWeek.WEDNESDAY);
-//		} else if (config.thursday()) {
-//			configuredDay =  (dayOfWeek == DayOfWeek.THURSDAY);
-//		} else if (config.friday()) {
-//			configuredDay = (dayOfWeek == DayOfWeek.FRIDAY);
-//		} else if (config.saturday()) {
-//			configuredDay = (dayOfWeek == DayOfWeek.SATURDAY);
-//		} else  if(config.sunday()) {
-//			configuredDay = (dayOfWeek == DayOfWeek.SUNDAY);
-//		} else {
-//			configuredDay = false;
-//		}
-//		return configuredDay;
-//	}
-	
+	private static boolean isConfiguredActiveDay(Config config, LocalDateTime dateTime) {
 
+		Calendar calendar = Calendar.getInstance();
+		int day = calendar.get(Calendar.DAY_OF_WEEK);
+		boolean configuredDay = false;
+
+		switch (day) {
+		case Calendar.SUNDAY:
+			if (config.sunday()) {
+				configuredDay = true;
+			}
+			break;
+		case Calendar.MONDAY:
+			if (config.monday()) {
+				configuredDay = true;
+			}
+			break;
+		case Calendar.TUESDAY:
+			if (config.tuesday()) {
+				configuredDay = true;
+			}
+			break;
+		case Calendar.WEDNESDAY:
+			if (config.wednesday()) {
+				configuredDay = true;
+			}
+			break;
+		case Calendar.THURSDAY:
+			if (config.thursday()) {
+				configuredDay = true;
+			}
+			break;
+		case Calendar.FRIDAY:
+			if (config.friday()) {
+				configuredDay = true;
+			}
+			break;
+		case Calendar.SATURDAY:
+			if (config.saturday()) {
+				configuredDay = true;
+			}
+			break;
+		}
+		return configuredDay;
+	}
+	
 	/**
 	 * Is 'dateTime' within the ActiveWeekdayFilter?
 	 * 

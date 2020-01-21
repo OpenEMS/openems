@@ -38,8 +38,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Slow start Time", description = "The time to slow charging of the battery within timeslot and not within highthreshold time")
 	String slowStartTime();
 
-	@AttributeDefinition(name = "Which days?", description = "On which days should the algorithm run?")
-	WeekdayFilter weekdayFilter() default WeekdayFilter.EVERDAY;
+//	@AttributeDefinition(name = "Which days?", description = "On which days should the algorithm run?")
+//	WeekdayFilter weekdayFilter() default WeekdayFilter.EVERDAY;
 	
 	@AttributeDefinition(name = "Monday?", description = "Algorithm to be run on monday?")
 	boolean monday() default true;
