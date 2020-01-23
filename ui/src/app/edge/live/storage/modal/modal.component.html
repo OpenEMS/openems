@@ -168,6 +168,15 @@
                         </tr>
                     </ng-template>
                 </table>
+                <div style="padding-top: 5px;"></div>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%">Latest Error:</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100%">{{ currentData[component.id + '/ErrorLog'] }}</td>
+                    </tr>
+                </table>
             </ion-card-content>
         </ng-container>
     </ng-container>
@@ -483,6 +492,15 @@
                                         <td style="width:35%" class="align_right">-&nbsp;</td>
                                     </ng-template>
                                 </ng-container>
+                            </tr>
+                        </table>
+                        <div style="padding-top: 5px;"></div>
+                        <table class="full_width">
+                            <tr>
+                                <td style="width: 100%">Latest Error:</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 100%">{{ currentData[component.id + '/ErrorLog'] }}</td>
                             </tr>
                         </table>
                     </ion-card-content>

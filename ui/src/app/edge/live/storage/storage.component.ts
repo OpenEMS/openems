@@ -45,6 +45,7 @@ export class StorageComponent {
                     new ChannelAddress(component.id, 'Soc'),
                     new ChannelAddress(component.id, 'ActivePower'),
                     new ChannelAddress(component.id, 'Capacity'),
+                    new ChannelAddress(component.id, 'ErrorLog')
                 );
                 if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                     channels.push(
