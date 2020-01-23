@@ -38,7 +38,6 @@
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
-	bnd.identity;id='io.openems.edge.controller.ess.limitdischargecellvoltage',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
@@ -138,7 +137,6 @@
 	io.openems.edge.controller.debug.log;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.acisland;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.delaycharge;version='[1.0.0,1.0.1)',\
-	io.openems.edge.controller.ess.limitdischargecellvoltage;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.limittotaldischarge;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.onefullcycle;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.predictivedelaycharge;version='[1.0.0,1.0.1)',\
