@@ -404,8 +404,8 @@ public class SingleRack {
 
 		// State values
 		tasks.add(new FC3ReadRegistersTask(this.addressOffset + 0x100, Priority.HIGH, //
-				parent.map(channelIds.get(KEY_VOLTAGE), getUWE(0x100), ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				parent.map(channelIds.get(KEY_CURRENT), getUWE(0x101), ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+				parent.map(channelIds.get(KEY_VOLTAGE), getUWE(0x100), ElementToChannelConverter.SCALE_FACTOR_2), //
+				parent.map(channelIds.get(KEY_CURRENT), getSWE(0x101), ElementToChannelConverter.SCALE_FACTOR_2), //
 				parent.map(channelIds.get(KEY_CHARGE_INDICATION), getUWE(0x102)), //
 				parent.map(channelIds.get(KEY_SOC), getUWE(0x103)). //
 						onUpdateCallback(val -> {
