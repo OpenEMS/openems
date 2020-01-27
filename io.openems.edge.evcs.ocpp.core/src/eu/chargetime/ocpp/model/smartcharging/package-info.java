@@ -24,6 +24,8 @@
    SOFTWARE.
 */
 @XmlSchema(elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED, namespace = "urn://Ocpp/Cs/2015/10/")
+@org.osgi.annotation.versioning.Version("1.0.0")
+@org.osgi.annotation.bundle.Export
 package eu.chargetime.ocpp.model.smartcharging;
 
 import javax.xml.bind.annotation.XmlSchema;
