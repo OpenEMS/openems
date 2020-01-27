@@ -189,12 +189,18 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 */
 	private int getPower(ManagedSymmetricEss ess, SymmetricMeter meter) {		
 		LocalDateTime now = LocalDateTime.now(this.clock);
+		int activePower = this.peakShave(ess, meter);
 		if (this.isHighLoadTimeslot(now)) {
 			/*
 			 * We are in a High-Load period -> peak shave and discharge/ charge
 			 */
-			// reset charge state
-			int activePower = this.peakShave(ess, meter);
+			// hysterisis soc within highloadtimeslot
+			if (ess.getSoc().value().orElse(0) >= this.hysteresisSoc) {
+				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + this.hysteresisSoc
+						+ "]. Switch to Charge-Normal state.");
+				this.chargeState = ChargeState.HYSTERESIS;
+				return 0;
+			}			
 			this.channel(ChannelId.PID_OUTPUT).setNextValue(activePower);
 			this.chargeState = ChargeState.NORMAL;
 			isInTimeslot = true;
@@ -208,12 +214,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			this.channel(ChannelId.PID_OUTPUT).setNextValue(0);
 			isInBeforeTimeslot = true;
 			this.chargeState = ChargeState.FORCE_CHARGE;
-		}else {
-			/*
-			 * Outside the time slot
-			 */
-			this.channel(ChannelId.PID_OUTPUT).setNextValue(0);
-			this.chargeState = ChargeState.OUTSIDE_TIMESLOT;
 		}
 		/*
 		 * We are in a Charge period
@@ -230,7 +230,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
 				this.chargeState = ChargeState.HYSTERESIS;
 			}
-			return this.chargePower;
+			return activePower;
 		case HYSTERESIS:
 			/*
 			 * block charging till configured hysteresisSoc
@@ -248,12 +248,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			 */
 			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + this.chargePower + "]");
 			return this.chargePower;
-		case OUTSIDE_TIMESLOT:
-			/*
-			 * Outside the time slot where no contraints need to be added
-			 */
-			this.logInfo(log, "Out side the timeslot. no power constraints");
-			return 0;
 		}
 		// we should never come here...
 		return 0;
@@ -314,9 +308,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		if(!isConfiguredActiveDay(this.config, dateTime)) {
 			return false;
 		}
-//		if (!isActiveWeekday(this.weekdayDayFilter, dateTime)) {
-//			return false;
-//		}
 		if (!isActiveDate(this.startDate, this.endDate, dateTime)) {
 			return false;
 		}

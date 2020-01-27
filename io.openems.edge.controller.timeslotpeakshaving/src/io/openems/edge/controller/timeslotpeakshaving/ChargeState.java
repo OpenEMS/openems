@@ -17,11 +17,6 @@ public enum ChargeState implements OptionsEnum {
 	 * starts
 	 */
 	FORCE_CHARGE(2, "Force charge state: force full charging just before the high-load timeslot starts"),
-	/**
-	 * State where the controller in outside timeslot, and no power contraints are added
-	 * 
-	 */
-	OUTSIDE_TIMESLOT(3, "State where the controller in outside timeslot, and no power contraints are added")
 	;
 	
 	private final int value;
