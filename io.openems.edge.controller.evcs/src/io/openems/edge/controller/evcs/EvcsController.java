@@ -140,15 +140,17 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	public void run() throws OpenemsNamedException {
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
-		int maxHW = evcs.getMaximumHardwarePower().value().orElse(0);
-		maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
-		if (config.defaultChargeMinPower() > maxHW) {
-			configUpdate("defaultChargeMinPower", maxHW);
+		int maxHW = evcs.getMaximumHardwarePower().getNextValue().orElse(22800);
+		if(maxHW != 0) {
+			maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
+			if (config.defaultChargeMinPower() > maxHW) {
+				configUpdate("defaultChargeMinPower", maxHW);
+			}
+			if (config.forceChargeMinPower() > maxHW) {
+				configUpdate("forceChargeMinPower", maxHW);
+			}	
 		}
-		if (config.forceChargeMinPower() > maxHW) {
-			configUpdate("forceChargeMinPower", maxHW);
-		}
-
+		
 		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
 
 		/*
@@ -335,7 +337,12 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		// final String targetProperty = property + ".target";
 		Configuration c;
 		try {
-			c = cm.getConfiguration(this.servicePid(), "?");
+			String pid = this.servicePid();
+			if (pid.isEmpty()) {
+				this.logInfo(log, "PID of " + this.id() + " is Empty");
+				return;
+			}
+			c = cm.getConfiguration(pid, "?");
 			Dictionary<String, Object> properties = c.getProperties();
 			Object target = properties.get(targetProperty);
 			String existingTarget = target.toString();
