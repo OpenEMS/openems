@@ -18,9 +18,15 @@ import io.openems.edge.goodwe.et.GoodWeEtConstants;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
+	boolean readOnlyMode() default false;
 
 	@AttributeDefinition(name = "Modbus Unit-id", description = "Unit-id")
 	int unit_id() default GoodWeEtConstants.DEFAULT_UNIT_ID;
+	
+	@AttributeDefinition(name = "Power Mode", description = "Mode of the power")
+	PowerModeEMS Powermode() default PowerModeEMS.AUTO;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";

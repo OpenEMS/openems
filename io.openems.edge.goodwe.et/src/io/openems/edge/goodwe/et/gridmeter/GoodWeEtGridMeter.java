@@ -19,6 +19,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -26,6 +27,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.goodwe.et.ess.EssChannelId;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -235,6 +237,10 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(35135), //
 								ElementToChannelConverter.INVERT) //
 				), //
+				//TODO Please check whether the channle id is correct or not
+				new FC3ReadRegistersTask(35203, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(35203),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(35140, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(35140),
 								ElementToChannelConverter.INVERT), //

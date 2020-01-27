@@ -38,6 +38,6 @@ public enum PowerModeEMS implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return UNDEFINED;
+		return AUTO;
 	}
 }
