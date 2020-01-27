@@ -14,3 +14,41 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath}
+
+-includeresource.resources: \
+	resources
+
+template-category: \
+	bbb/OpenEMS Templates
+template-icon: \
+	data:image/gif;base64,${base64;openems.gif}
+
+Provide-Capability: \
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Controller;\
+		category=${template-category};\
+		ranking:Double=900;\
+		dir=templates/controller;\
+		icon="${template-icon}";\
+		help=controller-help.xml,\
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Device;\
+		category=${template-category};\
+		ranking:Double=800;\
+		dir=templates/device;\
+		icon="${template-icon}";\
+		help=device-help.xml,\
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Modbus Device;\
+		category=${template-category};\
+		ranking:Double=700;\
+		dir=templates/device-modbus;\
+		icon="${template-icon}";\
+		help=device-modbus-help.xml,\
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Api;\
+		category=${template-category};\
+		ranking:Double=600;\
+		dir=templates/api;\
+		icon="${template-icon}";\
+		help=api-help.xml
