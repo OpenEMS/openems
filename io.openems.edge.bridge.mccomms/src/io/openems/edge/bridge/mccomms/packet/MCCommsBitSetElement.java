@@ -39,7 +39,7 @@ public class MCCommsBitSetElement extends MCCommsElement {
 	@SafeVarargs
 	private MCCommsBitSetElement(Range<Integer> addressRange, Channel<Boolean>... channels) throws OpenemsException {
 		super(addressRange, true, null, null);
-		if (((addressRange.upperEndpoint() - addressRange.lowerEndpoint()) * 8) < channels.length) {
+		if (((addressRange.upperEndpoint() - addressRange.lowerEndpoint() + 1) * 8) < channels.length) {
 			throw new OpenemsException("Number of channels exceeds number of bits");
 		}
 		this.channels = channels;
@@ -53,7 +53,7 @@ public class MCCommsBitSetElement extends MCCommsElement {
 	 * @param numBytes     the number of bytes this element takes up within the
 	 *                     packet byte order
 	 * @param channels     the boolean {@link Channel}s to be bound to this element,
-	 *                     in the order of which bit the pertain to bits can be
+	 *                     in the order of which bit the pertain to. Bits can be
 	 *                     skipped by supplying a null parameter; e.g:
 	 *                     <p>
 	 *                     {@code new MCCommsBitSetElement(Range.closed(1,1),
