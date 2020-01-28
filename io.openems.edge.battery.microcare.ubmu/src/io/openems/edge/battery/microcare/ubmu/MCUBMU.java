@@ -189,9 +189,9 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		this.netCurrentChannelUpdater = new NetCurrentChannelUpdater();
 		
 		//Calculate net current on value updates
-		((BooleanReadChannel) channel(ChannelId.DISCHARGE_CURRENT))
+		channel(ChannelId.DISCHARGE_CURRENT)
 				.onSetNextValue(value -> netCurrentChannelUpdater.dischargeCurrentChannelUpdated());
-		((BooleanReadChannel) channel(ChannelId.CHARGE_CURRENT))
+		channel(ChannelId.CHARGE_CURRENT)
 				.onSetNextValue(value -> netCurrentChannelUpdater.chargeCurrentChannelUpdated());
 		
 		//reset READY_FOR_WORKING to true when image is processed
