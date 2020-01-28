@@ -26,6 +26,7 @@ import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
 import { Language } from './translate/language';
+import { ToArray } from './pipe/toarray/toarray.pipe';
 
 @NgModule({
   imports: [
@@ -51,6 +52,7 @@ import { Language } from './translate/language';
     KeysPipe,
     SignPipe,
     UnitvaluePipe,
+    ToArray,
     // components
     ChartOptionsComponent,
     PercentageBarComponent,
@@ -64,6 +66,7 @@ import { Language } from './translate/language';
     KeysPipe,
     SignPipe,
     UnitvaluePipe,
+    ToArray,
     // modules
     BrowserAnimationsModule,
     ChartsModule,
