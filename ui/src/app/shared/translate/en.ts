@@ -276,5 +276,8 @@ export const TRANSLATION = {
         LoggedIn: "Logged in.",
         AuthenticationFailed: "No Connection: Authentication failed.",
         Closed: "Connection closed."
+    },
+    KacoError: {
+        Errors: "Error / Warning"
     }
 }

@@ -30,6 +30,8 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
+import { KacoErrorComponent } from './kacoerror/kacoerror.component';
+import { KacoErrorModalComponent } from './kacoerror/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -50,6 +52,7 @@ import { OfflineComponent } from './offline/offline.component';
     EvcsPopoverComponent,
     ChpsocModalComponent,
     FixDigitalOutputModalComponent,
+    KacoErrorModalComponent
   ],
   declarations: [
     LiveComponent,
@@ -79,7 +82,9 @@ import { OfflineComponent } from './offline/offline.component';
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
     EvcsPopoverComponent,
-    OfflineComponent
+    OfflineComponent,
+    KacoErrorComponent,
+    KacoErrorModalComponent
   ]
 })
 export class LiveModule { }

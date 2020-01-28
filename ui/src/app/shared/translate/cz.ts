@@ -275,5 +275,8 @@ export const TRANSLATION = {
         LoggedIn: "Přihlášení proběhlo úspěšně.",
         AuthenticationFailed: "Žádné připojení: Ověření uživatele selhalo.",
         Closed: "Připojení ukončeno."
+    },
+    KacoError: {
+        Errors: "Chyba / Varování"
     }
 }

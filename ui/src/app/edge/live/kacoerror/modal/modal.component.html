@@ -1,0 +1,34 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-title translate>Error Log</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+        <ng-container *ngFor="let component of essComponents">
+            <ion-card-content>
+                <table class="full_width">
+                    <tr>
+                        <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}
+                        </td>
+                        <td style="width: 100%" *ngIf="component.id != component.alias">
+                            {{component.alias}}
+                        </td>
+                    </tr>
+
+                    <tr *ngFor="let error of currentData[component.id + '/ErrorLog'] | toarray">
+                        <td style="width: 100%">
+                            {{ error }}
+                        </td>
+                    </tr>
+
+                </table>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
+</ion-content>

@@ -269,5 +269,8 @@ export const TRANSLATION = {
         LoggedIn: "Aangemeld.",
         AuthenticationFailed: "Geen verbinding.Autorisatie mislukt.",
         Closed: "Verbinding beëindigd."
+    },
+    KacoError: {
+        Errors: "Fout / Waarschuwing"
     }
 }

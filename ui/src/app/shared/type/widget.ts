@@ -8,7 +8,8 @@ export enum WidgetClass {
     'Grid',
     'Production',
     'Consumption',
-    'Energymonitor'
+    'Energymonitor',
+    'KacoError'
 }
 
 export enum WidgetNature {
@@ -57,6 +58,8 @@ export class Widgets {
                     case 'Production':
                     case 'Selfconsumption':
                         return config.hasProducer();
+                    case 'KacoError':
+                        return true;
                 };
                 return false;
             }).map(clazz => clazz.toString());
