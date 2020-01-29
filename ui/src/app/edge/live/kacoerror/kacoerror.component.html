@@ -5,28 +5,28 @@
                 <ion-icon slot="start" name="warning" color="danger"></ion-icon>
                 <ion-label translate>KacoError.Errors</ion-label>
             </ion-item>
+
             <ng-container *ngFor="let component of essComponents">
                 <ion-card-content>
-
-                    <table class="full_width">
-                        <tr>
-                            <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}
-                            </td>
-                            <td style="width: 100%" *ngIf="component.id != component.alias">
-                                {{component.alias}}
-                            </td>
-                        </tr>
-
-                        <tr *ngFor="let error of currentData[component.id + '/ErrorList'] | toarray">
-                            <td style="width: 100%">
-                                <ion-text color="danger">{{ error }}</ion-text>
-                            </td>
-                        </tr>
-
-                    </table>
-
+                    <ng-container *ngIf="currentData[component.id + '/HasError'] === 1">
+                        <table class="full_width">
+                            <tr>
+                                <td style="width:100%" *ngIf="component.id == component.alias">{{component.id}}
+                                </td>
+                                <td style="width: 100%" *ngIf="component.id != component.alias">
+                                    {{component.alias}}
+                                </td>
+                            </tr>
+                            <tr *ngFor="let error of currentData[component.id + '/ErrorList'] | toarray">
+                                <td style="width: 100%">
+                                    <ion-text color="danger">{{ error }}</ion-text>
+                                </td>
+                            </tr>
+                        </table>
+                    </ng-container>
                 </ion-card-content>
             </ng-container>
+
         </ion-card>
     </ng-container>
 </ng-container>
