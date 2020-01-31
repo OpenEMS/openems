@@ -106,20 +106,22 @@ public class QueryTask {
 	 */
 	public void doWriteWithReplyWriteLock(OutputStream outputStream, AtomicBoolean lockingBool) {
 		bridge.getSingleThreadExecutor().execute(() -> {
-			lockingBool.set(true);
+			long timeDelta = System.nanoTime(); //get the starting time of the write operation
+			for (ListenTask listenTask : listenTasks) {
+				bridge.addListenTask(listenTask);
+			}
 			try {
+				lockingBool.set(true);
 				outputStream.write(writeTask.getBytes());
 			} catch (IOException e) {
 				bridge.logError(e);
 			}
 			for (ListenTask listenTask : listenTasks) {
-				bridge.addListenTask(listenTask);
-			}
-			for (ListenTask listenTask : listenTasks) {
 				try {
 					listenTask.get(replyTimeOut, replyTimeOutUnit).updateElementChannels();
-					bridge.logInfo("GOTCHA!");
-				} catch (InterruptedException | ExecutionException | TimeoutException | OpenemsException e) {
+				} catch (TimeoutException e) {
+					bridge.logDebug(e);
+				} catch (InterruptedException | ExecutionException | OpenemsException e) {
 					bridge.logError(e);
 				}
 			}
