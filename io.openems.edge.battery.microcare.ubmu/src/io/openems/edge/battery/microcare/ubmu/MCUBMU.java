@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.DoubleReadChannel;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -428,12 +429,15 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 			if (chargeCurrentChannelUpdated && dischargeCurrentChannelUpdated) {
 				chargeCurrentChannelUpdated = false;
 				dischargeCurrentChannelUpdated = false;
-				CalculateIntegerSum sum = new CalculateIntegerSum();
-				channel(ChannelId.DISCHARGE_CURRENT).nextProcessImage();
-				sum.addValue(channel(ChannelId.DISCHARGE_CURRENT));
-				channel(ChannelId.CHARGE_CURRENT).nextProcessImage();
-				sum.addValue(channel(ChannelId.CHARGE_CURRENT));
-				channel(Battery.ChannelId.CURRENT).setNextValue(sum.calculate());
+				double dischargeCurrent = ((DoubleReadChannel) channel(ChannelId.DISCHARGE_CURRENT)).getNextValue().get();
+				double chargeCurrent = ((DoubleReadChannel) channel(ChannelId.CHARGE_CURRENT)).getNextValue().get();
+				double netCurrent;
+				if (dischargeCurrent == chargeCurrent) {
+					netCurrent = dischargeCurrent;
+				} else {
+					netCurrent = dischargeCurrent - chargeCurrent;
+				}
+				channel(Battery.ChannelId.CURRENT).setNextValue(netCurrent);
 			}
 		}
 	}
