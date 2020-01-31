@@ -1,8 +1,4 @@
-# io.openems.edge.bridge.mccomms Provider
+# MCComms Bridge
 
-${Bundle-Description}
-
-## Example
-
-## References
+Provides a generic interface for devices using the MCComms protocol
 
