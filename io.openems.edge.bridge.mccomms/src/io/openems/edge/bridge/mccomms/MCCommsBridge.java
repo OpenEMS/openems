@@ -186,23 +186,14 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		packetWindowNs = config.packetWindowMS() * 1000000L;
-		serialPort = SerialPort.getCommPort(config.serialPortDescriptor());
-		serialPort.setComPortParameters(9600, 8, 1, SerialPort.NO_PARITY);
-		serialPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
-		if (!serialPort.openPort() && !serialPort.isOpen()) {
-			logger.error("Unable to open serial port: " + config.serialPortDescriptor());
-			throw new OpenemsException("Unable to open serial port: " + config.serialPortDescriptor()); // TODO test if
-																										// exception can
-																										// be thrown
-																										// here
+        if (serialPortInit(false)) {
+			packetPicker = new PacketPicker();
+			packetPicker.start();
+			packetBuilder = new PacketBuilder();
+			packetBuilder.start();
+			serialByteHandler = new SerialByteHandler();
+			serialByteHandler.start();
 		}
-		packetPicker = new PacketPicker();
-		packetPicker.start();
-		packetBuilder = new PacketBuilder();
-		packetBuilder.start();
-		serialByteHandler = new SerialByteHandler();
-		serialByteHandler.start();
 	}
 
 	@Deactivate
@@ -216,6 +207,43 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		packetBuilder.interrupt();
 		serialByteHandler.interrupt();
 		super.deactivate();
+	}
+
+	/**
+     * Initialises the serial port using configured values. Will retry until success if an error is encountered.
+     * @throws OpenemsException if the serial port cannot be opened.
+	 * @return true if init is successful
+     */
+	private boolean serialPortInit() throws OpenemsException {
+		return serialPortInit(true);
+	}
+
+	/**
+     * Initialises the serial port using configured values.
+	 * @param retryOnInitError set to true if this method must retry until success if an error is encountered
+     * @throws OpenemsException if the serial port cannot be opened.
+	 * @return true if init is successful
+     */
+	private boolean serialPortInit(boolean retryOnInitError) throws OpenemsException {
+		packetWindowNs = config.packetWindowMS() * 1000000L;
+		serialPort = null;
+		serialPort = SerialPort.getCommPort(config.serialPortDescriptor());
+		serialPort.setComPortParameters(config.baudRate(), 8, 1, SerialPort.NO_PARITY);
+		serialPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
+		if (!serialPort.openPort() && !serialPort.isOpen()) {
+			logger.error("Unable to open serial port: " + config.serialPortDescriptor());
+			if (retryOnInitError) {
+				logger.info(String.format("Retrying serial port init in %s seconds", config.reInitPeriodSeconds()));
+				getScheduledExecutorService().schedule(() -> {
+					try {
+						serialPortInit();
+					} catch (OpenemsException ignored) {
+					}
+				}, config.reInitPeriodSeconds(), TimeUnit.SECONDS);
+			}
+			throw new OpenemsException("Unable to open serial port: " + config.serialPortDescriptor());
+		}
+		return true;
 	}
 
 	/**
