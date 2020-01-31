@@ -127,9 +127,11 @@ public class QueryTask {
 				bridge.removeListenTask(listenTask);
 			}
 			try {
-				Thread.sleep(25);
-			} catch (InterruptedException ignored) {
-			}
+				timeDelta = System.nanoTime() - timeDelta; //get the difference between the start time and the end time
+				if (timeDelta < 25000000) { //if the end time is less than 25 ms, ensure we bock the bus until 25ms have elapsed
+					Thread.sleep(timeDelta/1000000L);
+				}
+			} catch (InterruptedException ignored) {}
 			lockingBool.set(false);
 		});
 	}
