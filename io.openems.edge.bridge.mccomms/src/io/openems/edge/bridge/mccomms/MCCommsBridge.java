@@ -177,6 +177,11 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 		logInfo(logger, cause.getMessage());
 	}
 
+	@Override
+	public void logDebug(Throwable cause) {
+		logDebug(logger, cause.getMessage());
+	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
