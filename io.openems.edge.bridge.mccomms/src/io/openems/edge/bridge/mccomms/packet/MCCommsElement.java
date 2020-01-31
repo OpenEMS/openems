@@ -241,6 +241,7 @@ public class MCCommsElement {
 				break;
 			case DOUBLE:
 				channel.setNextValue(getBufferScaledValue().doubleValue());
+				break;
 			default:
 				throw new OpenemsException("Type not supported: " + channel.getType().name());
 			}
