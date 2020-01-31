@@ -207,6 +207,11 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 
 	@Deactivate
 	protected void deactivate() {
+
+		for (QueryTask queryTask: this.queryTaskQueue) {
+			queryTask.cancel();
+		}
+		this.scheduledExecutorService.shutdownNow();
 		packetPicker.interrupt();
 		packetBuilder.interrupt();
 		serialByteHandler.interrupt();
