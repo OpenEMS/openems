@@ -258,27 +258,42 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 			AtomicBoolean writeLockBool = new AtomicBoolean(false);
 			while (!isInterrupted()) {
 				try {
-					while (inputStream.available() > 0) {
-						RXTimedByteQueue
-								.put(new AbstractMap.SimpleEntry<>(System.nanoTime(), ((byte) inputStream.read())));
-					}
-					while (!writeTaskQueue.isEmpty() && !writeLockBool.get()) {
-						singleThreadExecutor.execute(() -> {
-							writeLockBool.set(true);
-							try {
-								// noinspection ConstantConditions
-								outputStream.write(writeTaskQueue.poll().getBytes());
-								Thread.sleep(25); // ensure 10ms gap between packets on the bus
-							} catch (IOException e) {
-								logError(e);
-							} catch (InterruptedException ignored) {
-							}
-							writeLockBool.set(false);
-						});
-					}
-					while (!queryTaskQueue.isEmpty() && !writeLockBool.get()) {
-						// noinspection ConstantConditions
-						queryTaskQueue.poll().doWriteWithReplyWriteLock(outputStream, writeLockBool);
+                    while (inputStream.available() > 0) {
+                        RXTimedByteQueue
+                                .put(new AbstractMap.SimpleEntry<>(System.nanoTime(), ((byte) inputStream.read())));
+                    }
+                    while (!writeTaskQueue.isEmpty() && !writeLockBool.get()) {
+                        singleThreadExecutor.execute(() -> {
+                            writeLockBool.set(true);
+                            try {
+                                // noinspection ConstantConditions
+                                outputStream.write(writeTaskQueue.poll().getBytes());
+                                Thread.sleep(25); // ensure 25ms gap between packets on the bus
+                            } catch (IOException e) {
+                                logError(e);
+                            } catch (InterruptedException ignored) {
+                            }
+                            writeLockBool.set(false);
+                        });
+                    }
+                    while (!queryTaskQueue.isEmpty() && !writeLockBool.get()) {
+                        // noinspection ConstantConditions
+                        queryTaskQueue.poll().doWriteWithReplyWriteLock(outputStream, writeLockBool);
+                    }
+                } catch (SerialPortIOException e) {
+                    if (e.getMessage().contains("This port appears to have been shutdown or disconnected")) {
+						if (serialByteHandler != null) {
+							serialByteHandler = null;
+							logger.error(e.getMessage() + " [retrying in " + config.reInitPeriodSeconds() + " seconds]");
+							getScheduledExecutorService().schedule(() -> {
+								try {
+									serialPortInit();
+									serialByteHandler = new SerialByteHandler();
+									serialByteHandler.start();
+								} catch (OpenemsException ignored) {}
+							}, config.reInitPeriodSeconds(), TimeUnit.SECONDS);
+							this.interrupt();
+						}
 					}
 				} catch (IOException e) {
 					logger.error(e.getMessage());
