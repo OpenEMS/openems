@@ -39,11 +39,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Comms (a proprietary protocol used by Microcare devices) and OpenEMS
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "Bridge.Microcare.MC-Comms", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+@Component(name = "Bridge.Microcare.MC-Comms", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsBridge, OpenemsComponent {
 	/**
 	 * {@link ScheduledExecutorService} used to repeat task execution
@@ -142,11 +138,6 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	}
 
 	@Override
-	public void logInfo(String message) {
-		logInfo(logger, message);
-	}
-
-	@Override
 	public void addListenTask(ListenTask listenTask) {
 		listenTasks.add(listenTask);
 	}
@@ -179,6 +170,11 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 	@Override
 	public void logError(Throwable cause) {
 		logError(logger, cause.getMessage());
+	}
+
+	@Override
+	public void logInfo(Throwable cause) {
+		logInfo(logger, cause.getMessage());
 	}
 
 	@Activate
@@ -252,7 +248,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 						queryTaskQueue.poll().doWriteWithReplyWriteLock(outputStream, writeLockBool);
 					}
 				} catch (IOException e) {
-					logger.error("IOException: ", e);
+					logger.error(e.getMessage());
 				} catch (InterruptedException e) {
 					interrupt();
 				}
