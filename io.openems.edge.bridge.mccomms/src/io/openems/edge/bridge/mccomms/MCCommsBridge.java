@@ -286,7 +286,7 @@ public class MCCommsBridge extends AbstractOpenemsComponent implements IMCCommsB
 					interrupt();
 				}
 				try {
-					sleep(5); // prevent CPU maxout
+					sleep(config.serialPortPollingPeriod()); // prevent CPU maxout
 				} catch (InterruptedException e) {
 					interrupt();
 				}
