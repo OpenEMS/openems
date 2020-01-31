@@ -20,6 +20,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Serial port", description = "System serial port descriptor, eg. /dev/ttyUSB0, COM5")
 	String serialPortDescriptor() default "COM5";
 
+	@AttributeDefinition(name = "Serial port polling period", description = "Number of milliseconds between serial port polling operations. Increase this value to reduce CPU load.")
+	int serialPortPollingPeriod() default 5;
+
+	@AttributeDefinition(name = "Baud rate", description = "Serial port baud rate")
+	int baudRate() default 9600;
+
+	@AttributeDefinition(name = "Serial port retry delay", description = "Number of seconds to wait before attempting to re-initialise a disconnected serial port")
+	int reInitPeriodSeconds() default 30;
+
 	@AttributeDefinition(name = "Packet window (ms)", description = "Number of milliseconds a received MCComms frame has to be completely read before being discarded as incomplete")
 	int packetWindowMS() default 35;
 
