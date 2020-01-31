@@ -57,11 +57,11 @@ public class MCCommsBitSetElement extends MCCommsElement {
 	 *                     skipped by supplying a null parameter; e.g:
 	 *                     <p>
 	 *                     {@code new MCCommsBitSetElement(Range.closed(1,1),
-	 *                 null,
-	 *                 null,
-	 *                 3rdBitBooleanChannel,
-	 *                 null,
-	 *                 5thBitBooleanChannel)}
+	 *                 			null,
+	 *                 			null,
+	 *                 			3rdBitBooleanChannel,
+	 *                 			null,
+	 *                 			5thBitBooleanChannel)}
 	 *                     </p>
 	 * @return a new MCCommsBitSetElement
 	 * @throws OpenemsException if the number of channels specified exceed the
@@ -99,7 +99,7 @@ public class MCCommsBitSetElement extends MCCommsElement {
 		}
 	}
 	
-	/**\
+	/**
 	 * Gets the element value as a {@link BitSet}
 	 * @return the element value as a {@link BitSet}
 	 */
@@ -120,6 +120,7 @@ public class MCCommsBitSetElement extends MCCommsElement {
 			}
 		}
 		if (bitSet.length() > 0) {
+			this.getValueBuffer().position(0);
 			this.getValueBuffer().put(bitSet.toByteArray());
 		}
 	}
