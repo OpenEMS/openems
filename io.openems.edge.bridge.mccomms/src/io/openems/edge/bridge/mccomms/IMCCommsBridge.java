@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -100,8 +101,17 @@ public interface IMCCommsBridge extends OpenemsComponent {
 	 * 
 	 * @see io.openems.edge.common.component.AbstractOpenemsComponent#logInfo(Logger,
 	 *      String)
-	 * @param message the info to log
+	 * @param cause the throwable carrying the message to be logged
 	 */
-	void logInfo(String message);
+	void logInfo(Throwable cause);
 
+	/**
+	 * Convenience method that exposes a logger for debug info emitted during task
+	 * execution
+	 *
+	 * @see io.openems.edge.common.component.AbstractOpenemsComponent#logDebug(Logger,
+	 *      String)
+	 * @param cause the throwable carrying the message to be logged
+	 */
+	void logDebug(Throwable cause);
 }
