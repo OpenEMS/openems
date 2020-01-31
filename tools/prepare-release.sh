@@ -37,7 +37,7 @@ echo "# Update $package_json"
 sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_json
 
 echo "# Update $package_lock" 
-sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
+sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
 
 echo "# Update $about_component"
 sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1releases\/tag\/$new_version\2/" $about_component
