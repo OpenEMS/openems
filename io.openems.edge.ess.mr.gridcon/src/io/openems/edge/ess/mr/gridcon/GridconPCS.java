@@ -603,19 +603,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				 */
 				new FC3ReadRegistersTask(32528, Priority.HIGH, //
 						m(new BitsWordElement(32528, this) //
-								.bit(0, GridConChannelId.CCU_STATE_IDLE) //
-								.bit(1, GridConChannelId.CCU_STATE_PRECHARGE) //
-								.bit(2, GridConChannelId.CCU_STATE_STOP_PRECHARGE) //
-								.bit(3, GridConChannelId.CCU_STATE_READY) //
-								.bit(4, GridConChannelId.CCU_STATE_PAUSE) //
-								.bit(5, GridConChannelId.CCU_STATE_RUN) //
-								.bit(6, GridConChannelId.CCU_STATE_ERROR) //
-								.bit(7, GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP) //
-								.bit(8, GridConChannelId.CCU_STATE_OVERLOAD) //
-								.bit(9, GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED) //
-								.bit(10, GridConChannelId.CCU_STATE_DERATING_POWER) //
-								.bit(11, GridConChannelId.CCU_STATE_DERATING_HARMONICS) //
-								.bit(12, GridConChannelId.CCU_STATE_SIA_ACTIVE) //
+								.bit(0, GridConChannelId.CCU_STATE_INIT) //
+								.bit(1, GridConChannelId.CCU_STATE_IDLE) //
+								.bit(2, GridConChannelId.CCU_STATE_PRECHARGE) //
+								.bit(3, GridConChannelId.CCU_STATE_GO_IDLE) //
+								.bit(4, GridConChannelId.CCU_STATE_CHARGED) //
+								.bit(5, GridConChannelId.CCU_STATE_READY) //
+								.bit(6, GridConChannelId.CCU_STATE_RUN) //
+								.bit(7, GridConChannelId.CCU_STATE_ERROR) //
+								.bit(8, GridConChannelId.CCU_STATE_PAUSE) //
 						), //
 						new DummyRegisterElement(32529),
 						m(GridConChannelId.CCU_ERROR_CODE,
@@ -1037,6 +1033,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			int startAddressIpuControl = 32720; // == THREE
 			int startAddressIpuControlMirror = 33040; // == THREE
 			int startAddressIpuState = 33264; // == THREE
+			
 			int startAddressIpuDcdc = 33584; // == THREE
 			switch (this.config.inverterCount()) {
 			case ONE:

@@ -17,20 +17,15 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
  * This enum holds every possible channel id for a gridcon.
  */
 public enum GridConChannelId implements ChannelId {
-
-	CCU_STATE_IDLE(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_PRECHARGE(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_STOP_PRECHARGE(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_READY(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_PAUSE(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_RUN(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_ERROR(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_VOLTAGE_RAMPING_UP(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_OVERLOAD(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_SHORT_CIRCUIT_DETECTED(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_DERATING_POWER(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_DERATING_HARMONICS(Doc.of(OpenemsType.BOOLEAN)), //
-	CCU_STATE_SIA_ACTIVE(Doc.of(OpenemsType.BOOLEAN)), //
+	CCU_STATE_INIT(Doc.of(OpenemsType.BOOLEAN)), // = 1
+	CCU_STATE_IDLE(Doc.of(OpenemsType.BOOLEAN)), // = 2
+	CCU_STATE_PRECHARGE(Doc.of(OpenemsType.BOOLEAN)), // = 3
+	CCU_STATE_GO_IDLE(Doc.of(OpenemsType.BOOLEAN)), // = 4
+	CCU_STATE_CHARGED(Doc.of(OpenemsType.BOOLEAN)), // = 5
+	CCU_STATE_READY(Doc.of(OpenemsType.BOOLEAN)), // = 6
+	CCU_STATE_RUN(Doc.of(OpenemsType.BOOLEAN)), // = 7
+	CCU_STATE_ERROR(Doc.of(OpenemsType.BOOLEAN)), // = 8
+	CCU_STATE_PAUSE(Doc.of(OpenemsType.BOOLEAN)), // = 9
 	CCU_ERROR_CODE(Doc.of(OpenemsType.INTEGER)), //
 	CCU_VOLTAGE_U12(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 	CCU_VOLTAGE_U23(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)), //

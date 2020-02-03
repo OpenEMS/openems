@@ -207,58 +207,43 @@ public class StateMachine {
 	 * @return the CCUState
 	 */
 	protected CCUState getCcuState() {
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_ERROR)).value().asOptional()
+		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_INIT)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.ERROR;
+			return CCUState.INIT; // 1
 		}
 		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_IDLE)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.IDLE;
+			return CCUState.IDLE; // 2
 		}
 		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_PRECHARGE)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.PRECHARGE;
+			return CCUState.PRECHARGE; // 3
 		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_STOP_PRECHARGE)).value().asOptional()
+		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_GO_IDLE)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.STOP_PRECHARGE;
+			return CCUState.GO_IDLE; // 4
+		}
+		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_CHARGED)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.CHARGED; // 5
 		}
 		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_READY)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.READY;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_PAUSE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.PAUSE;
+			return CCUState.READY; // 6
 		}
 		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_RUN)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.RUN;
+			return CCUState.RUN; // 7
 		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP)).value()
-				.asOptional().orElse(false)) {
-			return CCUState.VOLTAGE_RAMPING_UP;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_OVERLOAD)).value().asOptional()
+		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_ERROR)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.OVERLOAD;
+			return CCUState.ERROR; // 8
 		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED)).value()
-				.asOptional().orElse(false)) {
-			return CCUState.SHORT_CIRCUIT_DETECTED;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_DERATING_POWER)).value().asOptional()
+		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_PAUSE)).value().asOptional()
 				.orElse(false)) {
-			return CCUState.DERATING_POWER;
+			return CCUState.PAUSE; // 9
 		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_DERATING_HARMONICS)).value()
-				.asOptional().orElse(false)) {
-			return CCUState.DERATING_HARMONICS;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_SIA_ACTIVE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.SIA_ACTIVE;
-		}
+		
 		return CCUState.UNDEFINED;
 	}
 

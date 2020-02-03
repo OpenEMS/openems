@@ -71,19 +71,16 @@ public class OngridHandler {
 			return State.IDLE;
 
 		case ERROR:
-		case DERATING_HARMONICS:
-		case DERATING_POWER:
-		case OVERLOAD:
 		case PAUSE:
 		case PRECHARGE:
 		case READY:
-		case SHORT_CIRCUIT_DETECTED:
-		case SIA_ACTIVE:
-		case STOP_PRECHARGE:
+		case CHARGED:
+		case GO_IDLE:
+		case INIT:
 		case UNDEFINED:
-		case VOLTAGE_RAMPING_UP:
 			this.log.info("Unhandled On-Grid state [" + ccuState.toString() + "]");
 			break;
+
 		}
 		return State.UNDEFINED;
 	}
