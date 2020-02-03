@@ -146,6 +146,7 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.TIMEOUT_CT, jsonMessage, "Tmo CT");
 					setBoolean(KebaChannelId.OUTPUT, jsonMessage, "Output");
 					setBoolean(KebaChannelId.INPUT, jsonMessage, "Input");
+					setInt(KebaChannelId.MAX_CURR, jsonMessage, "Curr HW");
 					setInt(KebaChannelId.CURR_USER, jsonMessage, "Curr user");
 
 					Optional<Integer> currUserMa = JsonUtils.getAsOptionalInt(jsonMessage, "Curr user"); // in [mA]
@@ -154,21 +155,6 @@ public class ReadHandler implements Consumer<String> {
 								* this.parent.getPhases().value().orElse(3);
 						this.parent.setChargePowerLimit().setNextValue(chargingTarget);
 					}
-
-					// Set the maximum Power valid by the Hardware
-					// The default value will be 32 A, because an older Keba charging station sets
-					// the value to 0 if the car is unplugged
-					Optional<Integer> hwPowerMa = JsonUtils.getAsOptionalInt(jsonMessage, "Curr HW"); // in [mA]
-					Integer hwPower = null;
-					if (hwPowerMa.isPresent()) {
-						if (hwPowerMa.get() == 0) {
-							hwPower = 32000 * 230 / 1000; // [W]
-						} else {
-							hwPower = hwPowerMa.get() * 230 / 1000; // [W]
-						}
-					}
-
-					this.parent.channel(KebaChannelId.MAX_CURR).setNextValue(hwPower);
 
 				} else if (id.equals("3")) {
 					/*
@@ -183,8 +169,10 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.CURRENT_L3, jsonMessage, "I3");
 					setInt(KebaChannelId.ACTUAL_POWER, jsonMessage, "P");
 					setInt(KebaChannelId.COS_PHI, jsonMessage, "PF");
-					setInt(KebaChannelId.ENERGY_TOTAL, jsonMessage, "E total");
-
+										
+					this.parent.channel(KebaChannelId.ENERGY_TOTAL)
+							.setNextValue((JsonUtils.getAsOptionalInt(jsonMessage, "E total").orElse(0)) * 0.1);
+					
 					// Set the count of the Phases that are currently used
 					Channel<Integer> currentL1 = parent.channel(KebaChannelId.CURRENT_L1);
 					Channel<Integer> currentL2 = parent.channel(KebaChannelId.CURRENT_L2);
@@ -220,7 +208,7 @@ public class ReadHandler implements Consumer<String> {
 							this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
 									.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * 3);
 							this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
-									.setNextValue(230 /* Spannung */ * maxHW.value().orElse(32) /* max Strom */ * 3);
+									.setNextValue(230 /* Spannung */ * (maxHW.value().orElse(32000) / 1000) /* max Strom */ * 3);
 						}
 					}
 

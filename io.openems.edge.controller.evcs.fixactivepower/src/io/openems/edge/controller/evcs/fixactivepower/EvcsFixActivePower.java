@@ -84,6 +84,7 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 
 		// set charge power
 		evcs.setChargePowerLimit().setNextWriteValue(this.config.power());
+		this.lastRun = LocalDateTime.now(this.clock);
 
 	}
 
