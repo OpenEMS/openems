@@ -89,6 +89,8 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
+                    switchAbove: 'Switch on above',
+                    switchBelow: 'Switch on below',
                     dependendOn: 'Dependend on',
                     currentValue: 'Current value',
                     threshold: 'Threshold',
