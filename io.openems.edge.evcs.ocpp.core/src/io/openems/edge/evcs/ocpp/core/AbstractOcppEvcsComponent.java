@@ -43,7 +43,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		this.channel(ChannelId.OCPP_ID).setNextValue(getConfiguredOcppId());
 		this.channel(ChannelId.CONNECTOR_ID).setNextValue(getConfiguredConnectorId());
 		this.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(getConfiguredMaximumHardwarePower());
-		this.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(getConfiguredMinimumHardwarePower());
+		this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(getConfiguredMinimumHardwarePower());
 		this.getEnergySession().setNextValue(0);
 	}
 

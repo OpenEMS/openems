@@ -18,7 +18,7 @@ public interface ManagedEvcs extends Evcs {
 
 		/**
 		 * Sets the charge power limit of the EVCS in [W].
-		 * 
+		 * 		 * 
 		 * <p>
 		 * Actual charge power depends on
 		 * <ul>
@@ -27,6 +27,13 @@ public interface ManagedEvcs extends Evcs {
 		 * <li>limit of electric vehicle
 		 * <li>limit of power line
 		 * <li>...
+		 * </ul>
+		 * 
+		 * <p>
+		 * Function
+		 * <ul>
+		 * <li>Write Value should be sent to the EVCS and cleared afterwards
+		 * <li>Read value should contain the currently valid loading target that was sent
 		 * </ul>
 		 * 
 		 * <ul>
