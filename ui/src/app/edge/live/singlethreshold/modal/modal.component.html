@@ -100,7 +100,7 @@
               </ion-card-content>
             </ng-container>
 
-            <ng-container *ngIf="inputMode != 'SOC'">
+            <ng-container *ngIf="inputMode != 'SOC' && inputMode != 'PRODUCTION'">
               <ion-card-content class="underline" style="padding-top: 0;">
                 <table class="full_width">
                   <tr>
@@ -114,6 +114,13 @@
                         </ion-input>
                         <ion-label class="regularFont">&nbsp;W</ion-label>
                       </ion-item>
+                    </td>
+                  </tr>
+                </table>
+                <table class="full_width">
+                  <tr>
+                    <td *ngIf="formGroup.value.switchedLoadPower == 0" class="align_right">
+                      Bitte tragen Sie Ihre geschaltete Last ein!
                     </td>
                   </tr>
                 </table>

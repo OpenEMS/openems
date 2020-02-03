@@ -47,7 +47,7 @@ export class SinglethresholdModalComponent {
         Validators.pattern('^[0-9]*$'),
         Validators.required
       ])),
-      switchedLoadPower: new FormControl(this.controller.properties.switchedLoadPower, Validators.compose([
+      switchedLoadPower: new FormControl(this.inputMode == 'GRIDSELL' ? this.controller.properties.switchedLoadPower * -1 : this.controller.properties.switchedLoadPower, Validators.compose([
         Validators.pattern('^[0-9]*$'),
         Validators.required
       ])),
@@ -77,6 +77,8 @@ export class SinglethresholdModalComponent {
       case "SOC":
         this.inputMode = 'SOC';
         this.formGroup.value.inputMode = 'SOC'
+        this.formGroup.controls['switchedLoadPower'].setValue(0);
+        this.formGroup.controls['switchedLoadPower'].markAsDirty()
         if (Math.abs(this.controller.properties.threshold) < 0 || Math.abs(this.controller.properties.threshold) > 100) {
           newThreshold = 50;
           this.formGroup.controls['threshold'].setValue(newThreshold);
@@ -91,10 +93,12 @@ export class SinglethresholdModalComponent {
         this.inputMode = 'GRIDSELL';
         this.formGroup.value.inputMode = 'GRIDSELL'
         this.formGroup.controls['threshold'].markAsDirty()
+        this.formGroup.controls['switchedLoadPower'].markAsDirty()
         break;
       case "GRIDBUY":
         this.inputMode = 'GRIDBUY';
         this.formGroup.value.inputMode = 'GRIDBUY'
+        this.formGroup.controls['switchedLoadPower'].markAsDirty()
         if (this.controller.properties.threshold < 0) {
           newThreshold = this.formGroup.value.threshold;
           this.formGroup.controls['threshold'].setValue(newThreshold);
@@ -104,6 +108,8 @@ export class SinglethresholdModalComponent {
       case "PRODUCTION":
         this.inputMode = 'PRODUCTION';
         this.formGroup.value.inputMode = 'PRODUCTION'
+        this.formGroup.controls['switchedLoadPower'].setValue(0);
+        this.formGroup.controls['switchedLoadPower'].markAsDirty()
         if (this.controller.properties.threshold < 0) {
           newThreshold = this.formGroup.value.threshold;
           this.formGroup.controls['threshold'].setValue(newThreshold);
@@ -185,10 +191,11 @@ export class SinglethresholdModalComponent {
       let updateComponentArray = [];
       Object.keys(this.formGroup.controls).forEach((element, index) => {
         if (this.formGroup.controls[element].dirty) {
+          console.log("locoloco")
           // catch inputMode and convert it to inputChannelAddress
           if (Object.keys(this.formGroup.controls)[index] == 'inputMode') {
             updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) })
-          } else if (this.inputMode == 'GRIDSELL' && Object.keys(this.formGroup.controls)[index] == 'threshold') {
+          } else if (this.inputMode == 'GRIDSELL' && (Object.keys(this.formGroup.controls)[index] == 'threshold' || Object.keys(this.formGroup.controls)[index] == 'switchedLoadPower')) {
             this.formGroup.controls[element].setValue(this.formGroup.controls[element].value * -1);
             updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
           } else {
@@ -201,7 +208,7 @@ export class SinglethresholdModalComponent {
         this.edge.updateComponentConfig(this.websocket, this.controller.id, updateComponentArray).then(() => {
           this.controller.properties.minimumSwitchingTime = this.formGroup.value.minimumSwitchingTime;
           this.controller.properties.threshold = this.inputMode == 'GRIDSELL' ? this.formGroup.value.threshold * -1 : this.formGroup.value.threshold;
-          this.controller.properties.switchedLoadPower = this.formGroup.value.switchedLoadPower;
+          this.controller.properties.switchedLoadPower = this.inputMode == 'GRIDSELL' ? this.formGroup.value.switchedLoadPower * -1 : this.formGroup.value.switchedLoadPower;
           this.controller.properties.inputChannelAddress = this.convertToChannelAddress(this.inputMode) != this.controller.properties.inputChannelAddress ? this.convertToChannelAddress(this.formGroup.value.inputMode) : this.controller.properties.inputChannelAddress;
           this.controller.properties.invert = this.formGroup.value.invert;
           this.loading = false;
@@ -217,8 +224,9 @@ export class SinglethresholdModalComponent {
           console.warn(reason);
         });
       }
-      if (this.inputMode == 'GRIDSELL') {
+      if (this.inputMode == 'GRIDSELL' && this.formGroup.controls['inputMode'].dirty) {
         this.formGroup.controls['threshold'].setValue(this.formGroup.value.threshold * -1);
+        this.formGroup.controls['switchedLoadPower'].setValue(this.formGroup.value.switchedLoadPower * -1);
       }
       this.formGroup.markAsPristine()
     } else {
