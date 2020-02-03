@@ -86,8 +86,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	public static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
 	public static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
-	protected static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
-	protected static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
+//	protected static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
+//	protected static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
 		
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
@@ -173,18 +173,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * if parameter is true, the contactor will be closed if it's false, the
-	 * contactor will be opened and Mr Gridcon is going to start
-	 * 
-	 * @param closed
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-	public void setHardResetContactor(boolean closed) throws IllegalArgumentException, OpenemsNamedException {
-		BooleanWriteChannel channelHardReset = this.componentManager
-				.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
-		channelHardReset.setNextWriteValue(closed);
-	}
+//	 * if parameter is true, the contactor will be closed if it's false, the
+//	 * contactor will be opened and Mr Gridcon is going to start
+//	 * 
+//	 * @param closed
+//	 * @throws OpenemsNamedException
+//	 * @throws IllegalArgumentException
+//	 */
+//	public void setHardResetContactor(boolean closed) throws IllegalArgumentException, OpenemsNamedException {
+//		BooleanWriteChannel channelHardReset = this.componentManager
+//				.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
+//		channelHardReset.setNextWriteValue(closed);
+//	}
 
 	/**
 	 * Evaluates the Grid-Mode and sets the GRID_MODE channel accordingly.
@@ -195,25 +195,26 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws IllegalArgumentException
 	 */
 	private void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
-		GridMode gridMode = GridMode.UNDEFINED;
+//		GridMode gridMode = GridMode.UNDEFINED;
+		GridMode gridMode = GridMode.ON_GRID;
 		try {
-			BooleanReadChannel inputNAProtection1 = this.componentManager
-					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection1()));
-			BooleanReadChannel inputNAProtection2 = this.componentManager
-					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection2()));
-
-			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-
-			if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
-				gridMode = GridMode.UNDEFINED;
-			} else {
-				if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
-					gridMode = GridMode.ON_GRID;
-				} else {
-					gridMode = GridMode.OFF_GRID;
-				}
-			}
+//			BooleanReadChannel inputNAProtection1 = this.componentManager
+//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection1()));
+//			BooleanReadChannel inputNAProtection2 = this.componentManager
+//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection2()));
+//
+//			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+//			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+//
+//			if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
+//				gridMode = GridMode.UNDEFINED;
+//			} else {
+//				if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
+//					gridMode = GridMode.ON_GRID;
+//				} else {
+//					gridMode = GridMode.OFF_GRID;
+//				}
+//			}
 
 		} finally {
 			this.getGridMode().setNextValue(gridMode);
@@ -1206,28 +1207,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return result;
 	}
 
-	public void setOutputSyncDeviceBridge(boolean value) throws IllegalArgumentException, OpenemsNamedException {
-		BooleanWriteChannel outputSyncDeviceBridge = this.componentManager
-				.getChannel(ChannelAddress.fromString(this.config.outputSyncDeviceBridge()));
-		this.setOutput(outputSyncDeviceBridge, value);
-	}
+//	public void setOutputSyncDeviceBridge(boolean value) throws IllegalArgumentException, OpenemsNamedException {
+//		BooleanWriteChannel outputSyncDeviceBridge = this.componentManager
+//				.getChannel(ChannelAddress.fromString(this.config.outputSyncDeviceBridge()));
+//		this.setOutput(outputSyncDeviceBridge, value);
+//	}
 
 	/**
-	 * Helper function to switch an output if it was not switched before.
-	 *
-	 * @param value true to switch ON, false to switch ON
-	 */
-	private void setOutput(BooleanWriteChannel channel, boolean value) {
-		Optional<Boolean> currentValueOpt = channel.value().asOptional();
-		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
-			log.info("Set output [" + channel.address() + "] " + (value ? "ON" : "OFF") + ".");
-			try {
-				channel.setNextWriteValue(value);
-			} catch (OpenemsNamedException e) {
-				this.logError(this.log, "Unable to set output: [" + channel.address() + "] " + e.getMessage());
-			}
-		}
-	}
+//	 * Helper function to switch an output if it was not switched before.
+//	 *
+//	 * @param value true to switch ON, false to switch ON
+//	 */
+//	private void setOutput(BooleanWriteChannel channel, boolean value) {
+//		Optional<Boolean> currentValueOpt = channel.value().asOptional();
+//		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
+//			log.info("Set output [" + channel.address() + "] " + (value ? "ON" : "OFF") + ".");
+//			try {
+//				channel.setNextWriteValue(value);
+//			} catch (OpenemsNamedException e) {
+//				this.logError(this.log, "Unable to set output: [" + channel.address() + "] " + e.getMessage());
+//			}
+//		}
+//	}
 	
 	/**
 	 * Helper function that checks if IPU configuration is possible

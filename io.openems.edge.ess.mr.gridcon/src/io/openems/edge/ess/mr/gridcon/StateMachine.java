@@ -26,10 +26,10 @@ public class StateMachine {
 	private LocalDateTime ccuStateIsRunningSince = null;
 
 	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
-	private final GoingOngridHandler goingOngridHandler = new GoingOngridHandler(this);
-	private final GoingOffgridHandler goingOffgridHandler = new GoingOffgridHandler(this);
+//	private final GoingOngridHandler goingOngridHandler = new GoingOngridHandler(this);
+//	private final GoingOffgridHandler goingOffgridHandler = new GoingOffgridHandler(this);
 	private final OngridHandler ongridHandler = new OngridHandler(this);
-	private final OffgridHandler offgridHandler = new OffgridHandler(this);
+//	private final OffgridHandler offgridHandler = new OffgridHandler(this);
 	private final ErrorHandler errorHandler = new ErrorHandler(this);
 
 	private State state = State.UNDEFINED;
@@ -77,21 +77,21 @@ public class StateMachine {
 			nextState = this.handleUndefined();
 			break;
 
-		case GOING_ONGRID:
-			nextState = this.goingOngridHandler.run();
-			break;
+//		case GOING_ONGRID:
+//			nextState = this.goingOngridHandler.run();
+//			break;
 
 		case ONGRID:
 			nextState = this.ongridHandler.run();
 			break;
 
-		case GOING_OFFGRID:
-			nextState = this.goingOffgridHandler.run();
-			break;
+//		case GOING_OFFGRID:
+//			nextState = this.goingOffgridHandler.run();
+//			break;
 
-		case OFFGRID:
-			nextState = this.offgridHandler.run();
-			break;
+//		case OFFGRID:
+//			nextState = this.offgridHandler.run();
+//			break;
 
 		case ERROR:
 			nextState = this.errorHandler.run();
@@ -122,7 +122,7 @@ public class StateMachine {
 			return State.ONGRID;
 
 		case OFF_GRID:
-			return State.OFFGRID;
+//			return State.OFFGRID;
 
 		case UNDEFINED:
 			this.log.info("StateMachine.handleUndefined() -> staying UNDEFINED, Grid-Mode is [" + gridMode + "]");
@@ -285,10 +285,10 @@ public class StateMachine {
 
 	public enum State implements OptionsEnum {
 		UNDEFINED(-1, "Undefined"), //
-		GOING_ONGRID(1, "Going On-Grid"), //
+//		GOING_ONGRID(1, "Going On-Grid"), //
 		ONGRID(2, "On-Grid"), //
-		GOING_OFFGRID(3, "Going Off-Grid"), //
-		OFFGRID(4, "Off-Grid"), //
+//		GOING_OFFGRID(3, "Going Off-Grid"), //
+//		OFFGRID(4, "Off-Grid"), //
 		ERROR(5, "Error");
 
 		private final int value;

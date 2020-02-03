@@ -31,15 +31,15 @@ public class OngridHandler {
 		// Verify that we are still On-Grid -> otherwise switch to "Going Off-Grid"
 		GridMode gridMode = this.parent.parent.getGridMode().getNextValue().asEnum();
 		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
-			return StateMachine.State.GOING_OFFGRID;
+			case ON_GRID:
+			case UNDEFINED:
+				break;
+			case OFF_GRID:
+//			return StateMachine.State.GOING_OFFGRID;
 		}
 
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
-		this.parent.parent.setOutputSyncDeviceBridge(false);
+//		this.parent.parent.setOutputSyncDeviceBridge(false);
 
 		switch (this.state) {
 		case UNDEFINED:
