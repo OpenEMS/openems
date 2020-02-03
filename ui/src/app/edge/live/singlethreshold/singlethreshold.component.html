@@ -107,23 +107,21 @@
             </tr>
             <tr>
               <td style="width: 65%;" translate>
-                Edge.Index.Widgets.Singlethreshold.threshold</td>
+                <ng-container *ngIf="controller.properties.invert == false">
+                  Edge.Index.Widgets.Singlethreshold.switchAbove
+                </ng-container>
+                <ng-container *ngIf="controller.properties.invert == true">
+                  Edge.Index.Widgets.Singlethreshold.switchBelow
+                </ng-container>
+              </td>
               <!-- SOC -->
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
-                <ion-icon *ngIf="controller.properties.invert == true" name="arrow-round-down">
-                </ion-icon>
-                <ion-icon *ngIf="controller.properties.invert == false" name="arrow-round-up">
-                </ion-icon>
                 {{controller.properties['threshold'] | unitvalue:'%'}}
               </td>
               <!-- GRIDSELL/BUY || PRODUCTION -->
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && (controller.properties.inputChannelAddress == '_sum/GridActivePower' ||controller.properties.inputChannelAddress == '_sum/ProductionActivePower')">
-                <ion-icon *ngIf="controller.properties.invert == true" name="arrow-round-down">
-                </ion-icon>
-                <ion-icon *ngIf="controller.properties.invert == false" name="arrow-round-up">
-                </ion-icon>
                 <ng-container *ngIf="controller.properties.threshold < 0">
                   {{controller.properties['threshold'] * -1 | unitvalue: 'kW'}}
                 </ng-container>
@@ -134,10 +132,6 @@
               <!-- OTHER -->
               <td style="width: 35%" class="align_right"
                 *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower' && controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
-                <ion-icon *ngIf="controller.properties.invert == true" name="arrow-round-down">
-                </ion-icon>
-                <ion-icon *ngIf="controller.properties.invert == false" name="arrow-round-up">
-                </ion-icon>
                 <ng-container *ngIf="controller.properties.threshold < 0">
                   {{controller.properties['threshold'] * -1 }}
                   <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">

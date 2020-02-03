@@ -105,6 +105,8 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
+                    switchAbove: 'Einschalten über',
+                    switchBelow: 'Einschalten unter',
                     dependendOn: 'Abhängig von',
                     currentValue: 'Aktueller Wert',
                     threshold: 'Schwellenwert',

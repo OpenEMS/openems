@@ -89,6 +89,8 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
+                    switchAbove: 'Zapněte přes',
+                    switchBelow: 'Zapněte pod',
                     dependendOn: 'Podle toho',
                     currentValue: 'Aktuální hodnota',
                     threshold: 'Prahována',
