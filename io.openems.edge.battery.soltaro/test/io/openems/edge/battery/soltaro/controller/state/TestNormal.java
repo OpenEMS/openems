@@ -10,6 +10,7 @@ import org.junit.Test;
 import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
 import io.openems.edge.battery.soltaro.controller.helper.DummyEss;
 import io.openems.edge.battery.soltaro.controller.state.Normal;
+import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.controller.Config;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
@@ -32,11 +33,10 @@ public class TestNormal {
 
 	@Before
 	public void setUp() throws Exception {
-		// Always create ess newly to have an ess in "normal" situation that does
+		// Always create ess and bms newly to have them in "normal" situation that does
 		// nothing
 		componentManager.initEss();
 		ess = componentManager.getComponent(Creator.ESS_ID);
-		componentManager.destroyBms();
 		componentManager.initBms();
 		bms = componentManager.getComponent(Creator.BMS_ID);
 		sut = new Normal(ess, bms, config.warningLowCellVoltage(), config.criticalHighCellVoltage(),
@@ -55,13 +55,41 @@ public class TestNormal {
 	}
 
 	@Test
-	public final void testGetNextStateFullCharge() {
+	public final void testGetNextStateNormalNoChargingValuesPresent() {
 		// writing two times causes past values in the channel
-		bms.setChargeIndication(1);
-		bms.setChargeIndication(1);
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().nextProcessImage();
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().nextProcessImage();
 
 		State next = sut.getNextState();
-		assertEquals(State.FULL_CHARGE, next);
+		assertEquals(State.NORMAL, next);
+
+		try {
+			Thread.sleep(1000 * config.unusedTime() + 500);
+		} catch (InterruptedException e) {
+			fail();
+		}
+
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().nextProcessImage();
+
+		// Waiting long enough means that the last charge or discharge action is too
+		// long away, but there are no values, so state should be normal
+		next = sut.getNextState();
+		assertEquals(State.NORMAL, next);
+	}
+
+	@Test
+	public final void testGetNextStateNormalNoChargingValuePresent() {
+		// writing two times causes past values in the channel
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().nextProcessImage();
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().nextProcessImage();
+
+		State next = sut.getNextState();
+		assertEquals(State.NORMAL, next);
 
 		try {
 			Thread.sleep(1000 * config.unusedTime() + 500);
@@ -70,69 +98,93 @@ public class TestNormal {
 		}
 
 		// Waiting long enough means that the last charge or discharge action is too
-		// long away
+		// long away, but there are no values, so state should be normal
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}
 
+//	@Test
+//	public final void testGetNextStateFullCharge() {
+//		// writing two times causes past values in the channel
+//		bms.setChargeIndication(1);
+//		bms.setChargeIndication(1);
+//
+//		State next = sut.getNextState();
+//		assertEquals(State.NORMAL, next);
+//
+//		try {
+//			Thread.sleep(1000 * config.unusedTime() + 500);
+//		} catch (InterruptedException e) {
+//			fail();
+//		}
+//		
+//		bms.setChargeIndication(0);
+//		bms.setChargeIndication(0);
+//
+//		// Waiting long enough means that the last charge or discharge action is too
+//		// long away, but there are no values, so state should be normal
+//		next = sut.getNextState();
+//		assertEquals(State.FULL_CHARGE, next);
+//	}
+
 	@Test
 	public final void testGetNextStateUndefinedNoVoltage() {
-		ess.setMinimalCellVoltageToUndefined();
+		bms.setMinimalCellVoltageToUndefined();
 		State next = sut.getNextState();
 		assertEquals(State.UNDEFINED, next);
 	}
 
 	@Test
 	public final void testGetNextStateLimitLowCellVoltage() {
-		ess.setMinimalCellVoltage(config.warningLowCellVoltage() - 1);
+		bms.setMinimalCellVoltage(config.warningLowCellVoltage() - 1);
 		State next = sut.getNextState();
 		assertEquals(State.LIMIT, next);
 
-		ess.setMinimalCellVoltage(config.warningLowCellVoltage());
+		bms.setMinimalCellVoltage(config.warningLowCellVoltage());
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}
 
 	@Test
 	public final void testGetNextStateLimitHighCellVoltage() {
-		ess.setMaximalCellVoltage(config.criticalHighCellVoltage() + 1);
+		bms.setMaximalCellVoltage(config.criticalHighCellVoltage() + 1);
 		State next = sut.getNextState();
 		assertEquals(State.LIMIT, next);
 
-		ess.setMaximalCellVoltage(config.criticalHighCellVoltage());
+		bms.setMaximalCellVoltage(config.criticalHighCellVoltage());
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}
 
 	@Test
 	public final void testGetNextStateLimitLowCellTemperature() {
-		ess.setMinimalCellTemperature(config.lowTemperature() - 1);
+		bms.setMinimalCellTemperature(config.lowTemperature() - 1);
 		State next = sut.getNextState();
 		assertEquals(State.LIMIT, next);
 
-		ess.setMinimalCellTemperature(config.lowTemperature());
+		bms.setMinimalCellTemperature(config.lowTemperature());
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}
 
 	@Test
 	public final void testGetNextStateLimitHighCellTemperature() {
-		ess.setMaximalCellTemperature(config.highTemperature() + 1);
+		bms.setMaximalCellTemperature(config.highTemperature() + 1);
 		State next = sut.getNextState();
 		assertEquals(State.LIMIT, next);
 
-		ess.setMaximalCellTemperature(config.highTemperature());
+		bms.setMaximalCellTemperature(config.highTemperature());
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}
 
 	@Test
 	public final void testGetNextStateLimitSoc() {
-		ess.setSoc(config.warningSoC() - 1);
+		bms.setSoc(config.warningSoC() - 1);
 		State next = sut.getNextState();
 		assertEquals(State.LIMIT, next);
 
-		ess.setSoc(config.warningSoC());
+		bms.setSoc(config.warningSoC());
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}

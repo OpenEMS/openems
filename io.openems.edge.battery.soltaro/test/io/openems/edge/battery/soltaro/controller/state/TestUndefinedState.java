@@ -22,7 +22,7 @@ public class TestUndefinedState {
 	private static DummyComponentManager componentManager;
 	private DummyEss ess;
 	private DummyBattery bms;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		componentManager = new DummyComponentManager();
@@ -30,7 +30,8 @@ public class TestUndefinedState {
 
 	@Before
 	public void setUp() throws Exception {
-		//Always create ess newly to have an ess in "normal" situation that does nothing
+		// Always create ess newly to have an ess in "normal" situation that does
+		// nothing
 		componentManager.initEss();
 		ess = componentManager.getComponent(Creator.ESS_ID);
 		bms = componentManager.getComponent(Creator.BMS_ID);
@@ -45,31 +46,31 @@ public class TestUndefinedState {
 	@Test
 	public final void testGetNextStateUndefinedSoc() {
 		assertNotEquals(State.UNDEFINED, sut.getNextState());
-		
-		ess.setSocToUndefined();
+
+		bms.setSocToUndefined();
 		State nextState = sut.getNextState();
 		assertEquals(State.UNDEFINED, nextState);
-		
-		ess.setSoc(0);
+
+		bms.setSoc(0);
 		nextState = sut.getNextState();
 		assertNotEquals(State.UNDEFINED, nextState);
 		assertEquals(State.NORMAL, nextState);
 	}
-	
+
 	@Test
 	public final void testGetNextStateUndefinedMinCell() {
 		assertNotEquals(State.UNDEFINED, sut.getNextState());
-		
-		ess.setMinimalCellVoltageToUndefined();
+
+		bms.setMinimalCellVoltageToUndefined();
 		State nextState = sut.getNextState();
 		assertEquals(State.UNDEFINED, nextState);
-		
-		ess.setMinimalCellVoltage(0);
+
+		bms.setMinimalCellVoltage(0);
 		nextState = sut.getNextState();
 		assertNotEquals(State.UNDEFINED, nextState);
 		assertEquals(State.NORMAL, nextState);
 	}
-	
+
 	@Test
 	public final void testGetNextStateNormal() {
 		State nextState = sut.getNextState();

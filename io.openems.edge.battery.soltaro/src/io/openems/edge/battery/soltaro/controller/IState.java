@@ -12,8 +12,8 @@ public interface IState {
 	State getState();
 
 	/**
-	 * Depending on the circumstances the next state according to the state
-	 * machine is returned.
+	 * Depending on the circumstances the next state according to the state machine
+	 * is returned.
 	 * 
 	 * @return the next state
 	 */

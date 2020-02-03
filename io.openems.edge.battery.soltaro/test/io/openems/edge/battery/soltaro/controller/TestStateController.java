@@ -11,7 +11,6 @@ import io.openems.edge.battery.soltaro.controller.state.StateController;
 import io.openems.edge.common.component.ComponentManager;
 
 public class TestStateController {
-	
 
 	@Before
 	public void setUp() throws Exception {
@@ -22,16 +21,16 @@ public class TestStateController {
 
 	@Test
 	public final void test() {
-		
-		//after calling init for each state there should be a state object
-		
+
+		// after calling init for each state there should be a state object
+
 		assertNotNull(StateController.getStateObject(State.CHECK));
 		assertNotNull(StateController.getStateObject(State.FORCE_CHARGE));
 		assertNotNull(StateController.getStateObject(State.FULL_CHARGE));
 		assertNotNull(StateController.getStateObject(State.LIMIT));
 		assertNotNull(StateController.getStateObject(State.NORMAL));
 		assertNotNull(StateController.getStateObject(State.UNDEFINED));
-		
+
 	}
 
 }

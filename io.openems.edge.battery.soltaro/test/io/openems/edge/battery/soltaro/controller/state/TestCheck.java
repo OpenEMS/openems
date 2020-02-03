@@ -17,7 +17,6 @@ import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
 import io.openems.edge.battery.soltaro.controller.helper.DummyEss;
 import io.openems.edge.battery.soltaro.controller.state.Check;
 
-
 public class TestCheck {
 
 	private IState sut;
@@ -25,7 +24,7 @@ public class TestCheck {
 	private static Config config;
 	private DummyEss ess;
 	private DummyBattery bms;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		config = Creator.createConfig();
@@ -34,7 +33,8 @@ public class TestCheck {
 
 	@Before
 	public void setUp() throws Exception {
-		//Always create ess newly to have an ess in "normal" situation that does nothing
+		// Always create ess newly to have an ess in "normal" situation that does
+		// nothing
 		componentManager.initEss();
 		ess = componentManager.getComponent(Creator.ESS_ID);
 		componentManager.destroyBms();
@@ -56,7 +56,7 @@ public class TestCheck {
 
 	@Test
 	public final void testGetNextStateUndefined() {
-		ess.setSocToUndefined();
+		bms.setSocToUndefined();
 		State next = sut.getNextState();
 		assertEquals(State.UNDEFINED, next);
 	}
@@ -65,46 +65,49 @@ public class TestCheck {
 	public final void testGetNextStateNormal() {
 		State next = sut.getNextState();
 		assertEquals(State.CHECK, next);
-		
-		ess.setSoc(ess.getSoc().value().get() + config.deltaSoC() + 1);
+
+		bms.setSoc(bms.getSoc().value().get() + config.deltaSoC() + 1);
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}
 
 	@Test
 	public final void testGetNextStateForceCharge() {
-		ess.setMinimalCellVoltage(config.criticalLowCellVoltage() - 1);
+		bms.setMinimalCellVoltage(config.criticalLowCellVoltage() - 1);
 		State next = sut.getNextState();
 		assertEquals(State.FORCE_CHARGE, next);
 	}
-	
-	@Test
-	public final void testGetNextStateFullCharge() {
-		
-		//TODO how do i tell the bms that there was action ?!
-		// we find it out if there was no ChargeIndication for the last 2 weeks in the soltaro bms
-		//Wie ich  Zeitdaten reinbekomm esehe ich in sum.impl --> TimeData Service und ich sollte mir einen Channel schreiben für "NotActiveSince"
-		
-		
-		// writing two times causes past values in the channel
-		bms.setChargeIndication(1);
-		bms.setChargeIndication(1); 
-		
-		
-		State next = sut.getNextState();
-		assertEquals(State.FULL_CHARGE, next);
-		
-		try {
-			Thread.sleep(1000 * config.unusedTime() + 500);
-		} catch (InterruptedException e) {
-			fail();
-		}
-		
-		//Waiting long enough means that the last charge or discharge action is too long away
-		next = sut.getNextState();
-		assertEquals(State.CHECK, next);
-	}
-	
+
+//	@Test
+//	public final void testGetNextStateFullCharge() {
+//		
+//		//TODO how do i tell the bms that there was action ?!
+//		// we find it out if there was no ChargeIndication for the last 2 weeks in the soltaro bms
+//		//Wie ich  Zeitdaten reinbekomm esehe ich in sum.impl --> TimeData Service und ich sollte mir einen Channel schreiben für "NotActiveSince"
+//		
+//		
+//		// writing two times causes past values in the channel
+//		bms.setChargeIndication(1);
+//		bms.setChargeIndication(1); 
+//		
+//		
+//		State next = sut.getNextState();
+//		assertEquals(State.CHECK, next);
+//		
+//		try {
+//			Thread.sleep(1000 * config.unusedTime() + 500);
+//		} catch (InterruptedException e) {
+//			fail();
+//		}
+//		
+//		bms.setChargeIndication(0);
+//		bms.setChargeIndication(0); 
+//		
+//		//Waiting long enough means that the last charge or discharge action is too long away
+//		next = sut.getNextState();
+//		assertEquals(State.FULL_CHARGE, next);
+//	}
+
 	@Test
 	public final void testActAllowCharging() {
 		int power = -2000;

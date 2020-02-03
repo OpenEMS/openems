@@ -37,9 +37,11 @@ public class TestForceCharge {
 		// This ess has a min cell voltage below the limit, and no active power
 		componentManager.initEss();
 		ess = componentManager.getComponent(Creator.ESS_ID);
-		ess.setMinimalCellVoltage(config.criticalLowCellVoltage() - 1);
+		componentManager.initBms();
 		bms = componentManager.getComponent(Creator.BMS_ID);
-		sut = new ForceCharge(ess, bms, config.chargePowerPercent(), config.chargingTime(), config.forceChargeReachableMinCellVoltage());
+		bms.setMinimalCellVoltage(config.criticalLowCellVoltage() - 1);
+		sut = new ForceCharge(ess, bms, config.chargePowerPercent(), config.chargingTime(),
+				config.forceChargeReachableMinCellVoltage());
 	}
 
 	@Test
@@ -68,21 +70,21 @@ public class TestForceCharge {
 		next = sut.getNextState();
 		assertEquals(State.CHECK, next);
 	}
-	
+
 	@Test
 	public final void testGetNextStateCheckAfterReachingMinCellLimit() {
 		State next = sut.getNextState();
 		assertEquals(State.FORCE_CHARGE, next);
 
-		ess.setMinimalCellVoltage(config.forceChargeReachableMinCellVoltage() + 1);
-	
+		bms.setMinimalCellVoltage(config.forceChargeReachableMinCellVoltage() + 1);
+
 		next = sut.getNextState();
 		assertEquals(State.CHECK, next);
 	}
 
 	@Test
 	public final void testGetNextStateObjectUndefined() {
-		ess.setSocToUndefined();
+		bms.setSocToUndefined();
 		assertEquals(State.UNDEFINED, sut.getNextState());
 	}
 

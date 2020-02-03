@@ -101,15 +101,15 @@ public class DummyComponentManager implements ComponentManager {
 	public void destroyEss() {
 		this.ess = null;
 	}
-	
+
 	public void initEss() {
 		this.ess = createEss();
 	}
-	
+
 	public void destroyBms() {
 		this.bms = null;
 	}
-	
+
 	public void initBms() {
 		this.bms = createBms();
 	}

@@ -23,8 +23,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class BatteryHandlingController extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent {
+public class BatteryHandlingController extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -79,8 +78,13 @@ public class BatteryHandlingController extends AbstractOpenemsComponent
 				.setNextValue(ess.getMaxCellTemperature().value());
 		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_POWER)
 				.setNextValue(ess.getActivePower().value());
-		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_SOC)
+		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_SOC) //
 				.setNextValue(ess.getSoc().value());
+	}
+
+	@Override
+	public String debugLog() {
+		return "State: " + stateObject.getState().getName() + "| Next State: " + stateObject.getNextState().getName();
 	}
 
 	protected void checkConfiguration(Config config) throws OpenemsException {
@@ -90,6 +94,6 @@ public class BatteryHandlingController extends AbstractOpenemsComponent
 		if (config.criticalLowCellVoltage() >= config.warningLowCellVoltage()) {
 			throw new OpenemsException("Critical low cell voltage must be lower than warning low cell voltage");
 		}
-		//TODO finish checks
+		// TODO finish checks
 	}
 }

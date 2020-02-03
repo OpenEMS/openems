@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -18,8 +18,9 @@ public class Check extends BaseState implements IState {
 	private long unusedTime;
 	private int criticalLowCellVoltage;
 	private int startSoC = UNDEFINED_VALUE;
-	
-	public Check(ManagedSymmetricEss ess, Battery bms, int deltaSoC, long unusedTime, int criticalLowCellVoltage) {
+
+	public Check(ManagedSymmetricEss ess, SoltaroBattery bms, int deltaSoC, long unusedTime,
+			int criticalLowCellVoltage) {
 		super(ess, bms);
 		this.deltaSoC = deltaSoC;
 		this.unusedTime = unusedTime;
@@ -34,35 +35,35 @@ public class Check extends BaseState implements IState {
 	@Override
 	public State getNextState() {
 		// According to the state machine the next states can be:
-		// UNDEFINED: if at least one value is not available 
+		// UNDEFINED: if at least one value is not available
 		// CHECK: the soc has not increased enough
 		// NORMAL: soc has increased enough
 		// FORCE_CHARGE: cell voltage is under limit
-		
+
 		if (isNextStateUndefined()) {
 			resetStartSoc();
 			return State.UNDEFINED;
 		}
-		
+
 		if (startSoC == UNDEFINED_VALUE) {
-			startSoC = getEssSoC();
-		}		
-		
-		if (getEssMinCellVoltage() < criticalLowCellVoltage) {
+			startSoC = getBmsSoC();
+		}
+
+		if (getBmsMinCellVoltage() < criticalLowCellVoltage) {
 			resetStartSoc();
 			return State.FORCE_CHARGE;
 		}
-		
-		if (isChargeOrDischargeIndicationPresent(unusedTime)) {
+
+		if (bmsNeedsFullCharge(unusedTime)) {
 			resetStartSoc();
 			return State.FULL_CHARGE;
 		}
-		
+
 		if (hasSoCIncreasedEnough()) {
 			resetStartSoc();
 			return State.NORMAL;
 		}
-		
+
 		return State.CHECK;
 	}
 
@@ -73,9 +74,9 @@ public class Check extends BaseState implements IState {
 	}
 
 	private boolean hasSoCIncreasedEnough() {
-		int soc = getEssSoC();
+		int soc = getBmsSoC();
 		int delta = soc - startSoC;
-		return delta >= deltaSoC;		
+		return delta >= deltaSoC;
 	}
 
 	private void resetStartSoc() {

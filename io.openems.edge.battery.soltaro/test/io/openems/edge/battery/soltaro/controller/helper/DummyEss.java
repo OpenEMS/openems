@@ -16,82 +16,21 @@ import io.openems.edge.ess.power.api.Relationship;
 public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetricEss {
 
 	public static int MAXIMUM_POWER = 10000;
-	public static int DEFAULT_SOC = 50;
-	public static int DEFAULT_MIN_CELL_VOLTAGE = 3280;
-	public static int DEFAULT_MAX_CELL_VOLTAGE = 3380;
-	public static int DEFAULT_MIN_CELL_TEMPERATURE = 25;
-	public static int DEFAULT_MAX_CELL_TEMPERATURE = 33;
-	
 	private int currentActivePower = 0;
 
-	protected DummyEss( //
-		io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, //
-		io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds //
+	protected DummyEss(//
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, //
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds //
 	) { //
 		super(firstInitialChannelIds, furtherInitialChannelIds);
-		
-		setMinimalCellVoltage(DEFAULT_MIN_CELL_VOLTAGE);
-		setMaximalCellVoltage(DEFAULT_MAX_CELL_VOLTAGE);
-		setMinimalCellTemperature(DEFAULT_MIN_CELL_TEMPERATURE);
-		setMaximalCellTemperature(DEFAULT_MAX_CELL_TEMPERATURE);
-		setSoc(DEFAULT_SOC);
+
 		setCurrentActivePower(0);
 	}
 
-	public void setMinimalCellVoltage(int minimalCellVoltage) {
-		this.getMinCellVoltage().setNextValue(minimalCellVoltage);
-		this.getMinCellVoltage().nextProcessImage();
-	}
-
-	public void setMinimalCellVoltageToUndefined() {
-		this.getMinCellVoltage().setNextValue(null);
-		this.getMinCellVoltage().nextProcessImage();
-	}
-
-	public void setMaximalCellVoltage(int maximalCellVoltage) {
-		this.getMaxCellVoltage().setNextValue(maximalCellVoltage);
-		this.getMaxCellVoltage().nextProcessImage();
-	}
-
-	public void setMaximalCellVoltageToUndefined() {
-		this.getMaxCellVoltage().setNextValue(null);
-		this.getMaxCellVoltage().nextProcessImage();
-	}
-	
-	public void setMinimalCellTemperature(int minimalCellTemperature) {
-		this.getMinCellTemperature().setNextValue(minimalCellTemperature);
-		this.getMinCellTemperature().nextProcessImage();
-	}
-
-	public void setMinimalCellTemperatureToUndefined() {
-		this.getMinCellTemperature().setNextValue(null);
-		this.getMinCellTemperature().nextProcessImage();
-	}
-
-	public void setMaximalCellTemperature(int maximalCellTemperature) {
-		this.getMaxCellTemperature().setNextValue(maximalCellTemperature);
-		this.getMaxCellTemperature().nextProcessImage();
-	}
-
-	public void setMaximalCellTemperatureToUndefined() {
-		this.getMaxCellTemperature().setNextValue(null);
-		this.getMaxCellTemperature().nextProcessImage();
-	}
-	
-	public void setSoc(int soc) {
-		this.getSoc().setNextValue(soc);
-		this.getSoc().nextProcessImage();
-	}
-
-	public void setSocToUndefined() {
-		this.getSoc().setNextValue(null);
-		this.getSoc().nextProcessImage();
-	}
-	
 	public int getCurrentActivePower() {
 		return currentActivePower;
 	}
-	
+
 	public void setCurrentActivePower(int power) {
 		currentActivePower = power;
 		this.getActivePower().setNextValue(power);
@@ -132,7 +71,7 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 			}
 
 			@Override
-			public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException {				
+			public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException {
 				return addConstraint(constraint);
 			}
 
@@ -150,8 +89,8 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 					break;
 				default:
 					break;
-				
-				}				
+
+				}
 				return constraint;
 			}
 

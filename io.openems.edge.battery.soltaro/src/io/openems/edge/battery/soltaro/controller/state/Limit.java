@@ -3,12 +3,12 @@ package io.openems.edge.battery.soltaro.controller.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-public class Limit  extends BaseState implements IState {
+public class Limit extends BaseState implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(Limit.class);
 
@@ -22,15 +22,14 @@ public class Limit  extends BaseState implements IState {
 
 	public Limit(//
 			ManagedSymmetricEss ess, //
-			Battery bms, //
+			SoltaroBattery bms, //
 			int warningLowCellVoltage, //
 			int criticalLowCellVoltage, //
 			int criticalHighCellVoltage, //
 			int warningSoC, //
 			int lowTemperature, //
 			int highTemperature, //
-			long unusedTime
-	) {
+			long unusedTime) {
 		super(ess, bms);
 		this.warningLowCellVoltage = warningLowCellVoltage;
 		this.criticalLowCellVoltage = criticalLowCellVoltage;
@@ -40,6 +39,7 @@ public class Limit  extends BaseState implements IState {
 		this.highTemperature = highTemperature;
 		this.unusedTime = unusedTime;
 	}
+
 	@Override
 	public State getState() {
 		return State.LIMIT;
@@ -53,25 +53,25 @@ public class Limit  extends BaseState implements IState {
 		// FORCE_CHARGE: minimal cell voltage has been fallen under critical value
 		// UNDEFINED: at least one value is not available
 		// FULL_CHARGE: system has done nothing within the configured time
-		
+
 		if (isNextStateUndefined()) {
 			return State.UNDEFINED;
 		}
 
-		if (getEssMinCellVoltage() < criticalLowCellVoltage) {
+		if (getBmsMinCellVoltage() < criticalLowCellVoltage) {
 			return State.FORCE_CHARGE;
 		}
-		
-		if (isChargeOrDischargeIndicationPresent(unusedTime)) {
+
+		if (bmsNeedsFullCharge(unusedTime)) {
 			return State.FULL_CHARGE;
 		}
-		
-		if ( //
-			getEssMinCellVoltage() > warningLowCellVoltage && //
-			getEssMaxCellVoltage() < criticalHighCellVoltage && //
-			getEssMinCellTemperature() > lowTemperature && //
-			getEssMaxCellTemperature() < highTemperature && // 
-			getEssSoC() > warningSoC // && unused time
+
+		if (//
+		getBmsMinCellVoltage() > warningLowCellVoltage && //
+				getBmsMaxCellVoltage() < criticalHighCellVoltage && //
+				getBmsMinCellTemperature() > lowTemperature && //
+				getBmsMaxCellTemperature() < highTemperature && //
+				getBmsSoC() > warningSoC // && unused time
 		) {
 			return State.NORMAL;
 		}
@@ -83,21 +83,21 @@ public class Limit  extends BaseState implements IState {
 	public void act() {
 		log.info("act");
 		// Deny further discharging or charging
-		
-		if (getEssMinCellTemperature() <= lowTemperature || getEssMaxCellTemperature() >= highTemperature) {
+
+		if (getBmsMinCellTemperature() <= lowTemperature || getBmsMaxCellTemperature() >= highTemperature) {
 			denyCharge();
 			denyDischarge();
 		}
 
-		if (getEssMinCellVoltage() <= warningLowCellVoltage) {
+		if (getBmsMinCellVoltage() <= warningLowCellVoltage) {
 			denyDischarge();
 		}
-		
-		if (getEssMaxCellVoltage() >= criticalHighCellVoltage) {
+
+		if (getBmsMaxCellVoltage() >= criticalHighCellVoltage) {
 			denyCharge();
 		}
-		
-		if (getEssSoC() <= warningSoC) {
+
+		if (getBmsSoC() <= warningSoC) {
 			denyDischarge();
 		}
 	}
