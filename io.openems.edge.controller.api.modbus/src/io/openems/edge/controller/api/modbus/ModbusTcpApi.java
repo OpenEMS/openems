@@ -51,7 +51,6 @@ import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsx
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxResponse;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolResponse;
-import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -87,9 +86,6 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	protected void addComponent(ModbusSlave component) {
 		this._components.put(component.id(), component);
 	}
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timedata timedataService = null;
 
 	@Reference
 	protected ConfigurationAdmin cm;

@@ -60,10 +60,10 @@ import io.openems.edge.timedata.api.Timedata;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata, OpenemsComponent, EventHandler {
 
-	private final static String RRD4J_PATH = "rrd4j";
-	private final static String DEFAULT_DATASOURCE_NAME = "value";
-	private final static int DEFAULT_STEP_SECONDS = 60;
-	private final static int DEFAULT_HEARTBEAT_SECONDS = DEFAULT_STEP_SECONDS;
+	private static final String RRD4J_PATH = "rrd4j";
+	private static final String DEFAULT_DATASOURCE_NAME = "value";
+	private static final int DEFAULT_STEP_SECONDS = 60;
+	private static final int DEFAULT_HEARTBEAT_SECONDS = DEFAULT_STEP_SECONDS;
 
 	private final Logger log = LoggerFactory.getLogger(Rrd4jTimedata.class);
 
@@ -190,8 +190,7 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 	 * 
 	 * <p>
 	 * The predefined RRD4J archives match the requirements of
-	 * {@link CommonTimedataService#calculateResolution(ZonedDateTime,
-	 * ZonedDateTime).
+	 * {@link CommonTimedataService#calculateResolution(ZonedDateTime, ZonedDateTime)}
 	 * 
 	 * @param channelAddress the Channel-Address
 	 * @param startTime      the starttime for newly created RrdDbs
