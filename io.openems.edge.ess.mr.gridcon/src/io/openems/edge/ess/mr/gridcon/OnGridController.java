@@ -351,30 +351,8 @@ public class OnGridController extends AbstractOpenemsComponent implements Contro
 	 * @throws IllegalArgumentException
 	 */
 	void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
-//		GridMode gridMode = GridMode.UNDEFINED;
 		GridMode gridMode = GridMode.ON_GRID;
-		try {
-//			BooleanReadChannel inputNAProtection1 = this.componentManager
-//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection1()));
-//			BooleanReadChannel inputNAProtection2 = this.componentManager
-//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection2()));
-//
-//			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-//			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-//
-//			if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
-//				gridMode = GridMode.UNDEFINED;
-//			} else {
-//				if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
-//					gridMode = GridMode.ON_GRID;
-//				} else {
-//					gridMode = GridMode.OFF_GRID;
-//				}
-//			}
-
-		} finally {
-			this.gridconPCS.getGridMode().setNextValue(gridMode);
-		}
+		this.gridconPCS.getGridMode().setNextValue(gridMode);
 	}
 
 	/**
