@@ -210,7 +210,9 @@
                   </td>
                 </tr>
               </table>
-              <ion-segment formControlName="invert" scrollable="false" [value]="formGroup.value.invert">
+              <!-- regular behaviour for invert -->
+              <ion-segment *ngIf="inputMode != 'GRIDSELL'" formControlName="invert" scrollable="false"
+                [value]="formGroup.value.invert">
                 <ion-segment-button value="false">
                   <ion-label>
                     <ng-container *ngIf="inputMode == 'SOC'; else noSocNoInvert">
@@ -237,6 +239,60 @@
                   <ion-icon style="width:40px" name="arrow-round-up"></ion-icon>
                 </ion-segment-button>
                 <ion-segment-button value="true">
+                  <ion-label>
+                    <ng-container *ngIf="inputMode == 'SOC'; else noSocInvert">
+                      <span translate>Edge.Index.Widgets.Singlethreshold.below</span>
+                      {{formGroup.value.threshold | unitvalue:'%'}} einschalten
+                    </ng-container>
+                    <ng-template #noSocInvert>
+                      <ng-container *ngIf="!formGroup.value.threshold; else notNull">
+                        <span translate>Edge.Index.Widgets.Singlethreshold.above</span> {{ 0 | unitvalue:'W'}}
+                        einschalten
+                      </ng-container>
+                      <ng-template #notNull>
+                        <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                          <span translate>Edge.Index.Widgets.Singlethreshold.below</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                        </ng-container>
+                        <ng-container *ngIf="inputMode != 'GRIDSELL'">
+                          <span translate>Edge.Index.Widgets.Singlethreshold.below</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                        </ng-container>
+                      </ng-template>
+                    </ng-template>
+                  </ion-label>
+                  <ion-icon style="width:40px" name="arrow-round-down"></ion-icon>
+                </ion-segment-button>
+              </ion-segment>
+              <!-- revert behaviour for invert -->
+              <ion-segment *ngIf="inputMode == 'GRIDSELL'" formControlName="invert" scrollable="false"
+                [value]="formGroup.value.invert">
+                <ion-segment-button value="true">
+                  <ion-label>
+                    <ng-container *ngIf="inputMode == 'SOC'; else noSocNoInvert">
+                      <span translate>Edge.Index.Widgets.Singlethreshold.above</span>
+                      {{formGroup.value.threshold | unitvalue:'%'}} einschalten
+                    </ng-container>
+                    <ng-template #noSocNoInvert>
+                      <ng-container *ngIf="!formGroup.value.threshold; else notNull">
+                        <span translate>Edge.Index.Widgets.Singlethreshold.above</span> {{ 0 | unitvalue:'W'}}
+                        einschalten
+                      </ng-container>
+                      <ng-template #notNull>
+                        <ng-container *ngIf="inputMode == 'GRIDSELL'">
+                          <span translate>Edge.Index.Widgets.Singlethreshold.above</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                        </ng-container>
+                        <ng-container *ngIf="inputMode != 'GRIDSELL'">
+                          <span translate>Edge.Index.Widgets.Singlethreshold.above</span>
+                          {{formGroup.value.threshold | unitvalue:'W'}} einschalten
+                        </ng-container>
+                      </ng-template>
+                    </ng-template>
+                  </ion-label>
+                  <ion-icon style="width:40px" name="arrow-round-up"></ion-icon>
+                </ion-segment-button>
+                <ion-segment-button value="false">
                   <ion-label>
                     <ng-container *ngIf="inputMode == 'SOC'; else noSocInvert">
                       <span translate>Edge.Index.Widgets.Singlethreshold.below</span>
