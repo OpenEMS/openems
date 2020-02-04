@@ -191,7 +191,6 @@ export class SinglethresholdModalComponent {
       let updateComponentArray = [];
       Object.keys(this.formGroup.controls).forEach((element, index) => {
         if (this.formGroup.controls[element].dirty) {
-          console.log("locoloco")
           // catch inputMode and convert it to inputChannelAddress
           if (Object.keys(this.formGroup.controls)[index] == 'inputMode') {
             updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) })
@@ -224,9 +223,18 @@ export class SinglethresholdModalComponent {
           console.warn(reason);
         });
       }
-      if (this.inputMode == 'GRIDSELL' && this.formGroup.controls['inputMode'].dirty) {
-        this.formGroup.controls['threshold'].setValue(this.formGroup.value.threshold * -1);
-        this.formGroup.controls['switchedLoadPower'].setValue(this.formGroup.value.switchedLoadPower * -1);
+      if (this.inputMode == 'GRIDSELL') {
+        if (this.formGroup.controls['inputMode'].dirty) {
+          this.formGroup.controls['threshold'].setValue(this.formGroup.value.threshold * -1);
+          this.formGroup.controls['switchedLoadPower'].setValue(this.formGroup.value.switchedLoadPower * -1);
+        } else {
+          if (this.formGroup.controls['threshold'].dirty) {
+            this.formGroup.controls['threshold'].setValue(this.formGroup.value.threshold * -1);
+          }
+          if (this.formGroup.controls['switchedLoadPower'].dirty) {
+            this.formGroup.controls['switchedLoadPower'].setValue(this.formGroup.value.switchedLoadPower * -1);
+          }
+        }
       }
       this.formGroup.markAsPristine()
     } else {
