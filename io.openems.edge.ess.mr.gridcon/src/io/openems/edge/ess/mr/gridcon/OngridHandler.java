@@ -29,7 +29,7 @@ public class OngridHandler {
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		// Verify that we are still On-Grid -> otherwise switch to "Going Off-Grid"
-		GridMode gridMode = this.parent.parent.getGridMode().getNextValue().asEnum();
+		GridMode gridMode = this.parent.gridconPCS.getGridMode().getNextValue().asEnum();
 		switch (gridMode) {
 			case ON_GRID:
 			case UNDEFINED:
@@ -62,7 +62,7 @@ public class OngridHandler {
 	 * @return the next state
 	 */
 	private State doUndefined() {
-		CCUState ccuState = this.parent.getCcuState();
+		CCUState ccuState = this.parent.gridconPCS.getCcuState();
 		switch (ccuState) {
 		case RUN:
 			return State.RUN;
@@ -97,20 +97,20 @@ public class OngridHandler {
 	 */
 	private State doIdle() throws IllegalArgumentException, OpenemsNamedException {
 		// Verify State
-		CCUState ccuState = this.parent.getCcuState();
+		CCUState ccuState = this.parent.gridconPCS.getCcuState();
 		if (ccuState != CCUState.IDLE) {
 			return State.UNDEFINED;
 		}
 
 		// If no battery is ready inverter cannot start
-		if (!this.parent.parent.isAtLeastOneBatteryReady()) {
+		if (!this.parent.onGridController.isAtLeastOneBatteryReady()) {
 			return State.IDLE;
 		}
 
-		InverterCount inverterCount = this.parent.parent.config.inverterCount();
-		boolean enableIPU1 = this.parent.parent.config.enableIPU1();
-		boolean enableIPU2 = this.parent.parent.config.enableIPU2();
-		boolean enableIPU3 = this.parent.parent.config.enableIPU3();
+		InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
+		boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
+		boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
+		boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
 		new CommandControlRegisters() //
 				.play(true) // Start system
 				.syncApproval(true) //
@@ -121,27 +121,27 @@ public class OngridHandler {
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
 				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-				.writeToChannels(this.parent.parent);
+				.writeToChannels(this.parent.gridconPCS);
 		new CcuControlParameters() //
 				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
 				.qLimit(1f) //
-				.writeToChannels(this.parent.parent);
-		this.parent.parent.setIpuControlSettings();
+				.writeToChannels(this.parent.gridconPCS);
+		this.parent.gridconPCS.setIpuControlSettings();
 
 		return State.IDLE;
 	}
 
 	private State doRun() throws IllegalArgumentException, OpenemsNamedException {
 		// Verify State
-		CCUState ccuState = this.parent.getCcuState();
+		CCUState ccuState = this.parent.gridconPCS.getCcuState();
 		if (ccuState != CCUState.RUN) {
 			return State.UNDEFINED;
 		}
 
-		InverterCount inverterCount = this.parent.parent.config.inverterCount();
-		boolean enableIPU1 = this.parent.parent.config.enableIPU1();
-		boolean enableIPU2 = this.parent.parent.config.enableIPU2();
-		boolean enableIPU3 = this.parent.parent.config.enableIPU3();
+		InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
+		boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
+		boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
+		boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
 		new CommandControlRegisters() //
 				.syncApproval(true) //
 				.blackstartApproval(false) //
@@ -151,12 +151,12 @@ public class OngridHandler {
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
 				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-				.writeToChannels(this.parent.parent);
+				.writeToChannels(this.parent.gridconPCS);
 		new CcuControlParameters() //
 				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
 				.qLimit(1f) //
-				.writeToChannels(this.parent.parent);
-		this.parent.parent.setIpuControlSettings();
+				.writeToChannels(this.parent.gridconPCS);
+		this.parent.gridconPCS.setIpuControlSettings();
 
 		return State.RUN;
 	}

@@ -21,7 +21,8 @@ public class StateMachine {
 
 	private static final int TIME_TOLERANCE_LINK_VOLTAGE = 15;
 
-	protected final GridconPCS parent;
+	protected final GridconPCS gridconPCS;
+	protected final OnGridController onGridController;
 
 	private LocalDateTime ccuStateIsRunningSince = null;
 
@@ -35,15 +36,16 @@ public class StateMachine {
 	private State state = State.UNDEFINED;
 	private CCUState lastCcuState = CCUState.UNDEFINED;
 
-	public StateMachine(GridconPCS parent) {
-		this.parent = parent;
+	public StateMachine(GridconPCS gridconPCS, OnGridController onGridController) {
+		this.gridconPCS = gridconPCS;
+		this.onGridController = onGridController;
 
 		/*
 		 * Call back for ccu state when ccu state is set to run a time variable is set
 		 * this is important for checking the link voltage because the link voltage is
 		 * not present at start up
 		 */
-		BooleanReadChannel ccuStateRunChannel = this.parent.channel(GridConChannelId.CCU_STATE_RUN);
+		BooleanReadChannel ccuStateRunChannel = this.gridconPCS.channel(GridConChannelId.CCU_STATE_RUN);
 		ccuStateRunChannel.onChange((oldValue, newValue) -> {
 			Optional<Boolean> val = newValue.asOptional();
 			if (!val.isPresent()) {
@@ -111,8 +113,8 @@ public class StateMachine {
 	 * @throws IllegalArgumentException
 	 */
 	private State handleUndefined() {
-		GridMode gridMode = this.parent.getGridMode().getNextValue().asEnum();
-		CCUState ccuState = this.getCcuState();
+		GridMode gridMode = this.gridconPCS.getGridMode().getNextValue().asEnum();
+		CCUState ccuState = this.gridconPCS.getCcuState();
 		if (ccuState == CCUState.ERROR) {
 			return State.ERROR;
 		}
@@ -135,7 +137,7 @@ public class StateMachine {
 
 	private boolean isError() {
 		boolean result = false;
-		CCUState ccuState = this.getCcuState();
+		CCUState ccuState = this.gridconPCS.getCcuState();
 		// CCU State Error
 		if (this.lastCcuState != ccuState && ccuState == CCUState.ERROR) {
 			result = true;
@@ -164,7 +166,7 @@ public class StateMachine {
 			return false; // system has to run a certain until validation is senseful
 		}
 
-		FloatReadChannel frc = this.parent.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+		FloatReadChannel frc = this.gridconPCS.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
 		Optional<Float> linkVoltageOpt = frc.value().asOptional();
 		if (!linkVoltageOpt.isPresent()) {
 			return false;
@@ -178,8 +180,8 @@ public class StateMachine {
 	
 	// Checks the modbus bridge if communication is available or not
 	protected boolean isCommunicationBroken() {
-		String modbusId = this.parent.config.modbus_id();
-		ComponentManager manager = this.parent.componentManager;
+		String modbusId = this.gridconPCS.config.modbus_id();
+		ComponentManager manager = this.gridconPCS.componentManager;
 		AbstractModbusBridge modbusBridge = null;
 		try {
 			modbusBridge = manager.getComponent(modbusId);
@@ -201,66 +203,7 @@ public class StateMachine {
 		 return false;
 	}
 
-	/**
-	 * Gets the CCUState of the MR internal State-Machine.
-	 * 
-	 * @return the CCUState
-	 */
-	protected CCUState getCcuState() {
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_ERROR)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.ERROR;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_IDLE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.IDLE;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_PRECHARGE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.PRECHARGE;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_STOP_PRECHARGE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.STOP_PRECHARGE;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_READY)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.READY;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_PAUSE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.PAUSE;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_RUN)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.RUN;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP)).value()
-				.asOptional().orElse(false)) {
-			return CCUState.VOLTAGE_RAMPING_UP;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_OVERLOAD)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.OVERLOAD;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED)).value()
-				.asOptional().orElse(false)) {
-			return CCUState.SHORT_CIRCUIT_DETECTED;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_DERATING_POWER)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.DERATING_POWER;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_DERATING_HARMONICS)).value()
-				.asOptional().orElse(false)) {
-			return CCUState.DERATING_HARMONICS;
-		}
-		if (((BooleanReadChannel) this.parent.channel(GridConChannelId.CCU_STATE_SIA_ACTIVE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.SIA_ACTIVE;
-		}
-		return CCUState.UNDEFINED;
-	}
+
 
 	/**
 	 * Switches to the next state.
