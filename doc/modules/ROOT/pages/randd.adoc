@@ -45,3 +45,26 @@ Ein dezentrales Speichermanagement mit der Anbindung von Mehrwertdiensten sowie 
 Fenecon arbeitet hierzu mit den Projektpartnern https://www.dfki.de/web/[Deutsches Forschungszentrum für künstliche Intelligenz icon:external-link[]], https://discovergy.com/[Discovergy icon:external-link[]], https://www.enercity.de/privatkunden/index.html[enercity icon:external-link[]] und der https://www.tu-berlin.de/menue/home/[TU Berlin icon:external-link[]] zusammen.
 
 NOTE: Mehr Informationen: https://blogpv.net/
+
+
+== MEMAP
+
+=== Multi-Energie Management und Aggregations-Plattform
+
+image::MEMAP.png[MEMAP]
+
+Das Kernziel des MEMAP-Projekts ist die Entwicklung und Erprobung einer offenen Aggregationsplattform. Die Plattform soll mehrere Gebäude bzw. deren lokale EMS zusammenschließen, um Synergieeffekte der verschiedenen Bedarfs- und Produktionsprofile auszunutzen. Benutzer sollen mit Hilfe von intuitiven Benutzeroberflächen in diesen Prozess eingebunden werden. Ein Simulationsframework zum Testen der Plattform soll erweitert werden, um den komplexen Planungsprozess zu unterstützen. Das MEMAP Projekt setzt dabei auf den Einsatz des etablierten Building Information Model (BIM) Standards.
+
+Am MEMAP Projekt sind neben der FENECON die Firmen https://holsten.io/[Holsten Systems GmbH icon:external-link[]], https://www.sauter-cumulus.de/[Sauter-Cumulus GmbH  icon:external-link[]] , https://www.ibdm.de/[IBDM GmbH icon:external-link[]] sowie die Forschungseinrichtungen https://www.fortiss.org/[fortiss GmbH icon:external-link[]], https://www.mse.tum.de/en/tumenergy-research-projects/[UM MSE Energy Efficient and Smart Cities icon:external-link[]] und das https://zentrum-digitalisierung.bayern/[Zentrum Digitalisierung.Bayern icon:external-link[]] beteiligt.
+
+FENECON bringt Erfahrungen im Bereich Projektentwicklung und –realisierung sowie Virtuelle Kraftwerke ein. FENECON beteiligt sich bei der Erarbeitung der Anforderung, Entwicklung und Bewertung von Geschäftsmodellen, der Systemanalyse und der Entwicklung der Softwareplattform.
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+NOTE: Mehr Informationen: http://memap.fortiss.org
