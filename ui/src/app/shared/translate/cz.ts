@@ -88,6 +88,8 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
+                    invalidInput: 'Zadání je neplatné',
+                    putSwitchedLoadPower: 'Zadejte prosím spínací zátěž!',
                     switchAbove: 'Zapněte přes',
                     switchBelow: 'Zapněte pod',
                     dependendOn: 'Podle toho',

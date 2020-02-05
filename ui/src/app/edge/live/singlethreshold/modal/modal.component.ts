@@ -39,16 +39,16 @@ export class SinglethresholdModalComponent {
     this.inputMode = this.getInputMode()
     this.formGroup = this.formBuilder.group({
       minimumSwitchingTime: new FormControl(this.controller.properties.minimumSwitchingTime, Validators.compose([
-        Validators.min(10),
-        Validators.pattern('^[0-9]*$'),
+        Validators.min(5),
+        Validators.pattern('^[1-9][0-9]*$'),
         Validators.required
       ])),
       threshold: new FormControl(this.inputMode == 'GRIDSELL' ? this.controller.properties.threshold * -1 : this.controller.properties.threshold, Validators.compose([
-        Validators.pattern('^[0-9]*$'),
+        Validators.pattern('^[1-9][0-9]*$'),
         Validators.required
       ])),
       switchedLoadPower: new FormControl(this.inputMode == 'GRIDSELL' ? this.controller.properties.switchedLoadPower * -1 : this.controller.properties.switchedLoadPower, Validators.compose([
-        Validators.pattern('^[0-9]*$'),
+        Validators.pattern('^[1-9][0-9]*$'),
         Validators.required
       ])),
       inputMode: new FormControl(this.controller.properties.inputChannelAddress),
@@ -186,7 +186,6 @@ export class SinglethresholdModalComponent {
   }
 
   applyChanges(currentController: EdgeConfig.Component) {
-    // todo specific error messages depending on validation
     if (this.formGroup.controls['minimumSwitchingTime'].valid && this.formGroup.controls['threshold'].valid && this.formGroup.controls['switchedLoadPower'].valid) {
       let updateComponentArray = [];
       Object.keys(this.formGroup.controls).forEach((element, index) => {
@@ -238,8 +237,7 @@ export class SinglethresholdModalComponent {
       }
       this.formGroup.markAsPristine()
     } else {
-      this.service.toast('Input not valid', 'danger');
+      this.service.toast(this.translate.instant('Edge.Index.Widgets.Singlethreshold.invalidInput'), 'danger');
     }
-
   }
 }

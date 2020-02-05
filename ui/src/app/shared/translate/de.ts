@@ -105,6 +105,8 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
+                    invalidInput: 'Eingabe ungültig',
+                    putSwitchedLoadPower: 'Tragen Sie bitte Ihre geschaltete Last ein!',
                     switchAbove: 'Einschalten über',
                     switchBelow: 'Einschalten unter',
                     dependendOn: 'Abhängig von',

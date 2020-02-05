@@ -89,6 +89,8 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
+                    invalidInput: 'Input invalid',
+                    putSwitchedLoadPower: 'Please enter your switched load power!',
                     switchAbove: 'Switch on above',
                     switchBelow: 'Switch on below',
                     dependendOn: 'Dependend on',
