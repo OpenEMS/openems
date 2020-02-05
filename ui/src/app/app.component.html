@@ -37,13 +37,17 @@
       <!-- this title tag is for spacing purpose only -->
       <ion-title class="ion-hide-md-down" slot="end">
       </ion-title>
-      <ng-container *ngIf="service.currentEdge | async as edge">
-        <ion-buttons slot="end" *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
-          <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
+      <ion-buttons slot="end">
+        <ng-container *ngIf="service.currentEdge | async as edge">
+          <ion-button *ngIf="env.debugMode && edge.roleIsAtLeast('owner')"
+            (click)="isSystemLogEnabled = !isSystemLogEnabled">
             <ion-icon name="bug"></ion-icon>
           </ion-button>
-        </ion-buttons>
-      </ng-container>
+        </ng-container>
+        <ion-button href="https://portal.fenecon.de/web/session/logout?redirect=https://fenecon.de">
+          <ion-icon style="font-size: 28px;" name="log-out"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-toolbar>
 
     <ng-container *ngIf="currentPage == 'IndexHistory'">
