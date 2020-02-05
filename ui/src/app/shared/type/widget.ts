@@ -22,7 +22,8 @@ export enum WidgetFactory {
     'Controller.Api.ModbusTcp',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
-    'Controller.CHP.SoC'
+    'Controller.CHP.SoC',
+    'Controller.Symmetric.PeakShaving',
 }
 
 export class Widget {
@@ -69,7 +70,9 @@ export class Widgets {
         }
         for (let factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
             for (let componentId of config.getComponentIdsByFactory(factory)) {
-                list.push({ name: factory, componentId: componentId });
+                if (config.getComponent(componentId).isEnabled) {
+                    list.push({ name: factory, componentId: componentId });
+                }
             }
         }
 
