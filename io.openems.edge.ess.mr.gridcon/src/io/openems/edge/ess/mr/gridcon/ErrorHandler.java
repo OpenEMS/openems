@@ -55,9 +55,9 @@ public class ErrorHandler {
 	private int tryToAcknowledgeErrorsCounter = 0;
 
 	// HARD_RESET
-	private LocalDateTime lastHardReset = null;
-	private static final int SWITCH_OFF_TIME_SECONDS = 10;
-	private static final long RELOAD_TIME_SECONDS = 60; // Time for Mr Gridcon to boot and come back
+//	private LocalDateTime lastHardReset = null;
+//	private static final int SWITCH_OFF_TIME_SECONDS = 10;
+//	private static final long RELOAD_TIME_SECONDS = 60; // Time for Mr Gridcon to boot and come back
 	private static final int MAX_TIMES_FOR_TRYING_TO_HARD_RESET = 5;
 	private static final long DELAY_AFTER_FINISHING_SECONDS = 5;
 	private int hardResetCounter = 0;
@@ -78,7 +78,7 @@ public class ErrorHandler {
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		switch (this.state) {
 		case UNDEFINED:
-			if (parent.getCcuState() == CCUState.ERROR) {
+			if (parent.gridconPCS.getCcuState() == CCUState.ERROR) {
 				this.setNextState(State.READ_ERRORS);
 			} else if (this.parent.isLinkVoltageTooLow()) {
 				this.setNextState(State.LINK_VOLTAGE_TOO_LOW);
@@ -146,10 +146,10 @@ public class ErrorHandler {
 
 	private State doLinkVoltageTooLow() throws IllegalArgumentException, OpenemsNamedException {
 
-		boolean enableIPU1 = this.parent.parent.config.enableIPU1();
-		boolean enableIPU2 = this.parent.parent.config.enableIPU2();
-		boolean enableIPU3 = this.parent.parent.config.enableIPU3();
-		InverterCount inverterCount = this.parent.parent.config.inverterCount();
+		boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
+		boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
+		boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
+		InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
 		
 		new CommandControlRegisters() //
 				// Stop the system
@@ -162,7 +162,7 @@ public class ErrorHandler {
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
 				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-				.writeToChannels(this.parent.parent);
+				.writeToChannels(this.parent.gridconPCS);
 
 		return State.FINISH_ERROR_HANDLING;
 	}
@@ -273,10 +273,10 @@ public class ErrorHandler {
 
 			this.log.info("Acknowledging Error " + entry.getKey() + " [" + ed.nextAcknowledgeState + "]");
 
-			boolean enableIPU1 = this.parent.parent.config.enableIPU1();
-			boolean enableIPU2 = this.parent.parent.config.enableIPU2();
-			boolean enableIPU3 = this.parent.parent.config.enableIPU3();
-			InverterCount inverterCount = this.parent.parent.config.inverterCount();
+			boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
+			boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
+			boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
+			InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
 			
 			new CommandControlRegisters() //
 					// Acknowledge error
@@ -290,7 +290,7 @@ public class ErrorHandler {
 					.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 					.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
 					.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-					.writeToChannels(this.parent.parent);
+					.writeToChannels(this.parent.gridconPCS);
 
 			return State.ACKNOWLEDGE_ERRORS;
 
@@ -308,40 +308,41 @@ public class ErrorHandler {
 	}
 
 	/**
-	 * Execute a Hard-Reset, i.e. switch the Gridcon PCS off and on.
-	 * 
-	 * @return the next state
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
-	 */
+//	 * Execute a Hard-Reset, i.e. switch the Gridcon PCS off and on.
+//	 * 
+//	 * @return the next state
+//	 * @throws IllegalArgumentException
+//	 * @throws OpenemsNamedException
+//	 */
 	private State doHardReset() throws IllegalArgumentException, OpenemsNamedException {
-		if (this.lastHardReset == null) {
-			// Start Hard-Reset -> close the contactor
-			this.hardResetCounter = this.hardResetCounter + 1;
-			this.lastHardReset = LocalDateTime.now();
-			this.parent.parent.setHardResetContactor(true);
-			return State.HARD_RESET;
-		}
-		
-		if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isAfter(LocalDateTime.now())) {
-			// just wait and keep the contactor closed
-			this.parent.parent.setHardResetContactor(true);
-			return State.HARD_RESET;
-		}
-
-		if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS)
-				.isAfter(LocalDateTime.now())) {
-			// switch-off-time passed -> Open the contactor
-			this.parent.parent.setHardResetContactor(false);
-			return State.HARD_RESET;
-		}
-
-		// switch-off-time and reload-time passed
-		this.parent.parent.setHardResetContactor(false); // Keep contactor open 
-		//TODO hier muss ein fehler vorliegen, da lt. beobachtung an der hardware das relais alle 2-3 sekunden geschaltet wurde...
-		// Mr Gridcon should be back, so reset everything to start conditions
-		this.lastHardReset = null;
-		return State.FINISH_ERROR_HANDLING;
+		return State.ERROR_HANDLING_NOT_POSSIBLE;
+//		if (this.lastHardReset == null) {
+//			// Start Hard-Reset -> close the contactor
+//			this.hardResetCounter = this.hardResetCounter + 1;
+//			this.lastHardReset = LocalDateTime.now();
+//			this.parent.parent.setHardResetContactor(true);
+//			return State.HARD_RESET;
+//		}
+//		
+//		if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isAfter(LocalDateTime.now())) {
+//			// just wait and keep the contactor closed
+//			this.parent.parent.setHardResetContactor(true);
+//			return State.HARD_RESET;
+//		}
+//
+//		if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS)
+//				.isAfter(LocalDateTime.now())) {
+//			// switch-off-time passed -> Open the contactor
+//			this.parent.parent.setHardResetContactor(false);
+//			return State.HARD_RESET;
+//		}
+//
+//		// switch-off-time and reload-time passed
+//		this.parent.parent.setHardResetContactor(false); // Keep contactor open 
+//		//TODO hier muss ein fehler vorliegen, da lt. beobachtung an der hardware das relais alle 2-3 sekunden geschaltet wurde...
+//		// Mr Gridcon should be back, so reset everything to start conditions
+//		this.lastHardReset = null;
+//		return State.FINISH_ERROR_HANDLING;
 	}
 
 	/**
@@ -351,7 +352,7 @@ public class ErrorHandler {
 	 */
 	private State doErrorHandlingNotPossible() {
 		// TODO switch off system
-		this.parent.parent.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
+		this.parent.gridconPCS.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
 		return State.ERROR_HANDLING_NOT_POSSIBLE;
 	}
 
@@ -369,7 +370,7 @@ public class ErrorHandler {
 	 * @return the Error-Channel or null
 	 */
 	protected StateChannel getErrorChannel() {
-		IntegerReadChannel errorCodeChannel = this.parent.parent.channel(GridConChannelId.CCU_ERROR_CODE);
+		IntegerReadChannel errorCodeChannel = this.parent.gridconPCS.channel(GridConChannelId.CCU_ERROR_CODE);
 		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
 		if (errorCodeOpt.isPresent() && errorCodeOpt.get() != 0) {
 			int code = errorCodeOpt.get();
@@ -377,7 +378,7 @@ public class ErrorHandler {
 			ChannelId id = this.errorChannelIds.get(code);
 			if (id != null && id.doc() != null) {
 				this.log.info("Error code is present --> " + code + " --> " + ((ErrorDoc) id.doc()).getText());
-				return this.parent.parent.channel(id);
+				return this.parent.gridconPCS.channel(id);
 			}
 		}
 		return null;
