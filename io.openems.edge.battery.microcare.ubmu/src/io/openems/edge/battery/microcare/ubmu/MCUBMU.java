@@ -374,6 +374,17 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 	}
 
 	/**
+	 * Copied from {@link io.openems.edge.battery.soltaro.single.versiona.SingleRack#debugLog()}
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc().value() //
+				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+	}
+
+	/**
 	 * Private class that offsets the {@link ChannelId#CHARGE_CURRENT} and
 	 * {@link ChannelId#DISCHARGE_CURRENT} channel values against each other to
 	 * produce a net current value that can be mapped to the
