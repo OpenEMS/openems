@@ -32,7 +32,6 @@ import io.openems.edge.bridge.mccomms.packet.MCCommsScalerElement;
 import io.openems.edge.bridge.mccomms.task.ListenTask;
 import io.openems.edge.bridge.mccomms.task.QueryTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -234,8 +233,8 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		((BooleanReadChannel) channel(ChannelId.SHORT_CIRCUIT_OR_OPEN_CELL_ERROR))
 				.onSetNextValue(this::setReadyState);
 
-		//static scaler value
-		channel(ChannelId.PERCENTAGE_SCALER).setNextValue(0.01);
+		//percentage scaler value
+		channel(ChannelId.PERCENTAGE_SCALER).setNextValue(0.01); //this scaler is static regardless of battery type
 		channel(ChannelId.PERCENTAGE_SCALER).nextProcessImage();
 	}
 	
@@ -363,6 +362,9 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 						new MCCommsPacket(responsePacketElements)));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Deactivate
 	protected void deactivate() {
 		for (QueryTask queryTask : queryTasks) {
