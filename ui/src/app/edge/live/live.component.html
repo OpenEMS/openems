@@ -1,4 +1,5 @@
 <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
+  <kacoupdate></kacoupdate>
   <ion-row class="ion-justify-content-center" *ngIf="widgets">
     <!-- Energymonitor -->
     <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">

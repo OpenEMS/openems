@@ -4,23 +4,22 @@ import { Edge, EdgeConfig, Service, Websocket, ChannelAddress } from '../../../s
 
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { KacoErrorModalComponent } from './modal/modal.component';
+import { KacoUpdateModalComponent } from './modal/modal.component';
 import { HasUpdateRequest } from 'src/app/shared/jsonrpc/request/hasUpdateRequest';
 
 
 
 
 @Component({
-    selector: 'kacoerror',
-    templateUrl: './kacoerror.component.html'
+    selector: 'kacoupdate',
+    templateUrl: './kacoupdate.component.html'
 })
 
-export class KacoErrorComponent {
-    private static readonly SELECTOR = "kacoerror";
+export class KacoUpdateComponent {
+    private static readonly SELECTOR = "kacoupdate";
 
     public edge: Edge = null;
     public config: EdgeConfig = null;
-    public essComponents: EdgeConfig.Component[] = null;
 
     constructor(
         public service: Service,
@@ -36,19 +35,18 @@ export class KacoErrorComponent {
         this.service.getConfig().then(config => {
             this.config = config;
             let channels = [];
-
-            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster") && component.isEnabled);
-            for (let component of this.essComponents) {
-
-
-                channels.push(
-                    new ChannelAddress(component.id, 'ErrorLog'),
-                    new ChannelAddress(component.id, 'ErrorList'),
-                    new ChannelAddress(component.id, 'HasError')
-                );
-            }
-            this.edge.subscribeChannels(this.websocket, KacoErrorComponent.SELECTOR, channels);
-
+            channels.push(
+                new ChannelAddress('_kacoUpdate', 'HasUpdate'),
+                new ChannelAddress('_kacoUpdate', 'HasEdgeUpdate'),
+                new ChannelAddress('_kacoUpdate', 'HasUiUpdate'),
+            );
+            this.edge.subscribeChannels(this.websocket, KacoUpdateComponent.SELECTOR, channels);
+            let request = new HasUpdateRequest();
+            this.edge.sendRequest(this.websocket, request).then(response => {
+                if (Object.keys(response.result).length != 0) {
+                    this.presentModal();
+                }
+            });
         });
 
 
@@ -57,18 +55,17 @@ export class KacoErrorComponent {
 
     ngOnDestroy() {
         if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, KacoErrorComponent.SELECTOR);
+            this.edge.unsubscribeChannels(this.websocket, KacoUpdateComponent.SELECTOR);
         }
     }
 
 
     async presentModal() {
         const modal = await this.modalCtrl.create({
-            component: KacoErrorModalComponent,
+            component: KacoUpdateModalComponent,
             componentProps: {
                 edge: this.edge,
                 config: this.config,
-                essComponents: this.essComponents,
             }
         });
         return await modal.present();

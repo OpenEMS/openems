@@ -1,0 +1,34 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-title translate>Updates</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+
+        <ion-card-content>
+
+            <table class="full_width">
+                <tr>
+                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/HasEdgeUpdate'] === 1">Eine neue Version der
+                        hy-control Software ist verfügbar.
+                    </td>
+                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/HasUiUpdate'] === 1">Eine neue Version der
+                        hy-control Benutzeroberfläche ist verfügbar.
+                    </td>
+                    <td style="width:100%">
+                        <ion-button (click)="updateSoftware()">
+                            Aktualisieren
+                        </ion-button>
+                    </td>
+                </tr>
+            </table>
+        </ion-card-content>
+
+    </ng-container>
+</ion-content>

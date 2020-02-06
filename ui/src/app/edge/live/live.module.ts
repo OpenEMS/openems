@@ -32,6 +32,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
 import { KacoErrorComponent } from './kacoerror/kacoerror.component';
 import { KacoErrorModalComponent } from './kacoerror/modal/modal.component';
+import { KacoUpdateModalComponent } from './kacoupdate/modal/modal.component';
+import { KacoUpdateComponent } from './kacoupdate/kacoupdate.component';
 
 @NgModule({
   imports: [
@@ -52,7 +54,8 @@ import { KacoErrorModalComponent } from './kacoerror/modal/modal.component';
     EvcsPopoverComponent,
     ChpsocModalComponent,
     FixDigitalOutputModalComponent,
-    KacoErrorModalComponent
+    KacoErrorModalComponent,
+    KacoUpdateModalComponent
   ],
   declarations: [
     LiveComponent,
@@ -84,7 +87,9 @@ import { KacoErrorModalComponent } from './kacoerror/modal/modal.component';
     EvcsPopoverComponent,
     OfflineComponent,
     KacoErrorComponent,
-    KacoErrorModalComponent
+    KacoErrorModalComponent,
+    KacoUpdateComponent,
+    KacoUpdateModalComponent
   ]
 })
 export class LiveModule { }
