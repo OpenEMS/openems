@@ -25,11 +25,6 @@ export class SinglethresholdComponent {
   public inputChannel: ChannelAddress;
   public outputChannel: ChannelAddress;
 
-
-  public threshold: number = 34;
-  public mode: mode = 'ON';
-  public inputMode: inputMode = 'SOC'
-
   constructor(
     public service: Service,
     private websocket: Websocket,

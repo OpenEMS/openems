@@ -107,11 +107,22 @@
             </tr>
             <tr>
               <td style="width: 65%;" translate>
-                <ng-container *ngIf="controller.properties.invert == false">
-                  Edge.Index.Widgets.Singlethreshold.switchAbove
+                <ng-container *ngIf="controller.properties.threshold > 0">
+                  <ng-container *ngIf="controller.properties.invert == false">
+                    Edge.Index.Widgets.Singlethreshold.switchAbove
+                  </ng-container>
+                  <ng-container *ngIf="controller.properties.invert == true">
+                    Edge.Index.Widgets.Singlethreshold.switchBelow
+                  </ng-container>
                 </ng-container>
-                <ng-container *ngIf="controller.properties.invert == true">
-                  Edge.Index.Widgets.Singlethreshold.switchBelow
+                <!-- revert logic for GridSell -->
+                <ng-container *ngIf="controller.properties.threshold < 0">
+                  <ng-container *ngIf="controller.properties.invert == false">
+                    Edge.Index.Widgets.Singlethreshold.switchBelow
+                  </ng-container>
+                  <ng-container *ngIf="controller.properties.invert == true">
+                    Edge.Index.Widgets.Singlethreshold.switchAbove
+                  </ng-container>
                 </ng-container>
               </td>
               <!-- SOC -->

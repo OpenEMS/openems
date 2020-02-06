@@ -14,7 +14,7 @@ export class CorrentlyComponent {
   private static readonly SELECTOR = "corrently";
 
   public edge: Edge = null;
-  private config: EdgeConfig = null;
+  public config: EdgeConfig = null;
   public zipCode: string;
 
   constructor(
