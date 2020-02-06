@@ -436,16 +436,18 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		 * If both the {@link NetCurrentChannelUpdater#chargeCurrentChannelUpdated} and
 		 * {@link NetCurrentChannelUpdater#dischargeCurrentChannelUpdated} flags are
 		 * true, it calculates the net current and maps that value to the
-		 * {@link Battery.ChannelId#CURRENT} channel
+		 * {@link Battery.ChannelId#CURRENT} channel. If the discharge current value is simply the inverse of the charge
+		 * current, the battery is assumed to have only one terminal set, and the discharge current is used instead.
+		 * {@fixme 2020/02/06 this may cause weirdness for batteries with two terminal sets in some cases}
 		 */
 		private void tryUpdateNetCurrentChannelValue() {
 			if (chargeCurrentChannelUpdated && dischargeCurrentChannelUpdated) {
 				chargeCurrentChannelUpdated = false;
-				dischargeCurrentChannelUpdated = false;
+				dischargeCurrentChannelUpdated = false; //reset to base state
 				double dischargeCurrent = ((DoubleReadChannel) channel(ChannelId.DISCHARGE_CURRENT)).getNextValue().get();
 				double chargeCurrent = ((DoubleReadChannel) channel(ChannelId.CHARGE_CURRENT)).getNextValue().get();
 				double netCurrent;
-				if (dischargeCurrent == chargeCurrent) {
+				if (dischargeCurrent == (chargeCurrent * (-1.0))) {
 					netCurrent = dischargeCurrent;
 				} else {
 					netCurrent = dischargeCurrent - chargeCurrent;
