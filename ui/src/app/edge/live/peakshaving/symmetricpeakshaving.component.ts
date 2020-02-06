@@ -41,6 +41,10 @@ export class SymmetricPeakshavingComponent {
     async presentModal() {
         const modal = await this.modalCtrl.create({
             component: SymmetricPeakshavingModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge
+            }
         });
         console.log("component", this.component.properties)
         return await modal.present();
