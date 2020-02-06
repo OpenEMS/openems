@@ -40,6 +40,10 @@ import { StorageSingleChartComponent } from './storage/singlechart.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
 import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { StorageComponent } from './storage/widget.component';
+import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
+import { SinglethresholdSingleChartComponent } from './singlethreshold/singlechart.component';
+import { SinglethresholdTotalChartComponent } from './singlethreshold/totalchart.component';
+import { SingletresholdWidgetComponent } from './singlethreshold/widget.component';
 
 @NgModule({
   imports: [
@@ -54,6 +58,7 @@ import { StorageComponent } from './storage/widget.component';
     GridModalComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
+    SinglethresholdModalComponent,
     StorageModalComponent,
   ],
   declarations: [
@@ -90,6 +95,10 @@ import { StorageComponent } from './storage/widget.component';
     SelfconsumptionChartComponent,
     SelfconsumptionModalComponent,
     SelfconsumptionWidgetComponent,
+    SinglethresholdModalComponent,
+    SinglethresholdSingleChartComponent,
+    SinglethresholdTotalChartComponent,
+    SingletresholdWidgetComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,
     StorageComponent,

@@ -47,8 +47,9 @@ export class SinglethresholdModalComponent {
         Validators.pattern('^[1-9][0-9]*$'),
         Validators.required
       ])),
-      switchedLoadPower: new FormControl(this.inputMode == 'GRIDSELL' ? this.controller.properties.switchedLoadPower * -1 : this.controller.properties.switchedLoadPower, Validators.compose([
-        Validators.pattern('^[1-9][0-9]*$'),
+      switchedLoadPower: new FormControl(this.inputMode == 'GRIDBUY' ? this.controller.properties.switchedLoadPower * -1 : this.controller.properties.switchedLoadPower, Validators.compose([
+        Validators.min(0),
+        Validators.pattern('^(?:[1-9][0-9]*|0)$'),
         Validators.required
       ])),
       inputMode: new FormControl(this.controller.properties.inputChannelAddress),
@@ -193,7 +194,10 @@ export class SinglethresholdModalComponent {
           // catch inputMode and convert it to inputChannelAddress
           if (Object.keys(this.formGroup.controls)[index] == 'inputMode') {
             updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) })
-          } else if (this.inputMode == 'GRIDSELL' && (Object.keys(this.formGroup.controls)[index] == 'threshold' || Object.keys(this.formGroup.controls)[index] == 'switchedLoadPower')) {
+          } else if (this.inputMode == 'GRIDSELL' && (Object.keys(this.formGroup.controls)[index] == 'threshold')) {
+            this.formGroup.controls[element].setValue(this.formGroup.controls[element].value * -1);
+            updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+          } else if (this.inputMode == 'GRIDBUY' && (Object.keys(this.formGroup.controls)[index] == 'switchedLoadPower')) {
             this.formGroup.controls[element].setValue(this.formGroup.controls[element].value * -1);
             updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
           } else {
@@ -201,12 +205,12 @@ export class SinglethresholdModalComponent {
           }
         }
       });
-      this.loading = true;
       if (this.edge != null) {
+        this.loading = true;
         this.edge.updateComponentConfig(this.websocket, this.controller.id, updateComponentArray).then(() => {
           this.controller.properties.minimumSwitchingTime = this.formGroup.value.minimumSwitchingTime;
           this.controller.properties.threshold = this.inputMode == 'GRIDSELL' ? this.formGroup.value.threshold * -1 : this.formGroup.value.threshold;
-          this.controller.properties.switchedLoadPower = this.inputMode == 'GRIDSELL' ? this.formGroup.value.switchedLoadPower * -1 : this.formGroup.value.switchedLoadPower;
+          this.controller.properties.switchedLoadPower = this.inputMode == 'GRIDBUY' ? this.formGroup.value.switchedLoadPower * -1 : this.formGroup.value.switchedLoadPower;
           this.controller.properties.inputChannelAddress = this.convertToChannelAddress(this.inputMode) != this.controller.properties.inputChannelAddress ? this.convertToChannelAddress(this.formGroup.value.inputMode) : this.controller.properties.inputChannelAddress;
           this.controller.properties.invert = this.formGroup.value.invert;
           this.loading = false;
@@ -218,6 +222,7 @@ export class SinglethresholdModalComponent {
           this.formGroup.controls['switchedLoadPower'].setValue(this.controller.properties.switchedLoadPower);
           this.formGroup.controls['inputMode'].setValue(this.convertToInputMode(this.controller.properties.inputChannelAddress, this.controller.properties.treshold));
           this.formGroup.controls['invert'].setValue(this.controller.properties.invert);
+          this.loading = false;
           this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
           console.warn(reason);
         });
@@ -230,14 +235,16 @@ export class SinglethresholdModalComponent {
           if (this.formGroup.controls['threshold'].dirty) {
             this.formGroup.controls['threshold'].setValue(this.formGroup.value.threshold * -1);
           }
-          if (this.formGroup.controls['switchedLoadPower'].dirty) {
-            this.formGroup.controls['switchedLoadPower'].setValue(this.formGroup.value.switchedLoadPower * -1);
-          }
+        }
+      }
+      if (this.inputMode == 'GRIDBUY') {
+        if (this.formGroup.controls['switchedLoadPower'].dirty) {
+          this.formGroup.controls['switchedLoadPower'].setValue(this.formGroup.value.switchedLoadPower * -1);
         }
       }
       this.formGroup.markAsPristine()
     } else {
-      this.service.toast(this.translate.instant('Edge.Index.Widgets.Singlethreshold.invalidInput'), 'danger');
+      this.service.toast(this.translate.instant('General.InputNotValid'), 'danger');
     }
   }
 }

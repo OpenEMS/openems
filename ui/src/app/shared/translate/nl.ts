@@ -86,7 +86,6 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
-                    invalidInput: 'Invoer ongeldig',
                     putSwitchedLoadPower: 'Voer uw geschakelde belasting in!',
                     switchAbove: 'Inschakelen via',
                     switchBelow: 'Inschakelen onder',
