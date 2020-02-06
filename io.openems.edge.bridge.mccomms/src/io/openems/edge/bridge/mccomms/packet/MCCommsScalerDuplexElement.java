@@ -52,12 +52,10 @@ public class MCCommsScalerDuplexElement extends MCCommsElement{
 		}
 		ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
 		int combined = Byte.toUnsignedInt(buffer.get(0));
-		int a,b;
-		double firstScaler, secondScaler;
-	    a = ((combined >>> 7) << 31) | ((combined << 25) >>> 29);
-	    b = ((combined >>> 3) << 31) | ((combined << 29) >>> 29);
-	    firstScaler = Math.pow(10, a);
-	    secondScaler = Math.pow(10, b);
+		int a = ((combined & 0x000000F0) << 24) >> 28;
+		int b = ((combined & 0x0000000F) << 28) >> 28;
+		double firstScaler = Math.pow(10, a);
+		double secondScaler = Math.pow(10, b);
 	    firstScalerChannel.setNextValue(firstScaler);
 	    firstScalerChannel.nextProcessImage();
 	    secondScalerChannel.setNextValue(secondScaler);
