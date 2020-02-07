@@ -90,6 +90,7 @@ export const TRANSLATION = {
                     Output: "uitgang"
                 },
                 Peakshaving: {
+                    peakshaving: 'Piek scheren',
                     peakshavingPower: 'Afvoer voorbij',
                     rechargePower: 'Bezig met laden onder',
                     relationError: 'De afvoerwaarde moet groter zijn dan de laadwaarde'

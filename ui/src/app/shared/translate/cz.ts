@@ -92,6 +92,7 @@ export const TRANSLATION = {
                     Output: "Výstup"
                 },
                 Peakshaving: {
+                    peakshaving: 'špičkové holení',
                     peakshavingPower: 'Uvolnění',
                     rechargePower: 'Načítání pod',
                     relationError: 'Hodnota vybití musí být větší než hodnota zatížení'

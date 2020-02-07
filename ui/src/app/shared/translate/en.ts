@@ -93,6 +93,7 @@ export const TRANSLATION = {
                     Output: "Output"
                 },
                 Peakshaving: {
+                    peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
                     rechargePower: 'Charge below',
                     relationError: 'Discharge value must be greater than the Charge value'

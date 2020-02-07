@@ -109,6 +109,7 @@ export const TRANSLATION = {
                     Output: "Ausgang"
                 },
                 Peakshaving: {
+                    peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungswert muss größer als Beladungswert sein'

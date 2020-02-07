@@ -93,6 +93,7 @@ export const TRANSLATION = {
                     Output: "Salida"
                 },
                 Peakshaving: {
+                    peakshaving: 'Afeitado máximo',
                     peakshavingPower: 'Descarga sobre',
                     rechargePower: 'Cargando debajo',
                     relationError: 'El valor de descarga debe ser mayor que el valor de carga'
