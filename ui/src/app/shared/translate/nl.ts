@@ -41,6 +41,7 @@ export const TRANSLATION = {
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         ChangeAccepted: "Wijziging geaccepteerd",
         ChangeFailed: "Wijziging mislukt",
+        InputNotValid: "Invoer ongeldig",
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -90,7 +91,8 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     peakshavingPower: 'Afvoer voorbij',
-                    rechargePower: 'Bezig met laden onder'
+                    rechargePower: 'Bezig met laden onder',
+                    relationError: 'De afvoerwaarde moet groter zijn dan de laadwaarde'
                 },
                 phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",

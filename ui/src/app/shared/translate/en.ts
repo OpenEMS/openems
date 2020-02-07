@@ -41,6 +41,7 @@ export const TRANSLATION = {
         Search: "Search",
         ChangeAccepted: "Change accepted",
         ChangeFailed: "Change failed",
+        InputNotValid: "Input not valid",
         Week: {
             Monday: "Monday",
             Tuesday: "Tuesday",
@@ -93,7 +94,8 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     peakshavingPower: 'Discharge above',
-                    rechargePower: 'Charge below'
+                    rechargePower: 'Charge below',
+                    relationError: 'Discharge value must be greater than the Charge value'
                 },
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",

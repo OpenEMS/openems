@@ -42,6 +42,7 @@ export const TRANSLATION = {
         Search: "Búsqueda",
         ChangeAccepted: "Cambio aceptado",
         ChangeFailed: "Cambio fallido",
+        InputNotValid: "Entrada inválida",
         Week: {
             Monday: "Lunes",
             Tuesday: "Martes",
@@ -93,7 +94,8 @@ export const TRANSLATION = {
                 },
                 Peakshaving: {
                     peakshavingPower: 'Descarga sobre',
-                    rechargePower: 'Cargando debajo'
+                    rechargePower: 'Cargando debajo',
+                    relationError: 'El valor de descarga debe ser mayor que el valor de carga'
                 },
                 phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
