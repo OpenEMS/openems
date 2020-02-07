@@ -61,7 +61,20 @@ for D in *; do
 
 				# Set default .classpath file
 				if [ -f "${D}/.classpath" ]; then
-					git checkout origin/develop ${D}/.classpath
+					cat <<EOT > "${D}/.classpath"
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" output="bin" path="src"/>
+	<classpathentry kind="src" output="bin_test" path="test">
+		<attributes>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
+EOT
 				fi
 
 				# Verify bnd.bnd file
