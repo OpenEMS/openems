@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.mccomms.packet;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
@@ -50,16 +51,8 @@ public class MCCommsScalerDuplexElement extends MCCommsElement{
 		if (bytes.length != getValueBuffer().capacity()) {
 			throw new OpenemsException("Byte array does not meet required length");
 		}
-		ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
-		int combined = Byte.toUnsignedInt(buffer.get(0));
-		int a = ((combined & 0x000000F0) << 24) >> 28;
-		int b = ((combined & 0x0000000F) << 28) >> 28;
-		double firstScaler = Math.pow(10, a);
-		double secondScaler = Math.pow(10, b);
-	    firstScalerChannel.setNextValue(firstScaler);
-	    firstScalerChannel.nextProcessImage();
-	    secondScalerChannel.setNextValue(secondScaler);
-	    secondScalerChannel.nextProcessImage();
+		super.setBytes(bytes);
+		assignValueToChannel();
 		return this;
 	}
 
@@ -71,12 +64,25 @@ public class MCCommsScalerDuplexElement extends MCCommsElement{
 	public MCCommsElement setUnsigned(boolean unsigned) {
 		return this;
 	}
-	
+
 	/**
-	 * Overridden; does nothing
+	 * Reads the element value from the internal {@link ByteBuffer}, and
+	 * pushes it to the bound {@link Channel}s
+	 *
+	 * @throws OpenemsException if there is not two channel bound to the current instance
 	 */
 	@Override
 	public void assignValueToChannel() throws OpenemsException {
-		return;
+		if (Optional.ofNullable(firstScalerChannel).isPresent() &&  Optional.ofNullable(secondScalerChannel).isPresent()) {
+			int combined = Byte.toUnsignedInt(getValueBuffer().get(0));
+			int a = ((combined & 0x000000F0) << 24) >> 28;
+			int b = ((combined & 0x0000000F) << 28) >> 28;
+			double firstScaler = Math.pow(10, a);
+			double secondScaler = Math.pow(10, b);
+			firstScalerChannel.setNextValue(firstScaler);
+			secondScalerChannel.setNextValue(secondScaler);
+		} else {
+			throw new OpenemsException("No channel mapping for the current element");
+		}
 	}
 }
