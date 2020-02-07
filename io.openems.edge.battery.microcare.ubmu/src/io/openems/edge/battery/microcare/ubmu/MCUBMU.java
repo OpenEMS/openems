@@ -274,8 +274,8 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 						MCCommsElement.newInstanceFromChannel(7, 2, channel(ChannelId.PERCENTAGE_SCALER), channel(Battery.ChannelId.SOC)),
 						MCCommsElement.newInstanceFromChannel(9, 2, channel(ChannelId.PERCENTAGE_SCALER), channel(Battery.ChannelId.SOH)),
 						MCCommsElement.newInstanceFromChannel(11, 2, channel(ChannelId.BATTERY_VOLTAGE_SCALER), channel(Battery.ChannelId.VOLTAGE)),
-						MCCommsElement.newInstanceFromChannel(13, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(ChannelId.CHARGE_CURRENT)),
-						MCCommsElement.newInstanceFromChannel(15, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(ChannelId.DISCHARGE_CURRENT)),
+						MCCommsElement.newInstanceFromChannel(13, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(ChannelId.CHARGE_CURRENT)).setUnsigned(false),
+						MCCommsElement.newInstanceFromChannel(15, 2, channel(ChannelId.BATTERY_CURRENT_SCALER), channel(ChannelId.DISCHARGE_CURRENT)).setUnsigned(false),
 						MCCommsBitSetElement.newInstanceFromChannels(18, 2, 
 							channel(ChannelId.GENERAL_ERROR),
 							channel(ChannelId.BATTERY_HIGH_VOLTAGE_ERROR),
@@ -314,11 +314,11 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 				(
 					constructQueryTask(60, 61,
 						MCCommsScalerElement.newInstanceFromChannel(20, channel(ChannelId.CELL_VOLTAGE_SCALER)),
-						MCCommsElement.newInstanceFromChannel(7, 2, channel(ChannelId.CELL_VOLTAGE_SCALER), channel(Battery.ChannelId.MAX_CELL_VOLTAGE)),
-						MCCommsElement.newInstanceFromChannel(11, 2, channel(ChannelId.CELL_VOLTAGE_SCALER), channel(Battery.ChannelId.MIN_CELL_VOLTAGE)),
-						MCCommsElement.newInstanceFromChannel(17, 1, null, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE))
+						MCCommsElement.newInstanceFromChannel(7, 2, channel(ChannelId.CELL_VOLTAGE_SCALER), channel(ChannelId.UBMU_MAX_CELL_VOLTAGE)),
+						MCCommsElement.newInstanceFromChannel(9, 2, channel(ChannelId.CELL_VOLTAGE_SCALER), channel(ChannelId.UBMU_MIN_CELL_VOLTAGE)),
+						MCCommsElement.newInstanceFromChannel(15, 1, null, channel(Battery.ChannelId.MAX_CELL_TEMPERATURE))
 							.setUnsigned(false),
-						MCCommsElement.newInstanceFromChannel(19, 1, null, channel(Battery.ChannelId.MIN_CELL_TEMPERATURE))
+						MCCommsElement.newInstanceFromChannel(17, 1, null, channel(Battery.ChannelId.MIN_CELL_TEMPERATURE))
 							.setUnsigned(false)
 					).queryRepeatedly(config.statusRefreshMS(), TimeUnit.MILLISECONDS)
 				);
@@ -326,7 +326,7 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 			queryTasks.add
 				(
 					constructQueryTask(64, 65,
-							MCCommsScalerDuplexElement.newInstanceFromChannels(17, channel(ChannelId.BATTERY_WATT_HOURS_SCALER), channel(ChannelId.BATTERY_AMP_HOURS_SCALER)),
+							MCCommsScalerDuplexElement.newInstanceFromChannels(21, channel(ChannelId.BATTERY_WATT_HOURS_SCALER), channel(ChannelId.BATTERY_AMP_HOURS_SCALER)),
 							MCCommsElement.newInstanceFromChannel(19, 2,channel(ChannelId.BATTERY_WATT_HOURS_SCALER), channel(Battery.ChannelId.CAPACITY))
 					).queryRepeatedly(config.statusRefreshMS(),TimeUnit.MILLISECONDS)
 				);
