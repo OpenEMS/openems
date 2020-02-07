@@ -272,7 +272,7 @@ public class MCCommsElement {
 			if (isUnsigned) {
 				return Short.toUnsignedInt(valueBuffer.getShort(0)) * getScaleFactor();
 			}
-			return valueBuffer.getShort(0);
+			return valueBuffer.getShort(0) * getScaleFactor();
 		case 4:
 			if (isUnsigned) {
 				return UnsignedInts.toLong(valueBuffer.getInt(0)) * getScaleFactor();
