@@ -142,14 +142,6 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		 * </ul>
 		 */
 		BATTERY_WATT_HOURS_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
-		/**
-		 * Value for the scaling factor for cell celsius temperature values
-		 * <ul>
-		 * <li>Type: Double</li>
-		 * <li>Unit: None</li>
-		 * </ul>
-		 */
-		CELL_TEMPERATURE_SCALER(Doc.of(OpenemsType.DOUBLE).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)),
 		//TODO JavaDoc comments
 	    GENERAL_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
 	    BATTERY_HIGH_VOLTAGE_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_ONLY)),
