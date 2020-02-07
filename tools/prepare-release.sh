@@ -13,11 +13,11 @@ package_lock="ui/package-lock.json"
 about_component="ui/src/app/about/about.component.html"
 
 # Reset files
-#git checkout $openems_constants
-#git checkout $single_document
-#git checkout $package_json
-#git checkout $package_lock
-#git checkout $about_component
+git checkout $openems_constants
+git checkout $single_document
+git checkout $package_json
+git checkout $package_lock
+git checkout $about_component
 
 # Find new Version"
 major=$(grep 'VERSION_MAJOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
@@ -37,10 +37,13 @@ echo "# Update $package_json"
 sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_json
 
 echo "# Update $package_lock" 
-sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
+sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
 
 echo "# Update $about_component"
 sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1releases\/tag\/$new_version\2/" $about_component
 sed --in-place "s/\(.*About.Build.*: \).*\(<\/a>\)/\1$new_version ($release_date)\2/" $about_component
 
 echo "# Finished"
+
+echo ""
+echo "# Ready for commit: \"Push version to $new_version\""

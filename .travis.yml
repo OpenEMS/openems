@@ -21,8 +21,7 @@ matrix:
         local-dir: build/www
 
     - language: node_js
-      node_js:
-       - 10
+      node_js: lts/*
       script:
        - ./gradlew buildUiForEdge --continue
 
