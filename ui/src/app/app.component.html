@@ -44,9 +44,6 @@
             <ion-icon name="bug"></ion-icon>
           </ion-button>
         </ng-container>
-        <ion-button href="https://portal.fenecon.de/web/session/logout?redirect=https://fenecon.de">
-          <ion-icon style="font-size: 28px;" name="log-out"></ion-icon>
-        </ion-button>
       </ion-buttons>
     </ion-toolbar>
 
@@ -114,6 +111,11 @@
               <ion-label translate>Menu.EdgeSettings</ion-label>
             </ion-item>
           </nav>
+          <ion-item lines="full" routerLinkActive="active"
+            href="https://portal.fenecon.de/web/session/logout?redirect=https://fenecon.de" (click)="menu.close()">
+            <ion-label translate>Menu.Logout</ion-label>
+            <ion-icon color="primary" name="log-out"></ion-icon>
+          </ion-item>
         </ion-list>
       </ion-content>
     </ion-menu>
