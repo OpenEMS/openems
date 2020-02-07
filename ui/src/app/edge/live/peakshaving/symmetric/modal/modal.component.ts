@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket } from '../../../../shared/shared';
+import { Service, EdgeConfig, Edge, Websocket } from '../../../../../shared/shared';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -31,12 +31,12 @@ export class SymmetricPeakshavingModalComponent {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
                 Validators.min(1),
-                Validators.pattern('^[1-9][0-9]*$'),
+                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
                 Validators.required
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.min(1),
-                Validators.pattern('^[1-9][0-9]*$'),
+                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
                 Validators.required
             ]))
         })

@@ -6,6 +6,7 @@ export const TRANSLATION = {
         On: "Naar",
         Off: "Van",
         Active: "Actief",
+        currentValue: 'Huidige waarde',
         Inactive: "Inactief",
         Manually: "handmatig",
         Phase: "Fase",
@@ -86,6 +87,10 @@ export const TRANSLATION = {
             Widgets: {
                 Channeltreshold: {
                     Output: "uitgang"
+                },
+                Peakshaving: {
+                    peakshavingPower: 'Afvoer voorbij',
+                    rechargePower: 'Bezig met laden onder'
                 },
                 phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",

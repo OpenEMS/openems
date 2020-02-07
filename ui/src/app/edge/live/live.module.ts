@@ -30,8 +30,8 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
-import { SymmetricPeakshavingModalComponent } from './peakshaving/modal/modal.component';
-import { SymmetricPeakshavingComponent } from './peakshaving/symmetricpeakshaving.component';
+import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 
 @NgModule({
   imports: [

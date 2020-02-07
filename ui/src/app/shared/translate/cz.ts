@@ -6,6 +6,7 @@ export const TRANSLATION = {
         Off: "Pryč",
         State: "Stát",
         Active: "aktivně",
+        currentValue: 'Aktuální hodnota',
         Inactive: "Neaktivní",
         Manually: "Ruční",
         Phase: "Fáze",
@@ -88,6 +89,10 @@ export const TRANSLATION = {
             Widgets: {
                 Channeltreshold: {
                     Output: "Výstup"
+                },
+                Peakshaving: {
+                    peakshavingPower: 'Uvolnění',
+                    rechargePower: 'Načítání pod'
                 },
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",

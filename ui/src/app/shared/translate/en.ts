@@ -6,6 +6,7 @@ export const TRANSLATION = {
         On: "On",
         Off: "Off",
         Active: "Active",
+        currentValue: 'current value',
         Inactive: "Inactive",
         Manually: "Manually",
         Phase: "Phase",
@@ -89,6 +90,10 @@ export const TRANSLATION = {
             Widgets: {
                 Channeltreshold: {
                     Output: "Output"
+                },
+                Peakshaving: {
+                    peakshavingPower: 'Discharge above',
+                    rechargePower: 'Charge below'
                 },
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",

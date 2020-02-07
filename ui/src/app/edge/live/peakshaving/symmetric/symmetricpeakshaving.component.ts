@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
+import { Edge, Service, Websocket, EdgeConfig, ChannelAddress } from '../../../../shared/shared';
 import { SymmetricPeakshavingModalComponent } from './modal/modal.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: SymmetricPeakshavingComponent.SELECTOR,
@@ -15,7 +16,7 @@ export class SymmetricPeakshavingComponent {
     @Input() private componentId: string;
 
 
-    private edge: Edge = null;
+    public edge: Edge = null;
 
     public component: EdgeConfig.Component = null;
 
@@ -24,6 +25,7 @@ export class SymmetricPeakshavingComponent {
         private websocket: Websocket,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
+        protected translate: TranslateService,
     ) { }
 
     ngOnInit() {
@@ -31,11 +33,15 @@ export class SymmetricPeakshavingComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
+                this.edge.subscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR, [
+                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePower')
+                ])
             });
         });
     }
 
     ngOnDestroy() {
+        this.edge.unsubscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR);
     }
 
     async presentModal() {
@@ -46,7 +52,6 @@ export class SymmetricPeakshavingComponent {
                 edge: this.edge
             }
         });
-        console.log("component", this.component.properties)
         return await modal.present();
     }
 }
