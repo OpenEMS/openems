@@ -70,9 +70,7 @@ export class Widgets {
         }
         for (let factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
             for (let componentId of config.getComponentIdsByFactory(factory)) {
-                if (config.getComponent(componentId).isEnabled) {
-                    list.push({ name: factory, componentId: componentId });
-                }
+                list.push({ name: factory, componentId: componentId });
             }
         }
 
