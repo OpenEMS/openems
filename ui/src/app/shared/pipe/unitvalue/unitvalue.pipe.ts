@@ -9,7 +9,7 @@ export class UnitvaluePipe implements PipeTransform {
     constructor(private decimalPipe: DecimalPipe) { }
 
     transform(value: any, unit: string): any {
-        if (value === null) {
+        if (value == null) {
             return '-' + '\u00A0';
         } else {
             if (unit == 'kWh' || unit == 'kW') {

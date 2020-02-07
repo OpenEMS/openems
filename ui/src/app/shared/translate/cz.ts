@@ -99,6 +99,7 @@ export const TRANSLATION = {
                     HighThreshold: "vysoký práh"
                 },
                 EVCS: {
+                    ChargeTarget: "Cíl nabíjení",
                     ChargingStation: "Nabíjecí stanice",
                     ChargingStationCluster: "Klastr nabíjecí stanice",
                     OverviewChargingStations: "Přehled nabíjecích stanic",

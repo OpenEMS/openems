@@ -100,6 +100,7 @@ export const TRANSLATION = {
                     HighThreshold: "High Threshold"
                 },
                 EVCS: {
+                    ChargeTarget: "Charge target",
                     ChargingStation: "Charging Station",
                     ChargingStationCluster: "Charging station cluster",
                     OverviewChargingStations: "Overview charging stations",

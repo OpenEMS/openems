@@ -30,6 +30,22 @@
                 </table>
                 <table class="full_width">
                     <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.EVCS.ChargeTarget
+                        </td>
+                        <ng-container
+                            *ngIf="currentData[componentId + '/SetChargePowerLimit'] >= currentData[componentId + '/MaximumHardwarePower']; else chargePowerLimitValid">
+                            <td style="width: 35%" class="align_right">
+                                {{ formatNumber(currentData[componentId + "/MaximumHardwarePower"]) | unitvalue:'W' }}
+                            </td>
+                        </ng-container>
+                        <ng-template #chargePowerLimitValid>
+                            <td style="width: 35%" class="align_right">
+                                {{ formatNumber(currentData[componentId + "/SetChargePowerLimit'"]) | unitvalue:'W' }}
+                            </td>
+                        </ng-template>
+                    </tr>
+                    <tr>
                         <td style="width:65%" translate>
                             Edge.Index.Widgets.EVCS.ChargingPower
                         </td>
