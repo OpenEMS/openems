@@ -200,7 +200,7 @@ public class MCCommsElement {
 	 */
 	public double getScaleFactor() {
 		if (scalerChannel != null) {
-			return scalerChannel.value().get().doubleValue();
+			return scalerChannel.getNextValue().get();
 		} else {
 			return 1.0;
 		}
