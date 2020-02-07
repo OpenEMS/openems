@@ -69,6 +69,22 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 	 */
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
+		 * Floating-point value representing the lowest cell voltage reading in the battery being managed by the MCUBMU
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: Volts</li>
+		 * </ul>
+		 */
+		UBMU_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.DOUBLE).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
+		/**
+		 * Floating-point value representing the highest cell voltage reading in the battery being managed by the MCUBMU
+		 * <ul>
+		 * <li>Type: Double</li>
+		 * <li>Unit: Volts</li>
+		 * </ul>
+		 */
+		UBMU_MAX_CELL_VOLTAGE(Doc.of(OpenemsType.DOUBLE).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
+		/**
 		 * Signed value representing the current being used to charge the battery being
 		 * managed by the MCUBMU
 		 * <ul>
@@ -179,7 +195,11 @@ public class MCUBMU extends AbstractMCCommsComponent implements OpenemsComponent
 		super(OpenemsComponent.ChannelId.values(), Battery.ChannelId.values(), ChannelId.values());
 		this.queryTasks = new HashSet<>();
 		this.netCurrentChannelUpdater = new NetCurrentChannelUpdater();
-		
+
+		//Map volt-based cell voltage readings to millivolt-based channels in battery interface
+		((DoubleReadChannel) channel(ChannelId.UBMU_MIN_CELL_VOLTAGE)).onSetNextValue(value -> channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(value.get() * 1000.0));
+		((DoubleReadChannel) channel(ChannelId.UBMU_MAX_CELL_VOLTAGE)).onSetNextValue(value -> channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(value.get() * 1000.0));
+
 		//Calculate net current on value updates
 		channel(ChannelId.DISCHARGE_CURRENT)
 				.onSetNextValue(value -> netCurrentChannelUpdater.dischargeCurrentChannelUpdated());
