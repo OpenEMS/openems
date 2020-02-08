@@ -1,0 +1,24 @@
+Bundle-Name: OpenEMS Edge Controller Asymmetric Power Voltage Characteristics
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: io.openems.edge.controller.api
+Private-Package: \
+	io.openems.edge.controller.asymmetric.activepowervoltagecharacteristic,\
+	io.openems.edge.controller.asymmetric.reactivepowervoltagecharacteristic
+-includeresource: {readme.adoc}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	slf4j.api,\
+	com.google.gson
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
