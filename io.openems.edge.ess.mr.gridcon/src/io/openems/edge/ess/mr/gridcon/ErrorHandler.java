@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -13,17 +12,16 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
-import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
-import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
-import io.openems.edge.ess.mr.gridcon.writeutils.CommandControlRegisters;
+import io.openems.edge.ess.mr.gridcon.ongrid.EssGridconOngrid;
 
 public class ErrorHandler {
+
+	// TODO im ccu status steht in byte 24-31 die anzahl der fehler.
+	// CCU-Status Adresse 32528, ErrorFeedback (= Fehlercode schicken)
 
 	private final Logger log = LoggerFactory.getLogger(ErrorHandler.class);
 	private final StateMachine parent;
@@ -48,7 +46,7 @@ public class ErrorHandler {
 		}
 	}
 
-	private TreeMap<ChannelId, ErrorData> readErrorMap = new TreeMap<>();
+	private Map<ChannelId, ErrorData> readErrorMap = new TreeMap<>();
 
 	// HANDLE_ERRORS
 	private static final int MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS = 5;
@@ -78,7 +76,7 @@ public class ErrorHandler {
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		switch (this.state) {
 		case UNDEFINED:
-			if (parent.gridconPCS.getCcuState() == CCUState.ERROR) {
+			if (parent.gridconPCS.isError()) {
 				this.setNextState(State.READ_ERRORS);
 			} else if (this.parent.isLinkVoltageTooLow()) {
 				this.setNextState(State.LINK_VOLTAGE_TOO_LOW);
@@ -146,24 +144,7 @@ public class ErrorHandler {
 
 	private State doLinkVoltageTooLow() throws IllegalArgumentException, OpenemsNamedException {
 
-		boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
-		boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
-		boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
-		InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
-		
-		new CommandControlRegisters() //
-				// Stop the system
-				.stop(true) //
-				.syncApproval(true) //
-				.blackstartApproval(false) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-				.writeToChannels(this.parent.gridconPCS);
-
+		this.parent.gridconPCS.stop();
 		return State.FINISH_ERROR_HANDLING;
 	}
 
@@ -272,25 +253,10 @@ public class ErrorHandler {
 			}
 
 			this.log.info("Acknowledging Error " + entry.getKey() + " [" + ed.nextAcknowledgeState + "]");
-
-			boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
-			boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
-			boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
-			InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
-			
-			new CommandControlRegisters() //
-					// Acknowledge error
-					.acknowledge(acknowledge) //
-					.syncApproval(true) //
-					.blackstartApproval(false) //
-					.errorCodeFeedback(currentErrorCodeFeedBack) //
-					.shortCircuitHandling(true) //
-					.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-					.parameterSet1(true) //
-					.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-					.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-					.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-					.writeToChannels(this.parent.gridconPCS);
+			if (acknowledge) {
+				this.parent.gridconPCS.acknowledgeErrors();
+			}
+			this.parent.gridconPCS.setErrorCodeFeedback(currentErrorCodeFeedBack);
 
 			return State.ACKNOWLEDGE_ERRORS;
 
@@ -308,12 +274,10 @@ public class ErrorHandler {
 	}
 
 	/**
-//	 * Execute a Hard-Reset, i.e. switch the Gridcon PCS off and on.
-//	 * 
-//	 * @return the next state
-//	 * @throws IllegalArgumentException
-//	 * @throws OpenemsNamedException
-//	 */
+	 * // * Execute a Hard-Reset, i.e. switch the Gridcon PCS off and on. // * //
+	 * * @return the next state // * @throws IllegalArgumentException // * @throws
+	 * OpenemsNamedException //
+	 */
 	private State doHardReset() throws IllegalArgumentException, OpenemsNamedException {
 		return State.ERROR_HANDLING_NOT_POSSIBLE;
 //		if (this.lastHardReset == null) {
@@ -352,7 +316,7 @@ public class ErrorHandler {
 	 */
 	private State doErrorHandlingNotPossible() {
 		// TODO switch off system
-		this.parent.gridconPCS.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
+		this.parent.essGridconOngrid.channel(EssGridconOngrid.ChannelId.STATE_CYCLE_ERROR).setNextValue(true);
 		return State.ERROR_HANDLING_NOT_POSSIBLE;
 	}
 
@@ -370,15 +334,14 @@ public class ErrorHandler {
 	 * @return the Error-Channel or null
 	 */
 	protected StateChannel getErrorChannel() {
-		IntegerReadChannel errorCodeChannel = this.parent.gridconPCS.channel(GridConChannelId.CCU_ERROR_CODE);
-		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
-		if (errorCodeOpt.isPresent() && errorCodeOpt.get() != 0) {
-			int code = errorCodeOpt.get();
+		int errorCode = parent.gridconPCS.getErrorCode();
+		if (errorCode != 0) {
+			int code = errorCode;
 			code = code >> 8;
 			ChannelId id = this.errorChannelIds.get(code);
 			if (id != null && id.doc() != null) {
 				this.log.info("Error code is present --> " + code + " --> " + ((ErrorDoc) id.doc()).getText());
-				return this.parent.gridconPCS.channel(id);
+				return this.parent.essGridconOngrid.channel(id);
 			}
 		}
 		return null;

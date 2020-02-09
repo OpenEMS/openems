@@ -1,28 +1,21 @@
 package io.openems.edge.ess.mr.gridcon;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.FloatReadChannel;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.mr.gridcon.enums.CCUState;
-import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
+import io.openems.edge.ess.mr.gridcon.ongrid.EssGridconOngrid;
 
 public class StateMachine {
 
 	private static final int TIME_TOLERANCE_LINK_VOLTAGE = 15;
 
 	protected final GridconPCS gridconPCS;
-	protected final OnGridController onGridController;
+	protected final EssGridconOngrid essGridconOngrid;
 
 	private LocalDateTime ccuStateIsRunningSince = null;
 
@@ -34,32 +27,32 @@ public class StateMachine {
 	private final ErrorHandler errorHandler = new ErrorHandler(this);
 
 	private State state = State.UNDEFINED;
-	private CCUState lastCcuState = CCUState.UNDEFINED;
+//	private CCUState lastCcuState = CCUState.UNDEFINED;
 
-	public StateMachine(GridconPCS gridconPCS, OnGridController onGridController) {
+	public StateMachine(GridconPCS gridconPCS, EssGridconOngrid essGridconOngrid) {
 		this.gridconPCS = gridconPCS;
-		this.onGridController = onGridController;
+		this.essGridconOngrid = essGridconOngrid;
 
-		/*
-		 * Call back for ccu state when ccu state is set to run a time variable is set
-		 * this is important for checking the link voltage because the link voltage is
-		 * not present at start up
-		 */
-		BooleanReadChannel ccuStateRunChannel = this.gridconPCS.channel(GridConChannelId.CCU_STATE_RUN);
-		ccuStateRunChannel.onChange((oldValue, newValue) -> {
-			Optional<Boolean> val = newValue.asOptional();
-			if (!val.isPresent()) {
-				return;
-			}
-
-			if (this.ccuStateIsRunningSince == null && val.get()) {
-				this.ccuStateIsRunningSince = LocalDateTime.now();
-			}
-
-			if (this.ccuStateIsRunningSince != null && !val.get()) {
-				this.ccuStateIsRunningSince = null; // it is not running
-			}
-		});
+//		/*
+//		 * Call back for ccu state when ccu state is set to run a time variable is set
+//		 * this is important for checking the link voltage because the link voltage is
+//		 * not present at start up
+//		 */
+//		EnumReadChannel ccuStateRunChannel = this.gridconPCS.channel(GridConChannelId.CCU_STATE);
+//		ccuStateRunChannel.onChange((oldValue, newValue) -> {
+//			CCUState val = newValue.asEnum();
+//			if ( val == CCUState.UNDEFINED) {
+//				return;
+//			}
+//
+//			if (this.ccuStateIsRunningSince == null && gridconPCSImpl.isRunning()) {
+//				this.ccuStateIsRunningSince = LocalDateTime.now();
+//			}
+//
+//			if (this.ccuStateIsRunningSince != null && !gridconPCSImpl.isRunning()) {
+//				this.ccuStateIsRunningSince = null; // it is not running
+//			}
+//		});
 	}
 
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
@@ -113,9 +106,8 @@ public class StateMachine {
 	 * @throws IllegalArgumentException
 	 */
 	private State handleUndefined() {
-		GridMode gridMode = this.gridconPCS.getGridMode().getNextValue().asEnum();
-		CCUState ccuState = this.gridconPCS.getCcuState();
-		if (ccuState == CCUState.ERROR) {
+		GridMode gridMode = this.essGridconOngrid.getGridMode().getNextValue().asEnum();
+		if (gridconPCS.isError()) {
 			return State.ERROR;
 		}
 
@@ -137,14 +129,14 @@ public class StateMachine {
 
 	private boolean isError() {
 		boolean result = false;
-		CCUState ccuState = this.gridconPCS.getCcuState();
+//		CCUState ccuState = ((EnumReadChannel) this.gridconPCS.channel(GridConChannelId.CCU_STATE)).value().asEnum();
 		// CCU State Error
-		if (this.lastCcuState != ccuState && ccuState == CCUState.ERROR) {
+		if (/*this.lastCcuState != ccuState && */gridconPCS.isError()) {
 			result = true;
 		}
-		this.lastCcuState = ccuState;
+//		this.lastCcuState = ccuState;
 
-		if (ccuState == CCUState.RUN && this.isLinkVoltageTooLow()) {
+		if (gridconPCS.isRunning() && this.isLinkVoltageTooLow()) {
 			result = true;
 		}
 		
@@ -166,41 +158,19 @@ public class StateMachine {
 			return false; // system has to run a certain until validation is senseful
 		}
 
-		FloatReadChannel frc = this.gridconPCS.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
-		Optional<Float> linkVoltageOpt = frc.value().asOptional();
-		if (!linkVoltageOpt.isPresent()) {
+		float dcLinkPositiveVoltage = this.gridconPCS.getDcLinkPositiveVoltage();
+		if (dcLinkPositiveVoltage <= 0) { // value not valid
 			return false;
 		}
 
-		float linkVoltage = linkVoltageOpt.get();
-		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+		float difference = Math.abs(GridconPCSImpl.DC_LINK_VOLTAGE_SETPOINT - dcLinkPositiveVoltage);
 
-		return (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
+		return (difference > GridconPCSImpl.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
 	}
 	
 	// Checks the modbus bridge if communication is available or not
 	protected boolean isCommunicationBroken() {
-		String modbusId = this.gridconPCS.config.modbus_id();
-		ComponentManager manager = this.gridconPCS.componentManager;
-		AbstractModbusBridge modbusBridge = null;
-		try {
-			modbusBridge = manager.getComponent(modbusId);
-		} catch (OpenemsNamedException e) {			
-			log.debug("Cannot get modbus component");
-		}
-		if (modbusBridge == null) {
-			return true;	
-		}
-		
-		 Channel<Boolean> slaveCommunicationFailedChannel = modbusBridge.getSlaveCommunicationFailedChannel();		 
-		 Optional<Boolean> communicationFailedOpt = slaveCommunicationFailedChannel.value().asOptional();
-		 
-		 // If the channel value is present and it is set then the communication is broken
-		 if (communicationFailedOpt.isPresent() && communicationFailedOpt.get()) {
-			 return true;
-		 }
-		  
-		 return false;
+		return this.gridconPCS.isCommunicationBroken();
 	}
 
 

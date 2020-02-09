@@ -6,11 +6,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.mr.gridcon.enums.CCUState;
-import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
-import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.writeutils.CcuControlParameters;
-import io.openems.edge.ess.mr.gridcon.writeutils.CommandControlRegisters;
+import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class OngridHandler {
 
@@ -28,8 +24,10 @@ public class OngridHandler {
 	}
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
+		log.info("state machine run(): " + state);
+		
 		// Verify that we are still On-Grid -> otherwise switch to "Going Off-Grid"
-		GridMode gridMode = this.parent.gridconPCS.getGridMode().getNextValue().asEnum();
+		GridMode gridMode = this.parent.essGridconOngrid.getGridMode().getNextValue().asEnum();
 		switch (gridMode) {
 			case ON_GRID:
 			case UNDEFINED:
@@ -49,9 +47,6 @@ public class OngridHandler {
 		case IDLE:
 			this.state = this.doIdle();
 			break;
-		case STARTING:
-			this.state = this.doInit();
-			break;
 		case RUN:
 			this.state = this.doRun();
 			break;
@@ -64,26 +59,12 @@ public class OngridHandler {
 	 * @return the next state
 	 */
 	private State doUndefined() {
-		CCUState ccuState = this.parent.gridconPCS.getCcuState();
-		switch (ccuState) {
-		case RUN:
+			if (parent.gridconPCS.isRunning())
 			return State.RUN;
 
-		case IDLE:
+			if (parent.gridconPCS.isIdle())
 			return State.IDLE;
-		case INIT:
-			return State.STARTING;
-		case ERROR:
-		case PAUSE:
-		case PRECHARGE:
-		case READY:
-		case CHARGED:
-		case GO_IDLE:
-		case UNDEFINED:
-			this.log.info("Unhandled On-Grid state [" + ccuState.toString() + "]");
-			break;
 
-		}
 		return State.UNDEFINED;
 	}
 
@@ -96,109 +77,36 @@ public class OngridHandler {
 	 */
 	private State doIdle() throws IllegalArgumentException, OpenemsNamedException {
 		// Verify State
-		CCUState ccuState = this.parent.gridconPCS.getCcuState();
-		if (ccuState != CCUState.IDLE) {
+		if (!parent.gridconPCS.isIdle()) {
 			return State.UNDEFINED;
 		}
 
 		// If no battery is ready inverter cannot start
-		if (!this.parent.onGridController.isAtLeastOneBatteryReady()) {
+		if (!this.parent.essGridconOngrid.isAtLeastOneBatteryReady()) {
 			return State.IDLE;
 		}
-
-		InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
-		boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
-		boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
-		boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
-		new CommandControlRegisters() //
-				.play(true) // Start system
-				.syncApproval(true) //
-				.blackstartApproval(false) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-				.writeToChannels(this.parent.gridconPCS);
-		new CcuControlParameters() //
-				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
-				.qLimit(1f) //
-				.writeToChannels(this.parent.gridconPCS);
-		this.parent.gridconPCS.setIpuControlSettings();
-
+		
+		parent.essGridconOngrid.startSystem();
 		return State.IDLE;
-	}
-	
-	/**
-	 * Handles idle operation in On-Grid -> tries to start the inverter.
-	 * 
-	 * @return the next state
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-	private State doInit() throws IllegalArgumentException, OpenemsNamedException {
-		// Verify State
-		CCUState ccuState = this.parent.gridconPCS.getCcuState();
-		if (ccuState != CCUState.INIT) {
-			return State.UNDEFINED;
-		}
-
-		// If no battery is ready inverter cannot start
-		if (!this.parent.onGridController.isAtLeastOneBatteryReady()) {
-			return State.IDLE;
-		}
-
-		InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
-		boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
-		boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
-		boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
-		new CommandControlRegisters() //
-				.play(false) // Start system
-				.syncApproval(true) //
-				.blackstartApproval(false) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-				.writeToChannels(this.parent.gridconPCS);
-		new CcuControlParameters() //
-				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
-				.qLimit(1f) //
-				.writeToChannels(this.parent.gridconPCS);
-		this.parent.gridconPCS.setIpuControlSettings();
-
-		return State.STARTING;
 	}
 
 	private State doRun() throws IllegalArgumentException, OpenemsNamedException {
 		// Verify State
-		CCUState ccuState = this.parent.gridconPCS.getCcuState();
-		if (ccuState != CCUState.RUN) {
+		if (!parent.gridconPCS.isRunning()) {
 			return State.UNDEFINED;
 		}
+		
+		parent.essGridconOngrid.runSystem();
 
-		InverterCount inverterCount = this.parent.gridconPCS.config.inverterCount();
-		boolean enableIPU1 = this.parent.gridconPCS.config.enableIPU1();
-		boolean enableIPU2 = this.parent.gridconPCS.config.enableIPU2();
-		boolean enableIPU3 = this.parent.gridconPCS.config.enableIPU3();
-		new CommandControlRegisters() //
-				.syncApproval(true) //
-				.blackstartApproval(false) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(inverterCount, enableIPU1, enableIPU2, enableIPU3) //
-				.writeToChannels(this.parent.gridconPCS);
-		new CcuControlParameters() //
-				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
-				.qLimit(1f) //
-				.writeToChannels(this.parent.gridconPCS);
-		this.parent.gridconPCS.setIpuControlSettings();
+		parent.gridconPCS.setEnableIPU1(parent.essGridconOngrid.config.enableIPU1());
+		parent.gridconPCS.setEnableIPU2(parent.essGridconOngrid.config.enableIPU2());
+		parent.gridconPCS.setEnableIPU3(parent.essGridconOngrid.config.enableIPU3());
+		parent.gridconPCS.setParameterSet(parent.essGridconOngrid.config.parameterSet());
+		parent.gridconPCS.setSyncApproval(true);
+		parent.gridconPCS.setBlackStartApproval(false);
+		parent.gridconPCS.setModeSelection(Mode.CURRENT_CONTROL);
+		parent.gridconPCS.setU0(GridconPCSImpl.ON_GRID_VOLTAGE_FACTOR);
+		parent.gridconPCS.setU0(GridconPCSImpl.ON_GRID_FREQUENCY_FACTOR);
 
 		return State.RUN;
 	}
@@ -207,7 +115,7 @@ public class OngridHandler {
 		UNDEFINED(-1, "Undefined"), //
 		IDLE(1, "Idle"), //
 		RUN(2, "Run"), 
-		STARTING(3, "Starting")
+//		STARTING(3, "Starting")
 		;
 
 		private final int value;

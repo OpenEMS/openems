@@ -1,7 +1,6 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
@@ -17,15 +16,8 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
  * This enum holds every possible channel id for a gridcon.
  */
 public enum GridConChannelId implements ChannelId {
-	CCU_STATE_INIT(Doc.of(OpenemsType.BOOLEAN)), // = 1
-	CCU_STATE_IDLE(Doc.of(OpenemsType.BOOLEAN)), // = 2
-	CCU_STATE_PRECHARGE(Doc.of(OpenemsType.BOOLEAN)), // = 3
-	CCU_STATE_GO_IDLE(Doc.of(OpenemsType.BOOLEAN)), // = 4
-	CCU_STATE_CHARGED(Doc.of(OpenemsType.BOOLEAN)), // = 5
-	CCU_STATE_READY(Doc.of(OpenemsType.BOOLEAN)), // = 6
-	CCU_STATE_RUN(Doc.of(OpenemsType.BOOLEAN)), // = 7
-	CCU_STATE_ERROR(Doc.of(OpenemsType.BOOLEAN)), // = 8
-	CCU_STATE_PAUSE(Doc.of(OpenemsType.BOOLEAN)), // = 9
+	CCU_STATE(Doc.of(CCUState.values())), // = 1
+	CCU_ERROR_COUNT(Doc.of(OpenemsType.INTEGER)), //
 	CCU_ERROR_CODE(Doc.of(OpenemsType.INTEGER)), //
 	CCU_VOLTAGE_U12(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 	CCU_VOLTAGE_U23(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)), //
@@ -200,22 +192,22 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG))),
 	COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_DISABLE_IPU_4(new BooleanDoc() //
+	COMMAND_CONTROL_WORD_ENABLE_IPU_4(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG))),
 	COMMAND_CONTROL_WORD_DISABLE_IPU_3_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_DISABLE_IPU_3(new BooleanDoc() //
+	COMMAND_CONTROL_WORD_ENABLE_IPU_3(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3_DEBUG))),
 	COMMAND_CONTROL_WORD_DISABLE_IPU_2_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_DISABLE_IPU_2(new BooleanDoc() //
+	COMMAND_CONTROL_WORD_ENABLE_IPU_2(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2_DEBUG))),
 	COMMAND_CONTROL_WORD_DISABLE_IPU_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
-	COMMAND_CONTROL_WORD_DISABLE_IPU_1(new BooleanDoc() //
+	COMMAND_CONTROL_WORD_ENABLE_IPU_1(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1_DEBUG))),
@@ -513,11 +505,10 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_CONTROL_WEIGHT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	DCDC_CONTROL_WEIGHT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
+			.accessMode(AccessMode.READ_WRITE)), //
 	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),
-
-	STATE_CYCLE_ERROR(Doc.of(Level.FAULT));
+	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),;
 
 	private final Doc doc;
 
