@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,18 +66,15 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	StateMachine stateMachine;
 
-	@Reference
-	private Power power;
+protected abstract ComponentManager getComponentManager();
 
 	protected Map<String, Map<GridConChannelId, Float>> weightingMap = initializeMap();
 	protected int stringControlMode = 1;
 
 	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
 
-	@Reference
-	protected ComponentManager componentManager;
 
-	public EssGridcon(io.openems.edge.common.channel.ChannelId otherChannelIds) {
+	public EssGridcon() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
@@ -102,26 +98,26 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		this.parameterSet = parameterSet;
 
 		calculateMaxApparentPower();
-		gridconPCS = componentManager.getComponent(gridcon);
+		gridconPCS = getComponentManager().getComponent(gridcon);
 
 		try {
-			batteryA = componentManager.getComponent(bmsA);
+			batteryA = getComponentManager().getComponent(bmsA);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string a
 		}
 
 		try {
-			batteryB = componentManager.getComponent(bmsB);
+			batteryB = getComponentManager().getComponent(bmsB);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string b
 		}
 
 		try {
-			batteryC = componentManager.getComponent(bmsC);
+			batteryC = getComponentManager().getComponent(bmsC);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string c
 		}
-		stateMachine = new StateMachine(gridconPCS, this);
+//		stateMachine = new StateMachine(gridconPCS, this);
 	}
 
 	@Deactivate
@@ -175,11 +171,6 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		}
 
 		return weightingMode;
-	}
-
-	@Override
-	public Power getPower() {
-		return power;
 	}
 
 	@Override

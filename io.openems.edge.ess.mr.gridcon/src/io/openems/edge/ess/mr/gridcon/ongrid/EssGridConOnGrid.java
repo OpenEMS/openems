@@ -21,6 +21,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
 import io.openems.edge.ess.mr.gridcon.StateController;
+import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -33,13 +34,17 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 
 	@Reference
 	protected ComponentManager componentManager;
+	
+
+	@Reference
+	private Power power;
 
 	private io.openems.edge.ess.mr.gridcon.State stateObject = null;
 	private Config config;
 
 	public EssGridConOnGrid() {
 		super(//
-				null
+				
 //				new io.openems.edge.ess.mr.gridcon.ongrid.ChannelId[] { ChannelId.values(); }
 //				//, //
 ////				io.openems.edge.battery.soltaro.controller.ChannelId.values() //
@@ -52,7 +57,7 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 
 		this.checkConfiguration(config);
 		this.config = c;
-		StateController.initOnGrid(componentManager, config);
+		StateController.initOnGrid(this, config);
 		this.stateObject = StateController.getStateObject(State.UNDEFINED);
 	}
 
@@ -105,6 +110,16 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 
 	protected void checkConfiguration(Config config) throws OpenemsException {
 		// TODO  checks
+	}
+
+	@Override
+	public Power getPower() {
+		return power;
+	}
+
+	@Override
+	protected ComponentManager getComponentManager() {
+		return componentManager;
 	}
 
 }

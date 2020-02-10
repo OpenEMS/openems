@@ -14,12 +14,12 @@ public class StateController {
 
 	private static Map<IState, State> stateObjects;
 
-	public static void initOnGrid(ComponentManager componentManager, io.openems.edge.ess.mr.gridcon.ongrid.Config c) throws OpenemsNamedException {
-		stateObjects = new HashMap<IState, State>();
+	//public static void initOnGrid(ComponentManager componentManager, io.openems.edge.ess.mr.gridcon.ongrid.Config c) throws OpenemsNamedException {
+	public static void initOnGrid(EssGridcon gridconPCS, io.openems.edge.ess.mr.gridcon.ongrid.Config c) throws OpenemsNamedException {
+	
+	stateObjects = new HashMap<IState, State>();
 
-		EssGridcon gridconPCS;
 		
-		gridconPCS = componentManager.getComponent(c.gridcon_id());
 
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED, new Undefined(gridconPCS));
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.ongrid.State.STOPPED, new Stopped(gridconPCS, c.enableIPU1(), c.enableIPU2(), c.enableIPU3(), c.parameterSet()));
