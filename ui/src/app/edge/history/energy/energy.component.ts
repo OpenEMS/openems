@@ -13,7 +13,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, ChartOptionsTwoYAxis, DEFAULT_TIME_CHART_OPTIONS_TWO_Y_AXIS } from './../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { EnergyModalComponent } from './modal/modal.component';
 
 @Component({
@@ -140,7 +140,32 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             this.convertDeprecatedData(config, result.data); // TODO deprecated
           }
 
-          // PUSH DATA FOR LEFT Y AXSIS
+          // push data for right y-axis
+          if ('_sum/EssSoc' in result.data) {
+            let socData = result.data['_sum/EssSoc'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 100 || value < 0) {
+                return null;
+              } else {
+                return value;
+              }
+            })
+            datasets.push({
+              label: this.translate.instant('General.Soc'),
+              data: socData,
+              hidden: false,
+              yAxisID: 'yAxis2',
+              position: 'right',
+              borderDash: [10, 10]
+            })
+            this.colors.push({
+              backgroundColor: 'rgba(189, 195, 199,0.05)',
+              borderColor: 'rgba(189, 195, 199,1)',
+            })
+          }
+
+          // push data for left y-axis
           if ('_sum/ProductionActivePower' in result.data) {
             /*
             * Production
@@ -297,30 +322,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               borderColor: 'rgba(200,0,0,1)',
             })
           }
-
-          // PUSH DATA FOR RIGHT Y AXSIS
-          if ('_sum/EssSoc' in result.data) {
-            let socData = result.data['_sum/EssSoc'].map(value => {
-              if (value == null) {
-                return null
-              } else if (value > 100 || value < 0) {
-                return null;
-              } else {
-                return value;
-              }
-            })
-            datasets.push({
-              label: this.translate.instant('General.Soc'),
-              data: socData,
-              hidden: false,
-              yAxisID: 'yAxis2',
-              position: 'right'
-            })
-            this.colors.push({
-              backgroundColor: 'rgba(0,223,0,0.15)',
-              borderColor: 'rgba(0,223,0,0.15)',
-            })
-          }
           this.datasets = datasets;
           this.loading = false;
         }).catch(reason => {
@@ -401,9 +402,25 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   protected setLabel() {
     let translate = this.translate;
-    let options = <ChartOptionsTwoYAxis>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_TWO_Y_AXIS);
-    options.scales.yAxes[1].scaleLabel.labelString = "%"
-    options.scales.yAxes[1].ticks.max = 100;
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+
+    // adds second y-axis to chart
+    options.scales.yAxes.push({
+      id: 'yAxis2',
+      position: 'right',
+      scaleLabel: {
+        display: true,
+        labelString: "%"
+      },
+      gridLines: {
+        display: false
+      },
+      ticks: {
+        beginAtZero: true,
+        max: 100
+      }
+    })
+    options.scales.yAxes[0].id = "yAxis1"
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;

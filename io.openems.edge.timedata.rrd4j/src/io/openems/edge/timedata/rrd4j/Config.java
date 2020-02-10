@@ -3,7 +3,7 @@ package io.openems.edge.timedata.rrd4j;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Timedata RRD4J", //
 		description = "This component persists data to RRD4J files.")
 @interface Config {

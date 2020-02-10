@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -32,6 +33,8 @@ import io.openems.common.utils.JsonUtils;
  */
 public class JsonrpcResponseError extends JsonrpcResponse {
 
+	private final static Logger LOG = LoggerFactory.getLogger(JsonrpcResponseError.class);
+
 	public static JsonrpcResponseError from(String json) throws OpenemsNamedException {
 		return from(JsonUtils.parseToJsonObject(json));
 	}
@@ -40,7 +43,13 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 		UUID id = UUID.fromString(JsonUtils.getAsString(j, "id"));
 		JsonObject error = JsonUtils.getAsJsonObject(j, "error");
 		int code = JsonUtils.getAsInt(error, "code");
-		OpenemsError openemsError = OpenemsError.fromCode(code);
+		OpenemsError openemsError;
+		try {
+			openemsError = OpenemsError.fromCode(code);
+		} catch (OpenemsException e) {
+			LOG.warn("Falling back to Generic Error for JSON-RPC " + j.toString() + "; " + e.getMessage());
+			openemsError = OpenemsError.GENERIC;
+		}
 		if (openemsError == OpenemsError.GENERIC) {
 			String message = JsonUtils.getAsString(error, "message");
 			return new JsonrpcResponseError(id, message);
