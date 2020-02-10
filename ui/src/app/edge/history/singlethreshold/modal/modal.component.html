@@ -2,9 +2,6 @@
     <ion-toolbar color="primary">
         <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
         <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
-        <ion-buttons slot="start" *ngIf="showTotal != null">
-            <chartOptions (setShowTotal)='onNotifyTotal($event)' [showTotal]="showTotal"></chartOptions>
-        </ion-buttons>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -19,18 +16,7 @@
 </ion-header>
 
 <ion-content>
-    <ng-container *ngIf="showTotal">
-        <ion-card-content>
-            <table class="full_width">
-                <tr>
-                    <td style="width: 100%" class="ion-padding" translate>General.Total</td>
-                </tr>
-            </table>
-            <singlethresholdTotalChart [period]="service.historyPeriod">
-            </singlethresholdTotalChart>
-        </ion-card-content>
-    </ng-container>
-    <ng-container *ngIf="!showTotal || showTotal == null">
+    <ng-container>
         <ion-card-content>
             <table class="full_width">
                 <tr>
@@ -41,4 +27,17 @@
             </singlethresholdSingleChart>
         </ion-card-content>
     </ng-container>
+    <!-- Info Text -->
+    <ion-card-content class="underline" *ngIf="inputChannel == '_sum/GridActivePower'">
+        <ion-row class="ion-justify-content-center">
+            <ion-item class="ion-text-center" lines="none">
+                <ion-icon color="primary" size="large" slot="start" name="alert"></ion-icon>
+                <ion-label>
+                    <small translate>
+                        Edge.Index.Widgets.twoWayInfoGrid
+                    </small>
+                </ion-label>
+            </ion-item>
+        </ion-row>
+    </ion-card-content>
 </ion-content>

@@ -42,7 +42,6 @@ import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { StorageComponent } from './storage/widget.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 import { SinglethresholdSingleChartComponent } from './singlethreshold/singlechart.component';
-import { SinglethresholdTotalChartComponent } from './singlethreshold/totalchart.component';
 import { SingletresholdWidgetComponent } from './singlethreshold/widget.component';
 
 @NgModule({
@@ -97,7 +96,6 @@ import { SingletresholdWidgetComponent } from './singlethreshold/widget.componen
     SelfconsumptionWidgetComponent,
     SinglethresholdModalComponent,
     SinglethresholdSingleChartComponent,
-    SinglethresholdTotalChartComponent,
     SingletresholdWidgetComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,

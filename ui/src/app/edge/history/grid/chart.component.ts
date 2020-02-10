@@ -31,7 +31,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
-        this.setLabel();
+        // this.setLabel();
     }
 
     protected updateChart() {

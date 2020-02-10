@@ -35,7 +35,7 @@ export class SinglethresholdSingleChartComponent extends AbstractHistoryChart im
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.setLabel();
+    // this.setLabel();
   }
 
   protected updateChart() {
@@ -75,26 +75,68 @@ export class SinglethresholdSingleChartComponent extends AbstractHistoryChart im
           })
         }
         if (channel == this.inputChannel) {
+          let inputLabel: string = null;
           let address = ChannelAddress.fromString(channel);
-          let data = result.data[channel].map(value => {
-            if (value == null) {
-              return null
-            } else {
-              return value / 1000; // convert to kW
-            }
-          });
+          switch (address.channelId) {
+            case 'GridActivePower':
+              inputLabel = this.translate.instant('General.Grid');
+              break;
+            case 'ProductionActivePower':
+              inputLabel = this.translate.instant('General.Production');
+              break;
+            case 'EssSoc':
+              inputLabel = this.translate.instant('General.Soc');
+              break;
+            default:
+              inputLabel = this.translate.instant('Edge.Index.Widgets.Singlethreshold.other');
+              break;
+          }
+          let data
+          if (address.channelId == 'EssSoc') {
+            data.result.data[channel].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 100 || value < 0) {
+                return null;
+              } else {
+                return value;
+              }
+            })
+          } else if (address.channelId == 'ProductionActivePower' || address.channelId == 'GridActivePower') {
+            data = result.data[channel].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value / 1000; // convert to kW
+              }
+            });
+          } else {
+            data = result.data[channel].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value;
+              }
+            });
+          }
           datasets.push({
-            label: address.channelId,
+            label: inputLabel,
             data: data,
             hidden: false,
             yAxisID: 'yAxis2',
             position: 'right',
-            borderDash: [10, 10]
           });
-          this.colors.push({
-            backgroundColor: 'rgba(45,143,171,0.05)',
-            borderColor: 'rgba(45,143,171,1)'
-          })
+          if (address.channelId == 'EssSoc') {
+            this.colors.push({
+              backgroundColor: 'rgba(189, 195, 199,0.05)',
+              borderColor: 'rgba(189, 195, 199,1)',
+            })
+          } else {
+            this.colors.push({
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              borderColor: 'rgba(0,0,0,1)'
+            })
+          }
         }
       }
       this.datasets = datasets;
@@ -117,15 +159,25 @@ export class SinglethresholdSingleChartComponent extends AbstractHistoryChart im
     });
   }
 
-  protected setLabel() {
+  protected setLabel(config: EdgeConfig) {
+    let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['inputChannelAddress']);
+    let labelString;
+    if (inputChannel.channelId == 'Soc') {
+      labelString = '%';
+    } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
+      labelString = 'kW';
+    } else {
+      labelString = config.getChannel(ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['inputChannelAddress']))['unit'];
+    }
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let translate = this.translate;
     // adds second y-axis to chart
     options.scales.yAxes.push({
       id: 'yAxis2',
       position: 'right',
       scaleLabel: {
         display: true,
-        labelString: "kW"
+        labelString: labelString
       },
       gridLines: {
         display: false
@@ -134,20 +186,18 @@ export class SinglethresholdSingleChartComponent extends AbstractHistoryChart im
         beginAtZero: false,
       }
     })
-    let outputChannel = this.outputChannel;
-    let inputChannel = this.inputChannel;
     options.scales.yAxes[0].id = "yAxis1"
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      // if (label == ChannelAddress.fromString(outputChannel).channelId) {
-      //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      // } else if (label == ChannelAddress.fromString(inputChannel).channelId) {
-      //   return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-      // }
-      // console.log("label", ChannelAddress.fromString(outputChannel).channelId)
-      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+      if (label.includes('Relay') || label == translate.instant('General.Soc')) {
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+      } else if (label == translate.instant('General.Grid') || label == translate.instant('General.Production')) {
+        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      } else {
+        return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
+      }
     }
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;

@@ -10,10 +10,10 @@ export class SinglethresholdModalComponent {
 
     @Input() public controllerId: string;
     @Input() public controller: EdgeConfig.Component;
+    @Input() public inputChannel: string;
 
     private static readonly SELECTOR = "channelthreshold-modal";
 
-    public showTotal: boolean = null;
     public channelthresholdComponents: string[] = [];
 
     // referene to the Utils method to access via html
@@ -29,15 +29,6 @@ export class SinglethresholdModalComponent {
             for (let controllerId of config.getComponentIdsByFactory("Controller.IO.ChannelSingleThreshold")) {
                 this.channelthresholdComponents.push(controllerId)
             }
-            if (this.channelthresholdComponents.length > 1) {
-                this.showTotal = false;
-            } else if (this.channelthresholdComponents.length == 1) {
-                this.showTotal = null;
-            }
         })
-    }
-
-    onNotifyTotal(showTotal: boolean): void {
-        this.showTotal = showTotal;
     }
 }

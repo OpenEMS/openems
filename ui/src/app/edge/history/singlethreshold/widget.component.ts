@@ -27,6 +27,7 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
     public values: any;
     public edge: Edge = null;
     public controller: EdgeConfig.Component = null;
+    private inputChannel = null;
 
     constructor(
         public service: Service,
@@ -40,9 +41,9 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.controller = config.getComponent(this.controllerId);
+                this.inputChannel = config.getComponentProperties(this.controllerId)['inputChannelAddress'];
             })
         });
-
     }
 
     ngOnDestroy() {
@@ -121,7 +122,8 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
             cssClass: 'wide-modal',
             componentProps: {
                 controllerId: this.controllerId,
-                controller: this.controller
+                controller: this.controller,
+                inputChannel: this.inputChannel
             }
         });
         return await modal.present();
