@@ -6,6 +6,7 @@ export const TRANSLATION = {
         On: "Conmutada",
         Off: "Apagado",
         Active: "Activo",
+        currentValue: 'Valor actual',
         Inactive: "Inactivo",
         Manually: "a mano",
         Phase: "Fase",
@@ -89,6 +90,13 @@ export const TRANSLATION = {
             Widgets: {
                 Channeltreshold: {
                     Output: "Salida"
+                },
+                Peakshaving: {
+                    peakshaving: 'Afeitado máximo',
+                    peakshavingPower: 'Descarga sobre',
+                    rechargePower: 'Cargando debajo',
+                    relationError: 'El valor de descarga debe ser mayor que el valor de carga',
+                    asymmetricInfo: 'Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.'
                 },
                 phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",

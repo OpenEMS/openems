@@ -6,6 +6,7 @@ export const TRANSLATION = {
         Off: "Pryč",
         State: "Stát",
         Active: "aktivně",
+        currentValue: 'Aktuální hodnota',
         Inactive: "Neaktivní",
         Manually: "Ruční",
         Phase: "Fáze",
@@ -88,6 +89,13 @@ export const TRANSLATION = {
             Widgets: {
                 Channeltreshold: {
                     Output: "Výstup"
+                },
+                Peakshaving: {
+                    peakshaving: 'špičkové holení',
+                    peakshavingPower: 'Uvolnění',
+                    rechargePower: 'Načítání pod',
+                    relationError: 'Hodnota vybití musí být větší než hodnota zatížení',
+                    asymmetricInfo: 'Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.'
                 },
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",

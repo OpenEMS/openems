@@ -30,6 +30,8 @@ import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OfflineComponent } from './offline/offline.component';
+import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
+import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 
 @NgModule({
   imports: [
@@ -50,8 +52,11 @@ import { OfflineComponent } from './offline/offline.component';
     EvcsPopoverComponent,
     ChpsocModalComponent,
     FixDigitalOutputModalComponent,
+    AsymmetricPeakshavingModalComponent
   ],
   declarations: [
+    AsymmetricPeakshavingComponent,
+    AsymmetricPeakshavingModalComponent,
     LiveComponent,
     FixDigitalOutputModalComponent,
     ChannelthresholdComponent,
