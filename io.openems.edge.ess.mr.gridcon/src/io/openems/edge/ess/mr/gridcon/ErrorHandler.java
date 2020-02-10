@@ -16,7 +16,6 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
-import io.openems.edge.ess.mr.gridcon.ongrid.EssGridconOngrid;
 
 public class ErrorHandler {
 
@@ -316,7 +315,7 @@ public class ErrorHandler {
 	 */
 	private State doErrorHandlingNotPossible() {
 		// TODO switch off system
-		this.parent.essGridconOngrid.channel(EssGridconOngrid.ChannelId.STATE_CYCLE_ERROR).setNextValue(true);
+//		this.parent.essGridcon.channel(EssGridcon.ChannelId.STATE_CYCLE_ERROR).setNextValue(true);
 		return State.ERROR_HANDLING_NOT_POSSIBLE;
 	}
 
@@ -341,7 +340,7 @@ public class ErrorHandler {
 			ChannelId id = this.errorChannelIds.get(code);
 			if (id != null && id.doc() != null) {
 				this.log.info("Error code is present --> " + code + " --> " + ((ErrorDoc) id.doc()).getText());
-				return this.parent.essGridconOngrid.channel(id);
+				return this.parent.essGridcon.channel(id);
 			}
 		}
 		return null;

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.ongrid;
+package io.openems.edge.ess.mr.gridcon;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,29 +7,18 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -37,87 +26,98 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
-import io.openems.edge.ess.mr.gridcon.GridconPCSImpl;
-import io.openems.edge.ess.mr.gridcon.StateMachine;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
+import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
-@Designate(ocd = EssGridconOnGridConfig.class, factory = true)
-@Component(//
-		name = "ESS.Gridcon.OnGrid", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
-		}) //
-public class EssGridconOngrid extends AbstractOpenemsComponent
-		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave, EventHandler {
+//@Designate(ocd = EssGridconConfig.class, factory = true)
+//@Component(//
+//		name = "ESS.Gridcon", //
+//		immediate = true, //
+//		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+//		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+//		}) //
+public abstract class EssGridcon extends AbstractOpenemsComponent
+		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave {
 
 	public static final String KEY_POWER_IS_ZERO = "zero";
 	public static final String KEY_POWER_CHARGING = "charging";
 	public static final String KEY_POWER_DISCHARGING = "discharging";
 
-	private GridconPCS gridconPCS;
-	private Battery batteryA;
-	private Battery batteryB;
-	private Battery batteryC;
+	protected GridconPCS gridconPCS;
+	protected Battery batteryA;
+	protected Battery batteryB;
+	protected Battery batteryC;
 
-	public EssGridconOnGridConfig config;
+	protected boolean enableIPU1 = false;
+	protected boolean enableIPU2 = false;
+	protected boolean enableIPU3 = false;
+
+	protected ParameterSet parameterSet;
+
+//	public EssGridconConfig config;
 
 	StateMachine stateMachine;
 
 	@Reference
 	private Power power;
 
-	private Map<String, Map<GridConChannelId, Float>> weightingMap = initializeMap();
-	private int stringControlMode = 1;
+	protected Map<String, Map<GridConChannelId, Float>> weightingMap = initializeMap();
+	protected int stringControlMode = 1;
 
-	private final Logger log = LoggerFactory.getLogger(EssGridconOngrid.class);
+	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
 
 	@Reference
 	protected ComponentManager componentManager;
 
-	public EssGridconOngrid() {
+	public EssGridcon(io.openems.edge.common.channel.ChannelId otherChannelIds) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ErrorCodeChannelId0.values(), //
-				ErrorCodeChannelId1.values(), //
-				ChannelId.values() //
+				ErrorCodeChannelId1.values()// , //
+//				ChannelId.values(), //
+//				otherChannelIds.values()
 		);
 	}
 
-	@Activate
-	void activate(ComponentContext context, EssGridconOnGridConfig config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
+//	@Activate
+	public void activate(ComponentContext context, String id, String alias, boolean enabled, boolean enableIPU1,
+			boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String gridcon, String bmsA, String bmsB,
+			String bmsC) throws OpenemsNamedException {
+		super.activate(context, id, alias, enabled);
+		this.enableIPU1 = enableIPU1;
+		this.enableIPU2 = enableIPU2;
+		this.enableIPU3 = enableIPU3;
+		this.parameterSet = parameterSet;
+
 		calculateMaxApparentPower();
-		gridconPCS = componentManager.getComponent(config.gridcon_id());
+		gridconPCS = componentManager.getComponent(gridcon);
 
 		try {
-			batteryA = componentManager.getComponent(config.bms_a_id());
+			batteryA = componentManager.getComponent(bmsA);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string a
 		}
 
 		try {
-			batteryB = componentManager.getComponent(config.bms_b_id());
+			batteryB = componentManager.getComponent(bmsB);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string b
 		}
 
 		try {
-			batteryC = componentManager.getComponent(config.bms_c_id());
+			batteryC = componentManager.getComponent(bmsC);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string c
 		}
@@ -132,49 +132,20 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 	private void calculateMaxApparentPower() {
 
 		int maxPower = 0;
-		if (config.enableIPU1()) {
+		if (enableIPU1) {
 			maxPower = maxPower + GridconPCSImpl.MAX_POWER_PER_INVERTER;
 		}
-		if (config.enableIPU2()) {
+		if (enableIPU2) {
 			maxPower = maxPower + GridconPCSImpl.MAX_POWER_PER_INVERTER;
 		}
-		if (config.enableIPU3()) {
+		if (enableIPU3) {
 			maxPower = maxPower + GridconPCSImpl.MAX_POWER_PER_INVERTER;
 		}
 
 		getMaxApparentPower().setNextValue(maxPower);
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		if (!isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			try {
-				// prepare calculated Channels
-				calculateGridMode();
-				calculateBatteryData();
-				calculateSoc();
-				calculateActivePower();
-
-				weightingMap = getWeightingMap();
-				stringControlMode = getStringControlMode();
-
-				// start state-machine handling
-				stateMachine.run();
-
-				channel(ChannelId.STATE_CYCLE_ERROR).setNextValue(false);
-			} catch (IllegalArgumentException | OpenemsNamedException e) {
-				channel(ChannelId.STATE_CYCLE_ERROR).setNextValue(true);
-				logError(log, "State-Cycle Error: " + e.getMessage());
-			}
-			break;
-		}
-	}
-
-	private void calculateActivePower() {
+	protected void calculateActivePower() {
 		// Calculate Total Active Power
 
 		float activePowerIpu1 = gridconPCS.getActivePowerInverter1();
@@ -184,7 +155,7 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 		getActivePower().setNextValue(activePower);
 	}
 
-	private int getStringControlMode() {
+	protected int getStringControlMode() {
 		int weightingMode = 0; // Depends on number of battery strings!!!
 
 		// --- // TODO if battery is not ready for work, remove it from the weighting
@@ -302,25 +273,25 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 						.build());
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
-
-		STATE_CYCLE_ERROR(Doc.of(Level.FAULT)),
-
-		; //
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return doc;
-		}
-	}
+//	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+//		STATE_MACHINE(Doc.of(IState.values()) //
+//				.text("Current State of State-Machine")), //
+//
+//		STATE_CYCLE_ERROR(Doc.of(Level.FAULT)),
+//
+//		; //
+//
+//		private final Doc doc;
+//
+//		private ChannelId(Doc doc) {
+//			this.doc = doc;
+//		}
+//
+//		@Override
+//		public Doc doc() {
+//			return doc;
+//		}
+//	}
 
 	/**
 	 * Sets the weights for battery strings A, B and C according to max allowed
@@ -329,7 +300,7 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 	 * @return
 	 * @throws OpenemsNamedException
 	 */
-	private Map<String, Map<GridConChannelId, Float>> getWeightingMap() {
+	protected Map<String, Map<GridConChannelId, Float>> getWeightingMap() {
 
 		Map<String, Map<GridConChannelId, Float>> ret = new HashMap<>();
 
@@ -485,7 +456,7 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 	/**
 	 * Handles Battery data, i.e. setting allowed charge/discharge power.
 	 */
-	void calculateBatteryData() {
+	protected void calculateBatteryData() {
 		int allowedCharge = 0;
 		int allowedDischarge = 0;
 		int capacity = 0;
@@ -521,7 +492,7 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
-	void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
+	protected void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
 		GridMode gridMode = GridMode.ON_GRID;
 		getGridMode().setNextValue(gridMode);
 	}
@@ -530,7 +501,7 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 	 * Calculates the State-of-charge of all Batteries; if all batteries are
 	 * available. Otherwise sets UNDEFINED.
 	 */
-	void calculateSoc() {
+	protected void calculateSoc() {
 		float sumTotalCapacity = 0;
 		float sumCurrentCapacity = 0;
 		for (Battery b : getBatteries()) {
@@ -573,41 +544,7 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 		return batteries;
 	}
 
-	public enum State implements OptionsEnum {
-		UNDEFINED(-1, "Undefined"), //
-		RUNNING(0, "Running"), //
-		;
-
-		private final int value;
-		private final String name;
-
-		private State(int value, String name) {
-			this.value = value;
-			this.name = name;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public OptionsEnum getUndefined() {
-			return UNDEFINED;
-		}
-	}
-
-	public void startSystem() {
-
-		boolean enableIPU1 = config.enableIPU1();
-		boolean enableIPU2 = config.enableIPU2();
-		boolean enableIPU3 = config.enableIPU3();
-
+	public void start() {
 		gridconPCS.setEnableIPU1(enableIPU1);
 		gridconPCS.setEnableIPU2(enableIPU2);
 		gridconPCS.setEnableIPU3(enableIPU3);
@@ -617,7 +554,7 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 		gridconPCS.setBlackStartApproval(false);
 		gridconPCS.setShortCircuitHAndling(true);
 		gridconPCS.setModeSelection(Mode.CURRENT_CONTROL);
-		gridconPCS.setParameterSet(config.parameterSet());
+		gridconPCS.setParameterSet(parameterSet);
 		gridconPCS.setU0(GridconPCSImpl.ON_GRID_VOLTAGE_FACTOR);
 		gridconPCS.setF0(GridconPCSImpl.ON_GRID_FREQUENCY_FACTOR);
 
@@ -625,15 +562,15 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 		gridconPCS.setQLimit(1f);
 
 		float maxPower = GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		if (config.enableIPU1()) {
+		if (enableIPU1) {
 			gridconPCS.setPMaxChargeIPU1(maxPower);
 			gridconPCS.setPMaxDischargeIPU1(-maxPower);
 		}
-		if (config.enableIPU2()) {
+		if (enableIPU2) {
 			gridconPCS.setPMaxChargeIPU2(maxPower);
 			gridconPCS.setPMaxDischargeIPU2(-maxPower);
 		}
-		if (config.enableIPU3()) {
+		if (enableIPU3) {
 			gridconPCS.setPMaxChargeIPU3(maxPower);
 			gridconPCS.setPMaxDischargeIPU3(-maxPower);
 		}
@@ -645,11 +582,6 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 	}
 
 	public void runSystem() {
-
-		boolean enableIPU1 = config.enableIPU1();
-		boolean enableIPU2 = config.enableIPU2();
-		boolean enableIPU3 = config.enableIPU3();
-
 		gridconPCS.setEnableIPU1(enableIPU1);
 		gridconPCS.setEnableIPU2(enableIPU2);
 		gridconPCS.setEnableIPU3(enableIPU3);
@@ -659,23 +591,23 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 		gridconPCS.setBlackStartApproval(false);
 		gridconPCS.setShortCircuitHAndling(true);
 		gridconPCS.setModeSelection(Mode.CURRENT_CONTROL);
-		gridconPCS.setParameterSet(config.parameterSet());
+		gridconPCS.setParameterSet(parameterSet);
 		gridconPCS.setU0(GridconPCSImpl.ON_GRID_VOLTAGE_FACTOR);
 		gridconPCS.setF0(GridconPCSImpl.ON_GRID_FREQUENCY_FACTOR);
 
 		gridconPCS.setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		gridconPCS.setQLimit(1f);
-
+		
 		float maxPower = GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		if (config.enableIPU1()) {
+		if (enableIPU1) {
 			gridconPCS.setPMaxChargeIPU1(maxPower);
 			gridconPCS.setPMaxDischargeIPU1(-maxPower);
 		}
-		if (config.enableIPU2()) {
+		if (enableIPU2) {
 			gridconPCS.setPMaxChargeIPU2(maxPower);
 			gridconPCS.setPMaxDischargeIPU2(-maxPower);
 		}
-		if (config.enableIPU3()) {
+		if (enableIPU3) {
 			gridconPCS.setPMaxChargeIPU3(maxPower);
 			gridconPCS.setPMaxDischargeIPU3(-maxPower);
 		}
@@ -684,5 +616,20 @@ public class EssGridconOngrid extends AbstractOpenemsComponent
 		gridconPCS.enableDCDC();
 
 		gridconPCS.setDcLinkVoltage(GridconPCSImpl.DC_LINK_VOLTAGE_SETPOINT);
+				
 	}
+
+	public void stopSystem() {
+//TODO		
+	}
+
+	public boolean isRunning() {
+		return gridconPCS.isRunning();
+	}
+
+	public boolean isError() {
+//TODO
+		return gridconPCS.isError();
+	}
+
 }

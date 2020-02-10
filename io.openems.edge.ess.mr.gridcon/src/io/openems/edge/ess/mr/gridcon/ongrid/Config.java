@@ -5,11 +5,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
-@ObjectClassDefinition( //
-		name = "Ess MR Gridcon PCS On Grid", //
-		description = "Implements the on grid version of MR Gridcon PCS")
-public
-@interface EssGridconOnGridConfig {
+@ObjectClassDefinition(//
+		name = "ESS Gridcon On Grid", //
+		description = "ESS MR Gridcon PCS on grid variant" //
+)
+public @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
@@ -42,7 +44,6 @@ public
 	@AttributeDefinition(name = "Parameter Set", description = "Parameter Set")
 	ParameterSet parameterSet() default ParameterSet.SET_1;
 	
-	String webconsole_configurationFactory_nameHint() default "ESS MR Gridcon PCS On Grid [{id}]";
+	String webconsole_configurationFactory_nameHint() default "ESS MR Gridcon PCS[{id}]";
 
-	
 }

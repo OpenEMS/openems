@@ -8,30 +8,29 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.mr.gridcon.ongrid.EssGridconOngrid;
 
 public class StateMachine {
 
 	private static final int TIME_TOLERANCE_LINK_VOLTAGE = 15;
 
 	protected final GridconPCS gridconPCS;
-	protected final EssGridconOngrid essGridconOngrid;
+	protected final EssGridcon essGridcon;
 
 	private LocalDateTime ccuStateIsRunningSince = null;
 
 	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
 //	private final GoingOngridHandler goingOngridHandler = new GoingOngridHandler(this);
 //	private final GoingOffgridHandler goingOffgridHandler = new GoingOffgridHandler(this);
-	private final OngridHandler ongridHandler = new OngridHandler(this);
+//	private final OngridHandler ongridHandler = new OngridHandler(this);
 //	private final OffgridHandler offgridHandler = new OffgridHandler(this);
 	private final ErrorHandler errorHandler = new ErrorHandler(this);
 
 	private State state = State.UNDEFINED;
 //	private CCUState lastCcuState = CCUState.UNDEFINED;
 
-	public StateMachine(GridconPCS gridconPCS, EssGridconOngrid essGridconOngrid) {
+	public StateMachine(GridconPCS gridconPCS, EssGridcon essGridcon) {
 		this.gridconPCS = gridconPCS;
-		this.essGridconOngrid = essGridconOngrid;
+		this.essGridcon = essGridcon;
 
 //		/*
 //		 * Call back for ccu state when ccu state is set to run a time variable is set
@@ -77,7 +76,7 @@ public class StateMachine {
 //			break;
 
 		case ONGRID:
-			nextState = this.ongridHandler.run();
+//			nextState = this.ongridHandler.run();
 			break;
 
 //		case GOING_OFFGRID:
@@ -106,7 +105,7 @@ public class StateMachine {
 	 * @throws IllegalArgumentException
 	 */
 	private State handleUndefined() {
-		GridMode gridMode = this.essGridconOngrid.getGridMode().getNextValue().asEnum();
+		GridMode gridMode = this.essGridcon.getGridMode().getNextValue().asEnum();
 		if (gridconPCS.isError()) {
 			return State.ERROR;
 		}
@@ -192,9 +191,9 @@ public class StateMachine {
 		return state;
 	}
 
-	public OngridHandler getOngridHandler() {
-		return ongridHandler;
-	}
+//	public OngridHandler getOngridHandler() {
+//		return ongridHandler;
+//	}
 
 	public enum State implements OptionsEnum {
 		UNDEFINED(-1, "Undefined"), //
