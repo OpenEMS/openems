@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket } from '../../../../../shared/shared';
+import { Service, EdgeConfig, Edge, Websocket, ChannelAddress } from '../../../../../shared/shared';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 

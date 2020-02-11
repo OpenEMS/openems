@@ -95,7 +95,8 @@ export const TRANSLATION = {
                     peakshavingPower: 'Uvolnění',
                     rechargePower: 'Načítání pod',
                     relationError: 'Hodnota vybití musí být větší než hodnota zatížení',
-                    asymmetricInfo: 'Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.'
+                    asymmetricInfo: 'Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.',
+                    mostStressedPhase: 'Většinou stresovaná fáze'
                 },
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",

@@ -7,15 +7,10 @@
         <table class="full_width">
             <tr>
                 <td style="width: 65%" translate>
-                    General.currentValue
+                    Edge.Index.Widgets.Peakshaving.mostStressedPhase<span>&nbsp;{{getMostStressedPhaseL()}}</span>
                 </td>
-                <td style="width: 35%" class="align_right"
-                    *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePower'] >= 0">
-                    {{edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePower'] | unitvalue:'kW'}}
-                </td>
-                <td style="width: 35%" class="align_right"
-                    *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePower'] < 0">
-                    {{0 | unitvalue:'kW'}}
+                <td style="width: 35%" class="align_right">
+                    {{getMostStressedPhaseValue() | unitvalue:'kW'}}
                 </td>
             </tr>
             <tr>

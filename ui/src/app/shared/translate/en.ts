@@ -96,7 +96,8 @@ export const TRANSLATION = {
                     peakshavingPower: 'Discharge above',
                     rechargePower: 'Charge below',
                     relationError: 'Discharge value must be greater than the Charge value',
-                    asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.'
+                    asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
+                    mostStressedPhase: 'Most stressed phase'
                 },
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",

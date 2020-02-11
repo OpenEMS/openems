@@ -112,7 +112,8 @@ export const TRANSLATION = {
                     peakshavingPower: 'Entladung über',
                     rechargePower: 'Beladung unter',
                     relationError: 'Entladungswert muss größer als Beladungswert sein',
-                    asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.'
+                    asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
+                    mostStressedPhase: 'meist belastete Phase'
                 },
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",

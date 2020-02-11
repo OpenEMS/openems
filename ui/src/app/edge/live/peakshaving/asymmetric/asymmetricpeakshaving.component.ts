@@ -34,14 +34,13 @@ export class AsymmetricPeakshavingComponent {
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
                 this.edge.subscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR, [
-                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePower')
+                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
+                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL1'),
+                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL2'),
+                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL3')
                 ])
             });
         });
-    }
-
-    ngOnDestroy() {
-        this.edge.unsubscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR);
     }
 
     async presentModal() {
@@ -53,5 +52,45 @@ export class AsymmetricPeakshavingComponent {
             }
         });
         return await modal.present();
+    }
+
+    getMostStressedPhaseValue(): string {
+        if (this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] >= 0) {
+            return this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1']
+        } else if (this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] >= 0) {
+            return this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2']
+        } else if (this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] >= 0) {
+            return this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3']
+        } else {
+            return '-'
+        }
+    }
+
+    getMostStressedPhaseL(): string {
+        if (this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] >= 0) {
+            return 'L1'
+        } else if (this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] >= 0) {
+            return 'L2'
+        } else if (this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] > this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2']
+            && this.edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] >= 0) {
+            return 'L3'
+        } else {
+            return '-'
+        }
+    }
+
+    ngOnDestroy() {
+        this.edge.unsubscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR);
     }
 }

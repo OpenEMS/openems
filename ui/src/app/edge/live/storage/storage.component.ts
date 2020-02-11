@@ -30,7 +30,6 @@ export class StorageComponent {
         });
         this.service.getConfig().then(config => {
             this.config = config;
-            console.log("config", config)
             let channels = [];
             this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
             for (let component of this.chargerComponents) {
