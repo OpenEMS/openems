@@ -85,8 +85,16 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging</td>
-                <td style="width: 35%" class="align_right">
-                  {{controller.properties['forceChargeMinPower'] | unitvalue:'kW'}}</td>
+                <ng-container *ngIf="currentData[componentId + '/Phases']; else noPhases">
+                  <td style="width: 35%" class="align_right">
+                    {{controller.properties['forceChargeMinPower'] * 3 | unitvalue:'kW'}}
+                  </td>
+                </ng-container>
+                <ng-template #noPhases>
+                  <td style="width: 35%" class="align_right">
+                    {{controller.properties['forceChargeMinPower'] * currentData[componentId + '/Phases'] | unitvalue:'kW'}}
+                  </td>
+                </ng-template>
               </tr>
             </table>
           </ng-container>

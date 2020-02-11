@@ -265,12 +265,12 @@
                                                                 </tr>
                                                             </table>
                                                             <ion-range class="swiper-no-swiping"
-                                                                (ionChange)="updateForceMinPower($event, evcsCtrl)"
+                                                                (ionChange)="updateForceMinPower($event, evcsCtrl, getValueOrThree(currentData[evcs_id + '/Phases']))"
                                                                 min="{{ formatNumber(currentData[evcs_id + '/MinimumHardwarePower']) }}"
                                                                 max="{{ formatNumber(currentData[evcs_id + '/MaximumHardwarePower']) }}"
                                                                 color="dark" pin="true" style="padding-top: 8px;"
                                                                 step="100" debounce="1000"
-                                                                value="{{evcsCtrl.properties.forceChargeMinPower}}">
+                                                                value="{{evcsCtrl.properties.forceChargeMinPower * getValueOrThree(currentData[evcs_id + '/Phases'])}}">
                                                                 <ion-label slot="start">
                                                                     {{ formatNumber(currentData[evcs_id + '/MinimumHardwarePower']) | number:'1.0-0'}}&nbsp;W
                                                                 </ion-label>
