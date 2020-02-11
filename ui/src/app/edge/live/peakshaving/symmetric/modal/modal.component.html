@@ -1,6 +1,7 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title translate>Edge.Index.Widgets.Peakshaving.peakshaving</ion-title>
+        <ion-title *ngIf="component.alias != component.id">{{ component.alias }}</ion-title>
+        <ion-title *ngIf="component.alias == component.id">{{ component.id }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
