@@ -156,8 +156,7 @@ export class HeatingElementModalComponent implements OnInit {
         if (this.edge != null) {
             let oldProcedureMode = this.controller.properties['priority'];
             let newProcedureMode: string;
-
-            switch (event) {
+            switch (event.detail.value) {
                 case 'TIME':
                     newProcedureMode = 'TIME';
                     break;
@@ -166,7 +165,7 @@ export class HeatingElementModalComponent implements OnInit {
                     break;
             }
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'priority', value: newProcedureMode },
+                { name: 'Priority', value: newProcedureMode },
             ]).then(() => {
                 currentController.properties.priority = newProcedureMode;
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
