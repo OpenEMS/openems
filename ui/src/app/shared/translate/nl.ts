@@ -153,6 +153,16 @@ export const TRANSLATION = {
                         MaxCharging: "Maximale laadstroom",
                         MaxChargingDetails: "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt."
                     }
+                },
+                Heatingelement: {
+                    Heatingelement: 'Verwarmingselement',
+                    Priority: 'Prioriteit',
+                    ActivePhases: 'Actieve fasen',
+                    Energy: 'Energie',
+                    Time: 'Tijd',
+                    Endtime: 'Einde tijd',
+                    MinimalEnergyAmount: 'Minimale hoeveelheid energie',
+                    MinimumRunTime: 'Minimale looptijd'
                 }
             }
         },

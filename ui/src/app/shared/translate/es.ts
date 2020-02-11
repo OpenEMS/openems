@@ -156,6 +156,16 @@ export const TRANSLATION = {
                         MaxCharging: "Fuerza de carga maxima:",
                         MaxChargingDetails: "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente."
                     }
+                },
+                Heatingelement: {
+                    Heatingelement: 'Elemento de calefacción',
+                    Priority: 'Prioridad',
+                    ActivePhases: 'Fases activas',
+                    Energy: 'Energía',
+                    Time: 'Tiempo',
+                    Endtime: 'Los días pasados',
+                    MinimalEnergyAmount: 'Cantidad mínima de energía',
+                    MinimumRunTime: 'Plazo mínimo'
                 }
             }
         },

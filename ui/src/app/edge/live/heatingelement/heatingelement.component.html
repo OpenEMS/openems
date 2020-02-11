@@ -4,7 +4,8 @@
             <ion-item lines="full" color="light">
                 <ion-icon class="ion-no-margin" slot="start" size="large" color="danger" name="flame"></ion-icon>
                 <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
-                <ion-label *ngIf="controller.alias == controller.id">Heizelement</ion-label>
+                <ion-label *ngIf="controller.alias == controller.id" translate>
+                    Edge.Index.Widgets.Heatingelement.Heatingelement</ion-label>
             </ion-item>
             <ion-card-content>
                 <table class="full_width">
@@ -42,32 +43,33 @@
                     </tr>
                     <tr *ngIf="currentData.channel[outputChannelPhaseOne] == 1 || currentData.channel[outputChannelPhaseTwo] == 1 
                     || currentData.channel[outputChannelPhaseThree] == 1">
-                        <td style="width: 65%">
-                            Aktive Phasen
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Heatingelement.ActivePhases
                         </td>
                         <td style="width:35%" class="align_right">
                             {{ getActivePhases() }}</td>
                     </tr>
                     <tr>
-                        <td style="width: 65%">
-                            Priorität
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Heatingelement.Priority
                         </td>
                         <td style="width:35%" class="align_right"
-                            *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'">
-                            Energie</td>
-                        <td style="width:35%" class="align_right" *ngIf="controller.properties['priority'] == 'TIME'">
-                            Zeit</td>
+                            *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'" translate>
+                            Edge.Index.Widgets.Heatingelement.Energy</td>
+                        <td style="width:35%" class="align_right" *ngIf="controller.properties['priority'] == 'TIME'"
+                            translate>
+                            Edge.Index.Widgets.Heatingelement.Time</td>
                     </tr>
                     <tr *ngIf="controller.properties['priority'] == 'TIME'">
-                        <td style="width:65%">
-                            Endzeit</td>
+                        <td style="width:65%" translate>
+                            Edge.Index.Widgets.Heatingelement.Endtime</td>
                         <td style="width:35%" class="align_right">
                             {{ controller.properties['endTime'] }}
                         </td>
                     </tr>
                     <tr *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'">
-                        <td style="width:65%">
-                            Minimale Energiemenge</td>
+                        <td style="width:65%" translate>
+                            Edge.Index.Widgets.Heatingelement.MinimalEnergyAmount</td>
                         <td style="width:35%" class="align_right">
                             {{controller.properties['minkwh'] | unitvalue:'kWh'}}</td>
                     </tr>

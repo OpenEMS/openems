@@ -177,6 +177,16 @@ export const TRANSLATION = {
                         MaxCharging: "Maximale Ladeleistung",
                         MaxChargingDetails: "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt."
                     }
+                },
+                Heatingelement: {
+                    Heatingelement: 'Heizelement',
+                    Priority: 'Priorität',
+                    ActivePhases: 'Aktive Phasen',
+                    Energy: 'Energie',
+                    Time: 'Zeit',
+                    Endtime: 'Endzeit',
+                    MinimalEnergyAmount: 'Minimale Energiemenge',
+                    MinimumRunTime: 'Mindestlaufzeit'
                 }
             }
         },

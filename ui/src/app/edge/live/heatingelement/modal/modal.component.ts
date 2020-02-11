@@ -4,8 +4,11 @@ import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { RangeValue } from '@ionic/core';
+import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 
-type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
+type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
+type Priority = 'TIME' | 'KILO_WATT_HOUR';
+
 
 
 @Component({
@@ -25,9 +28,9 @@ export class HeatingElementModalComponent implements OnInit {
     private static readonly SELECTOR = "heatingelement-modal";
 
     public pickerOptions: any;
+    public formGroup: FormGroup;
+    public priority: Priority
 
-    public minTime: RangeValue;
-    public minKwh: RangeValue;
 
     constructor(
         protected service: Service,
@@ -35,16 +38,18 @@ export class HeatingElementModalComponent implements OnInit {
         public router: Router,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
+        public formBuilder: FormBuilder
     ) {
         this.pickerOptions = {
             buttons: [
                 {
-                    text: 'Cancel',
+                    text: this.translate.instant('General.Cancel'),
                     role: 'cancel'
                 },
                 {
                     text: 'OK',
                     handler: (value: any): void => {
+                        this.formGroup.controls['endTime'].setValue(value.hour.text + ':' + value.minute.text);
                         if (this.edge != null) {
                             let endTime = value.hour.text + ':' + value.minute.text;
                             let oldTime = this.controller.properties['endTime'];
@@ -70,11 +75,18 @@ export class HeatingElementModalComponent implements OnInit {
             new ChannelAddress(this.componentId, 'TotalPhasePower'),
             new ChannelAddress(this.componentId, 'TotalPhaseTime')
         ]);
+
+        this.formGroup = this.formBuilder.group({
+            minimumRuntime: new FormControl(this.controller.properties.minTime),
+            minimumEnergy: new FormControl(this.controller.properties.minkwh),
+            endTime: new FormControl(this.controller.properties.endTime),
+            priority: new FormControl(this.controller.properties.priority),
+        })
     };
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldMode = currentController.properties.mode;
-        let newMode: mode;
+        let newMode: Mode;
 
         switch (event.detail.value) {
             case 'MANUAL_ON':
@@ -108,6 +120,10 @@ export class HeatingElementModalComponent implements OnInit {
      * @param event
      */
     updateMinTime(event: CustomEvent, currentController: EdgeConfig.Component) {
+        this.formGroup.controls['minimumRuntime'].setValue(event);
+
+
+
         let oldMinTime = currentController.properties.minTime;
         let newMinTime = event;
         if (this.edge != null) {
@@ -130,8 +146,12 @@ export class HeatingElementModalComponent implements OnInit {
      * @param event
      */
     updateMinKwh(event: CustomEvent, currentController: EdgeConfig.Component) {
+        this.formGroup.controls['minimumEnergy'].setValue(event);
+
+
         let oldMinKwh = currentController.properties.minkwh;
         let newMinKwh = event;
+
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
                 { name: 'minkwh', value: newMinKwh }
@@ -153,6 +173,9 @@ export class HeatingElementModalComponent implements OnInit {
      * @param event 
      */
     updateProcedureMode(event: any, currentController: EdgeConfig.Component) {
+        this.priority = event;
+        this.formGroup.controls['priority'].setValue(event);
+
         if (this.edge != null) {
             let oldProcedureMode = this.controller.properties['priority'];
             let newProcedureMode: string;
@@ -180,6 +203,8 @@ export class HeatingElementModalComponent implements OnInit {
     updateEndTime(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldTime = currentController.properties['endTime'];
         let newTime = event.detail.value;
+        this.formGroup.controls['endtime'].setValue(event.detail.value);
+
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [

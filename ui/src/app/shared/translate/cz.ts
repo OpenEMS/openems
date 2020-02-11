@@ -159,6 +159,16 @@ export const TRANSLATION = {
                         MaxCharging: "Maximální síla náboje",
                         MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."
                     }
+                },
+                Heatingelement: {
+                    Heatingelement: 'Topný článek',
+                    Priority: 'Priorita',
+                    ActivePhases: 'Aktivní fáze',
+                    Energy: 'Energie',
+                    Time: 'čas',
+                    Endtime: 'Poslední dny',
+                    MinimalEnergyAmount: 'Minimální množství energie',
+                    MinimumRunTime: 'Minimální doba'
                 }
             }
         },
