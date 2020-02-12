@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { isNumber, isBoolean } from 'util';
+import { isBoolean } from 'util';
 
 @Pipe({
     name: 'unitvalue'

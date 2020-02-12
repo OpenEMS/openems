@@ -94,7 +94,7 @@ export const TRANSLATION = {
                     peakshaving: 'špičkové holení',
                     peakshavingPower: 'Uvolnění',
                     rechargePower: 'Načítání pod',
-                    relationError: 'Hodnota vybití musí být větší než hodnota zatížení',
+                    relationError: 'Vypouštěcí hodnota musí být větší nebo rovna hodnotě zatížení',
                     asymmetricInfo: 'Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.',
                     mostStressedPhase: 'Většinou stresovaná fáze'
                 },

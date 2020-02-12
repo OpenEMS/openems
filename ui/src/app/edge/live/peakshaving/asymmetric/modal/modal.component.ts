@@ -43,7 +43,7 @@ export class AsymmetricPeakshavingModalComponent {
 
     applyChanges() {
         if (this.formGroup.controls['peakShavingPower'].valid && this.formGroup.controls['rechargePower'].valid) {
-            if ((this.formGroup.controls['peakShavingPower'].value > this.formGroup.controls['rechargePower'].value) || (this.formGroup.controls['rechargePower'].value == 0 && this.formGroup.controls['peakShavingPower'].value == 0)) {
+            if (this.formGroup.controls['peakShavingPower'].value >= this.formGroup.controls['rechargePower'].value) {
                 let updateComponentArray = [];
                 Object.keys(this.formGroup.controls).forEach((element, index) => {
                     if (this.formGroup.controls[element].dirty) {

@@ -13,7 +13,7 @@
 <ion-content>
     <ng-container *ngIf="!loading">
         <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
-            <ng-container *ngIf="this.component.properties['meter.id'] as meterId">
+            <ng-container *ngIf="component.properties['meter.id'] as meterId">
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
