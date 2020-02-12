@@ -12,72 +12,59 @@
 
 <ion-content>
     <ng-container *ngIf="!loading">
-        <ion-card-content class="underline">
-            <table class="full_width">
-                <tr>
-                    <td style="width: 65%" translate>
-                        General.currentValue
-                    </td>
-                    <td style="width: 35%" class="align_right"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePower'] >= 0">
-                        {{edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePower'] | unitvalue:'W'}}
-                    </td>
-                    <td style="width: 35%" class="align_right"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePower'] < 0">
-                        {{0 | unitvalue:'W'}}
-                    </td>
-                </tr>
-            </table>
-            <table class="full_width">
-                <tr>
-                    <td style="width: 2%"></td>
-                    <td style="width: 63%" translate>
-                        General.currentValue<span>&nbsp;L1</span>
-                    </td>
-                    <td style="width: 35%" class="align_right"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] >= 0"
-                        [class.bold]="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] > edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] 
-                        && edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] > edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3']">
-                        {{edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] | unitvalue:'W'}}
-                    </td>
-                    <td style=" width: 35%" class="align_right"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] < 0">
-                        {{0 | unitvalue:'W'}}
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 2%"></td>
-                    <td style="width: 63%" translate>
-                        General.currentValue<span>&nbsp;L2</span>
-                    </td>
-                    <td style="width: 35%" class="align_right"
-                        [class.bold]="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] > edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1'] 
-                        && edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] > edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3']"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] >= 0">
-                        {{edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] | unitvalue:'W'}}
-                    </td>
-                    <td style="width: 35%" class="align_right"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] < 0">
-                        {{0 | unitvalue:'W'}}
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 2%"></td>
-                    <td style="width: 63%" translate>
-                        General.currentValue<span>&nbsp;L3</span>
-                    </td>
-                    <td style="width: 35%" class="align_right"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] >= 0"
-                        [class.bold]="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] > edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL2'] 
-                        && edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] > edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL1']">
-                        {{edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] | unitvalue:'W'}}
-                    </td>
-                    <td style="width: 35%" class="align_right"
-                        *ngIf="edge.currentData['_value'].channel[this.component.properties['meter.id'] + '/ActivePowerL3'] < 0">
-                        {{0 | unitvalue:'W'}}
-                    </td>
-                </tr>
-            </table>
+        <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
+            <ng-container *ngIf="this.component.properties['meter.id'] as meterId">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.currentValue
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
+                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                            </ng-container>
+                        </td>
+                    </tr>
+                </table>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 2%"></td>
+                        <td style="width: 63%" translate>
+                            General.currentValue<span>&nbsp;L1</span>
+                        </td>
+                        <td style="width: 35%" class="align_right"
+                            [class.bold]="(mostStressedPhase | async)?.name == 'L1'">
+                            <ng-container *ngIf="(currentData[meterId + '/ActivePowerL1'] || true) as value">
+                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                            </ng-container>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 2%"></td>
+                        <td style="width: 63%" translate>
+                            General.currentValue<span>&nbsp;L2</span>
+                        </td>
+                        <td style="width: 35%" class="align_right"
+                            [class.bold]="(mostStressedPhase | async)?.name == 'L2'">
+                            <ng-container *ngIf="(currentData[meterId + '/ActivePowerL2'] || true) as value">
+                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                            </ng-container>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 2%"></td>
+                        <td style="width: 63%" translate>
+                            General.currentValue<span>&nbsp;L3</span>
+                        </td>
+                        <td style="width: 35%" class="align_right"
+                            [class.bold]="(mostStressedPhase | async)?.name == 'L3'">
+                            <ng-container *ngIf="(currentData[meterId + '/ActivePowerL3'] || true) as value">
+                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                            </ng-container>
+                        </td>
+                    </tr>
+                </table>
+            </ng-container>
         </ion-card-content>
         <ion-card-content *ngIf="edge.roleIsAtLeast('owner')">
             <form [formGroup]="formGroup">
@@ -126,7 +113,7 @@
             </ion-row>
         </ion-grid>
     </ng-container>
-    <ion-fab *ngIf="showApplyChanges()" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
         <ion-fab-button (click)="applyChanges()">
             <ion-icon size="large" name="checkmark-circle-outline">
             </ion-icon>
