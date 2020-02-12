@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket, ChannelAddress } from '../../../../../shared/shared';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
 
 @Component({
     selector: AsymmetricPeakshavingModalComponent.SELECTOR,
@@ -12,12 +13,12 @@ export class AsymmetricPeakshavingModalComponent {
 
     @Input() component: EdgeConfig.Component;
     @Input() edge: Edge;
+    @Input() mostStressedPhase: Subject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>;
 
     private static readonly SELECTOR = "asymmetricpeakshaving-modal";
 
     public formGroup: FormGroup;
     public loading: boolean = false;
-
 
     constructor(
         public service: Service,
@@ -38,14 +39,6 @@ export class AsymmetricPeakshavingModalComponent {
                 Validators.required
             ]))
         })
-    }
-
-    showApplyChanges(): boolean {
-        if (this.formGroup.dirty) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     applyChanges() {

@@ -17,13 +17,13 @@ export enum WidgetNature {
 }
 
 export enum WidgetFactory {
-    'Evcs.Cluster.SelfConsumtion',
-    'Evcs.Cluster.PeakShaving',
     'Controller.Api.ModbusTcp',
+    'Controller.Asymmetric.PeakShaving',
+    'Controller.CHP.SoC',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
-    'Controller.CHP.SoC',
-    'Controller.Asymmetric.PeakShaving'
+    'Evcs.Cluster.PeakShaving',
+    'Evcs.Cluster.SelfConsumtion',
 }
 
 export class Widget {
