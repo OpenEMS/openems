@@ -24,7 +24,7 @@ Those are the available REST-Api endpoints:
 
 Use a HTTP request with method `GET` to read the current value of a Channel.
 
-*Example:* To read the current state of charge of the battery, send a GET request to http://x:user@localhost:8084/rest/_sum/EssSoC. It returns a response like:
+*Example:* To read the current state of charge of the battery, send a GET request to http://x:user@localhost:8084/rest/channel/_sum/EssSoC. It returns a response like:
 ```
 {
   "value": 50
@@ -35,7 +35,7 @@ Use a HTTP request with method `GET` to read the current value of a Channel.
 
 Use a HTTP request with method `POST` to write a Channel.
 
-*Example:* To switch a Digital-Output or Relay on, send a POST request to http://x:user@localhost:8084/rest/io0/Relay1 with the following body:
+*Example:* To switch a Digital-Output or Relay on, send a POST request to http://x:user@localhost:8084/rest/channel/io0/Relay1 with the following body:
 ```
 {
   "value": true
