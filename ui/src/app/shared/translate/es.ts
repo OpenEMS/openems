@@ -96,7 +96,7 @@ export const TRANSLATION = {
                     peakshaving: 'Afeitado máximo',
                     peakshavingPower: 'Descarga sobre',
                     rechargePower: 'Cargando debajo',
-                    relationError: 'El valor de descarga debe ser mayor que el valor de carga'
+                    relationError: 'El valor de descarga debe ser mayor o igual que el valor de carga'
                 },
                 phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
