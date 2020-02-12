@@ -117,14 +117,14 @@ followed once per second by
 +
 NOTE: It is once per second because you accepted the default value of "1000 ms" for "Cycle time" in the Scheduler configuration.
 
-.. Configure the standard-load-profile datasource using the according input file in the csv-reader: "Simulator DataSource: CSVReader". The default values can be accepted without changes. The "Source" value is already set to the right input file.
+.. Configure the standard-load-profile datasource using the according input file in the csv-reader: "Simulator DataSource: CSV Predefined". Select "H0_HOUSEHOLD_SUMMER_WEEKDAY_STANDARD_LOAD_PROFILE" as the "Source".
 +
-.Configuration of Simulator DataSource: CSVReader as standard load profile datasource
-image::config-simulator-datasource-standard-load-profile.png[Configuration of Simulator DataSource: CSVReader as standard load profile datasource]
+.Configuration of Simulator DataSource: CSV Predefined as standard load profile datasource
+image::config-simulator-datasource-standard-load-profile.png[Configuration of Simulator DataSource: CSV Predefined as standard load profile datasource]
 +
 The log shows:
 +
-`INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate CSVDatasource [edge.simulator.datasource.csv]`,
+`INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate CsvDatasourcePredefined [edge.simulator.datasource.csv]`,
 +
 NOTE: The data source was configured with the OpenEMS Component ID "datasource0" which will be used in the next step as reference.
 

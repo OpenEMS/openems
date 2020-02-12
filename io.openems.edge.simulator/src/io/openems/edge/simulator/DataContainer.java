@@ -51,15 +51,23 @@ public class DataContainer {
 	}
 
 	/**
-	 * Gets the value for the key from the current record.
+	 * Gets the value for the key from the current record. If no keys exist, get the
+	 * first value of the record.
 	 * 
 	 * @param key the Channel-Id
 	 * @return the record value
 	 */
 	public Optional<Float> getValue(String key) {
-		Integer index = this.keys.get(key);
-		if (index == null) {
-			return Optional.empty();
+		Integer index;
+		if (this.keys.isEmpty()) {
+			// no keys -> first value
+			index = 0;
+		} else {
+			// find index of key
+			index = this.keys.get(key);
+			if (index == null) {
+				return Optional.empty();
+			}
 		}
 		float[] record = this.getCurrentRecord();
 		if (index < record.length) {
