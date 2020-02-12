@@ -243,7 +243,6 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 			return;
 		}
 		lastSetPowerTime = LocalDateTime.now(this.clock);
-		System.out.println("========refreshing ============= " + lastSetPowerTime);
 
 		if (linePowerValue == 0) {
 			log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
