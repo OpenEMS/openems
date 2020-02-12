@@ -50,8 +50,6 @@ export class Edge {
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
    * 
-   * Alternatively use Service.getEdgeConfig() which gives you a Promise.
-   * 
    * @param websocket the Websocket connection
    */
   public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
@@ -71,17 +69,26 @@ export class Edge {
   /**
    * Refresh the config.
    */
-  public refreshConfig(websocket: Websocket): void {
-    let request = new GetEdgeConfigRequest();
-    this.sendRequest(websocket, request).then(response => {
-      let edgeConfigResponse = response as GetEdgeConfigResponse;
-      this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
-    }).catch(reason => {
-      console.warn("refreshConfig got error", reason)
-      // TODO error
-      this.config.next(new EdgeConfig(this));
-    });
+  private refreshConfig(websocket: Websocket): void {
+    // make sure to send not faster than every 500 ms
+    if (this.refreshConfigTimeout == null) {
+      this.refreshConfigTimeout = setTimeout(() => {
+        // reset refreshConfigTimeout
+        this.refreshConfigTimeout = null;
+
+        let request = new GetEdgeConfigRequest();
+        this.sendRequest(websocket, request).then(response => {
+          let edgeConfigResponse = response as GetEdgeConfigResponse;
+          this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
+        }).catch(reason => {
+          console.warn("refreshConfig got error", reason)
+          // TODO error
+          this.config.next(new EdgeConfig(this));
+        });
+      }, 500);
+    }
   }
+  private refreshConfigTimeout: any = null;
 
   /**
    * Add Channels to subscription
