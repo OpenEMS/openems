@@ -4,8 +4,7 @@
             <ion-item lines="full" color="light">
                 <ion-icon class="ion-no-margin" slot="start" size="large" color="danger" name="flame"></ion-icon>
                 <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
-                <ion-label *ngIf="controller.alias == controller.id" translate>
-                    Edge.Index.Widgets.Heatingelement.Heatingelement</ion-label>
+                <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
             </ion-item>
             <ion-card-content>
                 <table class="full_width">

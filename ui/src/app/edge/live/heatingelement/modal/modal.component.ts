@@ -71,6 +71,7 @@ export class HeatingElementModalComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.priority = this.getPriority();
         this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.componentId, [
             new ChannelAddress(this.componentId, 'TotalPhasePower'),
             new ChannelAddress(this.componentId, 'TotalPhaseTime')
@@ -83,6 +84,16 @@ export class HeatingElementModalComponent implements OnInit {
             priority: new FormControl(this.controller.properties.priority),
         })
     };
+
+    getPriority(): Priority {
+        if (this.controller.properties.priority == 'TIME') {
+            return 'TIME';
+        } else if (this.controller.properties.priority == 'KILO_WATT_HOUR') {
+            return 'KILO_WATT_HOUR';
+        } else {
+            return null;
+        }
+    }
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldMode = currentController.properties.mode;

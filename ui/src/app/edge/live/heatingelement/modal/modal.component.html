@@ -1,8 +1,7 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
         <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
-        <ion-title *ngIf="controller.alias == controller.id" translate>Edge.Index.Widgets.Heatingelement.Heatingelement
-        </ion-title>
+        <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
