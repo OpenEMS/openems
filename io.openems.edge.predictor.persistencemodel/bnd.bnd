@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Edge Predictor Persistence Model
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+	This Bundle describes the persistant model for predicting values.
+
+-buildpath: \
+	${buildpath},\
+	com.google.gson,\
+	com.google.guava,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.predictor.api,\
+	slf4j.api
+
+-testpath: \
+	${testpath}

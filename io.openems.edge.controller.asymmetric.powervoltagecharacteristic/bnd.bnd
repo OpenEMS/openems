@@ -10,15 +10,13 @@ Private-Package: \
 
 -buildpath: \
 	${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.meter.api;version=latest,\
-	slf4j.api,\
-	com.google.gson
+	com.google.gson,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.meter.api,\
+	slf4j.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

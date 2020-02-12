@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -45,13 +45,12 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiWorker;
-import io.openems.edge.controller.api.core.WritePojo;
+import io.openems.edge.controller.api.common.ApiWorker;
+import io.openems.edge.controller.api.common.WritePojo;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxResponse;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolResponse;
-import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -87,9 +86,6 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	protected void addComponent(ModbusSlave component) {
 		this._components.put(component.id(), component);
 	}
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timedata timedataService = null;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -221,7 +217,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 			ModbusSlave component = this._components.get(id);
 			if (component == null) {
 				this.logWarn(this.log, "Required Component [" + id + "] is not available.");
-				break;
+				continue;
 			}
 
 			// add component to process image

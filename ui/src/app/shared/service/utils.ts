@@ -96,6 +96,15 @@ export class Utils {
   }
 
   /**
+   * Returns true for last element of array
+   * @param element
+   * @param array
+   */
+  public static isLastElement(element, array: any[]) {
+    return element == array[array.length - 1];
+  }
+
+  /**
    * Returns the short classname
    */
   public classname(value): string {

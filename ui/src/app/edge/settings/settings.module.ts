@@ -8,6 +8,7 @@ import { ComponentUpdateComponent } from './component/update/update.component';
 import { NetworkComponent } from './network/network.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
+import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { SettingsComponent } from './settings.component';
     ComponentUpdateIndexComponent,
     ComponentUpdateComponent,
     NetworkComponent,
-    ProfileComponent
+    ProfileComponent,
+    SystemExecuteComponent
   ]
 })
 export class SettingsModule { }

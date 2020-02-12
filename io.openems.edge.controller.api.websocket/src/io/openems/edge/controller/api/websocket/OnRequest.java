@@ -148,8 +148,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// Wrap reply in EdgeRpcResponse
 		CompletableFuture<EdgeRpcResponse> result = new CompletableFuture<EdgeRpcResponse>();
-		resultFuture.thenAccept(r -> {
-			result.complete(new EdgeRpcResponse(edgeRpcRequest.getId(), r));
+		resultFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				result.completeExceptionally(ex);
+			} else if (r != null) {
+				result.complete(new EdgeRpcResponse(edgeRpcRequest.getId(), r));
+			} else {
+				result.completeExceptionally(
+						new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, request.getMethod()));
+			}
 		});
 		return result;
 	}
@@ -211,9 +218,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.getTimedata()
 				.queryHistoricData(//
 						null, /* ignore Edge-ID */
-						request.getFromDate(), //
-						request.getToDate(), //
-						request.getChannels());
+						request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
@@ -357,7 +362,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
+		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
 				request.getPayload());
 
 		// handle null response
@@ -367,8 +372,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// Wrap reply in new JsonrpcResponseSuccess
 		CompletableFuture<JsonrpcResponseSuccess> jsonrpcResponse = new CompletableFuture<>();
-		responseFuture.thenAccept(response -> {
-			jsonrpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		responseFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				jsonrpcResponse.completeExceptionally(ex);
+			} else if (r != null) {
+				jsonrpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), r.getResult()));
+			} else {
+				jsonrpcResponse.completeExceptionally(new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD,
+						request.getPayload().getMethod()));
+			}
 		});
 
 		return jsonrpcResponse;

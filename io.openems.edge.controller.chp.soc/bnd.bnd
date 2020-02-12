@@ -1,30 +1,18 @@
-#
-# io.openems.edge.controller.chp.soc PROVIDER BUNDLE
-#
 Bundle-Name: OpenEMS Edge Controller CHP SOC
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: The provider bundle for io.openems.edge.controller.chp.soc. This controller \
-	is to signal CHP to turn ON when the battery is empty and turn OFF when \
-	the battery is full.
-
-Export-Package: io.openems.edge.controller.api
-
-Private-Package:  \
-	io.openems.edge.controller.chp.soc	
-
--includeresource: {readme.adoc}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.io.api;version=latest
+	${buildpath},\
+	com.google.gson,\
+	com.google.guava,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.io.api,\
+	slf4j.api
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
-
+	${testpath}

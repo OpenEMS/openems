@@ -1,5 +1,6 @@
 package io.openems.edge.common.type;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import com.google.gson.JsonElement;
@@ -264,6 +265,30 @@ public class TypeUtils {
 		case STRING:
 			if (value == null) {
 				return (T) ((String) value);
+
+			} else if (value instanceof Object[]) {
+				return (T) Arrays.deepToString((Object[]) value);
+
+			} else if (value.getClass().isArray()) {
+				if (value instanceof boolean[]) {
+					return (T) Arrays.toString((boolean[]) value);
+				} else if (value instanceof byte[]) {
+					return (T) Arrays.toString((byte[]) value);
+				} else if (value instanceof char[]) {
+					return (T) Arrays.toString((char[]) value);
+				} else if (value instanceof double[]) {
+					return (T) Arrays.toString((double[]) value);
+				} else if (value instanceof float[]) {
+					return (T) Arrays.toString((float[]) value);
+				} else if (value instanceof int[]) {
+					return (T) Arrays.toString((int[]) value);
+				} else if (value instanceof long[]) {
+					return (T) Arrays.toString((long[]) value);
+				} else if (value instanceof short[]) {
+					return (T) Arrays.toString((short[]) value);
+				} else {
+					return (T) value.toString();
+				}
 
 			} else {
 				return (T) value.toString();

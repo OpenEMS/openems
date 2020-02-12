@@ -50,11 +50,11 @@ public enum OpenemsError {
 	/*
 	 * JSON Errors. 5000-5999
 	 */
-	JSON_HAS_NO_MEMBER(5000, "JSON [%s] has no member [%s]"), //
+	JSON_HAS_NO_MEMBER(5000, "JSON [%s] is not a member of [%s]"), //
 	JSON_NO_INTEGER(5019, "JSON [%s] is not an Integer"), //
 	JSON_NO_INTEGER_MEMBER(5001, "JSON [%s:%s] is not an Integer"), //
 	JSON_NO_OBJECT(5002, "JSON [%s] is not a JSON-Object"), //
-	JSON_NO_OBJECT_MEMBER(5003, "JSON [%s] is not a JSON-Object"), //
+	JSON_NO_OBJECT_MEMBER(5003, "JSON [%s] ist not a member of JSON-Object [%s]"), //
 	JSON_NO_PRIMITIVE(5004, "JSON [%s] is not a JSON-Primitive"), //
 	JSON_NO_PRIMITIVE_MEMBER(5005, "JSON [%s] is not a JSON-Primitive"), //
 	JSON_NO_ARRAY(5006, "JSON [%s] is not JSON-Array"), //
@@ -71,6 +71,7 @@ public enum OpenemsError {
 	JSON_NO_FLOAT_MEMBER(5017, "JSON [%s:%s] is not a Float"), //
 	JSON_NO_ENUM_MEMBER(5018, "JSON [%s:%s] is not an Enum"), //
 	JSON_NO_INET4ADDRESS(5020, "JSON [%s] is not an IPv4 address"), //
+	JSON_NO_ENUM(5021, "JSON [%s] is not an Enum"), //
 	/*
 	 * XML Errors. 6000-6999
 	 */

@@ -1,5 +1,9 @@
 package io.openems.edge.meter.discovergy;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -11,14 +15,30 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.session.Role;
+import io.openems.common.session.User;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.discovergy.jsonrpc.Field;
+import io.openems.edge.meter.discovergy.jsonrpc.GetFieldNamesRequest;
+import io.openems.edge.meter.discovergy.jsonrpc.GetFieldNamesResponse;
+import io.openems.edge.meter.discovergy.jsonrpc.GetMetersRequest;
+import io.openems.edge.meter.discovergy.jsonrpc.GetMetersResponse;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -28,7 +48,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
 		})
 public class MeterDiscovergy extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler, JsonApi {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -51,10 +71,9 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (config.enabled()) {
-			DiscovergyApi api = new DiscovergyApi(config.email(), config.password());
-			this.apiClient = new DiscovergyApiClient(api);
+			this.apiClient = new DiscovergyApiClient(config.email(), config.password());
 
-			this.worker = new DiscovergyWorker(this, apiClient, config.meterId());
+			this.worker = new DiscovergyWorker(this, apiClient, config);
 			this.worker.activate(config.id());
 			this.worker.triggerNextRun();
 		}
@@ -70,7 +89,8 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		REST_API_FAILED(Doc.of(Level.FAULT));
+		REST_API_FAILED(Doc.of(Level.FAULT)), //
+		LAST_READING_TOO_OLD(Doc.of(Level.FAULT));
 
 		private final Doc doc;
 
@@ -113,5 +133,63 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 	@Override
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
+	}
+
+	@Override
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+
+		switch (request.getMethod()) {
+
+		case GetMetersRequest.METHOD:
+			return this.handleGetMetersRequest(user, GetMetersRequest.from(request));
+
+		case GetFieldNamesRequest.METHOD:
+			return this.handleGetFieldNamesRequest(user, GetFieldNamesRequest.from(request));
+
+		default:
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		}
+	}
+
+	/**
+	 * Handles a GetMetersRequest.
+	 * 
+	 * <p>
+	 * See {@link DiscovergyApiClient#getMeters()}
+	 * 
+	 * @param user    the User
+	 * @param request the GetMetersRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetMetersRequest(User user, GetMetersRequest request)
+			throws OpenemsNamedException {
+		JsonArray meters = this.apiClient.getMeters();
+		GetMetersResponse response = new GetMetersResponse(request.getId(), meters);
+		return CompletableFuture.completedFuture(response);
+	}
+
+	/**
+	 * Handles a GetFieldNamesRequest.
+	 * 
+	 * <p>
+	 * See {@link DiscovergyApiClient#getFieldNames(String)}
+	 * 
+	 * @param user    the User
+	 * @param request the GetFieldNamesRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetFieldNamesRequest(User user,
+			GetFieldNamesRequest request) throws OpenemsNamedException {
+		JsonArray fieldNames = this.apiClient.getFieldNames(request.getMeterId());
+		Set<Field> fields = new HashSet<>();
+		for (JsonElement fieldNameElement : fieldNames) {
+			fields.add(JsonUtils.getAsEnum(Field.class, fieldNameElement));
+		}
+		GetFieldNamesResponse response = new GetFieldNamesResponse(request.getId(), fields);
+		return CompletableFuture.completedFuture(response);
 	}
 }

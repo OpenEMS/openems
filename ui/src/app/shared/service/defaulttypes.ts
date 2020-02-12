@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { format, isSameDay, subDays, getDay } from 'date-fns';
+import { format, getDay, isSameDay, subDays } from 'date-fns';
 
 export module DefaultTypes {
 
@@ -20,18 +20,29 @@ export module DefaultTypes {
     system: {
       // the balance sheet total power of all power that enters the the system (production, discharge, buy-from-grid), respectively leaves the system (consumption, charge, sell-to-grid)
       totalPower: number,
+      // autarchy in percent
+      autarchy: number,
+      // self consumption in percent
+      selfConsumption: number
     }, storage: {
       soc: number,
+      activePowerL1: number,
+      activePowerL2: number,
+      activePowerL3: number,
+      effectiveActivePowerL1: number,
+      effectiveActivePowerL2: number,
+      effectiveActivePowerL3: number,
       chargeActivePower: number,
-      chargeActivePowerAC: number,
-      chargeActivePowerDC: number,
+      chargeActivePowerAc: number,
+      chargeActivePowerDc: number,
       maxChargeActivePower?: number,
       dischargeActivePower: number,
-      dischargeActivePowerAC: number,
-      dischargeActivePowerDC: number,
+      dischargeActivePowerAc: number,
+      dischargeActivePowerDc: number,
       maxDischargeActivePower?: number,
       powerRatio: number,
       maxApparentPower: number,
+      effectivePower: number,
       effectiveChargePower: number,
       effectiveDischargePower: number,
       capacity: number,
@@ -39,19 +50,31 @@ export module DefaultTypes {
       powerRatio: number,
       hasDC: boolean,
       activePower: number, // sum of activePowerAC and activePowerDC
-      activePowerAC: number,
-      activePowerDC: number,
+      activePowerAc: number,
+      activePowerAcL1: number,
+      activePowerAcL2: number,
+      activePowerAcL3: number,
+      activePowerDc: number,
       maxActivePower: number
     }, grid: {
       powerRatio: number,
+      activePowerL1: number,
+      activePowerL2: number,
+      activePowerL3: number,
       buyActivePower: number,
       maxBuyActivePower: number,
       sellActivePower: number,
+      sellActivePowerL1: number,
+      sellActivePowerL2: number,
+      sellActivePowerL3: number,
       maxSellActivePower: number,
       gridMode: number
     }, consumption: {
       powerRatio: number,
-      activePower: number
+      activePower: number,
+      activePowerL1: number,
+      activePowerL2: number,
+      activePowerL3: number
     }
   }
 
@@ -63,6 +86,8 @@ export module DefaultTypes {
     code?: number,
     params?: string[]
   }
+
+  export type PeriodString = 'day' | 'week' | 'custom';
 
   export class HistoryPeriod {
 
@@ -116,15 +141,12 @@ export module DefaultTypes {
       }
       else if (isSameDay(this.from, this.to) && isSameDay(this.from, subDays(new Date(), 1))) {
         return translate.instant('Edge.History.Yesterday') + ", " + format(this.from, translate.instant('General.DateFormat'));
-      }
-      else {
-        {
-          return translate.instant(
-            'General.PeriodFromTo', {
-              value1: format(this.from, translate.instant('General.DateFormat')),
-              value2: format(this.to, translate.instant('General.DateFormat'))
-            })
-        }
+      } else {
+        return translate.instant(
+          'General.PeriodFromTo', {
+          value1: format(this.from, translate.instant('General.DateFormatShort')),
+          value2: format(this.to, translate.instant('General.DateFormat'))
+        })
       }
     }
   }

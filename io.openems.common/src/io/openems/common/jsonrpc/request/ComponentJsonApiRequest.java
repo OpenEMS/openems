@@ -29,7 +29,7 @@ public class ComponentJsonApiRequest extends JsonrpcRequest {
 	public static ComponentJsonApiRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String componentId = JsonUtils.getAsString(p, "componentId");
-		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));
+		JsonrpcRequest payload = GenericJsonrpcRequest.fromIgnoreId(JsonUtils.getAsJsonObject(p, "payload"));
 		return new ComponentJsonApiRequest(r.getId(), componentId, payload);
 	}
 

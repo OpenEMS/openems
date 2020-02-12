@@ -80,6 +80,23 @@ public interface OpenemsComponent {
 	}
 
 	/**
+	 * Returns the Service Factory-PID.
+	 * 
+	 * @return the OSGi Service Factory-PID
+	 */
+	default String serviceFactoryPid() {
+		ComponentContext context = this.getComponentContext();
+		if (context != null) {
+			Dictionary<String, Object> properties = context.getProperties();
+			Object servicePid = properties.get("service.factoryPid");
+			if (servicePid != null) {
+				return servicePid.toString();
+			}
+		}
+		return "";
+	}
+
+	/**
 	 * Returns the ComponentContext.
 	 * 
 	 * @return the OSGi ComponentContext
@@ -300,7 +317,7 @@ public interface OpenemsComponent {
 	 * @param property Name of the configuration property
 	 * @param value    New configuration value
 	 */
-	public static void updateConfigurationProperty(ConfigurationAdmin cm, String pid, String property, int value) {
+	public static void updateConfigurationProperty(ConfigurationAdmin cm, String pid, String property, Object value) {
 		Configuration c;
 		try {
 			c = cm.getConfiguration(pid, "?");

@@ -1,0 +1,6 @@
+= ESS Sell-To-Grid Limit
+
+Limits the maximum sell-to-grid power by actively charging the Ess. 
+Can be used to apply a 70 % limit to the sell-to-grid power according to German law.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.selltogridlimit[Source Code icon:github[]]

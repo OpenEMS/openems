@@ -1,5 +1,7 @@
 package io.openems.common;
 
+import java.util.Optional;
+
 import org.osgi.framework.Constants;
 
 import io.openems.common.types.SemanticVersion;
@@ -11,14 +13,14 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the year of the release
 	 */
-	public final static short VERSION_MAJOR = 2019;
+	public final static short VERSION_MAJOR = 2020;
 
 	/**
 	 * The minor version of OpenEMS.
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 9;
+	public final static short VERSION_MINOR = 4;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -30,7 +32,6 @@ public class OpenemsConstants {
 	/**
 	 * The additional version string
 	 */
-	// public final static String VERSION_STRING = "";
 	public final static String VERSION_STRING = "SNAPSHOT";
 
 	/**
@@ -104,4 +105,17 @@ public class OpenemsConstants {
 	public final static String PROPERTY_FACTORY_PID = "service.factoryPid";
 	public final static String PROPERTY_LAST_CHANGE_BY = "_lastChangeBy";
 	public final static String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
+
+	private static final String OPENEMS_DATA_DIR = "openems.data.dir";
+
+	/**
+	 * Gets the path of the OpenEMS Data Directory, configured by "openems.data.dir"
+	 * command line parameter.
+	 * 
+	 * @return the path of the OpenEMS Data Directory
+	 */
+	public final static String getOpenemsDataDir() {
+		return Optional.ofNullable(System.getProperty(OPENEMS_DATA_DIR)).orElse("");
+	}
+
 }

@@ -10,7 +10,7 @@ import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
 public class Fieldbus523RO1Ch extends FieldbusModule {
 
-	private final static String ID_TEMPLATE = "RELAY_M";
+	private static final String ID_TEMPLATE = "RELAY_M";
 
 	private final AbstractModbusElement<?>[] inputElements;
 	private final AbstractModbusElement<?>[] outputElements;
@@ -22,7 +22,7 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 		BooleanWriteChannel channel1;
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
-					.accessMode(AccessMode.WRITE_ONLY);
+					.accessMode(AccessMode.READ_WRITE);
 			FieldbusChannelId channelId = new FieldbusChannelId(id, doc);
 			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
 		}

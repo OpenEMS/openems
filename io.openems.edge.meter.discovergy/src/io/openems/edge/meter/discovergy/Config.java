@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Meter Discovergy", //
 		description = "Implements the Discovergy smart meter.")
 @interface Config {
@@ -29,8 +29,14 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Authentication Password", description = "Password for your my.discovergy.com access.", type = AttributeType.PASSWORD)
 	String password() default "";
 
-	@AttributeDefinition(name = "Discovergy MeterId", description = "Internal MeterId. If not provided, the first meter is taken", required = false)
+	@AttributeDefinition(name = "Discovergy MeterId", description = "Internal MeterId. This is a hex string with length 32.", required = false)
 	String meterId() default "";
+
+	@AttributeDefinition(name = "Discovergy Serial-Number", description = "Serial-Number of the meter, e.g. 12345678. See https://my.discovergy.com/readings", required = false)
+	String serialNumber() default "";
+
+	@AttributeDefinition(name = "Discovergy Full Serial-Number", description = "Full Serial-Number of the meter, e.g. 1ESY1234567890.", required = false)
+	String fullSerialNumber() default "";
 
 	String webconsole_configurationFactory_nameHint() default "Meter Discovergy [{id}]";
 }

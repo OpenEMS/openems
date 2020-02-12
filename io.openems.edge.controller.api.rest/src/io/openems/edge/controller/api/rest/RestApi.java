@@ -7,6 +7,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +22,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiWorker;
+import io.openems.edge.controller.api.common.ApiWorker;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -42,6 +46,9 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 
 	@Reference
 	protected UserService userService;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -124,5 +131,18 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 
 	protected boolean isDebugModeEnabled() {
 		return isDebugModeEnabled;
+	}
+
+	/**
+	 * Gets the Timedata service.
+	 * 
+	 * @return the service
+	 * @throws OpenemsException if the timeservice is not available
+	 */
+	public Timedata getTimedata() throws OpenemsException {
+		if (this.timedata != null) {
+			return this.timedata;
+		}
+		throw new OpenemsException("There is no Timedata-Service available!");
 	}
 }

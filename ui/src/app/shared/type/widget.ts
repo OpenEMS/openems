@@ -2,18 +2,23 @@ import { EdgeConfig } from '../edge/edgeconfig';
 import { Edge } from '../edge/edge';
 
 export enum WidgetClass {
+    'Autarchy',
+    'Selfconsumption',
     'Storage',
     'Grid',
     'Production',
-    'Consumption'
+    'Consumption',
+    'Energymonitor'
 }
 
 export enum WidgetNature {
     'io.openems.edge.evcs.api.Evcs',
-    'io.openems.impl.controller.channelthreshold.ChannelThresholdController' // TODO deprecated
+    'io.openems.impl.controller.channelthreshold.ChannelThresholdController', // TODO deprecated
 }
 
 export enum WidgetFactory {
+    'Evcs.Cluster.SelfConsumtion',
+    'Evcs.Cluster.PeakShaving',
     'Controller.Api.ModbusTcp',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
@@ -28,6 +33,7 @@ export class Widget {
 export class Widgets {
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
+
         let classes: WidgetClass[] = Object.values(WidgetClass) //
             .filter(v => typeof v === 'string')
             .filter(clazz => {
@@ -35,19 +41,27 @@ export class Widgets {
                     // no filter for deprecated versions
                     return true;
                 }
-
                 switch (clazz) {
+                    case 'Autarchy':
                     case 'Grid':
+                        return config.hasMeter();
+                    case 'Energymonitor':
                     case 'Consumption':
-                        return true; // Always show Grid + Consumption
+                        if (config.hasMeter() == true || config.hasProducer() == true || config.hasStorage() == true) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     case 'Storage':
-                        return config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 0;
+                        return config.hasStorage();
                     case 'Production':
-                        return true; // TODO evaluate if there is a production unit
+                    case 'Selfconsumption':
+                        return config.hasProducer();
                 };
                 return false;
             }).map(clazz => clazz.toString());
         let list: Widget[] = [];
+
         for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
             for (let componentId of config.getComponentIdsImplementingNature(nature)) {
                 list.push({ name: nature, componentId: componentId });

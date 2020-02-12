@@ -27,7 +27,6 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 	private final Logger log = LoggerFactory.getLogger(KebaKeContactCoreImpl.class);
 	private final List<BiConsumer<InetAddress, String>> onReceiveCallbacks = new CopyOnWriteArrayList<>();
 	private ReceiveWorker receiveWorker = null;
-	
 
 	@Activate
 	void activate() throws OpenemsException {
@@ -49,17 +48,17 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 
 	private class ReceiveWorker extends AbstractImmediateWorker {
 
-		private final DatagramSocket socket;
+		private DatagramSocket socket;
 
 		private ReceiveWorker(int port) throws OpenemsException {
 			try {
 				this.socket = new DatagramSocket(port);
 			} catch (SocketException e) {
 				throw new OpenemsException("Unable to open port [" + port
-						+ "] to receive UDP messages from KEBA KeContact: " + e.getMessage());
+						+ "] to receive UDP messages from KEBA KeContact. " + e.getMessage());
 			}
 		}
-
+ 
 		@Override
 		public void activate(String name) {
 			super.activate(name);
@@ -68,17 +67,17 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 
 		@Override
 		public void deactivate() {
+			this.socket.close();
 			super.deactivate();
 			log.info("Stopped Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
 		}
 
 		@Override
 		protected void forever() {
-			
 			// Wait for message
 			DatagramPacket packet = new DatagramPacket(new byte[512], 512);
 			try {
-				socket.receive(packet);
+ 				socket.receive(packet);
 			} catch (IOException e) {
 				log.error("Error while receiving data from KEBA KeContact: " + e.getMessage());
 			}

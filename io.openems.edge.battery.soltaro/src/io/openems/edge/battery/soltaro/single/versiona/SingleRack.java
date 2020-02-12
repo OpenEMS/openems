@@ -65,7 +65,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
-	
+
 	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
 
 	private Config config;
@@ -113,7 +113,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
-		this.getCapacity().setNextValue(config.capacity());
+		this.getCapacity().setNextValue(config.capacity() * 1000);
 		initializeCallbacks();
 	}
 
@@ -123,8 +123,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void initializeCallbacks() {
-		this.channel(ChannelId.BMS_CONTACTOR_CONTROL).onChange(value -> {
-			ContactorControl cc = value.asEnum();
+		this.channel(ChannelId.BMS_CONTACTOR_CONTROL).onChange((oldValue, newValue) -> {
+			ContactorControl cc = newValue.asEnum();
 
 			switch (cc) {
 			case CONNECTION_INITIATING:
@@ -281,15 +281,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					this.pendingTimestamp = null;
 				}
 			}
-			break;
-		case ERROR_CELL_VOLTAGES_DRIFT:
-			// not possible to handle in version A
-			this.setStateMachineState(State.UNDEFINED);
-			break;
-		case ONE_CELL_DRIFTING:
-			// not possible to handle in version A
-			this.setStateMachineState(State.UNDEFINED);
-			break;
+			break;		
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);

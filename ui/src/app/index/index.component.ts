@@ -23,7 +23,7 @@ export class IndexComponent {
   public filteredEdges: Edge[] = [];
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  private slice: number = 20;
+  public slice: number = 20;
 
   constructor(
     public websocket: Websocket,
@@ -56,7 +56,8 @@ export class IndexComponent {
       .filter(edgeId => {
         let edge = allEdges[edgeId];
         if (/* name */ edge.id.toLowerCase().includes(filter)
-          || /* comment */ edge.comment.toLowerCase().includes(filter)) {
+          || /* comment */ edge.comment.toLowerCase().includes(filter)
+          || /* producttype */ edge.producttype.toLowerCase().includes(filter)) {
           return true;
         }
         return false;
