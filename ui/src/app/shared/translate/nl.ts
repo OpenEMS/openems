@@ -92,7 +92,7 @@ export const TRANSLATION = {
                     peakshaving: 'Piek scheren',
                     peakshavingPower: 'Afvoer voorbij',
                     rechargePower: 'Bezig met laden onder',
-                    relationError: 'De afvoerwaarde moet groter zijn dan of gelijk zijn aan de laadwaarde',
+                    relationError: 'Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet',
                     asymmetricInfo: 'De ingevoerde prestatiewaarden verwijzen naar afzonderlijke fasen. Het is aangepast aan de meest gestresste fase.',
                     mostStressedPhase: 'Meest gestresste fase'
                 },

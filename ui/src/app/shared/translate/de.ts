@@ -111,7 +111,7 @@ export const TRANSLATION = {
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
                     rechargePower: 'Beladung unter',
-                    relationError: 'Entladungswert muss größer oder gleich dem Beladungswert sein',
+                    relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
                     asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
                     mostStressedPhase: 'Meist belastete Phase'
                 },

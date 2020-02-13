@@ -95,7 +95,7 @@ export const TRANSLATION = {
                     peakshaving: 'Afeitado máximo',
                     peakshavingPower: 'Descarga sobre',
                     rechargePower: 'Cargando debajo',
-                    relationError: 'El valor de descarga debe ser mayor o igual que el valor de carga',
+                    relationError: 'Límite de descarga debe ser mayor o igual que el límite de carga',
                     asymmetricInfo: 'Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.',
                     mostStressedPhase: 'Fase mayormente estresada'
                 },

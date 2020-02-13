@@ -95,7 +95,7 @@ export const TRANSLATION = {
                     peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
                     rechargePower: 'Charge below',
-                    relationError: 'Discharge value must be greater than or equal to the load value',
+                    relationError: 'Discharge limit must be greater than or equal to the load limit',
                     asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
                     mostStressedPhase: 'Most stressed phase'
                 },
