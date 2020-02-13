@@ -95,7 +95,7 @@ export const TRANSLATION = {
                     peakshaving: 'špičkové holení',
                     peakshavingPower: 'Uvolnění',
                     rechargePower: 'Načítání pod',
-                    relationError: 'Vypouštěcí hodnota musí být větší nebo rovna hodnotě zatížení'
+                    relationError: 'Mez vypouštění musí být větší nebo rovna limitu zatížení'
                 },
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",

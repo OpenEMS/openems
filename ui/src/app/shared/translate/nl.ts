@@ -93,7 +93,7 @@ export const TRANSLATION = {
                     peakshaving: 'Piek scheren',
                     peakshavingPower: 'Afvoer voorbij',
                     rechargePower: 'Bezig met laden onder',
-                    relationError: 'De afvoerwaarde moet groter zijn dan of gelijk zijn aan de laadwaarde'
+                    relationError: 'Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet'
                 },
                 phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",

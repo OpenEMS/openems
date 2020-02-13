@@ -96,7 +96,7 @@ export const TRANSLATION = {
                     peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
                     rechargePower: 'Charge below',
-                    relationError: 'Discharge value must be greater than or equal to the load value'
+                    relationError: 'Discharge limit must be greater than or equal to the load limit'
                 },
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
