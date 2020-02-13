@@ -3,12 +3,9 @@ import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { RangeValue } from '@ionic/core';
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
-type Priority = 'TIME' | 'KILO_WATT_HOUR';
-
 
 
 @Component({
@@ -29,8 +26,7 @@ export class HeatingElementModalComponent implements OnInit {
 
     public pickerOptions: any;
     public formGroup: FormGroup;
-    public priority: Priority
-
+    public loading: boolean = false;
 
     constructor(
         protected service: Service,
@@ -39,61 +35,21 @@ export class HeatingElementModalComponent implements OnInit {
         protected translate: TranslateService,
         public modalCtrl: ModalController,
         public formBuilder: FormBuilder
-    ) {
-        this.pickerOptions = {
-            buttons: [
-                {
-                    text: this.translate.instant('General.Cancel'),
-                    role: 'cancel'
-                },
-                {
-                    text: 'OK',
-                    handler: (value: any): void => {
-                        this.formGroup.controls['endTime'].setValue(value.hour.text + ':' + value.minute.text);
-                        if (this.edge != null) {
-                            let endTime = value.hour.text + ':' + value.minute.text;
-                            let oldTime = this.controller.properties['endTime'];
-                            this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-                                { name: 'endTime', value: endTime }
-                            ]).then(() => {
-                                this.controller.properties['endTime'] = endTime;
-                                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
-                            }).catch(reason => {
-                                this.controller.properties['endTime'] = oldTime;
-                                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
-                                console.warn(reason);
-                            });
-                        }
-                    },
-                },
-            ],
-        }
-    }
+    ) { }
 
     ngOnInit() {
-        this.priority = this.getPriority();
         this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.componentId, [
             new ChannelAddress(this.componentId, 'TotalPhasePower'),
             new ChannelAddress(this.componentId, 'TotalPhaseTime')
         ]);
 
         this.formGroup = this.formBuilder.group({
-            minimumRuntime: new FormControl(this.controller.properties.minTime),
-            minimumEnergy: new FormControl(this.controller.properties.minkwh),
+            minTime: new FormControl(this.controller.properties.minTime),
+            minkwh: new FormControl(this.controller.properties.minkwh),
             endTime: new FormControl(this.controller.properties.endTime),
             priority: new FormControl(this.controller.properties.priority),
         })
     };
-
-    getPriority(): Priority {
-        if (this.controller.properties.priority == 'TIME') {
-            return 'TIME';
-        } else if (this.controller.properties.priority == 'KILO_WATT_HOUR') {
-            return 'KILO_WATT_HOUR';
-        } else {
-            return null;
-        }
-    }
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldMode = currentController.properties.mode;
@@ -125,109 +81,53 @@ export class HeatingElementModalComponent implements OnInit {
         }
     }
 
-    /**
-     * Updates the minimum active time
-     *
-     * @param event
-     */
-    updateMinTime(event: CustomEvent, currentController: EdgeConfig.Component) {
-        this.formGroup.controls['minimumRuntime'].setValue(event);
-
-
-
-        let oldMinTime = currentController.properties.minTime;
-        let newMinTime = event;
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'minTime', value: newMinTime }
-            ]).then(() => {
-                currentController.properties.minTime = newMinTime;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
-            }).catch(reason => {
-                currentController.properties.minTime = oldMinTime;
-                console.warn(reason);
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
-            });
-        }
+    updateEndTime(event: CustomEvent) {
+        this.formGroup.controls['endTime'].setValue(event.detail.value);
+        this.formGroup.controls['endTime'].markAsDirty()
     }
 
-    /**
-     * Updates the minimum energy to be active
-     *
-     * @param event
-     */
-    updateMinKwh(event: CustomEvent, currentController: EdgeConfig.Component) {
-        this.formGroup.controls['minimumEnergy'].setValue(event);
-
-
-        let oldMinKwh = currentController.properties.minkwh;
-        let newMinKwh = event;
-
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'minkwh', value: newMinKwh }
-            ]).then(() => {
-                currentController.properties.minkwh = newMinKwh;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
-            }).catch(reason => {
-                currentController.properties.minkwh = oldMinKwh;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
-                console.warn(reason);
-            });
-        }
+    updateMinTime(event: CustomEvent) {
+        this.formGroup.controls['minTime'].setValue(event.detail.value);
+        this.formGroup.controls['minTime'].markAsDirty();
     }
 
+    updateMinKwh(event: CustomEvent) {
+        this.formGroup.controls['minkwh'].setValue(event.detail.value);
+        this.formGroup.controls['minkwh'].markAsDirty()
+    }
 
-    /**  
-     * Updates the Charge-Mode of the EVCS-Controller.
-     * 
-     * @param event 
-     */
-    updateProcedureMode(event: any, currentController: EdgeConfig.Component) {
-        this.priority = event;
-        this.formGroup.controls['priority'].setValue(event);
+    updatePriorityMode(event: CustomEvent) {
+        this.formGroup.controls['priority'].setValue(event.detail.value);
+        this.formGroup.controls['priority'].markAsDirty()
+    }
 
-        if (this.edge != null) {
-            let oldProcedureMode = this.controller.properties['priority'];
-            let newProcedureMode: string;
-            switch (event.detail.value) {
-                case 'TIME':
-                    newProcedureMode = 'TIME';
-                    break;
-                case 'KILO_WATT_HOUR':
-                    newProcedureMode = 'KILO_WATT_HOUR'
-                    break;
+    applyChanges() {
+        let updateComponentArray = [];
+        Object.keys(this.formGroup.controls).forEach((element, index) => {
+            if (this.formGroup.controls[element].dirty) {
+                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
             }
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'Priority', value: newProcedureMode },
-            ]).then(() => {
-                currentController.properties.priority = newProcedureMode;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
-            }).catch(reason => {
-                currentController.properties.priority = oldProcedureMode;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
-                console.warn(reason);
-            });
-        }
-    }
-
-    updateEndTime(event: CustomEvent, currentController: EdgeConfig.Component) {
-        let oldTime = currentController.properties['endTime'];
-        let newTime = event.detail.value;
-        this.formGroup.controls['endtime'].setValue(event.detail.value);
-
+        });
 
         if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'endTime', value: newTime }
-            ]).then(() => {
-                currentController.properties['endTime'] = newTime;
+            this.loading = true;
+            this.edge.updateComponentConfig(this.websocket, this.controller.id, updateComponentArray).then(() => {
+                this.controller.properties.minTime = this.formGroup.value.minTime;
+                this.controller.properties.minkwh = this.formGroup.value.minkwh;
+                this.controller.properties.endTime = this.formGroup.value.endTime;
+                this.controller.properties.priority = this.formGroup.value.priority;
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                this.loading = false;
             }).catch(reason => {
-                currentController.properties['endTime'] = oldTime;
+                this.formGroup.controls['minTime'].setValue(this.controller.properties.minTime);
+                this.formGroup.controls['minkwh'].setValue(this.controller.properties.minkwh);
+                this.formGroup.controls['endTime'].setValue(this.controller.properties.endTime);
+                this.formGroup.controls['priority'].setValue(this.controller.properties.priority);
                 this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.loading = false;
                 console.warn(reason);
             });
+            this.formGroup.markAsPristine()
         }
     }
 

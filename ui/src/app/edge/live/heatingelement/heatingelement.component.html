@@ -2,7 +2,7 @@
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card button (click)="presentModal()">
             <ion-item lines="full" color="light">
-                <ion-icon class="ion-no-margin" slot="start" size="large" color="danger" name="flame"></ion-icon>
+                <ion-icon slot="start" color="danger" name="flame"></ion-icon>
                 <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
                 <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
             </ion-item>
@@ -28,49 +28,20 @@
                     <tr>
                         <td style="width:65%" translate>General.State</td>
                         <td style="width:35%" class="align_right" translate>
-                            <ion-icon *ngIf="currentData.channel[outputChannelPhaseOne] == null && currentData.channel[outputChannelPhaseTwo] == null 
-                                && currentData.channel[outputChannelPhaseThree] == null" name="help"></ion-icon>
-                            <ng-container *ngIf="currentData.channel[outputChannelPhaseOne] == 1 || currentData.channel[outputChannelPhaseTwo] == 1 
-                                || currentData.channel[outputChannelPhaseThree] == 1">
+                            <ng-container *ngIf="(activePhases | async) > 0">
                                 General.Active
                             </ng-container>
-                            <ng-container *ngIf="currentData.channel[outputChannelPhaseOne] == 0 || currentData.channel[outputChannelPhaseOne] == 0 
-                                || currentData.channel[outputChannelPhaseOne] == 0">
+                            <ng-container *ngIf="(activePhases | async) == 0">
                                 General.Inactive
                             </ng-container>
                         </td>
                     </tr>
-                    <tr *ngIf="currentData.channel[outputChannelPhaseOne] == 1 || currentData.channel[outputChannelPhaseTwo] == 1 
-                    || currentData.channel[outputChannelPhaseThree] == 1">
+                    <tr *ngIf="(activePhases | async) > 0">
                         <td style="width: 65%" translate>
                             Edge.Index.Widgets.Heatingelement.ActivePhases
                         </td>
                         <td style="width:35%" class="align_right">
-                            {{ getActivePhases() }}</td>
-                    </tr>
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Heatingelement.Priority
-                        </td>
-                        <td style="width:35%" class="align_right"
-                            *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'" translate>
-                            Edge.Index.Widgets.Heatingelement.Energy</td>
-                        <td style="width:35%" class="align_right" *ngIf="controller.properties['priority'] == 'TIME'"
-                            translate>
-                            Edge.Index.Widgets.Heatingelement.Time</td>
-                    </tr>
-                    <tr *ngIf="controller.properties['priority'] == 'TIME'">
-                        <td style="width:65%" translate>
-                            Edge.Index.Widgets.Heatingelement.Endtime</td>
-                        <td style="width:35%" class="align_right">
-                            {{ controller.properties['endTime'] }}
-                        </td>
-                    </tr>
-                    <tr *ngIf="controller.properties['priority'] == 'KILO_WATT_HOUR'">
-                        <td style="width:65%" translate>
-                            Edge.Index.Widgets.Heatingelement.MinimalEnergyAmount</td>
-                        <td style="width:35%" class="align_right">
-                            {{controller.properties['minkwh'] | unitvalue:'kWh'}}</td>
+                            {{ (activePhases | async) }}</td>
                     </tr>
                 </table>
             </ion-card-content>
