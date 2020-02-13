@@ -70,25 +70,27 @@ export class Edge {
    * Refresh the config.
    */
   private refreshConfig(websocket: Websocket): void {
-    // make sure to send not faster than every 500 ms
-    if (this.refreshConfigTimeout == null) {
-      this.refreshConfigTimeout = setTimeout(() => {
-        // reset refreshConfigTimeout
-        this.refreshConfigTimeout = null;
-
-        let request = new GetEdgeConfigRequest();
-        this.sendRequest(websocket, request).then(response => {
-          let edgeConfigResponse = response as GetEdgeConfigResponse;
-          this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
-        }).catch(reason => {
-          console.warn("refreshConfig got error", reason)
-          // TODO error
-          this.config.next(new EdgeConfig(this));
-        });
-      }, 500);
+    // make sure to send not faster than every 1000 ms
+    if (this.isRefreshConfigBlocked) {
+      return;
     }
+    // block refreshConfig()
+    this.isRefreshConfigBlocked = true;
+    setTimeout(() => {
+      // unblock refreshConfig()
+      this.isRefreshConfigBlocked = false;
+    }, 1000);
+
+    let request = new GetEdgeConfigRequest();
+    this.sendRequest(websocket, request).then(response => {
+      let edgeConfigResponse = response as GetEdgeConfigResponse;
+      this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
+    }).catch(reason => {
+      console.warn("Unable to refresh config", reason)
+      this.config.next(new EdgeConfig(this));
+    });
   }
-  private refreshConfigTimeout: any = null;
+  private isRefreshConfigBlocked: boolean = false;
 
   /**
    * Add Channels to subscription
