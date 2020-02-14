@@ -232,12 +232,12 @@ public class SoltaroGridcon extends AbstractOpenemsModbusComponent
 
 	@Override
 	public float getMinimalCellVoltage() {
-		return ((float) getMinCellVoltage().value().orElse(0)) / 1000;
+		return ((float) getMinCellVoltage().value().orElse(Integer.MAX_VALUE)) / 1000;
 	}
 
 	@Override
 	public float getMaximalCellVoltage() {
-		return ((float) getMaxCellVoltage().value().orElse(0)) / 1000;
+		return ((float) getMaxCellVoltage().value().orElse(Integer.MAX_VALUE)) / 1000;
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

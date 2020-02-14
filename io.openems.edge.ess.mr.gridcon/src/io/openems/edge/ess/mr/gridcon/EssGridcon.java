@@ -116,7 +116,10 @@ protected abstract ComponentManager getComponentManager();
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string c
 		}
+
 	}
+
+
 
 	@Deactivate
 	protected void deactivate() {
@@ -136,6 +139,7 @@ protected abstract ComponentManager getComponentManager();
 				calculateAllowedPowerAndCapacity();
 				calculateSoc();
 				calculateActivePower();
+				calculateMinCellVoltage();
 
 //				weightingMap = getWeightingMap();
 //				stringControlMode = getStringControlMode();
@@ -154,6 +158,28 @@ protected abstract ComponentManager getComponentManager();
 		}
 	}
 	
+
+	private void calculateMinCellVoltage() {
+		
+		float minCellVoltage = Float.MAX_VALUE;
+		
+		if (batteryA != null) {
+			minCellVoltage = Math.min(minCellVoltage, batteryA.getMinimalCellVoltage());
+		}
+		
+		if (batteryB != null) {
+			minCellVoltage = Math.min(minCellVoltage, batteryB.getMinimalCellVoltage());
+		}
+		
+		if (batteryC != null) {
+			minCellVoltage = Math.min(minCellVoltage, batteryC.getMinimalCellVoltage());
+		}
+		
+		int minCellVoltageMilliVolt = (int) (minCellVoltage * 1000);
+		
+		getMinCellVoltage().setNextValue(minCellVoltageMilliVolt);
+		
+	}
 
 	private void writeChannelValues() throws OpenemsNamedException {
 		this.channel(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.STATE_MACHINE)
