@@ -4,29 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
-import io.openems.edge.ess.mr.gridcon.GridconPCSImpl;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.State;
-import io.openems.edge.ess.mr.gridcon.enums.Mode;
-import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
+import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 
 public class Stopped extends BaseState implements State {
 
 	private final Logger log = LoggerFactory.getLogger(Stopped.class);
 
-	private boolean enableIPU1 = false;
-	private boolean enableIPU2 = false;
-	private boolean enableIPU3 = false;
-	private ParameterSet parameterSet = ParameterSet.SET_1;
-	
-	public Stopped(EssGridcon gridconPCS, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet) {
-		super(gridconPCS);
-		this.enableIPU1 = enableIPU1;
-		this.enableIPU2 = enableIPU2;
-		this.enableIPU3 = enableIPU3;
-		this.parameterSet = parameterSet;
+	public Stopped(EssGridcon gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
+		super(gridconPCS, b1, b2, b3);
 	}
 
 	@Override
@@ -67,15 +54,6 @@ public class Stopped extends BaseState implements State {
 		if (isBatteriesStarted()) {
 			gridconPCS.start();
 		}
-	}
-
-	private void startBatteries() {
-//TODO		
-	}
-
-	private boolean isBatteriesStarted() {
-//TODO
-		return true;
 	}
 
 	

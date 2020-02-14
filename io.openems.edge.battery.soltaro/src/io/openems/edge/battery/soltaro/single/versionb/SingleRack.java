@@ -949,7 +949,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(0x2100, Priority.LOW,
 						m(SingleRackChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SingleRackChannelId.CLUSTER_1_CURRENT, new UnsignedWordElement(0x2101),
+						m(SingleRackChannelId.CLUSTER_1_CURRENT, new SignedWordElement(0x2101),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),

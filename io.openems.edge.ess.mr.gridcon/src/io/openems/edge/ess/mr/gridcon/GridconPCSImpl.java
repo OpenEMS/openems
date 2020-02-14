@@ -177,11 +177,15 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 //				+ "|" + this.getGridMode().value().asOptionString();
 	}
 
-	@Override
 	public boolean isIdle() {
-		return getCcuState() == CCUState.SYNC_TO_V;
+		return isStopped();
 	}
 
+	@Override
+	public boolean isStopped() {
+		return getCcuState() == CCUState.SYNC_TO_V || getCcuState() == CCUState.IDLE_CURRENTLY_NOT_WORKING;
+	}
+	
 	@Override
 	public boolean isRunning() {
 		return getCcuState() == CCUState.COMPENSATOR;
@@ -996,9 +1000,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 
 	@Override
 	public int getErrorCode() {
-		IntegerReadChannel channel = channel(GridConChannelId.CCU_ERROR_CODE);
-		int code = channel.value().orElse(0);
-		return code;
+		return getInteger(GridConChannelId.CCU_ERROR_CODE);		
 	}
 
 	@Override
@@ -1024,6 +1026,11 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 	private float getFloat(GridConChannelId id) {
 		FloatReadChannel c = this.channel(id);
 		return c.value().orElse(0f);
+	}
+	
+	private int getInteger(GridConChannelId id) {
+		IntegerReadChannel c = this.channel(id);
+		return c.value().orElse(Integer.MIN_VALUE);
 	}
 
 	@Override
@@ -1256,4 +1263,10 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 		}
 		return this.dcdcControlCommandWord;
 	}
+
+	@Override
+	public Integer getErrorCount() {
+		return getInteger(GridConChannelId.CCU_ERROR_COUNT);
+	}
+
 }

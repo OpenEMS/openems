@@ -6,13 +6,14 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.State;
+import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 
 public class Undefined extends BaseState implements State {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
-	public Undefined(EssGridcon gridconPCS) {
-		super(gridconPCS);
+	public Undefined(EssGridcon gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
+		super(gridconPCS, b1, b2, b3);
 	}
 
 	@Override
@@ -31,11 +32,15 @@ public class Undefined extends BaseState implements State {
 			return io.openems.edge.ess.mr.gridcon.ongrid.State.ERROR;
 		}
 		
-		if (gridconPCS.isRunning()) {
+		if (isNextStateRunning()) {
 			return io.openems.edge.ess.mr.gridcon.ongrid.State.RUN;
 		}
 		
-		return io.openems.edge.ess.mr.gridcon.ongrid.State.STOPPED;
+		if (isNextStateStopped()) {
+			return io.openems.edge.ess.mr.gridcon.ongrid.State.STOPPED;
+		}
+		
+		return io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED;
 	}
 
 	

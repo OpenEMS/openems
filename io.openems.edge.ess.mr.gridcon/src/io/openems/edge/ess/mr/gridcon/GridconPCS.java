@@ -10,8 +10,8 @@ import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
  */
 public interface GridconPCS {
 	float getMaxApparentPower();
-	boolean isIdle();
 	boolean isRunning();
+	boolean isStopped();
 	boolean isError();
 	void setPower(int activePower, int reactivePower);
 	void stop();
@@ -52,4 +52,6 @@ public interface GridconPCS {
 	void setWeightStringC(Float weight);
 	void setStringControlMode(int stringControlMode);
 	void enableDCDC();
+	Integer getErrorCount();
+	
 }

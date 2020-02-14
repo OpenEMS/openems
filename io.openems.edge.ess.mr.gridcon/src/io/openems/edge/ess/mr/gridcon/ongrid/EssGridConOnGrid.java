@@ -17,10 +17,12 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
 import io.openems.edge.ess.mr.gridcon.StateController;
+import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
@@ -35,20 +37,13 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 	@Reference
 	protected ComponentManager componentManager;
 	
-
 	@Reference
 	private Power power;
 
-	private io.openems.edge.ess.mr.gridcon.State stateObject = null;
 	private Config config;
 
 	public EssGridConOnGrid() {
-		super(//
-				
-//				new io.openems.edge.ess.mr.gridcon.ongrid.ChannelId[] { ChannelId.values(); }
-//				//, //
-////				io.openems.edge.battery.soltaro.controller.ChannelId.values() //
-		);
+		super(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.values());
 	}
 
 	@Activate
@@ -57,51 +52,44 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 
 		this.checkConfiguration(config);
 		this.config = c;
-		StateController.initOnGrid(this, config);
-		this.stateObject = StateController.getStateObject(State.UNDEFINED);
+		SoltaroBattery b1 = null;
+		try {
+			b1 = componentManager.getComponent(config.bms_a_id());
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+		SoltaroBattery b2 = null; 
+				try {
+					b2 = componentManager.getComponent(config.bms_b_id());
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+		SoltaroBattery b3 = null;
+				try {
+					b3 = componentManager.getComponent(config.bms_c_id());
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+		StateController.initOnGrid(this, config, b1, b2, b3);
+		stateObject = StateController.getStateObject(State.UNDEFINED);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
-
+	
 	@Override
 	public void handleEvent(Event event) {
-		if (!isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			try {
-				// prepare calculated Channels
-				calculateGridMode();
-				calculateBatteryData();
-				calculateSoc();
-				calculateActivePower();
-
-				weightingMap = getWeightingMap();
-				stringControlMode = getStringControlMode();
-
-				io.openems.edge.ess.mr.gridcon.IState nextState = this.stateObject.getNextState();
-				this.stateObject = StateController.getStateObject(nextState);
-				this.stateObject.act();
-				this.writeChannelValues();
-
-//				channel(ChannelId.STATE_CYCLE_ERROR).setNextValue(false);
-			} catch (IllegalArgumentException | OpenemsNamedException e) {
-//				channel(ChannelId.STATE_CYCLE_ERROR).setNextValue(true);
-//				logError(log, "State-Cycle Error: " + e.getMessage());
-			}
-			break;
-		}
+		super.handleEvent(event);
 	}
 	
-
-	private void writeChannelValues() throws OpenemsNamedException {
-		this.channel(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateObject.getState());
+	protected void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
+		GridMode gridMode = GridMode.ON_GRID;
+		getGridMode().setNextValue(gridMode);
 	}
+
 
 	@Override
 	public String debugLog() {
@@ -120,6 +108,7 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 	@Override
 	protected ComponentManager getComponentManager() {
 		return componentManager;
+		
 	}
 
 }
