@@ -23,13 +23,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String inputChannelAddress() default "_sum/GridActivePower";
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress1();
+	String outputChannelAddress1() default "io0/Relay4";
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress2();
+	String outputChannelAddress2() default "io0/Relay5";
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress3();
+	String outputChannelAddress3() default "io0/Relay6";
 
 	@AttributeDefinition(name = "End Time", description = "End time to check the minmum run time")
 	String endTime() default "17:00:00";

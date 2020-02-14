@@ -99,21 +99,21 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				.unit(Unit.NONE)), //
 		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)), //
 		PHASE1_TIME(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
+				.unit(Unit.SECONDS)), //
 		PHASE2_TIME(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
+				.unit(Unit.SECONDS)), //
 		PHASE3_TIME(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
-		PHASE1_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
-		PHASE2_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
-		PHASE3_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
-		TOTAL_PHASE_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
+				.unit(Unit.SECONDS)), //
+		PHASE1_POWER(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)), //
+		PHASE2_POWER(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)), //
+		PHASE3_POWER(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)), //
+		TOTAL_PHASE_POWER(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)), //
 		TOTAL_PHASE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.NONE)),; //
+				.unit(Unit.SECONDS)),; //
 
 		private final Doc doc;
 
@@ -227,6 +227,20 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
 		this.channel(ChannelId.TOTAL_PHASE_POWER).setNextValue(this.totalPhasePower);
+		
+		int i1 = (int) this.channel(ChannelId.PHASE1_TIME).getNextValue().getOrError();
+		int i2 = (int) this.channel(ChannelId.PHASE2_TIME).getNextValue().getOrError();
+		int i3 = (int) this.channel(ChannelId.PHASE3_TIME).getNextValue().getOrError();
+		this.logInfo(log, String.valueOf(i1));
+		this.logInfo(log, String.valueOf(i2));
+		this.logInfo(log, String.valueOf(i3));
+		
+		double e1 = (double) this.channel(ChannelId.PHASE1_POWER).getNextValue().getOrError();
+		double e2 = (double) this.channel(ChannelId.PHASE2_POWER).getNextValue().getOrError();
+		double e3 = (double) this.channel(ChannelId.PHASE3_POWER).getNextValue().getOrError();
+		this.logInfo(log, String.valueOf(e1));
+		this.logInfo(log, String.valueOf(e2));
+		this.logInfo(log, String.valueOf(e3));
 	}
 
 	/**
@@ -285,7 +299,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				p.phaseTimeOn = null;
 				p.phaseTimeOff = null;
 				p.totalPhasePower = 0;
-				p.totalPhaseTime = 0;
+				p.totalPhaseTime = 0;				
+				p.timeStopwatch.reset();
+				
 			}
 
 			minTime = this.config.minTime();
@@ -376,6 +392,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 				this.channel(ChannelId.PRIORITY).setNextValue(this.priority);
 				this.channel(ChannelId.NO_OF_RELAIS_ON).setNextValue(noRelaisSwitchedOn);
+				
+
 			}
 		}
 	}

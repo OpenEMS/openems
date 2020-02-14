@@ -1,11 +1,13 @@
 package io.openems.edge.controller.heatingelement;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -18,8 +20,10 @@ public class PhaseDef {
 	private final ControllerHeatingElement parent;
 	LocalDateTime phaseTimeOn = null;
 	LocalDateTime phaseTimeOff = null;
-	long totalPhaseTime = 0;
-	long totalPhasePower = 0;
+	LocalDateTime lastRunningTimeCheck = null;
+	long totalPhaseTime = 0; // milliseconds
+	Stopwatch timeStopwatch = Stopwatch.createUnstarted();
+	double totalPhasePower = 0;
 	ChannelAddress outputChannelAddress;
 
 	ComponentManager componentManager;
@@ -42,39 +46,26 @@ public class PhaseDef {
 	public void computeTime() throws IllegalArgumentException, OpenemsNamedException {
 		if (!isSwitchOn) {
 			// If the Phase one is not switched-On do not record the PhasetimeOff
-			if (phaseTimeOn == null) {
-				phaseTimeOff = null;
-			} else {
-				phaseTimeOff = LocalDateTime.now();
+			phaseTimeOff = null;
+			phaseTimeOn = null;
+			if (this.timeStopwatch.isRunning()) {
+				this.timeStopwatch.stop();
 			}
-
 			this.off(outputChannelAddress);
 		} else {
 			// phase one is running
-			if (phaseTimeOn != null) {
+			if (phaseTimeOn == null) {
+				phaseTimeOn = LocalDateTime.now();
+				this.timeStopwatch.start();
 				// do not take the current time
 			} else {
-				phaseTimeOn = LocalDateTime.now();
+				totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
+				totalPhasePower = calculatePower(totalPhaseTime);
 			}
 			this.on(outputChannelAddress);
 		}
-		if (phaseTimeOn != null && phaseTimeOff != null) {
-			// cycle of turning phase one On and off is complete
-			totalPhaseTime += ChronoUnit.SECONDS.between(phaseTimeOn, phaseTimeOff);
-			totalPhasePower += calculatePower(this.totalPhaseTime);
-			// Once the totalPhaseTime is calculated, reset the phasetimeOn to null to
-			// calculate the time for the next cycle of switch On and Off
-			phaseTimeOn = null;
-		} else if (totalPhaseTime != 0) {
-			// reserve the calculated totalPhaseTime
-		} else {
-			// phase one is not started, or still running
-			totalPhaseTime = 0;
-		}
-		// just for testing
-		//displayObject();
 	}
-	
+
 //	private void displayObject() {
 //		this.logInfo(this.LOGGER, " phaseTimeOn : "+ phaseTimeOn +
 //		 ", phaseTimeOff : " + phaseTimeOff +
@@ -88,8 +79,8 @@ public class PhaseDef {
 	 * @param time Long values of time in seconds
 	 * 
 	 */
-	private float calculatePower(long time) {
-		float kiloWattHour = ((float) (time) / 3600) * parent.powerOfPhase;
+	private double calculatePower(double time) {
+		double kiloWattHour = ((time) / 3600.0) * parent.powerOfPhase;
 		return kiloWattHour;
 	}
 
