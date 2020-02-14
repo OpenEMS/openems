@@ -231,16 +231,16 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		int i1 = (int) this.channel(ChannelId.PHASE1_TIME).getNextValue().getOrError();
 		int i2 = (int) this.channel(ChannelId.PHASE2_TIME).getNextValue().getOrError();
 		int i3 = (int) this.channel(ChannelId.PHASE3_TIME).getNextValue().getOrError();
-		this.logInfo(log, String.valueOf(i1));
-		this.logInfo(log, String.valueOf(i2));
-		this.logInfo(log, String.valueOf(i3));
+		this.logInfo(log, "PHASE1_TIME : " + String.valueOf(i1) + " Milisecs");
+		this.logInfo(log, "PHASE2_TIME : " + String.valueOf(i2) + " Milisecs");
+		this.logInfo(log, "PHASE3_TIME : " + String.valueOf(i3) + " Milisecs");
 		
 		double e1 = (double) this.channel(ChannelId.PHASE1_POWER).getNextValue().getOrError();
 		double e2 = (double) this.channel(ChannelId.PHASE2_POWER).getNextValue().getOrError();
 		double e3 = (double) this.channel(ChannelId.PHASE3_POWER).getNextValue().getOrError();
-		this.logInfo(log, String.valueOf(e1));
-		this.logInfo(log, String.valueOf(e2));
-		this.logInfo(log, String.valueOf(e3));
+		this.logInfo(log, "PHASE1_Power : " + String.valueOf(e1)+ " Watthours");
+		this.logInfo(log, "PHASE2_Power : " + String.valueOf(e2)+ " Watthours");
+		this.logInfo(log, "PHASE3_Power : " + String.valueOf(e3)+ " Watthours");
 	}
 
 	/**
@@ -322,8 +322,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 
 		// boolean isEndTimeCheck = false;
-		System.out.println("Local time : "+ LocalTime.parse(formatter.format(LocalTime.now())));
-		System.out.println("Current End time : " + currentEndtime);
+//		System.out.println("Local time : "+ LocalTime.parse(formatter.format(LocalTime.now())));
+//		System.out.println("Current End time : " + currentEndtime);
 		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime.minusSeconds((long) this.minTime)) && !this.isEndTime) {
 			switch (this.priority) {
 			case TIME:
