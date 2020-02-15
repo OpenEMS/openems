@@ -28,8 +28,6 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Balancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
-
 	private final Logger log = LoggerFactory.getLogger(Balancing.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
