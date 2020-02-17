@@ -105,6 +105,7 @@ export const TRANSLATION = {
                     HighThreshold: "hoge drempel"
                 },
                 EVCS: {
+                    ChargeTarget: "Lading doel",
                     ChargingStation: "Laadstation",
                     ChargingStationCluster: "Laadstation cluster",
                     OverviewChargingStations: "Overzicht laadstations",

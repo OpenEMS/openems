@@ -108,6 +108,7 @@ export const TRANSLATION = {
                     HighThreshold: "Umbral alto"
                 },
                 EVCS: {
+                    ChargeTarget: "Objetivo de carga",
                     ChargingStation: "Carga",
                     ChargingStationCluster: "Grupo de estaciones de carga",
                     OverviewChargingStations: "Resumen de estaciones de carga",

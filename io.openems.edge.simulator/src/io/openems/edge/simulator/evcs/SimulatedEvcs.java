@@ -116,6 +116,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		if (chargePowerLimitOpt.isPresent()) {
 			int chargePowerLimit = chargePowerLimitOpt.get();
 			simulatedChargePower = Math.min(simulatedChargePower, chargePowerLimit);
+			this.setChargePowerLimit().setNextValue(chargePowerLimit);
 		}
 
 		this.getChargePower().setNextValue(simulatedChargePower);

@@ -1,14 +1,15 @@
 package io.openems.edge.controller.evcs;
 
 import org.junit.Test;
+
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
@@ -21,29 +22,29 @@ public class EvcsControllerTest {
 		private final String id;
 		private final String alias;
 		private final boolean enabled;
-		private final String evcs_id;
+		private final String evcsId;
 		private final boolean enabledCharging;
 		private final ChargeMode chargeMode;
 		private final int forceChargeMinPower;
 		private final int defaultChargeMinPower;
 		private final Priority priority;
-		private final String ess_id;
+		private final String essId;
 		private final int energySessionLimit;
 
-		public MyConfig(String id, String alias, boolean enabled, String evcs_id, boolean enabledCharging,
+		public MyConfig(String id, String alias, boolean enabled, String evcsId, boolean enabledCharging,
 				ChargeMode chargeMode, int forceChargeMinPower, int defaultChargeMinPower, Priority priority,
-				String ess_id, int energySessionLimit) {
+				String essId, int energySessionLimit) {
 			super(Config.class, id);
 			this.id = id;
 			this.alias = alias;
 			this.enabled = enabled;
-			this.evcs_id = evcs_id;
+			this.evcsId = evcsId;
 			this.enabledCharging = enabledCharging;
 			this.chargeMode = chargeMode;
 			this.forceChargeMinPower = forceChargeMinPower;
 			this.defaultChargeMinPower = defaultChargeMinPower;
 			this.priority = priority;
-			this.ess_id = ess_id;
+			this.essId = essId;
 			this.energySessionLimit = energySessionLimit;
 		}
 
@@ -54,7 +55,7 @@ public class EvcsControllerTest {
 
 		@Override
 		public String evcs_id() {
-			return this.evcs_id;
+			return this.evcsId;
 		}
 
 		@Override
@@ -84,7 +85,7 @@ public class EvcsControllerTest {
 
 		@Override
 		public String ess_id() {
-			return this.ess_id;
+			return this.essId;
 		}
 
 		@Override
@@ -113,7 +114,7 @@ public class EvcsControllerTest {
 		controller.sum = sum;
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 10000, 0,
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
 				Priority.CAR, "ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);
@@ -139,6 +140,8 @@ public class EvcsControllerTest {
 
 	@Test
 	public void excessChargeTest2() throws Exception {
+		//TODO: Rewrite the test to operate with ESS Power
+		
 		// Initialize mocked Clock
 		final TimeLeapClock clock = new TimeLeapClock();
 
@@ -153,7 +156,7 @@ public class EvcsControllerTest {
 		controller.sum = sum;
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 10000, 0,
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
 				Priority.STORAGE, "ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);
@@ -195,7 +198,7 @@ public class EvcsControllerTest {
 		controller.sum = sum;
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 10000, 0,
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
 				Priority.CAR, "ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);

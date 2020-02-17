@@ -124,6 +124,7 @@ export const TRANSLATION = {
                     HighThreshold: "Oberer Schwellenwert"
                 },
                 EVCS: {
+                    ChargeTarget: "Ladevorgabe",
                     ChargingStation: "Ladestation",
                     ChargingStationCluster: "Ladestation Cluster",
                     OverviewChargingStations: "Übersicht Ladestationen",
