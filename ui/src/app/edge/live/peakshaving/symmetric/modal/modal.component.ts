@@ -18,7 +18,6 @@ export class SymmetricPeakshavingModalComponent {
     public formGroup: FormGroup;
     public loading: boolean = false;
 
-
     constructor(
         public service: Service,
         public translate: TranslateService,
@@ -41,8 +40,10 @@ export class SymmetricPeakshavingModalComponent {
     }
 
     applyChanges() {
-        if (this.formGroup.controls['peakShavingPower'].valid && this.formGroup.controls['rechargePower'].valid) {
-            if (this.formGroup.controls['peakShavingPower'].value >= this.formGroup.controls['rechargePower'].value) {
+        let peakShavingPower = this.formGroup.controls['peakShavingPower'];
+        let rechargePower = this.formGroup.controls['rechargePower'];
+        if (peakShavingPower.valid && rechargePower.valid) {
+            if (peakShavingPower.value >= rechargePower.value) {
                 let updateComponentArray = [];
                 Object.keys(this.formGroup.controls).forEach((element, index) => {
                     if (this.formGroup.controls[element].dirty) {
@@ -52,13 +53,13 @@ export class SymmetricPeakshavingModalComponent {
                 if (this.edge != null) {
                     this.loading = true;
                     this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                        this.component.properties.peakShavingPower = this.formGroup.value.peakShavingPower;
-                        this.component.properties.rechargePower = this.formGroup.value.rechargePower;
+                        this.component.properties.peakShavingPower = peakShavingPower.value;
+                        this.component.properties.rechargePower = rechargePower.value;
                         this.loading = false;
                         this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
                     }).catch(reason => {
-                        this.formGroup.controls['peakShavingPower'].setValue(this.component.properties.peakShavingPower);
-                        this.formGroup.controls['rechargePower'].setValue(this.component.properties.rechargePower);
+                        peakShavingPower.setValue(this.component.properties.peakShavingPower);
+                        rechargePower.setValue(this.component.properties.rechargePower);
                         this.loading = false;
                         this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
                         console.warn(reason);

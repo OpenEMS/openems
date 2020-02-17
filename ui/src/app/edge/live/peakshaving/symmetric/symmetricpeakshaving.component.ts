@@ -15,7 +15,6 @@ export class SymmetricPeakshavingComponent {
 
     @Input() private componentId: string;
 
-
     public edge: Edge = null;
 
     public component: EdgeConfig.Component = null;
