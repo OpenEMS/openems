@@ -10,6 +10,14 @@ export interface CategorizedComponents {
     components: EdgeConfig.Component[]
 };
 
+export interface CategorizedFactories {
+    category: {
+        title: string,
+        icon: string
+    },
+    factories: EdgeConfig.Factory[]
+};
+
 export class EdgeConfig {
 
     constructor(edge: Edge, source?: EdgeConfig) {
@@ -103,6 +111,20 @@ export class EdgeConfig {
         } else {
             return [];
         }
+    }
+
+    /**
+     * Get Factories of Nature.
+     * 
+     * @param nature the given Nature.
+     */
+    public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
+        let result = [];
+        let nature = this.natures[natureId];
+        for (let factoryId of nature.factoryIds) {
+            result.push(this.factories[factoryId])
+        }
+        return result;
     }
 
     /**
@@ -233,6 +255,48 @@ export class EdgeConfig {
             }
         }
         return false;
+    }
+
+    public listAvailableFactories(): CategorizedFactories[] {
+        let allFactories = [
+            { category: { title: 'Modbus-Verbindungen', icon: 'swap' }, factories: [this.getFactoriesByNature('io.openems.edge.bridge.modbus.api.BridgeModbus')] },
+            { category: { title: 'Zähler', icon: 'speedometer' }, factories: [this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter")] },
+            {
+                category: { title: 'Speichersysteme', icon: 'battery-charging' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.ess.api.SymmetricEss"),
+                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                ]
+            },
+            { category: { title: 'Batterien', icon: 'battery-full' }, factories: [this.getFactoriesByNature("io.openems.edge.battery.api.Battery")] },
+            {
+                category: { title: 'I/Os', icon: 'log-in' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.io.api.DigitalOutput"),
+                    this.getFactoriesByNature("io.openems.edge.io.api.DigitalInput")
+                ]
+            },
+            { category: { title: 'E-Auto-Ladestation', icon: 'car' }, factories: [this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs")] },
+            {
+                category: { title: 'Controller', icon: 'resize' }, factories: [
+                    this.getFactoriesByNature("io.openems.edge.controller.api.Controller"),
+                ]
+            },
+            { category: { title: 'Scheduler', icon: 'stopwatch' }, factories: [this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler")] }
+        ];
+
+        let result: CategorizedFactories[] = [];
+        allFactories.forEach(item => {
+            let factories =
+                // create one flat array
+                [].concat(...item.factories)
+                    // remove duplicates
+                    .filter((e, i, arr) => arr.indexOf(e) === i);
+            if (factories.length > 0) {
+                result.push({ category: item.category, factories: factories })
+            }
+        })
+        return result;
     }
 
     public listActiveComponents(ignoreComponentIds: string[]): CategorizedComponents[] {
