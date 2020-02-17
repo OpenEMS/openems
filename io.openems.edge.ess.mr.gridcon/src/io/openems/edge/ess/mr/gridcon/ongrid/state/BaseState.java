@@ -49,7 +49,7 @@ public abstract class BaseState implements State {
 	}
 	
 	protected boolean isNextStateRunning() {
-		boolean running = true;
+		boolean running = gridconPCS != null && battery1 != null && battery2 != null && battery3 != null;
 		if (gridconPCS != null) {
 			running = running && gridconPCS.isRunning();
 		}

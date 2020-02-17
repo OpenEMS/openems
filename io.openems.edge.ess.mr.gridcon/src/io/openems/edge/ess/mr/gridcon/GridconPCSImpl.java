@@ -242,7 +242,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET,
 				commandControlWord.isParameterSet4());
 
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_1, //TODO rename channel names
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_1, 
 				commandControlWord.isEnableIpu1());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_2,
 				commandControlWord.isEnableIpu2());
