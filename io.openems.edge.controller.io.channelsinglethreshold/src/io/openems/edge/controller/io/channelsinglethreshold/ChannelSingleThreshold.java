@@ -127,18 +127,17 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 		// Get input value
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
 		int value = inputChannel.value().getOrError();
-
 		/*
 		 * Condition applies only when the input channel is the Grid Active Power
 		 * 
 		 * Power value of the output device is added to the input channel value to avoid
 		 * immediate switching based on threshold.
 		 * 
-		 * example use case: if the feed-in is more than threshold, the output device is switched
-		 * on and next second feed-in reduces below threshold and immediately switches off the
-		 * device.
+		 * example use case: if the feed-in is more than threshold, the output device is
+		 * switched on and next second feed-in reduces below threshold and immediately
+		 * switches off the device.
 		 */
-		if ((currentValueOpt.isPresent() ^ this.config.invert()) == true) {
+		if ((currentValueOpt.orElse(false))) {
 			value -= this.config.switchedLoadPower();
 		}
 
@@ -152,6 +151,7 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 				this.changeState(State.BELOW_THRESHOLD);
 			} else {
 				this.changeState(State.ABOVE_THRESHOLD);
+				break;
 			}
 			this.setOutput(outputChannel, currentValueOpt, false ^ this.config.invert());
 			break;
@@ -160,8 +160,9 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			/*
 			 * Value is smaller than the low threshold -> always OFF
 			 */
-			if (value >= this.config.threshold()) {
+			if (value > this.config.threshold()) {
 				this.changeState(State.ABOVE_THRESHOLD);
+				break;
 			}
 			this.setOutput(outputChannel, currentValueOpt, false ^ this.config.invert());
 			break;
@@ -172,8 +173,10 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			 */
 			if (value <= this.config.threshold()) {
 				this.changeState(State.BELOW_THRESHOLD);
+				break;
 			}
 			this.setOutput(outputChannel, currentValueOpt, true ^ this.config.invert());
+			break;
 		}
 	}
 

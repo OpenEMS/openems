@@ -30,7 +30,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int threshold();
 
 	@AttributeDefinition(name = "Switched Load Power", description = "load power value of the device that needs to be switched on/off")
-	int switchedLoadPower();
+	int switchedLoadPower() default 0;
 
 	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time is applied to avoid continuous switching between on and off based on threshold")
 	int minimumSwitchingTime() default 60;
