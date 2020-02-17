@@ -23,7 +23,8 @@ export enum WidgetFactory {
     'Controller.Api.ModbusTcp.ReadWrite',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
-    'Controller.CHP.SoC'
+    'Controller.CHP.SoC',
+    'Controller.Symmetric.PeakShaving',
 }
 
 export class Widget {

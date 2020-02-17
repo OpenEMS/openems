@@ -6,6 +6,7 @@ export const TRANSLATION = {
         On: "An",
         Off: "Aus",
         Active: "Aktiv",
+        currentValue: 'Aktueller Wert',
         Inactive: "Inaktiv",
         Manually: "Manuell",
         Phase: "Phase",
@@ -42,6 +43,7 @@ export const TRANSLATION = {
         Search: "Suchen",
         ChangeAccepted: "Änderung übernommen",
         ChangeFailed: "Änderung fehlgeschlagen",
+        InputNotValid: "Eingabe ungültig",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
@@ -105,6 +107,12 @@ export const TRANSLATION = {
             Widgets: {
                 Channeltreshold: {
                     Output: "Ausgang"
+                },
+                Peakshaving: {
+                    peakshaving: 'Lastspitzenkappung',
+                    peakshavingPower: 'Entladung über',
+                    rechargePower: 'Beladung unter',
+                    relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein'
                 },
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
