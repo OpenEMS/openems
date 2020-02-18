@@ -86,9 +86,10 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
-                    putSwitchedLoadPower: 'Voer uw geschakelde belasting in!',
-                    switchAbove: 'Inschakelen via',
-                    switchBelow: 'Inschakelen onder',
+                    switchOffAbove: 'Uitschakelen via',
+                    switchOffBelow: 'Schakel uit onder',
+                    switchOnAbove: 'Inschakelen via',
+                    switchOnBelow: 'Inschakelen onder',
                     dependendOn: 'Afhankelijk van',
                     currentValue: 'Huidige waarde',
                     threshold: 'Thresholded',
@@ -97,7 +98,8 @@ export const TRANSLATION = {
                     switchedLoadPower: 'Geschakelde belasting',
                     behaviour: 'Gedrag',
                     above: 'Over',
-                    below: 'Beneden'
+                    below: 'Beneden',
+                    relationError: 'Drempel moet groter zijn dan de geschakelde belasting',
                 },
                 Channeltreshold: {
                     Output: "uitgang"

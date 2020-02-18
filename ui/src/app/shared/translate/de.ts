@@ -105,9 +105,10 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
-                    putSwitchedLoadPower: 'Tragen Sie bitte Ihre geschaltete Last ein!',
-                    switchAbove: 'Einschalten über',
-                    switchBelow: 'Einschalten unter',
+                    switchOffAbove: 'Ausschalten über',
+                    switchOffBelow: 'Ausschalten unter',
+                    switchOnAbove: 'Einschalten über',
+                    switchOnBelow: 'Einschalten unter',
                     dependendOn: 'Abhängig von',
                     currentValue: 'Aktueller Wert',
                     threshold: 'Schwellenwert',
@@ -116,7 +117,8 @@ export const TRANSLATION = {
                     switchedLoadPower: 'Geschaltete Last',
                     behaviour: 'Verhalten',
                     above: 'Über',
-                    below: 'Unter'
+                    below: 'Unter',
+                    relationError: 'Schwellenwert muss größer als die geschaltete Last sein',
                 },
                 Channeltreshold: {
                     Output: "Ausgang"

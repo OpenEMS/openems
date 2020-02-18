@@ -88,9 +88,10 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
-                    putSwitchedLoadPower: 'Zadejte prosím spínací zátěž!',
-                    switchAbove: 'Zapněte přes',
-                    switchBelow: 'Zapněte pod',
+                    switchOffAbove: 'Vypněte pomocí',
+                    switchOffBelow: 'Vypněte pod',
+                    switchOnAbove: 'Zapněte přes',
+                    switchOnBelow: 'Zapněte pod',
                     dependendOn: 'Podle toho',
                     currentValue: 'Aktuální hodnota',
                     threshold: 'Prahována',
@@ -99,7 +100,8 @@ export const TRANSLATION = {
                     switchedLoadPower: 'Spínané zatížení',
                     behaviour: 'Chování',
                     above: 'O',
-                    below: 'Níže'
+                    below: 'Níže',
+                    relationError: 'Prahová hodnota musí být větší než spínané zatížení',
                 },
                 Channeltreshold: {
                     Output: "Výstup"

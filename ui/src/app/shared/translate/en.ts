@@ -89,9 +89,10 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
-                    putSwitchedLoadPower: 'Please enter your switched load power!',
-                    switchAbove: 'Switch on above',
-                    switchBelow: 'Switch on below',
+                    switchOffAbove: 'Switch off above',
+                    switchOffBelow: 'Switch off below',
+                    switchOnAbove: 'Switch on above',
+                    switchOnBelow: 'Switch on below',
                     dependendOn: 'Dependend on',
                     currentValue: 'Current value',
                     threshold: 'Threshold',
@@ -100,7 +101,8 @@ export const TRANSLATION = {
                     switchedLoadPower: 'Switched load power',
                     behaviour: 'Behaviour',
                     above: 'Above',
-                    below: 'Below'
+                    below: 'Below',
+                    relationError: 'Threshold must be greater than the switched load power',
                 },
                 Channeltreshold: {
                     Output: "Output"
