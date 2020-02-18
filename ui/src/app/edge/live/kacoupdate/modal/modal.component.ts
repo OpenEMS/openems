@@ -53,14 +53,14 @@ export class KacoUpdateModalComponent implements OnInit {
             let restart = false;
             switch (result.Success) {
                 case 1:
-                    message += this.translate.instant('KacoUpdate.Succes1');
+                    message += this.translate.instant('KacoUpdate.Success1');
                     break;
                 case 2:
-                    message += this.translate.instant('KacoUpdate.Succes2');
+                    message += this.translate.instant('KacoUpdate.Success2');
                     restart = true;
                     break;
                 case 3:
-                    message += this.translate.instant('KacoUpdate.Succes3');
+                    message += this.translate.instant('KacoUpdate.Success3');
                     restart = true;
                     break;
                 default:
