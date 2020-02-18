@@ -72,17 +72,10 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	private ChannelAddress inputChannelAddress;
-	private ChannelAddress outputChannelAddress1;
-	private ChannelAddress outputChannelAddress2;
-	private ChannelAddress outputChannelAddress3;
 	protected int powerOfPhase = 0;
 
 	long totalPhaseTime = 0;
 	double totalPhasePower = 0;
-
-	private static enum Phase {
-		ONE, TWO, THREE
-	}
 
 	private final Map<Phase, PhaseDef> phases = new HashMap<>();
 
@@ -147,9 +140,17 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.powerOfPhase = config.powerOfPhase();
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-		this.outputChannelAddress1 = ChannelAddress.fromString(config.outputChannelAddress1());
-		this.outputChannelAddress2 = ChannelAddress.fromString(config.outputChannelAddress2());
-		this.outputChannelAddress3 = ChannelAddress.fromString(config.outputChannelAddress3());
+		
+		// Setting the outputchannel for each phases
+		for (Phase p : phases.keySet()) {
+			if (p == Phase.ONE) {
+				phases.get(p).outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress1());
+			} else if (p == Phase.TWO) {
+				phases.get(p).outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress2());
+			} else {
+				phases.get(p).outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress3());
+			}
+		}
 
 		this.mode = config.mode();
 		this.channel(ChannelId.MODE).setNextValue(config.mode());
@@ -169,6 +170,12 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	protected void deactivate() {
 		super.deactivate();
 	}
+	
+	public enum ModeType {
+		NORMAL_MODE, PRIORITY_MODE
+	}
+	
+	ModeType modeType = ModeType.NORMAL_MODE; 
 
 	/**
 	 * The current state in the State Machine
@@ -188,15 +195,15 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			modeChanged = false;
 			switch (this.mode) {
 			case MANUAL_ON:
-				this.on(outputChannelAddress1);
-				this.on(outputChannelAddress2);
-				this.on(outputChannelAddress3);
+				this.on(ChannelAddress.fromString(config.outputChannelAddress1()));
+				this.on(ChannelAddress.fromString(config.outputChannelAddress2()));
+				this.on(ChannelAddress.fromString(config.outputChannelAddress3()));
 				modeChanged = changeMode(Mode.MANUAL_ON);
 				break;
 			case MANUAL_OFF:
-				this.off(outputChannelAddress1);
-				this.off(outputChannelAddress2);
-				this.off(outputChannelAddress3);
+				this.off(ChannelAddress.fromString(config.outputChannelAddress1()));
+				this.off(ChannelAddress.fromString(config.outputChannelAddress2()));
+				this.off(ChannelAddress.fromString(config.outputChannelAddress3()));
 				modeChanged = changeMode(Mode.MANUAL_OFF);
 				break;
 			case AUTOMATIC:
@@ -221,6 +228,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			}
 		}
 
+		this.totalPhaseTime = 0;
+		this.totalPhasePower = 0;
 		for (PhaseDef p : phases.values()) {
 			this.totalPhaseTime += p.totalPhaseTime;
 			this.totalPhasePower += p.totalPhasePower;
@@ -234,13 +243,13 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.logInfo(log, "PHASE1_TIME : " + String.valueOf(i1) + " Milisecs");
 		this.logInfo(log, "PHASE2_TIME : " + String.valueOf(i2) + " Milisecs");
 		this.logInfo(log, "PHASE3_TIME : " + String.valueOf(i3) + " Milisecs");
-		
-		double e1 = (double) this.channel(ChannelId.PHASE1_POWER).getNextValue().getOrError();
-		double e2 = (double) this.channel(ChannelId.PHASE2_POWER).getNextValue().getOrError();
-		double e3 = (double) this.channel(ChannelId.PHASE3_POWER).getNextValue().getOrError();
-		this.logInfo(log, "PHASE1_Power : " + String.valueOf(e1)+ " Watthours");
-		this.logInfo(log, "PHASE2_Power : " + String.valueOf(e2)+ " Watthours");
-		this.logInfo(log, "PHASE3_Power : " + String.valueOf(e3)+ " Watthours");
+//		
+//		double e1 = (double) this.channel(ChannelId.PHASE1_POWER).getNextValue().getOrError();
+//		double e2 = (double) this.channel(ChannelId.PHASE2_POWER).getNextValue().getOrError();
+//		double e3 = (double) this.channel(ChannelId.PHASE3_POWER).getNextValue().getOrError();
+//		this.logInfo(log, "PHASE1_Power : " + String.valueOf(e1)+ " Watthours");
+//		this.logInfo(log, "PHASE2_Power : " + String.valueOf(e2)+ " Watthours");
+//		this.logInfo(log, "PHASE3_Power : " + String.valueOf(e3)+ " Watthours");
 	}
 
 	/**
@@ -297,7 +306,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			
 			for (PhaseDef p : phases.values()) {
 				p.phaseTimeOn = null;
-				p.phaseTimeOff = null;
 				p.totalPhasePower = 0;
 				p.totalPhaseTime = 0;				
 				p.timeStopwatch.reset();
@@ -310,21 +318,73 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			return;
 		}
 
-		// Setting the outputchannel for each phases
-		for (Phase p : phases.keySet()) {
-			if (p == Phase.ONE) {
-				phases.get(p).outputChannelAddress = this.outputChannelAddress1;
-			} else if (p == Phase.TWO) {
-				phases.get(p).outputChannelAddress = this.outputChannelAddress2;
-			} else {
-				phases.get(p).outputChannelAddress = this.outputChannelAddress3;
-			}
+//-------------------------------------------------------------------------------------------------
+//
+//		if (LocalTime.parse(formatter.format(LocalTime.now()))
+//				.isAfter(currentEndtime.minusSeconds((long) this.minTime))) {
+//			modeType = ModeType.PRIORITY_MODE;
+//		} else {
+//			modeType = ModeType.NORMAL_MODE;
+//		}
+//		
+//		
+//		switch(this.modeType) {
+//		case PRIORITY_MODE:
+//			switch (this.priority) {
+//			case TIME:
+//				break;
+//			case KILO_WATT_HOUR:
+//				break;
+//			}
+//			break;
+//		case NORMAL_MODE:
+//			break;
+//		}
+		
+		
+		
+//-------------------------------------------------------------------------------------------------
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime.minusSeconds((long) this.minTime))
+				&& !this.isEndTime) {
+			modeType = ModeType.PRIORITY_MODE;
+		} else {
+			modeType = ModeType.NORMAL_MODE;
 		}
 
-		// boolean isEndTimeCheck = false;
-//		System.out.println("Local time : "+ LocalTime.parse(formatter.format(LocalTime.now())));
-//		System.out.println("Current End time : " + currentEndtime);
-		if (LocalTime.parse(formatter.format(LocalTime.now())).isAfter(currentEndtime.minusSeconds((long) this.minTime)) && !this.isEndTime) {
+		switch (this.modeType) {
+		case PRIORITY_MODE: {
 			switch (this.priority) {
 			case TIME:
 				this.checkMinTime(excessPower);
@@ -333,7 +393,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				this.checkMinKwh(excessPower);
 				break;
 			}
-		} else {
+		}
+		break;
+		case NORMAL_MODE: {
 			if (this.isNoEndTime) {
 				boolean stateChanged;
 				do {
@@ -392,9 +454,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 				this.channel(ChannelId.PRIORITY).setNextValue(this.priority);
 				this.channel(ChannelId.NO_OF_RELAIS_ON).setNextValue(noRelaisSwitchedOn);
-				
-
 			}
+		}
+		break;
 		}
 	}
 
@@ -414,17 +476,15 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		System.out.println("mintime : " + minTime);
 		if (this.totalPhaseTime < minTime) {
 			this.isNoEndTime = false;
-			//long deltaTime = (long) (minTime - this.totalPhaseTime);
 			// Switch-On all the 3 Phases
 			for (PhaseDef p : phases.values()) {
 				p.isSwitchOn = true;
 			}
 			this.computeTime(phases);
 			noRelaisSwitchedOn = 3;
-			// update the endtime
 			//currentEndtime = currentEndtime.plus(deltaTime, ChronoUnit.MINUTES);
 			// update the minTime
-			this.minTime = 0;
+			this.minTime = (long) (minTime - this.totalPhaseTime);
 		} else {
 			this.isEndTime = true;
 			this.isNoEndTime = true;

@@ -19,7 +19,6 @@ public class PhaseDef {
 
 	private final ControllerHeatingElement parent;
 	LocalDateTime phaseTimeOn = null;
-	LocalDateTime phaseTimeOff = null;
 	LocalDateTime lastRunningTimeCheck = null;
 	long totalPhaseTime = 0; // milliseconds
 	Stopwatch timeStopwatch = Stopwatch.createUnstarted();
@@ -45,8 +44,10 @@ public class PhaseDef {
 
 	public void computeTime() throws IllegalArgumentException, OpenemsNamedException {
 		if (!isSwitchOn) {
-			// If the Phase one is not switched-On do not record the PhasetimeOff
-			phaseTimeOff = null;
+			if(phaseTimeOn != null) {
+				totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
+				totalPhasePower = calculatePower(totalPhaseTime);				
+			}
 			phaseTimeOn = null;
 			if (this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.stop();
