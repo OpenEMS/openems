@@ -20,7 +20,8 @@ export enum WidgetNature {
 export enum WidgetFactory {
     'Evcs.Cluster.SelfConsumtion',
     'Evcs.Cluster.PeakShaving',
-    'Controller.Api.ModbusTcp',
+    'Controller.Api.ModbusTcp.ReadOnly',
+    'Controller.Api.ModbusTcp.ReadWrite',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.CHP.SoC'

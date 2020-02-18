@@ -20,7 +20,7 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 2;
+	public final static short VERSION_MINOR = 4;
 
 	/**
 	 * The patch version of OpenEMS.
