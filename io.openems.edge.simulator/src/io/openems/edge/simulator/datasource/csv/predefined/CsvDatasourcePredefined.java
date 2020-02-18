@@ -1,7 +1,6 @@
-package io.openems.edge.simulator.datasource.csv;
+package io.openems.edge.simulator.datasource.csv.predefined;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
@@ -23,11 +22,11 @@ import io.openems.edge.simulator.DataContainer;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Datasource.CSVReader", //
+@Component(name = "Simulator.Datasource.CSV.Predefined", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class CsvDatasource extends AbstractOpenemsComponent
+public class CsvDatasourcePredefined extends AbstractOpenemsComponent
 		implements SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	private DataContainer data;
@@ -38,7 +37,7 @@ public class CsvDatasource extends AbstractOpenemsComponent
 
 	private long lastIteration;
 
-	public CsvDatasource() {
+	public CsvDatasourcePredefined() {
 		super(//
 				OpenemsComponent.ChannelId.values() //
 		);
@@ -52,14 +51,8 @@ public class CsvDatasource extends AbstractOpenemsComponent
 		this.realtime = config.realtime();
 		this.lastIteration = System.currentTimeMillis();
 		// read csv-data
-		this.data = CsvUtils.readCsvFileFromRessource(CsvDatasource.class, config.source().filename, config.format(),
+		this.data = CsvUtils.readCsvFileFromRessource(CsvDatasourcePredefined.class, config.source().filename, config.format(),
 				config.factor());
-		if(this.realtime) {
-			ZonedDateTime now = ZonedDateTime.now();
-			int minutes = (now.getHour() * 60) + now.getMinute();
-			this.data.setIndex(minutes + 1);
-		}
-		
 	}
 
 	@Override

@@ -2,18 +2,10 @@ package io.openems.edge.controller.api.rest;
 
 import org.eclipse.jetty.server.Server;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Doc;
@@ -23,32 +15,20 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
+import io.openems.edge.controller.api.rest.readonly.RestApiReadOnly;
 import io.openems.edge.timedata.api.Timedata;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "Controller.Api.Rest", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class RestApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+public abstract class AbstractRestApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static boolean DEFAULT_DEBUG_MODE = true;
-
-	private final Logger log = LoggerFactory.getLogger(RestApi.class);
+	public static final boolean DEFAULT_DEBUG_MODE = true;
 
 	protected final ApiWorker apiWorker = new ApiWorker();
 
+	private final Logger log = LoggerFactory.getLogger(RestApiReadOnly.class);
+	private final String implementationName;
+
 	private Server server = null;
 	private boolean isDebugModeEnabled = DEFAULT_DEBUG_MODE;
-
-	@Reference
-	protected ComponentManager componentManager;
-
-	@Reference
-	protected UserService userService;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -64,36 +44,37 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 		}
 	}
 
-	public RestApi() {
+	public AbstractRestApi(String implementationName) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
+		this.implementationName = implementationName;
 	}
 
-	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.isDebugModeEnabled = config.debugMode();
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
+			boolean isDebugModeEnabled, int apiTimeout, int port) throws OpenemsException {
+		super.activate(context, id, alias, enabled);
+		this.isDebugModeEnabled = isDebugModeEnabled;
 
 		if (!this.isEnabled()) {
 			// abort if disabled
 			return;
 		}
 
-		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
+		this.apiWorker.setTimeoutSeconds(apiTimeout);
 
 		/*
 		 * Start RestApi-Server
 		 */
 		try {
-			this.server = new Server(config.port());
+			this.server = new Server(port);
 			this.server.setHandler(new RestHandler(this));
 			this.server.start();
-			this.logInfo(this.log, "REST-Api started on port [" + config.port() + "].");
+			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
 		} catch (Exception e) {
-			throw new OpenemsException("REST-Api failed on port [" + config.port() + "].", e);
+			throw new OpenemsException(this.implementationName + " failed on port [" + port + "].", e);
 		}
 	}
 
@@ -104,7 +85,7 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 			try {
 				this.server.stop();
 			} catch (Exception e) {
-				this.logWarn(this.log, "REST-Api failed to stop: " + e.getMessage());
+				this.logWarn(this.log, this.implementationName + " failed to stop: " + e.getMessage());
 			}
 		}
 	}
@@ -130,7 +111,7 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 	}
 
 	protected boolean isDebugModeEnabled() {
-		return isDebugModeEnabled;
+		return this.isDebugModeEnabled;
 	}
 
 	/**
@@ -139,10 +120,26 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 	 * @return the service
 	 * @throws OpenemsException if the timeservice is not available
 	 */
-	public Timedata getTimedata() throws OpenemsException {
-		if (this.timedata != null) {
-			return this.timedata;
-		}
-		throw new OpenemsException("There is no Timedata-Service available!");
-	}
+	protected abstract Timedata getTimedata() throws OpenemsException;
+
+	/**
+	 * Gets the UserService.
+	 * 
+	 * @return the service
+	 */
+	protected abstract UserService getUserService();
+
+	/**
+	 * Gets the ComponentManager.
+	 * 
+	 * @return the service
+	 */
+	protected abstract ComponentManager getComponentManager();
+
+	/**
+	 * Gets the AccessMode.
+	 * 
+	 * @return the {@link AccessMode}
+	 */
+	protected abstract AccessMode getAccessMode();
 }
