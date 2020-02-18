@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -96,17 +97,17 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 
 		// Get output status (true or false)
 		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(outputChannelAddress);
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		Optional<Boolean> outputValueOpt = outputChannel.value().asOptional();
 
 		switch (this.config.mode()) {
 		case ON:
-			this.setOutput(outputChannel, currentValueOpt, true);
+			this.setOutput(outputChannel, outputValueOpt, true);
 			break;
 		case OFF:
-			this.setOutput(outputChannel, currentValueOpt, false);
+			this.setOutput(outputChannel, outputValueOpt, false);
 			break;
 		case AUTOMATIC:
-			this.automaticMode(outputChannel, currentValueOpt);
+			this.automaticMode(outputChannel, outputValueOpt);
 			break;
 		}
 	}
@@ -114,31 +115,44 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	/**
 	 * Automated control.
 	 * 
-	 * @param currentValueOpt
+	 * @param outputValueOpt
 	 * @param outputChannel
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	private void automaticMode(WriteChannel<Boolean> outputChannel, Optional<Boolean> currentValueOpt)
+	private void automaticMode(WriteChannel<Boolean> outputChannel, Optional<Boolean> outputValueOpt)
 			throws OpenemsNamedException {
 
 		ChannelAddress inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
 
 		// Get input value
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
-		int value = inputChannel.value().getOrError();
-		/*
-		 * Condition applies only when the input channel is the Grid Active Power
-		 * 
-		 * Power value of the output device is added to the input channel value to avoid
-		 * immediate switching based on threshold.
-		 * 
-		 * example use case: if the feed-in is more than threshold, the output device is
-		 * switched on and next second feed-in reduces below threshold and immediately
-		 * switches off the device.
-		 */
-		if ((currentValueOpt.orElse(false))) {
-			value -= this.config.switchedLoadPower();
+		OptionalDouble inputValueOpt = inputChannel.getPastValues()
+				.tailMap(LocalDateTime.now().minusSeconds(this.config.minimumSwitchingTime()), false).values().stream()
+				.filter(v -> v.isDefined()) //
+				.mapToInt(v -> v.get()) //
+				.average();
+		int inputValue;
+		if (inputValueOpt.isPresent()) {
+			inputValue = (int) inputValueOpt.getAsDouble();
+
+			/*
+			 * Condition applies only when the input channel is the Grid Active Power
+			 * 
+			 * Power value (switchedLoadPower) of the output device is added to the input channel value to avoid
+			 * immediate switching based on threshold.
+			 * 
+			 * example use case: if the feed-in is more than threshold, the output device is
+			 * switched on and next second feed-in reduces below threshold and immediately
+			 * switches off the device.
+			 */
+			if ((outputValueOpt.orElse(false))) {
+				inputValue -= this.config.switchedLoadPower();
+			}
+		} else {
+			// no input value available
+			inputValue = -1; // is ignored later
+			this.changeState(State.UNDEFINED);
 		}
 
 		// State Machine
@@ -147,35 +161,34 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			/*
 			 * Starting... state is still undefined
 			 */
-			if (value < this.config.threshold()) {
-				this.changeState(State.BELOW_THRESHOLD);
-			} else {
-				this.changeState(State.ABOVE_THRESHOLD);
-				break;
+			if (inputValueOpt.isPresent()) {
+				if (inputValue < this.config.threshold()) {
+					this.changeState(State.BELOW_THRESHOLD);
+				} else {
+					this.changeState(State.ABOVE_THRESHOLD);
+				}
 			}
-			this.setOutput(outputChannel, currentValueOpt, false ^ this.config.invert());
+			this.setOutput(outputChannel, outputValueOpt, false);
 			break;
 
 		case BELOW_THRESHOLD:
 			/*
 			 * Value is smaller than the low threshold -> always OFF
 			 */
-			if (value > this.config.threshold()) {
+			if (inputValue > this.config.threshold()) {
 				this.changeState(State.ABOVE_THRESHOLD);
-				break;
 			}
-			this.setOutput(outputChannel, currentValueOpt, false ^ this.config.invert());
+			this.setOutput(outputChannel, outputValueOpt, false ^ this.config.invert());
 			break;
 
 		case ABOVE_THRESHOLD:
 			/*
 			 * Value is bigger than the high threshold -> always ON
 			 */
-			if (value <= this.config.threshold()) {
+			if (inputValue <= this.config.threshold()) {
 				this.changeState(State.BELOW_THRESHOLD);
-				break;
 			}
-			this.setOutput(outputChannel, currentValueOpt, true ^ this.config.invert());
+			this.setOutput(outputChannel, outputValueOpt, true ^ this.config.invert());
 			break;
 		}
 	}
@@ -203,15 +216,15 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 * 
-	 * @param currentValueOpt2
+	 * @param outputValueOpt2
 	 * @param outputChannel2
 	 *
 	 * @param value            true to switch ON, false to switch ON
 	 * @throws OpenemsNamedException on error
 	 */
-	private void setOutput(WriteChannel<Boolean> outputChannel, Optional<Boolean> currentValueOpt, boolean value)
+	private void setOutput(WriteChannel<Boolean> outputChannel, Optional<Boolean> outputValueOpt, boolean value)
 			throws OpenemsNamedException {
-		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
+		if (!outputValueOpt.isPresent() || outputValueOpt.get() != value) {
 			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value ? "ON" : "OFF") + ".");
 			outputChannel.setNextWriteValue(value);
 		}

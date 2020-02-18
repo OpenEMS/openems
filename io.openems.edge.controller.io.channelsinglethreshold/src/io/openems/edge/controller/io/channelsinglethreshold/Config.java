@@ -29,10 +29,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Threshold", description = "Threshold boundary value")
 	int threshold();
 
-	@AttributeDefinition(name = "Switched Load Power", description = "load power value of the device that needs to be switched on/off")
+	@AttributeDefinition(name = "Switched Load Power", description = "load power value of the device that needs to be switched on/off (Applies only if input channel is Grid Active power, otherwise set it to 0)")
 	int switchedLoadPower() default 0;
 
-	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time is applied to avoid continuous switching between on and off based on threshold")
+	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time (Seconds) is applied to avoid continuous switching between on and off based on threshold")
 	int minimumSwitchingTime() default 60;
 
 	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour is inverted, i.e. the Digital Output channel is switched OFF if the value of the input channel is within a configured threshold")
