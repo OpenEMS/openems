@@ -13,7 +13,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api.common,\
 	io.openems.edge.timedata.api,\
 	io.openems.wrapper.websocket,\
-	org.ops4j.pax.logging.pax-logging-api
+	org.ops4j.pax.logging.pax-logging-api,\
+	org.apache.commons.io
 
 -testpath: \
 	${testpath}

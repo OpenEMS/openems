@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
@@ -26,13 +28,16 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.HasUpdateRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
+import io.openems.common.jsonrpc.request.RestartSoftwareRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateSoftwareRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
@@ -40,6 +45,7 @@ import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.SubscribedChannelsWorker;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.EdgeUser;
@@ -142,6 +148,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// TODO: to be implemented: UI Logout
 
+		case UpdateSoftwareRequest.METHOD:
+			resultFuture = this.handleUpdateSoftwareRequest(this.parent, wsData, UpdateSoftwareRequest.from(request));
+			break;
+
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
@@ -159,6 +169,54 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			}
 		});
 		return result;
+	}
+
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateSoftwareRequest(WebsocketApi parent, WsData wsData,
+			UpdateSoftwareRequest request) throws OpenemsNamedException {
+		JsonObject result = new JsonObject();
+		int success = 0;
+		int error = 0;
+
+		OpenemsComponent kacoUpdateComponent = this.parent.componentManager.getComponent("_kacoUpdate");
+
+		Channel<Integer> hasUpdateChannel = kacoUpdateComponent.channel("HasUpdate");
+		int hasUpdate = hasUpdateChannel.value().get().intValue();
+
+		try {
+
+			if (hasUpdate != 2) {
+				KacoUpdateHandler.updateUI(parent);
+				success++;
+				hasUpdate--;
+			}
+
+		} catch (IllegalArgumentException | IOException e) {
+			error++;
+			e.printStackTrace();
+			this.log.error(e.getMessage(), e);
+			try {
+				KacoUpdateHandler.uiRestore();
+			} catch (IOException e1) {
+				
+				this.log.error(e1.getMessage(), e1);
+			}
+		}
+		try {
+
+			if (hasUpdate > 1) {
+				KacoUpdateHandler.updateEdge(wsData, parent);
+				success += 2;
+				hasUpdate -= 2;
+
+			}
+		} catch (IllegalArgumentException | IOException e) {
+			error += 2;
+			this.log.error(e.getMessage(), e);
+		}
+		hasUpdateChannel.setNextValue(hasUpdate);
+		result.addProperty("Success", success);
+		result.addProperty("Error", error);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), result));
 	}
 
 	/**

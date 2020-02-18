@@ -3,6 +3,8 @@ package io.openems.edge.application;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -56,9 +58,12 @@ public class PreConfig {
 				System.out.println("Influx already active. Checking no of Cycles");
 				Configuration oldinfluxconf = configs[0];
 				Dictionary<String, Object> influxprops = oldinfluxconf.getProperties();
-				int oldcycles = (int) influxprops.get("noOfCycles");
-				if(oldcycles != 300) {
-					influxprops.put("noOfCycles", 300);
+				
+				Optional<Object> oldcycles = Optional.ofNullable(influxprops.get("noOfCycles"));
+				
+				if(!oldcycles.isPresent()) {
+					System.out.println("Update no of Cycles");
+					influxprops.put("noOfCycles", 60);
 					oldinfluxconf.update(influxprops);
 				}
 			}

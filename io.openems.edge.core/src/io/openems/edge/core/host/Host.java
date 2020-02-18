@@ -1,5 +1,6 @@
 package io.openems.edge.core.host;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.framework.BundleContext;
@@ -9,6 +10,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 
+import io.openems.common.KacoConstants;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -17,6 +19,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.RestartSoftwareRequest;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.edge.common.channel.Doc;
@@ -71,6 +74,7 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 
 		// Start the Host Worker
 		this.hostWorker.activate(this.id());
+		int i = 0;
 	}
 
 	@Deactivate
@@ -84,6 +88,15 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
+
+		if (request.getMethod().equals(RestartSoftwareRequest.METHOD)) {
+
+			Optional<String> pwd = Optional.of(KacoConstants.PASSWORD);
+			Optional<String> usr = Optional.of(KacoConstants.USERNAME);
+			return this.handleExecuteCommandRequest(user,
+					new ExecuteSystemCommandRequest(request.getId(), KacoConstants.RESTART_CMD, false, 5, usr, pwd));
+		}
+
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);
 
 		switch (request.getMethod()) {
