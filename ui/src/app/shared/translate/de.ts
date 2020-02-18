@@ -294,5 +294,17 @@ export const TRANSLATION = {
     },
     KacoError: {
         Errors: "Fehler / Warnung"
+    },
+    KacoUpdate: {
+        NewSoftware: "Eine neue Version der hy-control Software ist verfügbar!",
+        NewUi: "Eine neue Version der hy-control Benutzeroberfläche ist verfügbar!",
+        Update: "Aktualisieren",
+        OpenLocal: "Bitte öffnen Sie bei Gelegenheit das lokale hy-control und folgen den Anweisungen.",
+        Success1: "<p>UI Update erfolgreich!</p><p>Bitte Schließen Sie nun das Monitoring und öffnen es erneut.</p>",
+        Success2: "<p>Software Update erfolgreich!</p><p>Die Software wird nun neu gestartet. Es kann ein paar Minuten dauern, bis das Monitoring wieder genutzt werden kann.</p>",
+        Success3: "<p>Software und UI Update erfolgreich!</p><p>Die Software wird nun neu gestartet. Es kann ein paar Minuten dauern, bis das Monitoring wieder genutzt werden kann.</p>",
+        Error1: "<p>Beim Update der UI ist ein Fehler aufgetreten. Bitte versuchen Sie es bei der nächsten Aufforderung erneut.</p>",
+        Error2: "<p>Beim Update der Software ist ein Fehler aufgetreten. Bitte versuchen Sie es bei der nächsten Aufforderung erneut.</p>",
+        Error3: "<p>Beim Update der Software und der UI ist ein Fehler aufgetreten. Bitte versuchen Sie es bei der nächsten Aufforderung erneut.</p>",
     }
 }

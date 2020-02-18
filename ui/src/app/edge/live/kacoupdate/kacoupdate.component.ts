@@ -6,6 +6,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { KacoUpdateModalComponent } from './modal/modal.component';
 import { HasUpdateRequest } from 'src/app/shared/jsonrpc/request/hasUpdateRequest';
+import { environment } from 'src/environments';
+import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 
 
 
@@ -20,6 +22,7 @@ export class KacoUpdateComponent {
 
     public edge: Edge = null;
     public config: EdgeConfig = null;
+    public env = environment;
 
     constructor(
         public service: Service,
@@ -37,16 +40,23 @@ export class KacoUpdateComponent {
             let channels = [];
             channels.push(
                 new ChannelAddress('_kacoUpdate', 'HasUpdate'),
-                new ChannelAddress('_kacoUpdate', 'HasEdgeUpdate'),
-                new ChannelAddress('_kacoUpdate', 'HasUiUpdate'),
+                new ChannelAddress('_kacoUpdate', 'Progress'),
             );
             this.edge.subscribeChannels(this.websocket, KacoUpdateComponent.SELECTOR, channels);
-            let request = new HasUpdateRequest();
-            this.edge.sendRequest(this.websocket, request).then(response => {
-                if (Object.keys(response.result).length != 0) {
-                    this.presentModal();
-                }
-            });
+
+            if (this.env.backend !== 'App') {
+                let request = new ComponentJsonApiRequest({
+                    componentId: "_kacoUpdate",
+                    payload: new HasUpdateRequest()
+                });
+
+                this.edge.sendRequest(this.websocket, request).then(response => {
+                    if (Object.keys(response.result).length !== 0) {
+                        this.presentModal();
+                    }
+                });
+
+            }
         });
 
 

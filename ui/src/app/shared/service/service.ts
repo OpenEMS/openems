@@ -18,6 +18,11 @@ import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { LoadingController } from '@ionic/angular';
 import { DefaultTypes } from './defaulttypes';
+import { ExecuteSystemCommandRequest } from '../jsonrpc/request/executeCommandRequest';
+import { ComponentJsonApiRequest } from '../jsonrpc/request/componentJsonApiRequest';
+import { ExecuteSystemCommandResponse } from '../jsonrpc/response/executeSystemCommandResponse';
+import { UpdateSoftwareRequest } from '../jsonrpc/request/updateSoftwareRequest';
+import { RestartSoftwareRequest } from '../jsonrpc/request/restartSoftwareRequest';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -403,5 +408,20 @@ export class Service implements ErrorHandler {
    * initialized as day, is getting changed by pickdate component
    */
   public periodString: DefaultTypes.PeriodString = 'day';
+
+  public forceRestart() {
+    this.getCurrentEdge().then(edge => {
+      edge.sendRequest(this.websocket,
+        new ComponentJsonApiRequest({
+          componentId: "_host",
+          payload: new RestartSoftwareRequest()
+        })).then(response => {
+          let result = (response as ExecuteSystemCommandResponse).result;
+
+        }).catch(reason => {
+
+        })
+    });
+  }
 
 }

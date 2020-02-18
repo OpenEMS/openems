@@ -3,6 +3,9 @@ import { Service, EdgeConfig, Edge, Websocket, ChannelAddress, Utils } from 'src
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
 import { UpdateSoftwareRequest } from 'src/app/shared/jsonrpc/request/updateSoftwareRequest';
+import { UpdateSoftwareResponse } from 'src/app/shared/jsonrpc/response/updateSoftwareResponse';
+import { Alerts } from 'src/app/shared/service/alerts';
+import { environment } from 'src/environments';
 
 @Component({
     selector: 'kacoupdate-modal',
@@ -14,27 +17,75 @@ export class KacoUpdateModalComponent implements OnInit {
 
     @Input() edge: Edge;
     @Input() config: EdgeConfig;
-    @Input() essComponents: EdgeConfig.Component[];
 
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
     public outputChannel: ChannelAddress[] = null;
 
+    public uiSuccess = false;
+    public uiError = false;
+    public edgeSuccess = false;
+    public edgeError = false;
+    public env = environment;
+    public btnDisabled = false;
+
     constructor(
         public service: Service,
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public websocket: Websocket,
+        private alerts: Alerts,
     ) { }
 
     ngOnInit() {
     }
 
     updateSoftware() {
+        this.btnDisabled = true;
+
         let request = new UpdateSoftwareRequest();
         this.edge.sendRequest(this.websocket, request).then(response => {
 
-        })
+            let result = (response as UpdateSoftwareResponse).result;
+            this.modalCtrl.dismiss();
+            let message = "";
+            let restart = false;
+            switch (result.Success) {
+                case 1:
+                    message += this.translate.instant('KacoUpdate.Succes1');
+                    break;
+                case 2:
+                    message += this.translate.instant('KacoUpdate.Succes2');
+                    restart = true;
+                    break;
+                case 3:
+                    message += this.translate.instant('KacoUpdate.Succes3');
+                    restart = true;
+                    break;
+                default:
+                    break;
+            }
+
+            switch (result.Error) {
+                case 1:
+                    message += this.translate.instant('KacoUpdate.Error1');
+                    break;
+                case 2:
+                    message += this.translate.instant('KacoUpdate.Error2');
+                    break;
+                case 3:
+                    message += this.translate.instant('KacoUpdate.Error3');
+                    break;
+                default:
+                    break;
+            }
+
+            this.alerts.updateConfirm(message, restart);
+            this.btnDisabled = false;
+
+        });
+
+
     }
 }

@@ -10,25 +10,35 @@
 </ion-header>
 <ion-content>
     <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-
         <ion-card-content>
-
             <table class="full_width">
                 <tr>
-                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/HasEdgeUpdate'] === 1">Eine neue Version der
-                        hy-control Software ist verfügbar.
+                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/HasUpdate'] > 1" translate>
+                        KacoUpdate.NewSoftware
                     </td>
-                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/HasUiUpdate'] === 1">Eine neue Version der
-                        hy-control Benutzeroberfläche ist verfügbar.
+                </tr>
+                <tr>
+                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/HasUpdate'] !== 2" translate>KacoUpdate.NewUi
                     </td>
+                </tr>
+                <tr *ngIf="env.backend === 'OpenEMS Edge'">
                     <td style="width:100%">
-                        <ion-button (click)="updateSoftware()">
-                            Aktualisieren
+                        <ion-button (click)="updateSoftware()" [disabled]="btnDisabled" translate>
+                            KacoUpdate.Update
                         </ion-button>
+                    </td>
+                </tr>
+                <tr *ngIf="env.backend !== 'OpenEMS Edge'">
+                    <td style="width:100%" translate>
+                        KacoUpdate.OpenLocal
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/Progress'] !== -1">
+                        <percentagebar [value]="currentData['_kacoUpdate/Progress']"></percentagebar>
                     </td>
                 </tr>
             </table>
         </ion-card-content>
-
     </ng-container>
 </ion-content>
