@@ -32,6 +32,9 @@ export class SymmetricPeakshavingComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
+                this.edge.subscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR, [
+                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePower')
+                ])
             });
         });
     }

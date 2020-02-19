@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Service } from '../../../../../shared/shared';
+import { Service, EdgeConfig } from '../../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
@@ -10,7 +10,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 export class SymmetricPeakshavingModalComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public controllerId: string;
+    @Input() public component: EdgeConfig.Component;
 
     private static readonly SELECTOR = "autarchy-modal";
 

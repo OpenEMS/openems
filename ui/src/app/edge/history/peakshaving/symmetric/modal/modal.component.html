@@ -1,6 +1,7 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title translate>General.Autarchy</ion-title>
+        <ion-title *ngIf="component.alias != component.id">{{ component.alias }}</ion-title>
+        <ion-title *ngIf="component.alias == component.id">{{ component.id }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -16,7 +17,7 @@
 
 <ion-content>
     <ion-card-content>
-        <symmetricpeakshavingchart [controllerId]="controllerId" [period]="service.historyPeriod">
+        <symmetricpeakshavingchart [component]="component" [period]="service.historyPeriod">
         </symmetricpeakshavingchart>
     </ion-card-content>
 </ion-content>

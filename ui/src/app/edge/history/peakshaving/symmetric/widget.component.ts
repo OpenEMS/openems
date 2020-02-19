@@ -33,11 +33,6 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.controllerId);
-                this.edge.subscribeChannels(this.websocket, SymmetricPeakshavingWidgetComponent.SELECTOR, [
-                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
-                    new ChannelAddress(this.controllerId, '_PropertyRechargePower'),
-                    new ChannelAddress(this.controllerId, '_PropertyPeakShavingPower'),
-                ])
             });
         });
     }
@@ -51,7 +46,7 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
             component: SymmetricPeakshavingModalComponent,
             cssClass: 'wide-modal',
             componentProps: {
-                controllerId: this.controllerId
+                component: this.component
             }
         });
         return await modal.present();
