@@ -40,6 +40,9 @@ import { StorageSingleChartComponent } from './storage/singlechart.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
 import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { StorageComponent } from './storage/widget.component';
+import { HeatingelementChartComponent } from './heatingelement/chart.component';
+import { HeatingelementModalComponent } from './heatingelement/modal/modal.component';
+import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
 
 @NgModule({
   imports: [
@@ -52,6 +55,7 @@ import { StorageComponent } from './storage/widget.component';
     EnergyModalComponent,
     EvcsModalComponent,
     GridModalComponent,
+    HeatingelementModalComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     StorageModalComponent,
@@ -78,6 +82,9 @@ import { StorageComponent } from './storage/widget.component';
     GridChartComponent,
     GridComponent,
     GridModalComponent,
+    HeatingelementChartComponent,
+    HeatingelementModalComponent,
+    HeatingelementWidgetComponent,
     HistoryComponent,
     ProductionChargerChartComponent,
     ProductionComponent,
