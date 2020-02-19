@@ -1,0 +1,30 @@
+= Core services for OpenEMS Edge
+
+== ComponentManager
+
+A service that provides easy access to OpenEMS-Components and Channels. It also provides some sub-services:
+
+DefaultConfigurationWorker::
+Applies a default configuration, i.e. activates certain OpenEMS Components that are to be enabled by default on deployment, like Modbus-TCP-Slave Api and JSON/REST Api.
+
+OsgiValidateWorker::
+Checks if configured Components are actually enabled.
+
+OutOfMemoryHeapDumpWorker::
+Checks for heap-dump files which get created if OpenEMS Edge crashed because of an OutOfMemory-Error in a previous run.
+
+== Cycle
+
+Provides the core runtime Cycle of OpenEMS Edge
+
+== Host
+
+A service that provides host and operating system specific commands like configuration of TCP/IP network.
+
+== Meta
+
+A service that provides 'OpenemsConstants' as Channels so that they are available via Apis; example: _meta/Version for the current version of OpenEMS Edge.
+
+== Sum
+
+A service that holds summed up information on the power and energy flows, like aggregated production, consumption and energy storage charge/discharge. 

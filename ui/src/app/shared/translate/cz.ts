@@ -8,6 +8,7 @@ export const TRANSLATION = {
         Off: "Pryč",
         State: "Stát",
         Active: "aktivně",
+        currentValue: 'Aktuální hodnota',
         Inactive: "Neaktivní",
         Manually: "Ruční",
         Phase: "Fáze",
@@ -42,6 +43,7 @@ export const TRANSLATION = {
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         ChangeAccepted: "Změna byla přijata",
         ChangeFailed: "Změna se nezdařila",
+        InputNotValid: "Vstup je neplatný",
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -80,7 +82,7 @@ export const TRANSLATION = {
                 GridMeter: "Elektroměr - Odběr",
                 ProductionMeter: "Elektroměr - Výroba",
                 StorageDischarge: "baterie výtok",
-                StorageCharge: "baterie nakládání"
+                StorageCharge: "baterie nakládání",
             },
             Energytable: {
                 Title: "Tabulka hodnot",
@@ -104,6 +106,12 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "Výstup"
                 },
+                Peakshaving: {
+                    peakshaving: 'špičkové holení',
+                    peakshavingPower: 'Uvolnění',
+                    rechargePower: 'Načítání pod',
+                    relationError: 'Mez vypouštění musí být větší nebo rovna limitu zatížení'
+                },
                 phasesInfo: "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
                 autarchyInfo: "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
                 selfconsumptionInfo: "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
@@ -114,6 +122,7 @@ export const TRANSLATION = {
                     HighThreshold: "vysoký práh"
                 },
                 EVCS: {
+                    ChargeTarget: "Cíl nabíjení",
                     ChargingStation: "Nabíjecí stanice",
                     ChargingStationCluster: "Klastr nabíjecí stanice",
                     OverviewChargingStations: "Přehled nabíjecích stanic",

@@ -65,7 +65,16 @@
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
+            <!-- TODO remove after all systems with Modbus/TCP-Slave Api are updated to at least 2020.5.1 -->
             <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6" class="ion-no-padding">
               <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 
@@ -84,6 +93,10 @@
 
             <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
               <chpsoc [componentId]="widget.componentId"></chpsoc>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
+              <symmetricpeakshaving [componentId]="widget.componentId"></symmetricpeakshaving>
             </ion-col>
 
             <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
