@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractWorker;
 
 /**
@@ -27,10 +28,10 @@ import io.openems.common.worker.AbstractWorker;
 public class DefaultConfigurationWorker extends AbstractWorker {
 
 	/**
-	 * Time to wait before doing the check. This allows the system to completele
+	 * Time to wait before doing the check. This allows the system to completely
 	 * boot and read configurations.
 	 */
-	private final static int INITIAL_CYCLE_TIME = 5_000; // in ms
+	private final static int INITIAL_WAIT_TIME = 30_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(DefaultConfigurationWorker.class);
 	private final ComponentManagerImpl parent;
@@ -48,7 +49,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	private boolean createDefaultConfigurations(List<Config> existingConfigs) {
 		boolean defaultConfigurationFailed = false;
 
-		/**
+		/*
 		 * Create Controller.Api.Rest.ReadOnly
 		 */
 		if (existingConfigs.stream().noneMatch(c -> //
@@ -63,6 +64,26 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 							new Property("enabled", true), //
 							new Property("port", 8084), //
 							new Property("debugMode", false) //
+					));
+		}
+
+		/*
+		 * Create Controller.Api.Modbus.ReadOnly
+		 */
+		if (existingConfigs.stream().noneMatch(c -> //
+		// Check if either "Controller.Api.Rest.ReadOnly" or
+		// "Controller.Api.Rest.ReadWrite" exist
+		"Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
+				|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
+			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
+			defaultConfigurationFailed = this.createConfiguration(defaultConfigurationFailed,
+					"Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
+							new Property("id", "ctrlApiModbusTcp0"), //
+							new Property("alias", ""), //
+							new Property("enabled", true), //
+							new Property("port", 502), //
+							new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
+							new Property("maxConcurrentConnections", 5) //
 					));
 		}
 
@@ -150,7 +171,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	@Override
 	protected int getCycleTime() {
 		// initial cycle time
-		return DefaultConfigurationWorker.INITIAL_CYCLE_TIME;
+		return DefaultConfigurationWorker.INITIAL_WAIT_TIME;
 	}
 
 }
