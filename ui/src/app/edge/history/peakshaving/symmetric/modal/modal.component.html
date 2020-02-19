@@ -1,0 +1,22 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-title translate>General.Autarchy</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons class="ion-justify-content-center">
+            <pickdate></pickdate>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-card-content>
+        <symmetricpeakshavingchart [controllerId]="controllerId" [period]="service.historyPeriod">
+        </symmetricpeakshavingchart>
+    </ion-card-content>
+</ion-content>
