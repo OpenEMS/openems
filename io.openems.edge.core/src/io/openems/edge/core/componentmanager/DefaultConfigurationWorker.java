@@ -197,7 +197,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	/**
 	 * Holds a configuration.
 	 */
-	private static class Config {
+	protected static class Config {
 		protected static Config from(Configuration config) {
 			Object componentIdObj = config.getProperties().get("id");
 			String componentId;
