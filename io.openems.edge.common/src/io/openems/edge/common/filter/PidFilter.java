@@ -66,8 +66,8 @@ public class PidFilter {
 			this.setHighLimitForI(highLimit - lowLimit);
 		}
 		// Apply general limits
-		this.lowLimit = highLimit;
-		this.highLimit = lowLimit;
+		this.lowLimit = lowLimit;
+		this.highLimit = highLimit;
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class PidFilter {
 			this.errorSum = error;
 
 		} else if (this.rampLimit != 0
-				&& !isWithinLimits(output, this.lastOutput - this.rampLimit, this.lastOutput + this.rampLimit)) {
+				&& !this.isWithinLimits(output, this.lastOutput - this.rampLimit, this.lastOutput + this.rampLimit)) {
 			// Output value does not fit into the limit on the rate at which the output
 			// value can increase -> reset error
 			this.errorSum = error;
@@ -165,7 +165,7 @@ public class PidFilter {
 		 */
 		if (this.highLimit != this.lowLimit) {
 			// Apply output value limits
-			output = applyLowHighLimits(output, this.highLimit, this.lowLimit);
+			output = this.applyLowHighLimits(output, this.lowLimit, this.highLimit);
 		}
 
 		if (this.rampLimit != 0) {
@@ -223,7 +223,13 @@ public class PidFilter {
 	 * @return the value within low and high limit
 	 */
 	private double applyLowHighLimits(double value, double low, double high) {
-		return Math.min(value, Math.max(value, low));
+		if (value < low) {
+			value = low;
+		}
+		if (value > high) {
+			value = high;
+		}
+		return value;
 	}
 
 	/**
