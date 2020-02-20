@@ -54,6 +54,14 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 		final AtomicBoolean defaultConfigurationFailed = new AtomicBoolean(false);
 
 		/*
+		 * Delete configuration for deprecated Controller.Api.Rest
+		 */
+		existingConfigs.stream().filter(c -> //
+		c.componentId.isPresent() && "Controller.Api.Rest".equals(c.factoryPid)).forEach(c -> {
+			this.deleteConfiguration(defaultConfigurationFailed, c.componentId.get());
+		});
+
+		/*
 		 * Create Controller.Api.Rest.ReadOnly
 		 */
 		if (existingConfigs.stream().noneMatch(c -> //
