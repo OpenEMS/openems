@@ -2,7 +2,6 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { differenceInHours } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
@@ -18,7 +17,6 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   @Input() private period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
 
-  private config: EdgeConfig;
 
   ngOnChanges() {
     this.updateChart();
@@ -41,66 +39,78 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-      let result = (response as QueryHistoricTimeseriesDataResponse).result;
-      // convert labels
-      let labels: Date[] = [];
-      for (let timestamp of result.timestamps) {
-        labels.push(new Date(timestamp));
-      }
-      this.labels = labels;
+      this.service.getCurrentEdge().then(() => {
+        this.service.getConfig().then(config => {
+          let result = (response as QueryHistoricTimeseriesDataResponse).result;
+          // convert labels
+          let labels: Date[] = [];
+          for (let timestamp of result.timestamps) {
+            labels.push(new Date(timestamp));
+          }
+          this.labels = labels;
 
-      // convert datasets
-      let datasets = [];
-      let outputChannel1 = ChannelAddress.fromString(this.config.getComponentProperties(this.component.id)['outputChannelAddress1'])
-      let outputChannel2 = ChannelAddress.fromString(this.config.getComponentProperties(this.component.id)['outputChannelAddress1'])
-      let outputChannel3 = ChannelAddress.fromString(this.config.getComponentProperties(this.component.id)['outputChannelAddress1'])
+          // convert datasets
+          let datasets = [];
+          let outputChannel1 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1'])
+          let outputChannel2 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1'])
+          let outputChannel3 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1'])
 
-      for (let channel in result.data) {
-        if (channel == outputChannel1.toString()) {
-          let data = result.data[channel].map(value => {
-            if (value == null) {
-              return null
-            } else {
-              return value * 100; // convert to % [0,100]
+          for (let channel in result.data) {
+            if (channel == outputChannel1.toString()) {
+              let data = result.data[channel].map(value => {
+                if (value == null) {
+                  return null
+                } else {
+                  return value * 100; // convert to % [0,100]
+                }
+              });
+              datasets.push({
+                label: this.translate.instant('General.Phase') + ' L1',
+                data: data
+              });
+              this.colors.push(this.phase1Color);
             }
-          });
-          datasets.push({
-            label: this.translate.instant('General.Phase') + ' L1',
-            data: data
-          });
-          this.colors.push(this.phase1Color);
-        }
-        if (channel == outputChannel2.toString()) {
-          let data = result.data[channel].map(value => {
-            if (value == null) {
-              return null
-            } else {
-              return value * 100; // convert to % [0,100]
+            if (channel == outputChannel2.toString()) {
+              let data = result.data[channel].map(value => {
+                if (value == null) {
+                  return null
+                } else {
+                  return value * 100; // convert to % [0,100]
+                }
+              });
+              datasets.push({
+                label: this.translate.instant('General.Phase') + ' L2',
+                data: data
+              });
+              this.colors.push(this.phase2Color);
             }
-          });
-          datasets.push({
-            label: this.translate.instant('General.Phase') + ' L2',
-            data: data
-          });
-          this.colors.push(this.phase2Color);
-        }
-        if (channel == outputChannel3.toString()) {
-          let data = result.data[channel].map(value => {
-            if (value == null) {
-              return null
-            } else {
-              return value * 100; // convert to % [0,100]
+            if (channel == outputChannel3.toString()) {
+              let data = result.data[channel].map(value => {
+                if (value == null) {
+                  return null
+                } else {
+                  return value * 100; // convert to % [0,100]
+                }
+              });
+              datasets.push({
+                label: this.translate.instant('General.Phase') + ' L3',
+                data: data
+              });
+              this.colors.push(this.phase3Color);
             }
-          });
-          datasets.push({
-            label: this.translate.instant('General.Phase') + ' L3',
-            data: data
-          });
-          this.colors.push(this.phase3Color);
-        }
-      }
-      this.datasets = datasets;
-      this.loading = false;
+          }
+          this.datasets = datasets;
+          this.loading = false;
+        }).catch(reason => {
+          console.error(reason); // TODO error message
+          this.initializeChart();
+          return;
+        });
+      }).catch(reason => {
+        console.error(reason); // TODO error message
+        this.initializeChart();
+        return;
+      });
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -109,8 +119,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-    return new Promise((resolve, reject) => {
-      this.config = config;
+    return new Promise((resolve) => {
       const outputChannel1 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress1']);
       const outputChannel2 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress2']);
       const outputChannel3 = ChannelAddress.fromString(config.getComponentProperties(this.component.id)['outputChannelAddress3']);
