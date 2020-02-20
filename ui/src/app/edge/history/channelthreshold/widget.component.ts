@@ -10,6 +10,7 @@ import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseri
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { ChannelthresholdModalComponent } from './modal/modal.component';
+import { calculateActiveTimeOverPeriod } from '../shared';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,
@@ -63,49 +64,8 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-                            // convert datasets
-                            let datasets = [];
-                            for (let channel in result.data) {
-                                let data = result.data[channel].map(value => {
-                                    if (value == null) {
-                                        return null
-                                    } else {
-                                        return value * 100; // convert to % [0,100]
-                                    }
-                                });
-                                datasets.push({
-                                    label: "Ausgang",
-                                    data: data
-                                });
-                            }
-
-                            // calculate active time of period in minutes and hours
-                            let activeSum: number = 0;
-                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']).toString();
-
-                            result.data[outputChannel].forEach(value => {
-                                activeSum += value;
-                            })
-
-                            // start-/endOfTheDay because last timestamp is 23:55
-                            let startDate = startOfDay(new Date(result.timestamps[0]));
-                            let endDate = endOfDay(new Date(result.timestamps[result.timestamps.length - 1]));
-                            let activePercent = activeSum / result.timestamps.length;
-                            let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
-                            let activeTimeHours: string = (activeTimeMinutes / 60).toFixed(1);
-
-                            if (activeTimeMinutes > 59) {
-                                this.activeTimeOverPeriod = activeTimeHours + ' h'
-                                // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
-                                activeTimeHours.split('').forEach((letter, index) => {
-                                    if (index == activeTimeHours.length - 1 && letter == "0" && activeTimeMinutes > 60) {
-                                        this.activeTimeOverPeriod = activeTimeHours.slice(0, -2) + ' h'
-                                    }
-                                });
-                            } else {
-                                this.activeTimeOverPeriod = this.decimalPipe.transform(activeTimeMinutes.toString(), '1.0-1') + ' m'
-                            }
-
+                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+                            this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
 
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
@@ -138,4 +98,3 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
         return await modal.present();
     }
 }
-
