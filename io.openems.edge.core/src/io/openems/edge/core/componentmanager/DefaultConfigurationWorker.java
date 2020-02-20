@@ -3,10 +3,12 @@ package io.openems.edge.core.componentmanager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -16,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractWorker;
@@ -31,7 +35,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 * Time to wait before doing the check. This allows the system to completely
 	 * boot and read configurations.
 	 */
-	private final static int INITIAL_WAIT_TIME = 30_000; // in ms
+	private static final int INITIAL_WAIT_TIME = 30_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(DefaultConfigurationWorker.class);
 	private final ComponentManagerImpl parent;
@@ -47,7 +51,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 *         applied
 	 */
 	private boolean createDefaultConfigurations(List<Config> existingConfigs) {
-		boolean defaultConfigurationFailed = false;
+		final AtomicBoolean defaultConfigurationFailed = new AtomicBoolean(false);
 
 		/*
 		 * Create Controller.Api.Rest.ReadOnly
@@ -57,14 +61,13 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 		// "Controller.Api.Rest.ReadWrite" exist
 		"Controller.Api.Rest.ReadOnly".equals(c.factoryPid) || "Controller.Api.Rest.ReadWrite".equals(c.factoryPid))) {
 			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			defaultConfigurationFailed = this.createConfiguration(defaultConfigurationFailed,
-					"Controller.Api.Rest.ReadOnly", Arrays.asList(//
-							new Property("id", "ctrlApiRest0"), //
-							new Property("alias", ""), //
-							new Property("enabled", true), //
-							new Property("port", 8084), //
-							new Property("debugMode", false) //
-					));
+			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.Rest.ReadOnly", Arrays.asList(//
+					new Property("id", "ctrlApiRest0"), //
+					new Property("alias", ""), //
+					new Property("enabled", true), //
+					new Property("port", 8084), //
+					new Property("debugMode", false) //
+			));
 		}
 
 		/*
@@ -76,18 +79,17 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 		"Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
 				|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
 			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			defaultConfigurationFailed = this.createConfiguration(defaultConfigurationFailed,
-					"Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
-							new Property("id", "ctrlApiModbusTcp0"), //
-							new Property("alias", ""), //
-							new Property("enabled", true), //
-							new Property("port", 502), //
-							new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
-							new Property("maxConcurrentConnections", 5) //
-					));
+			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
+					new Property("id", "ctrlApiModbusTcp0"), //
+					new Property("alias", ""), //
+					new Property("enabled", true), //
+					new Property("port", 502), //
+					new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
+					new Property("maxConcurrentConnections", 5) //
+			));
 		}
 
-		return defaultConfigurationFailed;
+		return defaultConfigurationFailed.get();
 	}
 
 	@Override
@@ -126,25 +128,69 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	}
 
 	/**
-	 * Creates and applies a Component configuration.
+	 * Creates a Component configuration.
 	 * 
-	 * @param lastResult  the result of the last configuration
-	 * @param componentId the Component-ID
-	 * @param properties  the Component properties
-	 * @return false on success; true on error or if lastResult was already true
+	 * @param defaultConfigurationFailed the result of the last configuration,
+	 *                                   updated on error
+	 * @param factoryPid                 the Factory-PID
+	 * @param properties                 the Component properties
 	 */
-	private boolean createConfiguration(boolean lastResult, String factoryPid, List<Property> properties) {
+	protected void createConfiguration(AtomicBoolean defaultConfigurationFailed, String factoryPid,
+			List<Property> properties) {
 		try {
 			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleCreateComponentConfigRequest(
 					null /* no user */, new CreateComponentConfigRequest(factoryPid, properties));
 			response.get(60, TimeUnit.SECONDS);
-			return lastResult;
 
 		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
 			this.parent.logError(this.log,
 					"Unable to create Component configuration for Factory [" + factoryPid + "]: " + e.getMessage());
 			e.printStackTrace();
-			return true;
+			defaultConfigurationFailed.set(true);
+		}
+	}
+
+	/**
+	 * Updates a Component configuration.
+	 * 
+	 * @param defaultConfigurationFailed the result of the last configuration,
+	 *                                   updated on error
+	 * @param componentId                the Component-ID
+	 * @param properties                 the Component properties
+	 */
+	protected void updateConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId,
+			List<Property> properties) {
+		try {
+			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleUpdateComponentConfigRequest(
+					null /* no user */, new UpdateComponentConfigRequest(componentId, properties));
+			response.get(60, TimeUnit.SECONDS);
+
+		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
+			this.parent.logError(this.log,
+					"Unable to update Component configuration for Component [" + componentId + "]: " + e.getMessage());
+			e.printStackTrace();
+			defaultConfigurationFailed.set(true);
+		}
+	}
+
+	/**
+	 * Deletes a Component configuration.
+	 * 
+	 * @param defaultConfigurationFailed the result of the last configuration,
+	 *                                   updated on error
+	 * @param componentId                the Component-ID
+	 * @return false on success; true on error or if lastResult was already true
+	 */
+	protected void deleteConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId) {
+		try {
+			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleDeleteComponentConfigRequest(
+					null /* no user */, new DeleteComponentConfigRequest(componentId));
+			response.get(60, TimeUnit.SECONDS);
+
+		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
+			this.parent.logError(this.log, "Unable to delete Component [" + componentId + "]: " + e.getMessage());
+			e.printStackTrace();
+			defaultConfigurationFailed.set(true);
 		}
 	}
 
@@ -153,18 +199,22 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 */
 	private static class Config {
 		protected static Config from(Configuration config) {
-			return new Config(config.getFactoryPid());
+			Object componentIdObj = config.getProperties().get("id");
+			String componentId;
+			if (componentIdObj != null) {
+				componentId = componentIdObj.toString();
+			} else {
+				componentId = null;
+			}
+			return new Config(config.getFactoryPid(), componentId);
 		}
 
 		protected final String factoryPid;
+		protected final Optional<String> componentId;
 
-		private Config(String factoryPid) {
+		private Config(String factoryPid, String componentId) {
 			this.factoryPid = factoryPid;
-		}
-
-		@Override
-		public String toString() {
-			return this.factoryPid;
+			this.componentId = Optional.ofNullable(componentId);
 		}
 	}
 

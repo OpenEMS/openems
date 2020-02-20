@@ -300,7 +300,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
 			UpdateComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
@@ -336,7 +336,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
 			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
