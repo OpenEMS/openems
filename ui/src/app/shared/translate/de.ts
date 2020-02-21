@@ -43,6 +43,7 @@ export const TRANSLATION = {
         Search: "Suchen",
         ChangeAccepted: "Änderung übernommen",
         ChangeFailed: "Änderung fehlgeschlagen",
+        InputNotValid: "Eingabe ungültig",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
@@ -125,6 +126,7 @@ export const TRANSLATION = {
                     HighThreshold: "Oberer Schwellenwert"
                 },
                 EVCS: {
+                    ChargeTarget: "Ladevorgabe",
                     ChargingStation: "Ladestation",
                     ChargingStationCluster: "Ladestation Cluster",
                     OverviewChargingStations: "Übersicht Ladestationen",

@@ -64,6 +64,14 @@
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
             <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
@@ -82,6 +90,10 @@
             </ion-col>
 
             <!-- Widgets that are likely to be configured seldomly -->
+
+            <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
+              <symmetricpeakshaving [componentId]="widget.componentId"></symmetricpeakshaving>
+            </ion-col>
 
             <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
               <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>

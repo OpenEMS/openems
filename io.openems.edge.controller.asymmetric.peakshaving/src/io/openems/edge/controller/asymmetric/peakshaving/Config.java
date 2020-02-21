@@ -3,7 +3,7 @@ package io.openems.edge.controller.asymmetric.peakshaving;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Peak-Shaving Asymmetric", //
 		description = "Cuts power peaks and recharges the battery in low consumption periods, depending on the individual phase.")
 @interface Config {

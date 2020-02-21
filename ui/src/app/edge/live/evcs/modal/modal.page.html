@@ -16,7 +16,6 @@
     </ion-header>
     <ion-content>
         <ng-container *ngIf="currentData[componentId + '/State'] != 3">
-
             <ion-card-content class="underline">
                 <table class="full_width">
                     <tr>
@@ -29,6 +28,22 @@
                     </tr>
                 </table>
                 <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.EVCS.ChargeTarget
+                        </td>
+                        <ng-container
+                            *ngIf="currentData[componentId + '/SetChargePowerLimit'] >= currentData[componentId + '/MaximumHardwarePower']; else chargePowerLimitValid">
+                            <td style="width: 35%" class="align_right">
+                                {{ formatNumber(currentData[componentId + "/MaximumHardwarePower"]) | unitvalue:'W' }}
+                            </td>
+                        </ng-container>
+                        <ng-template #chargePowerLimitValid>
+                            <td style="width: 35%" class="align_right">
+                                {{ formatNumber(currentData[componentId + "/SetChargePowerLimit"]) | unitvalue:'W' }}
+                            </td>
+                        </ng-template>
+                    </tr>
                     <tr>
                         <td style="width:65%" translate>
                             Edge.Index.Widgets.EVCS.ChargingPower
@@ -177,7 +192,7 @@
                                     Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging
                                 </td>
                                 <td style="width: 35%" class="align_right">
-                                    {{controller.properties['forceChargeMinPower'] | unitvalue:'W'}}
+                                    {{controller.properties['forceChargeMinPower'] * numberOfPhases | unitvalue:'W'}}
                                 </td>
                             </tr>
                         </table>
@@ -187,7 +202,7 @@
                                     min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
                                     max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
                                     color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="500"
-                                    value="{{controller.properties['forceChargeMinPower']}}">
+                                    value="{{controller.properties['forceChargeMinPower'] * numberOfPhases}}">
                                     <ion-label slot="start">
                                         {{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) | unitvalue:'W'}}
                                     </ion-label>

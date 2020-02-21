@@ -38,11 +38,6 @@ public class BalancingTest {
 		}
 
 		@Override
-		public double maxPowerAdjustmentRate() {
-			return Balancing.DEFAULT_MAX_ADJUSTMENT_RATE;
-		}
-
-		@Override
 		public int targetGridSetpoint() {
 			return 0;
 		}

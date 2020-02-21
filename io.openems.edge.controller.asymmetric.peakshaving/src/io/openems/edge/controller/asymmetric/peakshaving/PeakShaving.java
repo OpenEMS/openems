@@ -26,7 +26,7 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Controller.Asymmetric.PeakShaving", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
@@ -90,14 +90,19 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != GridMode.ON_GRID) {
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
+			this.pidFilter.reset();
 			return;
 		}
 
-		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().value().orElse(0) + ess.getActivePower().value().orElse(0);
-		int calculatedPower;
-
+		/*
+		 * Calculate 'effective' grid-power (without current ESS charge/discharge)
+		 */
+		int gridPower;
 		if (meter instanceof AsymmetricMeter) {
 			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
 
@@ -106,20 +111,25 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 			int gridPowerL3 = asymmetricMeter.getActivePowerL3().value().orElse(0);
 
 			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
-			gridPower = maxPowerOnPhase * 3 + ess.getActivePower().value().orElse(0);
+			gridPower = maxPowerOnPhase * 3;
+
+		} else {
+			gridPower = meter.getActivePower().value().orElse(0);
 		}
-		
+		int effectiveGridPower = gridPower + ess.getActivePower().value().orElse(0);
+
+		int calculatedPower;
 		int wholePeakShavingPower = this.config.peakShavingPower() * 3;
 		int wholeRechargePower = this.config.rechargePower() * 3;
-		if (gridPower >= wholePeakShavingPower) {
+		if (effectiveGridPower >= wholePeakShavingPower) {
 
 			// Peak-Shaving
-			calculatedPower = gridPower - wholePeakShavingPower;
+			calculatedPower = effectiveGridPower - wholePeakShavingPower;
 
-		} else if (gridPower <= wholeRechargePower) {
+		} else if (effectiveGridPower <= wholeRechargePower) {
 
 			// Recharge
-			calculatedPower = gridPower - wholeRechargePower;
+			calculatedPower = effectiveGridPower - wholeRechargePower;
 
 		} else {
 
@@ -134,9 +144,6 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		int maxPower = this.power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
 		this.pidFilter.setLimits(minPower, maxPower);
 		int pidOutput = (int) this.pidFilter.applyPidFilter(ess.getActivePower().value().orElse(0), calculatedPower);
-
-		// TODO remove before release
-		this.logInfo(this.log, "Without PID: " + calculatedPower + "; With PID: " + pidOutput);
 
 		ess.getSetActivePowerEquals().setNextWriteValue(pidOutput);
 		ess.getSetReactivePowerEquals().setNextWriteValue(0);

@@ -41,6 +41,7 @@ export const TRANSLATION = {
         Search: "Search",
         ChangeAccepted: "Change accepted",
         ChangeFailed: "Change failed",
+        InputNotValid: "Input not valid",
         Week: {
             Monday: "Monday",
             Tuesday: "Tuesday",
@@ -109,6 +110,7 @@ export const TRANSLATION = {
                     HighThreshold: "High Threshold"
                 },
                 EVCS: {
+                    ChargeTarget: "Charge target",
                     ChargingStation: "Charging Station",
                     ChargingStationCluster: "Charging station cluster",
                     OverviewChargingStations: "Overview charging stations",

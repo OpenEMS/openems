@@ -26,6 +26,8 @@ import { ModbusApiComponent } from './modbusapi/modbusapi.component';
 import { OfflineComponent } from './offline/offline.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
+import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { ProductionComponent } from './production/production.component';
 import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
@@ -35,10 +37,10 @@ import { StorageComponent } from './storage/storage.component';
 
 @NgModule({
   imports: [
-    SharedModule,
-    EnergymonitorModule,
+    BrowserAnimationsModule,
     BrowserModule,
-    BrowserAnimationsModule
+    EnergymonitorModule,
+    SharedModule,
   ],
   entryComponents: [
     AsymmetricPeakshavingModalComponent,
@@ -53,6 +55,7 @@ import { StorageComponent } from './storage/storage.component';
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     StorageModalComponent,
+    SymmetricPeakshavingModalComponent
   ],
   declarations: [
     AsymmetricPeakshavingComponent,
@@ -85,6 +88,8 @@ import { StorageComponent } from './storage/storage.component';
     SelfconsumptionModalComponent,
     StorageComponent,
     StorageModalComponent,
+    SymmetricPeakshavingComponent,
+    SymmetricPeakshavingModalComponent,
   ]
 })
 export class LiveModule { }

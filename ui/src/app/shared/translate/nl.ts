@@ -41,6 +41,7 @@ export const TRANSLATION = {
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         ChangeAccepted: "Wijziging geaccepteerd",
         ChangeFailed: "Wijziging mislukt",
+        InputNotValid: "Invoer ongeldig",
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -106,6 +107,7 @@ export const TRANSLATION = {
                     HighThreshold: "hoge drempel"
                 },
                 EVCS: {
+                    ChargeTarget: "Lading doel",
                     ChargingStation: "Laadstation",
                     ChargingStationCluster: "Laadstation cluster",
                     OverviewChargingStations: "Overzicht laadstations",

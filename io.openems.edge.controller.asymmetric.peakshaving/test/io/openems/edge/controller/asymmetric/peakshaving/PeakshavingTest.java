@@ -28,7 +28,7 @@ public class PeakshavingTest {
 		// Add referenced services
 		componentManager = new DummyComponentManager();
 		controller.componentManager = componentManager;
-		DummyPower power = new DummyPower(0.5, 0.2, 0.1);
+		DummyPower power = new DummyPower(1, 0, 0); // easier for testing
 		controller.power = power;
 
 		// Activate (twice, so that reference target is set)
@@ -58,37 +58,37 @@ public class PeakshavingTest {
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
 						.input(grid, 120000) //
-						.output(essSetPower, 10000 /* instead of 20000 without PID */ )) //
+						.output(essSetPower, 20001)) //
 				.next(new TestCase() //
 						.input(ess, 5000) //
 						.input(grid, 120000) //
-						.output(essSetPower, 13500 /* instead of 25000 */ )) //
+						.output(essSetPower, 25001)) //
 				.next(new TestCase() //
 						.input(ess, 10000) //
 						.input(grid, 118000) //
-						.output(essSetPower, 16500 /* instead of 28000 */ )) //
+						.output(essSetPower, 28001)) //
 				.next(new TestCase() //
 						.input(ess, 15000) //
 						.input(grid, 112000) //
-						.output(essSetPower, 17101 /* instead of 27000 */ )) //
+						.output(essSetPower, 27001)) //
 				.next(new TestCase() //
 						.input(ess, 20000) //
 						.input(grid, 105000) //
-						.output(essSetPower, 16001 /* instead of 25000 */ )) //
+						.output(essSetPower, 25001)) //
 				.next(new TestCase() //
 						.input(ess, 23000) //
 						.input(grid, 95000) //
-						.output(essSetPower, 12201 /* instead of 18000 */ )) //
+						.output(essSetPower, 18001)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
 						.input(grid, 40000) //
-						.output(essSetPower, 11302 /* instead of -10000 */ )) //
+						.output(essSetPower, -9998)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
 						.input(grid, 5000) //
-						.output(essSetPower, -10497 /* instead of -45000 */ )) //
+						.output(essSetPower, -44998)) //
 				.run();
 	}
 
@@ -101,7 +101,7 @@ public class PeakshavingTest {
 		// Add referenced services
 		componentManager = new DummyComponentManager();
 		controller.componentManager = componentManager;
-		DummyPower power = new DummyPower(0.5, 0.2, 0.1);
+		DummyPower power = new DummyPower(1, 0, 0); // easier for testing
 		controller.power = power;
 
 		// Activate (twice, so that reference target is set)
@@ -134,49 +134,49 @@ public class PeakshavingTest {
 						.input(gridL1, 10000) //
 						.input(gridL2, 7000) //
 						.input(gridL3, 7000) //
-						.output(essSetPower, 3960 /* instead of 7920 */ )) //
+						.output(essSetPower, 7920)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, -2000) //
 						.input(gridL1, 10000) //
 						.input(gridL2, 7000) //
 						.input(gridL3, 7000) //
-						.output(essSetPower, 5744 /* instead of 5920 */ )) //
+						.output(essSetPower, 5920)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 2000) //
 						.input(gridL1, 10000) //
 						.input(gridL2, 7000) //
 						.input(gridL3, 7000) //
-						.output(essSetPower, 6728 /* instead of 9920 */ )) //
+						.output(essSetPower, 9920)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
 						.input(gridL1, 15000 /* 7.640 more than allowed on this Phase. */) //
 						.input(gridL2, 3000) //
 						.input(gridL3, 3000) //
-						.output(essSetPower, 16412 /* instead of 22920 */ )) //
+						.output(essSetPower, 22920)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
 						.input(gridL1, 3000) //
 						.input(gridL2, 3000) //
 						.input(gridL3, 3000) //
-						.output(essSetPower, 6336 /* instead of -6000 */ )) //
+						.output(essSetPower, -6000)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
 						.input(gridL1, 1000) //
 						.input(gridL2, 1000) //
 						.input(gridL3, 1000) //
-						.output(essSetPower, 2136 /* instead of -12000 */ )) //
+						.output(essSetPower, -12000)) //
 				.next(new TestCase() //
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
 						.input(gridL1, 1000) //
 						.input(gridL2, 1000) //
 						.input(gridL3, 1000) //
-						.output(essSetPower, -264 /* instead of -12000 */ )) //
+						.output(essSetPower, -12000)) //
 				.run();
 	}
 }
