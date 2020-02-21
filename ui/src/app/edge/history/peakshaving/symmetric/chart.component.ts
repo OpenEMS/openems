@@ -66,7 +66,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                             }
                         });
                         datasets.push({
-                            label: this.translate.instant('General.Grid'),
+                            label: this.translate.instant('General.measuredValue'),
                             data: data,
                             hidden: false
                         });
@@ -88,7 +88,8 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         datasets.push({
                             label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
                             data: data,
-                            hidden: false
+                            hidden: false,
+                            borderDash: [3, 3]
                         });
                         this.colors.push({
                             backgroundColor: 'rgba(0,0,0,0)',
@@ -108,7 +109,8 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         datasets.push({
                             label: this.translate.instant('Edge.Index.Widgets.Peakshaving.rechargePower'),
                             data: data,
-                            hidden: false
+                            hidden: false,
+                            borderDash: [3, 3]
                         });
                         this.colors.push({
                             backgroundColor: 'rgba(0,0,0,0)',

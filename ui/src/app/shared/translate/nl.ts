@@ -7,6 +7,7 @@ export const TRANSLATION = {
         Off: "Van",
         Active: "Actief",
         currentValue: 'Huidige waarde',
+        measuredValue: 'Gemeten Waarde',
         Inactive: "Inactief",
         Manually: "handmatig",
         Phase: "Fase",
