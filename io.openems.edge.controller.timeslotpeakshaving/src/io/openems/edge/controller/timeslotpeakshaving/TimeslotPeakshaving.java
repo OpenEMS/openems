@@ -19,10 +19,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -56,17 +54,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 	private final Clock clock;
 
-	boolean isInTimeslot = false;
-	boolean isInBeforeTimeslot = false;
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CHARGE_STATE(Doc.of(ChargeState.values()) //
-				.text("Current State of charging")), //
-		PID_OUTPUT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
-		ACTUAL_POWER_CHARGING(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT));
-
+		;
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -124,7 +113,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		int power = getPower(ess, meter);
 
 		this.applyPower(ess, power);
-		this.channel(ChannelId.CHARGE_STATE).setNextValue(this.chargeState);
 	}
 
 	/**
@@ -134,19 +122,14 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @param pidOuput the power to be set on ess
 	 * @throws OpenemsNamedException
 	 */
-	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsNamedException {
+	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		/*
 		 * if the controller is in the timeslot and just before the time slot set the
 		 * active power
 		 */
-		if (isInTimeslot || isInBeforeTimeslot) {
+		if (activePower == null) {
 			ess.getSetActivePowerEquals().setNextWriteValue(activePower);
 			ess.getSetReactivePowerEquals().setNextWriteValue(0);
-			this.channel(ChannelId.ACTUAL_POWER_CHARGING).setNextValue(activePower);
-			this.isInTimeslot = false;
-			this.isInBeforeTimeslot = false;
-		} else {
-			this.channel(ChannelId.ACTUAL_POWER_CHARGING).setNextValue(null);
 		}
 	}
 
@@ -159,9 +142,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 */
 	private int getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
 			throws OpenemsException, IllegalArgumentException {
+
 		LocalDateTime now = LocalDateTime.now(this.clock);
 		int activePower = this.peakShave(ess, meter);
 		int hysteresisSoc = config.hysteresisSoc();
+
 		LocalDate startDate = convertDate(config.startDate());
 		LocalDate endDate = convertDate(config.endDate());
 		LocalTime startTime = convertTime(config.startTime());
@@ -172,17 +157,15 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		if (this.isHighLoadTimeslot(now, startDate, endDate, startTime, endTime)) {
 			/*
 			 * We are in a High-Load period -> peak shave and discharge/ charge
+			 * and hysteresis "soc" within high load timeslot
 			 */
-			// hysterisis soc within highloadtimeslot
 			if (ess.getSoc().value().orElse(0) >= hysteresisSoc) {
 				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + hysteresisSoc
 						+ "]. Switch to Charge-Normal state.");
 				this.chargeState = ChargeState.HYSTERESIS;
 				return 0;
 			}
-			this.channel(ChannelId.PID_OUTPUT).setNextValue(activePower);
 			this.chargeState = ChargeState.NORMAL;
-			this.isInTimeslot = true;
 			this.logInfo(log, "Within High-Load timeslot. charge with [" + activePower + "]");
 			return activePower;
 		} else if (this.isHighLoadTimeslot(now.plusMinutes(forceChargeMinutes), startDate, endDate, startTime,
@@ -191,8 +174,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			 * We are soon going to be in High-Load period -> activate FORCE_CHARGE mode
 			 */
 			this.logInfo(log, " We are soon going to be in High-Load period ");
-			this.channel(ChannelId.PID_OUTPUT).setNextValue(0);
-			this.isInBeforeTimeslot = true;
 			this.chargeState = ChargeState.FORCE_CHARGE;
 		}
 		/*
