@@ -7,6 +7,7 @@ export const TRANSLATION = {
         State: "Stát",
         Active: "aktivně",
         currentValue: 'Aktuální hodnota',
+        measuredValue: 'Měřená Hodnota',
         Inactive: "Neaktivní",
         Manually: "Ruční",
         Phase: "Fáze",

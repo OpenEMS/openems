@@ -7,6 +7,7 @@ export const TRANSLATION = {
         Off: "Apagado",
         Active: "Activo",
         currentValue: 'Valor actual',
+        measuredValue: 'Valor Medido',
         Inactive: "Inactivo",
         Manually: "a mano",
         Phase: "Fase",
