@@ -43,8 +43,8 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 	private final String factoryPid;
 	private final List<Property> properties;
 
-	public CreateComponentConfigRequest(String componentId, List<Property> properties) {
-		this(UUID.randomUUID(), componentId, properties);
+	public CreateComponentConfigRequest(String factoryPid, List<Property> properties) {
+		this(UUID.randomUUID(), factoryPid, properties);
 	}
 
 	public CreateComponentConfigRequest(UUID id, String factoryPid, List<Property> properties) {

@@ -16,8 +16,8 @@ public class ChargingLowerThanTargetHandler {
 	 */
 	private static final int MAXIMUM_OUT_OF_RANGE_TRIES = 3;
 	private int outOfRangeCounter = 0;
-	private final static double CHARGING_TARGET_MAX_DIFFERENCE_PERCENT = 0.05; // 5%
-	private final static int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 10; // sec
+	private static final double CHARGING_TARGET_MAX_DIFFERENCE_PERCENT = 0.10; // 10%
+	private static final int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 30; // sec
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 
 	private final Clock clock;
@@ -31,8 +31,9 @@ public class ChargingLowerThanTargetHandler {
 	 * charging power is higher than the CHARGING_TARGET_MAX_DIFFERENCE for at least
 	 * MAXIMUM_OUT_OF_RANGE_TRIES.
 	 * 
+	 * @param evcs EVCS
 	 * @return true if the difference is too high
-	 * @throws InvalidValueException
+	 * @throws InvalidValueException invalidValueException
 	 */
 	protected boolean isLower(ManagedEvcs evcs) throws InvalidValueException {
 		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
@@ -55,8 +56,9 @@ public class ChargingLowerThanTargetHandler {
 	 * Check if the difference between the requested charging target and the real
 	 * charging power is higher than the CHARGING_TARGET_MAX_DIFFERENCE.
 	 * 
+	 * @param evcs EVCS
 	 * @return true if the difference is too high
-	 * @throws InvalidValueException
+	 * @throws InvalidValueException invalidValueException
 	 */
 	protected boolean isChargingLowerThanTarget(ManagedEvcs evcs) throws InvalidValueException {
 		int chargingPower = evcs.getChargePower().value().orElse(0);

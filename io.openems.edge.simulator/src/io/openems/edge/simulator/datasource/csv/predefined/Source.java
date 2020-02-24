@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.csv;
+package io.openems.edge.simulator.datasource.csv.predefined;
 
 public enum Source {
 	ZERO("zero.csv"), //
