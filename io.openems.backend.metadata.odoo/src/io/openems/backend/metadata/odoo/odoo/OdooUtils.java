@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -37,6 +38,20 @@ public class OdooUtils {
 			.ofPattern(DEFAULT_SERVER_DATETIME_FORMAT);
 
 	/**
+	 * Wrapper for the reply of a call to
+	 * {@link OdooUtils#sendJsonrpcRequest(String, JsonrpcRequest)}.
+	 */
+	public static class JsonrpcResponseSuccessAndHeaders {
+		public final JsonrpcResponseSuccess response;
+		public final Map<String, List<String>> headers;
+
+		public JsonrpcResponseSuccessAndHeaders(JsonrpcResponseSuccess response, Map<String, List<String>> headers) {
+			this.response = response;
+			this.headers = headers;
+		}
+	}
+
+	/**
 	 * Sends a JSON-RPC Request to an Odoo server.
 	 * 
 	 * @param url     the URL
@@ -45,7 +60,7 @@ public class OdooUtils {
 	 *         even on error...)
 	 * @throws OpenemsNamedException on error
 	 */
-	public static JsonrpcResponseSuccess sendJsonrpcRequest(String url, JsonrpcRequest request)
+	public static JsonrpcResponseSuccessAndHeaders sendJsonrpcRequest(String url, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		HttpURLConnection connection = null;
 		try {
@@ -75,7 +90,7 @@ public class OdooUtils {
 
 			JsonrpcResponse response = JsonrpcResponse.from(sb.toString());
 			if (response instanceof JsonrpcResponseSuccess) {
-				return (JsonrpcResponseSuccess) response;
+				return new JsonrpcResponseSuccessAndHeaders((JsonrpcResponseSuccess) response, connection.getHeaderFields());
 			} else {
 				throw OpenemsError.GENERIC.exception(response);
 			}

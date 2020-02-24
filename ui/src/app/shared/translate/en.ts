@@ -6,6 +6,7 @@ export const TRANSLATION = {
         On: "On",
         Off: "Off",
         Active: "Active",
+        currentValue: 'current value',
         Inactive: "Inactive",
         Manually: "Manually",
         Phase: "Phase",
@@ -40,6 +41,7 @@ export const TRANSLATION = {
         Search: "Search",
         ChangeAccepted: "Change accepted",
         ChangeFailed: "Change failed",
+        InputNotValid: "Input not valid",
         Week: {
             Monday: "Monday",
             Tuesday: "Tuesday",
@@ -90,6 +92,14 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "Output"
                 },
+                Peakshaving: {
+                    peakshaving: 'Peak-Shaving',
+                    peakshavingPower: 'Discharge above',
+                    rechargePower: 'Charge below',
+                    relationError: 'Discharge limit must be greater than or equal to the load limit',
+                    asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
+                    mostStressedPhase: 'Most stressed phase'
+                },
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
                 selfconsumptionInfo: "Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.",
@@ -100,6 +110,7 @@ export const TRANSLATION = {
                     HighThreshold: "High Threshold"
                 },
                 EVCS: {
+                    ChargeTarget: "Charge target",
                     ChargingStation: "Charging Station",
                     ChargingStationCluster: "Charging station cluster",
                     OverviewChargingStations: "Overview charging stations",

@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Datasource-ID", description = "ID of Simulator Datasource.")
-	String datasource_id();
+	String datasource_id() default "datasource0";
 
 	@AttributeDefinition(name = "Minimum Ever Active Power", description = "This is automatically updated.")
 	int minActivePower();

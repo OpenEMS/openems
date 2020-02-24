@@ -1,12 +1,14 @@
 <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
-  <ion-row class="ion-justify-content-center">
+  <ion-row class="ion-justify-content-center" *ngIf="widgets">
     <!-- Energymonitor -->
-    <ion-col size="12" size-md="8" size-lg="3" class="ion-no-padding">
-      <energymonitor></energymonitor>
-    </ion-col>
+    <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+      <ion-col *ngSwitchCase="'Energymonitor'" size="12" size-md="8" size-lg="3" class="ion-no-padding">
+        <energymonitor></energymonitor>
+      </ion-col>
+    </ng-container>
 
     <!-- Widgets -->
-    <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6" class="ion-no-padding">
+    <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
       <ion-grid class="ion-no-padding">
         <ion-row>
           <!-- Regular Widgets -->
@@ -42,6 +44,8 @@
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
+            <!-- Widgets that are likely to be configured frequently -->
+
             <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
               <ng-container
                 *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumtion'">
@@ -60,7 +64,11 @@
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6" class="ion-no-padding">
               <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 
@@ -73,12 +81,28 @@
               <channelthreshold [componentId]="widget.componentId"></channelthreshold>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6" class="ion-no-padding">
+            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
               <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
             </ion-col>
 
             <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
               <chpsoc [componentId]="widget.componentId"></chpsoc>
+            </ion-col>
+
+            <!-- Widgets that are likely to be configured seldomly -->
+
+            <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
+              <symmetricpeakshaving [componentId]="widget.componentId"></symmetricpeakshaving>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
+              <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
+            </ion-col>
+
+            <!-- Widgets for displaying information only -->
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 
           </ng-container>

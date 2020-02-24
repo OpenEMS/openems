@@ -8,6 +8,7 @@ export enum WidgetClass {
     'Grid',
     'Production',
     'Consumption',
+    'Energymonitor'
 }
 
 export enum WidgetNature {
@@ -18,10 +19,13 @@ export enum WidgetNature {
 export enum WidgetFactory {
     'Evcs.Cluster.SelfConsumtion',
     'Evcs.Cluster.PeakShaving',
-    'Controller.Api.ModbusTcp',
+    'Controller.Api.ModbusTcp.ReadOnly',
+    'Controller.Api.ModbusTcp.ReadWrite',
+    'Controller.Asymmetric.PeakShaving',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
-    'Controller.CHP.SoC'
+    'Controller.CHP.SoC',
+    'Controller.Symmetric.PeakShaving',
 }
 
 export class Widget {
@@ -41,10 +45,16 @@ export class Widgets {
                     return true;
                 }
                 switch (clazz) {
-                    case 'Grid':
-                    case 'Consumption':
                     case 'Autarchy':
-                        return true; // Always show Grid + Consumption + Autarchy
+                    case 'Grid':
+                        return config.hasMeter();
+                    case 'Energymonitor':
+                    case 'Consumption':
+                        if (config.hasMeter() == true || config.hasProducer() == true || config.hasStorage() == true) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     case 'Storage':
                         return config.hasStorage();
                     case 'Production':
@@ -57,12 +67,16 @@ export class Widgets {
 
         for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
             for (let componentId of config.getComponentIdsImplementingNature(nature)) {
-                list.push({ name: nature, componentId: componentId });
+                if (config.getComponent(componentId).isEnabled) {
+                    list.push({ name: nature, componentId: componentId });
+                }
             }
         }
         for (let factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
             for (let componentId of config.getComponentIdsByFactory(factory)) {
-                list.push({ name: factory, componentId: componentId });
+                if (config.getComponent(componentId).isEnabled) {
+                    list.push({ name: factory, componentId: componentId });
+                }
             }
         }
 
