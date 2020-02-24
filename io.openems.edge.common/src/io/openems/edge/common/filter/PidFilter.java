@@ -141,7 +141,7 @@ public class PidFilter {
 		/*
 		 * Calculate error
 		 */
-		if (this.highLimit != this.lowLimit && !this.isWithinLimits(output, this.highLimit, this.lowLimit)) {
+		if (this.highLimit != this.lowLimit && !this.isWithinLimits(output, this.lowLimit, this.highLimit)) {
 			// Output value does not fit into low and high limits -> reset error
 			this.errorSum = error;
 

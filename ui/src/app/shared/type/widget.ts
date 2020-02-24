@@ -21,6 +21,7 @@ export enum WidgetFactory {
     'Evcs.Cluster.PeakShaving',
     'Controller.Api.ModbusTcp.ReadOnly',
     'Controller.Api.ModbusTcp.ReadWrite',
+    'Controller.Asymmetric.PeakShaving',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.CHP.SoC',
