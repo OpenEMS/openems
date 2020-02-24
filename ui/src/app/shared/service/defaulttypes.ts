@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { format, getDay, isSameDay, subDays } from 'date-fns';
+import { EdgeConfig } from '../shared';
 
 export module DefaultTypes {
 
