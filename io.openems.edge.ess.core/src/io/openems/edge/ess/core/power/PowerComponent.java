@@ -130,6 +130,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
 	private Config config;
+	private PidFilter pidFilter;
 
 	public PowerComponent() {
 		super(//
@@ -154,6 +155,9 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.solver.setDebugMode(config.debugMode());
 		this.solver.setStrategy(config.strategy());
 		this.config = config;
+
+		// build a PidFilter instance with the configured P, I and D variables
+		this.pidFilter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
 	}
 
 	@Deactivate
@@ -321,17 +325,9 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		super.logError(log, message);
 	}
 
-	/**
-	 * Builds a PidFilter instance with the configured P, I and D variables. If no
-	 * configuration is found, it falls back to default PidFilter values.
-	 * 
-	 * @return an instance of {@link PidFilter}
-	 */
-	public PidFilter buildPidFilter() {
-		try {
-			return new PidFilter(this.config.p(), this.config.i(), this.config.d());
-		} catch (NullPointerException e) {
-			return new PidFilter();
-		}
+	@Override
+	public PidFilter getPidFilter() {
+		return this.pidFilter;
 	}
+
 }
