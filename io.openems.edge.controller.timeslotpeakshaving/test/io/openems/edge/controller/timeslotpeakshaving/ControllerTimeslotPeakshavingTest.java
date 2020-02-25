@@ -1,5 +1,6 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
@@ -163,7 +164,12 @@ public class ControllerTimeslotPeakshavingTest {
 
 	@Test
 	public void test() throws Exception {
-		TimeLeapClock clock = new TimeLeapClock(ZoneOffset.UTC);
+		Instant inst = Instant.parse("2020-02-03T09:30:30.00Z");  
+		TimeLeapClock clock = new TimeLeapClock(inst, ZoneOffset.UTC);
+		
+		System.out.println(clock);
+		
+		
 		// initialize the controller
 		TimeslotPeakshaving ctrl = new TimeslotPeakshaving(clock);
 		// Add referenced services
@@ -173,8 +179,8 @@ public class ControllerTimeslotPeakshavingTest {
 		DummyPower power = new DummyPower(0.5, 0.2, 0.1);
 		ctrl.power = power;
 
-		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 100000, 50000, 50000, "18.11.2019", "18.11.2019", "10:00",
-				"11:00", "04:00",  50, false, true, true, true, true, true, true);
+		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 100000, 50000, 50000, "01.01.2020", "30.04.2020", "10:00",
+				"11:00", "12:00",  50, false, true, true, true, true, true, true);
 		
 		ctrl.activate(null, config);
 		ctrl.activate(null, config);
@@ -194,24 +200,24 @@ public class ControllerTimeslotPeakshavingTest {
 				.input(gridMode, GridMode.ON_GRID) //
 				.input(ess, 0) //
 				.input(grid, 120000) //
-				.output(essSetPower, 50000)) //
+				.output(essSetPower, 10000)) //
 		.next(new TestCase() //
 				.input(gridMode, GridMode.ON_GRID) //
 				.input(ess, 5000) //
 				.input(grid, 120000) //
-				.output(essSetPower, 50000)) //
+				.output(essSetPower, 13500)) //
 		.next(new TestCase() //
 				.timeleap(clock, 75, ChronoUnit.MINUTES)//
 				.input(gridMode, GridMode.ON_GRID) //
 				.input(ess, 5000) //
 				.input(grid, 120000) //
-				.output(essSetPower, 10000)) //
+				.output(essSetPower, 14000)) //
 		.next(new TestCase() //
 				.timeleap(clock, 75, ChronoUnit.MINUTES)//
 				.input(gridMode, GridMode.ON_GRID) //
 				.input(ess, 5000) //
 				.input(grid, 120000) //
-				.output(essSetPower, 10000)) //
+				.output(essSetPower, 50000)) //
 				.run();		
 	}
 }

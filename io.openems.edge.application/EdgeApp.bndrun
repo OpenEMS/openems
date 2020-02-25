@@ -31,6 +31,7 @@
 	bnd.identity;id='io.openems.edge.controller.asymmetric.balancingcosphi',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
+	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
@@ -56,7 +57,6 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.limitactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.linearpowerband',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.timeslotpeakshaving',\
@@ -146,7 +146,7 @@
 	io.openems.edge.controller.ess.selltogridlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.evcs;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.evcs.fixactivepower;version='[1.0.0,1.0.1)',\
-	io.openems.edge.controller.highloadtimeslot;version='[1.0.0,1.0.1)',\	
+	io.openems.edge.controller.highloadtimeslot;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.alarm;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.fixdigitaloutput;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version='[1.0.0,1.0.1)',\

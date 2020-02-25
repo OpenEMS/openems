@@ -53,6 +53,15 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 	private final Clock clock;
+	
+	private int hysteresisSoc = 0;
+
+	private LocalDate startDate;  
+	private LocalDate endDate;
+	private LocalTime startTime;
+	private LocalTime endTime;
+	private LocalTime slowStartTime;
+	int forceChargeMinutes;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -84,6 +93,16 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 
+		this.hysteresisSoc = config.hysteresisSoc();
+
+		this.startDate = convertDate(config.startDate());
+		this.endDate = convertDate(config.endDate());
+		this.startTime = convertTime(config.startTime());
+		this.endTime = convertTime(config.endTime());
+		this.slowStartTime = convertTime(config.slowStartTime());
+		this.forceChargeMinutes = calculateTimeforForceCharge(this.slowStartTime, this.startTime);
+		
+		
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this.pidFilter = this.power.buildPidFilter();
@@ -123,11 +142,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @throws OpenemsNamedException
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
-		/*
-		 * if the controller is in the timeslot and just before the time slot set the
-		 * active power
-		 */
-		if (activePower == null) {
+		if (activePower != null) {
 			ess.getSetActivePowerEquals().setNextWriteValue(activePower);
 			ess.getSetReactivePowerEquals().setNextWriteValue(0);
 		}
@@ -145,16 +160,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 		LocalDateTime now = LocalDateTime.now(this.clock);
 		int activePower = this.peakShave(ess, meter);
-		int hysteresisSoc = config.hysteresisSoc();
 
-		LocalDate startDate = convertDate(config.startDate());
-		LocalDate endDate = convertDate(config.endDate());
-		LocalTime startTime = convertTime(config.startTime());
-		LocalTime endTime = convertTime(config.endTime());
-		LocalTime slowStartTime = convertTime(config.slowStartTime());
-		int forceChargeMinutes = calculateTimeforForceCharge(slowStartTime, startTime);
 
-		if (this.isHighLoadTimeslot(now, startDate, endDate, startTime, endTime)) {
+		if (this.isHighLoadTimeslot(now)) {
 			/*
 			 * We are in a High-Load period -> peak shave and discharge/ charge
 			 * and hysteresis "soc" within high load timeslot
@@ -168,8 +176,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			this.chargeState = ChargeState.NORMAL;
 			this.logInfo(log, "Within High-Load timeslot. charge with [" + activePower + "]");
 			return activePower;
-		} else if (this.isHighLoadTimeslot(now.plusMinutes(forceChargeMinutes), startDate, endDate, startTime,
-				endTime)) {
+		} else if (this.isHighLoadTimeslot(now.plusMinutes(this.forceChargeMinutes))) {
 			/*
 			 * We are soon going to be in High-Load period -> activate FORCE_CHARGE mode
 			 */
@@ -277,24 +284,20 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	/**
 	 * Is the current time in a high-load timeslot?
 	 * 
-	 * @param endTime
-	 * @param startTime
-	 * @param endDate
-	 * @param startDate
+	 * @param dateTime
 	 * 
 	 * @return boolean specifying the within timeslot or not
 	 * @throws OpenemsException
 	 */
-	private boolean isHighLoadTimeslot(LocalDateTime dateTime, LocalDate startDate, LocalDate endDate,
-			LocalTime startTime, LocalTime endTime) throws OpenemsException {
+	private boolean isHighLoadTimeslot(LocalDateTime dateTime) throws OpenemsException {
 
 		if (!isConfiguredActiveDay(this.config)) {
 			return false;
 		}
-		if (!isActiveDate(startDate, endDate, dateTime)) {
+		if (!isActiveDate(this.startDate, this.endDate, dateTime)) {
 			return false;
 		}
-		if (!isActiveTime(startTime, endTime, dateTime)) {
+		if (!isActiveTime(this.startTime, this.endTime, dateTime)) {
 			return false;
 		}
 		// all tests passed
