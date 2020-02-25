@@ -20,7 +20,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class ControllerTimeslotPeakshavingTest {
-	
+
 	@SuppressWarnings("all")
 	private static class MyConfig extends AbstractComponentConfig implements Config {
 
@@ -35,7 +35,7 @@ public class ControllerTimeslotPeakshavingTest {
 		private final String endTime;
 		private final String slowStartTime;
 		private final int hysteresisSoc;
-		
+
 		private final boolean monday;
 		private final boolean tuesday;
 		private final boolean wednesday;
@@ -44,9 +44,10 @@ public class ControllerTimeslotPeakshavingTest {
 		private final boolean saturday;
 		private final boolean sunday;
 
-		public MyConfig(String id, String essId, String meterId, int peakShavingPower, int rechargePower, int chargePower,
-				String startDate, String endDate, String startTime, String endTime, String slowStartTime, 
-				int hysteresisSoc, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
+		public MyConfig(String id, String essId, String meterId, int peakShavingPower, int rechargePower,
+				int chargePower, String startDate, String endDate, String startTime, String endTime,
+				String slowStartTime, int hysteresisSoc, boolean monday, boolean tuesday, boolean wednesday,
+				boolean thursday, boolean friday, boolean saturday, boolean sunday) {
 			super(Config.class, id);
 			this.essId = essId;
 			this.meterId = meterId;
@@ -59,15 +60,14 @@ public class ControllerTimeslotPeakshavingTest {
 			this.slowStartTime = slowStartTime;
 			this.endTime = endTime;
 			this.hysteresisSoc = hysteresisSoc;
-			
-			this.monday =  monday;
+
+			this.monday = monday;
 			this.tuesday = tuesday;
 			this.wednesday = wednesday;
 			this.thursday = thursday;
 			this.friday = friday;
 			this.saturday = saturday;
 			this.sunday = sunday;
-					
 
 		}
 
@@ -164,12 +164,11 @@ public class ControllerTimeslotPeakshavingTest {
 
 	@Test
 	public void test() throws Exception {
-		Instant inst = Instant.parse("2020-02-03T09:30:30.00Z");  
+		Instant inst = Instant.parse("2020-02-03T09:30:30.00Z");
 		TimeLeapClock clock = new TimeLeapClock(inst, ZoneOffset.UTC);
-		
+
 		System.out.println(clock);
-		
-		
+
 		// initialize the controller
 		TimeslotPeakshaving ctrl = new TimeslotPeakshaving(clock);
 		// Add referenced services
@@ -179,13 +178,12 @@ public class ControllerTimeslotPeakshavingTest {
 		DummyPower power = new DummyPower(0.5, 0.2, 0.1);
 		ctrl.power = power;
 
-		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 100000, 50000, 50000, "01.01.2020", "30.04.2020", "10:00",
-				"11:00", "12:00",  50, false, true, true, true, true, true, true);
-		
+		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 100000, 50000, 50000, "01.01.2020", "30.04.2020",
+				"10:00", "11:00", "12:00", 50, false, true, true, true, true, true, true);
+
 		ctrl.activate(null, config);
 		ctrl.activate(null, config);
-		
-		
+
 		ChannelAddress gridMode = new ChannelAddress("ess0", "GridMode");
 		ChannelAddress ess = new ChannelAddress("ess0", "ActivePower");
 		ChannelAddress grid = new ChannelAddress("meter0", "ActivePower");
@@ -194,30 +192,28 @@ public class ControllerTimeslotPeakshavingTest {
 		ManagedSymmetricEss ess0 = new DummyManagedSymmetricEss("ess0");
 		SymmetricMeter meter = new DummySymmetricMeter("meter0");
 
-
 		new ControllerTest(ctrl, componentManager, ess0, meter).next(new TestCase() //
-				//.timeleap(clock, 15, ChronoUnit.MINUTES)//
 				.input(gridMode, GridMode.ON_GRID) //
 				.input(ess, 0) //
 				.input(grid, 120000) //
 				.output(essSetPower, 10000)) //
-		.next(new TestCase() //
-				.input(gridMode, GridMode.ON_GRID) //
-				.input(ess, 5000) //
-				.input(grid, 120000) //
-				.output(essSetPower, 13500)) //
-		.next(new TestCase() //
-				.timeleap(clock, 75, ChronoUnit.MINUTES)//
-				.input(gridMode, GridMode.ON_GRID) //
-				.input(ess, 5000) //
-				.input(grid, 120000) //
-				.output(essSetPower, 14000)) //
-		.next(new TestCase() //
-				.timeleap(clock, 75, ChronoUnit.MINUTES)//
-				.input(gridMode, GridMode.ON_GRID) //
-				.input(ess, 5000) //
-				.input(grid, 120000) //
-				.output(essSetPower, 50000)) //
-				.run();		
+				.next(new TestCase() //
+						.input(gridMode, GridMode.ON_GRID) //
+						.input(ess, 5000) //
+						.input(grid, 120000) //
+						.output(essSetPower, 13500)) //
+				.next(new TestCase() //
+						.timeleap(clock, 75, ChronoUnit.MINUTES)//
+						.input(gridMode, GridMode.ON_GRID) //
+						.input(ess, 5000) //
+						.input(grid, 120000) //
+						.output(essSetPower, 14000)) //
+				.next(new TestCase() //
+						.timeleap(clock, 75, ChronoUnit.MINUTES)//
+						.input(gridMode, GridMode.ON_GRID) //
+						.input(ess, 5000) //
+						.input(grid, 120000) //
+						.output(essSetPower, 50000)) //
+				.run();
 	}
 }

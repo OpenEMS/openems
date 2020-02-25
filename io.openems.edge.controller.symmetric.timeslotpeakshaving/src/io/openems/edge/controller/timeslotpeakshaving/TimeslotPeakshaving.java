@@ -25,7 +25,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -49,14 +48,12 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 	private Config config;
 
-	private PidFilter pidFilter;
-
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 	private final Clock clock;
-	
+
 	private int hysteresisSoc = 0;
 
-	private LocalDate startDate;  
+	private LocalDate startDate;
 	private LocalDate endDate;
 	private LocalTime startTime;
 	private LocalTime endTime;
@@ -101,11 +98,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		this.endTime = convertTime(config.endTime());
 		this.slowStartTime = convertTime(config.slowStartTime());
 		this.forceChargeMinutes = calculateTimeforForceCharge(this.slowStartTime, this.startTime);
-		
-		
+
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.pidFilter = this.power.buildPidFilter();
 	}
 
 	private int calculateTimeforForceCharge(LocalTime slowStartTime, LocalTime startTime) {
@@ -143,7 +138,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
-			ess.getSetActivePowerEquals().setNextWriteValue(activePower);
+			ess.getSetActivePowerEqualsWithPid().setNextWriteValue(activePower);
 			ess.getSetReactivePowerEquals().setNextWriteValue(0);
 		}
 	}
@@ -161,11 +156,10 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		LocalDateTime now = LocalDateTime.now(this.clock);
 		int activePower = this.peakShave(ess, meter);
 
-
 		if (this.isHighLoadTimeslot(now)) {
 			/*
-			 * We are in a High-Load period -> peak shave and discharge/ charge
-			 * and hysteresis "soc" within high load timeslot
+			 * We are in a High-Load period -> peak shave and discharge/ charge and
+			 * hysteresis "soc" within high load timeslot
 			 */
 			if (ess.getSoc().value().orElse(0) >= hysteresisSoc) {
 				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + hysteresisSoc
@@ -243,7 +237,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		case UNDEFINED:
 			break;
 		case OFF_GRID:
-			this.pidFilter.reset();
 			return 0;
 		}
 
@@ -271,14 +264,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			calculatedPower = 0;
 		}
 
-		/*
-		 * Apply PID filter
-		 */
-		int minPower = this.power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		int maxPower = this.power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-		this.pidFilter.setLimits(minPower, maxPower);
-		int pidOutput = (int) this.pidFilter.applyPidFilter(ess.getActivePower().value().orElse(0), calculatedPower);
-		return pidOutput;
+		return calculatedPower;
 	}
 
 	/**
