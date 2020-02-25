@@ -89,9 +89,10 @@ export const TRANSLATION = {
             },
             Widgets: {
                 Singlethreshold: {
-                    putSwitchedLoadPower: 'por favor ingrese su carga conmutada!',
-                    switchAbove: 'Encender a través de',
-                    switchBelow: 'Encender debajo',
+                    switchOffAbove: 'Apagar a través de',
+                    switchOffBelow: 'Apagar bajo',
+                    switchOnAbove: 'Encender a través de',
+                    switchOnBelow: 'Encender debajo',
                     dependendOn: 'Dependiendo de',
                     currentValue: 'Valor actual',
                     threshold: 'Thresholded',
@@ -100,7 +101,8 @@ export const TRANSLATION = {
                     switchedLoadPower: 'Carga conmutada',
                     behaviour: 'Comportamiento',
                     above: 'Sobre',
-                    below: 'Por debajo'
+                    below: 'Por debajo',
+                    relationError: 'El umbral debe ser mayor que la carga conmutada',
                 },
                 Channeltreshold: {
                     Output: "Salida"

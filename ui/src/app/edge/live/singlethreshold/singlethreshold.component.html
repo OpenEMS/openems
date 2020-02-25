@@ -76,52 +76,56 @@
                   translate>Edge.Index.Widgets.Singlethreshold.other</span>&nbsp;({{controller.properties.inputChannelAddress}})
               </td>
             </tr>
+            <!-- show current value only if input channel address is other -->
             <tr *ngIf="controller.properties.inputChannelAddress != null">
-              <td style="width: 65%" translate>
-                Edge.Index.Widgets.Singlethreshold.currentValue</td>
-              <td style="width: 35%" class="align_right"
-                *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
-                {{currentData.channel[controller.properties['inputChannelAddress']] | unitvalue:'%'}}
-              </td>
-              <td style="width: 35%" class="align_right"
-                *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc'">
-                <ng-container
-                  *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower'  && controller.properties.threshold < 0">
-                  {{currentData.summary.grid.sellActivePower | unitvalue: 'kW'}}
-                </ng-container>
-                <ng-container
-                  *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold > 0">
-                  {{currentData.summary.grid.buyActivePower | unitvalue: 'kW'}}
-                </ng-container>
-                <ng-container *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
-                  {{currentData.summary.production.activePower | unitvalue: 'kW'}}
-                </ng-container>
-                <ng-container
-                  *ngIf="controller.properties.inputChannelAddress != '_sum/GridActivePower' && controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
-                  {{currentData.channel[controller.properties['inputChannelAddress']] }}
-                  <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
-                    &nbsp;{{config.getChannel(inputChannel)['unit']}}
-                  </div>
-                </ng-container>
-              </td>
+              <ng-container
+                *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower' && controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
+                {{currentData.channel[controller.properties['inputChannelAddress']] }}
+                <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                  &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
+                </div>
+              </ng-container>
             </tr>
-            <tr>
+
+
+
+            <tr *ngIf="currentData.channel[outputChannel] != null">
               <td style="width: 65%;" translate>
                 <ng-container *ngIf="controller.properties.threshold > 0">
                   <ng-container *ngIf="controller.properties.invert == false">
-                    Edge.Index.Widgets.Singlethreshold.switchAbove
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnAbove
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffBelow
+                    </ng-container>
                   </ng-container>
                   <ng-container *ngIf="controller.properties.invert == true">
-                    Edge.Index.Widgets.Singlethreshold.switchBelow
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnBelow
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffAbove
+                    </ng-container>
                   </ng-container>
                 </ng-container>
                 <!-- revert logic for GridSell -->
                 <ng-container *ngIf="controller.properties.threshold < 0">
                   <ng-container *ngIf="controller.properties.invert == false">
-                    Edge.Index.Widgets.Singlethreshold.switchBelow
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnBelow
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffAbove
+                    </ng-container>
                   </ng-container>
                   <ng-container *ngIf="controller.properties.invert == true">
-                    Edge.Index.Widgets.Singlethreshold.switchAbove
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnAbove
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffBelow
+                    </ng-container>
                   </ng-container>
                 </ng-container>
               </td>
@@ -130,14 +134,29 @@
                 *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
                 {{controller.properties['threshold'] | unitvalue:'%'}}
               </td>
-              <!-- GRIDSELL/BUY || PRODUCTION -->
+              <!-- PRODUCTION -->
               <td style="width: 35%" class="align_right"
-                *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && (controller.properties.inputChannelAddress == '_sum/GridActivePower' ||controller.properties.inputChannelAddress == '_sum/ProductionActivePower')">
-                <ng-container *ngIf="controller.properties.threshold < 0">
-                  {{controller.properties['threshold'] * -1 | unitvalue: 'kW'}}
-                </ng-container>
-                <ng-container *ngIf="controller.properties.threshold > 0">
+                *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
+                {{ controller.properties['threshold'] | unitvalue: 'kW' }}
+              </td>
+              <!-- GRIDBUY -->
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold > 0">
+                <ng-container *ngIf="currentData.channel[outputChannel] == 0">
                   {{controller.properties['threshold'] | unitvalue: 'kW'}}
+                </ng-container>
+                <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                  {{ (controller.properties['threshold'] - controller.properties['switchedLoadPower']) | unitvalue: 'kW' }}
+                </ng-container>
+              </td>
+              <!-- GRIDSELLL -->
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold < 0">
+                <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                  {{ controller.properties['threshold'] * -1 | unitvalue: 'kW' }}
+                </ng-container>
+                <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                  {{ ((controller.properties['threshold'] * -1) - controller.properties['switchedLoadPower']) | unitvalue: 'kW' }}
                 </ng-container>
               </td>
               <!-- OTHER -->
@@ -146,22 +165,15 @@
                 <ng-container *ngIf="controller.properties.threshold < 0">
                   {{controller.properties['threshold'] * -1 }}
                   <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
-                    &nbsp;{{config.getChannel(inputChannel)['unit']}}
+                    &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
                   </div>
                 </ng-container>
                 <ng-container *ngIf="controller.properties.threshold > 0">
                   {{controller.properties['threshold'] }}
                   <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
-                    &nbsp;{{config.getChannel(inputChannel)['unit']}}
+                    &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
                   </div>
                 </ng-container>
-              </td>
-            </tr>
-            <tr>
-              <td style="width: 65%" translate>
-                Edge.Index.Widgets.Singlethreshold.minSwitchingTime</td>
-              <td style="width: 35%" class="align_right">
-                {{controller.properties.minimumSwitchingTime | unitvalue: 's'}}
               </td>
             </tr>
           </table>

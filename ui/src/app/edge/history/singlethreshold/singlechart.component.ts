@@ -2,7 +2,6 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { differenceInHours } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
@@ -149,7 +148,7 @@ export class SinglethresholdSingleChartComponent extends AbstractHistoryChart im
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.outputChannel = config.getComponentProperties(this.controllerId)['outputChannelAddress'];
       this.inputChannel = config.getComponentProperties(this.controllerId)['inputChannelAddress'];
       const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
