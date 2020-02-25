@@ -32,60 +32,47 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
-        this.setLabel();
     }
 
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(() => {
-                this.service.getConfig().then((config) => {
-                    this.colors = [];
-                    let result = (response as QueryHistoricTimeseriesDataResponse).result;
+            this.colors = [];
+            let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-                    // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
-                        labels.push(new Date(timestamp));
+            // convert labels
+            let labels: Date[] = [];
+            for (let timestamp of result.timestamps) {
+                labels.push(new Date(timestamp));
+            }
+            this.labels = labels;
+
+            // convert datasets
+            let datasets = [];
+
+            Object.keys(result.data).forEach((channel, index) => {
+                let address = ChannelAddress.fromString(channel);
+                let chargeData = result.data[channel].map(value => {
+                    if (value == null) {
+                        return null
+                    } else {
+                        return value / 1000; // convert to kW
                     }
-                    this.labels = labels;
-
-                    // convert datasets
-                    let datasets = [];
-
-                    Object.keys(result.data).forEach((channel, index) => {
-                        let address = ChannelAddress.fromString(channel);
-                        let chargeData = result.data[channel].map(value => {
-                            if (value == null) {
-                                return null
-                            } else {
-                                return value / 1000; // convert to kW
-                            }
-                        });
-                        if (address.channelId == "ChargePower") {
-                            datasets.push({
-                                label: this.translate.instant('General.Consumption'),
-                                data: chargeData,
-                                hidden: false
-                            });
-                            this.colors.push({
-                                backgroundColor: 'rgba(253,197,7,0.05)',
-                                borderColor: 'rgba(253,197,7,1)',
-                            })
-                        }
-                    })
-                    this.datasets = datasets;
-                    this.loading = false;
-                }).catch(reason => {
-                    console.error(reason); // TODO error message
-                    this.initializeChart();
-                    return;
                 });
-            }).catch(reason => {
-                console.error(reason); // TODO error message
-                this.initializeChart();
-                return;
-            });
+                if (address.channelId == "ChargePower") {
+                    datasets.push({
+                        label: this.translate.instant('General.consumption'),
+                        data: chargeData,
+                        hidden: false
+                    });
+                    this.colors.push({
+                        backgroundColor: 'rgba(253,197,7,0.05)',
+                        borderColor: 'rgba(253,197,7,1)',
+                    })
+                }
+            })
+            this.datasets = datasets;
+            this.loading = false;
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -93,7 +80,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
         });
     }
 
-    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+    protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ChargePower'),

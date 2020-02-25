@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Service } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
+import { Service } from '../../../../shared/shared';
 
 @Component({
     selector: 'selfconsumption-modal',

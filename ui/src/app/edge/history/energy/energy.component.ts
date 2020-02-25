@@ -105,7 +105,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.setLabel()
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
     const source = fromEvent(window, 'resize', null, null);
@@ -152,7 +151,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             })
             datasets.push({
-              label: this.translate.instant('General.Soc'),
+              label: this.translate.instant('General.soc'),
               data: socData,
               hidden: false,
               yAxisID: 'yAxis2',
@@ -179,7 +178,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             });
 
             datasets.push({
-              label: this.translate.instant('General.Production'),
+              label: this.translate.instant('General.production'),
               data: productionData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -206,7 +205,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             });
 
             datasets.push({
-              label: this.translate.instant('General.GridBuy'),
+              label: this.translate.instant('General.gridBuy'),
               data: buyFromGridData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -230,7 +229,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.GridSell'),
+              label: this.translate.instant('General.gridSell'),
               data: sellToGridData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -254,7 +253,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.Consumption'),
+              label: this.translate.instant('General.consumption'),
               data: consumptionData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -288,7 +287,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.ChargePower'),
+              label: this.translate.instant('General.chargePower'),
               data: chargeData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -311,7 +310,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.DischargePower'),
+              label: this.translate.instant('General.dischargePower'),
               data: dischargeData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -425,7 +424,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == translate.instant('General.Soc')) {
+      if (label == translate.instant('General.soc')) {
         return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";

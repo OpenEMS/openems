@@ -51,7 +51,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.Grid', "left", "#1d1d1d", translate, service, "Grid");
+        super('General.grid', "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;
     }
 
@@ -104,7 +104,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.GridBuy');
+            this.name = this.translate.instant('General.gridBuy');
             super.updateSectionData(
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
@@ -120,13 +120,13 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.GridSell');
+            this.name = this.translate.instant('General.gridSell');
             super.updateSectionData(
                 sum.grid.sellActivePower,
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('General.Grid')
+            this.name = this.translate.instant('General.grid')
             super.updateSectionData(0, null, null);
         }
 

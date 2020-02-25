@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title translate>Edge.Index.Widgets.Channeltreshold.Output
+        <ion-title translate>Edge.Index.Widgets.Channeltreshold.output
         </ion-title>
         <ion-buttons slot="start" *ngIf="showTotal != null">
             <chartOptions (setShowTotal)='onNotifyTotal($event)' [showTotal]="showTotal"></chartOptions>
@@ -23,7 +23,7 @@
         <ion-card-content>
             <table class="full_width">
                 <tr>
-                    <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                    <td style="width: 100%" class="ion-padding" translate>General.total</td>
                 </tr>
             </table>
             <channelthresholdTotalChart [period]="service.historyPeriod">

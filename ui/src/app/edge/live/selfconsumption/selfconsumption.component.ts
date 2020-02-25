@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
 
@@ -15,10 +15,10 @@ export class SelfConsumptionComponent {
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
-        private websocket: Websocket,
         private route: ActivatedRoute,
+        private websocket: Websocket,
         public modalCtrl: ModalController,
+        public service: Service,
     ) { }
 
     ngOnInit() {

@@ -31,116 +31,103 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
-        this.setLabel();
     }
 
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(() => {
-                this.service.getConfig().then(() => {
-                    let result = response.result;
-                    // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
-                        labels.push(new Date(timestamp));
+            let result = response.result;
+            // convert labels
+            let labels: Date[] = [];
+            for (let timestamp of result.timestamps) {
+                labels.push(new Date(timestamp));
+            }
+            this.labels = labels;
+
+            // convert datasets
+            let datasets = [];
+
+            // required data for self consumption
+            let sellToGridData: number[] = [];
+            let dischargeData: number[] = [];
+            let productionData: number[] = [];
+
+            if ('_sum/EssActivePower' in result.data) {
+                /*
+                 * Storage Discharge
+                 */
+                let effectivePower;
+                if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
+                    effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                        return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                    });
+                } else {
+                    effectivePower = result.data['_sum/EssActivePower'];
+                }
+                dischargeData = effectivePower.map(value => {
+                    if (value == null) {
+                        return null
+                    } else if (value > 0) {
+                        return value;
+                    } else {
+                        return 0;
                     }
-                    this.labels = labels;
-
-                    // convert datasets
-                    let datasets = [];
-
-                    // required data for autarchy and self consumption
-                    let sellToGridData: number[] = [];
-                    let dischargeData: number[] = [];
-                    let productionData: number[] = [];
-
-                    if ('_sum/EssActivePower' in result.data) {
-                        /*
-                         * Storage Discharge
-                         */
-                        let effectivePower;
-                        if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
-                            effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
-                                return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
-                            });
-                        } else {
-                            effectivePower = result.data['_sum/EssActivePower'];
-                        }
-                        dischargeData = effectivePower.map(value => {
-                            if (value == null) {
-                                return null
-                            } else if (value > 0) {
-                                return value;
-                            } else {
-                                return 0;
-                            }
-                        });
-                    };
-
-                    if ('_sum/GridActivePower' in result.data) {
-                        /*
-                         * Sell To Grid
-                         */
-                        sellToGridData = result.data['_sum/GridActivePower'].map(value => {
-                            if (value == null) {
-                                return null
-                            } else if (value < 0) {
-                                return value * -1; // invert value
-                            } else {
-                                return 0;
-                            }
-                        });
-                    };
-
-                    if ('_sum/ProductionActivePower' in result.data) {
-                        /*
-                         * Production
-                         */
-                        productionData = result.data['_sum/ProductionActivePower'].map(value => {
-                            if (value == null) {
-                                return null
-                            } else {
-                                return value;
-                            }
-                        });
-                    }
-
-
-                    /*
-                    * Self Consumption
-                    */
-                    let selfConsumption = productionData.map((value, index) => {
-                        if (value == null) {
-                            return null
-                        } else {
-                            return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
-                        }
-                    })
-
-                    datasets.push({
-                        label: this.translate.instant('General.SelfConsumption'),
-                        data: selfConsumption,
-                        hidden: false
-                    })
-                    this.colors.push({
-                        backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)'
-                    })
-
-                    this.datasets = datasets;
-                    this.loading = false;
-
-                }).catch(reason => {
-                    console.error(reason); // TODO error message
-                    this.initializeChart();
-                    return;
                 });
-            }).catch(reason => {
-                console.error(reason); // TODO error message
-                this.initializeChart();
-                return;
-            });
+            };
+
+            if ('_sum/GridActivePower' in result.data) {
+                /*
+                 * Sell To Grid
+                 */
+                sellToGridData = result.data['_sum/GridActivePower'].map(value => {
+                    if (value == null) {
+                        return null
+                    } else if (value < 0) {
+                        return value * -1; // invert value
+                    } else {
+                        return 0;
+                    }
+                });
+            };
+
+            if ('_sum/ProductionActivePower' in result.data) {
+                /*
+                 * Production
+                 */
+                productionData = result.data['_sum/ProductionActivePower'].map(value => {
+                    if (value == null) {
+                        return null
+                    } else {
+                        return value;
+                    }
+                });
+            }
+
+
+            /*
+            * Self Consumption
+            */
+            let selfConsumption = productionData.map((value, index) => {
+                if (value == null) {
+                    return null
+                } else {
+                    return CurrentData.calculateSelfConsumption(sellToGridData[index], value, dischargeData[index]);
+                }
+            })
+
+            datasets.push({
+                label: this.translate.instant('General.selfConsumption'),
+                data: selfConsumption,
+                hidden: false
+            })
+            this.colors.push({
+                backgroundColor: 'rgba(253,197,7,0.05)',
+                borderColor: 'rgba(253,197,7,1)'
+            })
+
+            this.datasets = datasets;
+            this.loading = false;
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -148,7 +135,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
         });
     }
 
-    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+    protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'GridActivePower'),
@@ -162,7 +149,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
 
     protected setLabel() {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;

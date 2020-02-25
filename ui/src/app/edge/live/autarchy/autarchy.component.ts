@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
 import { AutarchyModalComponent } from './modal/modal.component';
+import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { Component } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: AutarchyComponent.SELECTOR,
@@ -15,10 +15,10 @@ export class AutarchyComponent {
   private edge: Edge = null;
 
   constructor(
-    public service: Service,
-    private websocket: Websocket,
     private route: ActivatedRoute,
+    private websocket: Websocket,
     public modalCtrl: ModalController,
+    public service: Service,
   ) { }
 
   ngOnInit() {

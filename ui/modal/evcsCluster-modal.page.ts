@@ -233,7 +233,7 @@ export class ModalComponentEvcsCluster implements OnInit {
      */
     getState(power: Number, state: number, plug: number, currentController: EdgeConfig.Component) {
         if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
-            return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+            return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
         }
 
         if (power == null || power == 0) {
@@ -242,26 +242,26 @@ export class ModalComponentEvcsCluster implements OnInit {
             this.chargePlug = plug;
 
             if (this.chargePlug == null) {
-                return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
             } else if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-                return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
+                return this.translate.instant('Edge.Index.Widgets.EVCS.cableNotConnected');
             }
 
             switch (this.chargeState) {
                 case ChargeState.STARTING:
-                    return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.starting');
                 case ChargeState.UNDEFINED:
                 case ChargeState.ERROR:
-                    return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.error');
                 case ChargeState.READY_FOR_CHARGING:
-                    return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.carFull');
                 case ChargeState.NOT_READY_FOR_CHARGING:
-                    return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.notReadyForCharging');
                 case ChargeState.AUTHORIZATION_REJECTED:
-                    return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+                    return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
             }
         }
-        return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.charging');
     }
 
     /**

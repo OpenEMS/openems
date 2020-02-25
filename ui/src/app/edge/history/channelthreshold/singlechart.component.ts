@@ -2,7 +2,6 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { differenceInHours } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
@@ -32,7 +31,6 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.setLabel();
   }
 
   protected updateChart() {
@@ -77,7 +75,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
       let channeladdresses = [outputChannel];
       resolve(channeladdresses);
@@ -86,7 +84,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   protected setLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;

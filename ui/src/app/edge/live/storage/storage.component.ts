@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
+import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { StorageModalComponent } from './modal/modal.component';
 

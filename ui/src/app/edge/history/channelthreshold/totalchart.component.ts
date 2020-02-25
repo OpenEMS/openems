@@ -30,7 +30,6 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.setLabel();
   }
 
   protected updateChart() {
@@ -89,7 +88,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       this.service.getConfig().then(config => {
         let channeladdresses = [];
@@ -107,7 +106,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
 
   protected setLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;

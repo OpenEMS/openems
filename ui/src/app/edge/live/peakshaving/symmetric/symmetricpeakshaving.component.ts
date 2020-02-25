@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { Component, Input } from '@angular/core';
 import { Edge, Service, Websocket, EdgeConfig, ChannelAddress } from '../../../../shared/shared';
+import { ModalController } from '@ionic/angular';
 import { SymmetricPeakshavingModalComponent } from './modal/modal.component';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -20,11 +20,11 @@ export class SymmetricPeakshavingComponent {
     public component: EdgeConfig.Component = null;
 
     constructor(
-        public service: Service,
-        private websocket: Websocket,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
+        private websocket: Websocket,
         protected translate: TranslateService,
+        public modalCtrl: ModalController,
+        public service: Service,
     ) { }
 
     ngOnInit() {

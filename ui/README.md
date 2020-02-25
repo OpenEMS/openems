@@ -24,7 +24,7 @@ Translation is based on [ngx-translate](https://github.com/ngx-translate). The l
 
 ##### In HTML template use:
 
-`<p translate>General.StorageSystem</p>`
+`<p translate>General.storageSystem</p>`
 
 * add attribute 'translate'
 * content of the tag is the path to translation in [translate.ts](app/shared/translate.ts) file
@@ -33,7 +33,7 @@ Translation is based on [ngx-translate](https://github.com/ngx-translate). The l
 ```
 import { TranslateService } from '@ngx-translate/core';
 constructor(translate: TranslateService) {}
-this.translate.instant('General.StorageSystem')
+this.translate.instant('General.storageSystem')
 ```
 
 #### Subscribe

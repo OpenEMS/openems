@@ -38,7 +38,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.Production', "up", "#008DD2", translate, service, "Production");
+        super('General.production', "up", "#008DD2", translate, service, "Production");
         this.unitpipe = unitpipe;
     }
 

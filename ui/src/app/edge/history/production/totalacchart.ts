@@ -30,7 +30,6 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
-        this.setLabel();
     }
 
     protected updateChart() {
@@ -62,7 +61,7 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
                             } else {
                                 if (channelAddress.channelId == 'ProductionAcActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.Production'),
+                                        label: this.translate.instant('General.production'),
                                         data: data
                                     });
                                     this.colors.push({
@@ -73,21 +72,21 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
                                 if ('_sum/ProductionAcActivePowerL1' && '_sum/ProductionAcActivePowerL2' && '_sum/ProductionAcActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL1') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L1',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L1',
                                             data: data
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL2') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L2',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L2',
                                             data: data
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL3') {
                                         datasets.push({
-                                            label: this.translate.instant('General.Phase') + ' ' + 'L3',
+                                            label: this.translate.instant('General.phase') + ' ' + 'L3',
                                             data: data
                                         });
                                         this.colors.push(this.phase3Color);
