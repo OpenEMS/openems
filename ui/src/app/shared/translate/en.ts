@@ -7,6 +7,7 @@ export const TRANSLATION = {
         Off: "Off",
         Active: "Active",
         currentValue: 'current value',
+        measuredValue: 'Measured Value',
         Inactive: "Inactive",
         Manually: "Manually",
         Phase: "Phase",
@@ -96,7 +97,9 @@ export const TRANSLATION = {
                     peakshaving: 'Peak-Shaving',
                     peakshavingPower: 'Discharge above',
                     rechargePower: 'Charge below',
-                    relationError: 'Discharge limit must be greater than or equal to the load limit'
+                    relationError: 'Discharge limit must be greater than or equal to the load limit',
+                    asymmetricInfo: 'The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.',
+                    mostStressedPhase: 'Most stressed phase'
                 },
                 phasesInfo: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 autarchyInfo: "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",

@@ -132,6 +132,7 @@
 	io.openems.edge.controller.asymmetric.balancingcosphi;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.asymmetric.fixactivepower;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.asymmetric.fixreactivepower;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.asymmetric.peakshaving;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.asymmetric.phaserectification;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.channelthreshold;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.chp.soc;version='[1.0.0,1.0.1)',\

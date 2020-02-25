@@ -7,6 +7,7 @@ export const TRANSLATION = {
         Off: "Aus",
         Active: "Aktiv",
         currentValue: 'Aktueller Wert',
+        measuredValue: 'Gemessener Wert',
         Inactive: "Inaktiv",
         Manually: "Manuell",
         Phase: "Phase",
@@ -112,7 +113,9 @@ export const TRANSLATION = {
                     peakshaving: 'Lastspitzenkappung',
                     peakshavingPower: 'Entladung über',
                     rechargePower: 'Beladung unter',
-                    relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein'
+                    relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
+                    asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
+                    mostStressedPhase: 'Meist belastete Phase'
                 },
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
