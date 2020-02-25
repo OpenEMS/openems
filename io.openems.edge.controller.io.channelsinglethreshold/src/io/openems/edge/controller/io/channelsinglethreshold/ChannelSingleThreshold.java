@@ -139,8 +139,8 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			/*
 			 * Condition applies only when the input channel is the Grid Active Power
 			 * 
-			 * Power value (switchedLoadPower) of the output device is added to the input channel value to avoid
-			 * immediate switching based on threshold.
+			 * Power value (switchedLoadPower) of the output device is added to the input
+			 * channel value to avoid immediate switching based on threshold.
 			 * 
 			 * example use case: if the feed-in is more than threshold, the output device is
 			 * switched on and next second feed-in reduces below threshold and immediately
@@ -216,10 +216,10 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 * 
-	 * @param outputValueOpt2
-	 * @param outputChannel2
+	 * @param outputValueOpt
+	 * @param outputChannel
 	 *
-	 * @param value            true to switch ON, false to switch ON
+	 * @param value          true to switch ON, false to switch ON
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setOutput(WriteChannel<Boolean> outputChannel, Optional<Boolean> outputValueOpt, boolean value)

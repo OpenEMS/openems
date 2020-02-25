@@ -27,7 +27,6 @@ public enum Mode implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		// TODO Auto-generated method stub
 		return AUTOMATIC;
 	}
 }
