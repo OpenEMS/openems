@@ -29,7 +29,6 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -40,25 +39,20 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	public static final String TIME_FORMAT = "HH:mm";
 	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
-	@Reference
-	protected ComponentManager componentManager;
-
-	@Reference
-	protected Power power;
-
-	private Config config;
-
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 	private final Clock clock;
 
-	private int hysteresisSoc = 0;
+	@Reference
+	protected ComponentManager componentManager;
 
+	private Config config;
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private LocalTime startTime;
 	private LocalTime endTime;
 	private LocalTime slowStartTime;
-	int forceChargeMinutes;
+	private int forceChargeMinutes;
+	private ChargeState chargeState = ChargeState.NORMAL;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -89,27 +83,15 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-
-		this.hysteresisSoc = config.hysteresisSoc();
-
 		this.startDate = convertDate(config.startDate());
 		this.endDate = convertDate(config.endDate());
 		this.startTime = convertTime(config.startTime());
 		this.endTime = convertTime(config.endTime());
-		this.slowStartTime = convertTime(config.slowStartTime());
-		this.forceChargeMinutes = calculateTimeforForceCharge(this.slowStartTime, this.startTime);
+		this.slowStartTime = convertTime(config.slowChargeStartTime());
+		this.forceChargeMinutes = calculateForceChargeMinutes(this.slowStartTime, this.startTime);
+		this.config = config;
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
-	}
-
-	private int calculateTimeforForceCharge(LocalTime slowStartTime, LocalTime startTime) {
-		int forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);
-		if (forceChargeTime > 0) {
-			return forceChargeTime;
-		} else {
-			return forceChargeTime + 1440; // 1440 - total minutes in a day
-		}
 	}
 
 	@Deactivate
@@ -117,15 +99,12 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		super.deactivate();
 	}
 
-	private ChargeState chargeState = ChargeState.NORMAL;
-
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
-		int power = getPower(ess, meter);
-
+		int power = this.getPower(ess, meter);
 		this.applyPower(ess, power);
 	}
 
@@ -136,11 +115,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @param pidOuput the power to be set on ess
 	 * @throws OpenemsNamedException
 	 */
-	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
-		if (activePower != null) {
-			ess.getSetActivePowerEqualsWithPid().setNextWriteValue(activePower);
-			ess.getSetReactivePowerEquals().setNextWriteValue(0);
-		}
+	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsNamedException {
+		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(activePower);
+		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 
 	/**
@@ -154,15 +131,15 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			throws OpenemsException, IllegalArgumentException {
 
 		LocalDateTime now = LocalDateTime.now(this.clock);
-		int activePower = this.peakShave(ess, meter);
+		int activePower = this.calculatePeakShavePower(ess, meter);
 
 		if (this.isHighLoadTimeslot(now)) {
 			/*
 			 * We are in a High-Load period -> peak shave and discharge/ charge and
 			 * hysteresis "soc" within high load timeslot
 			 */
-			if (ess.getSoc().value().orElse(0) >= hysteresisSoc) {
-				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + hysteresisSoc
+			if (ess.getSoc().value().orElse(0) >= config.hysteresisSoc()) {
+				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + config.hysteresisSoc()
 						+ "]. Switch to Charge-Normal state.");
 				this.chargeState = ChargeState.HYSTERESIS;
 				return 0;
@@ -185,7 +162,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			/*
 			 * charge with configured charge-power
 			 */
-			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + config.chargePower() + "]");
+			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
 			int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 			if (minPower >= 0) {
 				this.logInfo(log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
@@ -198,8 +175,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			 * block charging till configured hysteresisSoc
 			 */
 			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
-			if (ess.getSoc().value().orElse(0) <= hysteresisSoc) {
-				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " <= " + hysteresisSoc
+			if (ess.getSoc().value().orElse(0) <= config.hysteresisSoc()) {
+				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " <= " + config.hysteresisSoc()
 						+ "]. Switch to Charge-Normal state.");
 				this.chargeState = ChargeState.NORMAL;
 			}
@@ -208,22 +185,22 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			/*
 			 * force full charging just before the high-load timeslot starts
 			 */
-			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + config.chargePower() + "]");
-			return config.chargePower();
+			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
+			return config.slowChargePower();
 		}
 		// we should never come here...
 		return 0;
 	}
 
 	/**
-	 * This method peak shaves the power during the timeslot
-	 * 
+	 * This method calculates the power that is required to cut the peak during
+	 * timeslot.
 	 * 
 	 * @param ess
 	 * @param meter
 	 * @return activepower to be set on the ess
 	 */
-	private int peakShave(ManagedSymmetricEss ess, SymmetricMeter meter) {
+	private int calculatePeakShavePower(ManagedSymmetricEss ess, SymmetricMeter meter) {
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
@@ -393,6 +370,22 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
 		LocalTime localDate = LocalTime.parse(time, dateTimeFormatter);
 		return localDate;
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param slowStartTime
+	 * @param startTime
+	 * @return
+	 */
+	private static int calculateForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
+		int forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);
+		if (forceChargeTime > 0) {
+			return forceChargeTime;
+		} else {
+			return forceChargeTime + 1440; // 1440 - total minutes in a day
+		}
 	}
 
 }

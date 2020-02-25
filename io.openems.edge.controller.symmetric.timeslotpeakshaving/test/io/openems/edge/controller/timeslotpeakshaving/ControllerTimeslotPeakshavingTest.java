@@ -117,12 +117,12 @@ public class ControllerTimeslotPeakshavingTest {
 		}
 
 		@Override
-		public int chargePower() {
+		public int slowChargePower() {
 			return this.chargePower;
 		}
 
 		@Override
-		public String slowStartTime() {
+		public String slowChargeStartTime() {
 			return this.slowStartTime;
 		}
 
