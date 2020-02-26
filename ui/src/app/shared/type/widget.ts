@@ -25,6 +25,7 @@ export enum WidgetFactory {
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.CHP.SoC',
+    'Controller.IO.ChannelSingleThreshold',
     'Controller.Symmetric.PeakShaving',
 }
 

@@ -90,6 +90,22 @@ export const TRANSLATION = {
                 ProductionDC: "Generación DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    switchOffAbove: 'Apagar a través de',
+                    switchOffBelow: 'Apagar bajo',
+                    switchOnAbove: 'Encender a través de',
+                    switchOnBelow: 'Encender debajo',
+                    dependendOn: 'Dependiendo de',
+                    currentValue: 'Valor actual',
+                    threshold: 'Thresholded',
+                    minSwitchingTime: 'Conmutación mínimo',
+                    other: 'Otro',
+                    switchedLoadPower: 'Carga conmutada',
+                    behaviour: 'Comportamiento',
+                    above: 'Sobre',
+                    below: 'Por debajo',
+                    relationError: 'El umbral debe ser mayor que la carga conmutada',
+                },
                 Channeltreshold: {
                     Output: "Salida"
                 },

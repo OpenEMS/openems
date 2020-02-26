@@ -53,6 +53,7 @@ export abstract class AbstractHistoryChart {
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
+                    this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
@@ -72,7 +73,7 @@ export abstract class AbstractHistoryChart {
     /**
      * Sets the Label of Chart
      */
-    protected abstract setLabel()
+    protected abstract setLabel(config: EdgeConfig)
 
     /**
      * Updates and Fills the Chart

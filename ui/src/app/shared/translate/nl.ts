@@ -87,6 +87,22 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    switchOffAbove: 'Uitschakelen via',
+                    switchOffBelow: 'Schakel uit onder',
+                    switchOnAbove: 'Inschakelen via',
+                    switchOnBelow: 'Inschakelen onder',
+                    dependendOn: 'Afhankelijk van',
+                    currentValue: 'Huidige waarde',
+                    threshold: 'Thresholded',
+                    minSwitchingTime: 'Minimum omschakeling',
+                    other: 'Anders',
+                    switchedLoadPower: 'Geschakelde belasting',
+                    behaviour: 'Gedrag',
+                    above: 'Over',
+                    below: 'Beneden',
+                    relationError: 'Drempel moet groter zijn dan de geschakelde belasting',
+                },
                 Channeltreshold: {
                     Output: "uitgang"
                 },

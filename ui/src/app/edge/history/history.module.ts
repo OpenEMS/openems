@@ -40,6 +40,9 @@ import { StorageSingleChartComponent } from './storage/singlechart.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
 import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { StorageComponent } from './storage/widget.component';
+import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
+import { SinglethresholdSingleChartComponent } from './singlethreshold/singlechart.component';
+import { SingletresholdWidgetComponent } from './singlethreshold/widget.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
@@ -57,6 +60,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     GridModalComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
+    SinglethresholdModalComponent,
     StorageModalComponent,
     SymmetricPeakshavingModalComponent,
   ],
@@ -94,6 +98,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     SelfconsumptionChartComponent,
     SelfconsumptionModalComponent,
     SelfconsumptionWidgetComponent,
+    SinglethresholdModalComponent,
+    SinglethresholdSingleChartComponent,
+    SingletresholdWidgetComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,
     StorageComponent,
