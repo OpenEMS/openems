@@ -22,12 +22,20 @@ import { ModbusApiComponent } from './modbusapi/modbusapi.component';
 import { OfflineComponent } from './offline/offline.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
+import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { ProductionComponent } from './production/production.component';
 import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
+import { StorageModalComponent } from './storage/modal/modal.component';
+import { ChpSocComponent } from './chpsoc/chpsoc.component';
+import { ConsumptionComponent } from './consumption/consumption.component';
+import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
+import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
+import { StorageComponent } from './storage/storage.component';
+import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 
 @NgModule({
   imports: [
@@ -40,18 +48,20 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChpsocModalComponent,
+    ChpsocModalComponent,
     ConsumptionModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
+    EvcsPopoverComponent,
+    FixDigitalOutputModalComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
-    EvcsPopoverComponent,
-    ChpsocModalComponent,
-    FixDigitalOutputModalComponent,
+    StorageModalComponent,
+    SymmetricPeakshavingModalComponent,
   ],
   declarations: [
     AsymmetricPeakshavingComponent,
@@ -59,9 +69,15 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     AutarchyComponent,
     AutarchyModalComponent,
     ChannelthresholdComponent,
-    SinglethresholdComponent,
+    ChpSocComponent,
+    ChpsocModalComponent,
+    ConsumptionComponent,
+    ConsumptionModalComponent,
+    EvcsChart,
+    EvcsClusterComponent,
     EvcsComponent,
     EvcsModalComponent,
+    EvcsPopoverComponent,
     EvcsPopoverComponent,
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
@@ -73,12 +89,16 @@ import { SinglethresholdComponent } from './singlethreshold/singlethreshold.comp
     ModalComponentEvcsCluster,
     ModbusApiComponent,
     OfflineComponent,
+    OfflineComponent,
     ProductionComponent,
     ProductionModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
-    EvcsPopoverComponent,
-    OfflineComponent
+    SinglethresholdComponent,
+    StorageComponent,
+    StorageModalComponent,
+    SymmetricPeakshavingComponent,
+    SymmetricPeakshavingModalComponent,
   ]
 })
 export class LiveModule { }
