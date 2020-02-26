@@ -6,6 +6,8 @@ export const TRANSLATION = {
         On: "Naar",
         Off: "Van",
         Active: "Actief",
+        currentValue: 'Huidige waarde',
+        measuredValue: 'Gemeten Waarde',
         Inactive: "Inactief",
         Manually: "handmatig",
         Phase: "Fase",
@@ -104,6 +106,14 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "uitgang"
                 },
+                Peakshaving: {
+                    peakshaving: 'Piek scheren',
+                    peakshavingPower: 'Afvoer voorbij',
+                    rechargePower: 'Bezig met laden onder',
+                    relationError: 'Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet',
+                    asymmetricInfo: 'De ingevoerde prestatiewaarden verwijzen naar afzonderlijke fasen. Het is aangepast aan de meest gestresste fase.',
+                    mostStressedPhase: 'Meest gestresste fase'
+                },
                 phasesInfo: "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
                 autarchyInfo: "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
                 selfconsumptionInfo: "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
@@ -114,6 +124,7 @@ export const TRANSLATION = {
                     HighThreshold: "hoge drempel"
                 },
                 EVCS: {
+                    ChargeTarget: "Lading doel",
                     ChargingStation: "Laadstation",
                     ChargingStationCluster: "Laadstation cluster",
                     OverviewChargingStations: "Overzicht laadstations",

@@ -6,6 +6,8 @@ export const TRANSLATION = {
         On: "Conmutada",
         Off: "Apagado",
         Active: "Activo",
+        currentValue: 'Valor actual',
+        measuredValue: 'Valor Medido',
         Inactive: "Inactivo",
         Manually: "a mano",
         Phase: "Fase",
@@ -107,6 +109,14 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "Salida"
                 },
+                Peakshaving: {
+                    peakshaving: 'Afeitado máximo',
+                    peakshavingPower: 'Descarga sobre',
+                    rechargePower: 'Cargando debajo',
+                    relationError: 'Límite de descarga debe ser mayor o igual que el límite de carga',
+                    asymmetricInfo: 'Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.',
+                    mostStressedPhase: 'Fase mayormente estresada'
+                },
                 phasesInfo: "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
                 autarchyInfo: "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
                 selfconsumptionInfo: "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
@@ -117,6 +127,7 @@ export const TRANSLATION = {
                     HighThreshold: "Umbral alto"
                 },
                 EVCS: {
+                    ChargeTarget: "Objetivo de carga",
                     ChargingStation: "Carga",
                     ChargingStationCluster: "Grupo de estaciones de carga",
                     OverviewChargingStations: "Resumen de estaciones de carga",

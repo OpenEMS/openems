@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './../../shared/shared.module';
 import { AutarchyComponent } from './autarchy/autarchy.component';
 import { AutarchyModalComponent } from './autarchy/modal/modal.component';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
-import { ChpSocComponent } from './chpsoc/chpsoc.component';
-import { ConsumptionComponent } from './consumption/consumption.component';
+import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
-import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsComponent } from './evcs/evcs.component';
-import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
-import { EvcsChart } from './evcsCluster/modal/evcs-chart/evcs.chart';
+import { EvcsModalComponent } from './evcs/modal/modal.page';
+import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
@@ -19,35 +19,34 @@ import { GridModalComponent } from './grid/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
 import { ModbusApiComponent } from './modbusapi/modbusapi.component';
+import { OfflineComponent } from './offline/offline.component';
+import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
+import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { ProductionModalComponent } from './production/modal/modal.component';
 import { ProductionComponent } from './production/production.component';
 import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
 import { SelfConsumptionComponent } from './selfconsumption/selfconsumption.component';
-import { StorageModalComponent } from './storage/modal/modal.component';
-import { StorageComponent } from './storage/storage.component';
-import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
-import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { OfflineComponent } from './offline/offline.component';
-import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
+import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
 
 @NgModule({
   imports: [
-    SharedModule,
-    EnergymonitorModule,
+    BrowserAnimationsModule,
     BrowserModule,
-    BrowserAnimationsModule
+    EnergymonitorModule,
+    SharedModule,
   ],
   entryComponents: [
-    StorageModalComponent,
-    GridModalComponent,
-    ConsumptionModalComponent,
-    ProductionModalComponent,
-    EvcsModalComponent,
-    ModalComponentEvcsCluster,
+    AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
+    ChpsocModalComponent,
+    ConsumptionModalComponent,
+    EvcsModalComponent,
+    EvcsPopoverComponent,
+    FixDigitalOutputModalComponent,
+    GridModalComponent,
+    ModalComponentEvcsCluster,
+    ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
     EvcsPopoverComponent,
@@ -55,34 +54,29 @@ import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.com
     FixDigitalOutputModalComponent,
   ],
   declarations: [
-    LiveComponent,
-    FixDigitalOutputModalComponent,
+    AsymmetricPeakshavingComponent,
+    AsymmetricPeakshavingModalComponent,
+    AutarchyComponent,
+    AutarchyModalComponent,
     ChannelthresholdComponent,
     SinglethresholdComponent,
     EvcsComponent,
-    ModbusApiComponent,
-    StorageComponent,
-    GridComponent,
-    ConsumptionComponent,
-    ProductionComponent,
-    InfoComponent,
+    EvcsModalComponent,
+    EvcsPopoverComponent,
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
-    StorageModalComponent,
+    FixDigitalOutputModalComponent,
+    GridComponent,
     GridModalComponent,
-    ChpSocComponent,
-    ConsumptionModalComponent,
-    ProductionModalComponent,
-    EvcsClusterComponent,
+    InfoComponent,
+    LiveComponent,
     ModalComponentEvcsCluster,
-    EvcsModalComponent,
-    EvcsChart,
-    ChpsocModalComponent,
-    AutarchyComponent,
-    AutarchyModalComponent,
+    ModbusApiComponent,
+    OfflineComponent,
+    ProductionComponent,
+    ProductionModalComponent,
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
-    SinglethresholdModalComponent,
     EvcsPopoverComponent,
     OfflineComponent
   ]

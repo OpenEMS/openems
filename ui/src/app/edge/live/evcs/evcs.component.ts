@@ -44,7 +44,8 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'State'),
         new ChannelAddress(this.componentId, 'EnergySession'),
         new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
-        new ChannelAddress(this.componentId, 'MaximumHardwarePower')
+        new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
+        new ChannelAddress(this.componentId, 'SetChargePowerLimit')
       ]);
 
       // Gets the Controller & Component for the given EVCS-Component.

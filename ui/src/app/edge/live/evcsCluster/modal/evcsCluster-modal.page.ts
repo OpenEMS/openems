@@ -143,9 +143,10 @@ export class ModalComponentEvcsCluster implements OnInit {
      *
      * @param event
      */
-    updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component) {
+    updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
         let oldMinChargePower = currentController.properties.forceChargeMinPower;
         let newMinChargePower = event.detail.value;
+        newMinChargePower /= numberOfPhases;
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [

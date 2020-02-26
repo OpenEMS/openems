@@ -43,6 +43,9 @@ import { StorageComponent } from './storage/widget.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
 import { SinglethresholdSingleChartComponent } from './singlethreshold/singlechart.component';
 import { SingletresholdWidgetComponent } from './singlethreshold/widget.component';
+import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
+import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
 
 @NgModule({
   imports: [
@@ -59,6 +62,7 @@ import { SingletresholdWidgetComponent } from './singlethreshold/widget.componen
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
     StorageModalComponent,
+    SymmetricPeakshavingModalComponent,
   ],
   declarations: [
     AutarchyChartComponent,
@@ -104,6 +108,9 @@ import { SingletresholdWidgetComponent } from './singlethreshold/widget.componen
     StorageModalComponent,
     StorageSingleChartComponent,
     StorageTotalChartComponent,
+    SymmetricPeakshavingChartComponent,
+    SymmetricPeakshavingModalComponent,
+    SymmetricPeakshavingWidgetComponent,
   ]
 })
 export class HistoryModule { }
