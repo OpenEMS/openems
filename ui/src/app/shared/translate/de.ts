@@ -6,6 +6,8 @@ export const TRANSLATION = {
         On: "An",
         Off: "Aus",
         Active: "Aktiv",
+        currentValue: 'Aktueller Wert',
+        measuredValue: 'Gemessener Wert',
         Inactive: "Inaktiv",
         Manually: "Manuell",
         Phase: "Phase",
@@ -42,6 +44,7 @@ export const TRANSLATION = {
         Search: "Suchen",
         ChangeAccepted: "Änderung übernommen",
         ChangeFailed: "Änderung fehlgeschlagen",
+        InputNotValid: "Eingabe ungültig",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
@@ -106,6 +109,14 @@ export const TRANSLATION = {
                 Channeltreshold: {
                     Output: "Ausgang"
                 },
+                Peakshaving: {
+                    peakshaving: 'Lastspitzenkappung',
+                    peakshavingPower: 'Entladung über',
+                    rechargePower: 'Beladung unter',
+                    relationError: 'Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein',
+                    asymmetricInfo: 'Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.',
+                    mostStressedPhase: 'Meist belastete Phase'
+                },
                 phasesInfo: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 autarchyInfo: "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
                 selfconsumptionInfo: "Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.",
@@ -116,6 +127,7 @@ export const TRANSLATION = {
                     HighThreshold: "Oberer Schwellenwert"
                 },
                 EVCS: {
+                    ChargeTarget: "Ladevorgabe",
                     ChargingStation: "Ladestation",
                     ChargingStationCluster: "Ladestation Cluster",
                     OverviewChargingStations: "Übersicht Ladestationen",

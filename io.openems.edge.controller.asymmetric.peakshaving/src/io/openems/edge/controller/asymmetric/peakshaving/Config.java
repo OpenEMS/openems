@@ -3,7 +3,7 @@ package io.openems.edge.controller.asymmetric.peakshaving;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Peak-Shaving Asymmetric", //
 		description = "Cuts power peaks and recharges the battery in low consumption periods, depending on the individual phase.")
 @interface Config {
@@ -23,11 +23,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
 	String meter_id() default "meter0";
 
-	@AttributeDefinition(name = "Peak-Shaving power", description = "Grid purchase power above this value is considered a peak and shaved to this value.")
-	int peakShavingPower() default 22080;
+	@AttributeDefinition(name = "Peak-Shaving power", description = "Maximum grid purchase power on one Phase. The controller tries to shave to this value.")
+	int peakShavingPower() default 7000;
 
-	@AttributeDefinition(name = "Recharge power", description = "If grid purchase power is below this value battery is recharged.")
-	int rechargePower() default 15000;
+	@AttributeDefinition(name = "Recharge power", description = "If grid purchase power is on each Phase below this value, the battery will recharge.")
+	int rechargePower() default 6000;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Peak-Shaving Asymmetric [{id}]";
 }

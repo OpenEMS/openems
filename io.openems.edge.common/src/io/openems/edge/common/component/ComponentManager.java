@@ -21,7 +21,9 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
 				.text("A configured OpenEMS Component was not activated")), //
 		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
-				.text("OutOfMemory had happened. Found heap dump files."));
+				.text("OutOfMemory had happened. Found heap dump files.")),
+		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT) //
+				.text("Applying the default configuration failed.")),;
 
 		private final Doc doc;
 

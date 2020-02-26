@@ -26,9 +26,9 @@ public class MyProcessImage implements ProcessImage {
 
 	private final Logger log = LoggerFactory.getLogger(MyProcessImage.class);
 
-	protected final ModbusTcpApi parent;
+	protected final AbstractModbusTcpApi parent;
 
-	protected MyProcessImage(ModbusTcpApi parent) {
+	protected MyProcessImage(AbstractModbusTcpApi parent) {
 		this.parent = parent;
 	}
 
@@ -99,7 +99,7 @@ public class MyProcessImage implements ProcessImage {
 	 */
 	private Register[] getRecordValueRegisters(ModbusRecord record) {
 		MyRegister[] result = new MyRegister[record.getType().getWords()];
-		OpenemsComponent component = this.parent._components.get(record.getComponentId());
+		OpenemsComponent component = this.parent.getComponent(record.getComponentId());
 		byte[] value = record.getValue(component);
 		for (int j = 0; j < value.length / 2; j++) {
 			result[j] = new MyRegister(j, value[j * 2], value[j * 2 + 1], //

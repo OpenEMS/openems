@@ -15,18 +15,15 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Controller.Asymmetric.PeakShaving", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
@@ -42,7 +39,6 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	protected Power power;
 
 	private Config config;
-	private PidFilter pidFilter;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -70,7 +66,6 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.pidFilter = this.power.buildPidFilter();
 	}
 
 	@Deactivate
@@ -90,14 +85,18 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != GridMode.ON_GRID) {
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
 			return;
 		}
 
-		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().value().orElse(0) + ess.getActivePower().value().orElse(0);
-		int calculatedPower;
-		
+		/*
+		 * Calculate 'effective' grid-power (without current ESS charge/discharge)
+		 */
+		int gridPower;
 		if (meter instanceof AsymmetricMeter) {
 			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
 
@@ -106,18 +105,25 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 			int gridPowerL3 = asymmetricMeter.getActivePowerL3().value().orElse(0);
 
 			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
-			gridPower = maxPowerOnPhase * 3 + ess.getActivePower().value().orElse(0);
-		}
+			gridPower = maxPowerOnPhase * 3;
 
-		if (gridPower >= this.config.peakShavingPower()) {
+		} else {
+			gridPower = meter.getActivePower().value().orElse(0);
+		}
+		int effectiveGridPower = gridPower + ess.getActivePower().value().orElse(0);
+
+		int calculatedPower;
+		int wholePeakShavingPower = this.config.peakShavingPower() * 3;
+		int wholeRechargePower = this.config.rechargePower() * 3;
+		if (effectiveGridPower >= wholePeakShavingPower) {
 
 			// Peak-Shaving
-			calculatedPower = gridPower - this.config.peakShavingPower();
+			calculatedPower = effectiveGridPower - wholePeakShavingPower;
 
-		} else if (gridPower <= this.config.rechargePower()) {
+		} else if (effectiveGridPower <= wholeRechargePower) {
 
 			// Recharge
-			calculatedPower = gridPower - this.config.rechargePower();
+			calculatedPower = effectiveGridPower - wholeRechargePower;
 
 		} else {
 
@@ -128,18 +134,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Apply PID filter
 		 */
-		int minPower = this.power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		int maxPower = this.power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-		this.pidFilter.setLimits(minPower, maxPower);
-		int pidOutput = (int) this.pidFilter.applyPidFilter(ess.getActivePower().value().orElse(0), calculatedPower);
-
-		// TODO remove before release
-		this.logInfo(this.log, "Without PID: " + calculatedPower + "; With PID: " + pidOutput);
-
-		/*
-		 * set result
-		 */
-		ess.getSetActivePowerEquals().setNextWriteValue(pidOutput);
+		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
 		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 }

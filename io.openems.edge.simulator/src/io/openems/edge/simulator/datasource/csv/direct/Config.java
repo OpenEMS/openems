@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.csv;
+package io.openems.edge.simulator.datasource.csv.direct;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.simulator.CsvFormat;
 
 @ObjectClassDefinition(//
-		name = "Simulator DataSource: CSV Reader", //
+		name = "Simulator DataSource: CSV Direct", //
 		description = "This service provides CSV-Input data.")
 @interface Config {
 
@@ -20,7 +20,7 @@ import io.openems.edge.simulator.CsvFormat;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Factor", description = "Each value in the csv-file is multiplied by this factor.")
-	float factor() default 10_000;
+	float factor() default 1;
 
 	@AttributeDefinition(name = "Time-Delta", description = "Time-Delta between two entries in the csv-file in seconds.")
 	int timeDelta() default 60;
@@ -28,11 +28,11 @@ import io.openems.edge.simulator.CsvFormat;
 	@AttributeDefinition(name = "Realtime", description = "If true the output-value doesn't change, until the Time-Delta has passed in realtime.")
 	boolean realtime() default false;
 
-	@AttributeDefinition(name = "Source", description = "A CSV-Input file containing a series of values.")
-	Source source();
+	@AttributeDefinition(name = "Source", description = "A CSV-Input containing an optional title line and a series of values.")
+	String source() default "0";
 
 	@AttributeDefinition(name = "CSV Format", description = "The format of the CSV file")
 	CsvFormat format() default CsvFormat.GERMAN_EXCEL;
 
-	String webconsole_configurationFactory_nameHint() default "Simulator DataSource: CSV Reader [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Simulator DataSource: CSV Direct [{id}]";
 }

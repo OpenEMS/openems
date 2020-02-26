@@ -114,7 +114,7 @@ public class EvcsControllerTest {
 		controller.sum = sum;
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 10000, 0,
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
 				Priority.CAR, "ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);
@@ -140,6 +140,8 @@ public class EvcsControllerTest {
 
 	@Test
 	public void excessChargeTest2() throws Exception {
+		//TODO: Rewrite the test to operate with ESS Power
+		
 		// Initialize mocked Clock
 		final TimeLeapClock clock = new TimeLeapClock();
 
@@ -154,7 +156,7 @@ public class EvcsControllerTest {
 		controller.sum = sum;
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 10000, 0,
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
 				Priority.STORAGE, "ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);
@@ -196,7 +198,7 @@ public class EvcsControllerTest {
 		controller.sum = sum;
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 10000, 0,
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
 				Priority.CAR, "ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);

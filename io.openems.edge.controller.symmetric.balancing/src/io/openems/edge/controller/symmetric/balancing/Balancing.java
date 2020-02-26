@@ -15,20 +15,15 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Balancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
-
-	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	private final Logger log = LoggerFactory.getLogger(Balancing.class);
 
@@ -58,16 +53,14 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	protected ComponentManager componentManager;
 
 	@Reference
-	private Power power;
+	protected Power power;
 
 	private Config config;
-	private PidFilter pidFilter;
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.pidFilter = this.power.buildPidFilter();
 	}
 
 	@Deactivate
@@ -105,7 +98,6 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		case UNDEFINED:
 			break;
 		case OFF_GRID:
-			this.pidFilter.reset();
 			return;
 		}
 
@@ -115,21 +107,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		int calculatedPower = this.calculateRequiredPower(ess, meter);
 
 		/*
-		 * Apply PID filter
-		 */
-		int minPower = this.power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		int maxPower = this.power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-		this.pidFilter.setLimits(minPower, maxPower);
-		int pidOutput = (int) this.pidFilter.applyPidFilter(ess.getActivePower().value().orElse(0), calculatedPower);
-
-		// TODO remove before release
-		this.logInfo(this.log, "Without PID: " + calculatedPower + "; With PID: " + pidOutput);
-
-		/*
 		 * set result
 		 */
-//		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
-		ess.getSetActivePowerEquals().setNextWriteValue(pidOutput);
+		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
 		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 }

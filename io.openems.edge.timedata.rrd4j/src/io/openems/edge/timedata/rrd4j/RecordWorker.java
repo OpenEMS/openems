@@ -70,6 +70,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 			// Stop here if not reached CycleCount
 			return;
 		}
+		// reset Cycle-Count
+		this.cycleCount = 0;
 
 		// Same second as last run? -> RRD4j can only handle one sample per second per
 		// database. Timestamps are all stored "truncated to seconds".
