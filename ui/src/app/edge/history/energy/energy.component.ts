@@ -409,18 +409,24 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       position: 'right',
       scaleLabel: {
         display: true,
-        labelString: "%"
+        labelString: "%",
+        padding: -2,
+        fontSize: 11
       },
       gridLines: {
         display: false
       },
       ticks: {
         beginAtZero: true,
-        max: 100
+        max: 100,
+        padding: -5,
       }
     })
     options.scales.yAxes[0].id = "yAxis1"
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    options.scales.yAxes[0].scaleLabel.padding = -2;
+    options.scales.yAxes[0].scaleLabel.fontSize = 11;
+    options.scales.yAxes[0].ticks.padding = -5;
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
@@ -557,7 +563,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   public getChartHeight(): number {
-    return window.innerHeight / 2.5;
+    return window.innerHeight / 2;
   }
 
   async presentModal() {

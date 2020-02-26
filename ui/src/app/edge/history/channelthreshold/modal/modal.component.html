@@ -1,7 +1,6 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title translate>Edge.Index.Widgets.Channeltreshold.output
-        </ion-title>
+        <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="start" *ngIf="showTotal != null">
             <chartOptions (setShowTotal)='onNotifyTotal($event)' [showTotal]="showTotal"></chartOptions>
         </ion-buttons>
@@ -37,7 +36,7 @@
                     <td style="width: 100%" class="ion-padding"></td>
                 </tr>
             </table>
-            <channelthresholdSingleChart [controllerId]="controllerId" [period]="service.historyPeriod">
+            <channelthresholdSingleChart [componentId]="component.id" [period]="service.historyPeriod">
             </channelthresholdSingleChart>
         </ion-card-content>
     </ng-container>

@@ -15,7 +15,7 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../
 export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
   @Input() private period: DefaultTypes.HistoryPeriod;
-  @Input() public controllerId: string;
+  @Input() public componentId: string;
 
   ngOnChanges() {
     this.updateChart();
@@ -76,7 +76,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
       let channeladdresses = [outputChannel];
       resolve(channeladdresses);
     });

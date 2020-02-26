@@ -1,7 +1,6 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
-        <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
+        <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -23,7 +22,7 @@
                     <td style="width: 100%" class="ion-padding"></td>
                 </tr>
             </table>
-            <singlethresholdSingleChart [controllerId]="controllerId" [period]="service.historyPeriod">
+            <singlethresholdSingleChart [componentId]="component.id" [period]="service.historyPeriod">
             </singlethresholdSingleChart>
         </ion-card-content>
     </ng-container>

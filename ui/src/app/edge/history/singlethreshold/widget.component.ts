@@ -18,7 +18,7 @@ import { SinglethresholdModalComponent } from './modal/modal.component';
 export class SingletresholdWidgetComponent implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private controllerId: string;
+    @Input() private componentId: string;
 
     private static readonly SELECTOR = "singlethresholdWidget";
 
@@ -26,7 +26,7 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
     public data: Cumulated = null;
     public values: any;
     public edge: Edge = null;
-    public controller: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component = null;
     private inputChannel = null;
 
     constructor(
@@ -40,8 +40,8 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
             this.service.getConfig().then(config => {
-                this.controller = config.getComponent(this.controllerId);
-                this.inputChannel = config.getComponentProperties(this.controllerId)['inputChannelAddress'];
+                this.component = config.getComponent(this.componentId);
+                this.inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
             })
         });
     }
@@ -70,7 +70,7 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
 
                             // calculate active time of period in minutes and hours
                             let activeSum: number = 0;
-                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']).toString();
+                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']).toString();
 
                             result.data[outputChannel].forEach(value => {
                                 activeSum += value;
@@ -110,7 +110,7 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
 
     getChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
             let channeladdresses = [outputChannel];
             resolve(channeladdresses);
         });
@@ -121,8 +121,7 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
             component: SinglethresholdModalComponent,
             cssClass: 'wide-modal',
             componentProps: {
-                controllerId: this.controllerId,
-                controller: this.controller,
+                component: this.component,
                 inputChannel: this.inputChannel
             }
         });

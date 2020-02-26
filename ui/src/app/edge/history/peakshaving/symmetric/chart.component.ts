@@ -15,7 +15,7 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './.
 export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
     @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() public component: EdgeConfig.Component;
+    @Input() public componentId: string;
 
     ngOnChanges() {
         this.updateChart();
@@ -38,9 +38,9 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getConfig().then(config => {
-                let meterIdActivePower = config.getComponent(this.component.id).properties['meter.id'] + '/ActivePower';
-                let peakshavingPower = this.component.id + '/_PropertyPeakShavingPower';
-                let rechargePower = this.component.id + '/_PropertyRechargePower';
+                let meterIdActivePower = config.getComponent(this.componentId).properties['meter.id'] + '/ActivePower';
+                let peakshavingPower = this.componentId + '/_PropertyPeakShavingPower';
+                let rechargePower = this.componentId + '/_PropertyRechargePower';
                 let result = response.result;
                 this.colors = [];
                 // convert labels
@@ -133,9 +133,9 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.component.id, '_PropertyRechargePower'),
-                new ChannelAddress(this.component.id, '_PropertyPeakShavingPower'),
-                new ChannelAddress(config.getComponent(this.component.id).properties['meter.id'], 'ActivePower')
+                new ChannelAddress(this.componentId, '_PropertyRechargePower'),
+                new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
+                new ChannelAddress(config.getComponent(this.componentId).properties['meter.id'], 'ActivePower')
             ];
             resolve(result);
         })

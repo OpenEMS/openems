@@ -15,7 +15,7 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../
 export class SinglethresholdSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
   @Input() private period: DefaultTypes.HistoryPeriod;
-  @Input() public controllerId: string;
+  @Input() public componentId: string;
 
   ngOnChanges() {
     this.updateChart();
@@ -148,24 +148,24 @@ export class SinglethresholdSingleChartComponent extends AbstractHistoryChart im
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      this.outputChannel = config.getComponentProperties(this.controllerId)['outputChannelAddress'];
-      this.inputChannel = config.getComponentProperties(this.controllerId)['inputChannelAddress'];
-      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
-      const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['inputChannelAddress']);
+      this.outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      this.inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
+      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+      const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
       let channeladdresses = [outputChannel, inputChannel];
       resolve(channeladdresses);
     });
   }
 
   protected setLabel(config: EdgeConfig) {
-    let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['inputChannelAddress']);
+    let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
     let labelString;
     if (inputChannel.channelId == 'Soc') {
       labelString = '%';
     } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
       labelString = 'kW';
     } else {
-      labelString = config.getChannel(ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['inputChannelAddress']))['unit'];
+      labelString = config.getChannel(ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']))['unit'];
     }
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     let translate = this.translate;

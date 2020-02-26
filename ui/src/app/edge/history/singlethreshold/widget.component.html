@@ -1,8 +1,7 @@
-<ion-card button (click)="presentModal()" *ngIf="controller">
+<ion-card button (click)="presentModal()" *ngIf="component">
   <ion-item lines="full" color="light">
     <ion-icon slot="start" color="primary" size="large" name="aperture"></ion-icon>
-    <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
-    <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
+    <ion-label>{{ component.alias }}</ion-label>
   </ion-item>
   <ion-card-content>
     <table class="full_width">

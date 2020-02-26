@@ -18,7 +18,4 @@ export class AsymmetricPeakshavingModalComponent {
         public service: Service,
         public modalCtrl: ModalController
     ) { }
-
-    ngOnInit() {
-    }
 }

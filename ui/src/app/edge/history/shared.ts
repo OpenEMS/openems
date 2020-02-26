@@ -56,14 +56,17 @@ export type ChartOptions = {
             position: string,
             scaleLabel: {
                 display: boolean,
-                labelString: string
+                labelString: string,
+                padding?: number,
+                fontSize?: number
             },
             gridLines?: {
                 display: boolean
             },
             ticks: {
                 beginAtZero: boolean,
-                max?: number
+                max?: number,
+                padding?: number
             }
         }],
         xAxes: [{

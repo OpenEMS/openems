@@ -18,7 +18,9 @@ import { ChannelthresholdModalComponent } from './modal/modal.component';
 export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private controllerId: string;
+    @Input() private componentId: string;
+    private config: EdgeConfig = null;
+    public component: EdgeConfig.Component = null;
 
     private static readonly SELECTOR = "channelthresholdWidget";
 
@@ -36,7 +38,11 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(response => {
-            this.edge = response;
+            this.service.getConfig().then(config => {
+                this.edge = response;
+                this.config = config;
+                this.component = config.getComponent(this.componentId);
+            })
         });
 
     }
@@ -81,7 +87,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
                             // calculate active time of period in minutes and hours
                             let activeSum: number = 0;
-                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']).toString();
+                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']).toString();
 
                             result.data[outputChannel].forEach(value => {
                                 activeSum += value;
@@ -121,7 +127,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
     getChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
             let channeladdresses = [outputChannel];
             resolve(channeladdresses);
         });
@@ -132,7 +138,8 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
             component: ChannelthresholdModalComponent,
             cssClass: 'wide-modal',
             componentProps: {
-                controllerId: this.controllerId
+                component: this.component,
+                config: this.config
             }
         });
         return await modal.present();

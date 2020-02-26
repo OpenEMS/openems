@@ -93,10 +93,10 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
       this.service.getConfig().then(config => {
         let channeladdresses = [];
         // find all ChannelThresholdControllers
-        for (let controllerId of
+        for (let componentId of
           config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
             .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)['outputChannelAddress']);
+          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(componentId)['outputChannelAddress']);
           channeladdresses.push(outputChannel);
         }
         resolve(channeladdresses);

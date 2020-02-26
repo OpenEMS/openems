@@ -12,7 +12,7 @@ import { SymmetricPeakshavingModalComponent } from './modal/modal.component';
 export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private controllerId: string;
+    @Input() private componentId: string;
 
 
     private static readonly SELECTOR = "symmetricPeakshavingWidget";
@@ -32,7 +32,7 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
-                this.component = config.getComponent(this.controllerId);
+                this.component = config.getComponent(this.componentId);
             });
         });
     }
