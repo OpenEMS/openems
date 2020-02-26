@@ -103,7 +103,7 @@ export class EvcsComponent {
       case ChargeState.ENERGY_LIMIT_REACHED:
         return this.translate.instant('Edge.Index.Widgets.EVCS.chargeLimitReached');
       case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.carFull');
     }
   }
 

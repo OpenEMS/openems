@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { AutarchyModalComponent } from './modal/modal.component';
-import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { Edge, Service } from '../../../shared/shared';
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
@@ -16,7 +16,6 @@ export class AutarchyComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private websocket: Websocket,
     public modalCtrl: ModalController,
     public service: Service,
   ) { }
@@ -24,19 +23,7 @@ export class AutarchyComponent {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-      edge.subscribeChannels(this.websocket, AutarchyComponent.SELECTOR, [
-        // Grid
-        new ChannelAddress('_sum', 'GridActivePower'),
-        // Consumption
-        new ChannelAddress('_sum', 'ConsumptionActivePower')
-      ]);
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, AutarchyComponent.SELECTOR);
-    }
+    })
   }
 
   async presentModal() {

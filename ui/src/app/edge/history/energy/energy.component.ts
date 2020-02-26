@@ -420,6 +420,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         beginAtZero: true,
         max: 100,
         padding: -5,
+        stepSize: 20
       }
     })
     options.scales.yAxes[0].id = "yAxis1"

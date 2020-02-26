@@ -66,7 +66,8 @@ export type ChartOptions = {
             ticks: {
                 beginAtZero: boolean,
                 max?: number,
-                padding?: number
+                padding?: number,
+                stepSize?: number
             }
         }],
         xAxes: [{
