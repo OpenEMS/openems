@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
-import { Edge, Service, Websocket } from '../../../shared/shared';
 import { Component } from '@angular/core';
+import { Edge, Service } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
 
@@ -10,13 +10,11 @@ import { SelfconsumptionModalComponent } from './modal/modal.component';
 })
 export class SelfConsumptionComponent {
 
-    private static readonly SELECTOR = "selfconsumption";
 
     public edge: Edge = null;
 
     constructor(
         private route: ActivatedRoute,
-        private websocket: Websocket,
         public modalCtrl: ModalController,
         public service: Service,
     ) { }

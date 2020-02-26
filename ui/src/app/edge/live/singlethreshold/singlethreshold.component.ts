@@ -23,11 +23,11 @@ export class SinglethresholdComponent {
   public outputChannel: ChannelAddress;
 
   constructor(
-    public service: Service,
-    private websocket: Websocket,
     private route: ActivatedRoute,
-    public modalCtrl: ModalController,
+    private websocket: Websocket,
     protected translate: TranslateService,
+    public modalCtrl: ModalController,
+    public service: Service,
   ) { }
 
   ngOnInit() {

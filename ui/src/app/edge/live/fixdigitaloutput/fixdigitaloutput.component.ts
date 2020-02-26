@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { Component, Input } from '@angular/core';
 import { FixDigitalOutputModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'fixdigitaloutput',

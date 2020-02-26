@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
 import { RangeValue } from '@ionic/core';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 
 type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 

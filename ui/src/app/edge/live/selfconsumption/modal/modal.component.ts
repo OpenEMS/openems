@@ -9,7 +9,7 @@ import { Service } from '../../../../shared/shared';
 export class SelfconsumptionModalComponent {
 
     constructor(
-        public service: Service,
         public modalCtrl: ModalController,
+        public service: Service,
     ) { }
 }

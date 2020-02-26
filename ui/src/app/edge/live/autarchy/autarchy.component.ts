@@ -1,7 +1,7 @@
 import { ActivatedRoute } from '@angular/router';
 import { AutarchyModalComponent } from './modal/modal.component';
-import { Edge, Service } from '../../../shared/shared';
 import { Component } from '@angular/core';
+import { Edge, Service } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({

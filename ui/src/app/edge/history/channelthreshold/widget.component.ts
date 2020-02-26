@@ -1,15 +1,13 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { differenceInHours, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { ChannelthresholdModalComponent } from './modal/modal.component';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { ModalController } from '@ionic/angular';
+import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,
@@ -25,15 +23,12 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
     private static readonly SELECTOR = "channelthresholdWidget";
 
     public activeTimeOverPeriod: string = null;
-    public data: Cumulated = null;
-    public values: any;
     public edge: Edge = null;
 
     constructor(
         public service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
-        private decimalPipe: DecimalPipe
     ) { }
 
     ngOnInit() {
@@ -45,9 +40,6 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
             })
         });
 
-    }
-
-    ngOnDestroy() {
     }
 
     ngOnChanges() {
@@ -69,49 +61,8 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-                            // convert datasets
-                            let datasets = [];
-                            for (let channel in result.data) {
-                                let data = result.data[channel].map(value => {
-                                    if (value == null) {
-                                        return null
-                                    } else {
-                                        return value * 100; // convert to % [0,100]
-                                    }
-                                });
-                                datasets.push({
-                                    label: "Ausgang",
-                                    data: data
-                                });
-                            }
-
-                            // calculate active time of period in minutes and hours
-                            let activeSum: number = 0;
-                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']).toString();
-
-                            result.data[outputChannel].forEach(value => {
-                                activeSum += value;
-                            })
-
-                            // start-/endOfTheDay because last timestamp is 23:55
-                            let startDate = startOfDay(new Date(result.timestamps[0]));
-                            let endDate = endOfDay(new Date(result.timestamps[result.timestamps.length - 1]));
-                            let activePercent = activeSum / result.timestamps.length;
-                            let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
-                            let activeTimeHours: string = (activeTimeMinutes / 60).toFixed(1);
-
-                            if (activeTimeMinutes > 59) {
-                                this.activeTimeOverPeriod = activeTimeHours + ' h'
-                                // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
-                                activeTimeHours.split('').forEach((letter, index) => {
-                                    if (index == activeTimeHours.length - 1 && letter == "0" && activeTimeMinutes > 60) {
-                                        this.activeTimeOverPeriod = activeTimeHours.slice(0, -2) + ' h'
-                                    }
-                                });
-                            } else {
-                                this.activeTimeOverPeriod = this.decimalPipe.transform(activeTimeMinutes.toString(), '1.0-1') + ' m'
-                            }
-
+                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+                            this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
 
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);

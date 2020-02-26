@@ -1,9 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { AsymmetricPeakshavingModalComponent } from './modal/modal.component';
+import { Component, Input, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
-import { AsymmetricPeakshavingModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: AsymmetricPeakshavingWidgetComponent.SELECTOR,
