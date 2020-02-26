@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 
-	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is within a configured threshold, the output channel is switched ON.")
+	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is above the configured threshold, the output is switched ON.")
 	String inputChannelAddress();
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
@@ -35,7 +35,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time (Seconds) is applied to avoid continuous switching between on and off based on threshold")
 	int minimumSwitchingTime() default 60;
 
-	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour is inverted, i.e. the Digital Output channel is switched OFF if the value of the input channel is within a configured threshold")
+	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour is inverted, i.e. the output is switched OFF if the value of the input channel is below the configured threshold")
 	boolean invert() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Controller IO Channel Single Threshold [{id}]";

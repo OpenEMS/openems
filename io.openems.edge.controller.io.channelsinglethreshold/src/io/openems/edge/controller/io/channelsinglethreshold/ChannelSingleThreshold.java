@@ -115,9 +115,8 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	/**
 	 * Automated control.
 	 * 
-	 * @param outputValueOpt
-	 * @param outputChannel
-	 * 
+	 * @param outputChannel  the configured output channel
+	 * @param outputValueOpt current value of the configured output channel
 	 * @throws OpenemsNamedException on error
 	 */
 	private void automaticMode(WriteChannel<Boolean> outputChannel, Optional<Boolean> outputValueOpt)
@@ -125,24 +124,23 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 
 		ChannelAddress inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
 
-		// Get input value
+		// Get average input value of the last 'minimumSwitchingTime' seconds
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
 		OptionalDouble inputValueOpt = inputChannel.getPastValues()
-				.tailMap(LocalDateTime.now().minusSeconds(this.config.minimumSwitchingTime()), false).values().stream()
-				.filter(v -> v.isDefined()) //
+				.tailMap(LocalDateTime.now(this.clock).minusSeconds(this.config.minimumSwitchingTime()), true).values()
+				.stream().filter(v -> v.isDefined()) //
 				.mapToInt(v -> v.get()) //
 				.average();
 		int inputValue;
 		if (inputValueOpt.isPresent()) {
-			inputValue = (int) inputValueOpt.getAsDouble();
+			inputValue = (int) Math.round(inputValueOpt.getAsDouble());
 
 			/*
-			 * Condition applies only when the input channel is the Grid Active Power
-			 * 
 			 * Power value (switchedLoadPower) of the output device is added to the input
-			 * channel value to avoid immediate switching based on threshold.
+			 * channel value to avoid immediate switching based on threshold - e.g. helpful
+			 * when the input channel is the Grid Active Power.
 			 * 
-			 * example use case: if the feed-in is more than threshold, the output device is
+			 * Example use case: if the feed-in is more than threshold, the output device is
 			 * switched on and next second feed-in reduces below threshold and immediately
 			 * switches off the device.
 			 */
@@ -155,30 +153,28 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			this.changeState(State.UNDEFINED);
 		}
 
-		// State Machine
+		// Evaluate State Machine
 		switch (this.state) {
 		case UNDEFINED:
 			/*
 			 * Starting... state is still undefined
 			 */
 			if (inputValueOpt.isPresent()) {
-				if (inputValue < this.config.threshold()) {
+				if (inputValue <= this.config.threshold()) {
 					this.changeState(State.BELOW_THRESHOLD);
 				} else {
 					this.changeState(State.ABOVE_THRESHOLD);
 				}
 			}
-			this.setOutput(outputChannel, outputValueOpt, false);
 			break;
 
 		case BELOW_THRESHOLD:
 			/*
-			 * Value is smaller than the low threshold -> always OFF
+			 * Value is smaller or equal the low threshold -> always OFF
 			 */
 			if (inputValue > this.config.threshold()) {
 				this.changeState(State.ABOVE_THRESHOLD);
 			}
-			this.setOutput(outputChannel, outputValueOpt, false ^ this.config.invert());
 			break;
 
 		case ABOVE_THRESHOLD:
@@ -188,6 +184,29 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 			if (inputValue <= this.config.threshold()) {
 				this.changeState(State.BELOW_THRESHOLD);
 			}
+			break;
+		}
+
+		// Turn output ON or OFF depending on current state
+		switch (this.state) {
+		case UNDEFINED:
+			/*
+			 * Still Undefined -> always OFF
+			 */
+			this.setOutput(outputChannel, outputValueOpt, false);
+			break;
+
+		case BELOW_THRESHOLD:
+			/*
+			 * Value is below threshold -> always OFF (or invert)
+			 */
+			this.setOutput(outputChannel, outputValueOpt, false ^ this.config.invert());
+			break;
+
+		case ABOVE_THRESHOLD:
+			/*
+			 * Value is above threshold -> always ON (or invert)
+			 */
 			this.setOutput(outputChannel, outputValueOpt, true ^ this.config.invert());
 			break;
 		}
@@ -216,9 +235,8 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 * 
-	 * @param outputValueOpt
-	 * @param outputChannel
-	 *
+	 * @param outputChannel  the configured output channel
+	 * @param outputValueOpt current value of the configured output channel
 	 * @param value          true to switch ON, false to switch ON
 	 * @throws OpenemsNamedException on error
 	 */
