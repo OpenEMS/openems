@@ -91,6 +91,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SelfConsumptionComponent,
     SelfconsumptionModalComponent,
     SinglethresholdComponent,
+    SinglethresholdModalComponent,
     StorageComponent,
     StorageModalComponent,
     SymmetricPeakshavingComponent,
