@@ -2,7 +2,6 @@ import { ActivatedRoute } from '@angular/router';
 import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { ModalController } from '@ionic/angular';
@@ -11,10 +10,10 @@ import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/resp
 import { SinglethresholdModalComponent } from './modal/modal.component';
 
 @Component({
-    selector: SingletresholdWidgetComponent.SELECTOR,
+    selector: SinglethresholdWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class SingletresholdWidgetComponent implements OnInit, OnChanges {
+export class SinglethresholdWidgetComponent implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
@@ -30,7 +29,6 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
         public service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
-        private decimalPipe: DecimalPipe
     ) { }
 
     ngOnInit() {

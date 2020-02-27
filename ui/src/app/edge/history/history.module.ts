@@ -35,7 +35,7 @@ import { SelfconsumptionWidgetComponent } from './selfconsumption/widget.compone
 import { SharedModule } from '../../shared/shared.module';
 import { SinglethresholdChartComponent } from './singlethreshold/chart.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
-import { SingletresholdWidgetComponent } from './singlethreshold/widget.component';
+import { SinglethresholdWidgetComponent } from './singlethreshold/widget.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
 import { StorageChargerChartComponent } from './storage/chargerchart.component';
 import { StorageComponent } from './storage/widget.component';
@@ -100,7 +100,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     SelfconsumptionWidgetComponent,
     SinglethresholdChartComponent,
     SinglethresholdModalComponent,
-    SingletresholdWidgetComponent,
+    SinglethresholdWidgetComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,
     StorageComponent,
