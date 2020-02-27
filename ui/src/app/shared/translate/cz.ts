@@ -42,6 +42,7 @@ export const TRANSLATION = {
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         ChangeAccepted: "Změna byla přijata",
         ChangeFailed: "Změna se nezdařila",
+        InputNotValid: "Vstup je neplatný",
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -80,7 +81,7 @@ export const TRANSLATION = {
                 GridMeter: "Elektroměr - Odběr",
                 ProductionMeter: "Elektroměr - Výroba",
                 StorageDischarge: "baterie výtok",
-                StorageCharge: "baterie nakládání"
+                StorageCharge: "baterie nakládání",
             },
             Energytable: {
                 Title: "Tabulka hodnot",
@@ -88,6 +89,22 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    switchOffAbove: 'Vypněte pomocí',
+                    switchOffBelow: 'Vypněte pod',
+                    switchOnAbove: 'Zapněte přes',
+                    switchOnBelow: 'Zapněte pod',
+                    dependendOn: 'Podle toho',
+                    currentValue: 'Aktuální hodnota',
+                    threshold: 'Prahována',
+                    minSwitchingTime: 'Minimální přepínací',
+                    other: 'Ostatní',
+                    switchedLoadPower: 'Spínané zatížení',
+                    behaviour: 'Chování',
+                    above: 'O',
+                    below: 'Níže',
+                    relationError: 'Prahová hodnota musí být větší než spínané zatížení',
+                },
                 Channeltreshold: {
                     Output: "Výstup"
                 },
@@ -109,6 +126,7 @@ export const TRANSLATION = {
                     HighThreshold: "vysoký práh"
                 },
                 EVCS: {
+                    ChargeTarget: "Cíl nabíjení",
                     ChargingStation: "Nabíjecí stanice",
                     ChargingStationCluster: "Klastr nabíjecí stanice",
                     OverviewChargingStations: "Přehled nabíjecích stanic",

@@ -44,6 +44,7 @@ export const TRANSLATION = {
         Search: "Suchen",
         ChangeAccepted: "Änderung übernommen",
         ChangeFailed: "Änderung fehlgeschlagen",
+        InputNotValid: "Eingabe ungültig",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
@@ -105,6 +106,22 @@ export const TRANSLATION = {
                 ProductionDC: "Erzeugung DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    switchOffAbove: 'Ausschalten über',
+                    switchOffBelow: 'Ausschalten unter',
+                    switchOnAbove: 'Einschalten über',
+                    switchOnBelow: 'Einschalten unter',
+                    dependendOn: 'Abhängig von',
+                    currentValue: 'Aktueller Wert',
+                    threshold: 'Schwellenwert',
+                    minSwitchingTime: 'Mindestumschaltzeit',
+                    other: 'Sonstige',
+                    switchedLoadPower: 'Geschaltete Last',
+                    behaviour: 'Verhalten',
+                    above: 'Über',
+                    below: 'Unter',
+                    relationError: 'Schwellenwert muss größer als die geschaltete Last sein',
+                },
                 Channeltreshold: {
                     Output: "Ausgang"
                 },
@@ -126,6 +143,7 @@ export const TRANSLATION = {
                     HighThreshold: "Oberer Schwellenwert"
                 },
                 EVCS: {
+                    ChargeTarget: "Ladevorgabe",
                     ChargingStation: "Ladestation",
                     ChargingStationCluster: "Ladestation Cluster",
                     OverviewChargingStations: "Übersicht Ladestationen",

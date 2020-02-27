@@ -42,6 +42,7 @@ export const TRANSLATION = {
         Search: "Search",
         ChangeAccepted: "Change accepted",
         ChangeFailed: "Change failed",
+        InputNotValid: "Input not valid",
         Week: {
             Monday: "Monday",
             Tuesday: "Tuesday",
@@ -89,6 +90,22 @@ export const TRANSLATION = {
                 ProductionDC: "Production DC"
             },
             Widgets: {
+                Singlethreshold: {
+                    switchOffAbove: 'Switch off above',
+                    switchOffBelow: 'Switch off below',
+                    switchOnAbove: 'Switch on above',
+                    switchOnBelow: 'Switch on below',
+                    dependendOn: 'Dependend on',
+                    currentValue: 'Current value',
+                    threshold: 'Threshold',
+                    minSwitchingTime: 'Minimum swichting time',
+                    other: 'Other',
+                    switchedLoadPower: 'Switched load power',
+                    behaviour: 'Behaviour',
+                    above: 'Above',
+                    below: 'Below',
+                    relationError: 'Threshold must be greater than the switched load power',
+                },
                 Channeltreshold: {
                     Output: "Output"
                 },
@@ -110,6 +127,7 @@ export const TRANSLATION = {
                     HighThreshold: "High Threshold"
                 },
                 EVCS: {
+                    ChargeTarget: "Charge target",
                     ChargingStation: "Charging Station",
                     ChargingStationCluster: "Charging station cluster",
                     OverviewChargingStations: "Overview charging stations",

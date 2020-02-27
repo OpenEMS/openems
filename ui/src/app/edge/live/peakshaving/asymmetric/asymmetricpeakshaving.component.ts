@@ -43,9 +43,7 @@ export class AsymmetricPeakshavingComponent {
                     new ChannelAddress(meterId, 'ActivePower'),
                     new ChannelAddress(meterId, 'ActivePowerL1'),
                     new ChannelAddress(meterId, 'ActivePowerL2'),
-                    new ChannelAddress(meterId, 'ActivePowerL3'),
-                    new ChannelAddress(this.component.id, '_PropertyPeakShavingPower'),
-                    new ChannelAddress(this.component.id, '_PropertyRechargePower'),
+                    new ChannelAddress(meterId, 'ActivePowerL3')
                 ])
                 this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let activePowerL1 = currentData.channel[meterId + '/ActivePowerL1'];

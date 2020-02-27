@@ -1,0 +1,184 @@
+<ng-container *ngIf="controller && service.currentEdge | async as edge">
+  <ng-container *ngIf="edge.currentData | async as currentData">
+    <ion-card button (click)="presentModal()">
+      <ion-item lines="full" color="light">
+        <ion-avatar slot="start">
+          <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+            <ion-icon color="primary" size="large" name="aperture"></ion-icon>
+          </ng-container>
+          <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+            <ion-icon color="primary" size="large" name="radio-button-off"></ion-icon>
+          </ng-container>
+          <ng-container *ngIf="currentData.channel[outputChannel] == null">
+            <ion-icon size="large" name="help-circle-outline"></ion-icon>
+          </ng-container>
+        </ion-avatar>
+        <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
+        <ion-label *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-label>
+      </ion-item>
+      <ion-card-content>
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              General.State
+            </td>
+            <td style="width: 35%" class="align_right" translate>
+              <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+              <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                General.On
+              </ng-container>
+              <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                General.Off
+              </ng-container>
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 65%;" translate>
+              General.Mode</td>
+            <td *ngIf="controller.properties['mode'] == 'ON'" style="width: 35%" class="align_right" translate>
+              General.On
+            </td>
+            <td *ngIf="controller.properties['mode'] == 'OFF'" style="width: 35%" class="align_right" translate>
+              General.Off
+            </td>
+            <td *ngIf="controller.properties['mode'] == 'AUTOMATIC'" style="width: 35%" class="align_right" translate>
+              General.Automatic
+            </td>
+          </tr>
+        </table>
+        <div *ngIf="controller.properties['mode'] == 'AUTOMATIC'">
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.Singlethreshold.dependendOn</td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'" translate>
+                General.Soc
+              </td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'" translate>
+                General.Production
+              </td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold < 0"
+                translate>
+                General.GridSell
+              </td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold > 0"
+                translate>
+                General.GridBuy
+              </td>
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower'
+            && controller.properties.inputChannelAddress != '_sum/ProductionActivePower' && controller.properties.inputChannelAddress != null">
+                <span
+                  translate>Edge.Index.Widgets.Singlethreshold.other</span>&nbsp;({{controller.properties.inputChannelAddress}})
+              </td>
+            </tr>
+            <!-- show current value only if input channel address is other -->
+            <tr *ngIf="controller.properties.inputChannelAddress != null">
+              <ng-container
+                *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower' && controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
+                {{currentData.channel[controller.properties['inputChannelAddress']] }}
+                <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                  &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
+                </div>
+              </ng-container>
+            </tr>
+
+
+
+            <tr *ngIf="currentData.channel[outputChannel] != null">
+              <td style="width: 65%;" translate>
+                <ng-container *ngIf="controller.properties.threshold > 0">
+                  <ng-container *ngIf="controller.properties.invert == false">
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnAbove
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffBelow
+                    </ng-container>
+                  </ng-container>
+                  <ng-container *ngIf="controller.properties.invert == true">
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnBelow
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffAbove
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+                <!-- revert logic for GridSell -->
+                <ng-container *ngIf="controller.properties.threshold < 0">
+                  <ng-container *ngIf="controller.properties.invert == false">
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnBelow
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffAbove
+                    </ng-container>
+                  </ng-container>
+                  <ng-container *ngIf="controller.properties.invert == true">
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                      Edge.Index.Widgets.Singlethreshold.switchOnAbove
+                    </ng-container>
+                    <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                      Edge.Index.Widgets.Singlethreshold.switchOffBelow
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+              </td>
+              <!-- SOC -->
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/EssSoc'">
+                {{controller.properties['threshold'] | unitvalue:'%'}}
+              </td>
+              <!-- PRODUCTION -->
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/ProductionActivePower'">
+                {{ controller.properties['threshold'] | unitvalue: 'kW' }}
+              </td>
+              <!-- GRIDBUY -->
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold > 0">
+                <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                  {{controller.properties['threshold'] | unitvalue: 'kW'}}
+                </ng-container>
+                <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                  {{ (controller.properties['threshold'] - controller.properties['switchedLoadPower']) | unitvalue: 'kW' }}
+                </ng-container>
+              </td>
+              <!-- GRIDSELLL -->
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress == '_sum/GridActivePower' && controller.properties.threshold < 0">
+                <ng-container *ngIf="currentData.channel[outputChannel] == 0">
+                  {{ controller.properties['threshold'] * -1 | unitvalue: 'kW' }}
+                </ng-container>
+                <ng-container *ngIf="currentData.channel[outputChannel] == 1">
+                  {{ ((controller.properties['threshold'] * -1) - controller.properties['switchedLoadPower']) | unitvalue: 'kW' }}
+                </ng-container>
+              </td>
+              <!-- OTHER -->
+              <td style="width: 35%" class="align_right"
+                *ngIf="controller.properties.inputChannelAddress != '_sum/EssSoc' && controller.properties.inputChannelAddress != '_sum/GridActivePower' && controller.properties.inputChannelAddress != '_sum/ProductionActivePower'">
+                <ng-container *ngIf="controller.properties.threshold < 0">
+                  {{controller.properties['threshold'] * -1 }}
+                  <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                    &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="controller.properties.threshold > 0">
+                  {{controller.properties['threshold'] }}
+                  <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                    &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
+                  </div>
+                </ng-container>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+</ng-container>

@@ -69,4 +69,4 @@
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	org.osgi.service.metatype;version='[1.4.0,1.4.1)',\
-	org.postgresql.jdbc42;version='[42.2.9,42.2.10)'
+	org.postgresql.jdbc42;version='[42.2.10,42.2.11)'

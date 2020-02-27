@@ -1,23 +1,27 @@
 <ion-grid *ngIf="factory && form">
   <ion-row class="ion-justify-content-center">
 
-    <ion-col size="12" size-sm="6">
+    <ion-col size="12" size-xl="4">
       <ion-card>
         <ion-item>
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
           <ion-label>
-            <ion-card-title>{{ factory.name }}</ion-card-title>
-            <ion-card-subtitle>{{ factory.description }}</ion-card-subtitle>
+            <ion-card-title class="ion-text-wrap">{{ factory.name }}</ion-card-title>
+            <ion-card-subtitle class="ion-text-wrap">{{ factory.description }}</ion-card-subtitle>
           </ion-label>
         </ion-item>
         <ion-card-content>
           <form [formGroup]="form" (ngSubmit)="submit()">
             <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-            <ion-item>
-              <ion-button [disabled]="form.pristine" type="submit" color="primary">Aktualisiere Komponente</ion-button>
-              <ion-button (click)="delete()" color="warning">Lösche Komponente</ion-button>
-            </ion-item>
           </form>
+          <div style="padding-top: 10px">
+            <ion-button size="small" [disabled]="form.pristine" class="ion-float-left" type="submit" color="primary">
+              Aktualisiere
+              Komponente</ion-button>
+            <ion-button size="small" class="ion-float-right" (click)="delete()" color="warning">Lösche
+              Komponente
+            </ion-button>
+          </div>
         </ion-card-content>
       </ion-card>
     </ion-col>

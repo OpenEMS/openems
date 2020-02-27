@@ -3,7 +3,6 @@ package io.openems.edge.controller.asymmetric.peakshaving;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
@@ -28,7 +27,7 @@ public class PeakshavingTest {
 		// Add referenced services
 		componentManager = new DummyComponentManager();
 		controller.componentManager = componentManager;
-		DummyPower power = new DummyPower(0.5, 0.2, 0.1);
+		DummyPower power = new DummyPower(0.3, 0.3, 0.1);
 		controller.power = power;
 
 		// Activate (twice, so that reference target is set)
@@ -37,58 +36,56 @@ public class PeakshavingTest {
 		controller.activate(null, config);
 
 		// Prepare Channels
-		ChannelAddress gridMode = new ChannelAddress("ess0", "GridMode");
 		ChannelAddress ess = new ChannelAddress("ess0", "ActivePower");
 		ChannelAddress grid = new ChannelAddress("meter0", "ActivePower");
 		ChannelAddress essSetPower = new ChannelAddress("ess0", "SetActivePowerEquals");
 
-		/*
-		 * Build and run test for symmetric Ess and Meter
-		 */
-		ManagedSymmetricEss essComponent = new DummyManagedSymmetricEss("ess0");
+		// Build and run test
+		ManagedSymmetricEss essComponent = new DummyManagedSymmetricEss("ess0", power);
 		SymmetricMeter meterComponent = new DummySymmetricMeter("meter0");
-
-		/*
-		 * Test-Cases simulating constant 120000 kW Grid power with slow measuring at
-		 * Grid + ESS and eventually overshoot of ESS; filtered with PID.
-		 */
 		new ControllerTest(controller, componentManager, essComponent, meterComponent) //
-
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, 0) //
-						.input(grid, 120000) //
-						.output(essSetPower, 10000 /* instead of 20000 without PID */ )) //
+						.input(ess, 0).input(grid, 120000) //
+						.output(essSetPower, 6000)) //
 				.next(new TestCase() //
-						.input(ess, 5000) //
-						.input(grid, 120000) //
-						.output(essSetPower, 13500 /* instead of 25000 */ )) //
+						.input(ess, 0).input(grid, 120000) //
+						.output(essSetPower, 12001)) //
 				.next(new TestCase() //
-						.input(ess, 10000) //
-						.input(grid, 118000) //
-						.output(essSetPower, 16500 /* instead of 28000 */ )) //
+						.input(ess, 3793).input(grid, 120000 - 3793) //
+						.output(essSetPower, 16484)) //
 				.next(new TestCase() //
-						.input(ess, 15000) //
-						.input(grid, 112000) //
-						.output(essSetPower, 17101 /* instead of 27000 */ )) //
+						.input(ess, 8981).input(grid, 120000 - 8981) //
+						.output(essSetPower, 19650)) //
 				.next(new TestCase() //
-						.input(ess, 20000) //
-						.input(grid, 105000) //
-						.output(essSetPower, 16001 /* instead of 25000 */ )) //
+						.input(ess, 13723).input(grid, 120000 - 13723) //
+						.output(essSetPower, 21578)) //
 				.next(new TestCase() //
-						.input(ess, 23000) //
-						.input(grid, 95000) //
-						.output(essSetPower, 12201 /* instead of 18000 */ )) //
+						.input(ess, 17469).input(grid, 120000 - 17469) //
+						.output(essSetPower, 22437)) //
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, 0) //
-						.input(grid, 40000) //
-						.output(essSetPower, 11302 /* instead of -10000 */ )) //
+						.input(ess, 20066).input(grid, 120000 - 20066) //
+						.output(essSetPower, 22533)) //
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, 0) //
-						.input(grid, 5000) //
-						.output(essSetPower, -10497 /* instead of -45000 */ )) //
+						.input(ess, 21564).input(grid, 120000 - 21564) //
+						.output(essSetPower, 22174)) //
+				.next(new TestCase() //
+						.input(ess, 22175).input(grid, 120000 - 22175) //
+						.output(essSetPower, 21610)) //
+				.next(new TestCase() //
+						.input(ess, 22173).input(grid, 120000 - 22173) //
+						.output(essSetPower, 21020)) //
+				.next(new TestCase() //
+						.input(ess, 21816).input(grid, 120000 - 21816) //
+						.output(essSetPower, 20511)) //
+				.next(new TestCase() //
+						.input(ess, 21311).input(grid, 120000 - 21311) //
+						.output(essSetPower, 20133)) //
+				.next(new TestCase() //
+						.input(ess, 20803).input(grid, 120000 - 20803) //
+						.output(essSetPower, 19893)) //
+				.next(new TestCase() //
+						.input(ess, 20377).input(grid, 120000 - 20377) //
+						.output(essSetPower, 19772)) //
 				.run();
 	}
 
@@ -101,82 +98,41 @@ public class PeakshavingTest {
 		// Add referenced services
 		componentManager = new DummyComponentManager();
 		controller.componentManager = componentManager;
-		DummyPower power = new DummyPower(0.5, 0.2, 0.1);
+		DummyPower power = new DummyPower(0.3, 0.3, 0.1);
 		controller.power = power;
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 7360, 5000);
+		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 33333, 16666);
 		controller.activate(null, config);
 		controller.activate(null, config);
 
 		// Prepare Channels
-		ChannelAddress gridMode = new ChannelAddress("ess0", "GridMode");
 		ChannelAddress ess = new ChannelAddress("ess0", "ActivePower");
 		ChannelAddress gridL1 = new ChannelAddress("meter0", "ActivePowerL1");
 		ChannelAddress gridL2 = new ChannelAddress("meter0", "ActivePowerL2");
 		ChannelAddress gridL3 = new ChannelAddress("meter0", "ActivePowerL3");
 		ChannelAddress essSetPower = new ChannelAddress("ess0", "SetActivePowerEquals");
 
-		/*
-		 * Build and run test for asymmetric Meter and symmetric Ess
-		 */
-		ManagedSymmetricEss essComponent = new DummyManagedSymmetricEss("ess0");
-		AsymmetricMeter asymmetricMeterComponent = new DummyAsymmetricMeter("meter0");
-
-		/*
-		 * Test-Cases simulating constant more than 22080 kW Grid With more power on one
-		 * Phase than allowed.
-		 */
-		new ControllerTest(controller, componentManager, essComponent, asymmetricMeterComponent) //
+		// Build and run test
+		ManagedSymmetricEss essComponent = new DummyManagedSymmetricEss("ess0", power);
+		AsymmetricMeter meterComponent = new DummyAsymmetricMeter("meter0");
+		new ControllerTest(controller, componentManager, essComponent, meterComponent) //
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
-						.input(gridL1, 10000) //
-						.input(gridL2, 7000) //
-						.input(gridL3, 7000) //
-						.output(essSetPower, 3960 /* instead of 7920 */ )) //
+						.input(gridL1, 20000).input(gridL2, 40000).input(gridL3, 10000) //
+						.output(essSetPower, 6000)) //
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, -2000) //
-						.input(gridL1, 10000) //
-						.input(gridL2, 7000) //
-						.input(gridL3, 7000) //
-						.output(essSetPower, 5744 /* instead of 5920 */ )) //
-				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, 2000) //
-						.input(gridL1, 10000) //
-						.input(gridL2, 7000) //
-						.input(gridL3, 7000) //
-						.output(essSetPower, 6728 /* instead of 9920 */ )) //
-				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 0) //
-						.input(gridL1, 15000 /* 7.640 more than allowed on this Phase. */) //
-						.input(gridL2, 3000) //
-						.input(gridL3, 3000) //
-						.output(essSetPower, 16412 /* instead of 22920 */ )) //
+						.input(gridL1, 20000).input(gridL2, 40000).input(gridL3, 10000) //
+						.output(essSetPower, 12001)) //
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, 0) //
-						.input(gridL1, 3000) //
-						.input(gridL2, 3000) //
-						.input(gridL3, 3000) //
-						.output(essSetPower, 6336 /* instead of -6000 */ )) //
+						.input(ess, 3793) //
+						.input(gridL1, 20000 - 3793 / 3).input(gridL2, 40000 - 3793 / 3).input(gridL3, 10000 - 3793 / 3) //
+						.output(essSetPower, 16484)) //
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, 0) //
-						.input(gridL1, 1000) //
-						.input(gridL2, 1000) //
-						.input(gridL3, 1000) //
-						.output(essSetPower, 2136 /* instead of -12000 */ )) //
-				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
-						.input(ess, 0) //
-						.input(gridL1, 1000) //
-						.input(gridL2, 1000) //
-						.input(gridL3, 1000) //
-						.output(essSetPower, -264 /* instead of -12000 */ )) //
+						.input(ess, 8981) //
+						.input(gridL1, 20000 - 8981 / 3).input(gridL2, 40000 - 8981 / 3).input(gridL3, 10000 - 8981 / 3) //
+						.output(essSetPower, 19651)) //
 				.run();
 	}
 }

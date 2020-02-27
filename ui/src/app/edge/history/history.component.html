@@ -33,7 +33,14 @@
       <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
         <asymmetricPeakshavingWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
         </asymmetricPeakshavingWidget>
-      </ion-col>
+        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
+          <singlethresholdWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
+          </singlethresholdWidget>
+        </ion-col>
+        <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
+          <symmetricPeakshavingWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
+          </symmetricPeakshavingWidget>
+        </ion-col>
     </ng-container>
   </ion-row>
 </ion-grid>
