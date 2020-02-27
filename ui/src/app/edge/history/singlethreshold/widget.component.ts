@@ -24,6 +24,7 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
     public activeTimeOverPeriod: string = null;
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
+
     private inputChannel = null;
 
     constructor(
@@ -100,4 +101,3 @@ export class SingletresholdWidgetComponent implements OnInit, OnChanges {
         return await modal.present();
     }
 }
-
