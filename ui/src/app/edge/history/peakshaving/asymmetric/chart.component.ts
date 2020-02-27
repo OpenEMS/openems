@@ -148,7 +148,6 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
             }
             this.datasets = datasets;
             this.loading = false;
-
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

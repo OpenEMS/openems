@@ -16,7 +16,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            General.currentValue
+                            General.measuredValue
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
@@ -29,7 +29,7 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.currentValue<span>&nbsp;L1</span>
+                            General.measuredValue<span>&nbsp;L1</span>
                         </td>
                         <td style="width: 35%" class="align_right"
                             [class.bold]="(mostStressedPhase | async)?.name == 'L1'">
@@ -41,7 +41,7 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.currentValue<span>&nbsp;L2</span>
+                            General.measuredValue<span>&nbsp;L2</span>
                         </td>
                         <td style="width: 35%" class="align_right"
                             [class.bold]="(mostStressedPhase | async)?.name == 'L2'">
@@ -53,7 +53,7 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.currentValue<span>&nbsp;L3</span>
+                            General.measuredValue<span>&nbsp;L3</span>
                         </td>
                         <td style="width: 35%" class="align_right"
                             [class.bold]="(mostStressedPhase | async)?.name == 'L3'">
