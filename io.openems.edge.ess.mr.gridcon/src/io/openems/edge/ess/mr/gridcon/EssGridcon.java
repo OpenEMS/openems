@@ -37,18 +37,10 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
-//@Designate(ocd = EssGridconConfig.class, factory = true)
-//@Component(//
-//		name = "ESS.Gridcon", //
-//		immediate = true, //
-//		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-//		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-//		}) //
 public abstract class EssGridcon extends AbstractOpenemsComponent
 		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave, EventHandler {
 
-
-
+	public static final float Q_LIMIT = 1f;
 	//------- Components for an ESS with gridcon and soltaro
 	protected GridconPCS gridconPCS;
 	protected SoltaroBattery batteryA;
@@ -62,14 +54,9 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	protected ParameterSet parameterSet;
 
-//	StateMachine stateMachine;
 	protected io.openems.edge.ess.mr.gridcon.State stateObject = null;
-//	protected Map<String, Map<GridConChannelId, Float>> weightingMap = initializeMap();
 
 protected abstract ComponentManager getComponentManager();
-
-	
-
 
 	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
 
@@ -117,9 +104,12 @@ protected abstract ComponentManager getComponentManager();
 			// if battery is null, no battery is connected on string c
 		}
 
+		initializeStateController(batteryA, batteryB, batteryC);
+		stateObject = getFirstStateObjectUndefined();
 	}
 
-
+	protected abstract State getFirstStateObjectUndefined();
+	protected abstract void initializeStateController(SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3);
 
 	@Deactivate
 	protected void deactivate() {
@@ -141,18 +131,12 @@ protected abstract ComponentManager getComponentManager();
 				calculateActivePower();
 				calculateMinCellVoltage();
 
-//				weightingMap = getWeightingMap();
-//				stringControlMode = getStringControlMode();
-
 				io.openems.edge.ess.mr.gridcon.IState nextState = this.stateObject.getNextState();
 				this.stateObject = StateController.getStateObject(nextState);
 				this.stateObject.act();
 				this.writeChannelValues();
-
-//				channel(ChannelId.STATE_CYCLE_ERROR).setNextValue(false);
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
-//				channel(ChannelId.STATE_CYCLE_ERROR).setNextValue(true);
-//				logError(log, "State-Cycle Error: " + e.getMessage());
+				logError(log, "Error: " + e.getMessage());
 			}
 			break;
 		}
@@ -228,7 +212,6 @@ protected abstract ComponentManager getComponentManager();
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-
 		gridconPCS.setPower(activePower, reactivePower);
 		
 	}
@@ -248,8 +231,6 @@ protected abstract ComponentManager getComponentManager();
 				ModbusSlaveNatureTable.of(GridconPCSImpl.class, accessMode, 300) //
 						.build());
 	}
-
-
 
 	protected boolean isBatteryReady(SoltaroBattery battery) {
 		if (battery == null) {
@@ -355,7 +336,8 @@ protected abstract ComponentManager getComponentManager();
 		gridconPCS.setEnableIPU2(enableIPU2);
 		gridconPCS.setEnableIPU3(enableIPU3);
 
-		gridconPCS.setPlay(true);
+		gridconPCS.play();
+		
 		gridconPCS.setSyncApproval(true);
 		gridconPCS.setBlackStartApproval(false);
 		gridconPCS.setShortCircuitHAndling(true);
@@ -392,7 +374,6 @@ protected abstract ComponentManager getComponentManager();
 		gridconPCS.setEnableIPU2(enableIPU2);
 		gridconPCS.setEnableIPU3(enableIPU3);
 
-		gridconPCS.setPlay(false);
 		gridconPCS.setSyncApproval(true);
 		gridconPCS.setBlackStartApproval(false);
 		gridconPCS.setShortCircuitHAndling(true);
@@ -402,7 +383,7 @@ protected abstract ComponentManager getComponentManager();
 		gridconPCS.setF0(GridconPCSImpl.ON_GRID_FREQUENCY_FACTOR);
 
 		gridconPCS.setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		gridconPCS.setQLimit(1f);
+		gridconPCS.setQLimit(EssGridcon.Q_LIMIT);
 		
 		float maxPower = GridconPCSImpl.MAX_POWER_PER_INVERTER;
 		if (enableIPU1) {
@@ -455,5 +436,13 @@ protected abstract ComponentManager getComponentManager();
 
 	public void setErrorCodeFeedBack(int errorCodeFeedback) {
 		gridconPCS.setErrorCodeFeedback(errorCodeFeedback);
+	}
+
+	public void setSyncDate(int date) {
+		gridconPCS.setSyncDate(date);
+	}
+
+	public void setSyncTime(int time) {
+		gridconPCS.setSyncTime(time);
 	}
 }

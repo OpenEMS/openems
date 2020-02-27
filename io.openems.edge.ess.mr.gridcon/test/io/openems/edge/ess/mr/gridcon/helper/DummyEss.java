@@ -1,113 +1,275 @@
 package io.openems.edge.ess.mr.gridcon.helper;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Coefficient;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.LinearCoefficient;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.enums.Mode;
+import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
+import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
-public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetricEss {
+public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
+
+	protected DummyEss(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
+		// TODO Auto-generated constructor stub
+	}
 
 	public static int MAXIMUM_POWER = 10000;
+	public static int DC_LINK_VOLTAGE = 800;
 	private int currentActivePower = 0;
+	private int currentReactivePower;
+	private boolean running;
+	private boolean error;
+	private float dcLinkPositiveVoltage = DC_LINK_VOLTAGE;
 
-	protected DummyEss(//
-			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, //
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds //
-	) { //
-		super(firstInitialChannelIds, furtherInitialChannelIds);
-
-		setCurrentActivePower(0);
-	}
-
-	public int getCurrentActivePower() {
-		return currentActivePower;
-	}
-
-	public void setCurrentActivePower(int power) {
-		currentActivePower = power;
-		this.getActivePower().setNextValue(power);
-		this.getActivePower().nextProcessImage();
+	
+	@Override
+	public float getMaxApparentPower() {
+		return MAXIMUM_POWER;
 	}
 
 	@Override
-	public Power getPower() {
-
-		return new Power() {
-
-			@Override
-			public void removeConstraint(Constraint constraint) {
-			}
-
-			@Override
-			public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-				return (-1) * MAXIMUM_POWER;
-			}
-
-			@Override
-			public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-				return MAXIMUM_POWER;
-			}
-
-			@Override
-			public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) throws OpenemsException {
-				return null;
-			}
-
-			@Override
-			public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-					Relationship relationship, double value) throws OpenemsException {
-				Coefficient coefficient = new Coefficient(0, ess.id(), phase, pwr);
-				LinearCoefficient lc = new LinearCoefficient(coefficient, value);
-				LinearCoefficient[] coefficients = { lc };
-				return new Constraint(description, coefficients, relationship, value);
-			}
-
-			@Override
-			public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException {
-				return addConstraint(constraint);
-			}
-
-			@Override
-			public Constraint addConstraint(Constraint constraint) {
-				switch (constraint.getRelationship()) {
-				case EQUALS:
-					currentActivePower = constraint.getValue().get().intValue();
-					break;
-				case GREATER_OR_EQUALS:
-					currentActivePower = Math.max(currentActivePower, constraint.getValue().get().intValue());
-					break;
-				case LESS_OR_EQUALS:
-					currentActivePower = Math.min(currentActivePower, constraint.getValue().get().intValue());
-					break;
-				default:
-					break;
-
-				}
-				return constraint;
-			}
-
-			@Override
-			public PidFilter buildPidFilter() {
-				return null;
-			}
-		};
+	public boolean isRunning() {
+		return running;
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.currentActivePower = activePower;
+	public boolean isStopped() {
+		return !running;
 	}
 
 	@Override
-	public int getPowerPrecision() {
-		return 1;
+	public boolean isError() {
+		return error;
+	}
+
+	@Override
+	public void setPower(int activePower, int reactivePower) {
+		currentActivePower = activePower;
+		currentReactivePower = reactivePower;
+		
+	}
+
+	@Override
+	public void stop() {
+		running = false;
+	}
+
+	@Override
+	public void acknowledgeErrors() {
+		error = false;
+	}
+
+	@Override
+	public void setErrorCodeFeedback(int errorCodeFeedback) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public int getErrorCode() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getActivePowerInverter1() {
+		// TODO Auto-generated method stub
+		return currentActivePower / 3;
+	}
+
+	@Override
+	public float getActivePowerInverter2() {
+		// TODO Auto-generated method stub
+		return currentActivePower / 3;
+	}
+
+	@Override
+	public float getActivePowerInverter3() {
+		// TODO Auto-generated method stub
+		return currentActivePower / 3;
+	}
+
+	@Override
+	public float getDcLinkPositiveVoltage() {
+		return dcLinkPositiveVoltage;
+	}
+
+	@Override
+	public boolean isCommunicationBroken() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setEnableIPU1(boolean enabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setEnableIPU2(boolean enabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setEnableIPU3(boolean enabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setEnableIPU4(boolean enabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setParameterSet(ParameterSet set1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setModeSelection(Mode currentControl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void play() {
+		running = true;		
+	}
+
+	@Override
+	public void setSyncApproval(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setBlackStartApproval(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setShortCircuitHAndling(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setU0(float onGridVoltageFactor) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setF0(float onGridFrequencyFactor) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPControlMode(PControlMode activePowerControl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setQLimit(float f) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPMaxChargeIPU1(float maxPower) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPMaxDischargeIPU1(float maxPower) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPMaxChargeIPU2(float maxPower) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPMaxDischargeIPU2(float maxPower) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPMaxChargeIPU3(float maxPower) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPMaxDischargeIPU3(float maxPower) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDcLinkVoltage(float dcLinkVoltageSetpoint) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWeightStringA(Float weight) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWeightStringB(Float weight) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWeightStringC(Float weight) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStringControlMode(int stringControlMode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enableDCDC() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Integer getErrorCount() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setSyncDate(int date) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setSyncTime(int time) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -13,7 +13,9 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.io.api,\
 	io.openems.edge.meter.api,\
 	slf4j.api,\
-	io.openems.edge.controller.api
+	io.openems.edge.controller.api,\
+	com.google.guava,\
+	com.google.gson
 
 -testpath: \
 	${testpath}

@@ -44,7 +44,9 @@ public class Stopped extends BaseState implements State {
 		log.info("Start batteries and gridcon!");
 
 		startSystem();
-		
+		setStringWeighting();
+		setStringControlMode();
+		setDateAndTime();
 	}
 
 	private void startSystem() {

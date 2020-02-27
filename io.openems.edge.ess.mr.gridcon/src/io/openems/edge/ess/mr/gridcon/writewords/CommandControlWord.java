@@ -30,8 +30,8 @@ public class CommandControlWord {
 	private int errorCodeFeedback = 0;
 	private float parameterU0 = 0f;
 	private float parameterF0 = 0f;
-	private float parameterQref = 0f; // is set in applyPower()
-	private float parameterPref = 0f; // is set in applyPower()
+	private float parameterQref = 0f;
+	private float parameterPref = 0f;
 	private int syncDate = 0;
 	private int syncTime = 0;
 	

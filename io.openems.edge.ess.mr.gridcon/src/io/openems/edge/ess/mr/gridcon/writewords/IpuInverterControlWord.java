@@ -2,12 +2,6 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class IpuInverterControlWord {
 
-//	public enum Inverter {
-//		ONE, //
-//		TWO, //
-//		THREE;
-//	}
-
 	// 32592
 	private float dcVoltageSetpoint = 0f;
 	private float dcCurrentSetpoint = 0f;
@@ -48,22 +42,4 @@ public class IpuInverterControlWord {
 		return pRefOffsetToCcu;
 	}
 	
-	
-
-//	public IpuInverterControl pMaxDischarge(float value) {
-//		this.pMaxDischarge = value;
-//		return this;
-//	}
-//
-//	public IpuInverterControl pMaxCharge(float value) {
-//		this.pMaxCharge = value;
-//		return this;
-//	}
-//
-
-//
-//	private <T> void writeValueToChannel(GridconPCSImpl parent, GridConChannelId channelId, T value)
-//			throws IllegalArgumentException, OpenemsNamedException {
-//		((WriteChannel<?>) parent.channel(channelId)).setNextWriteValueFromObject(value);
-//	}
 }

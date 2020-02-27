@@ -39,9 +39,8 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 	
 	@Reference
 	private Power power;
-
 	private Config config;
-
+	
 	public EssGridConOnGrid() {
 		super(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.values());
 	}
@@ -49,30 +48,8 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 	@Activate
 	void activate(ComponentContext context, Config c) throws OpenemsNamedException {
 		EssGridConOnGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.enableIPU1(), c.enableIPU2(), c.enableIPU3(), c.parameterSet(), c.gridcon_id(), c.bms_a_id(), c.bms_b_id(), c.bms_c_id());
-
 		this.checkConfiguration(config);
-		this.config = c;
-		SoltaroBattery b1 = null;
-		try {
-			b1 = componentManager.getComponent(config.bms_a_id());
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		
-		SoltaroBattery b2 = null; 
-				try {
-					b2 = componentManager.getComponent(config.bms_b_id());
-				} catch (Exception e) {
-					System.out.println(e);
-				}
-		SoltaroBattery b3 = null;
-				try {
-					b3 = componentManager.getComponent(config.bms_c_id());
-				} catch (Exception e) {
-					System.out.println(e);
-				}
-		StateController.initOnGrid(this, config, b1, b2, b3);
-		stateObject = StateController.getStateObject(State.UNDEFINED);
+		this.config = c;	
 	}
 
 	@Deactivate
@@ -109,6 +86,16 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 	protected ComponentManager getComponentManager() {
 		return componentManager;
 		
+	}
+
+	@Override
+	protected io.openems.edge.ess.mr.gridcon.State getFirstStateObjectUndefined() {
+		return StateController.getStateObject(State.UNDEFINED);
+	}
+
+	@Override
+	protected void initializeStateController(SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
+		StateController.initOnGrid(this, config, b1, b2, b3);
 	}
 
 }

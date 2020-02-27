@@ -1,8 +1,6 @@
 package io.openems.edge.ess.mr.gridcon;
 
 import java.nio.ByteOrder;
-import java.time.LocalDateTime;
-import java.util.BitSet;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -23,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -45,8 +42,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-//import io.openems.edge.ess.api.ManagedSymmetricEss;
-//import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
@@ -69,9 +64,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
-
 	public static final int MAX_POWER_PER_INVERTER = 42_000;
-
 	public static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
 	public static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
@@ -134,28 +127,15 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
 			try {
-				//nur ausführen wenn schon mal was gelesen wurde....
 				if (getCcuState() == CCUState.UNDEFINED) {
 					return;
 				}
-				if (this.commandControlWord != null ) {
 					writeCommandWontrolWord();  
-				}
-				if (this.ccuControlParametersWord != null) {
 					writeCcuControlParametersWord();
-				}
-				if (this.dcdcControlCommandWord != null) {
 					writeDcDcControlCommandWord();
-				}
-				if (this.controlWordIPU1 != null) {
 					writeIpuInverter1ControlCommand();
-				}
-				if (this.controlWordIPU2 != null) {
 					writeIpuInverter2ControlCommand();
-				}
-				if (this.controlWordIPU3 != null) {
 					writeIpuInverter3ControlCommand();
-				}
 				
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
 				log.error(e.getMessage());
@@ -168,37 +148,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 	public String debugLog() {
 		CCUState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
 		int errorCount = (int) this.channel(GridConChannelId.CCU_ERROR_COUNT).value().get();
-		return "Here is Gridcon component with ccu state: " + state + "; Error count: " + errorCount;
-		// "SoC:" + this.getSoc().value().asString() //
-//				+ "|L:" + this.getActivePower().value().asString() //
-//				+ "|Allowed:"
-//				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
-//				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-//				+ "|" + this.getGridMode().value().asOptionString();
-	}
-
-	public boolean isIdle() {
-		return isStopped();
-	}
-
-	@Override
-	public boolean isStopped() {
-		return getCcuState() == CCUState.SYNC_TO_V || getCcuState() == CCUState.IDLE_CURRENTLY_NOT_WORKING;
-	}
-	
-	@Override
-	public boolean isRunning() {
-		return getCcuState() == CCUState.COMPENSATOR;
-	}
-
-	@Override
-	public boolean isError() {
-		return getCcuState() == CCUState.ERROR;
-	}
-
-	private CCUState getCcuState() {
-		CCUState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
-		return state;
+		return "Gridcon ccu state: " + state + "; Error count: " + errorCount;
 	}
 
 	@Override
@@ -217,187 +167,160 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 		this.getCommandControlWord().setParameterQref(reactivePowerFactor);
 	}
 
-	protected void writeCommandWontrolWord() throws IllegalArgumentException, OpenemsNamedException {		
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, commandControlWord.isPlay());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, commandControlWord.isReady());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, commandControlWord.isAcknowledge());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_STOP, this.commandControlWord.isStop());
+	protected void writeCommandWontrolWord() throws IllegalArgumentException, OpenemsNamedException {	
+		
+		CommandControlWord ccw = this.getCommandControlWord();
+		
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, ccw.isPlay());
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, ccw.isReady());
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, ccw.isAcknowledge());
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_STOP, ccw.isStop());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL,
-				commandControlWord.isBlackstartApproval());
+				ccw.isBlackstartApproval());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL,
-				commandControlWord.isSyncApproval());
+				ccw.isSyncApproval());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING,
-				commandControlWord.isShortCircuitHandling());
+				ccw.isShortCircuitHandling());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION,
-				commandControlWord.getModeSelection().value);
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, commandControlWord.isTriggerSia());
+				ccw.getModeSelection().value);
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, ccw.isTriggerSia());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION,
-				commandControlWord.isHarmonicCompensation());
+				ccw.isHarmonicCompensation());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET,
-				commandControlWord.isParameterSet1());
+				ccw.isParameterSet1());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET,
-				commandControlWord.isParameterSet2());
+				ccw.isParameterSet2());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET,
-				commandControlWord.isParameterSet3());
+				ccw.isParameterSet3());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET,
-				commandControlWord.isParameterSet4());
+				ccw.isParameterSet4());
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_1, 
-				commandControlWord.isEnableIpu1());
+				ccw.isEnableIpu1());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_2,
-				commandControlWord.isEnableIpu2());
+				ccw.isEnableIpu2());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_3,
-				commandControlWord.isEnableIpu3());
+				ccw.isEnableIpu3());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_ENABLE_IPU_4,
-				commandControlWord.isEnableIpu4());
+				ccw.isEnableIpu4());
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK,
-				commandControlWord.getErrorCodeFeedback());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, commandControlWord.getParameterU0());
-		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, commandControlWord.getParameterF0());
+				ccw.getErrorCodeFeedback());
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, ccw.getParameterU0());
+		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, ccw.getParameterF0());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF,
-				commandControlWord.getParameterQref());
+				ccw.getParameterQref());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF,
-				commandControlWord.getParameterPref());
-
-		// TODO remove from there here only write control word
-		int date = this.convertToInteger(this.generateDate());
-		this.writeValueToChannel(GridConChannelId.COMMAND_TIME_SYNC_DATE, date);
-		int time = this.convertToInteger(this.generateTime());
-		this.writeValueToChannel(GridConChannelId.COMMAND_TIME_SYNC_TIME, time);
-	}
-
-	private <T> void writeValueToChannel(GridConChannelId channelId, T value)
-			throws IllegalArgumentException, OpenemsNamedException {
-		((WriteChannel<?>) channel(channelId)).setNextWriteValueFromObject(value);
-	}
-
-	private BitSet generateDate() {
-		LocalDateTime time = LocalDateTime.now();
-		byte dayOfWeek = (byte) time.getDayOfWeek().ordinal();
-		byte day = (byte) time.getDayOfMonth();
-		byte month = (byte) time.getMonth().getValue();
-		byte year = (byte) (time.getYear() - 2000); // 0 == year 2000 in the protocol
-
-		return BitSet.valueOf(new byte[] { day, dayOfWeek, year, month });
-	}
-
-	private BitSet generateTime() {
-		LocalDateTime time = LocalDateTime.now();
-		byte seconds = (byte) time.getSecond();
-		byte minutes = (byte) time.getMinute();
-		byte hours = (byte) time.getHour();
-
-		// second byte is unused
-		return BitSet.valueOf(new byte[] { seconds, 0, hours, minutes });
-	}
-
-	private int convertToInteger(BitSet bitSet) {
-		long[] l = bitSet.toLongArray();
-		if (l.length == 0) {
-			return 0;
-		}
-		return (int) l[0];
+				ccw.getParameterPref());
+		this.writeValueToChannel(GridConChannelId.COMMAND_TIME_SYNC_DATE, ccw.getSyncDate());
+		this.writeValueToChannel(GridConChannelId.COMMAND_TIME_SYNC_TIME, ccw.getSyncTime());
 	}
 
 	protected void writeCcuControlParametersWord() throws IllegalArgumentException, OpenemsNamedException {
+		CcuControlParametersWord ccpw = getCcuControlParametersWord();
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN,
-				ccuControlParametersWord.getuByQDroopMain());
+				ccpw.getuByQDroopMain());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN,
-				ccuControlParametersWord.getuByQDroopT1Main());
+				ccpw.getuByQDroopT1Main());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN,
-				ccuControlParametersWord.getfByPDroopMain());
+				ccpw.getfByPDroopMain());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN,
-				ccuControlParametersWord.getfByPDroopT1Main());
+				ccpw.getfByPDroopT1Main());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN,
-				ccuControlParametersWord.getqByUDroopMain());
+				ccpw.getqByUDroopMain());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND,
-				ccuControlParametersWord.getqByUDeadBand());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT, ccuControlParametersWord.getqLimit());
+				ccpw.getqByUDeadBand());
+		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT, ccpw.getqLimit());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN,
-				ccuControlParametersWord.getpByFDroopMain());
+				ccpw.getpByFDroopMain());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND,
-				ccuControlParametersWord.getpByFDeadBand());
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP, ccuControlParametersWord.getpByUDroop());
+				ccpw.getpByFDeadBand());
+		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP, ccpw.getpByUDroop());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND,
-				ccuControlParametersWord.getpByUDeadBand());
+				ccpw.getpByUDeadBand());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_CHARGE,
-				ccuControlParametersWord.getpByUMaxCharge());
+				ccpw.getpByUMaxCharge());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_DISCHARGE,
-				ccuControlParametersWord.getpByUMaxDischarge());
+				ccpw.getpByUMaxDischarge());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_MODE,
-				ccuControlParametersWord.getpControlMode().getFloatValue()); //
+				ccpw.getpControlMode().getFloatValue()); //
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_TWO,
-				ccuControlParametersWord.getpControlLimTwo());
+				ccpw.getpControlLimTwo());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE,
-				ccuControlParametersWord.getpControlLimOne());
+				ccpw.getpControlLimOne());
 	}
 
 	protected void writeIpuInverter1ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
+		IpuInverterControlWord iicw = getControlWordIPU1();
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT,
-				controlWordIPU1.getDcVoltageSetpoint());
+				iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT,
-				controlWordIPU1.getDcCurrentSetpoint());
+				iicw.getDcCurrentSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_U0_OFFSET_TO_CCU_VALUE,
-				controlWordIPU1.getU0OffsetToCcu());
+				iicw.getU0OffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_F0_OFFSET_TO_CCU_VALUE,
-				controlWordIPU1.getF0OffsetToCcu());
+				iicw.getF0OffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE,
-				controlWordIPU1.getqRefOffsetToCcu());
+				iicw.getqRefOffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_REF_OFFSET_TO_CCU_VALUE,
-				controlWordIPU1.getpRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_DISCHARGE, controlWordIPU1.getpMaxDischarge());
-		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE, controlWordIPU1.getpMaxCharge());
+				iicw.getpRefOffsetToCcu());
+		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
+		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
 	}
 
 	protected void writeIpuInverter2ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
+		IpuInverterControlWord iicw = getControlWordIPU2();
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT,
-				controlWordIPU2.getDcVoltageSetpoint());
+				iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT,
-				controlWordIPU2.getDcCurrentSetpoint());
+				iicw.getDcCurrentSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_U0_OFFSET_TO_CCU_VALUE,
-				controlWordIPU2.getU0OffsetToCcu());
+				iicw.getU0OffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_F0_OFFSET_TO_CCU_VALUE,
-				controlWordIPU2.getF0OffsetToCcu());
+				iicw.getF0OffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE,
-				controlWordIPU2.getqRefOffsetToCcu());
+				iicw.getqRefOffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_REF_OFFSET_TO_CCU_VALUE,
-				controlWordIPU2.getpRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_DISCHARGE, controlWordIPU2.getpMaxDischarge());
-		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE, controlWordIPU2.getpMaxCharge());
+				iicw.getpRefOffsetToCcu());
+		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
+		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
 	}
 
 	protected void writeIpuInverter3ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
+		IpuInverterControlWord iicw = getControlWordIPU3();
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_VOLTAGE_SETPOINT,
-				controlWordIPU3.getDcVoltageSetpoint());
+				iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_CURRENT_SETPOINT,
-				controlWordIPU3.getDcCurrentSetpoint());
+				iicw.getDcCurrentSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_U0_OFFSET_TO_CCU_VALUE,
-				controlWordIPU3.getU0OffsetToCcu());
+				iicw.getU0OffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_F0_OFFSET_TO_CCU_VALUE,
-				controlWordIPU3.getF0OffsetToCcu());
+				iicw.getF0OffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE,
-				controlWordIPU3.getqRefOffsetToCcu());
+				iicw.getqRefOffsetToCcu());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_REF_OFFSET_TO_CCU_VALUE,
-				controlWordIPU3.getpRefOffsetToCcu());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_DISCHARGE, controlWordIPU3.getpMaxDischarge());
-		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE, controlWordIPU3.getpMaxCharge());
+				iicw.getpRefOffsetToCcu());
+		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_DISCHARGE, iicw.getpMaxDischarge());
+		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE, iicw.getpMaxCharge());
 	}
 
 	protected void writeDcDcControlCommandWord() throws IllegalArgumentException, OpenemsNamedException {
-//weighting is never allowed to be '0'
-		if (dcdcControlCommandWord.getStringControlMode() == 0) {
-			throw new OpenemsException("Calculated weight of '0' -> not allowed!");
+		DcdcControlCommandWord dcc = getDcdcControlCommandWord();
+
+		if (dcc.getStringControlMode() == 0) {
+			//weighting is never allowed to be '0', but it's working according to the tool
+			//throw new OpenemsException("Calculated weight of '0' -> not allowed!");
+			log.error("Calculated weight of '0' -> not allowed!");
 		}
 
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, dcdcControlCommandWord.getDcVoltageSetpoint()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, dcdcControlCommandWord.getWeightStringA()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, dcdcControlCommandWord.getWeightStringB()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, dcdcControlCommandWord.getWeightStringC()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_A, dcdcControlCommandWord.getiRefStringA()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_B, dcdcControlCommandWord.getiRefStringB()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_C, dcdcControlCommandWord.getiRefStringC()); //
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, dcdcControlCommandWord.getStringControlMode()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, dcc.getDcVoltageSetpoint()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, dcc.getWeightStringA()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, dcc.getWeightStringB()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, dcc.getWeightStringC()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_A, dcc.getiRefStringA()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_B, dcc.getiRefStringB()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_C, dcc.getiRefStringC()); //
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, dcc.getStringControlMode()); //
 	}
 
 	@Override
@@ -825,21 +748,21 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 			 * 
 			 * if one inverter is used, dc dc converter is ipu2 ...
 			 */
-			int startAddressIpuControl = 32720; // == THREE
-			int startAddressIpuControlMirror = 33040; // == THREE
+			int startAddressIpuControl = 32720; // DCDC has now a fix address
+			int startAddressIpuControlMirror = 33040; 
+			
 			int startAddressIpuState = 33264; // == THREE
-
 			int startAddressIpuDcdc = 33584; // == THREE
 			switch (this.inverterCount) {
 			case ONE:
-				startAddressIpuControl = 32656;
-				startAddressIpuControlMirror = 32976;
+//				startAddressIpuControl = 32656;
+//				startAddressIpuControlMirror = 32976;
 				startAddressIpuState = 33200;
 				startAddressIpuDcdc = 33520;
 				break;
 			case TWO:
-				startAddressIpuControl = 32688;
-				startAddressIpuControlMirror = 33008;
+//				startAddressIpuControl = 32688;
+//				startAddressIpuControlMirror = 33008;
 				startAddressIpuState = 33232;
 				startAddressIpuDcdc = 33552;
 				break;
@@ -1023,16 +946,6 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 		return getFloat(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
 	}
 
-	private float getFloat(GridConChannelId id) {
-		FloatReadChannel c = this.channel(id);
-		return c.value().orElse(0f);
-	}
-	
-	private int getInteger(GridConChannelId id) {
-		IntegerReadChannel c = this.channel(id);
-		return c.value().orElse(Integer.MIN_VALUE);
-	}
-
 	@Override
 	public boolean isCommunicationBroken() {
 
@@ -1113,8 +1026,8 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 	}
 
 	@Override
-	public void setPlay(boolean b) {
-		getCommandControlWord().setPlay(b);
+	public void play() {
+		getCommandControlWord().setPlay(true);
 	}
 
 	@Override
@@ -1269,4 +1182,53 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent implements Op
 		return getInteger(GridConChannelId.CCU_ERROR_COUNT);
 	}
 
+	@Override
+	public void setSyncDate(int date) {
+		getCommandControlWord().setSyncDate(date);
+	}
+
+	@Override
+	public void setSyncTime(int time) {
+		getCommandControlWord().setSyncTime(time);
+	}
+
+
+	private <T> void writeValueToChannel(GridConChannelId channelId, T value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		((WriteChannel<?>) channel(channelId)).setNextWriteValueFromObject(value);
+	}
+
+	private float getFloat(GridConChannelId id) {
+		FloatReadChannel c = this.channel(id);
+		return c.value().orElse(0f);
+	}
+	
+	private int getInteger(GridConChannelId id) {
+		IntegerReadChannel c = this.channel(id);
+		return c.value().orElse(Integer.MIN_VALUE);
+	}
+	
+	public boolean isIdle() {
+		return isStopped();
+	}
+
+	@Override
+	public boolean isStopped() {
+		return getCcuState() == CCUState.SYNC_TO_V || getCcuState() == CCUState.IDLE_CURRENTLY_NOT_WORKING;
+	}
+	
+	@Override
+	public boolean isRunning() {
+		return getCcuState() == CCUState.COMPENSATOR;
+	}
+
+	@Override
+	public boolean isError() {
+		return getCcuState() == CCUState.ERROR;
+	}
+
+	private CCUState getCcuState() {
+		CCUState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
+		return state;
+	}
 }

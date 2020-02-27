@@ -23,7 +23,7 @@ public class Undefined extends BaseState implements State {
 
 	@Override
 	public IState getNextState() {
-		// According to the state machine the next state can only be Stopped, ERROR, RUN
+		// According to the state machine the next state can be STOPPED, ERROR, RUN or UNDEFINED
 		if (isNextStateUndefined()) {
 			return io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED;
 		}
@@ -42,8 +42,6 @@ public class Undefined extends BaseState implements State {
 		
 		return io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED;
 	}
-
-	
 
 	@Override
 	public void act() {

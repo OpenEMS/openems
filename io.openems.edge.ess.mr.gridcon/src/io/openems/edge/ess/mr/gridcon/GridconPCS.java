@@ -16,6 +16,7 @@ public interface GridconPCS {
 	void setPower(int activePower, int reactivePower);
 	void stop();
 	void acknowledgeErrors();
+	void play();
 	void setErrorCodeFeedback(int errorCodeFeedback);
 	int getErrorCode();
 	float getActivePowerInverter1();
@@ -30,7 +31,7 @@ public interface GridconPCS {
 	
 	void setParameterSet(ParameterSet set1);
 	void setModeSelection(Mode currentControl);
-	void setPlay(boolean b);
+	
 	void setSyncApproval(boolean b);
 	void setBlackStartApproval(boolean b);
 	void setShortCircuitHAndling(boolean b);
@@ -53,5 +54,7 @@ public interface GridconPCS {
 	void setStringControlMode(int stringControlMode);
 	void enableDCDC();
 	Integer getErrorCount();
+	void setSyncDate(int date);
+	void setSyncTime(int time);
 	
 }

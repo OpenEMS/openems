@@ -48,6 +48,10 @@ public class Error extends BaseState implements State {
 			startBatteries();
 		}
 		
+		setStringWeighting();
+		setStringControlMode();
+		setDateAndTime();
+		
 		//handle also link voltage too low!!
 		if (isLinkVoltageTooLow()) {
 			gridconPCS.stopSystem();
