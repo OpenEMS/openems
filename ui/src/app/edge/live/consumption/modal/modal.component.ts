@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Edge, Service, Websocket, EdgeConfig } from '../../../../shared/shared';
+import { Edge, Service, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: ConsumptionModalComponent.SELECTOR,
@@ -21,7 +20,4 @@ export class ConsumptionModalComponent {
         public service: Service,
         public modalCtrl: ModalController
     ) { }
-
-    ngOnInit() {
-    }
 }

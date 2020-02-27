@@ -4,11 +4,11 @@
             <ion-card>
                 <ion-item lines="full" color="light">
                     <ion-icon slot="start" size="large" color="primary" name="options"></ion-icon>
-                    <ion-label translate>Menu.GeneralSettings</ion-label>
+                    <ion-label translate>Menu.generalSettings</ion-label>
                 </ion-item>
                 <ion-card-content>
                     <ion-item>
-                        <ion-label translate>About.Language</ion-label>
+                        <ion-label translate>About.language</ion-label>
                         <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
                             <ion-select-option *ngFor="let language of languages" [value]="language">
                                 {{ language }}

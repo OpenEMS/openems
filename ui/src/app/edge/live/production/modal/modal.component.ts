@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'production-modal',

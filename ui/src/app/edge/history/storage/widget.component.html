@@ -3,18 +3,18 @@
         <ion-avatar slot="start">
             <img src="assets/img/storage.png">
         </ion-avatar>
-        <ion-label translate>General.StorageSystem</ion-label>
+        <ion-label translate>General.storageSystem</ion-label>
     </ion-item>
     <ion-card-content>
         <table class="full_width" *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
             <tr>
-                <td style="width:65%" translate>General.ChargePower</td>
+                <td style="width:65%" translate>General.chargePower</td>
                 <td style="width:35%" class="align_right">
                     {{data["_sum/EssActiveChargeEnergy"] | unitvalue:'kWh'}}
                 </td>
             </tr>
             <tr>
-                <td style="width:65%" translate>General.DischargePower</td>
+                <td style="width:65%" translate>General.dischargePower</td>
                 <td style="width:35%" class="align_right">
                     {{data["_sum/EssActiveDischargeEnergy"] | unitvalue:'kWh'}}
                 </td>

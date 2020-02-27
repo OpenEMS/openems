@@ -1,7 +1,7 @@
-import { TranslateService } from '@ngx-translate/core';
-import * as d3 from 'd3';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service } from 'src/app/shared/shared';
+import { TranslateService } from '@ngx-translate/core';
+import * as d3 from 'd3';
 
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 

@@ -11,7 +11,7 @@ export class AutarchyModalComponent {
   private static readonly SELECTOR = "autarchy-modal";
 
   constructor(
-    public service: Service,
     public modalCtrl: ModalController,
+    public service: Service,
   ) { }
 }
