@@ -48,6 +48,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChpsocModalComponent,
+    ChpsocModalComponent,
     ConsumptionModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
@@ -58,7 +59,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
     StorageModalComponent,
-    SymmetricPeakshavingModalComponent
+    SymmetricPeakshavingModalComponent,
   ],
   declarations: [
     AsymmetricPeakshavingComponent,
