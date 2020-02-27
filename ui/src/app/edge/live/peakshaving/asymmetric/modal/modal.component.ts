@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: AsymmetricPeakshavingModalComponent.SELECTOR,
@@ -56,12 +56,12 @@ export class AsymmetricPeakshavingModalComponent {
                         this.component.properties.peakShavingPower = this.formGroup.value.peakShavingPower;
                         this.component.properties.rechargePower = this.formGroup.value.rechargePower;
                         this.loading = false;
-                        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                     }).catch(reason => {
                         this.formGroup.controls['peakShavingPower'].setValue(this.component.properties.peakShavingPower);
                         this.formGroup.controls['rechargePower'].setValue(this.component.properties.rechargePower);
                         this.loading = false;
-                        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
                         console.warn(reason);
                     })
                     this.formGroup.markAsPristine()
@@ -70,7 +70,7 @@ export class AsymmetricPeakshavingModalComponent {
                 this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
             }
         } else {
-            this.service.toast(this.translate.instant('General.InputNotValid'), 'danger');
+            this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
         }
     }
 }

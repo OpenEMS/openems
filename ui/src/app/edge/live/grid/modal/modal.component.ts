@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
+import { Edge, Service } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { Edge, Service } from '../../../../shared/shared';
 
 @Component({
   selector: GridModalComponent.SELECTOR,
@@ -18,7 +18,4 @@ export class GridModalComponent {
     public modalCtrl: ModalController,
     public translate: TranslateService,
   ) { }
-
-  ngOnInit() {
-  }
 }

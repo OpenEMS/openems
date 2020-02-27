@@ -16,9 +16,6 @@ import { ConsumptionSingleChartComponent } from './consumption/singlechart.compo
 import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
 import { EnergyComponent } from './energy/energy.component';
 import { EnergyModalComponent } from './energy/modal/modal.component';
-import { EvcsChartComponent } from './evcs/chart.component';
-import { EvcsModalComponent } from './evcs/modal/modal.component';
-import { EvcsWidgetComponent } from './evcs/widget.component';
 import { GridChartComponent } from './grid/chart.component';
 import { GridComponent } from './grid/widget.component';
 import { GridModalComponent } from './grid/modal/modal.component';
@@ -36,9 +33,9 @@ import { SelfconsumptionChartComponent } from './selfconsumption/chart.component
 import { SelfconsumptionModalComponent } from './selfconsumption/modal/modal.component';
 import { SelfconsumptionWidgetComponent } from './selfconsumption/widget.component';
 import { SharedModule } from '../../shared/shared.module';
+import { SinglethresholdChartComponent } from './singlethreshold/chart.component';
 import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.component';
-import { SinglethresholdSingleChartComponent } from './singlethreshold/singlechart.component';
-import { SingletresholdWidgetComponent } from './singlethreshold/widget.component';
+import { SinglethresholdWidgetComponent } from './singlethreshold/widget.component';
 import { SocStorageChartComponent } from './storage/socchart.component';
 import { StorageChargerChartComponent } from './storage/chargerchart.component';
 import { StorageComponent } from './storage/widget.component';
@@ -60,7 +57,6 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ChannelthresholdModalComponent,
     ConsumptionModalComponent,
     EnergyModalComponent,
-    EvcsModalComponent,
     GridModalComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -87,9 +83,6 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ConsumptionTotalChartComponent,
     EnergyComponent,
     EnergyModalComponent,
-    EvcsChartComponent,
-    EvcsModalComponent,
-    EvcsWidgetComponent,
     GridChartComponent,
     GridComponent,
     GridModalComponent,
@@ -105,9 +98,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     SelfconsumptionChartComponent,
     SelfconsumptionModalComponent,
     SelfconsumptionWidgetComponent,
+    SinglethresholdChartComponent,
     SinglethresholdModalComponent,
-    SinglethresholdSingleChartComponent,
-    SingletresholdWidgetComponent,
+    SinglethresholdWidgetComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,
     StorageComponent,

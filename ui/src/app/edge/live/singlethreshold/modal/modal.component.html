@@ -1,7 +1,6 @@
 <ion-header>
   <ion-toolbar mode="md" class="ion-justify-content-center" color="primary">
-    <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
-    <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
+    <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close"></ion-icon>
@@ -19,15 +18,15 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>
-                  General.State
+                  General.state
                 </td>
                 <td style="width: 35%" class="align_right" translate>
                   <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
                   <ng-container *ngIf="currentData.channel[outputChannel] == 1">
-                    General.On
+                    General.on
                   </ng-container>
                   <ng-container *ngIf="currentData.channel[outputChannel] == 0">
-                    General.Off
+                    General.off
                   </ng-container>
                 </td>
               </tr>
@@ -38,34 +37,33 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>
-                  General.Mode
+                  General.mode
                 </td>
               </tr>
             </table>
-            <ion-segment (ionChange)="updateMode($event)" value="{{ controller.properties['mode'] }}"
-              scrollable="false">
+            <ion-segment (ionChange)="updateMode($event)" value="{{ component.properties['mode'] }}" scrollable="false">
               <ion-segment-button value="ON">
                 <ion-label translate>
-                  General.On
+                  General.on
                 </ion-label>
                 <ion-icon color="success" style="width:40px" name="power"></ion-icon>
               </ion-segment-button>
               <ion-segment-button value="AUTOMATIC">
                 <ion-label translate>
-                  General.Automatic
+                  General.automatic
                 </ion-label>
                 <ion-icon style="width:40px" name="sunny">
                 </ion-icon>
               </ion-segment-button>
               <ion-segment-button value="OFF">
                 <ion-label translate>
-                  General.Off
+                  General.off
                 </ion-label>
                 <ion-icon name="power" style="width: 40px"></ion-icon>
               </ion-segment-button>
             </ion-segment>
           </ion-card-content>
-          <ng-container *ngIf="controller.properties['mode'] == 'AUTOMATIC' && loading == false">
+          <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC' && loading == false">
             <form [formGroup]="formGroup">
               <ng-container *ngIf="inputMode.value == 'OTHER'">
                 <ion-card-content class="underline">
@@ -76,7 +74,7 @@
                       </td>
                       <td style="width: 50%" class="align_right">
                         <span translate>Edge.Index.Widgets.Singlethreshold.other</span>
-                        ({{ controller.properties.inputChannelAddress }})
+                        ({{ component.properties.inputChannelAddress }})
                       </td>
                     </tr>
                   </table>
@@ -91,10 +89,10 @@
                         </ion-label>
                         <ion-select formControlName="inputMode" [value]="inputMode.value"
                           (ionChange)="updateInputMode($event)">
-                          <ion-select-option value="SOC" translate>General.Soc</ion-select-option>
-                          <ion-select-option value="PRODUCTION" translate>General.Production</ion-select-option>
-                          <ion-select-option value="GRIDSELL" translate>General.GridSell</ion-select-option>
-                          <ion-select-option value="GRIDBUY" translate>General.GridBuy</ion-select-option>
+                          <ion-select-option value="SOC" translate>General.soc</ion-select-option>
+                          <ion-select-option value="PRODUCTION" translate>General.production</ion-select-option>
+                          <ion-select-option value="GRIDSELL" translate>General.gridSell</ion-select-option>
+                          <ion-select-option value="GRIDBUY" translate>General.gridBuy</ion-select-option>
                         </ion-select>
                       </ion-item>
                     </ion-col>
@@ -141,7 +139,7 @@
                         {{ sum.production.activePower | unitvalue: 'W' }}
                       </td>
                       <td style="width: 35%" class="align_right" *ngSwitchCase="'OTHER'">
-                        {{ currentData.channel[controller.properties['inputChannelAddress']] }}
+                        {{ currentData.channel[component.properties['inputChannelAddress']] }}
                         <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
                           &nbsp;{{config.getChannel(inputChannel)['unit']}}
                         </div>

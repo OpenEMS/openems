@@ -1,12 +1,9 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { SinglethresholdModalComponent } from './modal/modal.component';
 import { TranslateService } from '@ngx-translate/core';
-
-type mode = 'ON' | 'AUTOMATIC' | 'OFF';
-type inputMode = 'SOC' | 'GRIDSELL' | 'PRODUCTION' | 'OTHER'
 
 @Component({
   selector: SinglethresholdComponent.SELECTOR,
@@ -21,16 +18,16 @@ export class SinglethresholdComponent {
   public edge: Edge = null;
   public config: EdgeConfig = null;
 
-  public controller: EdgeConfig.Component = null;
+  public component: EdgeConfig.Component = null;
   public inputChannel: ChannelAddress;
   public outputChannel: ChannelAddress;
 
   constructor(
-    public service: Service,
-    private websocket: Websocket,
     private route: ActivatedRoute,
-    public modalCtrl: ModalController,
+    private websocket: Websocket,
     protected translate: TranslateService,
+    public modalCtrl: ModalController,
+    public service: Service,
   ) { }
 
   ngOnInit() {
@@ -38,11 +35,11 @@ export class SinglethresholdComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
-        this.controller = config.getComponent(this.componentId);
+        this.component = config.getComponent(this.componentId);
         this.outputChannel = ChannelAddress.fromString(
-          this.controller.properties['outputChannelAddress']);
+          this.component.properties['outputChannelAddress']);
         this.inputChannel = ChannelAddress.fromString(
-          this.controller.properties['inputChannelAddress']);
+          this.component.properties['inputChannelAddress']);
         edge.subscribeChannels(this.websocket, SinglethresholdComponent.SELECTOR + this.componentId, [
           this.inputChannel,
           this.outputChannel
@@ -55,7 +52,7 @@ export class SinglethresholdComponent {
     const modal = await this.modalCtrl.create({
       component: SinglethresholdModalComponent,
       componentProps: {
-        controller: this.controller,
+        component: this.component,
         config: this.config,
         edge: this.edge,
         outputChannel: this.outputChannel,

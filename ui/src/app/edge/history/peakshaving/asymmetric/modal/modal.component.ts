@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { Service, EdgeConfig } from '../../../../../shared/shared';
-import { ModalController } from '@ionic/angular';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ModalController } from '@ionic/angular';
+import { Service, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
     selector: AsymmetricPeakshavingModalComponent.SELECTOR,
@@ -18,7 +18,4 @@ export class AsymmetricPeakshavingModalComponent {
         public service: Service,
         public modalCtrl: ModalController
     ) { }
-
-    ngOnInit() {
-    }
 }

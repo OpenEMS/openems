@@ -102,18 +102,19 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	private double exactEnergySession = 0;
 
 	private void updateChannels() {
+		int simulatedChargePower = 0;
 
 		Optional<Integer> chargePowerLimitOpt = this.setChargePowerLimit().getNextWriteValueAndReset();
-
-		// copy write value to read value
-		this.setChargePowerLimit().setNextValue(chargePowerLimitOpt);
-
-		// get and store Simulated Charge Power
-		int simulatedChargePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
-		this.channel(ChannelId.SIMULATED_CHARGE_POWER).setNextValue(simulatedChargePower);
-
-		// Apply Charge Limit
 		if (chargePowerLimitOpt.isPresent()) {
+
+			// copy write value to read value
+			this.setChargePowerLimit().setNextValue(chargePowerLimitOpt);
+
+			// get and store Simulated Charge Power
+			simulatedChargePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
+			this.channel(ChannelId.SIMULATED_CHARGE_POWER).setNextValue(simulatedChargePower);
+
+			// Apply Charge Limit
 			int chargePowerLimit = chargePowerLimitOpt.get();
 			simulatedChargePower = Math.min(simulatedChargePower, chargePowerLimit);
 			this.setChargePowerLimit().setNextValue(chargePowerLimit);

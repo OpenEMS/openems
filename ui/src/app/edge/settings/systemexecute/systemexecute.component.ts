@@ -24,7 +24,7 @@ export class SystemExecuteComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.SystemExecute'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.systemExecute'), this.route);
   }
 
   public loading: boolean = false;

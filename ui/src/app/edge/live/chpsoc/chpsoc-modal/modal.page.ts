@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
 import { RangeValue } from '@ionic/core';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 
 type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
@@ -17,8 +17,7 @@ export class ChpsocModalComponent implements OnInit {
     private static readonly SELECTOR = "chpsoc-modal";
 
     @Input() public edge: Edge;
-    @Input() public controller: EdgeConfig.Component;
-    @Input() public componentId: string;
+    @Input() public component: EdgeConfig.Component;
     @Input() public outputChannel: ChannelAddress;
     @Input() public inputChannel: ChannelAddress;
 
@@ -36,8 +35,8 @@ export class ChpsocModalComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.thresholds['lower'] = this.controller.properties['lowThreshold'];
-        this.thresholds['upper'] = this.controller.properties['highThreshold'];
+        this.thresholds['lower'] = this.component.properties['lowThreshold'];
+        this.thresholds['upper'] = this.component.properties['highThreshold'];
     };
 
     /**  
@@ -45,8 +44,8 @@ export class ChpsocModalComponent implements OnInit {
     * 
     * @param event 
     */
-    updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
-        let oldMode = currentController.properties.mode;
+    updateMode(event: CustomEvent) {
+        let oldMode = this.component.properties.mode;
         let newMode: mode;
 
         switch (event.detail.value) {
@@ -62,14 +61,14 @@ export class ChpsocModalComponent implements OnInit {
         }
 
         if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+            this.edge.updateComponentConfig(this.websocket, this.component.id, [
                 { name: 'mode', value: newMode }
             ]).then(() => {
-                currentController.properties.mode = newMode;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                this.component.properties.mode = newMode;
+                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
-                currentController.properties.mode = oldMode;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.component.properties.mode = oldMode;
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
                 console.warn(reason);
             });
         }
@@ -80,25 +79,25 @@ export class ChpsocModalComponent implements OnInit {
     *
     * @param event
     */
-    updateThresholds(currentController: EdgeConfig.Component) {
-        let oldLowerThreshold = currentController.properties['lowThreshold'];
-        let oldUpperThreshold = currentController.properties['highThreshold'];
+    updateThresholds() {
+        let oldLowerThreshold = this.component.properties['lowThreshold'];
+        let oldUpperThreshold = this.component.properties['highThreshold'];
 
         let newLowerThreshold = this.thresholds['lower'];
         let newUpperThreshold = this.thresholds['upper'];
 
         if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+            this.edge.updateComponentConfig(this.websocket, this.component.id, [
                 { name: 'lowThreshold', value: newLowerThreshold },
                 { name: 'highThreshold', value: newUpperThreshold }
             ]).then(() => {
-                currentController.properties['lowThreshold'] = newLowerThreshold;
-                currentController.properties['highThreshold'] = newUpperThreshold;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                this.component.properties['lowThreshold'] = newLowerThreshold;
+                this.component.properties['highThreshold'] = newUpperThreshold;
+                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
-                currentController.properties['lowThreshold'] = oldLowerThreshold;
-                currentController.properties['highThreshold'] = oldUpperThreshold;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.component.properties['lowThreshold'] = oldLowerThreshold;
+                this.component.properties['highThreshold'] = oldUpperThreshold;
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
                 console.warn(reason);
             })
         }

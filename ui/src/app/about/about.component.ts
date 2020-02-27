@@ -16,7 +16,7 @@ export class AboutComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.AboutUI'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Menu.aboutUI'), this.route);
   }
 
 }

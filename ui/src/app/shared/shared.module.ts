@@ -1,31 +1,31 @@
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
-import { FormlyModule } from '@ngx-formly/core';
-import { FormlyIonicModule } from '@ngx-formly/ionic';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { ToasterModule, ToasterService } from 'angular2-toaster';
 import 'hammerjs';
-import { MyDateRangePickerModule } from 'mydaterangepicker';
-import { ChartsModule } from 'ng2-charts';
-import { NgxLoadingModule } from 'ngx-loading';
 import { appRoutingProviders } from './../app-routing.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
-import { PercentageBarComponent } from './percentagebar/percentagebar.component';
-import { PickDateComponent } from './pickdate/pickdate.component';
+import { ChartsModule } from 'ng2-charts';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormlyIonicModule } from '@ngx-formly/ionic';
+import { FormlyModule } from '@ngx-formly/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
+import { IonicModule } from '@ionic/angular';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { KeysPipe } from './pipe/keys/keys.pipe';
-import { SignPipe } from './pipe/sign/sign.pipe';
-import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
+import { Language } from './translate/language';
+import { MyDateRangePickerModule } from 'mydaterangepicker';
+import { NgModule } from '@angular/core';
+import { NgxLoadingModule } from 'ngx-loading';
+import { PercentageBarComponent } from './percentagebar/percentagebar.component';
+import { PickDateComponent } from './pickdate/pickdate.component';
+import { RouterModule } from '@angular/router';
 import { Service } from './service/service';
+import { SignPipe } from './pipe/sign/sign.pipe';
+import { ToasterModule, ToasterService } from 'angular2-toaster';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
-import { Language } from './translate/language';
 
 @NgModule({
   imports: [
@@ -84,13 +84,13 @@ import { Language } from './translate/language';
     PickDateComponent,
   ],
   providers: [
+    appRoutingProviders,
     DecimalPipe,
     Service,
     ToasterService,
     UnitvaluePipe,
     Utils,
     Websocket,
-    appRoutingProviders,
   ]
 })
 export class SharedModule {

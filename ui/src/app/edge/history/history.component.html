@@ -27,20 +27,20 @@
     </ng-container>
     <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
       <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.ChannelThreshold'">
-        <channelthresholdWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
+        <channelthresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
         </channelthresholdWidget>
       </ion-col>
+      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
+        <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
+        </symmetricPeakshavingWidget>
+      </ion-col>
       <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
-        <asymmetricPeakshavingWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
+        <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
         </asymmetricPeakshavingWidget>
       </ion-col>
       <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
-        <singlethresholdWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
+        <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
         </singlethresholdWidget>
-      </ion-col>
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
-        <symmetricPeakshavingWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
-        </symmetricPeakshavingWidget>
       </ion-col>
     </ng-container>
   </ion-row>

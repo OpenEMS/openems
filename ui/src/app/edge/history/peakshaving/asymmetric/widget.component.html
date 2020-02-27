@@ -1,8 +1,7 @@
 <ion-card button (click)="presentModal()" *ngIf="component">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" size="large" color="primary" name="trending-down"></ion-icon>
-        <ion-label *ngIf="component.alias != component.id">{{ component.alias }}</ion-label>
-        <ion-label *ngIf="component.alias == component.id">{{ component.id }}</ion-label>
+        <ion-label>{{ component.alias }}</ion-label>
     </ion-item>
     <ion-card-content>
         <table class="full_width">

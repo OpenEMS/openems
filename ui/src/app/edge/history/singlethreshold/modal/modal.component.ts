@@ -8,8 +8,7 @@ import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
 })
 export class SinglethresholdModalComponent {
 
-    @Input() public controllerId: string;
-    @Input() public controller: EdgeConfig.Component;
+    @Input() public component: EdgeConfig.Component;
     @Input() public inputChannel: string;
 
     private static readonly SELECTOR = "channelthreshold-modal";
@@ -26,8 +25,8 @@ export class SinglethresholdModalComponent {
 
     ngOnInit() {
         this.service.getConfig().then(config => {
-            for (let controllerId of config.getComponentIdsByFactory("Controller.IO.ChannelSingleThreshold")) {
-                this.channelthresholdComponents.push(controllerId)
+            for (let componentId of config.getComponentIdsByFactory("Controller.IO.ChannelSingleThreshold")) {
+                this.channelthresholdComponents.push(componentId)
             }
         })
     }
