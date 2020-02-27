@@ -30,10 +30,6 @@
         <channelthresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
         </channelthresholdWidget>
       </ion-col>
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
-        <singlethresholdWidget [controllerId]="widget.componentId" [period]="service.historyPeriod">
-        </singlethresholdWidget>
-      </ion-col>
       <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
         <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
         </symmetricPeakshavingWidget>
