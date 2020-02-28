@@ -391,43 +391,27 @@
                             <tr *ngIf="currentData[component.id + '/ActivePowerL1'] != null">
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] > 0">
                                     <td style="width:2%"></td>
-                                    <td style="width:63%"><span translate>General.phase</span> L1<span
+                                    <td style="width:63%"><span translate>General.phase</span> L1 <span
                                             translate>General.dischargePower</span>
                                     </td>
                                     <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL1'] | unitvalue:'W' }}
                                     </td>
-                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] != 0; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ currentData[component.id + '/ActivePowerL1'] | number:'1.0-0' }}&nbsp;W
-                                        </td>
-                                    </ng-container>
-                                    <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-&nbsp;</td>
-                                    </ng-template>
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] <= 0">
                                     <td style="width:2%"></td>
-                                    <td style="width:63%"><span translate>General.phase</span> L1<span
+                                    <td style="width:63%"><span translate>General.phase</span> L1 <span
                                             translate>General.chargePower</span>
                                     </td>
                                     <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL1'] * -1) | unitvalue:'W' }}
                                     </td>
-                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL1'] != 0; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ (currentData[component.id + '/ActivePowerL1'] *-1) | number:'1.0-0' }}&nbsp;W
-                                        </td>
-                                    </ng-container>
-                                    <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-&nbsp;</td>
-                                    </ng-template>
                                 </ng-container>
                             </tr>
                             <tr *ngIf="currentData[component.id + '/ActivePowerL2'] != null">
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] > 0">
                                     <td style="width:2%"></td>
-                                    <td style="width:63%"><span translate>General.phase</span> L2<span
+                                    <td style="width:63%"><span translate>General.phase</span> L2 <span
                                             translate>General.dischargePower</span></td>
                                     <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL2'] | unitvalue:'W' }}
@@ -435,56 +419,32 @@
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] <= 0">
                                     <td style="width:2%"></td>
-                                    <td style="width:63%"><span translate>General.phase</span> L2<span
+                                    <td style="width:63%"><span translate>General.phase</span> L2 <span
                                             translate>General.chargePower</span>
                                     </td>
                                     <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL2'] * -1) | unitvalue:'W' }}
                                     </td>
-                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL2'] != 0; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ (currentData[component.id + '/ActivePowerL2'] *-1) | number:'1.0-0' }}&nbsp;W
-                                        </td>
-                                    </ng-container>
-                                    <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-&nbsp;</td>
-                                    </ng-template>
                                 </ng-container>
                             </tr>
                             <tr *ngIf="currentData[component.id + '/ActivePowerL3'] != null">
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] > 0">
                                     <td style="width:2%"></td>
-                                    <td style="width:63%"><span translate>General.phase</span> L3<span
+                                    <td style="width:63%"><span translate>General.phase</span> L3 <span
                                             translate>General.dischargePower</span>
                                     </td>
                                     <td style="width:35%" class="align_right">
                                         {{ currentData[component.id + '/ActivePowerL3'] | unitvalue:'W' }}
                                     </td>
-                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] != 0; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ currentData[component.id + '/ActivePowerL3'] | number:'1.0-0' }}&nbsp;W
-                                        </td>
-                                    </ng-container>
-                                    <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-&nbsp;</td>
-                                    </ng-template>
                                 </ng-container>
                                 <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] <= 0">
                                     <td style="width:2%"></td>
-                                    <td style="width:63%"><span translate>General.phase</span> L3<span
+                                    <td style="width:63%"><span translate>General.phase</span> L3 <span
                                             translate>General.chargePower</span>
                                     </td>
                                     <td style="width:35%" class="align_right">
                                         {{ (currentData[component.id + '/ActivePowerL3'] * -1) | unitvalue:'W' }}
                                     </td>
-                                    <ng-container *ngIf="currentData[component.id + '/ActivePowerL3'] != 0; else empty">
-                                        <td style="width:35%" class="align_right">
-                                            {{ (currentData[component.id + '/ActivePowerL3'] *-1) | number:'1.0-0' }}&nbsp;W
-                                        </td>
-                                    </ng-container>
-                                    <ng-template #empty>
-                                        <td style="width:35%" class="align_right">-&nbsp;</td>
-                                    </ng-template>
                                 </ng-container>
                             </tr>
                         </table>
