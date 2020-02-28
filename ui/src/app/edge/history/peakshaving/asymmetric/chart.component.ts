@@ -37,8 +37,8 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let meterIdActivePowerL1 = this.component.properties['meter.id'] + '/ActivePowerL1';
-            let meterIdActivePowerL2 = this.component.properties['meter.id'] + '/ActivePowerL1';
-            let meterIdActivePowerL3 = this.component.properties['meter.id'] + '/ActivePowerL1';
+            let meterIdActivePowerL2 = this.component.properties['meter.id'] + '/ActivePowerL2';
+            let meterIdActivePowerL3 = this.component.properties['meter.id'] + '/ActivePowerL3';
             let peakshavingPower = this.component.id + '/_PropertyPeakShavingPower';
             let rechargePower = this.component.id + '/_PropertyRechargePower';
             let result = response.result;
