@@ -435,21 +435,23 @@ public class EdgeConfig {
 			}
 			List<Property> properties = new ArrayList<>();
 			AttributeDefinition[] ads = ocd.getAttributeDefinitions(filter);
-			for (AttributeDefinition ad : ads) {
-				if (ad.getID().endsWith(".target")) {
-					// ignore
-				} else {
-					switch (ad.getID()) {
-					case "webconsole.configurationFactory.nameHint":
-						// ignore ID
-						break;
-					case "alias":
-						// Set alias as not-required. If no alias is given it falls back to id.
-						properties.add(Property.from(ad, false));
-						break;
-					default:
-						properties.add(Property.from(ad, isRequired));
-						break;
+			if (ads != null) {
+				for (AttributeDefinition ad : ads) {
+					if (ad.getID().endsWith(".target")) {
+						// ignore
+					} else {
+						switch (ad.getID()) {
+						case "webconsole.configurationFactory.nameHint":
+							// ignore ID
+							break;
+						case "alias":
+							// Set alias as not-required. If no alias is given it falls back to id.
+							properties.add(Property.from(ad, false));
+							break;
+						default:
+							properties.add(Property.from(ad, isRequired));
+							break;
+						}
 					}
 				}
 			}

@@ -1,8 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { PopoverController, ModalController } from '@ionic/angular';
-import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
 import { EvcsPopoverComponent } from './popover/popover.page';
+import { PopoverController, ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 type Priority = 'CAR' | 'STORAGE';
@@ -24,10 +24,10 @@ export class EvcsModalComponent implements OnInit {
 
   constructor(
     protected service: Service,
-    public websocket: Websocket,
     protected translate: TranslateService,
     public modalCtrl: ModalController,
-    public popoverController: PopoverController
+    public popoverController: PopoverController,
+    public websocket: Websocket,
   ) { }
 
   ngOnInit() {
@@ -54,7 +54,7 @@ export class EvcsModalComponent implements OnInit {
 
     if (this.controller != null) {
       if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargingStationDeactivated');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
       }
     }
     let chargeState = state;
@@ -62,29 +62,29 @@ export class EvcsModalComponent implements OnInit {
 
     if (chargePlug == null) {
       if (chargeState == null) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
       }
     } else if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
+      return this.translate.instant('Edge.Index.Widgets.EVCS.cableNotConnected');
     }
     switch (chargeState) {
       case ChargeState.STARTING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.starting');
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.Error');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.error');
       case ChargeState.READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.ReadyForCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.readyForCharging');
       case ChargeState.NOT_READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.NotReadyForCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.notReadyForCharging');
       case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.NotCharging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
       case ChargeState.CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.Charging');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.charging');
       case ChargeState.ENERGY_LIMIT_REACHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.ChargeLimitReached');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.chargeLimitReached');
       case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.CarFull');
+        return this.translate.instant('Edge.Index.Widgets.EVCS.carFull');
     }
   }
 
@@ -126,11 +126,11 @@ export class EvcsModalComponent implements OnInit {
       ]).then(() => {
         currentController.properties.enabledCharging = newEnabledCharging;
         currentController.properties.chargeMode = newChargeMode;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.enabledCharging = oldEnabledCharging;
         currentController.properties.chargeMode = oldChargeMode;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -157,10 +157,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'priority', value: newPriority }
       ]).then(() => {
         currentController.properties.priority = newPriority;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.priority = oldPriority;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -181,10 +181,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'forceChargeMinPower', value: newMinChargePower }
       ]).then(() => {
         currentController.properties.forceChargeMinPower = newMinChargePower;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.forceChargeMinPower = oldMinChargePower;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -205,10 +205,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'energySessionLimit', value: newLimit }
       ]).then(() => {
         currentController.properties.energySessionLimit = newLimit;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       })
     }
@@ -234,10 +234,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'energySessionLimit', value: newLimit }
       ]).then(() => {
         currentController.properties.energySessionLimit = newLimit;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       })
     }
@@ -259,10 +259,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(() => {
         currentController.properties.defaultChargeMinPower = newMinChargePower;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.defaultChargeMinPower = oldMinChargePower;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }
@@ -285,9 +285,9 @@ export class EvcsModalComponent implements OnInit {
         { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(() => {
         currentController.properties['defaultChargeMinPower'] = newMinChargePower;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         currentController.properties['defaultChargeMinPower'] = oldMinChargePower;
         this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
@@ -309,10 +309,10 @@ export class EvcsModalComponent implements OnInit {
         { name: 'enabledCharging', value: newChargingState }
       ]).then(() => {
         currentController.properties.enabledCharging = newChargingState;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.enabledCharging = oldChargingState;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }

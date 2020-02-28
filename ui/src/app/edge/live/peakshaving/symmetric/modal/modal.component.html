@@ -1,7 +1,6 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title *ngIf="component.alias != component.id">{{ component.alias }}</ion-title>
-        <ion-title *ngIf="component.alias == component.id">{{ component.id }}</ion-title>
+        <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -17,7 +16,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            General.currentValue
+                            General.measuredValue
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">

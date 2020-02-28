@@ -30,7 +30,7 @@ export class IndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AdjustComponents'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.adjustComponents'), this.route);
     this.service.getConfig().then(config => {
       this.config = config;
       let categorizedComponentIds: string[] = [];

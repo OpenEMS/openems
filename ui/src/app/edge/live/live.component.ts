@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
 
 @Component({
@@ -14,8 +14,8 @@ export class LiveComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    protected utils: Utils,
     public service: Service,
+    protected utils: Utils,
   ) {
   }
 

@@ -1,15 +1,14 @@
 <ion-card button (click)="presentModal()" *ngIf="component">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" size="large" color="primary" name="trending-down"></ion-icon>
-        <ion-label *ngIf="component.alias != component.id">{{ component.alias }}</ion-label>
-        <ion-label *ngIf="component.alias == component.id">{{ component.id }}</ion-label>
+        <ion-label>{{ component.alias }}</ion-label>
     </ion-item>
     <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
         <ng-container *ngIf="component.properties['meter.id'] as meterId">
             <table class="full_width">
                 <tr>
                     <td style="width: 65%" translate>
-                        General.currentValue
+                        General.measuredValue
                     </td>
                     <td style="width: 35%" class="align_right">
                         <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">

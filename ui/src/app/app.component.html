@@ -24,11 +24,11 @@
             <ion-segment class="ion-justify-content-center">
               <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
                 routerLink="/device/{{ edge.id }}/live">
-                <ion-label translate>General.Live</ion-label>
+                <ion-label translate>General.live</ion-label>
               </ion-segment-button>
               <ion-segment-button [checked]="currentPage == 'IndexHistory'" value="History"
                 routerLink="/device/{{ edge.id }}/history">
-                <ion-label translate>General.History</ion-label>
+                <ion-label translate>General.history</ion-label>
               </ion-segment-button>
             </ion-segment>
           </ion-buttons>
@@ -91,24 +91,24 @@
     <ion-menu type="overlay" side="start" contentId="content">
       <ion-header>
         <ion-toolbar color="primary">
-          <ion-title translate>Menu.Menu</ion-title>
+          <ion-title translate>Menu.menu</ion-title>
         </ion-toolbar>
       </ion-header>
       <ion-content>
         <ion-list>
           <ion-item lines="full" *ngIf="env.backend === 'OpenEMS Backend'" routerLinkActive="active" routerLink="/index"
             (click)="menu.close()">
-            <ion-label translate>Menu.Overview</ion-label>
+            <ion-label translate>Menu.overview</ion-label>
           </ion-item>
           <ion-item lines="inset" routerLinkActive="active" routerLink="/about" (click)="menu.close()">
-            <ion-label translate>Menu.AboutUI</ion-label>
+            <ion-label translate>Menu.aboutUI</ion-label>
           </ion-item>
           <ion-item lines="inset" routerLinkActive="active" routerLink="/settings" (click)="menu.close()">
-            <ion-label translate>Menu.GeneralSettings</ion-label>
+            <ion-label translate>Menu.generalSettings</ion-label>
           </ion-item>
           <nav *ngIf="(service.currentEdge | async) as edge">
             <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-              <ion-label translate>Menu.EdgeSettings</ion-label>
+              <ion-label translate>Menu.edgeSettings</ion-label>
             </ion-item>
           </nav>
           <ion-item lines="full" routerLinkActive="active"

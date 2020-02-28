@@ -13,15 +13,16 @@
         <ion-card-content>
           <form [formGroup]="form" (ngSubmit)="submit()">
             <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-            <div style="padding-top: 10px">
-              <ion-button size="small" [disabled]="form.pristine" class="ion-float-left" type="submit" color="primary">
-                Aktualisiere
-                Komponente</ion-button>
-              <ion-button size="small" class="ion-float-right" (click)="delete()" color="warning">Lösche
-                Komponente
-              </ion-button>
-            </div>
           </form>
+          <div style="padding-top: 10px">
+            <ion-button size="small" [disabled]="form.pristine" class="ion-float-left" (click)="submit()"
+              color="primary">
+              Aktualisiere
+              Komponente</ion-button>
+            <ion-button size="small" class="ion-float-right" (click)="delete()" color="warning">Lösche
+              Komponente
+            </ion-button>
+          </div>
         </ion-card-content>
       </ion-card>
     </ion-col>

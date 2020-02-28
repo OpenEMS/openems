@@ -1,9 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Utils, Websocket, EdgeConfig } from '../../../../shared/shared';
-import { IGNORE_NATURES } from '../shared/shared';
+import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { CategorizedFactories } from 'src/app/shared/edge/edgeconfig';
+
+interface MyCategorizedFactories extends CategorizedFactories {
+  isClicked?: boolean,
+  filteredFactories?: EdgeConfig.Factory[]
+}
 
 @Component({
   selector: IndexComponent.SELECTOR,
@@ -13,12 +17,8 @@ export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentInstall";
 
-  public list: {
-    readonly nature: EdgeConfig.Nature,
-    isNatureClicked: Boolean,
-    readonly allFactories: EdgeConfig.Factory[]
-    filteredFactories: EdgeConfig.Factory[]
-  }[] = [];
+  public list: MyCategorizedFactories[];
+
   public showAllFactories = false;
 
   constructor(
@@ -29,24 +29,12 @@ export class IndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AddComponents'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.addComponents'), this.route);
     this.service.getConfig().then(config => {
-      for (let natureId in config.natures) {
-        if (IGNORE_NATURES.includes(natureId)) {
-          continue;
-        }
-
-        let nature = config.natures[natureId];
-        let factories = [];
-        for (let factoryId of nature.factoryIds) {
-          factories.push(config.factories[factoryId]);
-        }
-        this.list.push({
-          nature: nature,
-          isNatureClicked: false,
-          allFactories: factories,
-          filteredFactories: factories
-        });
+      this.list = config.listAvailableFactories();
+      for (let entry of this.list) {
+        entry.isClicked = false;
+        entry.filteredFactories = entry.factories;
       }
       this.updateFilter("");
     });
@@ -55,19 +43,20 @@ export class IndexComponent implements OnInit {
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
     let filters = completeFilter.split(' ');
-    let countFilteredFactories = 0;
+    let countFilteredEntries = 0;
     for (let entry of this.list) {
-      entry.filteredFactories = entry.allFactories.filter(factory =>
-        // Search for filter strings
+      entry.filteredFactories = entry.factories.filter(entry =>
+        // Search for filter strings in Factory-ID, -Name and Description
         Utils.matchAll(filters, [
-          factory.id.toLowerCase(),
-          factory.name.toLowerCase(),
-          factory.description.toLowerCase()]),
+          entry.id.toLowerCase(),
+          entry.name.toLowerCase(),
+          entry.description.toLowerCase()
+        ]),
       );
-      countFilteredFactories += entry.filteredFactories.length;
+      countFilteredEntries += entry.filteredFactories.length;
     }
     // If not more than 10 Factories survived filtering -> show all of them immediately
-    if (countFilteredFactories > 10) {
+    if (countFilteredEntries > 10) {
       this.showAllFactories = false;
     } else {
       this.showAllFactories = true;
