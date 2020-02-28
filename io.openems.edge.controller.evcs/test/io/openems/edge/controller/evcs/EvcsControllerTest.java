@@ -94,6 +94,11 @@ public class EvcsControllerTest {
 		public int energySessionLimit() {
 			return this.energySessionLimit;
 		}
+
+		@Override
+		public boolean debugMode() {
+			return false;
+		}
 	}
 
 	private static EvcsController controller;
@@ -161,12 +166,13 @@ public class EvcsControllerTest {
 				Priority.STORAGE, "ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);
-		
 		// Prepare Channels
+
 		ChannelAddress sumGridActivePower = new ChannelAddress("_sum", "GridActivePower");
 		ChannelAddress sumEssActivePower = new ChannelAddress("_sum", "EssActivePower");
 		ChannelAddress evcs0ChargePower = new ChannelAddress("evcs0", "ChargePower");
 		ChannelAddress evcs0SetChargePowerLimit = new ChannelAddress("evcs0", "SetChargePowerLimit");
+		ChannelAddress essAllowedChargePower = new ChannelAddress("ess0", "AllowedChargePower");
 
 		Power power = new DummyPower(30000);
 		
@@ -179,6 +185,7 @@ public class EvcsControllerTest {
 						.input(sumEssActivePower, -5000) //
 						.input(sumGridActivePower, -40000) //
 						.input(evcs0ChargePower, 5000) //
+						.input(essAllowedChargePower, 30000) //
 						.output(evcs0SetChargePowerLimit, 20000))
 				.run();
 	}

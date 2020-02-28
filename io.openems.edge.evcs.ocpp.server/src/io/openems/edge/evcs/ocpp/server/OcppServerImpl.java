@@ -74,6 +74,8 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	// Currently connected sessions (Communications with each charging station)
 	protected List<EvcsSession> activeSessions = new ArrayList<EvcsSession>();
 
+	private Config config;
+	
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -89,6 +91,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 			UnsupportedFeatureException, NotConnectedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
+		this.config = config;
 		startServer();
 	}
 
@@ -111,7 +114,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 
 			@Override
 			public void lostSession(UUID sessionIndex) {
-				logInfo(log, "Session " + sessionIndex + " lost connection");
+				logInfoInDebug(log, "Session " + sessionIndex + " lost connection");
 
 				for (EvcsSession evcsSession : activeSessions) {
 					for (MeasuringEvcs measuringEvcs : evcsSession.getOcppEvcss()) {
@@ -127,7 +130,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 
 			@Override
 			public void newSession(UUID sessionIndex, SessionInformation information) {
-				logInfo(log, "New session " + sessionIndex + ": Chargepoint: " + information.getIdentifier() + ", IP: "
+				logInfoInDebug(log, "New session " + sessionIndex + ": Chargepoint: " + information.getIdentifier() + ", IP: "
 						+ information.getAddress());
 
 				List<AbstractOcppEvcsComponent> evcssWithThisId = searchForComponentWithThatIdentifier(
@@ -136,7 +139,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 
 				ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest();
 				for (AbstractOcppEvcsComponent ocppEvcs : evcssWithThisId) {
-					logInfo(log, "Setting EVCS " + ocppEvcs.alias() + " availability to operative");
+					logInfoInDebug(log, "Setting EVCS " + ocppEvcs.alias() + " availability to operative");
 					changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
 					changeAvailabilityRequest.setType(AvailabilityType.Operative);
 					sendDefault(sessionIndex, changeAvailabilityRequest);
@@ -160,7 +163,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	public void sendDefault(UUID session, Request request) {
 		try {
 			this.send(session, request).whenComplete((confirmation, throwable) -> {
-				this.logInfo(log, confirmation.toString());
+				this.logInfoInDebug(log, confirmation.toString());
 			});
 		} catch (OccurenceConstraintException e) {
 			this.logWarn(log, "The request is not a valid OCPP request.");
@@ -198,11 +201,6 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		return evcssWithThisId;
 	}
 
-	@Override
-	public void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
-	}
-
 	/**
 	 * Searching again for all Sessions after the configurations changed.
 	 */
@@ -214,7 +212,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 			if (!evcss.isEmpty()) {
 				evcsSession.setOcppEvcss(evcss);
 			} else {
-				this.logInfo(this.log, "No EVCS component found for Session " + evcsSession.getSessionId()
+				this.logInfoInDebug(this.log, "No EVCS component found for Session " + evcsSession.getSessionId()
 						+ " and OCPP Identifier " + evcsSession.getSessionInformation().getIdentifier() + ".");
 			}
 		}
@@ -222,5 +220,16 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 
 	public List<EvcsSession> getActiveSessions() {
 		return activeSessions;
+	}
+	
+	@Override
+	public void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+	
+	protected void logInfoInDebug(Logger log, String message) {
+		if(this.config.debugMode()) {
+			this.logInfo(log, message);
+		}
 	}
 }

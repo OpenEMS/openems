@@ -18,6 +18,7 @@ import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
 
@@ -198,5 +199,14 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	public String debugLog() {
+		if (this instanceof ManagedEvcs) {
+			return "Limit:" + ((ManagedEvcs) this).setChargePowerLimit().value().orElse(null) + "|"
+					+ this.status().value().asEnum().getName();
+		}
+		return "Power:" + this.getChargePower().value().orElse(0) + "|" + this.status().value().asEnum().getName();
 	}
 }

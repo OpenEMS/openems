@@ -142,6 +142,7 @@ public class WriteHandler implements Runnable {
 						this.parent.logInfo(this.log, "Setting EVCS " + this.parent.alias() + " charge power to ["
 								+ target + " " + (chargeType == ChargingType.AC ? "A" : "W") + "]");
 
+						this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT).setNextValue(target);
 						this.nextPowerWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 						this.lastTarget = target;
 

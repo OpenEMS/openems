@@ -45,15 +45,14 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	private final List<Evcs> sortedEvcss = new ArrayList<>();
 	private Map<String, Evcs> evcss = new ConcurrentHashMap<>();
 
+	private ConfigSelfConsumption config;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Reference
 	protected Sum sum;
 
-	/**
-	 * Constructor.
-	 */
 	public EvcsClusterSelfConsumption() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -80,15 +79,15 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	}
 
 	@Activate
-	void activate(ComponentContext context, ConfigSelfConsumption configSelfConsumption) throws OpenemsNamedException {
-		this.evcsIds = configSelfConsumption.evcs_ids();
+	void activate(ComponentContext context, ConfigSelfConsumption config) throws OpenemsNamedException {
+		this.evcsIds = config.evcs_ids();
 		updateSortedEvcss();
-		super.activate(context, configSelfConsumption.id(), configSelfConsumption.alias(),
-				configSelfConsumption.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
+		this.config = config;
+		
 		// update filter for 'evcs' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs",
-				configSelfConsumption.evcs_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}
 	}
@@ -168,5 +167,10 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	@Override
 	public int getMinimumChargePowerGuarantee() {
 		return 0;
+	}
+
+	@Override
+	public boolean debugMode() {
+		return this.config.debugMode();
 	}
 }

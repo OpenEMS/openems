@@ -51,6 +51,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private final ReadHandler readHandler = new ReadHandler(this);
 	private final WriteHandler writeHandler = new WriteHandler(this);
 	private Boolean lastConnectionLostState = false;
+	protected boolean debugMode = false; 
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
@@ -77,6 +78,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
 
 		this.ip = Inet4Address.getByName(config.ip());
+		this.debugMode = config.debugMode();
 
 		/*
 		 * subscribe on replies to report queries
@@ -162,7 +164,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString();
+		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|" + this.status().value().asEnum().getName();
 	}
 
 	public ReadWorker getReadWorker() {

@@ -245,7 +245,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 					} else {
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
 						evcs.getMaximumPower().setNextValue(nextChargePower);
-						this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
+						if(this.config.debugMode()) {
+							this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
+						}
 					}
 				} else {
 					int currMax = evcs.getMaximumPower().value().orElse(0);
@@ -257,9 +259,12 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			}
 
 			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
-
 		} else {
 			evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
+		}
+		
+		if(this.config.debugMode()) {
+			this.logInfo(this.log, "Next charge power: " + nextChargePower + " W");
 		}
 	}
 

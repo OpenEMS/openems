@@ -51,7 +51,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public AuthorizeConfirmation handleAuthorizeRequest(UUID sessionIndex, AuthorizeRequest request) {
 
-		server.logInfo(this.log, "Handle AuthorizeRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle AuthorizeRequest: " + request);
 
 		AuthorizeConfirmation response = new AuthorizeConfirmation();
 		IdTagInfo tag = new IdTagInfo();
@@ -67,7 +67,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public StartTransactionConfirmation handleStartTransactionRequest(UUID sessionIndex,
 			StartTransactionRequest request) {
 
-		server.logInfo(this.log, "Handle StartTransactionRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle StartTransactionRequest: " + request);
 
 		StartTransactionConfirmation response = new StartTransactionConfirmation();
 		IdTagInfo tag = new IdTagInfo();
@@ -80,7 +80,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public DataTransferConfirmation handleDataTransferRequest(UUID sessionIndex, DataTransferRequest request) {
 
-		server.logInfo(this.log, "Handle DataTransferRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle DataTransferRequest: " + request);
 		DataTransferConfirmation response = new DataTransferConfirmation();
 		response.setStatus(DataTransferStatus.Accepted);
 
@@ -90,7 +90,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public HeartbeatConfirmation handleHeartbeatRequest(UUID sessionIndex, HeartbeatRequest request) {
 
-		server.logInfo(this.log, "Handle HeartbeatRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle HeartbeatRequest: " + request);
 
 		return new HeartbeatConfirmation();
 	}
@@ -98,7 +98,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public MeterValuesConfirmation handleMeterValuesRequest(UUID sessionIndex, MeterValuesRequest request) {
 
-		server.logInfo(this.log, "Handle MeterValuesRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle MeterValuesRequest: " + request);
 
 		AbstractOcppEvcsComponent evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
@@ -194,7 +194,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						}
 
 						evcs.channel(measurand.getChannelId()).setNextValue(correctValue);
-						server.logInfo(this.log,
+						server.logInfoInDebug(this.log,
 								measurandString + ": " + val + " " + unitString + " Phases: " + phases);
 					}
 				}
@@ -207,7 +207,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public StatusNotificationConfirmation handleStatusNotificationRequest(UUID sessionIndex,
 			StatusNotificationRequest request) {
 
-		server.logInfo(this.log, "Handle StatusNotificationRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle StatusNotificationRequest: " + request);
 		MeasuringEvcs evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new StatusNotificationConfirmation();
@@ -235,7 +235,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcsStatus = Status.READY_FOR_CHARGING;
 			break;
 		case Reserved:
-			server.logInfo(this.log, "Reservation currently not supported");
+			server.logInfoInDebug(this.log, "Reservation currently not supported");
 			break;
 		case SuspendedEV:
 			evcsStatus = Status.CHARGING_REJECTED;
@@ -244,7 +244,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcsStatus = Status.CHARGING_REJECTED;
 			break;
 		case Unavailable:
-			server.logInfo(this.log, "Charging Station is Unavailable.");
+			server.logInfoInDebug(this.log, "Charging Station is Unavailable.");
 			evcs.getChargingstationCommunicationFailed().setNextValue(true);
 			evcsStatus = Status.ERROR;
 			break;
@@ -258,7 +258,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public StopTransactionConfirmation handleStopTransactionRequest(UUID sessionIndex, StopTransactionRequest request) {
 
-		server.logInfo(this.log, "Handle StopTransactionRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle StopTransactionRequest: " + request);
 
 		IdTagInfo tag = new IdTagInfo();
 		tag.setParentIdTag(request.getIdTag());
@@ -275,7 +275,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public BootNotificationConfirmation handleBootNotificationRequest(UUID sessionIndex,
 			BootNotificationRequest request) {
 
-		server.logInfo(this.log, "Handle BootNotificationRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle BootNotificationRequest: " + request);
 		List<AbstractOcppEvcsComponent> evcss = getEvcssBySessionIndex(sessionIndex);
 		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
 			ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
@@ -289,7 +289,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		response.setInterval(100);
 		response.setStatus(RegistrationStatus.Accepted);
 		response.setCurrentTime(Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin")));
-		server.logInfo(this.log, "Send BootNotificationConfirmation: " + response.toString());
+		server.logInfoInDebug(this.log, "Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
 	}
@@ -329,7 +329,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 				return ocppEvcs;
 			}
 		}
-		server.logInfo(this.log,
+		server.logInfoInDebug(this.log,
 				"No Chargingstation for session " + sessionIndex + " and connector " + connectorId + " found.");
 		return null;
 	}
