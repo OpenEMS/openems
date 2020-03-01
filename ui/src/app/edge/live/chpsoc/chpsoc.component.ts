@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { ChpsocModalComponent } from './chpsoc-modal/modal.page';
+import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -16,26 +16,26 @@ export class ChpSocComponent {
 
     private edge: Edge = null;
 
-    public controller: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component = null;
     public inputChannel: ChannelAddress = null;
     public outputChannel: ChannelAddress = null;
 
     constructor(
-        public service: Service,
-        private websocket: Websocket,
         private route: ActivatedRoute,
-        public modalController: ModalController
+        private websocket: Websocket,
+        public modalController: ModalController,
+        public service: Service,
     ) { }
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
-                this.controller = config.components[this.componentId];
+                this.component = config.components[this.componentId];
                 this.outputChannel = ChannelAddress.fromString(
-                    this.controller.properties['outputChannelAddress']);
+                    this.component.properties['outputChannelAddress']);
                 this.inputChannel = ChannelAddress.fromString(
-                    this.controller.properties['inputChannelAddress']);
+                    this.component.properties['inputChannelAddress']);
                 edge.subscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId, [
                     this.outputChannel,
                     this.inputChannel
@@ -55,9 +55,8 @@ export class ChpSocComponent {
         const modal = await this.modalController.create({
             component: ChpsocModalComponent,
             componentProps: {
-                controller: this.controller,
+                component: this.component,
                 edge: this.edge,
-                componentId: this.componentId,
                 outputChannel: this.outputChannel,
                 inputChannel: this.inputChannel
             }

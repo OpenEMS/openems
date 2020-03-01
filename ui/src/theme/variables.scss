@@ -3,6 +3,34 @@
 
 /** Ionic CSS Variables **/
 :root {
+  
+  // use in HeatingElementWidget Line:80
+  // CSS class is here because ion-picker is not accessible via ion-datetime tag
+  ion-picker {
+    --max-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesnt work with global.scss
+  // this class is used to get the same style like in a html table
+  ion-label.regularFont {
+    font-family: Roboto, Helvetica Neue, sans-serif;
+    font-size: 14px;
+  }
+
+  // CSS class is used to get the same style like in a html table
+  ion-select {
+    font-family: Roboto, Helvetica Neue, sans-serif;
+    font-size: 14px;
+  }
+
+  ion-input.regularFont {
+    font-family: Roboto, Helvetica Neue, sans-serif;
+    font-size: 14px;
+  }
+
   /** primary **/
   --ion-color-primary: #2d8fab;
   --ion-color-primary-rgb: 72,138,255;
