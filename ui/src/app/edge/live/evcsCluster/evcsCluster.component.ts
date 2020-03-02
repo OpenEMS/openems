@@ -1,11 +1,9 @@
-import { Component, Input, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { ModalController } from '@ionic/angular';
-
-import { filter, first } from 'rxjs/operators';
+import { Component, Input } from '@angular/core';
 import { ModalComponentEvcsCluster } from './modal/evcsCluster-modal.page';
+import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Component({

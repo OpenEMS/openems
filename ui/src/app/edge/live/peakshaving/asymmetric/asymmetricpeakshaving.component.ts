@@ -1,11 +1,11 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 import { AsymmetricPeakshavingModalComponent } from './modal/modal.component';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { Component, Input } from '@angular/core';
+import { ModalController } from '@ionic/angular';
+import { takeUntil } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: AsymmetricPeakshavingComponent.SELECTOR,
@@ -18,11 +18,8 @@ export class AsymmetricPeakshavingComponent {
     @Input() private componentId: string;
 
     public edge: Edge = null;
-
     public component: EdgeConfig.Component = null;
-
     public mostStressedPhase: BehaviorSubject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }> = new BehaviorSubject(null);
-
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
     constructor(

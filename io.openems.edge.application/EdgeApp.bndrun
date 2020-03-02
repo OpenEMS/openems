@@ -48,6 +48,7 @@
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
+	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
@@ -150,6 +151,7 @@
 	io.openems.edge.controller.evcs.fixactivepower;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.highloadtimeslot;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.alarm;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.io.channelsinglethreshold;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.fixdigitaloutput;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version='[1.0.0,1.0.1)',\
