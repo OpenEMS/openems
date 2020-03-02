@@ -213,7 +213,7 @@ private static Commands instance;
 				+ ", parameterSet2=" + parameterSet2 + ", parameterSet3=" + parameterSet3 + ", parameterSet4="
 				+ parameterSet4 + ", errorCodeFeedback=" + errorCodeFeedback + ", parameterU0=" + parameterU0
 				+ ", parameterF0=" + parameterF0 + ", parameterQref=" + parameterQref + ", parameterPref="
-				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "\n --> getBitsandBytes: " + getBitsandBytes() + "\n" + getHexRepresentation() + "]";
+				+ parameterPref + ", syncDate=" + syncDate + ", syncTime=" + syncTime + "]\n" + getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {
@@ -265,9 +265,7 @@ private static Commands instance;
 		} else {
 			val = l[0];
 		}
-		
-		Short v1 = (short) val;
-		return v1;
+		return (short) val;
 	}
 		
 	private int getCmdWord2() {
@@ -284,47 +282,6 @@ private static Commands instance;
 		} else {
 			val = l[0];
 		}
-		
-		int v1 =  (int) val;
-		return v1;
+		return (int) val;
 	}
-	
-	private String getBitsandBytes() {
-		BitSet set = new BitSet(32);
-		set.set(0, getStopBit1st()); //
-		set.set(1, getPlayBit());
-		set.set(2, getReadyAndStopBit2nd());
-		set.set(3, getAcknowledgeBit());
-		set.set(4, isBlackstartApproval());
-		set.set(5, isSyncApproval());
-		set.set(6, isShortCircuitHandling());
-		set.set(7, modeSelection.value);
-		set.set(8, isTriggerSia());
-		set.set(9, isHarmonicCompensation());
-		set.set(10, isParameterSet1());
-		set.set(11, isParameterSet2());
-		set.set(12, isParameterSet3());
-		set.set(13, isParameterSet4());
-		
-		set.set(12 + 16, isEnableIpu4());
-		set.set(13 + 16, isEnableIpu3());
-		set.set(14 + 16, isEnableIpu2());
-		set.set(15 + 16, isEnableIpu1());
-		
-		long val = 0;
-		long[] l = set.toLongArray();
-		if (l.length == 0) {
-			val = 0;
-		} else {
-			val = l[0];
-		}
-		
-		long l1 = val;
-		
-		Integer v1 = (int) (l1 >> 16);
-		Integer v2 =  (int) (l1 & 0xff); 
-		
-		return "\nr1:" + v1 + " r2:" + v2;
-	}
-
 }

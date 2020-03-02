@@ -4,8 +4,7 @@ public class CcuParameters1 {
 	
 	public static final int CCU_PARAMETERS_1_ADRESS = 32592;
 	
-		private CcuParameters1() {
-
+		private CcuParameters1() { 
 		}
 		
 		private static CcuParameters1 instance;
@@ -17,7 +16,6 @@ public class CcuParameters1 {
 			return instance;
 		}
 
-	// 32592
 	private float uByQDroopMainLower = 0f;
 	private float uByQDroopMainUpper = 0f;
 	private float uByQDroopT1Main = 0f;	
@@ -28,7 +26,6 @@ public class CcuParameters1 {
 	private float qByUDroopMainUpper = 0f;	
 	private float qByUDeadBandLower = 0f;
 	private float qByUDeadBandUpper = 0f;
-	
 	private float qLimit = 0f;
 	
 	public float getqLimit() {
@@ -68,8 +65,6 @@ public class CcuParameters1 {
 	public float getqByUDeadBandUpper() {
 		return qByUDeadBandUpper;
 	}
-	
-	
 	
 	@Override
 	public String toString() {

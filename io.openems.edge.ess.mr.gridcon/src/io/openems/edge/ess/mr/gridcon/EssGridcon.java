@@ -21,7 +21,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -63,11 +62,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridcon,
 			String bmsA, String bmsB, String bmsC) throws OpenemsNamedException {
 		
-		System.out.println("super.activate");
-		
 		super.activate(context, id, alias, enabled);
-
-		System.out.println("gridconpcs = componentmanager...");
 		
 		gridconPCS = getComponentManager().getComponent(gridcon);
 
@@ -92,16 +87,8 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			System.out.println(e.getMessage());
 		}
 
-		System.out.println("initialize state controller");
-		
 		initializeStateController(gridconPCS, batteryA, batteryB, batteryC);
-		
-		System.out.println("stateobject = ");
-		
 		stateObject = getFirstStateObjectUndefined();
-		
-		System.out.println("calculate max apparent power");
-		
 		calculateMaxApparentPower();
 	}
 
@@ -180,9 +167,10 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsException {
-		if (getGridMode().value().get() != GridMode.ON_GRID.getValue() && !gridconPCS.isRunning()) {
+//		if (getGridMode().value().get() != GridMode.ON_GRID.getValue() && !gridconPCS.isRunning()) {
+		if (!gridconPCS.isRunning()) {
 
-			log.info("Gridmode nicht on grid oder ccu state nicht run!!");
+			log.info("ccu state nicht run!!");
 
 			return new Constraint[] {
 					createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),

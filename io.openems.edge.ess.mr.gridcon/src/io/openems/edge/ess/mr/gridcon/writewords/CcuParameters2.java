@@ -7,7 +7,6 @@ public class CcuParameters2 {
 	public static final int CCU_PARAMETERS_2_ADRESS = 32784;
 	
 		private CcuParameters2() {
-
 		}
 		
 		private static CcuParameters2 instance;

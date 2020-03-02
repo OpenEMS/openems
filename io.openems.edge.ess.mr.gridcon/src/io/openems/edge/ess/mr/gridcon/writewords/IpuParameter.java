@@ -2,8 +2,8 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class IpuParameter {
 
+	// 32624, 32656, 32688
 	private IpuParameter() {
-		
 	}
 	
 	private static IpuParameter instanceIpu1Parameter;
@@ -31,7 +31,6 @@ public class IpuParameter {
 		return instanceIpu3Parameter;
 	}
 	
-	// 32624, 32656, 32688
 	private float dcVoltageSetpoint = 0f;
 	private float dcCurrentSetpoint = 0f;
 	private float u0OffsetToCcu = 0f;

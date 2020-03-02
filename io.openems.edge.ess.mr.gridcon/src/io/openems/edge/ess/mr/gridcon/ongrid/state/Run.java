@@ -61,14 +61,14 @@ public class Run extends BaseState implements State {
 		
 		
 		
-		runSystem();
+		setRunParameters();
 		setStringWeighting();
 		setStringControlMode();
 		setDateAndTime();
 
 	}
 
-	private void runSystem() {
+	private void setRunParameters() {
 		gridconPCS.setEnableIPU1(enableIPU1);
 		gridconPCS.setEnableIPU2(enableIPU2);
 		gridconPCS.setEnableIPU3(enableIPU3);

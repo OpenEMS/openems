@@ -39,9 +39,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
-
 	/**
 	 * The configured IP address.
 	 */
