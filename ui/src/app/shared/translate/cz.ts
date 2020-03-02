@@ -70,7 +70,7 @@ export const TRANSLATION = {
         },
     },
     Menu: {
-        aboutUI: 'About OpenEMS UI',
+        aboutUI: 'About FEMS',
         edgeSettings: 'FEMS Předvolby',
         generalSettings: 'Obecné Nastavení',
         index: 'Přehled',
