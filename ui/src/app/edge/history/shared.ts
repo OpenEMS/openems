@@ -168,27 +168,27 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
     let result;
+    // TODO get locale dynamically
+    let decimalPipe = new DecimalPipe('de-DE')
     let startDate = startOfDay(new Date(queryResult.timestamps[0]));
     let endDate = endOfDay(new Date(queryResult.timestamps[queryResult.timestamps.length - 1]));
     let activeSum = 0;
     queryResult.data[channel.toString()].forEach(value => {
         activeSum += value;
     });
-
     let activePercent = activeSum / queryResult.timestamps.length;
     let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
     let activeTimeHours = (activeTimeMinutes / 60).toFixed(1);
     if (activeTimeMinutes > 59) {
+        activeTimeHours = decimalPipe.transform(activeTimeHours, '1.0-1');
         result = activeTimeHours + ' h';
-        // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
+        // if activeTimeHours is XY,0, removes the ',0' from activeTimeOverPeriod string
         activeTimeHours.split('').forEach((letter, index) => {
             if (index == activeTimeHours.length - 1 && letter == "0") {
                 result = activeTimeHours.slice(0, -2) + ' h';
             }
         });
     } else {
-        // TODO get locale dynamically
-        let decimalPipe = new DecimalPipe('de-DE')
         result = decimalPipe.transform(activeTimeMinutes.toString(), '1.0-0') + ' m';
     }
     return result;
