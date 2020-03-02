@@ -9,32 +9,42 @@ import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
  *
  */
 public interface GridconPCS {
+	
+	public static final int MAX_POWER_PER_INVERTER = 42_000;
+	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
+	public static final float Q_LIMIT = 1f;
+	public static final int POWER_PRECISION_WATT =  100; // TODO estimated value;
+	
 	float getMaxApparentPower();
 	boolean isRunning();
 	boolean isStopped();
 	boolean isError();
 	void setPower(int activePower, int reactivePower);
-	void stop();
-	void acknowledgeErrors();
-	void play();
+	void setStop(boolean stop);
+	void setPlay(boolean play);
+	void setAcknowledge(boolean acknowledge);
 	void setErrorCodeFeedback(int errorCodeFeedback);
 	int getErrorCode();
-	float getActivePowerInverter1();
-	float getActivePowerInverter2();
-	float getActivePowerInverter3();
+	float getActivePower();
+//	float getActivePowerInverter1();
+//	float getActivePowerInverter2();
+//	float getActivePowerInverter3();
 	float getDcLinkPositiveVoltage();
 	boolean isCommunicationBroken();
+	
 	void setEnableIPU1(boolean enabled);
 	void setEnableIPU2(boolean enabled);
 	void setEnableIPU3(boolean enabled);
-	void setEnableIPU4(boolean enabled);
+//	void setEnableIPU4(boolean enabled);
+	void enableDCDC();
+	void disableDCDC();	
 	
 	void setParameterSet(ParameterSet set1);
 	void setModeSelection(Mode currentControl);
 	
 	void setSyncApproval(boolean b);
 	void setBlackStartApproval(boolean b);
-	void setShortCircuitHAndling(boolean b);
+//	void setShortCircuitHAndling(boolean b);
 	void setU0(float onGridVoltageFactor);
 	void setF0(float onGridFrequencyFactor);
 	void setPControlMode(PControlMode activePowerControl);
@@ -52,9 +62,11 @@ public interface GridconPCS {
 	void setWeightStringB(Float weight);
 	void setWeightStringC(Float weight);
 	void setStringControlMode(int stringControlMode);
-	void enableDCDC();
-	Integer getErrorCount();
+	
+	int getErrorCount();
 	void setSyncDate(int date);
 	void setSyncTime(int time);
 	
+	boolean isDcDcStarted();
+	boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3);
 }

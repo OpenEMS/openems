@@ -28,9 +28,6 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
-import io.openems.edge.ess.mr.gridcon.enums.Mode;
-import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
@@ -40,26 +37,16 @@ import io.openems.edge.ess.power.api.Relationship;
 public abstract class EssGridcon extends AbstractOpenemsComponent
 		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave, EventHandler {
 
-	public static final float Q_LIMIT = 1f;
-	//------- Components for an ESS with gridcon and soltaro
 	protected GridconPCS gridconPCS;
 	protected SoltaroBattery batteryA;
 	protected SoltaroBattery batteryB;
 	protected SoltaroBattery batteryC;
-	//-------------------------------------------- 
-	
-	protected boolean enableIPU1 = false;
-	protected boolean enableIPU2 = false;
-	protected boolean enableIPU3 = false;
-
-	protected ParameterSet parameterSet;
 
 	protected io.openems.edge.ess.mr.gridcon.State stateObject = null;
 
-protected abstract ComponentManager getComponentManager();
+	protected abstract ComponentManager getComponentManager();
 
 	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
-
 
 	public EssGridcon(io.openems.edge.common.channel.ChannelId[] otherChannelIds) {
 		super(//
@@ -73,49 +60,61 @@ protected abstract ComponentManager getComponentManager();
 		);
 	}
 
-//	@Activate
-	public void activate(ComponentContext context, String id, String alias, boolean enabled, boolean enableIPU1,
-			boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String gridcon, String bmsA, String bmsB,
-			String bmsC) throws OpenemsNamedException {
+	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridcon,
+			String bmsA, String bmsB, String bmsC) throws OpenemsNamedException {
+		
+		System.out.println("super.activate");
+		
 		super.activate(context, id, alias, enabled);
-		this.enableIPU1 = enableIPU1;
-		this.enableIPU2 = enableIPU2;
-		this.enableIPU3 = enableIPU3;
-		this.parameterSet = parameterSet;
 
-		calculateMaxApparentPower();
+		System.out.println("gridconpcs = componentmanager...");
+		
 		gridconPCS = getComponentManager().getComponent(gridcon);
 
-		try {
+		try {			
 			batteryA = getComponentManager().getComponent(bmsA);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string a
+			System.out.println(e.getMessage());
 		}
 
 		try {
 			batteryB = getComponentManager().getComponent(bmsB);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string b
+			System.out.println(e.getMessage());
 		}
 
 		try {
 			batteryC = getComponentManager().getComponent(bmsC);
 		} catch (OpenemsNamedException e) {
 			// if battery is null, no battery is connected on string c
+			System.out.println(e.getMessage());
 		}
 
-		initializeStateController(batteryA, batteryB, batteryC);
+		System.out.println("initialize state controller");
+		
+		initializeStateController(gridconPCS, batteryA, batteryB, batteryC);
+		
+		System.out.println("stateobject = ");
+		
 		stateObject = getFirstStateObjectUndefined();
+		
+		System.out.println("calculate max apparent power");
+		
+		calculateMaxApparentPower();
 	}
 
 	protected abstract State getFirstStateObjectUndefined();
-	protected abstract void initializeStateController(SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3);
+
+	protected abstract void initializeStateController(GridconPCS gridconPCS, SoltaroBattery b1, SoltaroBattery b2,
+			SoltaroBattery b3);
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		if (!isEnabled()) {
@@ -141,28 +140,27 @@ protected abstract ComponentManager getComponentManager();
 			break;
 		}
 	}
-	
 
 	private void calculateMinCellVoltage() {
-		
+
 		float minCellVoltage = Float.MAX_VALUE;
-		
+
 		if (batteryA != null) {
 			minCellVoltage = Math.min(minCellVoltage, batteryA.getMinimalCellVoltage());
 		}
-		
+
 		if (batteryB != null) {
 			minCellVoltage = Math.min(minCellVoltage, batteryB.getMinimalCellVoltage());
 		}
-		
+
 		if (batteryC != null) {
 			minCellVoltage = Math.min(minCellVoltage, batteryC.getMinimalCellVoltage());
 		}
-		
+
 		int minCellVoltageMilliVolt = (int) (minCellVoltage * 1000);
-		
+
 		getMinCellVoltage().setNextValue(minCellVoltageMilliVolt);
-		
+
 	}
 
 	private void writeChannelValues() throws OpenemsNamedException {
@@ -171,31 +169,14 @@ protected abstract ComponentManager getComponentManager();
 	}
 
 	private void calculateMaxApparentPower() {
-
-		int maxPower = 0;
-		if (enableIPU1) {
-			maxPower = maxPower + GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		}
-		if (enableIPU2) {
-			maxPower = maxPower + GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		}
-		if (enableIPU3) {
-			maxPower = maxPower + GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		}
-
+		int maxPower = (int) gridconPCS.getMaxApparentPower();
 		getMaxApparentPower().setNextValue(maxPower);
 	}
 
 	protected void calculateActivePower() {
-		// Calculate Total Active Power
-
-		float activePowerIpu1 = gridconPCS.getActivePowerInverter1();
-		float activePowerIpu2 = gridconPCS.getActivePowerInverter2();
-		float activePowerIpu3 = gridconPCS.getActivePowerInverter3();
-		float activePower = activePowerIpu1 + activePowerIpu2 + activePowerIpu3;
+		float activePower = gridconPCS.getActivePower();
 		getActivePower().setNextValue(activePower);
 	}
-
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsException {
@@ -213,15 +194,13 @@ protected abstract ComponentManager getComponentManager();
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		gridconPCS.setPower(activePower, reactivePower);
-		
 	}
 
 	@Override
 	public int getPowerPrecision() {
-		return 100; // TODO estimated value
+		return GridconPCS.POWER_PRECISION_WATT;
 	}
 
-	
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
@@ -232,56 +211,24 @@ protected abstract ComponentManager getComponentManager();
 						.build());
 	}
 
-	protected boolean isBatteryReady(SoltaroBattery battery) {
-		if (battery == null) {
-			return false;
+	/**
+	 * Handles Battery data, i.e. setting allowed charge/discharge power.
+	 */
+	protected void calculateAllowedPowerAndCapacity() {
+		int allowedCharge = 0;
+		int allowedDischarge = 0;
+		int capacity = 0;
+
+		for (SoltaroBattery battery : getBatteries()) {
+			allowedCharge += battery.getVoltageX() * battery.getMaxChargeCurrentX() * -1;
+			allowedDischarge += battery.getVoltageX() * battery.getMaxDischargeCurrentX();
+			capacity += battery.getCapacityX();
 		}
-		return battery.isRunning();
+		getAllowedCharge().setNextValue(allowedCharge);
+		getAllowedDischarge().setNextValue(allowedDischarge);
+		getCapacity().setNextValue(capacity);
 	}
 
-	 public void setWeightStringA(float weight) {
-		 gridconPCS.setWeightStringA(weight);
-	 }
-	 
-	 public void setWeightStringB(float weight) {
-		 gridconPCS.setWeightStringB(weight);
-	 }
-	 
-	 public void setWeightStringC(float weight) {
-		 gridconPCS.setWeightStringC(weight);
-	 }
-	 
-	 public void setStringControlMode(int weightingMode) {
-		 gridconPCS.setStringControlMode(weightingMode);
-	 }
-
-		/**
-		 * Handles Battery data, i.e. setting allowed charge/discharge power.
-		 */
-		protected void calculateAllowedPowerAndCapacity() {
-			int allowedCharge = 0;
-			int allowedDischarge = 0;
-			int capacity = 0;
-
-			for (SoltaroBattery battery : getBatteries()) {
-				allowedCharge += battery.getVoltageX() * battery.getMaxChargeCurrentX() * -1;
-				allowedDischarge += battery.getVoltageX() * battery.getMaxDischargeCurrentX();
-				capacity += battery.getCapacityX();
-			}
-			getAllowedCharge().setNextValue(allowedCharge);
-			getAllowedDischarge().setNextValue(allowedDischarge);
-			getCapacity().setNextValue(capacity);
-		}
-
-		public boolean isAtLeastOneBatteryReady() {
-			for (SoltaroBattery battery : getBatteries()) {
-				if (battery.isRunning()) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
 	protected abstract void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException;
 
 	/**
@@ -329,120 +276,5 @@ protected abstract ComponentManager getComponentManager();
 		}
 
 		return batteries;
-	}
-
-	public void start() {
-		gridconPCS.setEnableIPU1(enableIPU1);
-		gridconPCS.setEnableIPU2(enableIPU2);
-		gridconPCS.setEnableIPU3(enableIPU3);
-
-		gridconPCS.play();
-		
-		gridconPCS.setSyncApproval(true);
-		gridconPCS.setBlackStartApproval(false);
-		gridconPCS.setShortCircuitHAndling(true);
-		gridconPCS.setModeSelection(Mode.CURRENT_CONTROL);
-		gridconPCS.setParameterSet(parameterSet);
-		gridconPCS.setU0(GridconPCSImpl.ON_GRID_VOLTAGE_FACTOR);
-		gridconPCS.setF0(GridconPCSImpl.ON_GRID_FREQUENCY_FACTOR);
-
-		gridconPCS.setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		gridconPCS.setQLimit(1f);
-
-		float maxPower = GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		if (enableIPU1) {
-			gridconPCS.setPMaxChargeIPU1(maxPower);
-			gridconPCS.setPMaxDischargeIPU1(-maxPower);
-		}
-		if (enableIPU2) {
-			gridconPCS.setPMaxChargeIPU2(maxPower);
-			gridconPCS.setPMaxDischargeIPU2(-maxPower);
-		}
-		if (enableIPU3) {
-			gridconPCS.setPMaxChargeIPU3(maxPower);
-			gridconPCS.setPMaxDischargeIPU3(-maxPower);
-		}
-
-		// Enable DC DC
-		gridconPCS.enableDCDC();
-
-		gridconPCS.setDcLinkVoltage(GridconPCSImpl.DC_LINK_VOLTAGE_SETPOINT);
-	}
-
-	public void runSystem() {
-		gridconPCS.setEnableIPU1(enableIPU1);
-		gridconPCS.setEnableIPU2(enableIPU2);
-		gridconPCS.setEnableIPU3(enableIPU3);
-
-		gridconPCS.setSyncApproval(true);
-		gridconPCS.setBlackStartApproval(false);
-		gridconPCS.setShortCircuitHAndling(true);
-		gridconPCS.setModeSelection(Mode.CURRENT_CONTROL);
-		gridconPCS.setParameterSet(parameterSet);
-		gridconPCS.setU0(GridconPCSImpl.ON_GRID_VOLTAGE_FACTOR);
-		gridconPCS.setF0(GridconPCSImpl.ON_GRID_FREQUENCY_FACTOR);
-
-		gridconPCS.setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		gridconPCS.setQLimit(EssGridcon.Q_LIMIT);
-		
-		float maxPower = GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		if (enableIPU1) {
-			gridconPCS.setPMaxChargeIPU1(maxPower);
-			gridconPCS.setPMaxDischargeIPU1(-maxPower);
-		}
-		if (enableIPU2) {
-			gridconPCS.setPMaxChargeIPU2(maxPower);
-			gridconPCS.setPMaxDischargeIPU2(-maxPower);
-		}
-		if (enableIPU3) {
-			gridconPCS.setPMaxChargeIPU3(maxPower);
-			gridconPCS.setPMaxDischargeIPU3(-maxPower);
-		}
-
-		// Enable DC DC
-		gridconPCS.enableDCDC();
-
-		gridconPCS.setDcLinkVoltage(GridconPCSImpl.DC_LINK_VOLTAGE_SETPOINT);
-				
-	}
-
-	public void stopSystem() {
-		gridconPCS.stop();
-	}
-
-	public boolean isRunning() {
-		return gridconPCS.isRunning();
-	}
-
-	public boolean isError() {
-		return gridconPCS.isError();
-	}
-
-	public boolean isStopped() {		// 
-		return gridconPCS.isStopped();
-	}
-
-	public Integer getErrorCount() {
-		return gridconPCS.getErrorCount();
-	}
-
-	public int getCurrentErrorCode() {
-		return gridconPCS.getErrorCode();
-	}
-	
-	public void acknowledgeErrors() {
-		gridconPCS.acknowledgeErrors();
-	}
-
-	public void setErrorCodeFeedBack(int errorCodeFeedback) {
-		gridconPCS.setErrorCodeFeedback(errorCodeFeedback);
-	}
-
-	public void setSyncDate(int date) {
-		gridconPCS.setSyncDate(date);
-	}
-
-	public void setSyncTime(int time) {
-		gridconPCS.setSyncTime(time);
 	}
 }

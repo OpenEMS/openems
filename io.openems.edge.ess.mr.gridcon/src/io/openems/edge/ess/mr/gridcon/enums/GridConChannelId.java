@@ -262,11 +262,16 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_TIME_SYNC_TIME_DEBUG))),
 
-	CONTROL_PARAMETER_U_Q_DROOP_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
-	CONTROL_PARAMETER_U_Q_DROOP_MAIN(new FloatDoc() //
+	CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_DEBUG))),
+					GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER_DEBUG))),
+	CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER_DEBUG))),
 
 	CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
 	CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN(new FloatDoc() //
@@ -274,11 +279,17 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN_DEBUG))),
 
-	CONTROL_PARAMETER_F_P_DRROP_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
-	CONTROL_PARAMETER_F_P_DROOP_MAIN(new FloatDoc() //
+	CONTROL_PARAMETER_F_P_DRROP_MAIN_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_F_P_DROOP_MAIN_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.CONTROL_PARAMETER_F_P_DRROP_MAIN_DEBUG))),
+					GridConChannelId.CONTROL_PARAMETER_F_P_DRROP_MAIN_LOWER_DEBUG))),
+	
+	CONTROL_PARAMETER_F_P_DRROP_MAIN_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_F_P_DROOP_MAIN_UPPER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_F_P_DRROP_MAIN_UPPER_DEBUG))),
 
 	CONTROL_PARAMETER_F_P_DROOP_T1_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
 	CONTROL_PARAMETER_F_P_DROOP_T1_MAIN(new FloatDoc() //
@@ -286,45 +297,76 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN_DEBUG))),
 
-	CONTROL_PARAMETER_Q_U_DROOP_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
-	CONTROL_PARAMETER_Q_U_DROOP_MAIN(new FloatDoc() //
+	CONTROL_PARAMETER_Q_U_DROOP_MAIN_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_Q_U_DROOP_MAIN_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_DEBUG))),
+					GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_LOWER_DEBUG))),
+	
+	CONTROL_PARAMETER_Q_U_DROOP_MAIN_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_Q_U_DROOP_MAIN_UPPER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_UPPER_DEBUG))),
 
-	CONTROL_PARAMETER_Q_U_DEAD_BAND_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
-	CONTROL_PARAMETER_Q_U_DEAD_BAND(new FloatDoc() //
+	CONTROL_PARAMETER_Q_U_DEAD_BAND_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_Q_U_DEAD_BAND_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_DEBUG))),
+					GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_LOWER_DEBUG))),
+	
+	CONTROL_PARAMETER_Q_U_DEAD_BAND_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	CONTROL_PARAMETER_Q_U_DEAD_BAND_UPPER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_UPPER_DEBUG))),
 
 	CONTROL_PARAMETER_Q_LIMIT_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	CONTROL_PARAMETER_Q_LIMIT(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT_DEBUG))),
 
-	CONTROL_PARAMETER_P_F_DROOP_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	CONTROL_PARAMETER_P_F_DROOP_MAIN(new FloatDoc() //
+	CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_DEBUG))),
-
-	CONTROL_PARAMETER_P_F_DEAD_BAND_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	CONTROL_PARAMETER_P_F_DEAD_BAND(new FloatDoc() //
+					GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER_DEBUG))),
+	CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_DEBUG))),
-
-	CONTROL_PARAMETER_P_U_DROOP_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	CONTROL_PARAMETER_P_U_DROOP(new FloatDoc() //
-			.accessMode(AccessMode.READ_WRITE)
-			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_DEBUG))),
-
-	CONTROL_PARAMETER_P_U_DEAD_BAND_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	CONTROL_PARAMETER_P_U_DEAD_BAND(new FloatDoc() //
+					GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER_DEBUG))),
+	
+	CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
-					GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND_DEBUG))),
+					GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER_DEBUG))),
+	CONTROL_PARAMETER_P_F_DEAD_BAND_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_F_DEAD_BAND_UPPER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_UPPER_DEBUG))),
+
+	CONTROL_PARAMETER_P_U_DROOP_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_U_DROOP_LOWER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_LOWER_DEBUG))),
+	CONTROL_PARAMETER_P_U_DROOP_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_U_DROOP_UPPER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_UPPER_DEBUG))),
+
+	CONTROL_PARAMETER_P_U_DEAD_BAND_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_U_DEAD_BAND_LOWER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND_LOWER_DEBUG))),
+	CONTROL_PARAMETER_P_U_DEAD_BAND_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_U_DEAD_BAND_UPPER(new FloatDoc() //
+			.accessMode(AccessMode.READ_WRITE)
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND_UPPER_DEBUG))),
 
 	CONTROL_PARAMETER_P_U_MAX_CHARGE_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	CONTROL_PARAMETER_P_U_MAX_CHARGE(new FloatDoc() //
@@ -338,10 +380,10 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_P_U_MAX_DISCHARGE_DEBUG))),
 
-	CONTROL_PARAMETER_P_CONTROL_MODE_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	CONTROL_PARAMETER_P_CONTROL_MODE(new FloatDoc() //
+	CONTROL_PARAMETER_P_CONTROL_MODE_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
+	CONTROL_PARAMETER_P_CONTROL_MODE(new IntegerDoc() //
 			.accessMode(AccessMode.READ_WRITE)
-			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_P_CONTROL_MODE_DEBUG))),
 
 	CONTROL_PARAMETER_P_CONTROL_LIM_TWO_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
@@ -508,7 +550,7 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
 			.accessMode(AccessMode.READ_WRITE)), //
 	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),;
+	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),;
 
 	private final Doc doc;
 

@@ -4,7 +4,7 @@ import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 
 public class WeightingHelper {
 
-	protected static Float[] getWeighting(int activePower, SoltaroBattery b1, SoltaroBattery b2,
+	protected static Float[] getWeighting(float activePower, SoltaroBattery b1, SoltaroBattery b2,
 			SoltaroBattery b3) {
 
 		Float[] ret = {0f, 0f, 0f};

@@ -17,7 +17,6 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	public static int MAXIMUM_POWER = 10000;
 	public static int DC_LINK_VOLTAGE = 800;
 	private int currentActivePower = 0;
-	private int currentReactivePower;
 	private boolean running;
 	private boolean error;
 	private float dcLinkPositiveVoltage = DC_LINK_VOLTAGE;
@@ -46,18 +45,27 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	@Override
 	public void setPower(int activePower, int reactivePower) {
 		currentActivePower = activePower;
-		currentReactivePower = reactivePower;
-		
 	}
 
 	@Override
-	public void stop() {
-		running = false;
+	public void setPlay(boolean play) {
+		if (play) {
+			running = true;		
+		}
+	}
+	
+	@Override
+	public void setStop(boolean stop) {
+		if (stop) {
+			running = false;
+		}
 	}
 
 	@Override
-	public void acknowledgeErrors() {
-		error = false;
+	public void setAcknowledge(boolean acknowledge) {
+		if (acknowledge) {
+			error = false;
+		}
 	}
 
 	@Override
@@ -69,24 +77,6 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	public int getErrorCode() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public float getActivePowerInverter1() {
-		// TODO Auto-generated method stub
-		return currentActivePower / 3;
-	}
-
-	@Override
-	public float getActivePowerInverter2() {
-		// TODO Auto-generated method stub
-		return currentActivePower / 3;
-	}
-
-	@Override
-	public float getActivePowerInverter3() {
-		// TODO Auto-generated method stub
-		return currentActivePower / 3;
 	}
 
 	@Override
@@ -119,12 +109,6 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	}
 
 	@Override
-	public void setEnableIPU4(boolean enabled) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void setParameterSet(ParameterSet set1) {
 		// TODO Auto-generated method stub
 		
@@ -137,11 +121,6 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	}
 
 	@Override
-	public void play() {
-		running = true;		
-	}
-
-	@Override
 	public void setSyncApproval(boolean b) {
 		// TODO Auto-generated method stub
 		
@@ -149,12 +128,6 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 
 	@Override
 	public void setBlackStartApproval(boolean b) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setShortCircuitHAndling(boolean b) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -256,12 +229,6 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	}
 
 	@Override
-	public Integer getErrorCount() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void setSyncDate(int date) {
 		// TODO Auto-generated method stub
 		
@@ -271,5 +238,34 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	public void setSyncTime(int time) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public float getActivePower() {		
+		return currentActivePower;
+	}
+
+	@Override
+	public int getErrorCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void disableDCDC() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isDcDcStarted() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

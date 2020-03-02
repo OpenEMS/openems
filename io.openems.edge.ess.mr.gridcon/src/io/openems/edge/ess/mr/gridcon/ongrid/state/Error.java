@@ -7,18 +7,31 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.ess.mr.gridcon.EssGridcon;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.State;
 import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
+import io.openems.edge.ess.mr.gridcon.enums.Mode;
+import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
+import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 public class Error extends BaseState implements State {
 
 	private static final long WAITING_TIME = 20;
 	private final Logger log = LoggerFactory.getLogger(Error.class);
 
-	public Error(EssGridcon gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
+	
+	private boolean enableIPU1;
+	private boolean enableIPU2;
+	private boolean enableIPU3;
+	private ParameterSet parameterSet;
+	
+	public Error(GridconPCS gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet ) {
 		super(gridconPCS, b1, b2, b3);
+		this.enableIPU1 = enableIPU1;
+		this.enableIPU2 = enableIPU2;
+		this.enableIPU3 = enableIPU3;
+		this.parameterSet = parameterSet;
 	}
 
 	@Override
@@ -29,6 +42,11 @@ public class Error extends BaseState implements State {
 	@Override
 	public IState getNextState() {
 		// According to the state machine the next state can only be STOPPED, ERROR or UNDEFINED
+		
+		if (errorHandlingState  != null) {
+			return io.openems.edge.ess.mr.gridcon.ongrid.State.ERROR;
+		}
+		
 		if (isNextStateUndefined()) {
 			return io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED;
 		}
@@ -44,17 +62,19 @@ public class Error extends BaseState implements State {
 	public void act() {
 		log.info("Handle Errors!");
 		
-		if (!isBatteriesStarted()) {
-			startBatteries();
-		}
-		
 		setStringWeighting();
 		setStringControlMode();
 		setDateAndTime();
-		
+
+		if (!isBatteriesStarted()) {			
+			keepSystemStopped();
+			startBatteries();
+			return;
+		}
+				
 		//handle also link voltage too low!!
 		if (isLinkVoltageTooLow()) {
-			gridconPCS.stopSystem();
+			gridconPCS.setStop(true);
 			return;
 		}
 		
@@ -82,16 +102,52 @@ public class Error extends BaseState implements State {
 		case FINISHED:
 			finishing();
 			break;
-		}
-		
+		}		
 	}
-
+	
+	private void keepSystemStopped() {		
+		System.out.println("Keep system stopped!");
+		gridconPCS.setEnableIPU1(false);
+		gridconPCS.setEnableIPU2(false);
+		gridconPCS.setEnableIPU3(false);
+		gridconPCS.disableDCDC();
+		
+		gridconPCS.setStop(true);
+		gridconPCS.setPlay(false);
+		gridconPCS.setAcknowledge(false);
+		
+		gridconPCS.setSyncApproval(true);
+		gridconPCS.setBlackStartApproval(false);
+		gridconPCS.setModeSelection(Mode.CURRENT_CONTROL);
+		gridconPCS.setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		gridconPCS.setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		gridconPCS.setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		gridconPCS.setQLimit(GridconPCS.Q_LIMIT);
+		gridconPCS.setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
+		
+		gridconPCS.setParameterSet(parameterSet);				
+		float maxPower = GridconPCS.MAX_POWER_PER_INVERTER;
+		if (enableIPU1) {
+			gridconPCS.setPMaxChargeIPU1(maxPower);
+			gridconPCS.setPMaxDischargeIPU1(-maxPower);
+		}
+		if (enableIPU2) {
+			gridconPCS.setPMaxChargeIPU2(maxPower);
+			gridconPCS.setPMaxDischargeIPU2(-maxPower);
+		}
+		if (enableIPU3) {
+			gridconPCS.setPMaxChargeIPU3(maxPower);
+			gridconPCS.setPMaxDischargeIPU3(-maxPower);
+		}		
+}
+	
 	private boolean isLinkVoltageTooLow() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	private void doStartErrorHandling() {
+		System.out.println("doStartErrorHandling");
 		// Error Count = anzahl der Fehler
 		// Error code = aktueller fehler im channel
 		// error code feedback -> channel fürs rückschreiben der fehler damit im error code der nächste auftaucht
@@ -99,17 +155,18 @@ public class Error extends BaseState implements State {
 		errorMap = new ArrayList<Integer>();
 		errorCount = gridconPCS.getErrorCount();
 		errorHandlingState = ErrorHandlingState.READING_ERRORS;
-		
+		//gridconPCS.setStop(true);
+		keepSystemStopped();		
 	}
 	
 	private void doReadErrors() {
-		
-		int currentErrorCode = gridconPCS.getCurrentErrorCode();
+		System.out.println("doReadErrors");
+		int currentErrorCode = gridconPCS.getErrorCode();
 		if (!errorMap.contains(currentErrorCode)) {
 			errorMap.add(currentErrorCode);
-			gridconPCS.setErrorCodeFeedBack(currentErrorCode);
+			gridconPCS.setErrorCodeFeedback(currentErrorCode);
 		} else {
-			gridconPCS.setErrorCodeFeedBack(currentErrorCode);
+			gridconPCS.setErrorCodeFeedback(currentErrorCode);
 		}
 		
 		if (errorMap.size() >= errorCount) {
@@ -118,12 +175,47 @@ public class Error extends BaseState implements State {
 	}
 	
 	private void doAcknowledge() {
-		gridconPCS.acknowledgeErrors();
+		System.out.println("doAcknowledge");
 		errorsAcknowledged = LocalDateTime.now();
 		errorHandlingState = ErrorHandlingState.WAITING;
+		
+		
+		gridconPCS.setEnableIPU1(false);
+		gridconPCS.setEnableIPU2(false);
+		gridconPCS.setEnableIPU3(false);
+		gridconPCS.disableDCDC();
+		
+		gridconPCS.setStop(true);
+		gridconPCS.setPlay(false);
+		gridconPCS.setAcknowledge(true);
+		
+		gridconPCS.setSyncApproval(true);
+		gridconPCS.setBlackStartApproval(false);
+		gridconPCS.setModeSelection(Mode.CURRENT_CONTROL);
+		gridconPCS.setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		gridconPCS.setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		gridconPCS.setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		gridconPCS.setQLimit(GridconPCS.Q_LIMIT);
+		gridconPCS.setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
+		
+		gridconPCS.setParameterSet(parameterSet);				
+		float maxPower = GridconPCS.MAX_POWER_PER_INVERTER;
+		if (enableIPU1) {
+			gridconPCS.setPMaxChargeIPU1(maxPower);
+			gridconPCS.setPMaxDischargeIPU1(-maxPower);
+		}
+		if (enableIPU2) {
+			gridconPCS.setPMaxChargeIPU2(maxPower);
+			gridconPCS.setPMaxDischargeIPU2(-maxPower);
+		}
+		if (enableIPU3) {
+			gridconPCS.setPMaxChargeIPU3(maxPower);
+			gridconPCS.setPMaxDischargeIPU3(-maxPower);
+		}		
 	}
 
 	private void finishing() {
+		System.out.println("finishing");
 		//reset all maps etc.
 		
 		errorCount = null;
@@ -133,8 +225,18 @@ public class Error extends BaseState implements State {
 		
 	}	
 	private void doWait() {
+		System.out.println("doWait");
 		if (errorsAcknowledged.plusSeconds(WAITING_TIME).isBefore(LocalDateTime.now())) {
+			
+			if (gridconPCS.isError()) {
+				System.out.println("Gridcon has still errors.... :-(  start from the beginning");
+				finishing(); // to reset all maps etc...
+				
+			}
+			
 			errorHandlingState = ErrorHandlingState.FINISHED;
+		} else {
+			System.out.println("we are still waiting");
 		}
 		
 	}

@@ -3,18 +3,21 @@ package io.openems.edge.ess.mr.gridcon.ongrid.state;
 import java.time.LocalDateTime;
 import java.util.BitSet;
 
-import io.openems.edge.ess.mr.gridcon.EssGridcon;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.State;
 import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 
 public abstract class BaseState implements State {
 
-	protected EssGridcon gridconPCS;
+	public static final float ONLY_ON_GRID_FREQUENCY_FACTOR = 1.0f;
+	public static final float ONLY_ON_GRID_VOLTAGE_FACTOR = 1.0f;
+	
+	protected GridconPCS gridconPCS;
 	protected SoltaroBattery battery1;
 	protected SoltaroBattery battery2;
 	protected SoltaroBattery battery3;
 	
-	public BaseState(EssGridcon gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
+	public BaseState(GridconPCS gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
 		this.gridconPCS = gridconPCS;
 		this.battery1 = b1;
 		this.battery2 = b2;
@@ -107,7 +110,7 @@ public abstract class BaseState implements State {
 	}
 		
 	protected void setStringWeighting() {
-		int activePower = gridconPCS.getActivePower().value().orElse(0);
+		float activePower = gridconPCS.getActivePower();
 		
 		Float[] weightings = WeightingHelper.getWeighting(activePower, battery1, battery2, battery3);
 		

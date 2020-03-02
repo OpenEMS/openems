@@ -21,6 +21,7 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.StateController;
 import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 import io.openems.edge.ess.power.api.Power;
@@ -47,9 +48,9 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 
 	@Activate
 	void activate(ComponentContext context, Config c) throws OpenemsNamedException {
-		EssGridConOnGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.enableIPU1(), c.enableIPU2(), c.enableIPU3(), c.parameterSet(), c.gridcon_id(), c.bms_a_id(), c.bms_b_id(), c.bms_c_id());
-		this.checkConfiguration(config);
 		this.config = c;	
+		EssGridConOnGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.gridcon_id(), c.bms_a_id(), c.bms_b_id(), c.bms_c_id());
+		this.checkConfiguration(config);
 	}
 
 	@Deactivate
@@ -70,7 +71,7 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 
 	@Override
 	public String debugLog() {
-		return super.debugLog() +  "State: " + stateObject.getState().getName() + "| Next State: " + stateObject.getNextState().getName();
+		return "State: " + stateObject.getState().getName() + "| Next State: " + stateObject.getNextState().getName();
 	}
 
 	protected void checkConfiguration(Config config) throws OpenemsException {
@@ -94,8 +95,8 @@ public class EssGridConOnGrid extends EssGridcon implements ManagedSymmetricEss,
 	}
 
 	@Override
-	protected void initializeStateController(SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
-		StateController.initOnGrid(this, config, b1, b2, b3);
+	protected void initializeStateController(GridconPCS gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
+		StateController.initOnGrid(gridconPCS, b1, b2, b3, config.enableIPU1(), config.enableIPU2(), config.enableIPU3(), config.parameterSet());
 	}
 
 }
