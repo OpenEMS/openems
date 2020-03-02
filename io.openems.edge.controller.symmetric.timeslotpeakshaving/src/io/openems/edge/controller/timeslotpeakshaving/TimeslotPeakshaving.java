@@ -19,8 +19,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -28,8 +30,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
+//import io.openems.edge.ess.power.api.Phase;
+//import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -51,11 +53,14 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	private LocalTime startTime;
 	private LocalTime endTime;
 	private LocalTime slowStartTime;
-	private int forceChargeMinutes;
+	private int slowforceChargeMinutes;
 	private ChargeState chargeState = ChargeState.NORMAL;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
+		STATE_MACHINE(Doc.of(ChargeState.values()) //
+				.text("Current State of State-Machine")),
+		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT));
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -88,7 +93,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		this.startTime = convertTime(config.startTime());
 		this.endTime = convertTime(config.endTime());
 		this.slowStartTime = convertTime(config.slowChargeStartTime());
-		this.forceChargeMinutes = calculateForceChargeMinutes(this.slowStartTime, this.startTime);
+		this.slowforceChargeMinutes = calculateSlowForceChargeMinutes(this.slowStartTime, this.startTime);
 		this.config = config;
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
@@ -104,7 +109,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
-		int power = this.getPower(ess, meter);
+		Integer power = this.getPower(ess, meter);
 		this.applyPower(ess, power);
 	}
 
@@ -115,9 +120,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @param pidOuput the power to be set on ess
 	 * @throws OpenemsNamedException
 	 */
-	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsNamedException {
-		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(activePower);
-		ess.getSetReactivePowerEquals().setNextWriteValue(0);
+	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
+		if (activePower != null) {
+			ess.getSetActivePowerEqualsWithPid().setNextWriteValue(activePower);
+			ess.getSetReactivePowerEquals().setNextWriteValue(0);
+		}
 	}
 
 	/**
@@ -127,69 +134,82 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @throws IllegalArgumentException
 	 * @throws OpenemsException
 	 */
-	private int getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
+	private Integer getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
 			throws OpenemsException, IllegalArgumentException {
 
 		LocalDateTime now = LocalDateTime.now(this.clock);
-		int activePower = this.calculatePeakShavePower(ess, meter);
 
-		if (this.isHighLoadTimeslot(now)) {
-			/*
-			 * We are in a High-Load period -> peak shave and discharge/ charge and
-			 * hysteresis "soc" within high load timeslot
-			 */
-			if (ess.getSoc().value().orElse(0) >= config.hysteresisSoc()) {
-				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + config.hysteresisSoc()
-						+ "]. Switch to Charge-Normal state.");
-				this.chargeState = ChargeState.HYSTERESIS;
-				return 0;
+		boolean stateChanged;
+		Integer power = null;
+
+		do {
+			stateChanged = false;
+			switch (this.chargeState) {
+			case NORMAL:
+				if (this.isHighLoadTimeslot(now.plusMinutes(this.slowforceChargeMinutes))) {
+					stateChanged = changeState(ChargeState.SLOWCHARGE);
+				}
+				if (this.isHighLoadTimeslot(now)) {
+					stateChanged = changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
+				}
+
+				power = null;
+				break;
+			case SLOWCHARGE:
+				if (this.isHighLoadTimeslot(now)) {
+					stateChanged = changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
+				}
+				
+//				int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+//				if (minPower >= 0 ) {
+//					// no need to charge anymore, the soc would be 100 %
+//					stateChanged = changeState(ChargeState.HYSTERESIS);
+//				}
+				
+				if (ess.getSoc().value().orElse(0) == 100) {
+					// no need to charge anymore, the soc would be 100 %
+					stateChanged = changeState(ChargeState.HYSTERESIS);
+				}
+				power = config.slowChargePower();
+				break;
+			case HYSTERESIS:
+				if (ess.getSoc().value().orElse(0) <= config.hysteresisSoc()) {
+					stateChanged = changeState(ChargeState.SLOWCHARGE);
+				}
+				if (this.isHighLoadTimeslot(now)) {
+					stateChanged = changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
+				}
+				power = null;
+				break;
+			case HIGHTHRESHOLD_TIMESLOT:
+				if (!this.isHighLoadTimeslot(now)) {
+					stateChanged = changeState(ChargeState.NORMAL);
+				}
+
+				power = this.calculatePeakShavePower(ess, meter);
+				break;
 			}
-			this.chargeState = ChargeState.NORMAL;
-			this.logInfo(log, "Within High-Load timeslot. charge with [" + activePower + "]");
-			return activePower;
-		} else if (this.isHighLoadTimeslot(now.plusMinutes(this.forceChargeMinutes))) {
-			/*
-			 * We are soon going to be in High-Load period -> activate FORCE_CHARGE mode
-			 */
-			this.logInfo(log, " We are soon going to be in High-Load period ");
-			this.chargeState = ChargeState.FORCE_CHARGE;
+		} while (stateChanged); // execute again if the state changed
+
+		// store current state in StateMachine channel
+		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.chargeState);
+		return power;
+
+	}
+
+	/**
+	 * A flag to maintain change in the state.
+	 * 
+	 * @param nextState the target state
+	 * @return Flag that the state is changed or not
+	 */
+	private boolean changeState(ChargeState nextState) {
+		if (this.chargeState != nextState) {
+			this.chargeState = nextState;
+			return true;
+		} else {
+			return false;
 		}
-		/*
-		 * We are in a Charge period
-		 */
-		switch (this.chargeState) {
-		case NORMAL:
-			/*
-			 * charge with configured charge-power
-			 */
-			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
-			int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-			if (minPower >= 0) {
-				this.logInfo(log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
-				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
-				this.chargeState = ChargeState.HYSTERESIS;
-			}
-			return activePower;
-		case HYSTERESIS:
-			/*
-			 * block charging till configured hysteresisSoc
-			 */
-			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
-			if (ess.getSoc().value().orElse(0) <= config.hysteresisSoc()) {
-				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " <= " + config.hysteresisSoc()
-						+ "]. Switch to Charge-Normal state.");
-				this.chargeState = ChargeState.NORMAL;
-			}
-			return 0;
-		case FORCE_CHARGE:
-			/*
-			 * force full charging just before the high-load timeslot starts
-			 */
-			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
-			return config.slowChargePower();
-		}
-		// we should never come here...
-		return 0;
 	}
 
 	/**
@@ -240,7 +260,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			 */
 			calculatedPower = 0;
 		}
-
+		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 		return calculatedPower;
 	}
 
@@ -319,6 +339,14 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		return configuredDay;
 	}
 
+	/**
+	 * This method returns true if the Current date is within configured StartDate and endDate
+	 * 
+	 * @param startDate
+	 * @param endDate
+	 * @param dateTime
+	 * @return boolean values which specify the current date is within the configured date range
+	 */
 	protected static boolean isActiveDate(LocalDate startDate, LocalDate endDate, LocalDateTime dateTime) {
 		LocalDate date = dateTime.toLocalDate();
 		return !(date.isBefore(startDate) || date.isAfter(endDate));
@@ -373,13 +401,14 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
+	 * This methods calculates the slow charging minutes from slowStartTime and startTime, this is the period for 
+	 * charging the battery to 100% and getting ready for highthreshold period.  
 	 * 
-	 * 
-	 * @param slowStartTime
-	 * @param startTime
-	 * @return
+	 * @param slowStartTime start of slow charging the battery
+	 * @param startTime start of the high threshold period
+	 * @return forceChargeMinutes in int, which specifies the total time the battery should be slowly charged
 	 */
-	private static int calculateForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
+	private static int calculateSlowForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
 		int forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);
 		if (forceChargeTime > 0) {
 			return forceChargeTime;
@@ -387,5 +416,77 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			return forceChargeTime + 1440; // 1440 - total minutes in a day
 		}
 	}
+
+//	/**
+//	 * Gets the current ActivePower.
+//	 * 
+//	 * @return
+//	 * @throws IllegalArgumentException
+//	 * @throws OpenemsException
+//	 */
+//	private int getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
+//			throws OpenemsException, IllegalArgumentException {
+//
+//		LocalDateTime now = LocalDateTime.now(this.clock);
+//		int activePower = this.calculatePeakShavePower(ess, meter);
+//
+//		if (this.isHighLoadTimeslot(now)) {
+//			/*
+//			 * We are in a High-Load period -> peak shave and discharge/ charge and
+//			 * hysteresis "soc" within high load timeslot
+//			 */
+//			if (ess.getSoc().value().orElse(0) >= config.hysteresisSoc()) {
+//				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + config.hysteresisSoc()
+//						+ "]. Switch to Charge-Normal state.");
+//				this.chargeState = ChargeState.HYSTERESIS;
+//				return 0;
+//			}
+//			this.chargeState = ChargeState.NORMAL;
+//			this.logInfo(log, "Within High-Load timeslot. charge with [" + activePower + "]");
+//			return activePower;
+//		} else if (this.isHighLoadTimeslot(now.plusMinutes(this.forceChargeMinutes))) {
+//			/*
+//			 * We are soon going to be in High-Load period -> activate FORCE_CHARGE mode
+//			 */
+//			this.logInfo(log, " We are soon going to be in High-Load period ");
+//			this.chargeState = ChargeState.FORCE_CHARGE;
+//		}
+//		/*
+//		 * We are in a Charge period
+//		 */
+//		switch (this.chargeState) {
+//		case NORMAL:
+//			/*
+//			 * charge with configured charge-power
+//			 */
+//			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
+//			int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+//			if (minPower >= 0) {
+//				this.logInfo(log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
+//				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
+//				this.chargeState = ChargeState.HYSTERESIS;
+//			}
+//			return activePower;
+//		case HYSTERESIS:
+//			/*
+//			 * block charging till configured hysteresisSoc
+//			 */
+//			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
+//			if (ess.getSoc().value().orElse(0) <= config.hysteresisSoc()) {
+//				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " <= " + config.hysteresisSoc()
+//						+ "]. Switch to Charge-Normal state.");
+//				this.chargeState = ChargeState.NORMAL;
+//			}
+//			return 0;
+//		case FORCE_CHARGE:
+//			/*
+//			 * force full charging just before the high-load timeslot starts
+//			 */
+//			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
+//			return config.slowChargePower();
+//		}
+//		// we should never come here...
+//		return 0;
+//	}
 
 }

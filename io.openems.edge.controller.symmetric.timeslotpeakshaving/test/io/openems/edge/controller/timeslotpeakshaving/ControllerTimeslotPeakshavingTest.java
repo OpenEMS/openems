@@ -15,7 +15,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
@@ -164,10 +163,8 @@ public class ControllerTimeslotPeakshavingTest {
 
 	@Test
 	public void test() throws Exception {
-		Instant inst = Instant.parse("2020-02-03T09:30:30.00Z");
+		Instant inst = Instant.parse("2020-02-03T08:30:00.00Z");
 		TimeLeapClock clock = new TimeLeapClock(inst, ZoneOffset.UTC);
-
-		System.out.println(clock);
 
 		// initialize the controller
 		TimeslotPeakshaving ctrl = new TimeslotPeakshaving(clock);
@@ -175,11 +172,8 @@ public class ControllerTimeslotPeakshavingTest {
 		DummyComponentManager componentManager = new DummyComponentManager();
 		ctrl.componentManager = componentManager;
 
-		DummyPower power = new DummyPower(0.5, 0.2, 0.1);
-		ctrl.power = power;
-
 		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0", 100000, 50000, 50000, "01.01.2020", "30.04.2020",
-				"10:00", "11:00", "12:00", 50, false, true, true, true, true, true, true);
+				"10:00", "11:00", "09:00", 95, true, true, true, true, true, true, true);
 
 		ctrl.activate(null, config);
 		ctrl.activate(null, config);
@@ -187,33 +181,45 @@ public class ControllerTimeslotPeakshavingTest {
 		ChannelAddress gridMode = new ChannelAddress("ess0", "GridMode");
 		ChannelAddress ess = new ChannelAddress("ess0", "ActivePower");
 		ChannelAddress grid = new ChannelAddress("meter0", "ActivePower");
+		ChannelAddress soc = new ChannelAddress("ess0", "Soc");
 		ChannelAddress essSetPower = new ChannelAddress("ess0", "SetActivePowerEquals");
 
 		ManagedSymmetricEss ess0 = new DummyManagedSymmetricEss("ess0");
 		SymmetricMeter meter = new DummySymmetricMeter("meter0");
 
+		// Current time is --> 8:30
 		new ControllerTest(ctrl, componentManager, ess0, meter).next(new TestCase() //
-				.input(gridMode, GridMode.ON_GRID) //
+				.input(gridMode, GridMode.ON_GRID) // This test case should run in normal state machine
 				.input(ess, 0) //
-				.input(grid, 120000) //
-				.output(essSetPower, 10000)) //
+				.input(soc, 90).input(grid, 120000) //
+				.output(essSetPower, null)) //
 				.next(new TestCase() //
-						.input(gridMode, GridMode.ON_GRID) //
+						.timeleap(clock, 31, ChronoUnit.MINUTES)/* current time is 09:31, run in slow charge state */
+						.input(soc, 98).input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 5000) //
 						.input(grid, 120000) //
 						.output(essSetPower, 13500)) //
 				.next(new TestCase() //
-						.timeleap(clock, 75, ChronoUnit.MINUTES)//
-						.input(gridMode, GridMode.ON_GRID) //
+						.timeleap(clock, 31, ChronoUnit.MINUTES)/* current time is 09:31, run in hysterisis state */
+						.input(soc, 100).input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 5000) //
-						.input(grid, 120000) //
-						.output(essSetPower, 14000)) //
+						.input(grid, 120000)) // nothing set on, Ess's setActivePower
 				.next(new TestCase() //
-						.timeleap(clock, 75, ChronoUnit.MINUTES)//
+						.input(gridMode, GridMode.ON_GRID) /* current time is 09:31, run in slow charge state */
+						.input(soc, 94).input(ess, 5000) //
+						.input(grid, 120000) //
+						.output(essSetPower, 27000)) //
+				.next(new TestCase() //
+						.timeleap(clock, 75, ChronoUnit.MINUTES)/* current time is 10:47, run in high threshold state */
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 5000) //
 						.input(grid, 120000) //
-						.output(essSetPower, 50000)) //
+						.output(essSetPower, 33000)) //
+				.next(new TestCase() //
+						.timeleap(clock, 75, ChronoUnit.MINUTES)/*current time is 12:02 run in normal state */
+						.input(gridMode, GridMode.ON_GRID) //
+						.input(ess, 5000) //
+						.input(grid, 120000)) // nothing set on, Ess's setActivePower
 				.run();
 	}
 }

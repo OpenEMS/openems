@@ -4,19 +4,23 @@ import io.openems.common.types.OptionsEnum;
 
 public enum ChargeState implements OptionsEnum {
 	/**
-	 * Normal charge state: charge till the battery is full
+	 * Normal charge state: does not charge the battery, it is waiting to go to slow charge state
 	 */
-	NORMAL(0, "Normal charge state, charge until the battery is full"),
+	NORMAL(0, "Normal charge state, no active power is set"),
+	/**
+	 * slow charge state: it is slowly charging the battery to make soc 100%, it can go to either hystersis state or highthreshold phase
+	 */
+	SLOWCHARGE(1, "Slowly charging the battery and getting ready for highthreshold timeslot peak shaving"),
 	/**
 	 * Hysteresis charge state: block charging after 'Normal charge' till the
 	 * battery is not anymore completely full
 	 */
-	HYSTERESIS(1, "Block charging until specified Soc"),
+	HYSTERESIS(2, "Block charging until specified Soc"),
 	/**
-	 * Force charge state: force full charging just before the high-load timeslot
+	 * high threshold time slot state: in this state the where the peak shaving happens with the congfigured peak shave power
 	 * starts
 	 */
-	FORCE_CHARGE(2, "Force charge state: force full charging just before the high-load timeslot starts"),
+	HIGHTHRESHOLD_TIMESLOT(3, "High threshold timeslot: The time range where the peakshaving is performed, this is actually highthreshold period"),
 	;
 	
 	private final int value;
