@@ -35,12 +35,12 @@
 //	public static BaseState createBaseState(DummyEss ess, DummyBattery bms) {
 //		return new BaseState(ess, bms) {
 //			@Override
-//			public State getState() {
+//			public StateObject getState() {
 //				return null;
 //			}
 //
 //			@Override
-//			public State getNextState() {
+//			public StateObject getNextState() {
 //				return null;
 //			}
 //

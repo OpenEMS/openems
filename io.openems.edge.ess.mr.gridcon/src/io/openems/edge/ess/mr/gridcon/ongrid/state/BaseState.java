@@ -3,25 +3,29 @@ package io.openems.edge.ess.mr.gridcon.ongrid.state;
 import java.time.LocalDateTime;
 import java.util.BitSet;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
-import io.openems.edge.ess.mr.gridcon.State;
+import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 
-public abstract class BaseState implements State {
+public abstract class BaseState implements StateObject {
 
 	public static final float ONLY_ON_GRID_FREQUENCY_FACTOR = 1.0f;
 	public static final float ONLY_ON_GRID_VOLTAGE_FACTOR = 1.0f;
 	
-	protected GridconPCS gridconPCS;
-	protected SoltaroBattery battery1;
-	protected SoltaroBattery battery2;
-	protected SoltaroBattery battery3;
+	private ComponentManager manager;
+	protected String gridconPCSId;
+	protected String battery1Id;
+	protected String battery2Id;
+	protected String battery3Id;
 	
-	public BaseState(GridconPCS gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
-		this.gridconPCS = gridconPCS;
-		this.battery1 = b1;
-		this.battery2 = b2;
-		this.battery3 = b3;		
+	public BaseState(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id) {
+		this.manager = manager;
+		this.gridconPCSId = gridconPCSId;
+		this.battery1Id = b1Id;
+		this.battery2Id = b2Id;
+		this.battery3Id = b3Id;		
 	}
 	
 	protected boolean isNextStateUndefined() {
@@ -29,19 +33,19 @@ public abstract class BaseState implements State {
 	}
 
 	protected boolean isNextStateError() {
-		if (gridconPCS != null && gridconPCS.isError()) {
+		if (getGridconPCS() != null && getGridconPCS().isError()) {
 			return true;
 		}
 		
-		if (battery1 != null && battery1.isError()) {
+		if (getBattery1() != null && getBattery1().isError()) {
 			return true;
 		}
 		
-		if (battery2 != null && battery2.isError()) {
+		if (getBattery2() != null && getBattery2().isError()) {
 			return true;
 		}
 		
-		if (battery3 != null && battery3.isError()) {
+		if (getBattery3() != null && getBattery3().isError()) {
 			return true;
 		}
 		
@@ -49,82 +53,83 @@ public abstract class BaseState implements State {
 	}
 	
 	protected boolean isNextStateStopped() {
-		return gridconPCS != null && gridconPCS.isStopped();
+		return getGridconPCS() != null && getGridconPCS().isStopped();
 	}
 	
 	protected boolean isNextStateRunning() {
-		boolean running = gridconPCS != null && battery1 != null && battery2 != null && battery3 != null;
-		if (gridconPCS != null) {
-			running = running && gridconPCS.isRunning();
-		}
-		
-		if (battery1 != null) {
-			running = running && battery1.isRunning();
-		}
-		
-		if (battery2 != null) {
-			running = running && battery2.isRunning();
-		}
-		
-		if (battery3 != null) {
-			running = running && battery3.isRunning();
-		}
-		return running;
+		return (getGridconPCS() != null && getGridconPCS().isRunning());
+//		boolean running = true;// getGridconPCS() != null && getBattery1() != null && getBattery2() != null && getBattery3() != null;
+//		if (getGridconPCS() != null) {
+//			running = running && getGridconPCS().isRunning();
+//		}
+//		
+//		if (getBattery1() != null) {
+//			running = running && getBattery1().isRunning();
+//		}
+//		
+//		if (getBattery2() != null) {
+//			running = running && getBattery2().isRunning();
+//		}
+//		
+//		if (getBattery3() != null) {
+//			running = running && getBattery3().isRunning();
+//		}
+//		return running;
 	}
 
 	protected void startBatteries() {
-		if (battery1 != null) {
-		if (!battery1.isRunning()) {
-			battery1.start();
+		if (getBattery1() != null) {
+		if (!getBattery1().isRunning()) {
+			getBattery1().start();
 		}
 		}
-		if (battery2 != null) {
-		if (!battery2.isRunning()) {
-			battery2.start();
+		if (getBattery2() != null) {
+		if (!getBattery2().isRunning()) {
+			getBattery2().start();
 		}
 		}
-		if (battery3 != null) {
-		if (!battery3.isRunning()) {
-			battery3.start();
+		if (getBattery3() != null) {
+		if (!getBattery3().isRunning()) {
+			getBattery3().start();
 		}
 		}
 	}
 
 	protected boolean isBatteriesStarted() {
 		boolean running = true;
-		if (battery1 != null) {
-			running = running && battery1.isRunning();
+		if (getBattery1() != null) {
+			running = running && getBattery1().isRunning();
 		}
-		if (battery2 != null) {
-			running = running && battery2.isRunning();
+		if (getBattery2() != null) {
+			running = running && getBattery2().isRunning();
 		}
-		if (battery3 != null) {
-			running = running && battery3.isRunning();
+		if (getBattery3() != null) {
+			running = running && getBattery3().isRunning();
 		}
 		return running;
 	}
 	
 	protected void setStringControlMode() {
-		int weightingMode = WeightingHelper.getStringControlMode(battery1, battery2, battery3);
-		gridconPCS.setStringControlMode(weightingMode);
+		int weightingMode = WeightingHelper.getStringControlMode(getBattery1(), getBattery2(), getBattery3());
+		getGridconPCS().setStringControlMode(weightingMode);
 	}
 		
 	protected void setStringWeighting() {
-		float activePower = gridconPCS.getActivePower();
+		float activePower = getGridconPCS().getActivePower();
 		
-		Float[] weightings = WeightingHelper.getWeighting(activePower, battery1, battery2, battery3);
+		Float[] weightings = WeightingHelper.getWeighting(activePower, getBattery1(), getBattery2(), getBattery3());
 		
-		gridconPCS.setWeightStringA(weightings[0]);
-		gridconPCS.setWeightStringB(weightings[1]);
-		gridconPCS.setWeightStringC(weightings[2]);
+		getGridconPCS().setWeightStringA(weightings[0]);
+		getGridconPCS().setWeightStringB(weightings[1]);
+		getGridconPCS().setWeightStringC(weightings[2]);
 		
 	}
 	
 	protected void setDateAndTime() {
 		int date = this.convertToInteger(this.generateDate(LocalDateTime.now()));
-		gridconPCS.setSyncDate(date);
+		getGridconPCS().setSyncDate(date);
 		int time = this.convertToInteger(this.generateTime(LocalDateTime.now()));
-		gridconPCS.setSyncTime(time);
+		getGridconPCS().setSyncTime(time);
 	}
 	
 	private BitSet generateDate(LocalDateTime time) {
@@ -150,5 +155,31 @@ public abstract class BaseState implements State {
 			return 0;
 		}
 		return (int) l[0];
+	}
+	
+	GridconPCS getGridconPCS() {
+		return getComponent(gridconPCSId);
+	}
+	
+	SoltaroBattery getBattery1() {
+		return getComponent(battery1Id);
+	}
+	
+	SoltaroBattery getBattery2() {
+		return getComponent(battery2Id);
+	}
+	
+	SoltaroBattery getBattery3() {
+		return getComponent(battery3Id);
+	}
+	
+	<T> T getComponent(String id) {
+		T component = null;
+		try {
+			component = manager.getComponent(id);
+		} catch (OpenemsNamedException e) {
+			
+		}
+		return component;
 	}
 }

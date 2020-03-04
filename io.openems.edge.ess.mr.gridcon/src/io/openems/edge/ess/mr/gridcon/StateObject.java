@@ -3,7 +3,7 @@ package io.openems.edge.ess.mr.gridcon;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 
-public interface State {
+public interface StateObject {
 	/**
 
 	 * Returns the corresponding state.

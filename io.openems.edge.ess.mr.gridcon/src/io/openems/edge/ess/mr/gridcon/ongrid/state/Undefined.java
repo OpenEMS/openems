@@ -3,44 +3,43 @@ package io.openems.edge.ess.mr.gridcon.ongrid.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.IState;
-import io.openems.edge.ess.mr.gridcon.State;
-import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
+import io.openems.edge.ess.mr.gridcon.StateObject;
 
-public class Undefined extends BaseState implements State {
+public class Undefined extends BaseState implements StateObject {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
-	public Undefined(GridconPCS gridconPCS, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
-		super(gridconPCS, b1, b2, b3);
+	public Undefined(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id) {
+		super(manager, gridconPCSId, b1Id, b2Id, b3Id);
 	}
 
 	@Override
 	public IState getState() {
-		return io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED;
+		return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.UNDEFINED;
 	}
 
 	@Override
 	public IState getNextState() {
 		// According to the state machine the next state can be STOPPED, ERROR, RUN or UNDEFINED
 		if (isNextStateUndefined()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED;
+			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.UNDEFINED;
 		}
 		
 		if (isNextStateError()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.State.ERROR;
+			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.ERROR;
 		}
 		
 		if (isNextStateRunning()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.State.RUN;
+			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.RUN;
 		}
 		
 		if (isNextStateStopped()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.State.STOPPED;
+			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.STOPPED;
 		}
 		
-		return io.openems.edge.ess.mr.gridcon.ongrid.State.UNDEFINED;
+		return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.UNDEFINED;
 	}
 
 	@Override

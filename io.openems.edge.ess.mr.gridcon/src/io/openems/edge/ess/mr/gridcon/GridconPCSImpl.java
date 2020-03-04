@@ -123,6 +123,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 			try {
 				if (getCcuState() == CCUState.UNDEFINED) {
 					cntUndefined = 0;
+					System.out.println(" CCCU - StateObject is Undefined .... writing nothing");
 					return;
 				}
 				if (cntUndefined < MIN_CNT_UNDEFINED) {
@@ -172,7 +173,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 		Commands c = Commands.getCommands();
 
-		System.out.println("Write Command control word:\n" + c.toString());
+//		System.out.println("Write Command control word:\n" + c.toString());
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, c.getPlayBit());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, c.getReadyAndStopBit2nd());
@@ -208,7 +209,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeCcuParameters1() throws IllegalArgumentException, OpenemsNamedException {
 		CcuParameters1 ccpw = CcuParameters1.getCcuParameters1();
 
-		System.out.println("Write CCU control parameters 1 word:\n" + ccpw.toString());
+//		System.out.println("Write CCU control parameters 1 word:\n" + ccpw.toString());
 
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER, ccpw.getuByQDroopMainLower());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER, ccpw.getuByQDroopMainUpper());
@@ -226,7 +227,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeCcuParameters2() throws IllegalArgumentException, OpenemsNamedException {
 		CcuParameters2 ccpw = CcuParameters2.getCcuParameters2();
 
-		System.out.println("Write CCU control parameters 2 word:\n" + ccpw.toString());
+//		System.out.println("Write CCU control parameters 2 word:\n" + ccpw.toString());
 
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER, ccpw.getpByFDroopMainLower());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER, ccpw.getpByFDroopMainUpper());
@@ -246,7 +247,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeIpuInverter1ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
 		IpuParameter iicw = IpuParameter.getIpu1Parameter();
 
-		System.out.println("IPU 1 Inverter control word:\n" + iicw.toString());
+//		System.out.println("IPU 1 Inverter control word:\n" + iicw.toString());
 
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
@@ -261,7 +262,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeIpuInverter2ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
 		IpuParameter iicw = IpuParameter.getIpu2Parameter();
 
-		System.out.println("IPU 2 Inverter control word:\n" + iicw.toString());
+//		System.out.println("IPU 2 Inverter control word:\n" + iicw.toString());
 
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
@@ -276,7 +277,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeIpuInverter3ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
 		IpuParameter iicw = IpuParameter.getIpu3Parameter();
 
-		System.out.println("IPU 3 Inverter control word:\n" + iicw.toString());
+//		System.out.println("IPU 3 Inverter control word:\n" + iicw.toString());
 
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
@@ -291,7 +292,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeDcDcControlCommandWord() throws IllegalArgumentException, OpenemsNamedException {
 		DcDcParameter dcc = DcDcParameter.getDcdcParameter();
 
-		System.out.println("DC DC control command:\n" + dcc.toString());
+//		System.out.println("DC DC control command:\n" + dcc.toString());
 
 		if (dcc.getStringControlMode() == 0) {
 			// weighting is never allowed to be '0', but it's working according to the tool
@@ -535,7 +536,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 			 */
 			result.addTasks(//
 					/*
-					 * IPU 1 State
+					 * IPU 1 StateObject
 					 */
 					new FC3ReadRegistersTask(33168, Priority.LOW, //
 							m(GridConChannelId.INVERTER_1_STATUS_STATE_MACHINE, new UnsignedWordElement(33168)), //
@@ -618,7 +619,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 			 */
 			result.addTasks(//
 					/*
-					 * IPU 2 State
+					 * IPU 2 StateObject
 					 */
 					new FC3ReadRegistersTask(33200, Priority.LOW, //
 							m(GridConChannelId.INVERTER_2_STATUS_STATE_MACHINE, new UnsignedWordElement(33200)), //
@@ -700,7 +701,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 			 */
 			result.addTasks(//
 					/*
-					 * IPU 3 State
+					 * IPU 3 StateObject
 					 */
 					new FC3ReadRegistersTask(33232, Priority.LOW, //
 							m(GridConChannelId.INVERTER_3_STATUS_STATE_MACHINE, new UnsignedWordElement(33232)), //
@@ -861,7 +862,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 											.wordOrder(WordOrder.LSWMSW)) //
 					),
 					/*
-					 * DCDC State
+					 * DCDC StateObject
 					 */
 					new FC3ReadRegistersTask(startAddressIpuState, Priority.LOW, // // IPU 4 state
 							m(GridConChannelId.DCDC_STATUS_STATE_MACHINE,

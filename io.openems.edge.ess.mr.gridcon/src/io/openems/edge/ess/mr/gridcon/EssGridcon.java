@@ -36,12 +36,12 @@ import io.openems.edge.ess.power.api.Relationship;
 public abstract class EssGridcon extends AbstractOpenemsComponent
 		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave, EventHandler {
 
-	protected GridconPCS gridconPCS;
-	protected SoltaroBattery batteryA;
-	protected SoltaroBattery batteryB;
-	protected SoltaroBattery batteryC;
+	String gridconId;
+	String bmsAId;
+	String bmsBId;
+	String bmsCId;
 
-	protected io.openems.edge.ess.mr.gridcon.State stateObject = null;
+	protected io.openems.edge.ess.mr.gridcon.StateObject stateObject = null;
 
 	protected abstract ComponentManager getComponentManager();
 
@@ -59,43 +59,25 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		);
 	}
 
-	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridcon,
+	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridconId,
 			String bmsA, String bmsB, String bmsC) throws OpenemsNamedException {
 		
 		super.activate(context, id, alias, enabled);
 		
-		gridconPCS = getComponentManager().getComponent(gridcon);
+		this.gridconId = gridconId;
+		this.bmsAId = bmsA;
+		this.bmsBId = bmsB;
+		this.bmsCId = bmsC;
 
-		try {			
-			batteryA = getComponentManager().getComponent(bmsA);
-		} catch (OpenemsNamedException e) {
-			// if battery is null, no battery is connected on string a
-			System.out.println(e.getMessage());
-		}
-
-		try {
-			batteryB = getComponentManager().getComponent(bmsB);
-		} catch (OpenemsNamedException e) {
-			// if battery is null, no battery is connected on string b
-			System.out.println(e.getMessage());
-		}
-
-		try {
-			batteryC = getComponentManager().getComponent(bmsC);
-		} catch (OpenemsNamedException e) {
-			// if battery is null, no battery is connected on string c
-			System.out.println(e.getMessage());
-		}
-
-		initializeStateController(gridconPCS, batteryA, batteryB, batteryC);
+		initializeStateController(gridconId, bmsA, bmsB, bmsC);
 		stateObject = getFirstStateObjectUndefined();
 		calculateMaxApparentPower();
 	}
 
-	protected abstract State getFirstStateObjectUndefined();
+	protected abstract StateObject getFirstStateObjectUndefined();
 
-	protected abstract void initializeStateController(GridconPCS gridconPCS, SoltaroBattery b1, SoltaroBattery b2,
-			SoltaroBattery b3);
+	protected abstract void initializeStateController(String gridconPCS, String b1, String b2,
+			String b3);
 
 	@Deactivate
 	protected void deactivate() {
@@ -117,8 +99,14 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 				calculateActivePower();
 				calculateMinCellVoltage();
 
-				io.openems.edge.ess.mr.gridcon.IState nextState = this.stateObject.getNextState();
-				this.stateObject = StateController.getStateObject(nextState);
+				IState nextState = this.stateObject.getNextState();
+				StateObject nextStateObject = StateController.getStateObject(nextState);
+				
+				System.out.println("  ----- CURRENT STATE:" + this.stateObject.getState().getName());
+				System.out.println("  ----- NEXT STATE:" + nextStateObject.getState().getName());
+				
+				this.stateObject = nextStateObject;
+				
 				this.stateObject.act();
 				this.writeChannelValues();
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
@@ -132,16 +120,16 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 		float minCellVoltage = Float.MAX_VALUE;
 
-		if (batteryA != null) {
-			minCellVoltage = Math.min(minCellVoltage, batteryA.getMinimalCellVoltage());
+		if (getBattery1() != null) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery1().getMinimalCellVoltage());
 		}
 
-		if (batteryB != null) {
-			minCellVoltage = Math.min(minCellVoltage, batteryB.getMinimalCellVoltage());
+		if (getBattery2() != null) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery2().getMinimalCellVoltage());
 		}
 
-		if (batteryC != null) {
-			minCellVoltage = Math.min(minCellVoltage, batteryC.getMinimalCellVoltage());
+		if (getBattery3() != null) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery3().getMinimalCellVoltage());
 		}
 
 		int minCellVoltageMilliVolt = (int) (minCellVoltage * 1000);
@@ -156,19 +144,19 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	}
 
 	private void calculateMaxApparentPower() {
-		int maxPower = (int) gridconPCS.getMaxApparentPower();
+		int maxPower = (int) getGridconPCS().getMaxApparentPower();
 		getMaxApparentPower().setNextValue(maxPower);
 	}
 
 	protected void calculateActivePower() {
-		float activePower = gridconPCS.getActivePower();
+		float activePower = getGridconPCS().getActivePower();
 		getActivePower().setNextValue(activePower);
 	}
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsException {
 //		if (getGridMode().value().get() != GridMode.ON_GRID.getValue() && !gridconPCS.isRunning()) {
-		if (!gridconPCS.isRunning()) {
+		if (!getGridconPCS().isRunning()) {
 
 			log.info("ccu state nicht run!!");
 
@@ -181,7 +169,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		gridconPCS.setPower(activePower, reactivePower);
+		getGridconPCS().setPower(activePower, reactivePower);
 	}
 
 	@Override
@@ -220,7 +208,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	protected abstract void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException;
 
 	/**
-	 * Calculates the State-of-charge of all Batteries; if all batteries are
+	 * Calculates the StateObject-of-charge of all Batteries; if all batteries are
 	 * available. Otherwise sets UNDEFINED.
 	 */
 	protected void calculateSoc() {
@@ -249,20 +237,44 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	 * @return a collection of Batteries; guaranteed to be not-null.
 	 */
 	protected Collection<SoltaroBattery> getBatteries() {
-
 		Collection<SoltaroBattery> batteries = new ArrayList<>();
-		if (batteryA != null) {
-			batteries.add(batteryA);
+		if (getBattery1() != null) {
+			batteries.add(getBattery1());
 		}
 
-		if (batteryB != null) {
-			batteries.add(batteryB);
+		if (getBattery2() != null) {
+			batteries.add(getBattery2());
 		}
 
-		if (batteryC != null) {
-			batteries.add(batteryC);
+		if (getBattery3() != null) {
+			batteries.add(getBattery3());
 		}
-
 		return batteries;
+	}
+	
+	GridconPCS getGridconPCS() {
+		return getComponent(gridconId);
+	}
+	
+	SoltaroBattery getBattery1() {
+		return getComponent(bmsAId);
+	}
+	
+	SoltaroBattery getBattery2() {
+		return getComponent(bmsBId);
+	}
+	
+	SoltaroBattery getBattery3() {
+		return getComponent(bmsCId);
+	}
+	
+	<T> T getComponent(String id) {
+		T component = null;
+		try {
+			component = getComponentManager().getComponent(id);
+		} catch (OpenemsNamedException e) {
+			
+		}
+		return component;
 	}
 }

@@ -4068,25 +4068,25 @@ public enum ErrorCodeChannelId0 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x20180B) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_STATE_TRIP_IPU_2_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x20280B) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_STATE_TRIP_IPU_3_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x20380B) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_STATE_TRIP_IPU_4_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x20480B) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_TRH_ERROR_Control_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
@@ -4720,25 +4720,25 @@ public enum ErrorCodeChannelId0 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x401803) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_STATE_TRIP_IPU_2(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x402803) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_STATE_TRIP_IPU_3(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x403803) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_STATE_TRIP_IPU_4(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(true) // not according to list, hard reset is necessary
 			.code(0x404803) //
-			.text("(XT) State Trip")),
+			.text("(XT) StateObject Trip")),
 	STATE_ENABLE24_OFF_IPU_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //

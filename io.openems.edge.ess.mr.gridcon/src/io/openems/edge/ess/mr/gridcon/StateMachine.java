@@ -25,7 +25,7 @@
 ////	private final OffgridHandler offgridHandler = new OffgridHandler(this);
 //	private final ErrorHandler errorHandler = new ErrorHandler(this);
 //
-//	private State state = State.UNDEFINED;
+//	private StateObject state = StateObject.UNDEFINED;
 ////	private CCUState lastCcuState = CCUState.UNDEFINED;
 //
 //	public StateMachine(GridconPCS gridconPCS, EssGridcon essGridcon) {
@@ -59,13 +59,13 @@
 //		 * Check if we have an Error
 //		 */
 //		if (this.isError()) {
-//			this.switchState(State.ERROR);
+//			this.switchState(StateObject.ERROR);
 //		}
 //
 //		/*
-//		 * Handle State-Machine
+//		 * Handle StateObject-Machine
 //		 */
-//		State nextState = null;
+//		StateObject nextState = null;
 //		switch (this.state) {
 //		case UNDEFINED:
 //			nextState = this.handleUndefined();
@@ -97,39 +97,39 @@
 //	}
 //
 //	/**
-//	 * Evaluates the current State.
+//	 * Evaluates the current StateObject.
 //	 * 
 //	 * @return
 //	 * 
 //	 * @throws OpenemsNamedException
 //	 * @throws IllegalArgumentException
 //	 */
-//	private State handleUndefined() {
+//	private StateObject handleUndefined() {
 //		GridMode gridMode = this.essGridcon.getGridMode().getNextValue().asEnum();
 //		if (gridconPCS.isError()) {
-//			return State.ERROR;
+//			return StateObject.ERROR;
 //		}
 //
 //		switch (gridMode) {
 //		case ON_GRID:
-//			return State.ONGRID;
+//			return StateObject.ONGRID;
 //
 //		case OFF_GRID:
-////			return State.OFFGRID;
+////			return StateObject.OFFGRID;
 //
 //		case UNDEFINED:
 //			this.log.info("StateMachine.handleUndefined() -> staying UNDEFINED, Grid-Mode is [" + gridMode + "]");
-//			return State.UNDEFINED;
+//			return StateObject.UNDEFINED;
 //		}
 //		// should never come here
 //		assert (true);
-//		return State.UNDEFINED;
+//		return StateObject.UNDEFINED;
 //	}
 //
 //	private boolean isError() {
 //		boolean result = false;
 ////		CCUState ccuState = ((EnumReadChannel) this.gridconPCS.channel(GridConChannelId.CCU_STATE)).value().asEnum();
-//		// CCU State Error
+//		// CCU StateObject Error
 //		if (/*this.lastCcuState != ccuState && */gridconPCS.isError()) {
 //			result = true;
 //		}
@@ -179,7 +179,7 @@
 //	 * 
 //	 * @param nextState
 //	 */
-//	private void switchState(State nextState) {
+//	private void switchState(StateObject nextState) {
 //		// initialize all Handlers
 ////		this.errorHandler.initialize(); //if error handler is always initialized newly, it has always state undef
 //
@@ -187,7 +187,7 @@
 //		this.state = nextState;
 //	}
 //
-//	public State getState() {
+//	public StateObject getState() {
 //		return state;
 //	}
 //
@@ -195,7 +195,7 @@
 ////		return ongridHandler;
 ////	}
 //
-//	public enum State implements OptionsEnum {
+//	public enum StateObject implements OptionsEnum {
 //		UNDEFINED(-1, "Undefined"), //
 ////		GOING_ONGRID(1, "Going On-Grid"), //
 //		ONGRID(2, "On-Grid"), //
@@ -206,7 +206,7 @@
 //		private final int value;
 //		private final String name;
 //
-//		private State(int value, String name) {
+//		private StateObject(int value, String name) {
 //			this.value = value;
 //			this.name = name;
 //		}

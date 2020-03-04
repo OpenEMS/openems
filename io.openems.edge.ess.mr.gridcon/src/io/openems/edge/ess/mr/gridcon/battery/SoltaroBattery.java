@@ -20,6 +20,4 @@ public interface SoltaroBattery {
 	float getMaxChargeVoltageX();
 	float getMinDischargeVoltageX();
 	
-	//TODO Voltage, Current, min max temperature, minmax (dis)charge voltage and current
-	
 }
