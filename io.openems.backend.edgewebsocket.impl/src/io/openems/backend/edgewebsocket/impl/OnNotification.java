@@ -132,6 +132,12 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 				edge.setVersion(SemanticVersion.fromString(version));
 			}
 
+			// Set Mini 3-6
+			if (edge.getProducttype().equals("MiniES 3-3") && data.has("ess0/BecuNum")
+					&& JsonUtils.getAsOptionalInt(data, "ess0/BecuNum").orElse(0) == 2) {
+				edge.setProducttype("MiniES 3-6");
+			}
+
 			// parse State-Channels
 			Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels = new HashMap<>();
 			for (Entry<String, JsonElement> dataEntry : data.entrySet()) {
