@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,19 +21,21 @@ public class InitializeEdgesWorker {
 	private final Logger log = LoggerFactory.getLogger(InitializeEdgesWorker.class);
 	protected final PostgresHandler parent;
 	private final MyConnection connection;
+	private final Runnable onFinished;
 
 	/**
 	 * Executor for subscriptions task.
 	 */
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	public InitializeEdgesWorker(PostgresHandler parent, Credentials credentials) {
+	public InitializeEdgesWorker(PostgresHandler parent, Credentials credentials, Runnable onFinished) {
 		this.parent = parent;
 		this.connection = new MyConnection(credentials);
+		this.onFinished = onFinished;
 	}
 
 	public synchronized void start() {
-		this.executor.execute(() -> task.accept(this.parent, this.connection));
+		this.executor.execute(() -> task.accept(this));
 	}
 
 	public synchronized void stop() {
@@ -54,12 +56,12 @@ public class InitializeEdgesWorker {
 		}
 	}
 
-	private BiConsumer<PostgresHandler, MyConnection> task = (parent, connection) -> {
+	private Consumer<InitializeEdgesWorker> task = (self) -> {
 		// First: mark all Edges as offline
 		try {
-			this.psUpdateAllEdgesOffline(connection).execute();
+			this.psUpdateAllEdgesOffline(self.connection).execute();
 		} catch (SQLException e) {
-			parent.logError(this.log,
+			self.parent.logError(this.log,
 					"Unable to mark Edges offline. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
@@ -68,31 +70,32 @@ public class InitializeEdgesWorker {
 		 * Reads all Edges from Postgres and puts them in a local Cache.
 		 */
 		try {
-			parent.logInfo(this.log, "Caching Edges from Postgres");
-			ResultSet rs = this.psQueryAllEdges(connection).executeQuery();
+			self.parent.logInfo(this.log, "Caching Edges from Postgres");
+			ResultSet rs = this.psQueryAllEdges(self.connection).executeQuery();
 			for (int i = 0; rs.next(); i++) {
 				if (i % 100 == 0) {
-					parent.logInfo(this.log, "Caching Edges from Postgres. Finished [" + i + "]");
+					self.parent.logInfo(this.log, "Caching Edges from Postgres. Finished [" + i + "]");
 				}
 				try {
-					MyEdge edge = parent.edgeCache.addOrUpate(rs);
+					MyEdge edge = self.parent.edgeCache.addOrUpate(rs);
 
 					// Trigger update to Edge States Sum
-					parent.getQueueWriteWorker().addTask(new UpdateEdgeStatesSum(edge.getOdooId()));
+					self.parent.getQueueWriteWorker().addTask(new UpdateEdgeStatesSum(edge.getOdooId()));
 				} catch (Exception e) {
-					parent.logError(this.log,
+					self.parent.logError(this.log,
 							"Unable to read Edge: " + e.getClass().getSimpleName() + ". " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
 
 		} catch (Exception e) {
-			parent.logError(this.log,
+			self.parent.logError(this.log,
 					"Unable to initialize Edges: " + e.getClass().getSimpleName() + ". " + e.getMessage());
 			e.printStackTrace();
 		}
 
-		parent.logInfo(this.log, "Caching Edges from Postgres finished");
+		self.parent.logInfo(this.log, "Caching Edges from Postgres finished");
+		self.onFinished.run();
 	};
 
 	/**
