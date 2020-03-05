@@ -13,66 +13,44 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.component.ComponentManager;
 
 public class PhaseDef {
 
 	private final ControllerHeatingElement parent;
-	LocalDateTime phaseTimeOn = null;
-	LocalDateTime lastRunningTimeCheck = null;
-	long totalPhaseTime = 0; // milliseconds
-	Stopwatch timeStopwatch = Stopwatch.createUnstarted();
-	double totalPhasePower = 0;
-	ChannelAddress outputChannelAddress;
+	private LocalDateTime phaseTimeOn = null;
+	private long totalPhaseTime = 0; // milliseconds
+	private Stopwatch timeStopwatch = Stopwatch.createUnstarted();
+	private double totalPhasePower = 0;
+	private ChannelAddress outputChannelAddress;
 
-	ComponentManager componentManager;
-	boolean isSwitchOn = false;
-
+	/**
+	 * This boolean variable specifies the phase is one or off
+	 */
+	private boolean isSwitchOn;
+	
 	PhaseDef(ControllerHeatingElement parent) {
 		this.parent = parent;
-	}
-
-	private final Logger LOGGER = LoggerFactory.getLogger(PhaseDef.class);
-
-	protected void logInfo(Logger log, String message) {
-		log.info(message);
-	}
-
-	protected void logError(Logger log, String message) {
-		log.error(message);
+		setSwitchOn(false);
 	}
 
 	public void computeTime() throws IllegalArgumentException, OpenemsNamedException {
-		if (!isSwitchOn) {
-			if(phaseTimeOn != null) {
-				totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
-				totalPhasePower = calculatePower(totalPhaseTime);				
-			}
-			phaseTimeOn = null;
-			if (this.timeStopwatch.isRunning()) {
+		if(!isSwitchOn()) {
+			if(this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.stop();
-			}
-			this.off(outputChannelAddress);
-		} else {
-			// phase one is running
-			if (phaseTimeOn == null) {
-				phaseTimeOn = LocalDateTime.now();
+			}			
+			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
+			totalPhasePower = calculatePower(totalPhaseTime);
+			this.off(getOutputChannelAddress());
+		}else {
+			if(!this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.start();
-				// do not take the current time
-			} else {
-				totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
-				totalPhasePower = calculatePower(totalPhaseTime);
-			}
-			this.on(outputChannelAddress);
+			}			
+			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
+			totalPhasePower = calculatePower(totalPhaseTime);
+			this.on(getOutputChannelAddress());
 		}
 	}
 
-//	private void displayObject() {
-//		this.logInfo(this.LOGGER, " phaseTimeOn : "+ phaseTimeOn +
-//		 ", phaseTimeOff : " + phaseTimeOff +
-//		", totalPhaseTime : " + totalPhaseTime +
-//		", totalPhasePower : " + totalPhasePower );
-//	}
 
 	/**
 	 * function to calculates the Kilowatthour, using the power of each phase
@@ -81,7 +59,7 @@ public class PhaseDef {
 	 * 
 	 */
 	private double calculatePower(double time) {
-		double kiloWattHour = ((time) / 3600.0) * parent.powerOfPhase;
+		double kiloWattHour = ((time) / 3600.0) * parent.config.powerOfPhase();
 		return kiloWattHour;
 	}
 
@@ -132,4 +110,67 @@ public class PhaseDef {
 		}
 	}
 
+	public LocalDateTime getPhaseTimeOn() {
+		return phaseTimeOn;
+	}
+
+	public boolean isSwitchOn() {
+		return isSwitchOn;
+	}
+
+	public void setSwitchOn(boolean isSwitchOn) {
+		this.isSwitchOn = isSwitchOn;
+	}
+
+	public void setPhaseTimeOn(LocalDateTime phaseTimeOn) {
+		this.phaseTimeOn = phaseTimeOn;
+	}
+
+	public long getTotalPhaseTime() {
+		return totalPhaseTime;
+	}
+
+	public void setTotalPhaseTime(long totalPhaseTime) {
+		this.totalPhaseTime = totalPhaseTime;
+	}
+
+	public Stopwatch getTimeStopwatch() {
+		return timeStopwatch;
+	}
+
+	public void setTimeStopwatch(Stopwatch timeStopwatch) {
+		this.timeStopwatch = timeStopwatch;
+	}
+
+	public double getTotalPhasePower() {
+		return totalPhasePower;
+	}
+
+	public void setTotalPhasePower(double totalPhasePower) {
+		this.totalPhasePower = totalPhasePower;
+	}
+
+	public ChannelAddress getOutputChannelAddress() {
+		return outputChannelAddress;
+	}
+
+	public void setOutputChannelAddress(ChannelAddress outputChannelAddress) {
+		this.outputChannelAddress = outputChannelAddress;
+	}
+
+	public ControllerHeatingElement getParent() {
+		return parent;
+	}
+
+
+
+	private final Logger LOGGER = LoggerFactory.getLogger(PhaseDef.class);
+
+	protected void logInfo(Logger log, String message) {
+		log.info(message);
+	}
+
+	protected void logError(Logger log, String message) {
+		log.error(message);
+	}
 }
