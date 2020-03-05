@@ -19,8 +19,8 @@ public class PidFilter {
 
 	private double lastInput = 0;
 	private double errorSum = 0;
-	private double lowLimit = 0;
-	private double highLimit = 0;
+	private Integer lowLimit = null;
+	private Integer highLimit = null;
 
 	/**
 	 * Creates a PidFilter.
@@ -48,11 +48,11 @@ public class PidFilter {
 	 * @param lowLimit  lowest allowed output value
 	 * @param highLimit highest allowed output value
 	 */
-	public void setLimits(double lowLimit, double highLimit) {
-		if (highLimit < lowLimit) {
-			return;
+	public void setLimits(Integer lowLimit, Integer highLimit) {
+		if (lowLimit != null && highLimit != null && lowLimit > highLimit) {
+			throw new IllegalArgumentException(
+					"Given LowLimit [" + lowLimit + "] is higher than HighLimit [" + highLimit + "]");
 		}
-		// Apply general limits
 		this.lowLimit = lowLimit;
 		this.highLimit = highLimit;
 	}
@@ -66,20 +66,16 @@ public class PidFilter {
 	 * @return the filtered set-point value
 	 */
 	public int applyPidFilter(int input, int target) {
-		return Math.round((float) this.applyPidFilter((double) input, (double) target));
-	}
+		// Pre-process the target value: apply output value limits
+		target = this.applyLowHighLimits(target);
 
-	/**
-	 * Apply the PID filter using the current Channel value as input and the target
-	 * value.
-	 * 
-	 * @param input  the input value, e.g. the measured Channel value
-	 * @param target the target value
-	 * @return the filtered set-point value
-	 */
-	public double applyPidFilter(double input, double target) {
 		// Calculate the error
-		double error = target - input;
+		int error = target - input;
+
+		// We are already there
+		if (error == 0) {
+			return target;
+		}
 
 		// Calculate P
 		double outputP = this.p * error;
@@ -105,15 +101,8 @@ public class PidFilter {
 		// sum up the error
 		this.errorSum += error;
 
-		/*
-		 * Post-process the output value
-		 */
-		if (this.highLimit != this.lowLimit) {
-			// Apply output value limits
-			output = this.applyLowHighLimits(output, this.lowLimit, this.highLimit);
-		}
-
-		return output;
+		// Post-process the output value: convert to integer and apply value limits
+		return this.applyLowHighLimits(Math.round((float) output));
 	}
 
 	/**
@@ -131,16 +120,14 @@ public class PidFilter {
 	 * Applies the low and high limits to a value.
 	 * 
 	 * @param value the input value
-	 * @param low   low limit
-	 * @param high  high limit
 	 * @return the value within low and high limit
 	 */
-	private double applyLowHighLimits(double value, double low, double high) {
-		if (value < low) {
-			value = low;
+	private int applyLowHighLimits(int value) {
+		if (this.lowLimit != null && value < this.lowLimit) {
+			value = this.lowLimit;
 		}
-		if (value > high) {
-			value = high;
+		if (this.highLimit != null && value > this.highLimit) {
+			value = this.highLimit;
 		}
 		return value;
 	}
