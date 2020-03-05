@@ -143,4 +143,9 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 		}
 		return Optional.empty();
 	}
+
+	@Override
+	public boolean isInitialized() {
+		return true;
+	}
 }

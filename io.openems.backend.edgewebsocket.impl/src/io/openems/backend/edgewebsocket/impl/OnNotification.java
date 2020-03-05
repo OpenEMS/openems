@@ -17,6 +17,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
@@ -77,10 +78,10 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * 
 	 * @param message the EdgeConfigNotification
 	 * @param wsData  the WebSocket attachment
+	 * @throws OpenemsException
 	 * @throws OpenemsNamedException on error
 	 */
-	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData)
-			throws OpenemsNamedException {
+	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData) throws OpenemsException {
 		String edgeId = wsData.assertEdgeId(message);
 
 		// save config in metadata
@@ -88,7 +89,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		edge.setConfig(message.getConfig());
 
 		// forward
-		this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
+		try {
+			this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
+		} catch (OpenemsNamedException e) {
+			this.parent.logWarn(this.log, "Unable to forward EdgeConfigNotification to UI: " + e.getMessage());
+		}
 	}
 
 	/**
@@ -125,6 +130,12 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));
+			}
+
+			// Set Mini 3-6
+			if (edge.getProducttype().equals("MiniES 3-3") && data.has("ess0/BecuNum")
+					&& JsonUtils.getAsOptionalInt(data, "ess0/BecuNum").orElse(0) == 2) {
+				edge.setProducttype("MiniES 3-6");
 			}
 
 			// parse State-Channels

@@ -18,6 +18,7 @@ import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -220,6 +221,11 @@ public class EdgeCache {
 		});
 		edge.onSetComponentState(activeStateChannels -> {
 			this.parent.postgresHandler.updateDeviceStates(edge, activeStateChannels);
+		});
+		edge.onSetProducttype(producttype -> {
+			// Set Producttype in Odoo/Postgres
+			this.parent.getPostgresHandler().getQueueWriteWorker()
+					.addTask(new UpdateEdgeProducttype(edge.getOdooId(), producttype));
 		});
 	}
 

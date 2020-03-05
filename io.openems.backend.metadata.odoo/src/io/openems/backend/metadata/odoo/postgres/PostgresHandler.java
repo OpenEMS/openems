@@ -31,11 +31,13 @@ public class PostgresHandler {
 	private final PeriodicWriteWorker periodicWriteWorker;
 	private final QueueWriteWorker queueWriteWorker;
 
-	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config) {
+	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, Runnable onInitialized) {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.credentials = Credentials.fromConfig(config);
-		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.credentials);
+		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.credentials, () -> {
+			onInitialized.run();
+		});
 		this.initializeEdgesWorker.start();
 		this.periodicWriteWorker = new PeriodicWriteWorker(this, this.credentials);
 		this.periodicWriteWorker.start();

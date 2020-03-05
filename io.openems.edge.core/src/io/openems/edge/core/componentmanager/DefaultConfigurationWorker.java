@@ -56,10 +56,6 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	private boolean createDefaultConfigurations(List<Config> existingConfigs) {
 		final AtomicBoolean defaultConfigurationFailed = new AtomicBoolean(false);
 
-		for (Config config : existingConfigs) {
-			System.out.println("CONF: " + config.componentId + ", " + config.pid + ", " + config.factoryPid);
-		}
-
 		/*
 		 * Create Default Logging configuration
 		 */
