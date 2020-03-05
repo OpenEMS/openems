@@ -64,14 +64,6 @@ public class Edge {
 		return this.config;
 	}
 
-	public String getProducttype() {
-		return this.producttype;
-	}
-
-	public void setProducttype(String producttype) {
-		this.producttype = producttype;
-	}
-
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("id", this.id) //
@@ -263,6 +255,45 @@ public class Edge {
 				this.onSetVersion.forEach(listener -> listener.accept(version));
 			}
 			this.version = version;
+		}
+	}
+
+	/*
+	 * Producttype
+	 */
+	public String getProducttype() {
+		return this.producttype;
+	}
+
+	private final List<Consumer<String>> onSetProducttype = new CopyOnWriteArrayList<>();
+
+	public void onSetProducttype(Consumer<String> listener) {
+		this.onSetProducttype.add(listener);
+	}
+
+	/**
+	 * Sets the Producttype and calls the SetProducttype-Listeners.
+	 * 
+	 * @param producttype the Producttype
+	 */
+	public synchronized void setProducttype(String producttype) {
+		this.setProducttype(producttype, true);
+	}
+
+	/**
+	 * Sets the Producttype.
+	 * 
+	 * @param producttype   the Producttype
+	 * @param callListeners whether to call the SetProducttype-Listeners
+	 */
+	public synchronized void setProducttype(String producttype, boolean callListeners) {
+		if (!Objects.equal(this.producttype, producttype)) { // on change
+			if (callListeners) {
+				this.log.info("Edge [" + this.getId() + "]: Update Product-Type to [" + producttype + "]. It was ["
+						+ this.producttype + "]");
+				this.onSetProducttype.forEach(listener -> listener.accept(producttype));
+			}
+			this.producttype = producttype;
 		}
 	}
 
