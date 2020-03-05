@@ -162,10 +162,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 							State.ACTIVE, // State
 							"", // Version
 							"", // Product-Type
-							new EdgeConfig(), // Config
-							null, // State of Charge
-							null, // IPv4
-							null // _sum/State
+							new EdgeConfig() // Config
 					));
 				}
 			} catch (OpenemsNamedException e) {
