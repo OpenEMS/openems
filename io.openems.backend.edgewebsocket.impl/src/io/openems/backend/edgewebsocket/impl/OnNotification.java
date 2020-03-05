@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
@@ -77,10 +78,10 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * 
 	 * @param message the EdgeConfigNotification
 	 * @param wsData  the WebSocket attachment
+	 * @throws OpenemsException
 	 * @throws OpenemsNamedException on error
 	 */
-	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData)
-			throws OpenemsNamedException {
+	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData) throws OpenemsException {
 		String edgeId = wsData.assertEdgeId(message);
 
 		// save config in metadata
@@ -88,7 +89,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		edge.setConfig(message.getConfig());
 
 		// forward
-		this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
+		try {
+			this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
+		} catch (OpenemsNamedException e) {
+			this.parent.logWarn(this.log, "Unable to forward EdgeConfigNotification to UI: " + e.getMessage());
+		}
 	}
 
 	/**

@@ -3,6 +3,7 @@ package io.openems.backend.edgewebsocket.impl;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +41,13 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 
 		// TODO send notification, to UI
 
-		// log
-		this.parent.logInfo(this.log,
-				"Edge [" + edgeId + "] disconnected. Code [" + code + "] Reason [" + reason + "]");
+		if (code == CloseFrame.TRY_AGAIN_LATER) {
+			// This happens when Metadata service is not yet initialized. No need to log
+			// message.
+		} else {
+			this.parent.logInfo(this.log,
+					"Edge [" + edgeId + "] disconnected. Code [" + code + "] Reason [" + reason + "]");
+		}
 	}
 
 }

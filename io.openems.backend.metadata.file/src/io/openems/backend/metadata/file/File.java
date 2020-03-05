@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -62,6 +63,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private final BackendUser user = new BackendUser("admin", "Administrator");
 	private final Map<String, MyEdge> edges = new HashMap<>();
+	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
 	private String path = "";
 
@@ -178,5 +180,11 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 				this.user.addEdgeRole(edge.getId(), Role.ADMIN);
 			}
 		}
+		this.isInitialized.set(true);
+	}
+
+	@Override
+	public boolean isInitialized() {
+		return this.isInitialized.get();
 	}
 }

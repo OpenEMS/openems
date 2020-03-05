@@ -12,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.influxdb.InfluxDBException.FieldTypeConflictException;
 import org.influxdb.dto.Point;
@@ -55,11 +53,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
+	private final FieldTypeConflictHandler fieldTypeConflictHandler;
 
 	private InfluxConnector influxConnector = null;
 
 	public Influx() {
 		super("Timedata.InfluxDB");
+		this.fieldTypeConflictHandler = new FieldTypeConflictHandler(this);
 	}
 
 	@Reference
@@ -81,13 +81,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
 				(failedPoints, throwable) -> {
-					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
-							.map(Point::lineProtocol).collect(Collectors.joining(","));
-					this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
-							+ ": " + throwable.getMessage() + " for " + StringUtils.toShortString(pointsString, 100));
-
 					if (throwable instanceof FieldTypeConflictException) {
-						this.handleFieldTypeConflictException(failedPoints, (FieldTypeConflictException) throwable);
+						this.fieldTypeConflictHandler.handleException((FieldTypeConflictException) throwable);
+					} else {
+						this.logError(this.log,
+								"Unable to write to InfluxDB. " + throwable.getClass().getSimpleName() + ": "
+										+ throwable.getMessage() + " for "
+										+ StringUtils.toShortString(failedPoints.toString(), 100));
 					}
 				});
 	}
@@ -273,132 +273,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		}
 	}
 
-	private final static Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
-			"^partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
-
-	private final Map<String, BiConsumer<Builder, JsonElement>> specialCaseFieldHandlers = new HashMap<>();
-
-	/**
-	 * Handles a {@link FieldTypeConflictException}; adds special handling for
-	 * fields that already exist in the database.
-	 * 
-	 * @param failedPoints the failed points
-	 * @param e            the {@link FieldTypeConflictException}
-	 */
-	private void handleFieldTypeConflictException(Iterable<Point> failedPoints, FieldTypeConflictException e) {
-		/*
-		 * 1st: add special handling for fields
-		 */
-		Matcher matcher = FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
-		if (!matcher.find()) {
-			this.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
-			return;
-		}
-		String field = matcher.group("channel");
-		String thisType = matcher.group("thisType");
-		String requiredType = matcher.group("requiredType");
-
-		BiConsumer<Builder, JsonElement> handler = null;
-		switch (requiredType) {
-		case "string":
-			handler = (builder, jValue) -> {
-				builder.addField(field, this.getAsFieldTypeString(jValue));
-			};
-			break;
-		case "integer":
-			handler = (builder, jValue) -> {
-				try {
-					builder.addField(field, this.getAsFieldTypeNumber(jValue));
-				} catch (NumberFormatException e1) {
-					try {
-						// Failed -> try conversion to float and then to int
-						builder.addField(field, Math.round(this.getAsFieldTypeFloat(jValue)));
-					} catch (NumberFormatException e2) {
-						this.logWarn(this.log, "Unable to convert field [" + field + "] value [" + jValue
-								+ "] to integer: " + e2.getMessage());
-					}
-				}
-			};
-			break;
-		case "float":
-			handler = (builder, jValue) -> {
-				String value = jValue.toString().replace("\"", "");
-				try {
-					builder.addField(field, this.getAsFieldTypeFloat(jValue));
-				} catch (NumberFormatException e1) {
-					this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to float: "
-							+ e1.getMessage());
-				}
-			};
-			break;
-		}
-
-		if (handler == null) {
-			this.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
-					+ "] to [" + requiredType + "]");
-			return;
-		} else {
-			this.logInfo(this.log,
-					"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
-			this.specialCaseFieldHandlers.put(field, handler);
-		}
-
-		/*
-		 * 2nd: insert points again
-		 */
-		for (Point point : failedPoints) {
-			try {
-				this.influxConnector.write(point);
-			} catch (OpenemsException e1) {
-				this.logError(this.log, "Error while writing point: " + e1.getMessage() + "; " + point.lineProtocol());
-			}
-		}
-	}
-
-	/**
-	 * Convert JsonElement to String
-	 * 
-	 * @param jValue the value
-	 * @return the value as String
-	 */
-	private String getAsFieldTypeString(JsonElement jValue) {
-		return jValue.toString().replace("\"", "");
-	}
-
-	/**
-	 * Convert JsonElement to Number
-	 * 
-	 * @param jValue the value
-	 * @return the value as Number
-	 * @throws NumberFormatException on error
-	 */
-	private long getAsFieldTypeNumber(JsonElement jValue) throws NumberFormatException {
-		String value = jValue.toString().replace("\"", "");
-		try {
-			return Long.parseLong(value);
-		} catch (NumberFormatException e1) {
-			if (value.equalsIgnoreCase("false")) {
-				return 0l;
-			} else if (value.equalsIgnoreCase("true")) {
-				return 1l;
-			} else {
-				throw e1;
-			}
-		}
-	}
-
-	/**
-	 * Convert JsonElement to Float
-	 * 
-	 * @param jValue the value
-	 * @return the value as Float
-	 * @throws NumberFormatException on error
-	 */
-	private float getAsFieldTypeFloat(JsonElement jValue) throws NumberFormatException {
-		String value = jValue.toString().replace("\"", "");
-		return Float.parseFloat(value);
-	}
-
 	/**
 	 * Handles some special cases for fields.
 	 * 
@@ -412,7 +286,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @return true if field was handled; false otherwise
 	 */
 	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
-		BiConsumer<Builder, JsonElement> handler = this.specialCaseFieldHandlers.get(field);
+		BiConsumer<Builder, JsonElement> handler = this.fieldTypeConflictHandler.getHandler(field);
 		if (handler == null) {
 			// no special handling exists for this field
 			return false;
@@ -700,6 +574,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 		}
 		return new ChannelFormula[0];
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
 	}
 
 }
