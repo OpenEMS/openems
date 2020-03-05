@@ -50,6 +50,7 @@ import io.openems.shared.influxdb.InfluxConstants;
 @Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Influx extends AbstractOpenemsBackendComponent implements Timedata {
 
+	private static final String TMP_MINI_MEASUREMENT = "minies";
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
@@ -86,7 +87,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 							+ ": " + throwable.getMessage() + " for " + StringUtils.toShortString(pointsString, 100));
 
 					if (throwable instanceof FieldTypeConflictException) {
-						this.handleFieldTypeConflictException((FieldTypeConflictException) throwable);
+						this.handleFieldTypeConflictException(failedPoints, (FieldTypeConflictException) throwable);
 					}
 				});
 	}
@@ -158,6 +159,9 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 		// Write data to default location
 		this.writeData(influxEdgeId, data);
+
+		// Hook to continue writing data to old Mini monitoring
+		this.writeDataToOldMiniMonitoring(edgeId, influxEdgeId, data);
 	}
 
 	/**
@@ -278,9 +282,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * Handles a {@link FieldTypeConflictException}; adds special handling for
 	 * fields that already exist in the database.
 	 * 
-	 * @param e the {@link FieldTypeConflictException}
+	 * @param failedPoints the failed points
+	 * @param e            the {@link FieldTypeConflictException}
 	 */
-	private void handleFieldTypeConflictException(FieldTypeConflictException e) {
+	private void handleFieldTypeConflictException(Iterable<Point> failedPoints, FieldTypeConflictException e) {
+		/*
+		 * 1st: add special handling for fields
+		 */
 		Matcher matcher = FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
 		if (!matcher.find()) {
 			this.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
@@ -293,24 +301,33 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		BiConsumer<Builder, JsonElement> handler = null;
 		switch (requiredType) {
 		case "string":
-			handler = (builder, value) -> {
-				builder.addField(field, value.toString());
+			handler = (builder, jValue) -> {
+				builder.addField(field, this.getAsFieldTypeString(jValue));
 			};
 			break;
 		case "integer":
 			handler = (builder, jValue) -> {
+				try {
+					builder.addField(field, this.getAsFieldTypeNumber(jValue));
+				} catch (NumberFormatException e1) {
+					try {
+						// Failed -> try conversion to float and then to int
+						builder.addField(field, Math.round(this.getAsFieldTypeFloat(jValue)));
+					} catch (NumberFormatException e2) {
+						this.logWarn(this.log, "Unable to convert field [" + field + "] value [" + jValue
+								+ "] to integer: " + e2.getMessage());
+					}
+				}
+			};
+			break;
+		case "float":
+			handler = (builder, jValue) -> {
 				String value = jValue.toString().replace("\"", "");
 				try {
-					builder.addField(field, Long.parseLong(value));
+					builder.addField(field, this.getAsFieldTypeFloat(jValue));
 				} catch (NumberFormatException e1) {
-					if (field.equalsIgnoreCase("false")) {
-						builder.addField(field, 0l);
-					} else if (field.equalsIgnoreCase("true")) {
-						builder.addField(field, 1l);
-					} else {
-						this.logInfo(this.log,
-								"Unable to convert field [" + field + "] value [" + value + "] to integer");
-					}
+					this.logInfo(this.log, "Unable to convert field [" + field + "] value [" + value + "] to float: "
+							+ e1.getMessage());
 				}
 			};
 			break;
@@ -319,11 +336,67 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		if (handler == null) {
 			this.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
 					+ "] to [" + requiredType + "]");
+			return;
 		} else {
 			this.logInfo(this.log,
 					"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
 			this.specialCaseFieldHandlers.put(field, handler);
 		}
+
+		/*
+		 * 2nd: insert points again
+		 */
+		for (Point point : failedPoints) {
+			try {
+				this.influxConnector.write(point);
+			} catch (OpenemsException e1) {
+				this.logError(this.log, "Error while writing point: " + e1.getMessage() + "; " + point.lineProtocol());
+			}
+		}
+	}
+
+	/**
+	 * Convert JsonElement to String
+	 * 
+	 * @param jValue the value
+	 * @return the value as String
+	 */
+	private String getAsFieldTypeString(JsonElement jValue) {
+		return jValue.toString().replace("\"", "");
+	}
+
+	/**
+	 * Convert JsonElement to Number
+	 * 
+	 * @param jValue the value
+	 * @return the value as Number
+	 * @throws NumberFormatException on error
+	 */
+	private long getAsFieldTypeNumber(JsonElement jValue) throws NumberFormatException {
+		String value = jValue.toString().replace("\"", "");
+		try {
+			return Long.parseLong(value);
+		} catch (NumberFormatException e1) {
+			if (value.equalsIgnoreCase("false")) {
+				return 0l;
+			} else if (value.equalsIgnoreCase("true")) {
+				return 1l;
+			} else {
+				throw e1;
+			}
+		}
+	}
+
+	/**
+	 * Convert JsonElement to Float
+	 * 
+	 * @param jValue the value
+	 * @return the value as Float
+	 * @throws NumberFormatException on error
+	 */
+	private float getAsFieldTypeFloat(JsonElement jValue) throws NumberFormatException {
+		String value = jValue.toString().replace("\"", "");
+		return Float.parseFloat(value);
 	}
 
 	/**
@@ -347,6 +420,82 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		// call special handler
 		handler.accept(builder, value);
 		return true;
+	}
+
+	/**
+	 * Writes data to old database for old Mini monitoring.
+	 * 
+	 * </p>
+	 * XXX remove after full migration
+	 *
+	 * @param edgeId   the Edge-ID
+	 * @param influxId the Influx-Edge-ID
+	 * @param data     the received data
+	 * @throws OpenemsException on error
+	 */
+	private void writeDataToOldMiniMonitoring(String edgeId, int influxId,
+			TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
+		Edge edge = this.metadata.getEdgeOrError(edgeId);
+		if (!edge.getProducttype().equals("MiniES 3-3")) {
+			return;
+		}
+
+		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
+			Long timestamp = entry.getKey();
+			// this builds an InfluxDB record ("point") for a given timestamp
+			Point.Builder builder = Point //
+					.measurement(TMP_MINI_MEASUREMENT) //
+					.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
+					.time(timestamp, TimeUnit.MILLISECONDS);
+
+			Map<String, Object> fields = new HashMap<>();
+
+			for (Entry<ChannelAddress, JsonElement> valueEntry : entry.getValue().entrySet()) {
+				String channel = valueEntry.getKey().toString();
+				JsonElement element = valueEntry.getValue();
+				if (!element.isJsonPrimitive()) {
+					continue;
+				}
+				JsonPrimitive jValue = element.getAsJsonPrimitive();
+				if (!jValue.isNumber()) {
+					continue;
+				}
+				long value = jValue.getAsNumber().longValue();
+
+				// convert channel ids to old identifiers
+				if (channel.equals("ess0/Soc")) {
+					fields.put("Stack_SOC", value);
+				} else if (channel.equals("meter0/ActivePower")) {
+					fields.put("PCS_Grid_Power_Total", value * -1);
+				} else if (channel.equals("meter1/ActivePower")) {
+					fields.put("PCS_PV_Power_Total", value);
+				} else if (channel.equals("meter2/ActivePower")) {
+					fields.put("PCS_Load_Power_Total", value);
+				}
+
+				// from here value needs to be divided by 10 for backwards compatibility
+				value = value / 10;
+				if (channel.equals("meter2/Energy")) {
+					fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
+					fields.put("PCS_Summary_Consumption_Accumulative", value);
+				} else if (channel.equals("meter0/BuyFromGridEnergy")) {
+					fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
+					fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
+				} else if (channel.equals("meter0/SellToGridEnergy")) {
+					fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
+					fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
+				} else if (channel.equals("meter1/EnergyL1")) {
+					fields.put("PCS_Summary_PV_Accumulative_cor", value);
+					fields.put("PCS_Summary_PV_Accumulative", value);
+				}
+			}
+
+			if (fields.size() > 0) {
+				// write to DB
+				builder.fields(fields);
+				this.influxConnector.write(builder.build());
+			}
+		}
 	}
 
 	@Override
@@ -446,6 +595,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 							new ChannelFormula(Function.PLUS, 9_000), //
 					};
 				case "Pro Hybrid 10-Serie":
+				case "Kostal PIKO + B-Box HV":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 10_000), //
 					};
