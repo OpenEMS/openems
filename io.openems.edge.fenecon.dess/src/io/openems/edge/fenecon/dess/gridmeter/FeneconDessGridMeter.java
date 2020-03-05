@@ -29,7 +29,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Dess.GridMeter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -129,7 +129,7 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 		return MeterType.GRID;
 	}
 
-	private final static ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter( //
+	private static final ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter(//
 			// element -> channel
 			value -> {
 				if (value == null) {
@@ -141,7 +141,8 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 				}
 				return (intValue - 10_000) * -1; // apply delta of 10_000 and invert
 			}, //
-				// channel -> element
+
+			// channel -> element
 			value -> value);
 
 }

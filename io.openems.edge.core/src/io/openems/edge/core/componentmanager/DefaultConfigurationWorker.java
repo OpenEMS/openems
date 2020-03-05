@@ -1,7 +1,10 @@
 package io.openems.edge.core.componentmanager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +38,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 * Time to wait before doing the check. This allows the system to completely
 	 * boot and read configurations.
 	 */
-	private static final int INITIAL_WAIT_TIME = 30_000; // in ms
+	private static final int INITIAL_WAIT_TIME = 5_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(DefaultConfigurationWorker.class);
 	private final ComponentManagerImpl parent;
@@ -52,6 +55,33 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 */
 	private boolean createDefaultConfigurations(List<Config> existingConfigs) {
 		final AtomicBoolean defaultConfigurationFailed = new AtomicBoolean(false);
+
+		for (Config config : existingConfigs) {
+			System.out.println("CONF: " + config.componentId + ", " + config.pid + ", " + config.factoryPid);
+		}
+
+		/*
+		 * Create Default Logging configuration
+		 */
+		if (existingConfigs.stream().noneMatch(c -> //
+		"org.ops4j.pax.logging".equals(c.pid))) {
+			// Adding Configuration manually, because this is not a OpenEMS Configuration
+			try {
+				Configuration config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
+				Hashtable<String, Object> log4j = new Hashtable<>();
+				log4j.put("log4j.rootLogger", "INFO, CONSOLE, osgi:*");
+				log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+				log4j.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+				log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern",
+						"%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
+				log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
+				config.update(log4j);
+			} catch (IOException e) {
+				this.parent.logError(this.log, "Unable to create Default Logging configuration: " + e.getMessage());
+				e.printStackTrace();
+				defaultConfigurationFailed.set(true);
+			}
+		}
 
 		/*
 		 * Delete configuration for deprecated Controller.Api.Rest
@@ -207,22 +237,26 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	 */
 	protected static class Config {
 		protected static Config from(Configuration config) {
-			Object componentIdObj = config.getProperties().get("id");
+			Dictionary<String, Object> properties = config.getProperties();
+			Object componentIdObj = properties.get("id");
 			String componentId;
 			if (componentIdObj != null) {
 				componentId = componentIdObj.toString();
 			} else {
 				componentId = null;
 			}
-			return new Config(config.getFactoryPid(), componentId);
+			String pid = config.getPid();
+			return new Config(config.getFactoryPid(), componentId, pid);
 		}
 
 		protected final String factoryPid;
 		protected final Optional<String> componentId;
+		protected final String pid;
 
-		private Config(String factoryPid, String componentId) {
+		private Config(String factoryPid, String componentId, String pid) {
 			this.factoryPid = factoryPid;
 			this.componentId = Optional.ofNullable(componentId);
+			this.pid = pid;
 		}
 	}
 
