@@ -37,15 +37,15 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.fenecon.dess.FeneconDessConstants;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Dess.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class FeneconDessEss extends AbstractOpenemsModbusComponent
 		implements AsymmetricEss, SymmetricEss, OpenemsComponent {
 
-	private final static int MAX_APPARENT_POWER = 9_000; // [VA]
-	private final static int CAPACITY = 10_000; // [Wh]
+	private static final int MAX_APPARENT_POWER = 9_000; // [VA]
+	private static final int CAPACITY = 10_000; // [Wh]
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -177,7 +177,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 				+ "|L:" + this.getActivePower().value().asString(); //
 	}
 
-	private final static ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter( //
+	private static final ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter(//
 			// element -> channel
 			value -> {
 				if (value == null) {
@@ -189,6 +189,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 				}
 				return intValue - 10_000; // apply delta of 10_000
 			}, //
-				// channel -> element
+
+			// channel -> element
 			value -> value);
 }
