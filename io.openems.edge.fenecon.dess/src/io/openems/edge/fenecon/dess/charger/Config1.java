@@ -3,7 +3,7 @@ package io.openems.edge.fenecon.dess.charger;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "FENECON DESS Charger 1", //
 		description = "The MPP tracker 1 implementation of a FENECON DESS (PRO Hybrid, PRO Compact,...)")
 @interface Config1 {

@@ -18,7 +18,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.fenecon.dess.FeneconDessConstants;
 
 @Designate(ocd = Config1.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Dess.Charger1", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
