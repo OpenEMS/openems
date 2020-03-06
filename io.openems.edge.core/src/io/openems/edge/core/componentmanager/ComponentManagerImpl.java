@@ -99,6 +99,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	private final OsgiValidateWorker osgiValidateWorker;
 	private final OutOfMemoryHeapDumpWorker outOfMemoryHeapDumpWorker;
+	private final DefaultConfigurationWorker defaultConfigurationWorker;
 
 	private BundleContext bundleContext;
 
@@ -127,6 +128,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		);
 		this.osgiValidateWorker = new OsgiValidateWorker(this);
 		this.outOfMemoryHeapDumpWorker = new OutOfMemoryHeapDumpWorker(this);
+		this.defaultConfigurationWorker = new DefaultConfigurationWorker(this);
 	}
 
 	@Activate
@@ -140,6 +142,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Start the Out-Of-Memory Worker
 		this.outOfMemoryHeapDumpWorker.activate(this.id());
+
+		// Start the Default-Configuration Worker
+		this.defaultConfigurationWorker.activate(this.id());
 	}
 
 	@Deactivate
@@ -151,6 +156,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Stop the Out-Of-Memory Worker
 		this.outOfMemoryHeapDumpWorker.deactivate();
+
+		// Stop the Default-Configuration Worker
+		this.defaultConfigurationWorker.deactivate();
 	}
 
 	@Override
@@ -165,6 +173,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	protected StateChannel configNotActivatedChannel() {
 		return this.channel(ComponentManager.ChannelId.CONFIG_NOT_ACTIVATED);
+	}
+
+	protected StateChannel defaultConfigurationFailed() {
+		return this.channel(ComponentManager.ChannelId.DEFAULT_CONFIGURATION_FAILED);
 	}
 
 	@Override
@@ -229,7 +241,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
 			CreateComponentConfigRequest request) throws OpenemsNamedException {
 		// Get Component-ID from Request
 		String componentId = null;
@@ -288,7 +300,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
 			UpdateComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
@@ -324,7 +336,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
 			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
@@ -349,7 +361,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private void applyConfiguration(User user, Configuration config, Dictionary<String, Object> properties)
 			throws IOException {
-		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId() + ": " + user.getName());
+		String lastChangeBy;
+		if (user != null) {
+			lastChangeBy = user.getId() + ": " + user.getName();
+		} else {
+			lastChangeBy = "UNDEFINED";
+		}
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, lastChangeBy);
 		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
 				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
 		config.update(properties);

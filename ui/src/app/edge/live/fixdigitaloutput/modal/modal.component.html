@@ -1,7 +1,6 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-title>
-        <ion-title *ngIf="controller.alias == controller.id">{{ controller.id }}</ion-title>
+        <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -15,20 +14,20 @@
         <table class="full_width">
             <tr>
                 <td translate>
-                    General.Mode
+                    General.mode
                 </td>
             </tr>
         </table>
-        <ion-segment (ionChange)="updateMode($event)" value="{{controller.properties['isOn']}}" scrollable="false">
+        <ion-segment (ionChange)="updateMode($event)" value="{{ component.properties['isOn'] }}" scrollable="false">
             <ion-segment-button value="true">
                 <ion-label translate>
-                    General.On
+                    General.on
                 </ion-label>
                 <ion-icon color="success" style="width:40px" name="power"></ion-icon>
             </ion-segment-button>
             <ion-segment-button value="false">
                 <ion-label translate>
-                    General.Off
+                    General.off
                 </ion-label>
                 <ion-icon name="power" style="width: 40px"></ion-icon>
             </ion-segment-button>

@@ -110,8 +110,16 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	@Override
 	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
 		List<WsData> wsDatas = this.getWsDatasForEdgeId(edgeId);
+		OpenemsNamedException exception = null;
 		for (WsData wsData : wsDatas) {
-			wsData.send(notification);
+			try {
+				wsData.send(notification);
+			} catch (OpenemsNamedException e) {
+				exception = e;
+			}
+		}
+		if (exception != null) {
+			throw exception;
 		}
 	}
 

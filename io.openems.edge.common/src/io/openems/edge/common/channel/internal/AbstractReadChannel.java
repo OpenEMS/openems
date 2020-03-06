@@ -112,7 +112,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		if (valueHasChanged) {
 			this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
 		}
-		this.pastValues.put(oldValue.getTimestamp(), oldValue);
+		this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
 	}
 
 	@Override

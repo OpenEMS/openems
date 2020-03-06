@@ -2,6 +2,6 @@ package io.openems.edge.fenecon.dess;
 
 public class FeneconDessConstants {
 
-	public final static int UNIT_ID = 4;
+	public static final int UNIT_ID = 4;
 
 }

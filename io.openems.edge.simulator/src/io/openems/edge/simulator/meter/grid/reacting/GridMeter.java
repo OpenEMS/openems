@@ -115,14 +115,24 @@ public class GridMeter extends AbstractOpenemsComponent
 			}
 		}
 		for (SymmetricMeter sm : this.symmetricMeters) {
-			if (sm.getMeterType() != MeterType.GRID) {
-				try {
-					powerSum += (Integer) sm.getActivePower().getNextValue().get();
-				} catch (NullPointerException e) {
+			try {
+				switch (sm.getMeterType()) {
+				case CONSUMPTION_METERED:
 					// ignore
+					break;
+				case CONSUMPTION_NOT_METERED:
+					powerSum -= (Integer) sm.getActivePower().getNextValue().get();
+					break;
+				case GRID:
+					gridCount++;
+					break;
+				case PRODUCTION:
+				case PRODUCTION_AND_CONSUMPTION:
+					powerSum += (Integer) sm.getActivePower().getNextValue().get();
+					break;
 				}
-			} else {
-				gridCount++;
+			} catch (NullPointerException e) {
+				// ignore
 			}
 		}
 

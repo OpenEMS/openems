@@ -1,16 +1,13 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { differenceInHours, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { ChannelthresholdModalComponent } from './modal/modal.component';
-import { calculateActiveTimeOverPeriod } from '../shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { ModalController } from '@ionic/angular';
+import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,
@@ -19,30 +16,30 @@ import { calculateActiveTimeOverPeriod } from '../shared';
 export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private controllerId: string;
+    @Input() private componentId: string;
+    private config: EdgeConfig = null;
+    public component: EdgeConfig.Component = null;
 
     private static readonly SELECTOR = "channelthresholdWidget";
 
     public activeTimeOverPeriod: string = null;
-    public data: Cumulated = null;
-    public values: any;
     public edge: Edge = null;
 
     constructor(
         public service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
-        private decimalPipe: DecimalPipe
     ) { }
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(response => {
-            this.edge = response;
+            this.service.getConfig().then(config => {
+                this.edge = response;
+                this.config = config;
+                this.component = config.getComponent(this.componentId);
+            })
         });
 
-    }
-
-    ngOnDestroy() {
     }
 
     ngOnChanges() {
@@ -64,7 +61,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
                             this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
 
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
@@ -81,7 +78,7 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
 
     getChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.controllerId)['outputChannelAddress']);
+            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
             let channeladdresses = [outputChannel];
             resolve(channeladdresses);
         });
@@ -92,9 +89,11 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
             component: ChannelthresholdModalComponent,
             cssClass: 'wide-modal',
             componentProps: {
-                controllerId: this.controllerId
+                component: this.component,
+                config: this.config
             }
         });
         return await modal.present();
     }
 }
+

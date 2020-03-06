@@ -1,8 +1,7 @@
 import { ChannelAddress } from 'src/app/shared/shared';
-import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
 import { DecimalPipe } from '@angular/common';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-
+import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
 
 export interface Dataset {
     label: string;
@@ -62,14 +61,18 @@ export type ChartOptions = {
             position: string,
             scaleLabel: {
                 display: boolean,
-                labelString: string
+                labelString: string,
+                padding?: number,
+                fontSize?: number
             },
             gridLines?: {
                 display: boolean
             },
             ticks: {
                 beginAtZero: boolean,
-                max?: number
+                max?: number,
+                padding?: number,
+                stepSize?: number
             }
         }],
         xAxes: [{
@@ -189,4 +192,4 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
         result = decimalPipe.transform(activeTimeMinutes.toString(), '1.0-0') + ' m';
     }
     return result;
-}
+}; 

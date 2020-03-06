@@ -58,7 +58,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would change State, but hystesis is active")); //
+				.text("Would change State, but hysteresis is active")); //
 
 		private final Doc doc;
 

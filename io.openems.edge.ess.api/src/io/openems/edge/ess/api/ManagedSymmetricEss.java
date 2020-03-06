@@ -11,8 +11,10 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Constraint;
@@ -65,6 +67,41 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerEquals", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS))), //
+		/**
+		 * Applies the PID filter and then sets a fixed Active Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_ACTIVE_POWER_EQUALS_WITH_PID(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(new PowerConstraint("SetActivePowerEqualsWithPid", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS) {
+					@Override
+					public void accept(Channel<Integer> channel) {
+						((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+							if (value != null) {
+								ManagedSymmetricEss ess = (ManagedSymmetricEss) channel.getComponent();
+								Power power = ess.getPower();
+								PidFilter pidFilter = power.getPidFilter();
+
+								// configure PID filter
+								int minPower = power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+								int maxPower = power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+								pidFilter.setLimits(minPower, maxPower);
+
+								int currentActivePower = ess.getActivePower().value().orElse(0);
+								int pidOutput = pidFilter.applyPidFilter(currentActivePower, value);
+
+								ess.getSetActivePowerEquals().setNextWriteValue(pidOutput);
+							}
+						});
+					}
+				})), //
 		/**
 		 * Sets a fixed Reactive Power.
 		 * 
@@ -238,6 +275,15 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	default WriteChannel<Integer> getSetActivePowerEquals() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS);
+	}
+
+	/**
+	 * Applies the PID filter and then sets a fixed Active Power in [W].
+	 * 
+	 * @return the Channel
+	 */
+	default WriteChannel<Integer> getSetActivePowerEqualsWithPid() {
+		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID);
 	}
 
 	/**
