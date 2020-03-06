@@ -63,6 +63,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * Normal mode which is before the check for minimum time or minimum kwh
 	 */
 	private ModeType modeType = ModeType.NORMAL_MODE;
+
+	private Level level = Level.LEVEL_3;
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
@@ -143,6 +145,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 		this.mode = config.mode();
 		this.priority = config.priority();
+		this.level = config.level();
 
 		this.minTime = this.getSeconds(config.minTime());
 		this.minKwh = config.minkwh();
@@ -211,7 +214,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
 		// Keep updating the mintime comapring it witht the total phase time
 		this.tempMinTime = this.minTime - this.totalPhaseTime;
-		
+
 		this.channel(ChannelId.TOTAL_PHASE_POWER).setNextValue(this.totalPhasePower);
 		// keep updating the minKwh comparting uit with the total phase power
 		this.tempMinKwh = this.minKwh - this.totalPhasePower;
@@ -222,28 +225,26 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.logInfo(log, "PHASE1_TIME : " + String.valueOf(i1) + " Milisecs");
 		this.logInfo(log, "PHASE2_TIME : " + String.valueOf(i2) + " Milisecs");
 		this.logInfo(log, "PHASE3_TIME : " + String.valueOf(i3) + " Milisecs");
-		
-		
+
 		double e1 = (double) this.channel(ChannelId.PHASE1_POWER).getNextValue().getOrError();
 		double e2 = (double) this.channel(ChannelId.PHASE2_POWER).getNextValue().getOrError();
 		double e3 = (double) this.channel(ChannelId.PHASE3_POWER).getNextValue().getOrError();
-		this.logInfo(log, "PHASE1_Power : " + String.valueOf(e1)+ " Watthours");
-		this.logInfo(log, "PHASE2_Power : " + String.valueOf(e2)+ " Watthours");
-		this.logInfo(log, "PHASE3_Power : " + String.valueOf(e3)+ " Watthours");
+		this.logInfo(log, "PHASE1_Power : " + String.valueOf(e1) + " Watthours");
+		this.logInfo(log, "PHASE2_Power : " + String.valueOf(e2) + " Watthours");
+		this.logInfo(log, "PHASE3_Power : " + String.valueOf(e3) + " Watthours");
 	}
 
-	/**
-	 * This method calculates the continuously calculate the minimum time the
-	 * controller shud activate the priority modes
-	 * 
-	 * @param endTime
-	 * @param totalPhaseTime
-	 * @return
-	 */
-	private LocalTime calculateEndTime(LocalTime endTime, long totalPhaseTime) {
-		return endtime.minusSeconds((long) this.tempMinTime);
-
-	}
+//	/**
+//	 * This method calculates the continuously calculate the minimum time the
+//	 * controller shud activate the priority modes
+//	 * 
+//	 * @param endTime
+//	 * @param totalPhaseTime
+//	 * @return
+//	 */
+//	private LocalTime calculateEndTime(LocalTime endTime, long totalPhaseTime) {
+//		return endtime.minusSeconds((long) this.tempMinTime);
+//	}
 
 	/**
 	 * 
@@ -253,14 +254,46 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 
 	private void runMinimumPriority() throws IllegalArgumentException, OpenemsNamedException {
-		for (PhaseDef p : phases.values()) {
-			p.setSwitchOn(true);
+		switch (this.level) {
+		case LEVEL_0:
+			for (PhaseDef p : phases.values()) {
+				p.setSwitchOn(false);
+			}
+			this.computeTime(phases);
+			noRelaisSwitchedOn = 0;
+			break;
+		case LEVEL_1:
+			for (Phase p : phases.keySet()) {
+				if (p == Phase.ONE) {
+					phases.get(p).setSwitchOn(true);
+				} else {
+					phases.get(p).setSwitchOn(false);
+				}
+			}
+			this.computeTime(phases);
+			noRelaisSwitchedOn = 1;
+			break;
+		case LEVEL_2:
+			for (Phase p : phases.keySet()) {
+				if (p == Phase.THREE) {
+					phases.get(p).setSwitchOn(false);
+				} else {
+					phases.get(p).setSwitchOn(true);
+				}
+			}
+			this.computeTime(phases);
+			noRelaisSwitchedOn = 2;
+			break;
+		case LEVEL_3:
+			for (PhaseDef p : phases.values()) {
+				p.setSwitchOn(true);
+			}
+			this.computeTime(phases);
+			noRelaisSwitchedOn = 3;
+			break;
 		}
-		this.computeTime(phases);
-		noRelaisSwitchedOn = 3;
-	}
-	
 
+	}
 
 	/**
 	 * Function to check change in the day
@@ -314,9 +347,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 		LocalTime now = LocalTime.parse(formatter.format(LocalTime.now()));
 		LocalTime updateEndtime = endtime.minusSeconds((long) this.tempMinTime);
-		
+
 		System.out.println("updated min kwh is : " + this.tempMinKwh);
-		
+
 		if (now.isAfter(updateEndtime) && now.isBefore(this.endtime)) {
 			this.modeType = ModeType.PRIORITY_MODE;
 		} else if (updateEndtime.isAfter(this.endtime)) {

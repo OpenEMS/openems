@@ -29,9 +29,10 @@ public class HeatingElementTest {
 		private final int minTime;
 		private final int minKwh;
 		private final String endTime;
+		private final Level level;
 
 		public MyConfig(String id, String inputChannelAddress, String outputChannelAddress1,
-				String outputChannelAddress2, String outputChannelAddress3, String endtime, int powerOfPhase, Mode mode,
+				String outputChannelAddress2, String outputChannelAddress3, String endtime, int powerOfPhase, Mode mode, Level level, 
 				Priority priority, int minTime, int minKwh) {
 			super(Config.class, id);
 			this.inputChannelAddress = inputChannelAddress;
@@ -44,6 +45,7 @@ public class HeatingElementTest {
 			this.minTime = minTime;
 			this.minKwh = minKwh;
 			this.endTime = endtime;
+			this.level = level;
 		}
 
 		@Override
@@ -95,6 +97,11 @@ public class HeatingElementTest {
 		public String endTime() {
 			return endTime;
 		}
+		
+		@Override
+		public Level level() {
+			return this.level();
+		}
 	}
 
 	@Test
@@ -112,7 +119,7 @@ public class HeatingElementTest {
 		ChannelAddress output3 = new ChannelAddress("io0", "InputOutput3");
 
 		MyConfig myconfig = new MyConfig("ctrl1", ess0.toString(), output1.toString(), output2.toString(),
-				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Priority.TIME, 1, 4000);
+				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_0,  Priority.TIME, 1, 4000);
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);
 

@@ -30,7 +30,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
 	String outputChannelAddress3() default "io0/InputOutput3";
-
+	
+	@AttributeDefinition(name = "This is the Level which tell which level the heating element runs", description = "Levels")
+	Level level() default Level.LEVEL_3;
+	
 	@AttributeDefinition(name = "End Time", description = "End time to check the minmum run time")
 	String endTime() default "17:00:00";
 
