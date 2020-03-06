@@ -29,6 +29,8 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
 import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
+import { MiniupgradeComponent } from './miniupgrade/miniupgrade.component';
+import { MiniupgradeModalComponent } from './miniupgrade/modal/modal.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { ModbusApiComponent } from './modbusapi/modbusapi.component';
 import { NgModule } from '@angular/core';
@@ -67,6 +69,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     GridModalComponent,
     GridModalComponent,
     HeatingElementModalComponent,
+    MiniupgradeModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -106,6 +109,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     HeatingElementModalComponent,
     InfoComponent,
     LiveComponent,
+    MiniupgradeComponent,
+    MiniupgradeModalComponent,
     ModalComponentEvcsCluster,
     ModbusApiComponent,
     OfflineComponent,
