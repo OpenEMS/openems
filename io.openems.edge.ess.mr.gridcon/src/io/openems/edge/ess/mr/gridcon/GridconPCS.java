@@ -1,5 +1,6 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
@@ -13,7 +14,7 @@ public interface GridconPCS {
 	public static final int MAX_POWER_PER_INVERTER = 42_000;
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float Q_LIMIT = 1f;
-	public static final int POWER_PRECISION_WATT =  100; // TODO estimated value;
+	public static final int POWER_PRECISION_WATT =  1; //100 TODO estimated value;
 	
 	float getMaxApparentPower();
 	boolean isRunning();
@@ -69,4 +70,5 @@ public interface GridconPCS {
 	
 	boolean isDcDcStarted();
 	boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3);
+	void doWriteTasks() throws OpenemsNamedException;
 }

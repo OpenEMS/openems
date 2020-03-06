@@ -12,6 +12,13 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
 	io.openems.edge.ess.api,\
 	slf4j.api
+	
+
 
 -testpath: \
 	${testpath}
+Export-Package: \
+	io.openems.edge.battery.soltaro,\
+	io.openems.edge.battery.soltaro.cluster.versionb,\
+	io.openems.edge.battery.soltaro.single.versiona,\
+	io.openems.edge.battery.soltaro.single.versionb

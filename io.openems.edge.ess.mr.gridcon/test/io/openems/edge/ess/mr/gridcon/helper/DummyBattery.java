@@ -1,9 +1,9 @@
 package io.openems.edge.ess.mr.gridcon.helper;
 
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 
 public class DummyBattery extends AbstractOpenemsComponent implements Battery, SoltaroBattery {
 
@@ -142,53 +142,49 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, S
 		return error;
 	}
 
-	@Override
 	public float getMinimalCellVoltage() {
 		return getMinCellVoltage().value().orElse(0);
 	}
 
-	@Override
 	public float getMaximalCellVoltage() {
 		return getMaxCellVoltage().value().orElse(0);
 	}
 
-	@Override
 	public float getSoCX() {
 		return getSoc().value().orElse(0);
 	}
 
-	@Override
 	public float getCapacityX() {
 		return getCapacity().value().orElse(0);
 	}
 
-	@Override
 	public float getCurrentX() {
 		return getCurrent().value().orElse(0);
 	}
 
-	@Override
 	public float getVoltageX() {
 		return getVoltage().value().orElse(0);
 	}
 
-	@Override
 	public float getMaxChargeCurrentX() {
 		return getChargeMaxCurrent().value().orElse(0);
 	}
 
-	@Override
 	public float getMaxDischargeCurrentX() {
 		return getDischargeMaxCurrent().value().orElse(0);
 	}
 
-	@Override
 	public float getMaxChargeVoltageX() {
 		return getChargeMaxVoltage().value().orElse(0);
 	}
 
-	@Override
 	public float getMinDischargeVoltageX() {
 		return getDischargeMinVoltage().value().orElse(0);
+	}
+
+	@Override
+	public boolean isUndefined() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

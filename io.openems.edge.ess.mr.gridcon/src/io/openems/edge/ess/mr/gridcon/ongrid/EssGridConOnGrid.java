@@ -68,12 +68,6 @@ public class EssGridConOnGrid extends EssGridcon
 		getGridMode().setNextValue(gridMode);
 	}
 
-	@Override
-	public String debugLog() {
-		return "StateObject: " + stateObject.getState().getName() + "| Next StateObject: "
-				+ stateObject.getNextState().getName();
-	}
-
 	protected void checkConfiguration(Config config) throws OpenemsException {
 		// TODO checks
 	}

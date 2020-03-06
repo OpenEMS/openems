@@ -31,6 +31,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactorControl;
@@ -54,6 +55,8 @@ import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -69,7 +72,7 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		})
 public class SingleRack extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements Battery, SoltaroBattery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	// , // JsonApi // TODO
 
@@ -393,7 +396,39 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			int voltage_millivolt = minCellVoltageOpt.get();
 			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltage_millivolt);
 		}
-
+		
+		@SuppressWarnings("unchecked")
+		Optional<Integer> maxCellVoltageOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE).value().asOptional();
+		if (maxCellVoltageOpt.isPresent()) {
+			int voltage_millivolt = maxCellVoltageOpt.get();
+			this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(voltage_millivolt);
+		}
+		
+		@SuppressWarnings("unchecked")
+		Optional<Integer> minCellTempOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE).value().asOptional();
+		if (minCellTempOpt.isPresent()) {
+			int temp_celsius= minCellTempOpt.get() / 10;
+			this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(temp_celsius);
+		}
+		
+		@SuppressWarnings("unchecked")
+		Optional<Integer> maxCellTempOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE).value().asOptional();
+		if (maxCellTempOpt.isPresent()) {
+			int temp_celsius= maxCellTempOpt.get() / 10;
+			this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(temp_celsius);
+		}
+		
+		@SuppressWarnings("unchecked")
+		Optional<Integer> currentOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_CURRENT).value().asOptional();
+		if (currentOpt.isPresent()) {
+			int current= currentOpt.get();
+			this.channel(Battery.ChannelId.CURRENT).setNextValue(current);
+		}
+		
 		// write battery ranges to according channels in battery api
 		// MAX_VOLTAGE x2082
 		@SuppressWarnings("unchecked")
@@ -451,6 +486,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleBatteryState() {
+		setReadyForWorkingGenerally();
 		switch (config.batteryState()) {
 		case DEFAULT:
 			handleStateMachine();
@@ -464,8 +500,13 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		case CONFIGURE:
 			configureSlaves();
 			break;
-
+		case OVER_CONTROLLED:
+			break;
 		}
+	}
+
+	private void setReadyForWorkingGenerally() {
+		this.getReadyForWorking().setNextValue(isSystemRunning());
 	}
 
 	private void configureSlaves() {
@@ -762,7 +803,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		return b;
 	}
 
-	private boolean isError() {
+	@Override
+	public boolean isError() {
 		return isAlarmLevel2Error() || isSlaveCommunicationError();
 	}
 
@@ -953,7 +995,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),
-						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)),
+						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)) //
+						.onUpdateCallback( v -> { this.channel(Battery.ChannelId.SOH).setNextValue( (int) v / 10 );  }  ), //write into api channel
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, new UnsignedWordElement(0x2106)), //
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
@@ -1439,6 +1482,52 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
+	}
+
+	@Override
+	public void start() {
+		startSystem();
+	}
+
+	@Override
+	public void stop() {
+		stopSystem();
+	}
+
+	@Override
+	public boolean isRunning() {
+		return isSystemRunning();
+	}
+
+	@Override
+	public boolean isStopped() {
+		return isSystemStopped();
+	}
+
+	@Override
+	public boolean isUndefined() {
+		for (Channel<?> c : channels()) {
+			if (isApiChannel(c)) {
+				if (c instanceof AbstractReadChannel<?,?> && !(c instanceof WriteChannel<?>) ) {
+					if (!c.value().isDefined()) {
+						System.out.println("Channel " + c + " is not defined!");
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean isApiChannel(Channel<?> c) {
+		
+		for (io.openems.edge.common.channel.ChannelId id : Battery.ChannelId.values()) {
+			if (id.equals(c.channelId())) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }

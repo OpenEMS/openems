@@ -7,6 +7,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.IState;
@@ -19,7 +20,6 @@ public class Error extends BaseState implements StateObject {
 
 	private static final long WAITING_TIME = 20;
 	private final Logger log = LoggerFactory.getLogger(Error.class);
-
 	
 	private boolean enableIPU1;
 	private boolean enableIPU2;
@@ -69,12 +69,24 @@ public class Error extends BaseState implements StateObject {
 		if (!isBatteriesStarted()) {			
 			keepSystemStopped();
 			startBatteries();
+			try {
+				getGridconPCS().doWriteTasks();
+			} catch (OpenemsNamedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			return;
 		}
 				
 		//handle also link voltage too low!!
 		if (isLinkVoltageTooLow()) {
 			getGridconPCS().setStop(true);
+			try {
+				getGridconPCS().doWriteTasks();
+			} catch (OpenemsNamedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			return;
 		}
 		
@@ -103,6 +115,12 @@ public class Error extends BaseState implements StateObject {
 			finishing();
 			break;
 		}		
+		try {
+			getGridconPCS().doWriteTasks();
+		} catch (OpenemsNamedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void keepSystemStopped() {		

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -24,7 +25,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.power.api.Constraint;
@@ -120,16 +120,16 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 		float minCellVoltage = Float.MAX_VALUE;
 
-		if (getBattery1() != null) {
-			minCellVoltage = Math.min(minCellVoltage, getBattery1().getMinimalCellVoltage());
+		if (getBattery1() != null  && !getBattery1().isUndefined()) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery1().getMinCellVoltage().value().get());
 		}
 
-		if (getBattery2() != null) {
-			minCellVoltage = Math.min(minCellVoltage, getBattery2().getMinimalCellVoltage());
+		if (getBattery2() != null && !getBattery2().isUndefined()) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery2().getMinCellVoltage().value().get());
 		}
 
-		if (getBattery3() != null) {
-			minCellVoltage = Math.min(minCellVoltage, getBattery3().getMinimalCellVoltage());
+		if (getBattery3() != null && !getBattery3().isUndefined()) {
+			minCellVoltage = Math.min(minCellVoltage, getBattery3().getMinCellVoltage().value().get());
 		}
 
 		int minCellVoltageMilliVolt = (int) (minCellVoltage * 1000);
@@ -196,9 +196,9 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		int capacity = 0;
 
 		for (SoltaroBattery battery : getBatteries()) {
-			allowedCharge += battery.getVoltageX() * battery.getMaxChargeCurrentX() * -1;
-			allowedDischarge += battery.getVoltageX() * battery.getMaxDischargeCurrentX();
-			capacity += battery.getCapacityX();
+			allowedCharge += battery.getVoltage().value().get() * battery.getChargeMaxCurrent().value().get() * -1;
+			allowedDischarge += battery.getVoltage().value().get() * battery.getDischargeMaxCurrent().value().get();
+			capacity += battery.getCapacity().value().get();
 		}
 		getAllowedCharge().setNextValue(allowedCharge);
 		getAllowedDischarge().setNextValue(allowedDischarge);
@@ -215,8 +215,8 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		float sumTotalCapacity = 0;
 		float sumCurrentCapacity = 0;
 		for (SoltaroBattery b : getBatteries()) {
-			Optional<Float> totalCapacityOpt = Optional.of(b.getCapacityX());
-			Optional<Float> socOpt = Optional.of(b.getSoCX());
+			Optional<Integer> totalCapacityOpt = b.getCapacity().value().asOptional();
+			Optional<Integer> socOpt = b.getSoc().value().asOptional();
 			if (!totalCapacityOpt.isPresent() || !socOpt.isPresent()) {
 				// if at least one Battery has no valid value -> set UNDEFINED
 				getSoc().setNextValue(null);
@@ -231,6 +231,12 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		getSoc().setNextValue(soc);
 	}
 
+	@Override
+	public String debugLog() {
+		return "StateObject: " + stateObject.getState().getName() + "| Next StateObject: "
+				+ stateObject.getNextState().getName();
+	}
+	
 	/**
 	 * Gets all Batteries.
 	 * 
@@ -238,15 +244,15 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	 */
 	protected Collection<SoltaroBattery> getBatteries() {
 		Collection<SoltaroBattery> batteries = new ArrayList<>();
-		if (getBattery1() != null) {
+		if (getBattery1() != null && !getBattery1().isUndefined()) {
 			batteries.add(getBattery1());
 		}
 
-		if (getBattery2() != null) {
+		if (getBattery2() != null && !getBattery2().isUndefined()) {
 			batteries.add(getBattery2());
 		}
 
-		if (getBattery3() != null) {
+		if (getBattery3() != null && !getBattery3().isUndefined()) {
 			batteries.add(getBattery3());
 		}
 		return batteries;

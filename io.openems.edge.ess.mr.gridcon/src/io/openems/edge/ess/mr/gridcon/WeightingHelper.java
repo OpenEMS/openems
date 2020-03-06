@@ -1,10 +1,10 @@
-package io.openems.edge.ess.mr.gridcon.ongrid.state;
+package io.openems.edge.ess.mr.gridcon;
 
-import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 
 public class WeightingHelper {
 
-	protected static Float[] getWeighting(float activePower, SoltaroBattery b1, SoltaroBattery b2,
+	public static Float[] getWeighting(float activePower, SoltaroBattery b1, SoltaroBattery b2,
 			SoltaroBattery b3) {
 
 		Float[] ret = {0f, 0f, 0f};
@@ -37,18 +37,18 @@ public class WeightingHelper {
 		float weightA = 0;
 		if(isBatteryReady(b1)) {
 			weightA = 1;
-			voltageA = b1.getVoltageX();
+			voltageA = b1.getVoltage().value().get();
 		} 
 		float weightB = 0;
 		if(isBatteryReady(b2)) {
 			weightB = 1;
-			voltageB = b2.getVoltageX();
+			voltageB = b2.getVoltage().value().get();
 		}
 		
 		float weightC = 0;
 		if(isBatteryReady(b3)) {
 			weightC = 1;
-			voltageC = b3.getVoltageX();
+			voltageC = b3.getVoltage().value().get();
 		}		
 		
 		float minVoltage = Math.min(voltageA, Math.min(voltageB, voltageC));
@@ -65,8 +65,8 @@ public class WeightingHelper {
 	static float getWeightingForCharge(SoltaroBattery b) {
 		float weight = 0;
 		if (b != null && isBatteryReady(b)) {
-			float current = b.getMaxChargeCurrentX();
-			float voltage = b.getVoltageX();
+			float current = b.getChargeMaxCurrent().value().get();
+			float voltage = b.getVoltage().value().get();
 			weight = current * voltage;
 		}
 		return weight;
@@ -75,8 +75,8 @@ public class WeightingHelper {
 	static float getWeightingForDischarge(SoltaroBattery b) {
 		float weight = 0;
 		if (b != null && isBatteryReady(b)) {
-			float current = b.getMaxDischargeCurrentX();
-			float voltage = b.getVoltageX();
+			float current = b.getDischargeMaxCurrent().value().get();
+			float voltage = b.getVoltage().value().get();
 			weight = current * voltage;
 		}
 		return weight;
@@ -86,7 +86,7 @@ public class WeightingHelper {
 		if (battery == null) {
 			return false;
 		}
-		return battery.isRunning();
+		return !battery.isUndefined() && battery.isRunning();
 	}
 
 	public static int getStringControlMode(SoltaroBattery battery1, SoltaroBattery battery2, SoltaroBattery battery3) {

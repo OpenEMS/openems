@@ -4,10 +4,11 @@ import java.time.LocalDateTime;
 import java.util.BitSet;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.StateObject;
-import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
+import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 
 public abstract class BaseState implements StateObject {
 
@@ -29,7 +30,29 @@ public abstract class BaseState implements StateObject {
 	}
 	
 	protected boolean isNextStateUndefined() {
-		return false;
+		return !isGridconDefined() || !isAtLeastOneBatteryDefined();
+	}
+
+
+	private boolean isAtLeastOneBatteryDefined() {
+		boolean undefined = true;
+		
+		if (getBattery1() != null) {
+			undefined = undefined && getBattery1().isUndefined();
+		}
+		if (getBattery2() != null) {
+			undefined = undefined && getBattery2().isUndefined();
+		}
+		if (getBattery3() != null) {
+			undefined = undefined && getBattery3().isUndefined();
+		}
+		
+		return !undefined;
+	}
+
+	private boolean isGridconDefined() {
+		// TODO when is it defined
+		return true;
 	}
 
 	protected boolean isNextStateError() {
@@ -58,23 +81,6 @@ public abstract class BaseState implements StateObject {
 	
 	protected boolean isNextStateRunning() {
 		return (getGridconPCS() != null && getGridconPCS().isRunning());
-//		boolean running = true;// getGridconPCS() != null && getBattery1() != null && getBattery2() != null && getBattery3() != null;
-//		if (getGridconPCS() != null) {
-//			running = running && getGridconPCS().isRunning();
-//		}
-//		
-//		if (getBattery1() != null) {
-//			running = running && getBattery1().isRunning();
-//		}
-//		
-//		if (getBattery2() != null) {
-//			running = running && getBattery2().isRunning();
-//		}
-//		
-//		if (getBattery3() != null) {
-//			running = running && getBattery3().isRunning();
-//		}
-//		return running;
 	}
 
 	protected void startBatteries() {

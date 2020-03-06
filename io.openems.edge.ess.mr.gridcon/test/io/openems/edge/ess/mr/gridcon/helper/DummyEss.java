@@ -1,5 +1,6 @@
 package io.openems.edge.ess.mr.gridcon.helper;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
@@ -267,5 +268,11 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	public boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void doWriteTasks() throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		
 	}
 }

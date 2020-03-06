@@ -3,6 +3,7 @@ package io.openems.edge.ess.mr.gridcon.ongrid.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.IState;
@@ -57,6 +58,13 @@ public class Stopped extends BaseState implements StateObject {
 		setStringWeighting();
 		setStringControlMode();
 		setDateAndTime();
+		
+		try {
+			getGridconPCS().doWriteTasks();
+		} catch (OpenemsNamedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void startSystem() {

@@ -13,9 +13,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +37,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
@@ -59,11 +55,10 @@ import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 @Component( //
 		name = "MR.Gridcon", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		}) //
+		configurationPolicy = ConfigurationPolicy.REQUIRE
+) //
 public class GridconPCSImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, GridconPCS, EventHandler {
+		implements OpenemsComponent, GridconPCS {
 
 	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
 
@@ -109,40 +104,15 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 		return inverterCount.getMaxApparentPower();
 	}
 
-	int cntUndefined = 0;
-	static int MIN_CNT_UNDEFINED = 5;
-
 	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			cntUndefined = 0;
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			try {
-				if (getCcuState() == CCUState.UNDEFINED) {
-					cntUndefined = 0;
-					System.out.println(" CCCU - StateObject is Undefined .... writing nothing");
-					return;
-				}
-				if (cntUndefined < MIN_CNT_UNDEFINED) {
-					cntUndefined++;
-				}
-
-				writeCommands();
-				writeCcuParameters1();
-				writeCcuParameters2();
-				writeDcDcControlCommandWord();
-				writeIpuInverter1ControlCommand();
-				writeIpuInverter2ControlCommand();
-				writeIpuInverter3ControlCommand();
-
-			} catch (IllegalArgumentException | OpenemsNamedException e) {
-				log.error(e.getMessage());
-			}
-			break;
-		}
+	public void doWriteTasks() throws OpenemsNamedException {
+		writeCommands();
+		writeCcuParameters1();
+		writeCcuParameters2();
+		writeDcDcControlCommandWord();
+		writeIpuInverter1ControlCommand();
+		writeIpuInverter2ControlCommand();
+		writeIpuInverter3ControlCommand();
 	}
 
 	@Override

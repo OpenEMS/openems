@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.ongrid.state;
+package io.openems.edge.ess.mr.gridcon;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -8,7 +8,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.openems.edge.ess.mr.gridcon.battery.SoltaroBattery;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 import io.openems.edge.ess.mr.gridcon.helper.DummyBattery;
 
 public class WeightingHelperTest {
