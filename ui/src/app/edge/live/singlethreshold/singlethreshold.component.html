@@ -76,17 +76,18 @@
               </td>
             </tr>
             <!-- show current value only if input channel address is other -->
-            <tr *ngIf="component.properties.inputChannelAddress != null">
-              <ng-container
-                *ngIf="component.properties.inputChannelAddress != '_sum/EssSoc' && component.properties.inputChannelAddress != '_sum/GridActivePower' && component.properties.inputChannelAddress != '_sum/ProductionActivePower'">
-                {{currentData.channel[component.properties['inputChannelAddress']] }}
-                <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+            <tr
+              *ngIf="component.properties.inputChannelAddress != null && component.properties.inputChannelAddress != '_sum/EssSoc' && component.properties.inputChannelAddress != '_sum/GridActivePower' && component.properties.inputChannelAddress != '_sum/ProductionActivePower'">
+              <td style=" width: 65%" translate>
+                General.currentValue
+              </td>
+              <td style="width: 35%" class="align_right">
+                {{ currentData.channel[component.properties['inputChannelAddress']] }}
+                <ng-container *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
                   &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
-                </div>
-              </ng-container>
+                </ng-container>
+              </td>
             </tr>
-
-
 
             <tr *ngIf="currentData.channel[outputChannel] != null">
               <td style="width: 65%;" translate>

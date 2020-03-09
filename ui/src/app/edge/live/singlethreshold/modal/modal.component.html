@@ -215,7 +215,7 @@
                       </ng-container>
                       <ng-template #noSocFalse>
                         <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
-                        {{ threshold.value | unitvalue:'W'}}
+                        {{ threshold.value | unitvalue: inputMode.value == 'OTHER' ? config.getChannel(inputChannel)['unit']:'W' }}
                       </ng-template>
                     </ion-label>
                     <ion-icon style="width:40px" name="arrow-round-up"></ion-icon>
@@ -228,7 +228,7 @@
                       </ng-container>
                       <ng-template #noSocTrue>
                         <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
-                        {{ threshold.value | unitvalue:'W' }}
+                        {{ threshold.value | unitvalue: inputMode.value == 'OTHER' ? config.getChannel(inputChannel)['unit']:'W' }}
                       </ng-template>
                     </ion-label>
                     <ion-icon style="width:40px" name="arrow-round-down"></ion-icon>

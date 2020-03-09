@@ -25,7 +25,7 @@
                     </tr>
                 </table>
                 <table class="full_width">
-                    <tr>
+                    <tr *ngIf="currentData[componentId + '/Status'] == 3">
                         <td style="width: 65%" translate>
                             Edge.Index.Widgets.EVCS.chargeTarget
                         </td>
@@ -47,7 +47,7 @@
                         </td>
                         <ng-container *ngIf="currentData[componentId + '/ChargePower'] > 0;else empty">
                             <td style="width:35%" class="align_right">
-                                {{ currentData[componentId + "/ChargePower"] | number:'1.0-0' }}&nbsp;W&nbsp;
+                                {{ currentData[componentId + "/ChargePower"] | unitvalue:'W' }}
                             </td>
                         </ng-container>
                         <ng-template #empty>
@@ -61,7 +61,7 @@
                         <td style="width:65%" translate>
                             Edge.Index.Widgets.EVCS.energieSinceBeginning</td>
                         <td style="width:35%" class="align_right">
-                            {{ currentData[componentId + "/EnergySession"] | number:'1.0-0' }}&nbsp;Wh
+                            {{ currentData[componentId + "/EnergySession"] | unitvalue:'Wh' }}
                         </td>
                     </tr>
                 </table>
