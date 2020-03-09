@@ -437,7 +437,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	/**
 	 * This method calls the computeTime method on individual phaseDef objects, and
-	 * computes the total time the Phase was switch on
+	 * computes the total time the Phase was switched on
 	 * 
 	 * @param phases
 	 * @throws IllegalArgumentException
@@ -487,9 +487,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	/**
-	 * This method return the minTime in minutes
+	 * This method return the minTime in seconds
 	 * 
-	 * @param minTime is a double, which is configured as hours in config
+	 * @param minTime is a double, which is configured as hours in configuration
 	 * @return return the no of minutes.
 	 */
 	private double getSeconds(double minTime) {
