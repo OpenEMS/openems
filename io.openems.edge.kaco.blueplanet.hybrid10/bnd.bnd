@@ -1,0 +1,29 @@
+Bundle-Name: OpenEMS Edge KACO blueplanet hybrid 10.0 TL3
+Bundle-Vendor: KACO new energy GmbH
+Bundle-License: PROPRIETARY
+Bundle-Version: 1.0.0.${tstamp}
+
+-privatepackage: \
+	io.openems.edge.kaco.blueplanet.hybrid10,\
+	io.openems.edge.kaco.blueplanet.hybrid10.core,\
+	io.openems.edge.kaco.blueplanet.hybrid10.ess,\
+	io.openems.edge.kaco.blueplanet.hybrid10.ess.charger,\
+	io.openems.edge.kaco.blueplanet.hybrid10.pvinverter,\
+	io.openems.edge.kaco.blueplanet.hybrid10.vectis
+
+-includeresource: \
+	@lib/edcom-v3.0.jar!/(com/*|javax/*); lib:=true
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.pvinverter.api,\
+	lib/edcom-v3.0.jar;version=file,\
+	slf4j.api
+
+-testpath: \
+	${testpath}
