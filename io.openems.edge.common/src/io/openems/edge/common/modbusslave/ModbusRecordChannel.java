@@ -52,6 +52,9 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case UINT16:
 			byteLength = ModbusRecordUint16.BYTE_LENGTH;
 			break;
+		case UINT32:
+			byteLength = ModbusRecordUint32.BYTE_LENGTH;
+			break;
 		}
 		this.writeValueBuffer = new Byte[byteLength];
 	}
@@ -144,6 +147,14 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case WRITE_ONLY:
 				return ModbusRecordUint16Reserved.UNDEFINED_VALUE;
 			}
+		case UINT32:
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordUint32.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordUint32Reserved.UNDEFINED_VALUE;
+			}
 		}
 		assert true;
 		return new byte[0];
@@ -200,6 +211,9 @@ public class ModbusRecordChannel extends ModbusRecord {
 			break;
 		case UINT16:
 			value = buff.getShort();
+			break;
+		case UINT32:
+			value = buff.getInt();
 			break;
 		}
 

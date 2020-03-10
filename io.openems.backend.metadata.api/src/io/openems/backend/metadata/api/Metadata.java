@@ -25,6 +25,16 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 public interface Metadata {
 
 	/**
+	 * Was the Metadata service fully initialized?.
+	 * 
+	 * The service might take some time in the beginning to establish a connection
+	 * or to cache data from an external database.
+	 * 
+	 * @return true if it is initialized
+	 */
+	public boolean isInitialized();
+
+	/**
 	 * Authenticates a User without any information.
 	 * 
 	 * <p>

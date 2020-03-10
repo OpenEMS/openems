@@ -16,8 +16,8 @@ public class ChargingLowerThanTargetHandler {
 	 */
 	private static final int MAXIMUM_OUT_OF_RANGE_TRIES = 3;
 	private int outOfRangeCounter = 0;
-	private static final double CHARGING_TARGET_MAX_DIFFERENCE_PERCENT = 0.05; // 5%
-	private static final int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 10; // sec
+	private static final double CHARGING_TARGET_MAX_DIFFERENCE_PERCENT = 0.10; // 10%
+	private static final int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 30; // sec
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 
 	private final Clock clock;

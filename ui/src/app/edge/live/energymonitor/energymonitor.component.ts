@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { Component } from '@angular/core';
 
 @Component({
   selector: EnergymonitorComponent.SELECTOR,

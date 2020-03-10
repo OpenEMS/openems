@@ -22,7 +22,6 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -48,6 +47,8 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
+	private Config config;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -68,6 +69,7 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
+		this.config = config;
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
@@ -141,45 +143,32 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_NEG, new UnsignedDoublewordElement(2),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_POS, new UnsignedDoublewordElement(4),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_NEG, new UnsignedDoublewordElement(6),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
-						new DummyRegisterElement(8, 15), //
-						new DummyRegisterElement(16, 19), // Apparent Power
-						new DummyRegisterElement(20, 23), //
-						new DummyRegisterElement(24, 25), // Power Factor
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(26)),
-						new DummyRegisterElement(28, 39), //
+				new FC3ReadRegistersTask(10, Priority.LOW,
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(10))),
 
+				new FC3ReadRegistersTask(40, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(40),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(42),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(44),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(46),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
-						new DummyRegisterElement(48, 55), //
-						new DummyRegisterElement(56, 59), // Apparent Power L1
-
-						m(new UnsignedDoublewordElement(60)) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.build(), //
-
+				new FC3ReadRegistersTask(60, Priority.HIGH,
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60)),
 						m(new UnsignedDoublewordElement(62)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.build(), //
+								.build()),
 
-						new DummyRegisterElement(64, 65), // Power Factor L1
-						new DummyRegisterElement(66, 79), //
-
+				new FC3ReadRegistersTask(80, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(82),
@@ -188,36 +177,25 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(84),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(86),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
-						new DummyRegisterElement(88, 95), //
-						new DummyRegisterElement(96, 99), // Apparent Power L2
-
+				new FC3ReadRegistersTask(100, Priority.HIGH,
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100)),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102))),
 
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102)),
-
-						new DummyRegisterElement(104, 105), // Power Factor L2
-						new DummyRegisterElement(106, 119), //
-
+				new FC3ReadRegistersTask(120, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(120),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(122),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(124),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(126),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
-						new DummyRegisterElement(128, 135), //
-						new DummyRegisterElement(136, 139), // Apparent Power L3
-
+				new FC3ReadRegistersTask(140, Priority.HIGH,
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140)),
-
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142)),
-
-						new DummyRegisterElement(144, 145)), // Power Factor L3
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142))),
 
 				new FC3ReadRegistersTask(512, Priority.LOW, //
 						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
@@ -296,10 +274,7 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "EM300: Active Power: " + this.getActivePowerL3().value().asString() + " | Positive:| "
-				+ this.getActivePowerL3Pos().value().asString() + " |Negative| "
-				+ this.getActivePowerL3Neg().value().asString();
-
+		return "L:" + this.getActivePower().value().asString();
 	}
 
 	@Override
@@ -313,46 +288,62 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 			// write the result of the arithmetic operation into the corresponding channel
 
 			// Active Power
-			this.getActivePower().setNextValue(this.getActivePowerPos().getNextValue().orElse(0)
-					- this.getActivePowerNeg().getNextValue().orElse(0));
+			this.getActivePower().setNextValue(invertIfTrue(this.getActivePowerPos().getNextValue().orElse(0)
+					- this.getActivePowerNeg().getNextValue().orElse(0)));
 
 			// Active Power L1
-			this.getActivePowerL1().setNextValue(this.getActivePowerL1Pos().getNextValue().orElse(0)
-					- this.getActivePowerL1Neg().getNextValue().orElse(0));
+			this.getActivePowerL1().setNextValue(invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
+					- this.getActivePowerL1Neg().getNextValue().orElse(0)));
 
 			// Active Power L2
-			this.getActivePowerL2().setNextValue(this.getActivePowerL2Pos().getNextValue().orElse(0)
-					- this.getActivePowerL2Neg().getNextValue().orElse(0));
+			this.getActivePowerL2().setNextValue(invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
+					- this.getActivePowerL2Neg().getNextValue().orElse(0)));
 			// Active Power L3
-			this.getActivePowerL3().setNextValue(this.getActivePowerL3Pos().getNextValue().orElse(0)
-					- this.getActivePowerL3Neg().getNextValue().orElse(0));
+			this.getActivePowerL3().setNextValue(invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
+					- this.getActivePowerL3Neg().getNextValue().orElse(0)));
 
 			// Reactive Power
-			this.getReactivePower().setNextValue(this.getReactivePowerPos().getNextValue().orElse(0)
-					- this.getReactivePowerNeg().getNextValue().orElse(0));
+			this.getReactivePower().setNextValue(invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
+					- this.getReactivePowerNeg().getNextValue().orElse(0)));
 
 			// Reactive Power L1
-			this.getReactivePowerL1().setNextValue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL1Neg().getNextValue().orElse(0));
+			this.getReactivePowerL1().setNextValue(invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
 
 			// Reactive Power L2
-			this.getReactivePowerL2().setNextValue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL2Neg().getNextValue().orElse(0));
+			this.getReactivePowerL2().setNextValue(invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
 			// Reactive Power L3
-			this.getReactivePowerL3().setNextValue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL3Neg().getNextValue().orElse(0));
+			this.getReactivePowerL3().setNextValue(invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
+
+			// Current
+			Channel<Integer> currL1 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L1);
+			Channel<Integer> currL2 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L2);
+			Channel<Integer> currL3 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L3);
+
+			this.getCurrent().setNextValue(currL1.getNextValue().orElse(0) + currL2.getNextValue().orElse(0)
+					+ currL3.getNextValue().orElse(0));
 
 			break;
 		}
 
 	}
-	
+
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {		
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
 		);
+	}
+
+	public Integer invertIfTrue(int invertValue) {
+		if (config.invert()) {
+			return -invertValue;
+		} else {
+			return invertValue;
+		}
 	}
 }
