@@ -3,7 +3,7 @@
     <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="modalCtrl.dismiss()">
-        <ion-icon name="close"></ion-icon>
+        <ion-icon name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -21,7 +21,7 @@
                   General.state
                 </td>
                 <td style="width: 35%" class="align_right" translate>
-                  <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+                  <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help-outline"></ion-icon>
                   <ng-container *ngIf="currentData.channel[outputChannel] == 1">
                     General.on
                   </ng-container>
@@ -46,20 +46,20 @@
                 <ion-label translate>
                   General.on
                 </ion-label>
-                <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+                <ion-icon color="success" style="width:40px" name="power-outline"></ion-icon>
               </ion-segment-button>
               <ion-segment-button value="AUTOMATIC">
                 <ion-label translate>
                   General.automatic
                 </ion-label>
-                <ion-icon style="width:40px" name="sunny">
+                <ion-icon style="width:40px" name="sunny-outline">
                 </ion-icon>
               </ion-segment-button>
               <ion-segment-button value="OFF">
                 <ion-label translate>
                   General.off
                 </ion-label>
-                <ion-icon name="power" style="width: 40px"></ion-icon>
+                <ion-icon name="power-outline" style="width: 40px"></ion-icon>
               </ion-segment-button>
             </ion-segment>
           </ion-card-content>
@@ -218,7 +218,7 @@
                         {{ threshold.value | unitvalue: inputMode.value == 'OTHER' ? config.getChannel(inputChannel)['unit']:'W' }}
                       </ng-template>
                     </ion-label>
-                    <ion-icon style="width:40px" name="arrow-round-up"></ion-icon>
+                    <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
                   </ion-segment-button>
                   <ion-segment-button value="true">
                     <ion-label>
@@ -231,7 +231,7 @@
                         {{ threshold.value | unitvalue: inputMode.value == 'OTHER' ? config.getChannel(inputChannel)['unit']:'W' }}
                       </ng-template>
                     </ion-label>
-                    <ion-icon style="width:40px" name="arrow-round-down"></ion-icon>
+                    <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
                   </ion-segment-button>
                 </ion-segment>
                 <!-- invert behaviour for invert if GridSell is selected -->
@@ -242,14 +242,14 @@
                       <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
                       {{ threshold.value | unitvalue:'W' }}
                     </ion-label>
-                    <ion-icon style="width:40px" name="arrow-round-up"></ion-icon>
+                    <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
                   </ion-segment-button>
                   <ion-segment-button value="false">
                     <ion-label>
                       <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
                       {{ threshold.value | unitvalue:'W' }}
                     </ion-label>
-                    <ion-icon style="width:40px" name="arrow-round-down"></ion-icon>
+                    <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
                   </ion-segment-button>
                 </ion-segment>
               </ion-card-content>

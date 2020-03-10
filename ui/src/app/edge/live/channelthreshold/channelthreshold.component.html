@@ -2,9 +2,9 @@
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ion-item lines="full" color="light">
     <ion-avatar slot="start" *ngIf="(edge.currentData | async).channel as channel">
-      <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == null" name="help"></ion-icon>
-      <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == 1" name="radio-button-on"></ion-icon>
-      <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == 0" name="radio-button-off"></ion-icon>
+      <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == null" name="help-outline"></ion-icon>
+      <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == 1" name="radio-button-on-outline"></ion-icon>
+      <ion-icon size="large" *ngIf="channel[outputChannel.toString()] == 0" name="radio-button-off-outline"></ion-icon>
     </ion-avatar>
     <ion-label translate>{{ component.alias }}</ion-label>
   </ion-item>
