@@ -9,7 +9,6 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.goodwe.et.ess.EssChannelId;
 
 public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusComponent
 		implements EssDcCharger, OpenemsComponent {
@@ -33,9 +32,10 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))),
 
+				// Energy Value
 				new FC3ReadRegistersTask(35191, Priority.LOW, //
 						m(EssDcCharger.ChannelId.ACTUAL_ENERGY, new UnsignedDoublewordElement(35191),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
+								ElementToChannelConverter.SCALE_FACTOR_2)));
 	}
 
 	@Override
