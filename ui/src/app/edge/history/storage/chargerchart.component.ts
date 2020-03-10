@@ -1,11 +1,11 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { formatNumber } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'storageChargerChart',
@@ -34,58 +34,45 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
-        this.setLabel();
     }
 
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(() => {
-                this.service.getConfig().then(() => {
-                    let result = response.result;
-                    // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
-                        labels.push(new Date(timestamp));
+            let result = response.result;
+            // convert labels
+            let labels: Date[] = [];
+            for (let timestamp of result.timestamps) {
+                labels.push(new Date(timestamp));
+            }
+            this.labels = labels;
+
+            // convert datasets
+            let datasets = [];
+
+            Object.keys(result.data).forEach((channel) => {
+                let address = ChannelAddress.fromString(channel);
+                let chargerData = result.data[channel].map(value => {
+                    if (value == null) {
+                        return null
+                    } else {
+                        return value / 1000; // convert to kW
                     }
-                    this.labels = labels;
-
-                    // convert datasets
-                    let datasets = [];
-
-                    Object.keys(result.data).forEach((channel) => {
-                        let address = ChannelAddress.fromString(channel);
-                        let chargerData = result.data[channel].map(value => {
-                            if (value == null) {
-                                return null
-                            } else {
-                                return value / 1000; // convert to kW
-                            }
-                        });
-                        if (address.channelId == "ActualPower") {
-                            datasets.push({
-                                label: this.translate.instant('General.ChargePower'),
-                                data: chargerData,
-                                hidden: false
-                            });
-                            this.colors.push({
-                                backgroundColor: 'rgba(0,223,0,0.05)',
-                                borderColor: 'rgba(0,223,0,1)',
-                            })
-                        }
-                    })
-                    this.datasets = datasets;
-                    this.loading = false;
-                }).catch(reason => {
-                    console.error(reason); // TODO error message
-                    this.initializeChart();
-                    return;
                 });
-            }).catch(reason => {
-                console.error(reason); // TODO error message
-                this.initializeChart();
-                return;
-            });
+                if (address.channelId == "ActualPower") {
+                    datasets.push({
+                        label: this.translate.instant('General.chargePower'),
+                        data: chargerData,
+                        hidden: false
+                    });
+                    this.colors.push({
+                        backgroundColor: 'rgba(0,223,0,0.05)',
+                        borderColor: 'rgba(0,223,0,1)',
+                    })
+                }
+            })
+            this.datasets = datasets;
+            this.loading = false;
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

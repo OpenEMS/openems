@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Service, Utils } from '../../../../shared/shared';
+import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
 
 @Component({
     selector: ChannelthresholdModalComponent.SELECTOR,
@@ -8,7 +8,8 @@ import { Service, Utils } from '../../../../shared/shared';
 })
 export class ChannelthresholdModalComponent {
 
-    @Input() public controllerId: string;
+    @Input() public component: EdgeConfig.Component;
+    @Input() private config: EdgeConfig;
 
     private static readonly SELECTOR = "channelthreshold-modal";
 
@@ -24,18 +25,16 @@ export class ChannelthresholdModalComponent {
     ) { }
 
     ngOnInit() {
-        this.service.getConfig().then(config => {
-            for (let controllerId of
-                config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
-                    .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-                this.channelthresholdComponents.push(controllerId)
-            }
-            if (this.channelthresholdComponents.length > 1) {
-                this.showTotal = false;
-            } else if (this.channelthresholdComponents.length == 1) {
-                this.showTotal = null;
-            }
-        })
+        for (let componentId of
+            this.config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
+                .concat(this.config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
+            this.channelthresholdComponents.push(componentId)
+        }
+        if (this.channelthresholdComponents.length > 1) {
+            this.showTotal = false;
+        } else if (this.channelthresholdComponents.length == 1) {
+            this.showTotal = null;
+        }
     }
 
     onNotifyTotal(showTotal: boolean): void {

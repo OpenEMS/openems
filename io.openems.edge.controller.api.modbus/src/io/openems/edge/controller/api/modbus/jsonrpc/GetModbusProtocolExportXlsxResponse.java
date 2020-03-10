@@ -17,6 +17,7 @@ import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
 import io.openems.edge.common.modbusslave.ModbusRecordFloat64;
 import io.openems.edge.common.modbusslave.ModbusRecordString16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16;
+import io.openems.edge.common.modbusslave.ModbusRecordUint32;
 import io.openems.edge.common.modbusslave.ModbusType;
 
 /**
@@ -159,11 +160,14 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 			case UINT16:
 				value = ModbusRecordUint16.UNDEFINED_VALUE;
 				break;
+			case UINT32:
+				value = ModbusRecordUint32.UNDEFINED_VALUE;
+				break;
 			}
 			nextRow++;
 			ws.value(nextRow, 0, modbusType.toString());
 			ws.value(nextRow, 1, byteArrayToString(value));
-			//Alternate Row shading
+			// Alternate Row shading
 			ws.range(1, 0, nextRow, 2).style().borderStyle("thin").shadeAlternateRows(Color.GRAY1).set();
 		}
 	}

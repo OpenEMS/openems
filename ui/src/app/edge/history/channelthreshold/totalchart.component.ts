@@ -1,12 +1,12 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { formatNumber } from '@angular/common';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'channelthresholdTotalChart',
@@ -30,7 +30,6 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.setLabel();
   }
 
   protected updateChart() {
@@ -89,15 +88,15 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       this.service.getConfig().then(config => {
         let channeladdresses = [];
         // find all ChannelThresholdControllers
-        for (let controllerId of
+        for (let componentId of
           config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
             .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)['outputChannelAddress']);
+          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(componentId)['outputChannelAddress']);
           channeladdresses.push(outputChannel);
         }
         resolve(channeladdresses);
@@ -107,7 +106,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
 
   protected setLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;

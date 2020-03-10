@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { Component } from '@angular/core';
 import { ConsumptionModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: ConsumptionComponent.SELECTOR,
@@ -17,10 +17,10 @@ export class ConsumptionComponent {
   public evcsComponents: EdgeConfig.Component[] = null;
 
   constructor(
-    public service: Service,
-    private websocket: Websocket,
     private route: ActivatedRoute,
+    private websocket: Websocket,
     public modalCtrl: ModalController,
+    public service: Service,
   ) { }
 
   ngOnInit() {

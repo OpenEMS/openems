@@ -1,10 +1,10 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ChannelAddress, Edge, Service } from '../../../shared/shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ConsumptionModalComponent } from './modal/modal.component';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, Service } from '../../../shared/shared';
-import { ConsumptionModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: ConsumptionComponent.SELECTOR,
@@ -17,7 +17,6 @@ export class ConsumptionComponent implements OnInit, OnChanges {
     private static readonly SELECTOR = "consumptionWidget";
 
     public data: Cumulated = null;
-    public values: any;
     public edge: Edge = null;
 
     constructor(

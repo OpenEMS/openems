@@ -3,6 +3,7 @@ package io.openems.common.types;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
@@ -101,9 +102,9 @@ public class EdgeConfigDiff {
 	 * Represents the difference between an old and a new configuration of a
 	 * Component.
 	 */
-	protected static class ComponentDiff {
-		protected static class OldNewProperty {
-			protected static enum Change {
+	public static class ComponentDiff {
+		public static class OldNewProperty {
+			public static enum Change {
 				CREATED("Created"), //
 				DELETED("Deleted"), //
 				UPDATED("Created");
@@ -163,6 +164,14 @@ public class EdgeConfigDiff {
 		@Override
 		public String toString() {
 			return "[" + component.getFactoryId() + ": properties=" + properties + "]";
+		}
+
+		public Component getComponent() {
+			return this.component;
+		}
+
+		public TreeMap<String, OldNewProperty> getProperties() {
+			return properties;
 		}
 	}
 
@@ -243,6 +252,41 @@ public class EdgeConfigDiff {
 
 		b.append("</tbody></table>");
 		return b.toString();
+	}
+
+	/**
+	 * Formats the Diff as Text.
+	 * 
+	 * @return a String representing the Diff
+	 */
+	public String getAsText() {
+		StringBuilder b = new StringBuilder();
+		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
+			String componentId = componentEntry.getKey();
+			ComponentDiff component = componentEntry.getValue();
+			b.append(String.format("%s (%s): ", componentId, component.component.getFactoryId()));
+			b.append(//
+					component.properties.entrySet().stream() //
+							.filter(e -> {
+								switch (e.getKey()) {
+								case "_lastChangeAt":
+								case "_lastChangeBy":
+								case "org.ops4j.pax.logging.appender.name":
+									// ignore
+									return false;
+								default:
+									return true;
+								}
+							}) //
+							.map(e -> e.getKey()) //
+							.collect(Collectors.joining(", ")));
+			b.append("\n");
+		}
+		return b.toString();
+	}
+
+	public TreeMap<String, ComponentDiff> getComponents() {
+		return this.components;
 	}
 
 	/**
