@@ -149,7 +149,7 @@ export class SinglethresholdModalComponent {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         this.component.properties.mode = oldMode;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -218,7 +218,7 @@ export class SinglethresholdModalComponent {
             this.inputMode.setValue(this.convertToInputMode(this.component.properties.inputChannelAddress, this.component.properties.treshold));
             this.invert.setValue(this.component.properties.invert);
             this.loading = false;
-            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
             console.warn(reason);
           });
         }
