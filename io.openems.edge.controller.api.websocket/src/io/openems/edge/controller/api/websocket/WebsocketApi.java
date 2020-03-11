@@ -189,7 +189,11 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
-		EdgeConfig config = this.componentManager.getEdgeConfig();
+		if (this.server.getConnections().isEmpty()) {
+			// No Connections? It's not required to build the EdgeConfig.
+			return;
+		}
+		EdgeConfig config = this.componentManager.getEdgeConfig(event);
 		EdgeConfigNotification message = new EdgeConfigNotification(config);
 		this.server.broadcastMessage(new EdgeRpcNotification(WebsocketApi.EDGE_ID, message));
 	}

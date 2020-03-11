@@ -16,6 +16,7 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty.Change;
+import io.openems.common.utils.StringUtils;
 
 public class EdgeConfigDiff {
 
@@ -262,24 +263,45 @@ public class EdgeConfigDiff {
 	public String getAsText() {
 		StringBuilder b = new StringBuilder();
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
-			String componentId = componentEntry.getKey();
 			ComponentDiff component = componentEntry.getValue();
-			b.append(String.format("%s (%s): ", componentId, component.component.getFactoryId()));
-			b.append(//
-					component.properties.entrySet().stream() //
-							.filter(e -> {
-								switch (e.getKey()) {
-								case "_lastChangeAt":
-								case "_lastChangeBy":
-								case "org.ops4j.pax.logging.appender.name":
-									// ignore
-									return false;
-								default:
-									return true;
-								}
-							}) //
-							.map(e -> e.getKey()) //
-							.collect(Collectors.joining(", ")));
+			String change = component.properties.entrySet().stream() //
+					.filter(e -> {
+						switch (e.getKey()) {
+						case "_lastChangeAt":
+						case "_lastChangeBy":
+						case "org.ops4j.pax.logging.appender.name":
+							// ignore
+							return false;
+						default:
+							return true;
+						}
+					}) //
+					.map(e -> {
+						String value = StringUtils.toShortString(e.getValue().getNew(), 20);
+						switch (e.getValue().getChange()) {
+						case CREATED:
+							return e.getKey() + "=" + value + " [new]";
+						case UPDATED:
+							return e.getKey() + "=" + value;
+						case DELETED:
+							return e.getKey() + "!=" + value + " [deleted]";
+						}
+						assert true;
+						return ""; // can never happen
+					}) //
+					.collect(Collectors.joining(", "));
+			if (change.isEmpty()) {
+				continue;
+			}
+			String componentId = componentEntry.getKey();
+			b.append(String.format("%s", componentId));
+			String factoryId = component.component.getFactoryId();
+			if (factoryId.isEmpty()) {
+				b.append(": ");
+			} else {
+				b.append(String.format(" (%s): ", factoryId));
+			}
+			b.append(change);
 			b.append("\n");
 		}
 		return b.toString();
@@ -301,6 +323,6 @@ public class EdgeConfigDiff {
 
 	@Override
 	public String toString() {
-		return components.toString();
+		return this.getAsText().replace("\n", "; ");
 	}
 }
