@@ -44,17 +44,19 @@ public class StateController {
 			String inputNAProtection1, boolean na1Inverted, String inputNAProtection2, boolean na2Inverted,
 			String inputSyncDeviceBridge, boolean inputSyncDeviceBridgeInverted, String outputSyncDeviceBridge,
 			boolean outputSyncDeviceBridgeInverted, String outputHardReset, boolean outputHardResetInverted,
-			double targetFrequencyOnGrid, double targetFrequencyOffGrid) {
-		// TODO Auto-generated method stub
+			float targetFrequencyOnGrid, float targetFrequencyOffGrid, String meterId) {
+		
+		targetFrequencyOffGrid = targetFrequencyOffGrid / 50.0f;
+		targetFrequencyOnGrid = targetFrequencyOnGrid / 50.0f;
 		
 		stateObjects = new HashMap<IState, StateObject>();
 		
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED, new Undefined(manager, gridconPCS, b1, b2, b3));
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.STOPPED, new Stopped(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet));
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.RUN_ONGRID, new Run(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, targetFrequencyOnGrid));
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.RUN_OFFGRID, new Run(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet));
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.RUN_GOING_ONGRID, new Run(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet));
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.ERROR, new Error(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED, new io.openems.edge.ess.mr.gridcon.onoffgrid.state.Undefined(manager, gridconPCS, b1, b2, b3, inputNAProtection1, inputNAProtection2, inputSyncDeviceBridge, outputSyncDeviceBridge, meterId));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.STOPPED, new io.openems.edge.ess.mr.gridcon.onoffgrid.state. Stopped(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, inputNAProtection1, inputNAProtection2, inputSyncDeviceBridge, outputSyncDeviceBridge, targetFrequencyOnGrid, meterId));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.RUN_ONGRID, new io.openems.edge.ess.mr.gridcon.onoffgrid.state.RunOnGrid(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, inputNAProtection1, inputNAProtection2, inputSyncDeviceBridge, outputSyncDeviceBridge, targetFrequencyOnGrid, meterId));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.OFFGRID, new io.openems.edge.ess.mr.gridcon.onoffgrid.state.RunOffGrid(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, inputNAProtection1, inputNAProtection2, inputSyncDeviceBridge, outputSyncDeviceBridge, targetFrequencyOffGrid, meterId));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.GOING_ONGRID, new io.openems.edge.ess.mr.gridcon.onoffgrid.state.RunGoingOnGrid(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, inputNAProtection1, inputNAProtection2, inputSyncDeviceBridge, outputSyncDeviceBridge, targetFrequencyOffGrid, meterId));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.ERROR, new io.openems.edge.ess.mr.gridcon.onoffgrid.state.Error(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, inputNAProtection1, inputNAProtection2, inputSyncDeviceBridge, outputSyncDeviceBridge, meterId));
 		
 	}
 

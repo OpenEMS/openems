@@ -31,6 +31,9 @@ public @interface Config {
 	
 	@AttributeDefinition(name = "Battery-C-ID", description = "ID of Battery C.")
 	String bms_c_id() default "";
+
+	@AttributeDefinition(name = "Meter ID", description = "ID of Meter.")
+	String meter_id() default "meter0";
 	
 	@AttributeDefinition(name = "Enable IPU 1", description = "IPU 1 is enabled")
 	boolean enableIPU1() default true;
@@ -48,13 +51,13 @@ public @interface Config {
 	String inputNAProtection1() default "io0/DigitalInputM1C1";
 	
 	@AttributeDefinition(name = "Invert Input NA 1", description = "Flag if digital input NA 1 is inverted")
-	boolean isNA1Inverted() default false;
+	boolean isNAProtection1Inverted() default false;
 	
 	@AttributeDefinition(name = "Input NA 2", description = "Input for NA Protection 2")
 	String inputNAProtection2() default "io0/DigitalInputM1C2";
 	
 	@AttributeDefinition(name = "Invert Input NA 2", description = "Flag if digital input NA 2 is inverted")
-	boolean isNA2Inverted() default false;
+	boolean isNAProtection2Inverted() default false;
 	
 	@AttributeDefinition(name = "Input Sync Device Bridge", description = "Input for sync device bridge")
 	String inputSyncDeviceBridge() default "io0/DigitalInputM2C1";
@@ -75,11 +78,10 @@ public @interface Config {
 	boolean isOutputHardResetInverted() default false;
 	
 	@AttributeDefinition(name = "Target Frequency On Grid", description = "Target frequency in on grid mode")
-	double targetFrequencyOnGrid() default 52.7;
+	float targetFrequencyOnGrid() default 52.7f;
 	
 	@AttributeDefinition(name = "Target Frequency Off Grid", description = "Target frequency in off grid mode")
-	double targetFrequencyOffGrid() default 50.6;
+	float targetFrequencyOffGrid() default 50.6f;
 	
 	String webconsole_configurationFactory_nameHint() default "ESS MR Gridcon PCS On Off[{id}]";
-
 }

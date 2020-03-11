@@ -11,35 +11,44 @@ public class Undefined extends BaseState implements StateObject {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
-	public Undefined(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id);
+	public Undefined(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id,
+			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId) {
+		super(manager, gridconPCSId, b1Id, b2Id, b3Id, inputNA1, inputNA2, inputSyncBridge, outputSyncBridge, meterId);
 	}
 
 	@Override
 	public IState getState() {
-		return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.UNDEFINED;
+		return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED;
 	}
 
 	@Override
 	public IState getNextState() {
 		// According to the state machine the next state can be STOPPED, ERROR, RUN or UNDEFINED
 		if (isNextStateUndefined()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.UNDEFINED;
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED;
 		}
 		
 		if (isNextStateError()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.ERROR;
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.ERROR;
 		}
 		
-		if (isNextStateRunning()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.RUN;
+		if (isNextStateOnGridRunning()) {
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.RUN_ONGRID;
 		}
 		
-		if (isNextStateStopped()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.STOPPED;
+		if (isNextStateOnGridStopped()) {
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.STOPPED;
 		}
 		
-		return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.UNDEFINED;
+		if(isNextStateOffGrid()) {
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.OFFGRID;
+		}
+		
+		if (isNextStateGoingOnGrid()) {
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.GOING_ONGRID;
+		}
+		
+		return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED;
 	}
 
 	@Override

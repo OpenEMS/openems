@@ -7,8 +7,8 @@ public enum OnOffGridState implements IState {
 	UNDEFINED(-1, "Undefined"), //
 	STOPPED(0, "Stopped"), //
 	RUN_ONGRID(1, "RunOnGrid in on grid mode"), //
-	RUN_OFFGRID(2, "RunOnGrid in off grid mode"), //
-	RUN_GOING_ONGRID(3, "RunOnGrid going from off grid to on grid mode"), //
+	OFFGRID(2, "Off grid mode"), //
+	GOING_ONGRID(3, "Going from off grid to on grid mode"), //
 	ERROR(7, "Error"), //
 	;
 	

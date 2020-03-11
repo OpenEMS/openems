@@ -68,8 +68,8 @@ public class EssGridConOnOffGrid extends EssGridcon
 		
 		if (this.stateObject != null) {
 			if (//
-				OnOffGridState.RUN_GOING_ONGRID == this.stateObject.getState()//
-				|| OnOffGridState.RUN_OFFGRID == this.stateObject.getState()//
+				OnOffGridState.GOING_ONGRID == this.stateObject.getState()//
+				|| OnOffGridState.OFFGRID == this.stateObject.getState()//
 			) {
 				gridMode = GridMode.OFF_GRID;
 			} else if (OnOffGridState.RUN_ONGRID == this.stateObject.getState()) {
@@ -114,9 +114,9 @@ public class EssGridConOnOffGrid extends EssGridcon
 				, config.enableIPU3()//
 				, config.parameterSet()//
 				, config.inputNAProtection1()
-				, config.isNA1Inverted()
+				, config.isNAProtection1Inverted()
 				, config.inputNAProtection2()
-				, config.isNA2Inverted()
+				, config.isNAProtection2Inverted()
 				, config.inputSyncDeviceBridge()
 				, config.isInputSyncDeviceBridgeInverted()
 				, config.outputSyncDeviceBridge()
@@ -125,6 +125,7 @@ public class EssGridConOnOffGrid extends EssGridcon
 				, config.isOutputHardResetInverted()
 				, config.targetFrequencyOnGrid()
 				, config.targetFrequencyOffGrid()
+				, config.meter_id()
 				);
 	}
 }

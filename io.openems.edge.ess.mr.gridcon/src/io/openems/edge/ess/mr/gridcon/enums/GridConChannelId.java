@@ -543,9 +543,15 @@ public enum GridConChannelId implements ChannelId {
 					GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE_DEBUG))),
 
 	DCDC_CONTROL_DC_VOLTAGE_SETPOINT(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)),
-	DCDC_CONTROL_WEIGHT_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_WEIGHT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_WEIGHT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_WEIGHT_STRING_A_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	DCDC_CONTROL_WEIGHT_STRING_A(new FloatDoc().unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
+	.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A_DEBUG))), //
+	DCDC_CONTROL_WEIGHT_STRING_B_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	DCDC_CONTROL_WEIGHT_STRING_B(new FloatDoc().unit(Unit.NONE).accessMode(AccessMode.READ_WRITE) //
+	.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B_DEBUG))), //
+	DCDC_CONTROL_WEIGHT_STRING_C_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	DCDC_CONTROL_WEIGHT_STRING_C(new FloatDoc().unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
+	.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C_DEBUG))), ////
 	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
 			.accessMode(AccessMode.READ_WRITE)), //

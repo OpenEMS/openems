@@ -26,8 +26,9 @@ public class Error extends BaseState implements StateObject {
 	private boolean enableIPU3;
 	private ParameterSet parameterSet;
 	
-	public Error(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet ) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id);
+	public Error(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet,
+			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId) {
+		super(manager, gridconPCSId, b1Id, b2Id, b3Id, inputNA1, inputNA2, inputSyncBridge, outputSyncBridge, meterId);
 		this.enableIPU1 = enableIPU1;
 		this.enableIPU2 = enableIPU2;
 		this.enableIPU3 = enableIPU3;
@@ -36,7 +37,7 @@ public class Error extends BaseState implements StateObject {
 
 	@Override
 	public IState getState() {
-		return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.ERROR;
+		return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.ERROR;
 	}
 
 	@Override
@@ -44,18 +45,18 @@ public class Error extends BaseState implements StateObject {
 		// According to the state machine the next state can only be STOPPED, ERROR or UNDEFINED
 		
 		if (errorHandlingState  != null) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.ERROR;
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.ERROR;
 		}
 		
 		if (isNextStateUndefined()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.UNDEFINED;
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED;
 		}
 		
-		if (isNextStateStopped()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.STOPPED;
+		if (isNextStateOnGridStopped()) {
+			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.STOPPED;
 		}
 		
-		return io.openems.edge.ess.mr.gridcon.ongrid.OnGridState.ERROR;
+		return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.ERROR;
 	}
 
 	@Override
@@ -137,8 +138,8 @@ public class Error extends BaseState implements StateObject {
 		getGridconPCS().setSyncApproval(true);
 		getGridconPCS().setBlackStartApproval(false);
 		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPCS().setU0(BaseState.ONOFF_GRID_VOLTAGE_FACTOR);
+		getGridconPCS().setF0(BaseState.ONOFF_GRID_FREQUENCY_FACTOR_ONLY_ONGRID);
 		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
 		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
@@ -210,8 +211,8 @@ public class Error extends BaseState implements StateObject {
 		getGridconPCS().setSyncApproval(true);
 		getGridconPCS().setBlackStartApproval(false);
 		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPCS().setU0(BaseState.ONOFF_GRID_VOLTAGE_FACTOR);
+		getGridconPCS().setF0(BaseState.ONOFF_GRID_FREQUENCY_FACTOR_ONLY_ONGRID);
 		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
 		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);

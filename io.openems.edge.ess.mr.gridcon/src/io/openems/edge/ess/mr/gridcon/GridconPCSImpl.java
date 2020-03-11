@@ -262,7 +262,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeDcDcControlCommandWord() throws IllegalArgumentException, OpenemsNamedException {
 		DcDcParameter dcc = DcDcParameter.getDcdcParameter();
 
-//		System.out.println("DC DC control command:\n" + dcc.toString());
+		System.out.println("DC DC control command:\n" + dcc.toString());
 
 		if (dcc.getStringControlMode() == 0) {
 			// weighting is never allowed to be '0', but it's working according to the tool
