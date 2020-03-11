@@ -9,8 +9,6 @@ import java.util.Map;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,11 +45,12 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"org.ops4j.pax.logging.appender.name=Controller.Api.Backend", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
 		} //
 )
 public class BackendApi extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, PaxAppender, EventHandler, ConfigurationListener {
+		implements Controller, OpenemsComponent, PaxAppender, EventHandler {
 
 	protected static final int DEFAULT_NO_OF_CYCLES = 10;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
@@ -195,17 +194,15 @@ public class BackendApi extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.worker.triggerNextRun();
 			break;
-		}
-	}
 
-	@Override
-	public void configurationEvent(ConfigurationEvent event) {
-		EdgeConfig config = this.componentManager.getEdgeConfig(event);
-		EdgeConfigNotification message = new EdgeConfigNotification(config);
-		WebsocketClient ws = this.websocket;
-		if (ws == null) {
-			return;
+		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
+			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+			EdgeConfigNotification message = new EdgeConfigNotification(config);
+			WebsocketClient ws = this.websocket;
+			if (ws == null) {
+				return;
+			}
+			ws.sendMessage(message);
 		}
-		ws.sendMessage(message);
 	}
 }
