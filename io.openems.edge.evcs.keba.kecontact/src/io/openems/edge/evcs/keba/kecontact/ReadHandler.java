@@ -120,7 +120,6 @@ public class ReadHandler implements Consumer<String> {
 
 							this.parent.setDisplayText().setNextWriteValue(limit + "Wh erreicht");
 							status = Status.ENERGY_LIMIT_REACHED;
-							this.parent.logInfo(log, "Status: " + status.getName());
 						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
 						}
@@ -146,6 +145,7 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.TIMEOUT_CT, jsonMessage, "Tmo CT");
 					setBoolean(KebaChannelId.OUTPUT, jsonMessage, "Output");
 					setBoolean(KebaChannelId.INPUT, jsonMessage, "Input");
+					setInt(KebaChannelId.MAX_CURR, jsonMessage, "Curr HW");
 					setInt(KebaChannelId.CURR_USER, jsonMessage, "Curr user");
 
 					Optional<Integer> currUserMa = JsonUtils.getAsOptionalInt(jsonMessage, "Curr user"); // in [mA]
@@ -154,21 +154,6 @@ public class ReadHandler implements Consumer<String> {
 								* this.parent.getPhases().value().orElse(3);
 						this.parent.setChargePowerLimit().setNextValue(chargingTarget);
 					}
-
-					// Set the maximum Power valid by the Hardware
-					// The default value will be 32 A, because an older Keba charging station sets
-					// the value to 0 if the car is unplugged
-					Optional<Integer> hwPowerMa = JsonUtils.getAsOptionalInt(jsonMessage, "Curr HW"); // in [mA]
-					Integer hwPower = null;
-					if (hwPowerMa.isPresent()) {
-						if (hwPowerMa.get() == 0) {
-							hwPower = 32000 * 230 / 1000; // [W]
-						} else {
-							hwPower = hwPowerMa.get() * 230 / 1000; // [W]
-						}
-					}
-
-					this.parent.channel(KebaChannelId.MAX_CURR).setNextValue(hwPower);
 
 				} else if (id.equals("3")) {
 					/*
@@ -183,7 +168,9 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaChannelId.CURRENT_L3, jsonMessage, "I3");
 					setInt(KebaChannelId.ACTUAL_POWER, jsonMessage, "P");
 					setInt(KebaChannelId.COS_PHI, jsonMessage, "PF");
-					setInt(KebaChannelId.ENERGY_TOTAL, jsonMessage, "E total");
+
+					this.parent.channel(KebaChannelId.ENERGY_TOTAL)
+							.setNextValue((JsonUtils.getAsOptionalInt(jsonMessage, "E total").orElse(0)) * 0.1);
 
 					// Set the count of the Phases that are currently used
 					Channel<Integer> currentL1 = parent.channel(KebaChannelId.CURRENT_L1);
@@ -193,16 +180,16 @@ public class ReadHandler implements Consumer<String> {
 					if (currentL1.value().orElse(0) > 10) {
 
 						if (currentL3.value().orElse(0) > 100) {
-							this.parent.logInfo(this.log, "KEBA is loading on three ladder");
 							this.parent.getPhases().setNextValue(3);
 
 						} else if (currentL2.value().orElse(0) > 100) {
-							this.parent.logInfo(this.log, "KEBA is loading on two ladder");
 							this.parent.getPhases().setNextValue(2);
 
 						} else {
-							this.parent.logInfo(this.log, "KEBA is loading on one ladder");
 							this.parent.getPhases().setNextValue(1);
+						}
+						if (this.parent.debugMode) {
+							this.parent.logInfo(this.log, "Used phases: " + this.parent.getPhases().value().orElse(3));
 						}
 						Channel<Integer> phases = this.parent.getPhases();
 						this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
@@ -219,8 +206,8 @@ public class ReadHandler implements Consumer<String> {
 							Channel<Integer> maxHW = this.parent.channel(KebaChannelId.MAX_CURR);
 							this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
 									.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * 3);
-							this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
-									.setNextValue(230 /* Spannung */ * maxHW.value().orElse(32) /* max Strom */ * 3);
+							this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(
+									230 /* Spannung */ * (maxHW.value().orElse(32000) / 1000) /* max Strom */ * 3);
 						}
 					}
 

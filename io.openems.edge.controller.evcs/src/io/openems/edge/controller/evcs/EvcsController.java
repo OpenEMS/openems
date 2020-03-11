@@ -124,6 +124,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.channel(ChannelId.ENABLED_CHARGING).setNextValue(config.enabledCharging());
 		this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
 		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
+		
+		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
+		evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().orElse(22800));
 	}
 
 	@Override
@@ -172,11 +175,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case ENERGY_LIMIT_REACHED:
 				evcs.setChargePowerRequest().setNextWriteValue(0);
 				evcs.getMinimumPower().setNextValue(0);
+				evcs.getMaximumPower().setNextValue(null);
 				return;
 			case CHARGING_REJECTED:
 			case READY_FOR_CHARGING:
-			case CHARGING:
 			case CHARGING_FINISHED:
+				evcs.getMaximumPower().setNextValue(null);
+			case CHARGING:
 				break;
 			}
 		}
@@ -245,7 +250,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 					} else {
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
 						evcs.getMaximumPower().setNextValue(nextChargePower);
-						this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
+						if (this.config.debugMode()) {
+							this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
+						}
 					}
 				} else {
 					int currMax = evcs.getMaximumPower().value().orElse(0);
@@ -257,9 +264,12 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			}
 
 			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
-
 		} else {
 			evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
+		}
+
+		if (this.config.debugMode()) {
+			this.logInfo(this.log, "Next charge power: " + nextChargePower + " W");
 		}
 	}
 

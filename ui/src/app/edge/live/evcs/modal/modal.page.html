@@ -1,8 +1,11 @@
 <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
-            <ion-title>
-                {{ evcsComponent.alias }}
+            <ion-title *ngIf="evcsComponent.alias == evcsComponent.id" translate>
+                Edge.Index.Widgets.EVCS.ChargingStation
+            </ion-title>
+            <ion-title *ngIf="evcsComponent.alias != evcsComponent.id">
+                {{evcsComponent.alias}}
             </ion-title>
             <ion-buttons slot="end">
                 <ion-button (click)="modalCtrl.dismiss()">
@@ -273,7 +276,6 @@
                 <td>
                     <ul>
                         <li translate>Edge.Index.Widgets.EVCS.NoConnection.help1</li>
-                        <li translate>Edge.Index.Widgets.EVCS.NoConnection.help1_1</li>
                     </ul>
                 </td>
             </tr>

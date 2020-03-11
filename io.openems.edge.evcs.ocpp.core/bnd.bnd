@@ -3,22 +3,6 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-Export-Package: \
-	eu.chargetime.ocpp,\
-	eu.chargetime.ocpp.feature,\
-	eu.chargetime.ocpp.feature.profile,\
-	eu.chargetime.ocpp.model,\
-	eu.chargetime.ocpp.model.core,\
-	eu.chargetime.ocpp.model.firmware,\
-	eu.chargetime.ocpp.model.localauthlist,\
-	eu.chargetime.ocpp.model.remotetrigger,\
-	eu.chargetime.ocpp.model.reservation,\
-	eu.chargetime.ocpp.model.smartcharging,\
-	eu.chargetime.ocpp.model.validation,\
-	eu.chargetime.ocpp.utilities,\
-	eu.chargetime.ocpp.wss,\
-	io.openems.edge.evcs.ocpp.core
-
 -buildpath: \
 	${buildpath},\
 	com.google.gson,\

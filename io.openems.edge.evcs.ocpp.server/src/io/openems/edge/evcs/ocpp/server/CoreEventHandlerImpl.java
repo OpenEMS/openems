@@ -51,7 +51,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public AuthorizeConfirmation handleAuthorizeRequest(UUID sessionIndex, AuthorizeRequest request) {
 
-		server.logInfo(this.log, "Handle AuthorizeRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle AuthorizeRequest: " + request);
 
 		AuthorizeConfirmation response = new AuthorizeConfirmation();
 		IdTagInfo tag = new IdTagInfo();
@@ -67,7 +67,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public StartTransactionConfirmation handleStartTransactionRequest(UUID sessionIndex,
 			StartTransactionRequest request) {
 
-		server.logInfo(this.log, "Handle StartTransactionRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle StartTransactionRequest: " + request);
 
 		StartTransactionConfirmation response = new StartTransactionConfirmation();
 		IdTagInfo tag = new IdTagInfo();
@@ -80,7 +80,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public DataTransferConfirmation handleDataTransferRequest(UUID sessionIndex, DataTransferRequest request) {
 
-		server.logInfo(this.log, "Handle DataTransferRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle DataTransferRequest: " + request);
 		DataTransferConfirmation response = new DataTransferConfirmation();
 		response.setStatus(DataTransferStatus.Accepted);
 
@@ -90,7 +90,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public HeartbeatConfirmation handleHeartbeatRequest(UUID sessionIndex, HeartbeatRequest request) {
 
-		server.logInfo(this.log, "Handle HeartbeatRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle HeartbeatRequest: " + request);
 
 		return new HeartbeatConfirmation();
 	}
@@ -98,7 +98,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public MeterValuesConfirmation handleMeterValuesRequest(UUID sessionIndex, MeterValuesRequest request) {
 
-		server.logInfo(this.log, "Handle MeterValuesRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle MeterValuesRequest: " + request);
 
 		AbstractOcppEvcsComponent evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
@@ -145,7 +145,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_CURRENT_EXPORT:
 						case CORE_METER_VALUES_CURRENT_IMPORT:
 						case CORE_METER_VALUES_CURRENT_OFFERED:
-							correctValue = this.intValueOf((Double.valueOf(val) * 1000));
+							correctValue = Double.valueOf(val) * 1000;
 							break;
 
 						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER:
@@ -153,9 +153,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL:
 						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_INTERVAL:
 							if (unit.equals(Unit.KWH)) {
-								correctValue = (divideByThousand(val));
+								correctValue = divideByThousand(val);
 							}
-							correctValue = this.intValueOf(Double.valueOf(String.valueOf(correctValue)));
 							break;
 
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
@@ -165,7 +164,6 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 							if (unit.equals(Unit.KVARH)) {
 								correctValue = divideByThousand(val);
 							}
-							correctValue = this.intValueOf(Double.valueOf(String.valueOf(correctValue)));
 							break;
 
 						case CORE_METER_VALUES_POWER_ACTIVE_EXPORT:
@@ -174,7 +172,6 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 							if (unit.equals(Unit.KW)) {
 								correctValue = divideByThousand(val);
 							}
-							correctValue = this.intValueOf(Double.valueOf(String.valueOf(correctValue)));
 							break;
 
 						case CORE_METER_VALUES_POWER_REACTIVE_EXPORT:
@@ -182,11 +179,10 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 							if (unit.equals(Unit.KVAR)) {
 								correctValue = divideByThousand(val);
 							}
-							correctValue = this.intValueOf(Double.valueOf(String.valueOf(correctValue)));
 							break;
 
 						case CORE_METER_VALUES_VOLTAGE:
-							correctValue = this.intValueOf(Double.valueOf(val));
+							correctValue = (int) Math.round(Double.valueOf(val));
 							break;
 
 						case CORE_METER_VALUES_RPM:
@@ -198,7 +194,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						}
 
 						evcs.channel(measurand.getChannelId()).setNextValue(correctValue);
-						server.logInfo(this.log,
+						server.logInfoInDebug(this.log,
 								measurandString + ": " + val + " " + unitString + " Phases: " + phases);
 					}
 				}
@@ -207,15 +203,11 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		return new MeterValuesConfirmation();
 	}
 
-	private Object intValueOf(double d) {
-		return (int) Math.round(d);
-	}
-
 	@Override
 	public StatusNotificationConfirmation handleStatusNotificationRequest(UUID sessionIndex,
 			StatusNotificationRequest request) {
 
-		server.logInfo(this.log, "Handle StatusNotificationRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle StatusNotificationRequest: " + request);
 		MeasuringEvcs evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new StatusNotificationConfirmation();
@@ -243,7 +235,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcsStatus = Status.READY_FOR_CHARGING;
 			break;
 		case Reserved:
-			server.logInfo(this.log, "Reservation currently not supported");
+			server.logInfoInDebug(this.log, "Reservation currently not supported");
 			break;
 		case SuspendedEV:
 			evcsStatus = Status.CHARGING_REJECTED;
@@ -252,7 +244,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcsStatus = Status.CHARGING_REJECTED;
 			break;
 		case Unavailable:
-			server.logInfo(this.log, "Charging Station is Unavailable.");
+			server.logInfoInDebug(this.log, "Charging Station is Unavailable.");
 			evcs.getChargingstationCommunicationFailed().setNextValue(true);
 			evcsStatus = Status.ERROR;
 			break;
@@ -266,13 +258,14 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	@Override
 	public StopTransactionConfirmation handleStopTransactionRequest(UUID sessionIndex, StopTransactionRequest request) {
 
-		server.logInfo(this.log, "Handle StopTransactionRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle StopTransactionRequest: " + request);
 
-		StopTransactionConfirmation response = new StopTransactionConfirmation();
 		IdTagInfo tag = new IdTagInfo();
 		tag.setParentIdTag(request.getIdTag());
 		tag.setStatus(AuthorizationStatus.Accepted);
 		tag.validate();
+
+		StopTransactionConfirmation response = new StopTransactionConfirmation();
 		response.setIdTagInfo(tag);
 		response.validate();
 		return response;
@@ -282,7 +275,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public BootNotificationConfirmation handleBootNotificationRequest(UUID sessionIndex,
 			BootNotificationRequest request) {
 
-		server.logInfo(this.log, "Handle BootNotificationRequest: " + request);
+		server.logInfoInDebug(this.log, "Handle BootNotificationRequest: " + request);
 		List<AbstractOcppEvcsComponent> evcss = getEvcssBySessionIndex(sessionIndex);
 		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
 			ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
@@ -296,7 +289,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		response.setInterval(100);
 		response.setStatus(RegistrationStatus.Accepted);
 		response.setCurrentTime(Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin")));
-		server.logInfo(this.log, "Send BootNotificationConfirmation: " + response.toString());
+		server.logInfoInDebug(this.log, "Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
 	}
@@ -308,8 +301,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	 * connector is one EVCS in our System because each can be managed and monitored
 	 * by itself.
 	 * 
-	 * @param sessionIndex
-	 * @return
+	 * @param sessionIndex given session
+	 * @return List of AbstractOcppEvcsComponent
 	 */
 	private List<AbstractOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
 		int index = this.server.getActiveSessions().indexOf(new EvcsSession(sessionIndex));
@@ -323,8 +316,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	 * connector is one EVCS in our System because each can be managed and monitored
 	 * by itself.
 	 * 
-	 * @param sessionIndex
-	 * @param connectorId
+	 * @param sessionIndex given session
+	 * @param connectorId  given connector id
 	 * @return EVCS Component with the given session and connectorId.
 	 */
 	private AbstractOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
@@ -334,15 +327,15 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 				return ocppEvcs;
 			}
 		}
-		server.logInfo(this.log,
+		server.logInfoInDebug(this.log,
 				"No Chargingstation for session " + sessionIndex + " and connector " + connectorId + " found.");
 		return null;
 	}
 
 	/**
-	 * Return the decimal value of the given Hexadecimal value
+	 * Return the decimal value of the given Hexadecimal value.
 	 * 
-	 * @param hex
+	 * @param hex given value in hex
 	 * @return Decimal value as String
 	 */
 	public String fromHexToDezString(String hex) {
@@ -351,9 +344,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	}
 
 	/**
-	 * Divide the given String value by thousand
+	 * Divide the given String value by thousand.
 	 * 
-	 * @param val
+	 * @param val value
 	 * @return Value / 1000 as String
 	 */
 	private String divideByThousand(String val) {

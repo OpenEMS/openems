@@ -52,7 +52,6 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")), //
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")), //
 	COS_PHI(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).text("Power factor")), //
-	// TODO: 0.1 Wh
 	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
 			.text("Total power consumption (persistent) without current loading session. "
 					+ "Is summed up after each completed charging session")), //
