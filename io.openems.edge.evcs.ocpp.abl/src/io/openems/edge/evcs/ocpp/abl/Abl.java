@@ -99,8 +99,8 @@ public class Abl extends AbstractOcppEvcsComponent
 		return this.config.connectorId();
 	}
 
-	public int dynamicMaximumHardwarePower = 0;
-
+	private int dynamicMaximumHardwarePower = 0;
+	
 	@Override
 	public Integer getConfiguredMaximumHardwarePower() {
 		String sessionId = this.getChargingSessionId().getNextValue().orElse("");
@@ -154,7 +154,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	@Override
 	public OcppRequests getSupportedRequests() {
 		AbstractOcppEvcsComponent evcs = this;
-
+		
 		return new OcppRequests() {
 
 			@Override
@@ -164,11 +164,11 @@ public class Abl extends AbstractOcppEvcsComponent
 				int phases = evcs.getPhases().getNextValue().orElse(3);
 				int target = Math.round(Integer.valueOf(chargePower) / phases / 230) /* voltage */ ;
 
-				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(0) / phases / 230;
+				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(22080) / phases / 230;
 				target = target > maxCurrent ? maxCurrent : target;
 
 				request.setVendorId("ABL");
-				request.setMessageId("SetOutletLimit");
+				request.setMessageId("SetLimit");
 				request.setData("logicalid=" + config.logicalId() + ";value=" + target);
 				return request;
 			}
