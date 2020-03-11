@@ -100,7 +100,7 @@ public class EdgeConfigDiff {
 		public static enum Change {
 			CREATED("Created"), //
 			DELETED("Deleted"), //
-			UPDATED("Created");
+			UPDATED("Updated");
 
 			private final String name;
 
