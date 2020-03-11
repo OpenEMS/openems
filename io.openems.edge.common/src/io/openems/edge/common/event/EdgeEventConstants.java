@@ -1,5 +1,7 @@
 package io.openems.edge.common.event;
 
+import io.openems.common.types.EdgeConfig;
+
 public final class EdgeEventConstants {
 
 	private EdgeEventConstants() {
@@ -9,8 +11,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_BASE = "io/openems/edge/";
 
 	/**
-	 * Base for CYCLE events. See @{link ControllerExecutor} for implementation
-	 * details.
+	 * Base for CYCLE events. See @{link CycleWorker} for implementation details.
 	 */
 	public static final String TOPIC_CYCLE = "io/openems/edge/cycle/";
 
@@ -71,4 +72,25 @@ public final class EdgeEventConstants {
 	 * actually written to the devices. The event is executed synchronously.
 	 */
 	public static final String TOPIC_CYCLE_AFTER_WRITE = TOPIC_CYCLE + "AFTER_WRITE";
+
+	/**
+	 * Base for CONFIG events. See @{link {@link EdgeConfig}} for implementation
+	 * details.
+	 */
+	public static final String TOPIC_CONFIG = "io/openems/edge/config/";
+
+	/**
+	 * UPDATE event
+	 * 
+	 * Called when the {@link EdgeConfig} was updated, e.g. because configuration
+	 * properties changed or Channels changed. The EdgeConfig object is sent with
+	 * the event - see {@value #TOPIC_CONFIG_UPDATE_KEY}. The event is executed
+	 * synchronously.
+	 */
+	public static final String TOPIC_CONFIG_UPDATE = TOPIC_CONFIG + "UPDATE";
+
+	/**
+	 * The key of the {@link EdgeConfig} object in the event attachments map.
+	 */
+	public static final String TOPIC_CONFIG_UPDATE_KEY = "TOPIC_CONFIG_UPDATE_KEY";
 }
