@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
-import { ProductionModalComponent } from './modal/modal.component';
+import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { ProductionModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'production',
@@ -18,10 +18,10 @@ export class ProductionComponent {
     public chargerComponents: EdgeConfig.Component[] = null;
 
     constructor(
-        public service: Service,
-        private websocket: Websocket,
         private route: ActivatedRoute,
+        private websocket: Websocket,
         public modalCtrl: ModalController,
+        public service: Service,
     ) { }
 
     ngOnInit() {

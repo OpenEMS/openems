@@ -67,6 +67,35 @@ public class CsvUtils {
 		return result;
 	}
 
+	/**
+	 * Reads a CSV file.
+	 * 
+	 * @param csv       the CSV content
+	 * @param csvFormat the CSV-Format
+	 * @param factor    a multiplication factor to apply on the read number
+	 * @throws IOException           on error
+	 * @throws NumberFormatException on error
+	 */
+	public static DataContainer parseCsv(String csv, CsvFormat csvFormat, float factor)
+			throws NumberFormatException, IOException {
+		DataContainer result = new DataContainer();
+		boolean isTitleLine = true;
+		String lines[] = csv.split("\\r?\\n");
+		for (String line : lines) {
+			if (isTitleLine) {
+				isTitleLine = false;
+				if (!isNumeric(line)) {
+					// read titles
+					readTitles(result, csvFormat, line);
+					continue;
+				}
+			}
+			// start reading the values, parse them to doubles and add them to the result
+			readRecord(result, csvFormat, factor, line);
+		}
+		return result;
+	}
+
 	private static void readTitles(DataContainer result, CsvFormat csvFormat, String line) {
 		result.setKeys(line.split(csvFormat.lineSeparator));
 	}
@@ -82,5 +111,23 @@ public class CsvUtils {
 			floatValues[i] = Float.parseFloat(value) * factor;
 		}
 		result.addRecord(floatValues);
+	}
+
+	/**
+	 * Returns true if the given value is a number.
+	 * 
+	 * @param strNum a value to be evaluated
+	 * @return true for numbers
+	 */
+	private static boolean isNumeric(String strNum) {
+		if (strNum == null) {
+			return false;
+		}
+		try {
+			Double.parseDouble(strNum);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
 	}
 }

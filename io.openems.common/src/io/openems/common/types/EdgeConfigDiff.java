@@ -3,6 +3,7 @@ package io.openems.common.types;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
@@ -15,6 +16,7 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty.Change;
+import io.openems.common.utils.StringUtils;
 
 public class EdgeConfigDiff {
 
@@ -101,9 +103,9 @@ public class EdgeConfigDiff {
 	 * Represents the difference between an old and a new configuration of a
 	 * Component.
 	 */
-	protected static class ComponentDiff {
-		protected static class OldNewProperty {
-			protected static enum Change {
+	public static class ComponentDiff {
+		public static class OldNewProperty {
+			public static enum Change {
 				CREATED("Created"), //
 				DELETED("Deleted"), //
 				UPDATED("Created");
@@ -163,6 +165,14 @@ public class EdgeConfigDiff {
 		@Override
 		public String toString() {
 			return "[" + component.getFactoryId() + ": properties=" + properties + "]";
+		}
+
+		public Component getComponent() {
+			return this.component;
+		}
+
+		public TreeMap<String, OldNewProperty> getProperties() {
+			return properties;
 		}
 	}
 
@@ -246,6 +256,62 @@ public class EdgeConfigDiff {
 	}
 
 	/**
+	 * Formats the Diff as Text.
+	 * 
+	 * @return a String representing the Diff
+	 */
+	public String getAsText() {
+		StringBuilder b = new StringBuilder();
+		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
+			ComponentDiff component = componentEntry.getValue();
+			String change = component.properties.entrySet().stream() //
+					.filter(e -> {
+						switch (e.getKey()) {
+						case "_lastChangeAt":
+						case "_lastChangeBy":
+						case "org.ops4j.pax.logging.appender.name":
+							// ignore
+							return false;
+						default:
+							return true;
+						}
+					}) //
+					.map(e -> {
+						String value = StringUtils.toShortString(e.getValue().getNew(), 20);
+						switch (e.getValue().getChange()) {
+						case CREATED:
+							return e.getKey() + "=" + value + " [new]";
+						case UPDATED:
+							return e.getKey() + "=" + value;
+						case DELETED:
+							return e.getKey() + "!=" + value + " [deleted]";
+						}
+						assert true;
+						return ""; // can never happen
+					}) //
+					.collect(Collectors.joining(", "));
+			if (change.isEmpty()) {
+				continue;
+			}
+			String componentId = componentEntry.getKey();
+			b.append(String.format("%s", componentId));
+			String factoryId = component.component.getFactoryId();
+			if (factoryId.isEmpty()) {
+				b.append(": ");
+			} else {
+				b.append(String.format(" (%s): ", factoryId));
+			}
+			b.append(change);
+			b.append("\n");
+		}
+		return b.toString();
+	}
+
+	public TreeMap<String, ComponentDiff> getComponents() {
+		return this.components;
+	}
+
+	/**
 	 * Gets whether this diff is not empty, i.e. the EdgeConfig instances were
 	 * different.
 	 * 
@@ -257,6 +323,6 @@ public class EdgeConfigDiff {
 
 	@Override
 	public String toString() {
-		return components.toString();
+		return this.getAsText().replace("\n", "; ");
 	}
 }

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -89,11 +90,6 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public EdgeConfig getEdgeConfig() {
-		return null;
-	}
-
-	@Override
 	public List<OpenemsComponent> getAllComponents() {
 		return null;
 	}
@@ -112,5 +108,11 @@ public class DummyComponentManager implements ComponentManager {
 
 	public void initBms() {
 		this.bms = createBms();
+	}
+
+	@Override
+	public EdgeConfig getEdgeConfig(ConfigurationEvent event) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

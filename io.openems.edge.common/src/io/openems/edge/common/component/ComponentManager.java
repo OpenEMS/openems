@@ -2,6 +2,8 @@ package io.openems.edge.common.component;
 
 import java.util.List;
 
+import org.osgi.service.cm.ConfigurationEvent;
+
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -21,7 +23,9 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
 				.text("A configured OpenEMS Component was not activated")), //
 		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
-				.text("OutOfMemory had happened. Found heap dump files."));
+				.text("OutOfMemory had happened. Found heap dump files.")),
+		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT) //
+				.text("Applying the default configuration failed.")),;
 
 		private final Doc doc;
 
@@ -116,8 +120,10 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
 	 * 
+	 * @param event a ConfigurationEvent to incorporate; or null to refresh the
+	 *              config completely
 	 * @return the EdgeConfig object
 	 */
-	public EdgeConfig getEdgeConfig();
+	public EdgeConfig getEdgeConfig(ConfigurationEvent event);
 
 }

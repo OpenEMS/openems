@@ -95,7 +95,8 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 			}
 
 			@Override
-			public PidFilter buildPidFilter() {
+			public PidFilter getPidFilter() {
+				// TODO Auto-generated method stub
 				return null;
 			}
 		};

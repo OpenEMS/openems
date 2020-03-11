@@ -42,6 +42,8 @@
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
           <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
+            <!-- Widgets that are likely to be configured frequently -->
+
             <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
               <ng-container
                 *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumtion'">
@@ -60,7 +62,12 @@
               <evcsCluster [componentId]="widget.componentId"></evcsCluster>
             </ion-col>
 
-            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6" class="ion-no-padding">
               <modbusapi [componentId]="widget.componentId"></modbusapi>
             </ion-col>
 
@@ -81,6 +88,31 @@
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
+              class="ion-no-padding">
+              <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+            </ion-col>
+
+            <!-- Widgets that are likely to be configured seldomly -->
+
+            <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
+              <symmetricpeakshaving [componentId]="widget.componentId"></symmetricpeakshaving>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
+              <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
+              class="ion-no-padding">
+              <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+            </ion-col>
+
+            <!-- Widgets for displaying information only -->
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
           </ng-container>
 
           <!-- <ion-col size="12" size-lg="12">

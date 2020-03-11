@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ChannelAddress, Edge, Service } from '../../../shared/shared';
+import { Component, Input } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, Service } from '../../../shared/shared';
 import { GridModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: GridComponent.SELECTOR,
@@ -17,7 +17,6 @@ export class GridComponent {
     private static readonly SELECTOR = "gridWidget";
 
     public data: Cumulated = null;
-    public values: any;
     public edge: Edge = null;
 
     constructor(

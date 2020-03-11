@@ -243,45 +243,45 @@ public class EdgeConfig {
 			}
 		}
 
+		private final String servicePid;
 		private final String id;
 		private final String alias;
-		private final boolean isEnabled;
 		private final String factoryId;
 		private final TreeMap<String, JsonElement> properties;
 		private final TreeMap<String, Channel> channels;
 
-		public Component(String id, String alias, boolean isEnabled, String factoryId,
+		public Component(String servicePid, String id, String alias, String factoryId,
 				TreeMap<String, JsonElement> properties, TreeMap<String, Channel> channels) {
+			this.servicePid = servicePid;
 			this.id = id;
 			this.alias = alias;
-			this.isEnabled = isEnabled;
 			this.factoryId = factoryId;
 			this.properties = properties;
 			this.channels = channels;
 		}
 
+		public String getPid() {
+			return this.servicePid;
+		}
+
 		public String getId() {
-			return id;
+			return this.id;
 		}
 
 		public String getAlias() {
-			return alias;
-		}
-
-		public boolean isEnabled() {
-			return isEnabled;
+			return this.alias;
 		}
 
 		public String getFactoryId() {
-			return factoryId;
+			return this.factoryId;
 		}
 
 		public Map<String, JsonElement> getProperties() {
-			return properties;
+			return this.properties;
 		}
 
 		public Map<String, Channel> getChannels() {
-			return channels;
+			return this.channels;
 		}
 
 		public Map<String, Channel> getChannelsOfCategory(ChannelCategory channelCategory) {
@@ -292,6 +292,39 @@ public class EdgeConfig {
 
 		public Map<String, Channel> getStateChannels() {
 			return this.getChannelsOfCategory(ChannelCategory.STATE);
+		}
+
+		/**
+		 * Is the given Channel-ID a StateChannel?.
+		 * 
+		 * @param channelId the Channel-ID
+		 * @return true if it is a StateChannel
+		 */
+		public boolean isStateChannel(String channelId) {
+			return this.channels.entrySet().stream() //
+					.anyMatch(entry ->
+					/* find Channel-ID */
+					entry.getKey().equals(channelId)
+							/* is of type StateChannel */
+							&& entry.getValue().getDetail().getCategory() == ChannelCategory.STATE);
+		}
+
+		/**
+		 * Get the StateChannel with the given Channel-ID.
+		 * 
+		 * @param channelId the Channel-ID
+		 * @return the Channel; or empty if the Channel does not exist or is not a
+		 *         StateChannel.
+		 */
+		public Optional<Component.Channel> getStateChannel(String channelId) {
+			return this.channels.entrySet().stream() //
+					.filter(entry ->
+					/* find Channel-ID */
+					entry.getKey().equals(channelId)
+							/* is of type StateChannel */
+							&& entry.getValue().getDetail().getCategory() == ChannelCategory.STATE) //
+					.map(entry -> entry.getValue()) //
+					.findFirst();
 		}
 
 		/**
@@ -320,7 +353,6 @@ public class EdgeConfig {
 			}
 			JsonObjectBuilder result = JsonUtils.buildJsonObject() //
 					.addProperty("alias", this.getAlias()) //
-					.addProperty("isEnabled", this.isEnabled()) //
 					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties); //
 			switch (jsonFormat) {
@@ -352,7 +384,6 @@ public class EdgeConfig {
 		 */
 		public static Component fromJson(String componentId, JsonElement json) throws OpenemsNamedException {
 			String alias = JsonUtils.getAsOptionalString(json, "alias").orElse(componentId);
-			boolean isEnabled = JsonUtils.getAsOptionalBoolean(json, "isEnabled").orElse(false);
 			String factoryId = JsonUtils.getAsOptionalString(json, "factoryId").orElse("NO_FACTORY_ID");
 			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			Optional<JsonObject> jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
@@ -369,9 +400,9 @@ public class EdgeConfig {
 				}
 			}
 			return new Component(//
+					"NO_SERVICE_PID", //
 					componentId, //
 					alias, //
-					isEnabled, //
 					factoryId, //
 					properties, //
 					channels);
@@ -402,21 +433,23 @@ public class EdgeConfig {
 			}
 			List<Property> properties = new ArrayList<>();
 			AttributeDefinition[] ads = ocd.getAttributeDefinitions(filter);
-			for (AttributeDefinition ad : ads) {
-				if (ad.getID().endsWith(".target")) {
-					// ignore
-				} else {
-					switch (ad.getID()) {
-					case "webconsole.configurationFactory.nameHint":
-						// ignore ID
-						break;
-					case "alias":
-						// Set alias as not-required. If no alias is given it falls back to id.
-						properties.add(Property.from(ad, false));
-						break;
-					default:
-						properties.add(Property.from(ad, isRequired));
-						break;
+			if (ads != null) {
+				for (AttributeDefinition ad : ads) {
+					if (ad.getID().endsWith(".target")) {
+						// ignore
+					} else {
+						switch (ad.getID()) {
+						case "webconsole.configurationFactory.nameHint":
+							// ignore ID
+							break;
+						case "alias":
+							// Set alias as not-required. If no alias is given it falls back to id.
+							properties.add(Property.from(ad, false));
+							break;
+						default:
+							properties.add(Property.from(ad, isRequired));
+							break;
+						}
 					}
 				}
 			}
@@ -890,6 +923,35 @@ public class EdgeConfig {
 	}
 
 	/**
+	 * Is the given Channel-Address a StateChannel?.
+	 * 
+	 * @param channelAddress the {@link ChannelAddress}
+	 * @return true if it is a StateChannel
+	 */
+	public boolean isStateChannel(ChannelAddress channelAddress) {
+		Component component = this.components.get(channelAddress.getComponentId());
+		if (component == null) {
+			return false;
+		}
+		return component.isStateChannel(channelAddress.getChannelId());
+	}
+
+	/**
+	 * Get the StateChannel with the given Channel-Address.
+	 * 
+	 * @param channelAddress the {@link ChannelAddress}
+	 * @return the Channel; or empty if the Channel does not exist or is not a
+	 *         StateChannel.
+	 */
+	public Optional<Component.Channel> getStateChannel(ChannelAddress channelAddress) {
+		Component component = this.components.get(channelAddress.getComponentId());
+		if (component == null) {
+			return Optional.empty();
+		}
+		return component.getStateChannel(channelAddress.getChannelId());
+	}
+
+	/**
 	 * Creates an EdgeConfig from a JSON Object.
 	 * 
 	 * @param json the configuration in JSON format
@@ -921,6 +983,7 @@ public class EdgeConfig {
 		for (Entry<String, JsonElement> entry : things.entrySet()) {
 			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(config, "id");
+			String servicePid = "NO";
 			String alias = JsonUtils.getAsOptionalString(config, "alias").orElse(id);
 			String clazz = JsonUtils.getAsString(config, "class");
 			TreeMap<String, JsonElement> properties = new TreeMap<>();
@@ -939,7 +1002,7 @@ public class EdgeConfig {
 				}
 			}
 			TreeMap<String, Component.Channel> channels = new TreeMap<>();
-			result.addComponent(id, new EdgeConfig.Component(id, alias, true, clazz, properties, channels));
+			result.addComponent(id, new EdgeConfig.Component(servicePid, id, alias, clazz, properties, channels));
 		}
 
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");

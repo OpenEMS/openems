@@ -2,6 +2,22 @@ import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
 
+export interface CategorizedComponents {
+    category: {
+        title: string,
+        icon: string
+    },
+    components: EdgeConfig.Component[]
+};
+
+export interface CategorizedFactories {
+    category: {
+        title: string,
+        icon: string
+    },
+    factories: EdgeConfig.Factory[]
+};
+
 export class EdgeConfig {
 
     constructor(edge: Edge, source?: EdgeConfig) {
@@ -12,7 +28,13 @@ export class EdgeConfig {
 
         // initialize Components
         for (let componentId in this.components) {
-            this.components[componentId].id = componentId;
+            let component = this.components[componentId];
+            component.id = componentId;
+            if ('enabled' in component.properties) {
+                component.isEnabled = component.properties['enabled']
+            } else {
+                component.isEnabled = true;
+            }
         }
 
         // initialize Factorys
@@ -95,6 +117,37 @@ export class EdgeConfig {
         } else {
             return [];
         }
+    }
+
+    /**
+     * Get Factories of Nature.
+     * 
+     * @param natureId the given Nature.
+     */
+    public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
+        let result = [];
+        let nature = this.natures[natureId];
+        for (let factoryId of nature.factoryIds) {
+            if (factoryId in this.factories) {
+                result.push(this.factories[factoryId])
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get Factories by Factory-IDs.
+     * 
+     * @param ids the given Factory-IDs.
+     */
+    public getFactoriesByIds(factoryIds: string[]): EdgeConfig.Factory[] {
+        let result = [];
+        for (let factoryId of factoryIds) {
+            if (factoryId in this.factories) {
+                result.push(this.factories[factoryId])
+            }
+        }
+        return result;
     }
 
     /**
@@ -227,6 +280,150 @@ export class EdgeConfig {
         return false;
     }
 
+    /**
+     * Lists all available Factories, grouped by category.
+     */
+    public listAvailableFactories(): CategorizedFactories[] {
+        let allFactories = [
+            {
+                category: { title: 'Simulatoren', icon: 'flask' },
+                factories: Object.values(this.factories).filter(factory => factory.id.startsWith('Simulator.'))
+            },
+            {
+                category: { title: 'Serielle Verbindungen', icon: 'swap' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Bridge.Mbus', 'Bridge.Onewire', 'Bridge.Modbus.Serial', 'Bridge.Modbus.Tcp'
+                    ])
+                ]
+            },
+            {
+                category: { title: 'Zähler', icon: 'speedometer' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter")
+                ]
+            },
+            {
+                category: { title: 'Speichersysteme', icon: 'battery-charging' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.ess.api.SymmetricEss"),
+                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                ]
+            },
+            {
+                category: { title: 'Batterien', icon: 'battery-full' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.battery.api.Battery")
+                ]
+            },
+            {
+                category: { title: 'I/Os', icon: 'log-in' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.io.api.DigitalOutput"),
+                    this.getFactoriesByNature("io.openems.edge.io.api.DigitalInput")
+                ]
+            },
+            {
+                category: { title: 'E-Auto-Ladestation', icon: 'car' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs")
+                ]
+            },
+            {
+                category: { title: 'Standard-Controller', icon: 'resize' },
+                factories: [
+                    this.getFactoriesByIds(['Controller.Debug.Log', 'Controller.Debug.DetailedLog'])
+                ]
+            },
+            {
+                category: { title: 'Externe Schnittstellen', icon: 'megaphone' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Controller.Api.Backend', 'Controller.Api.Websocket', 'Controller.Api.ModbusTcp.ReadOnly',
+                        'Controller.Api.ModbusTcp.ReadWrite', 'Controller.Api.Rest.ReadOnly', 'Controller.Api.Rest.ReadWrite'
+                    ])
+                ]
+            },
+            {
+                category: { title: 'Spezial-Controller', icon: 'repeat' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.controller.api.Controller"),
+                ]
+            },
+            {
+                category: { title: 'Timeseries-Datenbank', icon: 'repeat' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.timedata.api.Timedata"),
+                ]
+            },
+            {
+                category: { title: 'Scheduler', icon: 'stopwatch' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler")
+                ]
+            },
+            {
+                category: { title: 'Weitere', icon: 'radio-button-off' },
+                factories: Object.values(this.factories)
+            }
+            // TODO weitere Factories?
+        ];
+
+        let ignoreFactoryIds: string[] = [];
+        let result: CategorizedFactories[] = [];
+        allFactories.forEach(item => {
+            let factories =
+                // create one flat array
+                [].concat(...item.factories)
+                    // remove Factories from list that have already been listed before
+                    .filter(factory => !ignoreFactoryIds.includes(factory.id))
+                    // remove duplicates
+                    .filter((e, i, arr) => arr.indexOf(e) === i);
+            if (factories.length > 0) {
+                factories.forEach(factory => {
+                    ignoreFactoryIds.push(factory.id);
+                });
+                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) })
+            }
+        })
+        return result;
+    }
+
+    /**
+     * Lists all active Components, grouped by category.
+     */
+    public listActiveComponents(ignoreComponentIds: string[]): CategorizedComponents[] {
+        let allComponents = [];
+        let factories = this.listAvailableFactories();
+        for (let entry of factories) {
+            let components = [];
+            for (let factory of entry.factories) {
+                components.push(this.getComponentsByFactory(factory.id));
+                // components.concat(...this.getComponentsByFactory(factory.id));
+            }
+            allComponents.push({
+                category: entry.category,
+                components: components
+            });
+        }
+        let result: CategorizedComponents[] = [];
+        allComponents.forEach(item => {
+            let components =
+                // create one flat array
+                [].concat(...item.components)
+                    // remove Components from list that have already been listed before
+                    .filter(component => !ignoreComponentIds.includes(component.id))
+                    // remove duplicates
+                    .filter((e, i, arr) => arr.indexOf(e) === i);
+            if (components.length > 0) {
+                components.forEach(component => {
+                    ignoreComponentIds.push(component.id);
+                });
+                result.push({ category: item.category, components: components })
+            }
+        })
+        return result;
+    }
 
 
     /**

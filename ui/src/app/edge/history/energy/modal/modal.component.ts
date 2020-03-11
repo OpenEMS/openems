@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { isSameYear } from 'date-fns';
-import { format, isSameDay, isSameMonth } from 'date-fns/esm';
-import * as FileSaver from 'file-saver';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { ChannelAddress, Service, Websocket } from '../../../../shared/shared';
+import { Component, OnInit } from '@angular/core';
+import { format, isSameDay, isSameMonth } from 'date-fns/esm';
+import { isSameYear } from 'date-fns';
+import { ModalController } from '@ionic/angular';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { TranslateService } from '@ngx-translate/core';
+import * as FileSaver from 'file-saver';
 
 @Component({
     selector: EnergyModalComponent.SELECTOR,
