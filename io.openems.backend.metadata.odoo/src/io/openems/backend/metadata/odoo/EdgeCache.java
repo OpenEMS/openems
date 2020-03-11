@@ -26,7 +26,6 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 
 public class EdgeCache {
 
@@ -196,8 +195,7 @@ public class EdgeCache {
 				return;
 			}
 
-			this.parent.logInfo(this.log,
-					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(diff.toString(), 100));
+			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
 
 			QueueWriteWorker queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
 			queueWriteWorker.addTask(new UpdateEdgeConfig(edge.getOdooId(), config));

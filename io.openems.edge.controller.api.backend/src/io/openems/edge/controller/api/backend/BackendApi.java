@@ -59,7 +59,7 @@ public class BackendApi extends AbstractOpenemsComponent
 	protected final BackendWorker worker = new BackendWorker(this);
 
 	protected final ApiWorker apiWorker = new ApiWorker();
-	
+
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
 
 	protected WebsocketClient websocket = null;
@@ -200,7 +200,7 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
-		EdgeConfig config = this.componentManager.getEdgeConfig();
+		EdgeConfig config = this.componentManager.getEdgeConfig(event);
 		EdgeConfigNotification message = new EdgeConfigNotification(config);
 		WebsocketClient ws = this.websocket;
 		if (ws == null) {

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.OpenemsConstants;
@@ -51,8 +52,8 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public EdgeConfig getEdgeConfig() {
-		return new EdgeConfig();
+	public EdgeConfig getEdgeConfig(ConfigurationEvent event) {
+		return new EdgeConfig();	
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {		
+			throws OpenemsNamedException {
 		return null;
 	}
 
