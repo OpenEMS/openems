@@ -30,7 +30,7 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 	private final CycleWorker worker = new CycleWorker(this);
 
-	@Reference(policy = ReferencePolicy.STATIC)
+	@Reference
 	protected EventAdmin eventAdmin;
 
 	/**

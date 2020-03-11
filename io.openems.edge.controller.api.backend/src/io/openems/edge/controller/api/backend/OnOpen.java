@@ -23,7 +23,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		this.parent.logInfo(this.log, "Connected to OpenEMS Backend");
 
 		// Immediately send Config
-		EdgeConfig config = this.parent.componentManager.getEdgeConfig(null);
+		EdgeConfig config = this.parent.componentManager.getEdgeConfig();
 		EdgeConfigNotification message = new EdgeConfigNotification(config);
 		this.parent.websocket.sendMessage(message);
 

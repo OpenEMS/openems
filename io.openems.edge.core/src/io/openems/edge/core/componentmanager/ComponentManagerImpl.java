@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
 
@@ -63,15 +64,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	private final OsgiValidateWorker osgiValidateWorker;
 	private final OutOfMemoryHeapDumpWorker outOfMemoryHeapDumpWorker;
 	private final DefaultConfigurationWorker defaultConfigurationWorker;
-	private final EdgeConfigFactory edgeConfigFactory;
+	private final EdgeConfigWorker edgeConfigWorker;
 
-	private BundleContext bundleContext;
+	protected BundleContext bundleContext;
 
 	@Reference
-	private MetaTypeService metaTypeService;
+	protected MetaTypeService metaTypeService;
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference
+	protected EventAdmin eventAdmin;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
@@ -93,7 +97,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		this.osgiValidateWorker = new OsgiValidateWorker(this);
 		this.outOfMemoryHeapDumpWorker = new OutOfMemoryHeapDumpWorker(this);
 		this.defaultConfigurationWorker = new DefaultConfigurationWorker(this);
-		this.edgeConfigFactory = new EdgeConfigFactory();
+		this.edgeConfigWorker = new EdgeConfigWorker(this);
 	}
 
 	@Activate
@@ -110,6 +114,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Start the Default-Configuration Worker
 		this.defaultConfigurationWorker.activate(this.id());
+
+		// Start the EdgeConfig Worker
+		this.edgeConfigWorker.activate(this.id());
 	}
 
 	@Deactivate
@@ -124,6 +131,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Stop the Default-Configuration Worker
 		this.defaultConfigurationWorker.deactivate();
+
+		// Stop the EdgeConfig Worker
+		this.edgeConfigWorker.deactivate();
 	}
 
 	@Override
@@ -193,7 +203,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		EdgeConfig config = this.getEdgeConfig(null);
+		EdgeConfig config = this.getEdgeConfig();
 		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
 	}
@@ -366,16 +376,17 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public synchronized EdgeConfig getEdgeConfig(ConfigurationEvent event) {
-		return this.edgeConfigFactory.getEdgeConfig(this.bundleContext, this.metaTypeService, this.cm,
-				this.allComponents, event);
+	public synchronized EdgeConfig getEdgeConfig() {
+		return this.edgeConfigWorker.getEdgeConfig();
 	}
 
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
+		// trigger update of EdgeConfig
+		this.edgeConfigWorker.handleEvent(event);
+
 		// trigger immediate validation on configuration event
 		this.osgiValidateWorker.triggerNextRun();
-
-		// Update EdgeConfig and send Event
 	}
+
 }
