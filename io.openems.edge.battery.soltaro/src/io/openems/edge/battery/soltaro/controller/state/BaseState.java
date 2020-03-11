@@ -65,13 +65,13 @@ public abstract class BaseState implements IState {
 
 	protected boolean bmsNeedsFullCharge(long timeInSeconds) {
 		return false;
-//		Map<LocalDateTime, ?> values = getValuesInTimeSpan(timeInSeconds);
+		// Map<LocalDateTime, ?> values = getValuesInTimeSpan(timeInSeconds);
 
-//		if (values.size() == 0) {
-//			// No values present in time span
-//			return false;
-//		}
-//		return !hasBmsBeenChargedOrDischarged(values);
+		// if (values.size() == 0) {
+		// // No values present in time span
+		// return false;
+		// }
+		// return !hasBmsBeenChargedOrDischarged(values);
 	}
 
 	@SuppressWarnings("unused")
