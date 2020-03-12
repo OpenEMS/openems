@@ -5,12 +5,9 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.gson,\
-	com.google.guava,\
 	io.openems.wrapper.fastexcel,\
 	io.openems.wrapper.websocket,\
-	org.ops4j.pax.logging.pax-logging-api,\
-	slf4j.api
+	org.ops4j.pax.logging.pax-logging-api
 
 -testpath: \
 	${testpath}
