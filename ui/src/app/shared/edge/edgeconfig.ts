@@ -28,7 +28,13 @@ export class EdgeConfig {
 
         // initialize Components
         for (let componentId in this.components) {
-            this.components[componentId].id = componentId;
+            let component = this.components[componentId];
+            component.id = componentId;
+            if ('enabled' in component.properties) {
+                component.isEnabled = component.properties['enabled']
+            } else {
+                component.isEnabled = true;
+            }
         }
 
         // initialize Factorys
