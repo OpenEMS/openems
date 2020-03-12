@@ -2,8 +2,6 @@ package io.openems.edge.common.component;
 
 import java.util.List;
 
-import org.osgi.service.cm.ConfigurationEvent;
-
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -120,10 +118,11 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
 	 * 
-	 * @param event a ConfigurationEvent to incorporate; or null to refresh the
-	 *              config completely
-	 * @return the EdgeConfig object
+	 * Internally updates updates the cache if necessary and publishes a
+	 * CONFIG_UPDATE event on update.
+	 * 
+	 * @return the {@link EdgeConfig} object
 	 */
-	public EdgeConfig getEdgeConfig(ConfigurationEvent event);
+	public EdgeConfig getEdgeConfig();
 
 }

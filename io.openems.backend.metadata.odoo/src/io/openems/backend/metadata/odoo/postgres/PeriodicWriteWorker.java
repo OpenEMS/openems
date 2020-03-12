@@ -1,7 +1,7 @@
 package io.openems.backend.metadata.odoo.postgres;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
@@ -28,7 +30,7 @@ public class PeriodicWriteWorker {
 
 	private final Logger log = LoggerFactory.getLogger(PeriodicWriteWorker.class);
 	private final PostgresHandler parent;
-	private final MyConnection connection;
+	private final HikariDataSource dataSource;
 
 	/**
 	 * Holds the scheduled task.
@@ -40,14 +42,14 @@ public class PeriodicWriteWorker {
 	 */
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-	public PeriodicWriteWorker(PostgresHandler parent, Credentials credentials) {
+	public PeriodicWriteWorker(PostgresHandler parent, HikariDataSource dataSource) {
 		this.parent = parent;
-		this.connection = new MyConnection(credentials);
+		this.dataSource = dataSource;
 	}
 
 	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
-				() -> task.accept(this.connection), //
+				() -> task.accept(this.dataSource), //
 				UPDATE_INTERVAL_IN_SECONDS, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 
@@ -72,12 +74,12 @@ public class PeriodicWriteWorker {
 		}
 	}
 
-	private Consumer<MyConnection> task = (connection) -> {
+	private Consumer<HikariDataSource> task = (dataSource) -> {
 		try {
-			this.writeLastMessage(connection);
-			this.writeLastUpdate(connection);
-			this.writeIsOnline(connection);
-			this.writeIsOffline(connection);
+			this.writeLastMessage(dataSource);
+			this.writeLastUpdate(dataSource);
+			this.writeIsOnline(dataSource);
+			this.writeIsOffline(dataSource);
 
 		} catch (SQLException e) {
 			this.log.error("Unable to execute WriteWorker task: " + e.getMessage());
@@ -95,7 +97,7 @@ public class PeriodicWriteWorker {
 		}
 	}
 
-	private void writeIsOffline(MyConnection connection) throws SQLException {
+	private void writeIsOffline(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.isOfflineOdooIds) {
 			if (!this.isOfflineOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
@@ -108,13 +110,12 @@ public class PeriodicWriteWorker {
 								.collect(Collectors.joining(",")));
 				this.isOfflineOdooIds.clear();
 				sql.append(")");
-				Statement s = connection.get().createStatement();
-				s.executeUpdate(sql.toString());
+				this.executeSql(dataSource, sql.toString());
 			}
 		}
 	}
 
-	private void writeIsOnline(MyConnection connection) throws SQLException {
+	private void writeIsOnline(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.isOnlineOdooIds) {
 			if (!this.isOnlineOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
@@ -127,13 +128,12 @@ public class PeriodicWriteWorker {
 								.collect(Collectors.joining(",")));
 				this.isOnlineOdooIds.clear();
 				sql.append(")");
-				Statement s = connection.get().createStatement();
-				s.executeUpdate(sql.toString());
+				this.executeSql(dataSource, sql.toString());
 			}
 		}
 	}
 
-	private void writeLastUpdate(MyConnection connection) throws SQLException {
+	private void writeLastUpdate(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.lastUpdateOdooIds) {
 			if (!this.lastUpdateOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
@@ -146,13 +146,12 @@ public class PeriodicWriteWorker {
 								.collect(Collectors.joining(",")));
 				this.lastUpdateOdooIds.clear();
 				sql.append(")");
-				Statement s = connection.get().createStatement();
-				s.executeUpdate(sql.toString());
+				this.executeSql(dataSource, sql.toString());
 			}
 		}
 	}
 
-	private void writeLastMessage(MyConnection connection) throws SQLException {
+	private void writeLastMessage(HikariDataSource dataSource) throws SQLException {
 		synchronized (this.lastMessageOdooIds) {
 			if (!this.lastMessageOdooIds.isEmpty()) {
 				StringBuilder sql = new StringBuilder(//
@@ -165,9 +164,15 @@ public class PeriodicWriteWorker {
 								.collect(Collectors.joining(",")));
 				this.lastMessageOdooIds.clear();
 				sql.append(")");
-				Statement s = connection.get().createStatement();
-				s.executeUpdate(sql.toString());
+				this.executeSql(dataSource, sql.toString());
 			}
+		}
+	}
+
+	private void executeSql(HikariDataSource dataSource, String sql) throws SQLException {
+		try (Connection con = dataSource.getConnection(); //
+		) {
+			con.createStatement().executeUpdate(sql);
 		}
 	}
 

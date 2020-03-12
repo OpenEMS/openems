@@ -284,6 +284,11 @@ public class EdgeConfig {
 			return this.channels;
 		}
 
+		public void setChannels(Map<String, Channel> channels) {
+			this.channels.clear();
+			this.channels.putAll(channels);
+		}
+
 		public Map<String, Channel> getChannelsOfCategory(ChannelCategory channelCategory) {
 			return this.channels.entrySet().stream()
 					.filter(entry -> entry.getValue().getDetail().getCategory() == channelCategory) //
@@ -790,8 +795,19 @@ public class EdgeConfig {
 		this.components.put(id, component);
 	}
 
-	public void addFactory(String id, Factory factory) {
-		this.factories.put(id, factory);
+	public void removeComponent(String id) {
+		this.components.remove(id);
+	}
+
+	/**
+	 * Add a Factory.
+	 * 
+	 * @param id      the Factory-ID
+	 * @param factory the {@link Factory}
+	 * @return true if this operation changed the {@link EdgeConfig}
+	 */
+	public boolean addFactory(String id, Factory factory) {
+		return this.factories.put(id, factory) != null;
 	}
 
 	public TreeMap<String, Component> getComponents() {

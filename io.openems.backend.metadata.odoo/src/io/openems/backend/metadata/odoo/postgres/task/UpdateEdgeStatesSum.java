@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.odoo.postgres.task;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,7 +15,6 @@ import com.google.common.collect.TreeMultimap;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.Field.EdgeDeviceStatus;
-import io.openems.backend.metadata.odoo.postgres.MyConnection;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
@@ -30,7 +30,7 @@ public class UpdateEdgeStatesSum implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(MyConnection connection) throws SQLException {
+	public void execute(Connection connection) throws SQLException {
 		/*
 		 * Query non-acknowledged states
 		 */
@@ -98,8 +98,8 @@ public class UpdateEdgeStatesSum implements DatabaseTask {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psQueryNotAcknowledgedDeviceStates(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psQueryNotAcknowledgedDeviceStates(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"SELECT " + Field.getSqlQueryFields(EdgeDeviceStatus.values()) //
 						+ " FROM " + EdgeDeviceStatus.ODOO_TABLE //
 						+ " WHERE device_id = ?" //
@@ -116,12 +116,18 @@ public class UpdateEdgeStatesSum implements DatabaseTask {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psUpdateEdgeState(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psUpdateEdgeState(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"UPDATE " + EdgeDevice.ODOO_TABLE //
 						+ " SET" //
 						+ " " + EdgeDevice.OPENEMS_SUM_STATE.id() + " = ?," //
 						+ " " + EdgeDevice.OPENEMS_SUM_STATE_TEXT.id() + " = ?" //
 						+ " WHERE id = ?");
 	}
+
+	@Override
+	public String toString() {
+		return "UpdateEdgeStatesSum [odooId=" + odooId + "]";
+	}
+
 }
