@@ -93,10 +93,13 @@ public class EnergyValuesHandler {
 	 * @param essActiveChargeEnergySum
 	 */
 	public void setValue(Sum.ChannelId channelId, Long value) {
-		if (!this.lastEnergyValues.containsKey(channelId)) {
-			// lastValue was not initialized yet -> abort
-			return;
-		}
+		/*
+		 * TODO block takes care of fixing the steady energy values. Need to update
+		 */
+//		if (!this.lastEnergyValues.containsKey(channelId)) {
+//			// lastValue was not initialized yet -> abort
+//			return;
+//		}
 		Long lastValue = this.lastEnergyValues.get(channelId);
 		if (value == null || (lastValue != null && lastValue > value)) {
 			this.parent.channel(channelId).setNextValue(null);

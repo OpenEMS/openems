@@ -140,11 +140,11 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
 
 				// Energy values
-				new FC3ReadRegistersTask(35191, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(35191),
+				new FC3ReadRegistersTask(35200, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(35200),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
-				new FC3ReadRegistersTask(35203, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(35203),
+				new FC3ReadRegistersTask(35195, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(35195),
 								ElementToChannelConverter.SCALE_FACTOR_2)));
 	}
 
