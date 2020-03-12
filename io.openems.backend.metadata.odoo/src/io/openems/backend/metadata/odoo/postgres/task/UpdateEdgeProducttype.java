@@ -1,10 +1,10 @@
 package io.openems.backend.metadata.odoo.postgres.task;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
-import io.openems.backend.metadata.odoo.postgres.MyConnection;
 
 public class UpdateEdgeProducttype implements DatabaseTask {
 
@@ -17,7 +17,7 @@ public class UpdateEdgeProducttype implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(MyConnection connection) throws SQLException {
+	public void execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psUpdateProductType(connection);
 		ps.setString(1, this.producttype);
 		ps.setInt(2, this.odooId);
@@ -30,11 +30,17 @@ public class UpdateEdgeProducttype implements DatabaseTask {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psUpdateProductType(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psUpdateProductType(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"UPDATE " + EdgeDevice.ODOO_TABLE //
 						+ " SET" //
 						+ " " + EdgeDevice.PRODUCT_TYPE.id() + " = ?" //
 						+ " WHERE id = ?");
 	}
+
+	@Override
+	public String toString() {
+		return "UpdateEdgeProducttype [odooId=" + odooId + ", producttype=" + producttype + "]";
+	}
+
 }

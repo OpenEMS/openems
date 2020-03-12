@@ -70,4 +70,6 @@
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	org.osgi.service.metatype;version='[1.4.0,1.4.1)',\
-	org.postgresql.jdbc42;version='[42.2.10,42.2.11)'
+	org.postgresql.jdbc42;version='[42.2.10,42.2.11)',\
+	com.google.guava;version='[23.0.0,23.0.1)',\
+	com.zaxxer.HikariCP;version='[2.4.7,2.4.8)'

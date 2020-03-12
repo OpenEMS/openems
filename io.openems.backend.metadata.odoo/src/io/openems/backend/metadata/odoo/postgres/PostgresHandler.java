@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.odoo.postgres;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -7,7 +8,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.postgresql.Driver;
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
@@ -26,22 +31,23 @@ public class PostgresHandler {
 	protected final EdgeCache edgeCache;
 
 	private final MetadataOdoo parent;
-	private final Credentials credentials;
+	private final HikariDataSource dataSource;
 	private final InitializeEdgesWorker initializeEdgesWorker;
 	private final PeriodicWriteWorker periodicWriteWorker;
 	private final QueueWriteWorker queueWriteWorker;
 
-	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, Runnable onInitialized) {
+	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
+			throws SQLException {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
-		this.credentials = Credentials.fromConfig(config);
-		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.credentials, () -> {
+		this.dataSource = this.getDataSource(config);
+		this.initializeEdgesWorker = new InitializeEdgesWorker(this, dataSource, () -> {
 			onInitialized.run();
 		});
 		this.initializeEdgesWorker.start();
-		this.periodicWriteWorker = new PeriodicWriteWorker(this, this.credentials);
+		this.periodicWriteWorker = new PeriodicWriteWorker(this, dataSource);
 		this.periodicWriteWorker.start();
-		this.queueWriteWorker = new QueueWriteWorker(this, this.credentials);
+		this.queueWriteWorker = new QueueWriteWorker(this, dataSource);
 		this.queueWriteWorker.start();
 	}
 
@@ -102,6 +108,30 @@ public class PostgresHandler {
 
 	public QueueWriteWorker getQueueWriteWorker() {
 		return this.queueWriteWorker;
+	}
+
+	/**
+	 * Creates a {@link HikariDataSource} connection pool.
+	 * 
+	 * @param config the configuration
+	 * @return the HikariDataSource
+	 * @throws SQLException on error
+	 */
+	private HikariDataSource getDataSource(Config config) throws SQLException {
+		if (!Driver.isRegistered()) {
+			Driver.register();
+		}
+		PGSimpleDataSource pgds = new PGSimpleDataSource();
+		pgds.setServerNames(new String[] { config.pgHost() });
+		pgds.setPortNumbers(new int[] { config.pgPort() });
+		pgds.setDatabaseName(config.database());
+		pgds.setUser(config.pgUser());
+		if (config.pgPassword() != null) {
+			pgds.setPassword(config.pgPassword());
+		}
+		HikariDataSource result = new HikariDataSource();
+		result.setDataSource(pgds);
+		return result;
 	}
 
 	protected void logInfo(Logger log, String message) {
