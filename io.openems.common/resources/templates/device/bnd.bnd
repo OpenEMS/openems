@@ -6,8 +6,7 @@ Bundle-Version: 1.0.0.\${tstamp}
 -buildpath: \
 	\${buildpath},\
 	io.openems.common,\
-	io.openems.edge.common,\
-	slf4j.api
+	io.openems.edge.common
 
 -testpath: \
 	\${testpath}

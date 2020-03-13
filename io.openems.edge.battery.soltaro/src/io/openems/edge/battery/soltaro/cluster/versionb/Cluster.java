@@ -27,6 +27,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.versionb.Enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.versionb.Enums.RackUsage;
@@ -458,7 +459,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
-				new FC16WriteRegistersTask(0x1017, //
+				new FC16WriteRegistersTask(0x1004, //
 						m(ClusterChannelId.RESET, new UnsignedWordElement(0x1004)) //
 				), //
 
@@ -542,7 +543,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
-						m(ClusterChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
+						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(ClusterChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
 						new DummyRegisterElement(0x1046), //
@@ -662,20 +663,41 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
 	}
-
-	protected void recalculateMinCellVoltage() {
-
-		int minCellVoltage = Integer.MAX_VALUE;
+	
+	protected void recalculateMaxCellVoltage() {
+		int max = Integer.MIN_VALUE;
 
 		for (SingleRack rack : this.racks.values()) {
-			int mcv = rack.getMinimalCellVoltage();			
-			if (mcv > 0) {
-				minCellVoltage = Math.min(minCellVoltage, mcv);
-			}
-
+			max = Math.max(max, rack.getMaximalCellVoltage());
 		}
+		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(max);
+	}
+	
+	protected void recalculateMinCellVoltage() {
+		int min = Integer.MAX_VALUE;
 
-		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
+		for (SingleRack rack : this.racks.values()) {
+			min = Math.min(min, rack.getMinimalCellVoltage());
+		}
+		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(min);
+	}
+	
+	protected void recalculateMaxCellTemperature() {
+		int max = Integer.MIN_VALUE;
+
+		for (SingleRack rack : this.racks.values()) {
+			max = Math.max(max, rack.getMaximalCellTemperature());
+		}
+		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(max);
+	}
+	
+	protected void recalculateMinCellTemperature() {
+		int min = Integer.MAX_VALUE;
+
+		for (SingleRack rack : this.racks.values()) {
+			min = Math.min(min, rack.getMinimalCellTemperature());
+		}
+		this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(min);
 	}
 
 	@Override

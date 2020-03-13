@@ -5,12 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.guava,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.meter.api,\
-	slf4j.api
+	io.openems.edge.meter.api
 
 -testpath: \
 	${testpath}
