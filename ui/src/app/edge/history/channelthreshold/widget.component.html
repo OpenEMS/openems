@@ -1,10 +1,7 @@
-<ion-card button (click)="presentModal()">
+<ion-card *ngIf="component" button (click)="presentModal()">
   <ion-item lines="full" color="light">
-    <!-- <ion-avatar slot="start">
-          <img src="assets/img/consumption.png">
-      </ion-avatar> -->
     <ion-icon slot="start" size="large" name="radio-button-on" color="primary"></ion-icon>
-    <ion-label translate>Edge.Index.Widgets.Channeltreshold.Output</ion-label>
+    <ion-label>{{ component.alias }}</ion-label>
   </ion-item>
   <ion-card-content>
     <table class="full_width">

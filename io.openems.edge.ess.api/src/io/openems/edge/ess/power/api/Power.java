@@ -107,10 +107,9 @@ public interface Power {
 	}
 
 	/**
-	 * Builds a PidFilter instance with the configured P, I and D variables. If no
-	 * configuration is found, it falls back to default PidFilter values.
+	 * Gets the PidFilter instance with the configured P, I and D variables.
 	 * 
 	 * @return an instance of {@link PidFilter}
 	 */
-	public PidFilter buildPidFilter();
+	public PidFilter getPidFilter();
 }

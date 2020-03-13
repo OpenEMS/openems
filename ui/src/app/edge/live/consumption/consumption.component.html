@@ -5,7 +5,7 @@
                 <ion-avatar slot="start">
                     <img src="assets/img/consumption.png">
                 </ion-avatar>
-                <ion-label translate>General.Consumption</ion-label>
+                <ion-label translate>General.consumption</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.consumption as sum">
                 <table class="full_width" *ngIf="evcsComponents">
@@ -20,16 +20,18 @@
                     <ng-container *ngIf="evcsComponents.length > 0">
                         <ng-container *ngFor="let component of evcsComponents">
                             <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                                <tr>
-                                    <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
-                                    </td>
-                                    <td style="width: 65%" *ngIf="component.id != component.alias">
-                                        {{component.alias}}
-                                    </td>
-                                    <td style="width:35%" class="align_right">
-                                        {{ currentData[component.id + '/ChargePower'] | unitvalue:'kW' }}
-                                    </td>
-                                </tr>
+                                <ng-container *ngIf="currentData[component.id + '/ChargePower'] > 0">
+                                    <tr>
+                                        <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
+                                        </td>
+                                        <td style="width: 65%" *ngIf="component.id != component.alias">
+                                            {{component.alias}}
+                                        </td>
+                                        <td style="width:35%" class="align_right">
+                                            {{ currentData[component.id + '/ChargePower'] | unitvalue:'kW' }}
+                                        </td>
+                                    </tr>
+                                </ng-container>
                             </ng-container>
                         </ng-container>
 
