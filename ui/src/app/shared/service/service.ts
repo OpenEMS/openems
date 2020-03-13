@@ -290,7 +290,7 @@ export class Service implements ErrorHandler {
     if (['fems7', 'fems66', 'fems566', 'fems888', 'fems1802'].includes(edge.id)) {
       return true;
     }
-    if (['PRO Hybrid 9-10'].includes(edge.producttype)) {
+    if (['PRO Hybrid 9-10', 'Pro Hybrid GW'].includes(edge.producttype)) {
       return true;
     }
     return false;
