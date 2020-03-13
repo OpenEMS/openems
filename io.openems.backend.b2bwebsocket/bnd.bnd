@@ -9,7 +9,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.backend.metadata.api,\
 	io.openems.backend.timedata.api,\
 	io.openems.common,\
-	io.openems.wrapper.websocket
+	Java-WebSocket;version=1.4.1
 
 -testpath: \
 	${testpath}
