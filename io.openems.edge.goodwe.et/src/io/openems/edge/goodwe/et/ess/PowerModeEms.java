@@ -2,9 +2,9 @@ package io.openems.edge.goodwe.et.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum PowerModeEMS implements OptionsEnum {
+public enum PowerModeEms implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	STOPPED(0, "Stop connection to grid and turn to wait mode"), //
+	STOPPED(255, "Stop connection to grid and turn to wait mode"), //
 	AUTO(1, "Self-Use mode, Smart Meter Com. Normal, and battery power is controlled based on Meter power"), //
 	CHARGE_PV(2, "Charge Mode"), //
 	DISCHARGE_PV(3, "Discharge Mode "), //
@@ -14,14 +14,14 @@ public enum PowerModeEMS implements OptionsEnum {
 	OFF_GRID(7, "cut off from gridconnection and turns to off-gridmode "), //
 	BATTERY_STANDBY(8, "Battery Standby Mode "), //
 	BUY_POWER(9, "Buying Mode"), //
-	SELL_POWER(0x000A, "Selling Mode"), //
-	CHARGE_BAT(0x000B, "Charge Mode"), //
-	DISCHARGE_BAT(0x000C, "DisCharging Mode"); //
+	SELL_POWER(10, "Selling Mode"), //
+	CHARGE_BAT(11, "Charge Mode"), //
+	DISCHARGE_BAT(12, "DisCharging Mode"); //
 
 	private final int value;
 	private final String option;
 
-	private PowerModeEMS(int value, String option) {
+	private PowerModeEms(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}
