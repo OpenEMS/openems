@@ -86,7 +86,7 @@ export class ChpsocModalComponent implements OnInit {
         let newLowerThreshold = this.thresholds['lower'];
         let newUpperThreshold = this.thresholds['upper'];
 
-        if (this.edge != null) {
+        if (this.edge != null && (newLowerThreshold != oldLowerThreshold || newUpperThreshold != oldUpperThreshold)) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
                 { name: 'lowThreshold', value: newLowerThreshold },
                 { name: 'highThreshold', value: newUpperThreshold }
