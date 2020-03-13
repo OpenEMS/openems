@@ -23,7 +23,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.goodwe.et.ess.GoodWeEtBatteryInverter;
 
 @Designate(ocd = ConfigPV1.class, factory = true)
-@Component( //
+@Component(//
 		name = "GoodWe.ET.Charger-PV1", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
@@ -50,7 +50,6 @@ public class GoodWeEtChargerPv1 extends AbstractGoodWeEtCharger implements EssDc
 	 * 
 	 * TODO update required from GoodWe regarding individual energy registers.
 	 */
-
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 

@@ -12,6 +12,6 @@ public interface GoodWeEtBatteryInverter extends SymmetricEss, OpenemsComponent 
 
 	public void addCharger(AbstractGoodWeEtCharger charger);
 
-	public void removeCharger(AbstractGoodWeEtCharger charger);	
+	public void removeCharger(AbstractGoodWeEtCharger charger);
 
 }

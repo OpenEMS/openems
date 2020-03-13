@@ -3,7 +3,7 @@ package io.openems.edge.goodwe.et.gridmeter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "GoodWe ET Grid-Meter", //
 		description = "The grid-meter implementation of a Goodwe.")
 

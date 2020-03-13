@@ -590,7 +590,7 @@ public enum EssChannelId implements ChannelId {
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	FEED_POWER_PARA(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.WATT).accessMode(AccessMode.READ_WRITE)), //
-	EMS_POWER_MODE(Doc.of(PowerModeEMS.values()) //
+	EMS_POWER_MODE(Doc.of(PowerModeEms.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
 	EMS_POWER_SET(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
