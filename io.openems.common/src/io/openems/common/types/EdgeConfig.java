@@ -243,45 +243,50 @@ public class EdgeConfig {
 			}
 		}
 
+		private final String servicePid;
 		private final String id;
 		private final String alias;
-		private final boolean isEnabled;
 		private final String factoryId;
 		private final TreeMap<String, JsonElement> properties;
 		private final TreeMap<String, Channel> channels;
 
-		public Component(String id, String alias, boolean isEnabled, String factoryId,
+		public Component(String servicePid, String id, String alias, String factoryId,
 				TreeMap<String, JsonElement> properties, TreeMap<String, Channel> channels) {
+			this.servicePid = servicePid;
 			this.id = id;
 			this.alias = alias;
-			this.isEnabled = isEnabled;
 			this.factoryId = factoryId;
 			this.properties = properties;
 			this.channels = channels;
 		}
 
+		public String getPid() {
+			return this.servicePid;
+		}
+
 		public String getId() {
-			return id;
+			return this.id;
 		}
 
 		public String getAlias() {
-			return alias;
-		}
-
-		public boolean isEnabled() {
-			return isEnabled;
+			return this.alias;
 		}
 
 		public String getFactoryId() {
-			return factoryId;
+			return this.factoryId;
 		}
 
 		public Map<String, JsonElement> getProperties() {
-			return properties;
+			return this.properties;
 		}
 
 		public Map<String, Channel> getChannels() {
-			return channels;
+			return this.channels;
+		}
+
+		public void setChannels(Map<String, Channel> channels) {
+			this.channels.clear();
+			this.channels.putAll(channels);
 		}
 
 		public Map<String, Channel> getChannelsOfCategory(ChannelCategory channelCategory) {
@@ -353,7 +358,6 @@ public class EdgeConfig {
 			}
 			JsonObjectBuilder result = JsonUtils.buildJsonObject() //
 					.addProperty("alias", this.getAlias()) //
-					.addProperty("isEnabled", this.isEnabled()) //
 					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties); //
 			switch (jsonFormat) {
@@ -385,7 +389,6 @@ public class EdgeConfig {
 		 */
 		public static Component fromJson(String componentId, JsonElement json) throws OpenemsNamedException {
 			String alias = JsonUtils.getAsOptionalString(json, "alias").orElse(componentId);
-			boolean isEnabled = JsonUtils.getAsOptionalBoolean(json, "isEnabled").orElse(false);
 			String factoryId = JsonUtils.getAsOptionalString(json, "factoryId").orElse("NO_FACTORY_ID");
 			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			Optional<JsonObject> jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
@@ -402,9 +405,9 @@ public class EdgeConfig {
 				}
 			}
 			return new Component(//
+					"NO_SERVICE_PID", //
 					componentId, //
 					alias, //
-					isEnabled, //
 					factoryId, //
 					properties, //
 					channels);
@@ -792,8 +795,19 @@ public class EdgeConfig {
 		this.components.put(id, component);
 	}
 
-	public void addFactory(String id, Factory factory) {
-		this.factories.put(id, factory);
+	public void removeComponent(String id) {
+		this.components.remove(id);
+	}
+
+	/**
+	 * Add a Factory.
+	 * 
+	 * @param id      the Factory-ID
+	 * @param factory the {@link Factory}
+	 * @return true if this operation changed the {@link EdgeConfig}
+	 */
+	public boolean addFactory(String id, Factory factory) {
+		return this.factories.put(id, factory) != null;
 	}
 
 	public TreeMap<String, Component> getComponents() {
@@ -985,6 +999,7 @@ public class EdgeConfig {
 		for (Entry<String, JsonElement> entry : things.entrySet()) {
 			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(config, "id");
+			String servicePid = "NO";
 			String alias = JsonUtils.getAsOptionalString(config, "alias").orElse(id);
 			String clazz = JsonUtils.getAsString(config, "class");
 			TreeMap<String, JsonElement> properties = new TreeMap<>();
@@ -1003,7 +1018,7 @@ public class EdgeConfig {
 				}
 			}
 			TreeMap<String, Component.Channel> channels = new TreeMap<>();
-			result.addComponent(id, new EdgeConfig.Component(id, alias, true, clazz, properties, channels));
+			result.addComponent(id, new EdgeConfig.Component(servicePid, id, alias, clazz, properties, channels));
 		}
 
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");

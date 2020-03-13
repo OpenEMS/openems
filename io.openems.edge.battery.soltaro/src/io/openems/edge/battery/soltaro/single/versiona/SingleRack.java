@@ -27,6 +27,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -34,6 +35,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
@@ -281,7 +283,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					this.pendingTimestamp = null;
 				}
 			}
-			break;		
+			break;
+		case ERROR_HANDLING:
+			// Cannot handle errors
+			break;
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
@@ -400,7 +405,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		// EnumReadChannels
 		CLUSTER_RUN_STATE(Doc.of(ClusterRunState.values())), //
-		CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
+//		CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 
 		// EnumWriteChannels
 		BMS_CONTACTOR_CONTROL(Doc.of(ContactorControl.values()) //
@@ -1124,9 +1129,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(0x2101), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SingleRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
+						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x2104)), //
 						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
