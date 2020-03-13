@@ -25,12 +25,6 @@
       <property name="allowByTailComment" value="true"/>
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
-    <module name="LineLength">
-      <property name="severity" value="ignore"/>
-      <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-      <property name="max" value="140"/>
-      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
-    </module>
     <module name="AvoidStarImport"/>
     <module name="OneTopLevelClass"/>
     <module name="NoLineWrap"/>
@@ -155,10 +149,6 @@
     </module>
     <module name="OverloadMethodsDeclarationOrder"/>
     <module name="VariableDeclarationUsageDistance"/>
-    <module name="CustomImportOrder">
-      <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-      <property name="sortImportsInGroupAlphabetically" value="false"/>
-    </module>
     <module name="MethodParamPad"/>
     <module name="NoWhitespaceBefore">
       <property name="allowLineBreaks" value="true"/>
@@ -202,6 +192,12 @@
     </module>
     <module name="CommentsIndentation"/>
     <module name="SuppressionCommentFilter"/>
+  </module>
+  <module name="LineLength">
+    <property name="severity" value="ignore"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    <property name="max" value="140"/>
+    <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
   </module>
   <module name="FileTabCharacter">
     <property name="severity" value="ignore"/>

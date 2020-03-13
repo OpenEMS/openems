@@ -5,15 +5,12 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.gson,\
-	com.google.guava,\
 	io.openems.backend.common,\
 	io.openems.backend.metadata.api,\
 	io.openems.backend.timedata.api,\
 	io.openems.common,\
 	io.openems.shared.influxdb,\
-	io.openems.wrapper.influxdb-java,\
-	slf4j.api
+	io.openems.wrapper.influxdb-java
 
 -testpath: \
 	${testpath}
