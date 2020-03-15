@@ -4,44 +4,56 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import io.openems.backend.metadata.odoo.Field.EdgeDeviceStatus;
 import io.openems.common.channel.Level;
 import io.openems.common.types.ChannelAddress;
 
-public class InsertOrUpdateDeviceState implements DatabaseTask {
-	private final int odooId;
-	private final ChannelAddress channelAddress;
-	private final Level level;
-	private final String stateChannelName;
-	private final Timestamp timestamp;
+public class InsertOrUpdateDeviceStates extends DatabaseTask {
 
-	public InsertOrUpdateDeviceState(int odooId, ChannelAddress channelAddress, Level level, String stateChannelName,
-			Timestamp timestamp) {
+	public static class DeviceState {
+		private final ChannelAddress channelAddress;
+		private final Level level;
+		private final String stateChannelName;
+
+		public DeviceState(ChannelAddress channelAddress, Level level, String stateChannelName) {
+			this.channelAddress = channelAddress;
+			this.level = level;
+			this.stateChannelName = stateChannelName;
+		}
+	}
+
+	private final int odooId;
+	private final Timestamp timestamp;
+	private final List<DeviceState> deviceStates;
+
+	public InsertOrUpdateDeviceStates(int odooId, Timestamp timestamp, List<DeviceState> deviceStates) {
 		this.odooId = odooId;
-		this.channelAddress = channelAddress;
-		this.level = level;
-		this.stateChannelName = stateChannelName;
 		this.timestamp = timestamp;
+		this.deviceStates = deviceStates;
 	}
 
 	@Override
-	public void execute(Connection connection) throws SQLException {
+	protected void _execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psInsertOrUpdateDeviceState(connection);
 		// device_id
 		ps.setInt(1, this.odooId);
-		// channel_address
-		ps.setString(2, this.channelAddress.toString());
-		// level
-		ps.setString(3, this.level.name().toLowerCase());
-		// component_id
-		ps.setString(4, this.channelAddress.getComponentId());
-		// channel_name
-		ps.setString(5, this.stateChannelName);
 		// last_appearance
-		ps.setTimestamp(6, this.timestamp);
+		ps.setTimestamp(2, this.timestamp);
 
-		ps.execute();
+		for (DeviceState deviceState : this.deviceStates) {
+			// channel_address
+			ps.setString(3, deviceState.channelAddress.toString());
+			// level
+			ps.setString(4, deviceState.level.name().toLowerCase());
+			// component_id
+			ps.setString(5, deviceState.channelAddress.getComponentId());
+			// channel_name
+			ps.setString(6, deviceState.stateChannelName);
+
+			ps.execute();
+		}
 	}
 
 	/**
@@ -57,7 +69,7 @@ public class InsertOrUpdateDeviceState implements DatabaseTask {
 	private PreparedStatement psInsertOrUpdateDeviceState(Connection connection) throws SQLException {
 		return connection.prepareStatement(//
 				"INSERT INTO " + EdgeDeviceStatus.ODOO_TABLE //
-						+ " (device_id, channel_address, level, component_id, channel_name, last_appearance)" //
+						+ " (device_id, last_appearance, channel_address, level, component_id, channel_name)" //
 						+ " VALUES(?, ?, ?, ?, ?, ?)" //
 						+ "	ON CONFLICT (device_id, channel_address)" //
 						+ " DO UPDATE SET" //
@@ -67,7 +79,6 @@ public class InsertOrUpdateDeviceState implements DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "InsertOrUpdateDeviceState [odooId=" + odooId + ", channelAddress=" + channelAddress + ", level=" + level
-				+ ", stateChannelName=" + stateChannelName + ", timestamp=" + timestamp + "]";
+		return "InsertOrUpdateDeviceState [odooId=" + odooId + ", timestamp=" + timestamp + "]";
 	}
 }

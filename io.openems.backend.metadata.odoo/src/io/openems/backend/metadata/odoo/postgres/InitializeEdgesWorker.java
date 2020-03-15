@@ -17,7 +17,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.MyEdge;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStatesSum;
 
 public class InitializeEdgesWorker {
 
@@ -88,7 +87,7 @@ public class InitializeEdgesWorker {
 					MyEdge edge = self.parent.edgeCache.addOrUpate(rs);
 
 					// Trigger update to Edge States Sum
-					self.parent.getQueueWriteWorker().addTask(new UpdateEdgeStatesSum(edge.getOdooId()));
+					self.parent.getPeriodicWriteWorker().triggerUpdateEdgeStatesSum(edge);
 				} catch (Exception e) {
 					self.parent.logError(this.log,
 							"Unable to read Edge: " + e.getClass().getSimpleName() + ". " + e.getMessage());
