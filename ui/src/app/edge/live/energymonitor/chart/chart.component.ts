@@ -30,8 +30,8 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
   @Input()
   set currentData(currentData: CurrentData) {
-    this.loading = false;
     this.updateCurrentData(currentData);
+    this.loading = false;
   }
 
   public translation: string;

@@ -23,6 +23,7 @@ export class ModalComponentEvcsCluster implements OnInit {
 
     public chargeState: ChargeState;
     private chargePlug: ChargePlug;
+    public displayInfo: boolean = false;
     public evcsAmount: number;
     public swiperIndex: number = 0;
     public slideOpts = {
@@ -67,7 +68,7 @@ export class ModalComponentEvcsCluster implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 this.config.properties.chargeMode = oldListOrder;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -103,7 +104,7 @@ export class ModalComponentEvcsCluster implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.chargeMode = oldChargeMode;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -132,7 +133,7 @@ export class ModalComponentEvcsCluster implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.priority = oldPriority;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -156,7 +157,7 @@ export class ModalComponentEvcsCluster implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.forceChargeMinPower = oldMinChargePower;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -179,7 +180,7 @@ export class ModalComponentEvcsCluster implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.defaultChargeMinPower = oldMinChargePower;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -211,7 +212,7 @@ export class ModalComponentEvcsCluster implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.defaultChargeMinPower = oldMinChargePower;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -234,7 +235,7 @@ export class ModalComponentEvcsCluster implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.enabledCharging = oldChargingState;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
