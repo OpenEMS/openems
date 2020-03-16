@@ -57,9 +57,35 @@ public class Abl extends AbstractOcppEvcsComponent
 			OcppProfileType.CORE //
 	};
 
-	// Values that a ABL is supporting
-	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<OcppInformations>(
-			Arrays.asList(OcppInformations.values()));
+	/*
+	 * Values that a ABL is supporting Info: It is not sure that the ABL is using
+	 * all of them, but in particular it is not supporting the information of the
+	 * current power.
+	 */
+	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<OcppInformations>( //
+			Arrays.asList( //
+					OcppInformations.CORE_METER_VALUES_CURRENT_EXPORT, //
+					OcppInformations.CORE_METER_VALUES_CURRENT_IMPORT, //
+					OcppInformations.CORE_METER_VALUES_CURRENT_OFFERED, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_REGISTER, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_INTERVAL, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_INTERVAL, //
+					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_INTERVAL, //
+					OcppInformations.CORE_METER_VALUES_FREQUENCY, //
+					OcppInformations.CORE_METER_VALUES_POWER_FACTOR, //
+					OcppInformations.CORE_METER_VALUES_POWER_OFFERED, //
+					OcppInformations.CORE_METER_VALUES_POWER_REACTIVE_EXPORT, //
+					OcppInformations.CORE_METER_VALUES_POWER_REACTIVE_IMPORT, //
+					OcppInformations.CORE_METER_VALUES_RPM, //
+					OcppInformations.CORE_METER_VALUES_SOC, //
+					OcppInformations.CORE_METER_VALUES_TEMPERATURE, //
+					OcppInformations.CORE_METER_VALUES_VOLTAGE //
+			) //
+	);
 
 	private Config config;
 
@@ -100,7 +126,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	}
 
 	private int dynamicMaximumHardwarePower = 0;
-	
+
 	@Override
 	public Integer getConfiguredMaximumHardwarePower() {
 		String sessionId = this.getChargingSessionId().getNextValue().orElse("");
@@ -154,7 +180,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	@Override
 	public OcppRequests getSupportedRequests() {
 		AbstractOcppEvcsComponent evcs = this;
-		
+
 		return new OcppRequests() {
 
 			@Override

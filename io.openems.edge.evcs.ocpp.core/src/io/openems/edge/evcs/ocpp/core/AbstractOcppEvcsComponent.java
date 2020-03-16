@@ -10,6 +10,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 
+import com.google.common.collect.EvictingQueue;
+
 import eu.chargetime.ocpp.model.Request;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
@@ -27,6 +29,8 @@ import io.openems.edge.evcs.api.Status;
 public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		implements Evcs, MeasuringEvcs, EventHandler {
 
+	private EvictingQueue<ChargingProperty> meterValueQueue = EvictingQueue.create(10);
+	
 	protected final Set<OcppProfileType> profileTypes;
 
 	private final WriteHandler writeHandler = new WriteHandler(this);
@@ -211,6 +215,10 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		return this.channel(ChannelId.CONNECTOR_ID);
 	}
 
+	public EvictingQueue<ChargingProperty> getMeterValueQueue(){
+		return this.meterValueQueue;
+	}
+	
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);

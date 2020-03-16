@@ -8,9 +8,12 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.EvictingQueue;
+
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.core.ChargingProperty;
 import io.openems.edge.evcs.ocpp.core.OcppInformations;
 import eu.chargetime.ocpp.feature.profile.ServerCoreEventHandler;
 import eu.chargetime.ocpp.model.core.AuthorizationStatus;
@@ -197,10 +200,54 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						server.logInfoInDebug(this.log,
 								measurandString + ": " + val + " " + unitString + " Phases: " + phases);
 					}
+
+					if (measurand.equals(OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER)) {
+						// TODO: Set the evcs.energySession if we know when the charging started and
+						// ended.
+
+						if (!evcs.getSupportedMeasurements()
+								.contains(OcppInformations.CORE_METER_VALUES_POWER_ACTIVE_IMPORT)) {
+
+							EvictingQueue<ChargingProperty> meterValueQueue = evcs.getMeterValueQueue();
+							ChargingProperty meterValueOld = meterValueQueue.peek();
+
+							int power = 0;
+							Long currentEnergy = Long.parseLong(val);
+							
+							if (meterValueOld != null) {
+								power = this.calculateChargePower(meterValueOld, currentEnergy, meterValue.getTimestamp());
+								evcs.getChargePower().setNextValue(power);
+							}
+							meterValueQueue.add(new ChargingProperty(power, currentEnergy, meterValue.getTimestamp()));
+						}
+					}
 				}
 			}
 		}
 		return new MeterValuesConfirmation();
+	}
+
+	/**
+	 * Calculates the power depending on the last and current measured Energy.
+	 * 
+	 * @param meterValueOld    Last measured meter values
+	 * @param currentEnergy    Current measured Energy
+	 * @param currentTimestamp Time when the current Energy was measured
+	 * @return current power
+	 */
+	private int calculateChargePower(ChargingProperty lastMeterValue, long currentEnergy, Calendar currentTimestamp) {
+
+		long diffseconds = Math
+				.round((currentTimestamp.getTimeInMillis() - lastMeterValue.getTimestamp().getTimeInMillis()) / 1000.0);
+
+		long lastEnergy = lastMeterValue.getTotalMeterEnergy();
+
+		int power = (int) (Math.round((currentEnergy - lastEnergy) / (diffseconds / 3600.0)));
+
+		this.server.logInfoInDebug(log,
+				"Last: " + lastEnergy + "Wh, Current: " + currentEnergy + "Wh. Calculated Power: " + power);
+
+		return power;
 	}
 
 	@Override
