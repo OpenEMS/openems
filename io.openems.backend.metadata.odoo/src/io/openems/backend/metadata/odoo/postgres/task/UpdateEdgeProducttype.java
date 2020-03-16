@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 
-public class UpdateEdgeProducttype implements DatabaseTask {
+public class UpdateEdgeProducttype extends DatabaseTask {
 
 	private final int odooId;
 	private final String producttype;
@@ -17,7 +17,7 @@ public class UpdateEdgeProducttype implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(Connection connection) throws SQLException {
+	protected void _execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psUpdateProductType(connection);
 		ps.setString(1, this.producttype);
 		ps.setInt(2, this.odooId);
