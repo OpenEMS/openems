@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.goodwe.et.GoodWeEtConstants;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "GoodWe ET Charger PV2", //
 		description = "Implements the Goodwe-ET Charger.")
 

@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.odoo.postgres;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +12,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.MyEdge;
@@ -20,7 +23,7 @@ public class InitializeEdgesWorker {
 
 	private final Logger log = LoggerFactory.getLogger(InitializeEdgesWorker.class);
 	protected final PostgresHandler parent;
-	private final MyConnection connection;
+	private final HikariDataSource dataSource;
 	private final Runnable onFinished;
 
 	/**
@@ -28,9 +31,9 @@ public class InitializeEdgesWorker {
 	 */
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	public InitializeEdgesWorker(PostgresHandler parent, Credentials credentials, Runnable onFinished) {
+	public InitializeEdgesWorker(PostgresHandler parent, HikariDataSource dataSource, Runnable onFinished) {
 		this.parent = parent;
-		this.connection = new MyConnection(credentials);
+		this.dataSource = dataSource;
 		this.onFinished = onFinished;
 	}
 
@@ -39,7 +42,6 @@ public class InitializeEdgesWorker {
 	}
 
 	public synchronized void stop() {
-		this.connection.deactivate();
 		// Shutdown executor
 		if (this.executor != null) {
 			try {
@@ -57,9 +59,13 @@ public class InitializeEdgesWorker {
 	}
 
 	private Consumer<InitializeEdgesWorker> task = (self) -> {
-		// First: mark all Edges as offline
-		try {
-			this.psUpdateAllEdgesOffline(self.connection).execute();
+		/*
+		 * First: mark all Edges as offline
+		 */
+		try (Connection con = self.dataSource.getConnection(); //
+				PreparedStatement pst = self.psUpdateAllEdgesOffline(con); //
+		) {
+			pst.execute();
 		} catch (SQLException e) {
 			self.parent.logError(this.log,
 					"Unable to mark Edges offline. " + e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -69,9 +75,11 @@ public class InitializeEdgesWorker {
 		/**
 		 * Reads all Edges from Postgres and puts them in a local Cache.
 		 */
-		try {
+		try (Connection con = self.dataSource.getConnection(); //
+				PreparedStatement pst = self.psQueryAllEdges(con); //
+				ResultSet rs = pst.executeQuery(); //
+		) {
 			self.parent.logInfo(this.log, "Caching Edges from Postgres");
-			ResultSet rs = this.psQueryAllEdges(self.connection).executeQuery();
 			for (int i = 0; rs.next(); i++) {
 				if (i % 100 == 0) {
 					self.parent.logInfo(this.log, "Caching Edges from Postgres. Finished [" + i + "]");
@@ -87,8 +95,7 @@ public class InitializeEdgesWorker {
 					e.printStackTrace();
 				}
 			}
-
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			self.parent.logError(this.log,
 					"Unable to initialize Edges: " + e.getClass().getSimpleName() + ". " + e.getMessage());
 			e.printStackTrace();
@@ -104,8 +111,8 @@ public class InitializeEdgesWorker {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psQueryAllEdges(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psQueryAllEdges(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
 						+ " FROM " + EdgeDevice.ODOO_TABLE //
 						+ ";");
@@ -117,8 +124,8 @@ public class InitializeEdgesWorker {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psUpdateAllEdgesOffline(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psUpdateAllEdgesOffline(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"UPDATE " + EdgeDevice.ODOO_TABLE //
 						+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
 						+ ";");

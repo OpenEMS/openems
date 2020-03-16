@@ -56,6 +56,11 @@ public class ChpSocTest {
 		public Mode mode() {
 			return this.mode;
 		}
+
+		@Override
+		public boolean invert() {
+			return false;
+		}
 	}
 
 	@Test

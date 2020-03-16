@@ -1,14 +1,15 @@
 package io.openems.backend.metadata.odoo.postgres.task;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.google.gson.GsonBuilder;
 
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
-import io.openems.backend.metadata.odoo.postgres.MyConnection;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
+import io.openems.common.utils.StringUtils;
 
 public class UpdateEdgeConfig implements DatabaseTask {
 
@@ -24,7 +25,7 @@ public class UpdateEdgeConfig implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(MyConnection connection) throws SQLException {
+	public void execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psUpdateEdgeConfig(connection);
 		ps.setString(1, this.fullConfig);
 		ps.setString(2, this.componentsConfig);
@@ -39,12 +40,19 @@ public class UpdateEdgeConfig implements DatabaseTask {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psUpdateEdgeConfig(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psUpdateEdgeConfig(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"UPDATE " + EdgeDevice.ODOO_TABLE //
 						+ " SET" //
 						+ " " + EdgeDevice.OPENEMS_CONFIG.id() + " = ?," //
 						+ " " + EdgeDevice.OPENEMS_CONFIG_COMPONENTS.id() + " = ?" //
 						+ " WHERE id = ?");
 	}
+
+	@Override
+	public String toString() {
+		return "UpdateEdgeConfig [odooId=" + odooId + ", componentsConfig="
+				+ StringUtils.toShortString(componentsConfig, 100) + "]";
+	}
+
 }
