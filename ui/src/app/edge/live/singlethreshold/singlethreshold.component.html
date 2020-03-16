@@ -4,10 +4,10 @@
       <ion-item lines="full" color="light">
         <ion-avatar slot="start">
           <ng-container *ngIf="currentData.channel[outputChannel] == 1">
-            <ion-icon color="primary" size="large" name="aperture"></ion-icon>
+            <ion-icon color="primary" size="large" name="aperture-outline"></ion-icon>
           </ng-container>
           <ng-container *ngIf="currentData.channel[outputChannel] == 0">
-            <ion-icon color="primary" size="large" name="radio-button-off"></ion-icon>
+            <ion-icon color="primary" size="large" name="radio-button-off-outline"></ion-icon>
           </ng-container>
           <ng-container *ngIf="currentData.channel[outputChannel] == null">
             <ion-icon size="large" name="help-circle-outline"></ion-icon>
@@ -22,7 +22,7 @@
               General.state
             </td>
             <td style="width: 35%" class="align_right" translate>
-              <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+              <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help-outline"></ion-icon>
               <ng-container *ngIf="currentData.channel[outputChannel] == 1">
                 General.on
               </ng-container>

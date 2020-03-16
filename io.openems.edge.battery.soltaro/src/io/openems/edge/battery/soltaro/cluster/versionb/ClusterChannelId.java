@@ -11,7 +11,7 @@ public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId
 	// EnumReadChannels
 	STATE_MACHINE(Doc.of(State.values()) //
 			.text("Current State of State-Machine")), //
-	CHARGE_INDICATION(Doc.of(Enums.ChargeIndication.values())), //
+//	CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 	SYSTEM_RUNNING_STATE(Doc.of(Enums.RunningState.values())), //
 
 	// EnumWriteChannels

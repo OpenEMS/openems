@@ -24,12 +24,9 @@ Include-Resource: \
 
 -buildpath: \
 	${buildpath},\
-	com.google.gson,\
-	com.google.guava,\
 	io.openems.common,\
 	io.openems.edge.common,\
-	lib/RXTXcomm.jar;version=file,\
-	slf4j.api
+	lib/RXTXcomm.jar;version=file
 
 -testpath: \
 	${testpath}

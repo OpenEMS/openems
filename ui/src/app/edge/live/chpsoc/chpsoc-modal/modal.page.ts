@@ -68,7 +68,7 @@ export class ChpsocModalComponent implements OnInit {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 this.component.properties.mode = oldMode;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -97,7 +97,7 @@ export class ChpsocModalComponent implements OnInit {
             }).catch(reason => {
                 this.component.properties['lowThreshold'] = oldLowerThreshold;
                 this.component.properties['highThreshold'] = oldUpperThreshold;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             })
         }

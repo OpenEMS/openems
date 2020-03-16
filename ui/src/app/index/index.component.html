@@ -5,7 +5,7 @@
       <!-- Waiting for authentication -->
       <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
         <ion-item color="primary" lines="full">
-          <ion-icon slot="start" name="contact"></ion-icon>
+          <ion-icon slot="start" name="contact-outline"></ion-icon>
           <ion-label>Login</ion-label>
         </ion-item>
 
@@ -22,7 +22,7 @@
                 <ion-input #password required type="password" placeholder="Passwort" value="user"></ion-input>
               </ion-item>
               <ion-button class="ion-float-right" type="submit">
-                <ion-icon slot="icon-only" name="log-in"></ion-icon>
+                <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
               </ion-button>
             </div>
           </form>
@@ -56,7 +56,7 @@
               </ng-container>
               <p class="ion-text-wrap">Angemeldet als: {{ edge.getRoleString() }}.</p>
             </ion-label>
-            <ion-icon slot="end" name="play" color="primary"></ion-icon>
+            <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
           </ion-item>
 
           <ion-infinite-scroll (ionInfinite)="doInfinite($event)">

@@ -5,11 +5,8 @@ Bundle-Version:	1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.gson,\
-	com.google.guava,\
 	io.openems.backend.metadata.api,\
-	io.openems.common,\
-	slf4j.api
+	io.openems.common
 
 -testpath: \
 	${testpath}

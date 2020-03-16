@@ -3,7 +3,7 @@
         <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
+                <ion-icon name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -30,7 +30,7 @@
     <ion-card-content class="underline" *ngIf="inputChannel == '_sum/GridActivePower'">
         <ion-row class="ion-justify-content-center">
             <ion-item class="ion-text-center" lines="none">
-                <ion-icon color="primary" size="large" slot="start" name="alert"></ion-icon>
+                <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
                 <ion-label>
                     <small translate>
                         Edge.Index.Widgets.twoWayInfoGrid
