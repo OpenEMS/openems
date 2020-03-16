@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate;
+package io.openems.edge.ess.mr.gridcon.state.gridconstate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class Error extends BaseState implements StateObject {
 
 	@Override
 	public IState getState() {
-		return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.ERROR;
+		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 	}
 
 	@Override
@@ -44,18 +44,18 @@ public class Error extends BaseState implements StateObject {
 		// According to the state machine the next state can only be STOPPED, ERROR or UNDEFINED
 		
 		if (errorHandlingState  != null) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.ERROR;
+			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 		}
 		
 		if (isNextStateUndefined()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.UNDEFINED;
+			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
 		}
 		
 		if (isNextStateStopped()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.STOPPED;
+			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
 		}
 		
-		return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.ERROR;
+		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 	}
 
 	@Override

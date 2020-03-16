@@ -1,10 +1,9 @@
-package io.openems.edge.ess.mr.gridcon.ongrid.state;
+package io.openems.edge.ess.mr.gridcon.state.ongrid;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateController;
 import io.openems.edge.ess.mr.gridcon.StateObject;
-import io.openems.edge.ess.mr.gridcon.ongrid.OnGridState;
 
 public class OnGrid extends BasteState {
 

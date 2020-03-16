@@ -1,6 +1,6 @@
 package io.openems.edge.ess.mr.gridcon.onoffgrid.helper;
 
-import io.openems.edge.ess.mr.gridcon.onoffgrid.state.DecisionTableCondition;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition;
 
 public class DummyDecisionTableCondition implements DecisionTableCondition {
 

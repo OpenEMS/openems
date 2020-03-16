@@ -1,10 +1,9 @@
-package io.openems.edge.ess.mr.gridcon.onoffgrid.state;
+package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState;
 
 public class StartSystem extends BaseState implements StateObject {
 
@@ -23,13 +22,26 @@ public class StartSystem extends BaseState implements StateObject {
 
 	@Override
 	public IState getNextState() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		if (DecisionTableHelper.isWaitingForDevices(condition)) {			
+				return OnOffGridState.WAITING_FOR_DEVICES;
+		}
+		
+		if (DecisionTableHelper.isError(condition)) {			
+				return OnOffGridState.ERROR;
+		}
+		
+		if (DecisionTableHelper.isUndefined(condition)) {			
+			return OnOffGridState.UNDEFINED;
+	} 
+		
+		return OnOffGridState.START_SYSTEM;
 	}
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		// TODO Auto-generated method stub
+		// set sync bride false
+		setSyncBridge(false);
 
 	}
 

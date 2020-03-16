@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.onoffgrid;
+package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.ess.mr.gridcon.IState;

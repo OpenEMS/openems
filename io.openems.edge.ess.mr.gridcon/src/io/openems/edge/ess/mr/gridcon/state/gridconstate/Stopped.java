@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate;
+package io.openems.edge.ess.mr.gridcon.state.gridconstate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,23 +31,23 @@ public class Stopped extends BaseState implements StateObject {
 
 	@Override
 	public IState getState() {
-		return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.STOPPED;
+		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
 	}
 
 	@Override
 	public IState getNextState() {
 		// According to the state machine the next state can only be STOPPED, ERROR, RUN
 		if (isNextStateUndefined()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.UNDEFINED;
+			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
 		}
 		if (isNextStateError()) {
-			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.ERROR;
+			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 		}
 		if (isBatteriesStarted() && getGridconPCS().isRunning()) {			
-			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.RUN;
+			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN;
 		}
 		
-		return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.STOPPED;
+		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
 	}
 
 	@Override

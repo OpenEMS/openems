@@ -7,15 +7,16 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.Creator;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyDecisionTableCondition;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.state.DecisionTableCondition.GridconCommunicationFailed;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.state.DecisionTableCondition.MeterCommunicationFailed;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.state.DecisionTableCondition.NAProtection_1_On;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.state.DecisionTableCondition.NAProtection_2_On;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.state.DecisionTableCondition.SyncBridgeOn;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.state.DecisionTableCondition.VoltageInRange;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.Undefined;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.GridconCommunicationFailed;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.MeterCommunicationFailed;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NAProtection_1_On;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NAProtection_2_On;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.SyncBridgeOn;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.VoltageInRange;
 
 public class TestUndefined {
 

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.ongrid.state;
+package io.openems.edge.ess.mr.gridcon.state.ongrid;
 
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;

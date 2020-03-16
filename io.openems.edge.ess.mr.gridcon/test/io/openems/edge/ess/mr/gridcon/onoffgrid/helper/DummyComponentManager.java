@@ -25,10 +25,7 @@ public class DummyComponentManager implements ComponentManager {
 	private SoltaroBattery bms3 = createBms();
 	private GridconPCS gridconPcs = createGridconPcs();
 	private EssGridcon ess = createEss();
-
-	private GridconPCS createGridconPcs() {
-		return new DummyGridcon();
-	}
+	private DummyIo io0 = createIo();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -48,7 +45,18 @@ public class DummyComponentManager implements ComponentManager {
 		if (Creator.GRIDCON_ID.equals(componentId)) {
 			return (T) gridconPcs;
 		}
+		if (Creator.IO_ID.equals(componentId)) {
+			return (T) io0;
+		}
 		return null;
+	}
+
+	private DummyIo createIo() {
+		return new DummyIo();
+	}
+	
+	private GridconPCS createGridconPcs() {
+		return new DummyGridcon();
 	}
 
 	private SoltaroBattery createBms() {

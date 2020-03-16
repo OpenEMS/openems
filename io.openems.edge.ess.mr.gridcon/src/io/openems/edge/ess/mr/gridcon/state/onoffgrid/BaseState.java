@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.onoffgrid.state;
+package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 import java.time.LocalDateTime;
 import java.util.BitSet;

@@ -6,8 +6,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.openems.edge.ess.mr.gridcon.ongrid.OnGridState;
-import io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.Undefined;
+import io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined;
+import io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState;
 
 public class TestUndefined {
 

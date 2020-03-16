@@ -2,7 +2,6 @@ package io.openems.edge.ess.mr.gridcon.onoffgrid.helper;
 
 import java.lang.annotation.Annotation;
 
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.Config;
 
@@ -14,6 +13,7 @@ public class Creator {
 	public static final String BMS_C_ID = "bms2";
 	public static final String BMS_B_ID = "bms3";
 	public static final String METER_ID = "meter0";
+	public static final String IO_ID = "io0";
 	public static final ParameterSet PARAMETER_SET = ParameterSet.SET_1;
 	public static final boolean ENABLE_IPU_1 = true;
 	public static final boolean ENABLE_IPU_2 = true;
@@ -31,7 +31,7 @@ public class Creator {
 	public static final float TARGET_FREQUENCY_ONGRID = 52.7f;
 	public static final float TARGET_FREQUENCY_OFFGRID = 50.6f;
 
-	public static ComponentManager getDummyComponentManager() {
+	public static DummyComponentManager getDummyComponentManager() {
 		return new DummyComponentManager();
 	}
 	

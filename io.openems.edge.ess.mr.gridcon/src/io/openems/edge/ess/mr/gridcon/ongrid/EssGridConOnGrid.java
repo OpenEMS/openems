@@ -22,6 +22,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
 import io.openems.edge.ess.mr.gridcon.StateController;
+import io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.onoffgrid.state;
+package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 import java.util.Arrays;
 
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
-import io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState;
 
 public class Undefined extends BaseState implements StateObject {
 
@@ -21,7 +20,7 @@ public class Undefined extends BaseState implements StateObject {
 
 	@Override
 	public IState getState() {
-		return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED;
+		return io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState.UNDEFINED;
 	}
 
 	@Override
