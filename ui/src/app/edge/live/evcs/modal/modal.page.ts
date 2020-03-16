@@ -130,7 +130,7 @@ export class EvcsModalComponent implements OnInit {
       }).catch(reason => {
         currentController.properties.enabledCharging = oldEnabledCharging;
         currentController.properties.chargeMode = oldChargeMode;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -160,7 +160,7 @@ export class EvcsModalComponent implements OnInit {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.priority = oldPriority;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -184,7 +184,7 @@ export class EvcsModalComponent implements OnInit {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.forceChargeMinPower = oldMinChargePower;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -208,7 +208,7 @@ export class EvcsModalComponent implements OnInit {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       })
     }
@@ -237,7 +237,7 @@ export class EvcsModalComponent implements OnInit {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.energySessionLimit = oldLimit;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       })
     }
@@ -262,7 +262,7 @@ export class EvcsModalComponent implements OnInit {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.defaultChargeMinPower = oldMinChargePower;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -287,7 +287,7 @@ export class EvcsModalComponent implements OnInit {
         currentController.properties['defaultChargeMinPower'] = newMinChargePower;
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         currentController.properties['defaultChargeMinPower'] = oldMinChargePower;
         console.warn(reason);
       });
@@ -311,7 +311,7 @@ export class EvcsModalComponent implements OnInit {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         currentController.properties.enabledCharging = oldChargingState;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }

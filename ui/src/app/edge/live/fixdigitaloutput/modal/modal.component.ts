@@ -38,7 +38,7 @@ export class FixDigitalOutputModalComponent {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
         this.component.properties.isOn = oldMode;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
