@@ -12,6 +12,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -32,8 +33,15 @@ public abstract class BaseState implements StateObject {
 	protected String inputSyncBridge;
 	protected String outputSyncBridge;
 	protected String meterId;
+	private IState stateBefore;
+	protected DecisionTableCondition condition; //TODO besser wäre es die Methode IState getNextState(); so zu deklarieren
+	private StateObject subStateObject;
+	//IState getNextState(DecisionTableCondition condition), das erfordert aber ein anderes Handling der states....
+	//was nur konsequent ist, da on grid states und off grid states aktuell nicht konsistent sind...
+	// Die aktuelle state machine für den ongrid state ist eigtl eine "unter statee machine der gesamt state machine und bildet nur den on grid betrieb ab
 	
-	public BaseState(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id,
+	
+	public BaseState(ComponentManager manager, DecisionTableCondition condition, String gridconPCSId, String b1Id, String b2Id, String b3Id,
 			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId) {
 		this.manager = manager;
 		this.gridconPCSId = gridconPCSId;
@@ -45,6 +53,7 @@ public abstract class BaseState implements StateObject {
 		this.inputSyncBridge = inputSyncBridge;
 		this.outputSyncBridge = outputSyncBridge;
 		this.meterId = meterId;
+		this.condition = condition;
 	}
 
 	protected boolean isNextStateUndefined() {
@@ -300,5 +309,28 @@ public abstract class BaseState implements StateObject {
 
 		}
 		return component;
+	}
+	
+	@Override
+	public IState getStateBefore() {
+		return stateBefore;
+	}
+	
+	@Override
+	public void setStateBefore(IState stateBefore) {		
+		if (this.stateBefore == null || !this.stateBefore.equals(stateBefore)) {
+			this.stateBefore = stateBefore;		
+		}
+	}
+	
+	@Override
+	public void setSubStateObject(StateObject subStateObject) {		
+		this.subStateObject = subStateObject;
+	}
+
+
+	@Override
+	public StateObject getSubStateObject() {
+		return subStateObject;
 	}
 }

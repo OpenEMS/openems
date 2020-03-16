@@ -27,5 +27,19 @@ public interface StateObject {
 	 * @throws OpenemsNamedException on error
 	 */
 	void act() throws OpenemsNamedException;
+	
+	/**
+	 * Returns the different state before
+	 * @return IState
+	 */
+	IState getStateBefore();
 
+	/**
+	 * Sets the state before, if it is different from itself
+	 * @param stateBefore
+	 */
+	void setStateBefore(IState stateBefore);
+	
+	void setSubStateObject(StateObject subStateObject);
+	StateObject getSubStateObject();
 }

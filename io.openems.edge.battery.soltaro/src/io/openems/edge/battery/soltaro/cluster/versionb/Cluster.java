@@ -164,6 +164,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		case CONFIGURE:
 			this.logWarn(this.log, "Cluster cannot be configured currently!");
 			break;
+		case OVER_CONTROLLED:
+			break;
 		}
 	}
 
@@ -373,7 +375,11 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
 				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value()
+				+ "|Running: " + this.isSystemRunning()
+				+ "|U: " + this.getVoltage().value()
+				+ "|I: " + this.getCurrent().value()
+				;
 	}
 
 	private void sleepSystem() {

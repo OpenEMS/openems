@@ -73,6 +73,8 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected ComponentManager componentManager;
 	private InverterCount inverterCount;
 
+	private int activePowerPreset;
+
 	public GridconPCSImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -132,6 +134,10 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 		 * MAX_APPARENT_POWER. So 0.1 => 10% of max power. Values should never take
 		 * values lower than -1 or higher than 1.
 		 */
+		
+		activePowerPreset = activePower;
+				
+		
 		float activePowerFactor = (-1) * activePower / maxApparentPower;
 		float reactivePowerFactor = (-1) * reactivePower / maxApparentPower;
 
@@ -924,6 +930,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	// TODO Check sign, round!?
+	//TODO ODER get CCU-Power * Max Power?!
 //	@Override
 	public float getActivePowerInverter1() {
 		return getFloat(GridConChannelId.INVERTER_1_STATUS_DC_LINK_ACTIVE_POWER);
@@ -942,6 +949,11 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public float getActivePower() {
 		return getActivePowerInverter1() + getActivePowerInverter2() + getActivePowerInverter3();
+	}
+	
+	@Override
+	public float getReactivePower() { // TODO check if this is correct
+		return getFloat(GridConChannelId.CCU_POWER_Q) * getMaxApparentPower();
 	}
 
 	@Override
@@ -1278,5 +1290,10 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	private boolean isIpuRunning(GridConChannelId id) {
 		StatusIPUStateMachine state = ((EnumReadChannel) this.channel(id)).value().asEnum();
 		return (state == StatusIPUStateMachine.RUN);
+	}
+
+	@Override
+	public float getActivePowerPreset() {
+		return activePowerPreset;
 	}
 }

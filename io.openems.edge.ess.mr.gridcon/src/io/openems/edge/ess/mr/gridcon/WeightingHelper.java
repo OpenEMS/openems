@@ -65,7 +65,7 @@ public class WeightingHelper {
 	static float getWeightingForCharge(SoltaroBattery b) {
 		float weight = 0;
 		if (b != null && isBatteryReady(b)) {
-			float current = b.getChargeMaxCurrent().value().get();
+			float current = Math.min(EssGridcon.MAX_CURRENT_PER_STRING, b.getChargeMaxCurrent().value().get());
 			float voltage = b.getVoltage().value().get();
 			weight = current * voltage;
 		}
@@ -75,7 +75,7 @@ public class WeightingHelper {
 	static float getWeightingForDischarge(SoltaroBattery b) {
 		float weight = 0;
 		if (b != null && isBatteryReady(b)) {
-			float current = b.getDischargeMaxCurrent().value().get();
+			float current = Math.min(EssGridcon.MAX_CURRENT_PER_STRING, b.getDischargeMaxCurrent().value().get());
 			float voltage = b.getVoltage().value().get();
 			weight = current * voltage;
 		}

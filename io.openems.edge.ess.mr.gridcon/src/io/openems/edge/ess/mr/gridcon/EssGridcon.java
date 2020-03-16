@@ -36,6 +36,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public abstract class EssGridcon extends AbstractOpenemsComponent
 		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave, EventHandler {
 
+	public static final int MAX_CURRENT_PER_STRING = 80;
 	String gridconId;
 	String bmsAId;
 	String bmsBId;
@@ -70,8 +71,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		this.bmsCId = bmsC;
 
 		initializeStateController(gridconId, bmsA, bmsB, bmsC);
-		stateObject = getFirstStateObjectUndefined();
-		calculateMaxApparentPower();
+		stateObject = getFirstStateObjectUndefined();		
 	}
 
 	protected abstract StateObject getFirstStateObjectUndefined();
@@ -93,14 +93,17 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			try {
 				// prepare calculated Channels
-				calculateGridMode();
-				calculateAllowedPowerAndCapacity();
 				calculateSoc();
-				calculateActivePower();
-				calculateMinCellVoltage();
+				calculateCapacity();
+				calculateGridMode();
+				calculateActiveAndReactivePower();
+				calculateMaxApparentPower();
+				calculateAllowedPower();
+				calculateBatteryValues();
 
 				IState nextState = this.stateObject.getNextState();
 				StateObject nextStateObject = StateController.getStateObject(nextState);
+				nextStateObject.setStateBefore(this.stateObject.getState());
 				
 				System.out.println("  ----- CURRENT STATE:" + this.stateObject.getState().getName());
 				System.out.println("  ----- NEXT STATE:" + nextStateObject.getState().getName());
@@ -116,25 +119,47 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		}
 	}
 
-	private void calculateMinCellVoltage() {
+	/**
+	 * calculates min/max cell voltage and temperature
+	 */
+	private void calculateBatteryValues() {
 
 		float minCellVoltage = Float.MAX_VALUE;
+		float maxCellVoltage = Float.MIN_VALUE;
+		
+		float minCellTemperature = Float.MAX_VALUE;
+		float maxCellTemperature = Float.MIN_VALUE;
 
 		if (getBattery1() != null  && !getBattery1().isUndefined()) {
 			minCellVoltage = Math.min(minCellVoltage, getBattery1().getMinCellVoltage().value().get());
+			maxCellVoltage = Math.max(maxCellVoltage, getBattery1().getMaxCellVoltage().value().get());
+			minCellTemperature = Math.min(minCellTemperature, getBattery1().getMinCellTemperature().value().get());
+			maxCellTemperature = Math.max(maxCellTemperature, getBattery1().getMaxCellTemperature().value().get());
 		}
 
 		if (getBattery2() != null && !getBattery2().isUndefined()) {
 			minCellVoltage = Math.min(minCellVoltage, getBattery2().getMinCellVoltage().value().get());
+			maxCellVoltage = Math.max(maxCellVoltage, getBattery2().getMaxCellVoltage().value().get());
+			minCellTemperature = Math.min(minCellTemperature, getBattery2().getMinCellTemperature().value().get());
+			maxCellTemperature = Math.max(maxCellTemperature, getBattery2().getMaxCellTemperature().value().get());
 		}
 
 		if (getBattery3() != null && !getBattery3().isUndefined()) {
 			minCellVoltage = Math.min(minCellVoltage, getBattery3().getMinCellVoltage().value().get());
+			maxCellVoltage = Math.max(maxCellVoltage, getBattery3().getMaxCellVoltage().value().get());
+			minCellTemperature = Math.min(minCellTemperature, getBattery3().getMinCellTemperature().value().get());
+			maxCellTemperature = Math.max(maxCellTemperature, getBattery3().getMaxCellTemperature().value().get());
 		}
 
 		int minCellVoltageMilliVolt = (int) (minCellVoltage * 1000);
+		int maxCellVoltageMilliVolt = (int) (maxCellVoltage * 1000);
 
 		getMinCellVoltage().setNextValue(minCellVoltageMilliVolt);
+
+		//TODO uncomment after merge, because ess should have these values
+//		getMaxCellVoltage().setNextValue(maxCellVoltageMilliVolt);
+//		getMinCellTemperature().setNextValue(minCellTemperature);
+//		getMaxCellTemperature().setNextValue(maxCellTemperature);
 
 	}
 
@@ -148,9 +173,12 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		getMaxApparentPower().setNextValue(maxPower);
 	}
 
-	protected void calculateActivePower() {
+	protected void calculateActiveAndReactivePower() {
 		float activePower = getGridconPCS().getActivePower();
 		getActivePower().setNextValue(activePower);
+		
+		float reactivePower = getGridconPCS().getReactivePower();
+		getReactivePower().setNextValue(reactivePower);
 	}
 
 	@Override
@@ -190,19 +218,19 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	/**
 	 * Handles Battery data, i.e. setting allowed charge/discharge power.
 	 */
-	protected void calculateAllowedPowerAndCapacity() {
+	protected void calculateAllowedPower() {
 		int allowedCharge = 0;
 		int allowedDischarge = 0;
-		int capacity = 0;
 
 		for (SoltaroBattery battery : getBatteries()) {
-			allowedCharge += battery.getVoltage().value().get() * battery.getChargeMaxCurrent().value().get() * -1;
-			allowedDischarge += battery.getVoltage().value().get() * battery.getDischargeMaxCurrent().value().get();
-			capacity += battery.getCapacity().value().get();
+			Integer maxChargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getChargeMaxCurrent().value().get());
+			allowedCharge += battery.getVoltage().value().get() * maxChargeCurrent * -1;
+			
+			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getDischargeMaxCurrent().value().get());
+			allowedDischarge += battery.getVoltage().value().get() * maxDischargeCurrent;
 		}
 		getAllowedCharge().setNextValue(allowedCharge);
 		getAllowedDischarge().setNextValue(allowedDischarge);
-		getCapacity().setNextValue(capacity);
 	}
 
 	protected abstract void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException;
@@ -230,6 +258,19 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		int soc = Math.round(sumCurrentCapacity * 100 / sumTotalCapacity);
 		getSoc().setNextValue(soc);
 	}
+	
+	protected void calculateCapacity() {
+		float sumTotalCapacity = 0;
+		
+		for (SoltaroBattery b : getBatteries()) {
+			Optional<Integer> totalCapacityOpt = b.getCapacity().value().asOptional();
+			float totalCapacity = totalCapacityOpt.orElse(0);
+			sumTotalCapacity += totalCapacity;
+		}
+		
+		getCapacity().setNextValue(sumTotalCapacity);
+	}
+	
 
 	@Override
 	public String debugLog() {

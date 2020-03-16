@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.onoffgrid.state;
+package io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,37 +20,34 @@ public class Stopped extends BaseState implements StateObject {
 	private boolean enableIPU2;
 	private boolean enableIPU3;
 	private ParameterSet parameterSet;
-	private float targetFrequency;
 	
-	public Stopped(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet,
-			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, float targetFrequency, String meterId) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id, inputNA1, inputNA2, inputSyncBridge, outputSyncBridge, meterId);
+	public Stopped(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet ) {
+		super(manager, gridconPCSId, b1Id, b2Id, b3Id);
 		this.enableIPU1 = enableIPU1;
 		this.enableIPU2 = enableIPU2;
 		this.enableIPU3 = enableIPU3;
 		this.parameterSet = parameterSet;
-		this.targetFrequency = targetFrequency;
 	}
 
 	@Override
 	public IState getState() {
-		return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.STOPPED;
+		return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.STOPPED;
 	}
 
 	@Override
 	public IState getNextState() {
 		// According to the state machine the next state can only be STOPPED, ERROR, RUN
 		if (isNextStateUndefined()) {
-			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.UNDEFINED;
+			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.UNDEFINED;
 		}
 		if (isNextStateError()) {
-			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.ERROR;
+			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.ERROR;
 		}
 		if (isBatteriesStarted() && getGridconPCS().isRunning()) {			
-			return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.RUN_ONGRID;
+			return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.RUN;
 		}
 		
-		return io.openems.edge.ess.mr.gridcon.onoffgrid.OnOffGridState.STOPPED;
+		return io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate.GridconState.STOPPED;
 	}
 
 	@Override
@@ -61,7 +58,6 @@ public class Stopped extends BaseState implements StateObject {
 		setStringWeighting();
 		setStringControlMode();
 		setDateAndTime();
-		setSyncBridge(false);
 		
 		try {
 			getGridconPCS().doWriteTasks();
@@ -103,8 +99,8 @@ public class Stopped extends BaseState implements StateObject {
 			getGridconPCS().setSyncApproval(true);
 			getGridconPCS().setBlackStartApproval(false);
 			getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-			getGridconPCS().setU0(BaseState.ONOFF_GRID_VOLTAGE_FACTOR);
-			getGridconPCS().setF0(targetFrequency);
+			getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+			getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
 			getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 			getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
 			getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
@@ -138,8 +134,8 @@ public class Stopped extends BaseState implements StateObject {
 		getGridconPCS().setSyncApproval(true);
 		getGridconPCS().setBlackStartApproval(false);
 		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPCS().setU0(BaseState.ONOFF_GRID_VOLTAGE_FACTOR);
-		getGridconPCS().setF0(targetFrequency);
+		getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
 		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
 		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
@@ -172,8 +168,8 @@ public class Stopped extends BaseState implements StateObject {
 		getGridconPCS().setSyncApproval(true);
 		getGridconPCS().setBlackStartApproval(false);
 		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPCS().setU0(BaseState.ONOFF_GRID_VOLTAGE_FACTOR);
-		getGridconPCS().setF0(targetFrequency);
+		getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
 		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
 		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);

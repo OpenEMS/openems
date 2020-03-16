@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.ongrid.state;
+package io.openems.edge.ess.mr.gridcon.ongrid.state.gridconstate;
 
 import java.time.LocalDateTime;
 import java.util.BitSet;
@@ -7,6 +7,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 
@@ -121,14 +122,13 @@ public abstract class BaseState implements StateObject {
 	}
 		
 	protected void setStringWeighting() {
-		float activePower = getGridconPCS().getActivePower();
+		float activePower = getGridconPCS().getActivePowerPreset();
 		
 		Float[] weightings = WeightingHelper.getWeighting(activePower, getBattery1(), getBattery2(), getBattery3());
 		
 		getGridconPCS().setWeightStringA(weightings[0]);
 		getGridconPCS().setWeightStringB(weightings[1]);
 		getGridconPCS().setWeightStringC(weightings[2]);
-		
 	}
 	
 	protected void setDateAndTime() {
@@ -187,5 +187,28 @@ public abstract class BaseState implements StateObject {
 			
 		}
 		return component;
+	}
+	
+	@Override
+	public IState getStateBefore() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void setStateBefore(IState stateBefore) {
+		// TODO Auto-generated method stub		
+	}
+	
+	@Override
+	public void setSubStateObject(StateObject subStateObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public StateObject getSubStateObject() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

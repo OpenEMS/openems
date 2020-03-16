@@ -64,18 +64,19 @@ public class EssGridConOnOffGrid extends EssGridcon
 	}
 
 	protected void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
+		//TODO
 		GridMode gridMode = GridMode.UNDEFINED;
 		
-		if (this.stateObject != null) {
-			if (//
-				OnOffGridState.GOING_ONGRID == this.stateObject.getState()//
-				|| OnOffGridState.OFFGRID == this.stateObject.getState()//
-			) {
-				gridMode = GridMode.OFF_GRID;
-			} else if (OnOffGridState.RUN_ONGRID == this.stateObject.getState()) {
-				gridMode = GridMode.ON_GRID;
-			}
-		}
+//		if (this.stateObject != null) {
+//			if (//
+//				OnOffGridState.GOING_ONGRID == this.stateObject.getState()//
+//				|| OnOffGridState.OFFGRID == this.stateObject.getState()//
+//			) {
+//				gridMode = GridMode.OFF_GRID;
+//			} else if (OnOffGridState.RUN_ONGRID == this.stateObject.getState()) {
+//				gridMode = GridMode.ON_GRID;
+//			}
+//		}
 		
 		getGridMode().setNextValue(gridMode);
 	}

@@ -27,6 +27,7 @@ public interface GridconPCS {
 	void setErrorCodeFeedback(int errorCodeFeedback);
 	int getErrorCode();
 	float getActivePower();
+	float getReactivePower();
 //	float getActivePowerInverter1();
 //	float getActivePowerInverter2();
 //	float getActivePowerInverter3();
@@ -71,4 +72,5 @@ public interface GridconPCS {
 	boolean isDcDcStarted();
 	boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3);
 	void doWriteTasks() throws OpenemsNamedException;
+	float getActivePowerPreset();
 }
