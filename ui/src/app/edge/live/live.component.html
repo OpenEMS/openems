@@ -80,6 +80,11 @@
               <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
+              class="ion-no-padding">
+              <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+            </ion-col>
+
             <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
               <chpsoc [componentId]="widget.componentId"></chpsoc>
             </ion-col>
