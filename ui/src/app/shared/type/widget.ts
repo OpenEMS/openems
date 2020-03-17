@@ -27,6 +27,7 @@ export enum WidgetFactory {
     'Evcs.Cluster.SelfConsumtion',
     'Controller.Api.ModbusTcp.ReadOnly',
     'Controller.Api.ModbusTcp.ReadWrite',
+    'Controller.HeatingElement',
 }
 
 export class Widget {

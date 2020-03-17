@@ -32,7 +32,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String outputChannelAddress3() default "io0/InputOutput3";
 	
 	@AttributeDefinition(name = "This is the Level which tell which level the heating element runs", description = "Levels")
-	Level level() default Level.LEVEL_3;
+	Gear gear() default Gear.TOP_GEAR;
 	
 	@AttributeDefinition(name = "End Time", description = "End time to check the minmum run time")
 	String endTime() default "17:00:00";

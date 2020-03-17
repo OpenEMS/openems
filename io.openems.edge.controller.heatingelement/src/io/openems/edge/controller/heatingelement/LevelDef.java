@@ -1,6 +1,5 @@
 package io.openems.edge.controller.heatingelement;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -14,65 +13,52 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.WriteChannel;
 
-public class PhaseDef {
-
+public class LevelDef {
+	
 	private final ControllerHeatingElement parent;
-	private LocalDateTime phaseTimeOn = null;
-	private long totalPhaseTime = 0; // milliseconds
+	private long totalLevelTime = 0; // milliseconds
 	private Stopwatch timeStopwatch = Stopwatch.createUnstarted();
-	private double totalPhasePower = 0;
-	private ChannelAddress outputChannelAddress;
+	private double totalLevelPower = 0;
+	
 
+	private ChannelAddress[] outputChannelAddress;
+	
 	/**
 	 * This boolean variable specifies the phase is one or off
 	 */
 	private boolean isSwitchOn;
 	
-	public PhaseDef(ControllerHeatingElement parent) {
-		this.parent = parent;
-		setSwitchOn(false);
-	}
-
 	public void computeTime() throws IllegalArgumentException, OpenemsNamedException {
 		if(!isSwitchOn()) {
 			if(this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.stop();
 			}			
-			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
-			totalPhasePower = calculatePower(totalPhaseTime);
+			totalLevelTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
+			totalLevelPower = calculatePower(totalLevelTime);
 			this.off(getOutputChannelAddress());
 		}else {
 			if(!this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.start();
 			}			
-			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
-			totalPhasePower = calculatePower(totalPhaseTime);
+			totalLevelTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
+			totalLevelPower = calculatePower(totalLevelTime);
 			this.on(getOutputChannelAddress());
 		}
 	}
-
-
-	/**
-	 * function to calculates the Kilowatthour, using the power of each phase
-	 * 
-	 * @param time Long values of time in seconds
-	 * 
-	 */
-	private double calculatePower(double time) {
-		double kiloWattHour = ((time) / 3600000.0) * parent.config.powerOfPhase();
-		return kiloWattHour;
-	}
-
+	
 	/**
 	 * Switch the output ON.
 	 * 
-	 * @param outputChannelAddress address of the channel which must set to ON
+	 * @param outputChannelAddress[] address of the channel which must set to ON
 	 * 
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
-	private void on(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
-		this.setOutput(true, outputChannelAddress);
+	private void on(ChannelAddress[] outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
+		for(ChannelAddress channelAddress: outputChannelAddress ) {
+			this.setOutput(true, channelAddress);
+		}
+		
 	}
 
 	/**
@@ -83,8 +69,10 @@ public class PhaseDef {
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
-	private void off(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
-		this.setOutput(false, outputChannelAddress);
+	private void off(ChannelAddress[] outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
+		for(ChannelAddress channelAddress: outputChannelAddress ) {
+			this.setOutput(false, channelAddress);
+		}
 	}
 
 	/**
@@ -109,9 +97,29 @@ public class PhaseDef {
 			this.logError(this.LOGGER, "Unable to set output: [" + outputChannelAddress + "] " + e.getMessage());
 		}
 	}
+	
+	/**
+	 * function to calculates the Kilowatthour, using the power of each phase
+	 * 
+	 * @param time Long values of time in seconds
+	 * 
+	 */
+	private double calculatePower(double time) {
+		double kiloWattHour = ((time) / 3600000.0) * parent.config.powerOfPhase();
+		return kiloWattHour;
+	}
+	
+	public LevelDef(ControllerHeatingElement parent) {
+		this.parent = parent;
+		setSwitchOn(false);
+	}
+	
+	public ChannelAddress[] getOutputChannelAddress() {
+		return outputChannelAddress;
+	}
 
-	public LocalDateTime getPhaseTimeOn() {
-		return phaseTimeOn;
+	public void setOutputChannelAddress(ChannelAddress[] outputChannelAddress) {
+		this.outputChannelAddress = outputChannelAddress;
 	}
 
 	public boolean isSwitchOn() {
@@ -121,17 +129,27 @@ public class PhaseDef {
 	public void setSwitchOn(boolean isSwitchOn) {
 		this.isSwitchOn = isSwitchOn;
 	}
+	
+	public ControllerHeatingElement getParent() {
+		return parent;
+	}
+	
+	private final Logger LOGGER = LoggerFactory.getLogger(PhaseDef.class);
 
-	public void setPhaseTimeOn(LocalDateTime phaseTimeOn) {
-		this.phaseTimeOn = phaseTimeOn;
+	protected void logInfo(Logger log, String message) {
+		log.info(message);
 	}
 
-	public long getTotalPhaseTime() {
-		return totalPhaseTime;
+	protected void logError(Logger log, String message) {
+		log.error(message);
+	}
+	
+	public long getTotalLevelTime() {
+		return totalLevelTime;
 	}
 
-	public void setTotalPhaseTime(long totalPhaseTime) {
-		this.totalPhaseTime = totalPhaseTime;
+	public void setTotalLevelTime(long totalLevelTime) {
+		this.totalLevelTime = totalLevelTime;
 	}
 
 	public Stopwatch getTimeStopwatch() {
@@ -142,35 +160,16 @@ public class PhaseDef {
 		this.timeStopwatch = timeStopwatch;
 	}
 
-	public double getTotalPhasePower() {
-		return totalPhasePower;
+	public double getTotalLevelPower() {
+		return totalLevelPower;
 	}
 
-	public void setTotalPhasePower(double totalPhasePower) {
-		this.totalPhasePower = totalPhasePower;
+	public void setTotalLevelPower(double totalLevelPower) {
+		this.totalLevelPower = totalLevelPower;
 	}
 
-	public ChannelAddress getOutputChannelAddress() {
-		return outputChannelAddress;
+	public Logger getLOGGER() {
+		return LOGGER;
 	}
-
-	public void setOutputChannelAddress(ChannelAddress outputChannelAddress) {
-		this.outputChannelAddress = outputChannelAddress;
-	}
-
-	public ControllerHeatingElement getParent() {
-		return parent;
-	}
-
-
-
-	private final Logger LOGGER = LoggerFactory.getLogger(PhaseDef.class);
-
-	protected void logInfo(Logger log, String message) {
-		log.info(message);
-	}
-
-	protected void logError(Logger log, String message) {
-		log.error(message);
-	}
+	
 }

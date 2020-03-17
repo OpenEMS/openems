@@ -29,10 +29,10 @@ public class HeatingElementTest3 {
 		private final int minTime;
 		private final int minKwh;
 		private final String endTime;
-		private final Level level;
+		private final Gear gear;
 
 		public MyConfig(String id, String inputChannelAddress, String outputChannelAddress1,
-				String outputChannelAddress2, String outputChannelAddress3, String endtime, int powerOfPhase, Mode mode, Level level,
+				String outputChannelAddress2, String outputChannelAddress3, String endtime, int powerOfPhase, Mode mode, Gear gear,
 				Priority priority, int minTime, int minKwh) {
 			super(Config.class, id);
 			this.inputChannelAddress = inputChannelAddress;
@@ -45,7 +45,7 @@ public class HeatingElementTest3 {
 			this.minTime = minTime;
 			this.minKwh = minKwh;
 			this.endTime = endtime;
-			this.level = level;
+			this.gear = gear;
 		}
 
 		@Override
@@ -84,8 +84,8 @@ public class HeatingElementTest3 {
 		}
 		
 		@Override
-		public Level level() {
-			return this.level;
+		public Gear gear() {
+			return this.gear;
 		}
 
 		@Override
@@ -119,7 +119,7 @@ public class HeatingElementTest3 {
 		ChannelAddress output3 = new ChannelAddress("io0", "InputOutput3");
 
 		MyConfig myconfig = new MyConfig("ctrl1", ess0.toString(), output1.toString(), output2.toString(),
-				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_3, Priority.TIME, 1, 4000);
+				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Gear.TOP_GEAR, Priority.TIME, 1, 4000);
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);
 
