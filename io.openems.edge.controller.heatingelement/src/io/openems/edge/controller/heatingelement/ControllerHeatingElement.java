@@ -302,15 +302,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.channel(ChannelId.LEVEL3_ENERGY).setNextValue(level3Energy);
 		this.channel(ChannelId.TOTAL_PHASE_ENERGY).setNextValue(this.totalPhaseEnergy);
 		
-		
-		System.out.println(" level 1 time is : " + level1Time);
-		System.out.println(" level 2 time is : " + level2Time);
-		System.out.println(" level 3 time is : " + level3Time);
-		
-		System.out.println(" level 1 Energy is : " + level1Energy);
-		System.out.println(" level 2 Energy is : " + level2Energy);
-		System.out.println(" level 3 Energy is : " + level3Energy);
-		
 		// keep updating the minKwh comparing it with the total phase power
 		this.countDownMinKwh = this.minKwh - this.totalPhaseEnergy;	
 	}
@@ -383,7 +374,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		// Get the input channel addresses
 		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
 		int gridActivePower = TypeUtils.getAsType(OpenemsType.INTEGER, (inputChannel).value().getOrError());
-		this.logInfo(this.log, "gridActivePower : " + gridActivePower);
 		long excessPower = 0;
 
 		// Calculate the Excess power
@@ -392,7 +382,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		} else {
 			excessPower = Math.abs(gridActivePower);
 			excessPower += this.noRelaisSwitchedOn * config.powerOfPhase();
-			this.logInfo(this.log, "excess power is : " + excessPower);
 		}
 
 		// resetting the variables if there is change in the day.
