@@ -26,9 +26,9 @@ public enum AppModeIndex implements OptionsEnum {
 	public String getName() {
 		return this.option;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

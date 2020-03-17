@@ -36,8 +36,6 @@ import io.openems.edge.controller.api.Controller;
 public class ChannelSingleThreshold extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
 		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
 				.text("Would change State, but hystesis is active")); //
 

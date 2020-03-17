@@ -3,7 +3,7 @@
     <ion-toolbar color="primary" mode="md">
       <ion-buttons *ngIf="backUrl" slot="start">
         <ion-button [routerLink]="backUrl">
-          <ion-icon name="arrow-back"></ion-icon>
+          <ion-icon name="arrow-back-outline"></ion-icon>
         </ion-button>
       </ion-buttons>
       <ion-buttons slot="start" *ngIf="enableSideMenu">
@@ -21,13 +21,11 @@
       <ng-container *ngIf="service.currentEdge | async as edge">
         <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
           <ion-buttons>
-            <ion-segment class="ion-justify-content-center">
-              <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
-                routerLink="/device/{{ edge.id }}/live">
+            <ion-segment [value]="currentPage" class="ion-justify-content-center">
+              <ion-segment-button value="IndexLive" routerLink="/device/{{ edge.id }}/live">
                 <ion-label translate>General.live</ion-label>
               </ion-segment-button>
-              <ion-segment-button [checked]="currentPage == 'IndexHistory'" value="History"
-                routerLink="/device/{{ edge.id }}/history">
+              <ion-segment-button value="IndexHistory" routerLink="/device/{{ edge.id }}/history">
                 <ion-label translate>General.history</ion-label>
               </ion-segment-button>
             </ion-segment>
@@ -40,7 +38,7 @@
       <ng-container *ngIf="service.currentEdge | async as edge">
         <ion-buttons slot="end" *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
           <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
-            <ion-icon name="bug"></ion-icon>
+            <ion-icon name="bug-outline"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ng-container>
@@ -62,7 +60,7 @@
         <ion-col *ngIf="websocket.status == 'connecting'" size="12" size-md="6">
           <ion-card>
             <ion-item>
-              <ion-icon slot="start" name="wifi"></ion-icon>
+              <ion-icon slot="start" name="wifi-outline"></ion-icon>
               <ion-label class="ion-text-wrap">
                 <h2>Verbindung wird aufgebaut...</h2>
                 <!-- TODO translate -->
@@ -74,9 +72,9 @@
         <ion-col *ngIf="websocket.status == 'failed'" size="12" size-md="6">
           <ion-card>
             <ion-item>
-              <ion-icon slot="start" name="close-circle"></ion-icon>
+              <ion-icon slot="start" name="close-circle-outline"></ion-icon>
               <ion-label class="ion-text-wrap">
-                <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.ConnectionFailed</h2>
+                <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.connectionFailed</h2>
                 <p color="light">{{ env.url }}</p>
               </ion-label>
             </ion-item>

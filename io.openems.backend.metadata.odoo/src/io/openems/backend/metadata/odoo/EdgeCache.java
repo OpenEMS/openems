@@ -10,21 +10,22 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.GsonBuilder;
-
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
+import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
+import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 
 public class EdgeCache {
 
@@ -96,13 +97,11 @@ public class EdgeCache {
 		String comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
 		String version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
 		String productType = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCT_TYPE, "");
-		String ipv4 = PgUtils.getAsStringOrElse(rs, EdgeDevice.IPV4, "");
-		Integer soc = PgUtils.getAsIntegerOrElse(rs, EdgeDevice.SOC, null);
 
 		MyEdge edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge and register listeners
-			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, config, soc, ipv4);
+			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, config);
 			this.addListeners(edge);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
@@ -114,8 +113,6 @@ public class EdgeCache {
 			edge.setVersion(SemanticVersion.fromStringOrZero(version), false);
 			edge.setProducttype(productType);
 			edge.setConfig(config, false);
-			edge.setSoc(soc, false);
-			edge.setIpv4(ipv4, false);
 		}
 
 		return edge;
@@ -176,9 +173,8 @@ public class EdgeCache {
 	private void addListeners(MyEdge edge) {
 		edge.onSetOnline(isOnline -> {
 			if (isOnline) {
-				// Edge came Online
-				this.parent.odooHandler.writeEdge(edge,
-						new FieldValue<Boolean>(Field.EdgeDevice.OPENEMS_IS_CONNECTED, true));
+				// Set OpenEMS Is Connected in Odoo/Postgres
+				this.parent.getPostgresHandler().getPeriodicWriteWorker().isOnline(edge);
 
 				if (edge.getState().equals(State.INACTIVE)) {
 					// Edge was Inactive -> Update state to active
@@ -187,56 +183,47 @@ public class EdgeCache {
 					edge.setState(State.ACTIVE);
 					this.parent.odooHandler.writeEdge(edge, new FieldValue<String>(Field.EdgeDevice.STATE, "active"));
 				}
-
 			} else {
-				// Edge disconnected
-				this.parent.odooHandler.writeEdge(edge,
-						new FieldValue<Boolean>(Field.EdgeDevice.OPENEMS_IS_CONNECTED, false));
+				// Set OpenEMS Is Connected in Odoo/Postgres
+				this.parent.getPostgresHandler().getPeriodicWriteWorker().isOffline(edge);
 			}
 		});
 		edge.onSetConfig(config -> {
-			// Update Edge config in Odoo
+			// Update Edge Config in Odoo/Postgres
 			EdgeConfigDiff diff = EdgeConfigDiff.diff(config, edge.getConfig());
 			if (!diff.isDifferent()) {
 				return;
 			}
 
-			this.parent.logInfo(this.log,
-					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(diff.toString(), 100));
-			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
-			String components = new GsonBuilder().setPrettyPrinting().create()
-					.toJson(config.componentsToJson(JsonFormat.WITHOUT_CHANNELS));
-			this.parent.odooHandler.writeEdge(edge, //
-					new FieldValue<String>(Field.EdgeDevice.OPENEMS_CONFIG, conf),
-					new FieldValue<String>(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
-			this.parent.getOdooHandler().addChatterMessage(edge, "<p>Configuration Update:</p>" + diff.getAsHtml());
+			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
+
+			QueueWriteWorker queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
+			queueWriteWorker.addTask(new UpdateEdgeConfig(edge.getOdooId(), config));
+			queueWriteWorker.addTask(new InsertEdgeConfigUpdate(edge.getOdooId(), diff));
 		});
 		edge.onSetLastMessage(() -> {
 			// Set LastMessage timestamp in Odoo/Postgres
-			this.parent.getPostgresHandler().getWriteWorker().onLastMessage(edge);
+			this.parent.getPostgresHandler().getPeriodicWriteWorker().onLastMessage(edge);
 		});
 		edge.onSetLastUpdate(() -> {
 			// Set LastUpdate timestamp in Odoo/Postgres
-			this.parent.getPostgresHandler().getWriteWorker().onLastUpdate(edge);
+			this.parent.getPostgresHandler().getPeriodicWriteWorker().onLastUpdate(edge);
 		});
 		edge.onSetVersion(version -> {
-			// Set Version in Odoo
+			// Set Version in Odoo/Postgres
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
-			this.parent.odooHandler.writeEdge(edge,
-					new FieldValue<String>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
-		});
-		edge.onSetSoc(soc -> {
-			// Set SoC in Odoo
-			this.parent.odooHandler.writeEdge(edge, new FieldValue<String>(Field.EdgeDevice.SOC, String.valueOf(soc)));
-		});
-		edge.onSetIpv4(ipv4 -> {
-			// Set IPv4 in Odoo
-			this.parent.odooHandler.writeEdge(edge,
-					new FieldValue<String>(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
+
+			this.parent.getPostgresHandler().getQueueWriteWorker()
+					.addTask(new UpdateEdgeVersion(edge.getOdooId(), version));
 		});
 		edge.onSetComponentState(activeStateChannels -> {
 			this.parent.postgresHandler.updateDeviceStates(edge, activeStateChannels);
+		});
+		edge.onSetProducttype(producttype -> {
+			// Set Producttype in Odoo/Postgres
+			this.parent.getPostgresHandler().getQueueWriteWorker()
+					.addTask(new UpdateEdgeProducttype(edge.getOdooId(), producttype));
 		});
 	}
 

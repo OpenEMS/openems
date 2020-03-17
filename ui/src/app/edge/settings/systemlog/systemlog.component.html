@@ -3,7 +3,7 @@
     <ion-col size="12">
       <ion-card>
         <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working" color="primary"></ion-icon>
+          <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
           <ion-label>System-Log</ion-label>
         </ion-item>
 
@@ -17,20 +17,18 @@
         <ion-card-content>
           <ion-grid *ngFor="let line of lines" class="ion-no-padding">
             <ion-row style="font-family: monospace; font-size: small" style.color="black">
-              <ion-col size-xl="2" size-sm="6">
+              <ion-col size-sm="2" size="6">
                 {{ line.time }}
               </ion-col>
-              <ion-col size-xl="1" size-sm="6">
+              <ion-col size-sm="1" size="6">
                 {{ line.level }}
               </ion-col>
-              <ion-col size-xl="9" size-sm="12">
+              <ion-col size-sm="auto" size="12">
                 {{ line.source }}
               </ion-col>
             </ion-row>
             <ion-row style="font-family: monospace" [style.color]="line.color">
-              <ion-col size-xl="3" size-sm="0">
-              </ion-col>
-              <ion-col size-xl="9" size-sm="12">
+              <ion-col size="12">
                 {{ line.message }}
               </ion-col>
             </ion-row>
