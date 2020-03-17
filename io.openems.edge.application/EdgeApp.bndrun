@@ -65,6 +65,7 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
@@ -167,6 +168,7 @@
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
+	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.api;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
