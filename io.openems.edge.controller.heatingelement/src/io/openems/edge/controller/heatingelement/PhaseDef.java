@@ -20,7 +20,7 @@ public class PhaseDef {
 	private LocalDateTime phaseTimeOn = null;
 	private long totalPhaseTime = 0; // milliseconds
 	private Stopwatch timeStopwatch = Stopwatch.createUnstarted();
-	private double totalPhasePower = 0;
+	private double totalPhaseEnergy = 0;
 	private ChannelAddress outputChannelAddress;
 
 	/**
@@ -39,14 +39,14 @@ public class PhaseDef {
 				this.timeStopwatch.stop();
 			}			
 			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
-			totalPhasePower = calculatePower(totalPhaseTime);
+			totalPhaseEnergy = calculateEnergy(totalPhaseTime);
 			this.off(getOutputChannelAddress());
 		}else {
 			if(!this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.start();
 			}			
 			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
-			totalPhasePower = calculatePower(totalPhaseTime);
+			totalPhaseEnergy = calculateEnergy(totalPhaseTime);
 			this.on(getOutputChannelAddress());
 		}
 	}
@@ -58,7 +58,7 @@ public class PhaseDef {
 	 * @param time Long values of time in seconds
 	 * 
 	 */
-	private double calculatePower(double time) {
+	private double calculateEnergy(double time) {
 		double kiloWattHour = ((time) / 3600000.0) * parent.config.powerOfPhase();
 		return kiloWattHour;
 	}
@@ -142,12 +142,12 @@ public class PhaseDef {
 		this.timeStopwatch = timeStopwatch;
 	}
 
-	public double getTotalPhasePower() {
-		return totalPhasePower;
+	public double getTotalPhaseEnergy() {
+		return totalPhaseEnergy;
 	}
 
-	public void setTotalPhasePower(double totalPhasePower) {
-		this.totalPhasePower = totalPhasePower;
+	public void setTotalPhaseEnergy(double totalPhaseEnergy) {
+		this.totalPhaseEnergy = totalPhaseEnergy;
 	}
 
 	public ChannelAddress getOutputChannelAddress() {

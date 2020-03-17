@@ -75,12 +75,12 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private long totalPhase2Time = 0;
 	private long totalPhase3Time = 0;
 	
-	private double totalPhase1Power = 0;
-	private double totalPhase2Power = 0;
-	private double totalPhase3Power = 0;
+	private double totalPhase1Energy = 0;
+	private double totalPhase2Energy = 0;
+	private double totalPhase3Energy = 0;
 
 	private long totalPhaseTime = 0;
-	private double totalPhasePower = 0;
+	private double totalPhaseEnergy = 0;
 	private LocalDate today = LocalDate.now();
 
 	/**
@@ -140,13 +140,19 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				.unit(Unit.SECONDS)), //
 		COUNT_DOWN_MIN_KWH(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT_HOURS)), //
-		PHASE1_POWER(Doc.of(OpenemsType.DOUBLE)//
+		PHASE1_ENERGY(Doc.of(OpenemsType.DOUBLE)//
 				.unit(Unit.WATT_HOURS)), //
-		PHASE2_POWER(Doc.of(OpenemsType.DOUBLE)//
+		PHASE2_ENERGY(Doc.of(OpenemsType.DOUBLE)//
 				.unit(Unit.WATT_HOURS)), //
-		PHASE3_POWER(Doc.of(OpenemsType.DOUBLE)//
+		PHASE3_ENERGY(Doc.of(OpenemsType.DOUBLE)//
 				.unit(Unit.WATT_HOURS)), //
-		TOTAL_PHASE_POWER(Doc.of(OpenemsType.DOUBLE)//
+		LEVEL1_ENERGY(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)), //
+		LEVEL2_ENERGY(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)), //
+		LEVEL3_ENERGY(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)), //
+		TOTAL_PHASE_ENERGY(Doc.of(OpenemsType.DOUBLE)//
 				.unit(Unit.WATT_HOURS)), //
 		TOTAL_PHASE_TIME(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.SECONDS)); //
@@ -238,27 +244,27 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		for (Phase p : phases.keySet()) {
 			if (p == Phase.ONE) {
 				this.totalPhase1Time = phases.get(p).getTotalPhaseTime();
-				this.totalPhase1Power = phases.get(p).getTotalPhasePower();
+				this.totalPhase1Energy = phases.get(p).getTotalPhaseEnergy();
 				this.channel(ChannelId.PHASE1_TIME).setNextValue(this.totalPhase1Time);
-				this.channel(ChannelId.PHASE1_POWER).setNextValue(this.totalPhase1Power);
+				this.channel(ChannelId.PHASE1_ENERGY).setNextValue(this.totalPhase1Energy);
 			} else if (p == Phase.TWO) {
 				this.totalPhase2Time = phases.get(p).getTotalPhaseTime();
-				this.totalPhase2Power = phases.get(p).getTotalPhasePower();
+				this.totalPhase2Energy = phases.get(p).getTotalPhaseEnergy();
 				this.channel(ChannelId.PHASE2_TIME).setNextValue(this.totalPhase2Time);
-				this.channel(ChannelId.PHASE2_POWER).setNextValue(this.totalPhase2Power);
+				this.channel(ChannelId.PHASE2_ENERGY).setNextValue(this.totalPhase2Energy);
 			} else {
 				this.totalPhase3Time = phases.get(p).getTotalPhaseTime();
-				this.totalPhase3Power = phases.get(p).getTotalPhasePower();
+				this.totalPhase3Energy = phases.get(p).getTotalPhaseEnergy();
 				this.channel(ChannelId.PHASE3_TIME).setNextValue(this.totalPhase3Time);
-				this.channel(ChannelId.PHASE3_POWER).setNextValue(this.totalPhase3Power);
+				this.channel(ChannelId.PHASE3_ENERGY).setNextValue(this.totalPhase3Energy);
 			}
 		}
 
 		this.totalPhaseTime = 0;
-		this.totalPhasePower = 0;
+		this.totalPhaseEnergy = 0;
 		for (PhaseDef p : phases.values()) {
 			this.totalPhaseTime += p.getTotalPhaseTime();
-			this.totalPhasePower += p.getTotalPhasePower();
+			this.totalPhaseEnergy += p.getTotalPhaseEnergy();
 		}
 		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(this.totalPhaseTime);
 		// Keep updating the mintime comparing it with the total phase time
@@ -283,14 +289,30 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		 */
 		long level3Time = this.totalPhase3Time;
 		
+		double level1Energy = (level1Time / 3600000.0) * config.powerOfPhase();
+		double level2Energy = (level2Time / 3600000.0) * (config.powerOfPhase() * 2);
+		double level3Energy = (level3Time / 3600000.0) * (config.powerOfPhase() * 3);
+		
 		
 		this.channel(ChannelId.LEVEL1_TIME).setNextValue(level1Time);
 		this.channel(ChannelId.LEVEL2_TIME).setNextValue(level2Time);
 		this.channel(ChannelId.LEVEL3_TIME).setNextValue(level3Time);
-		this.channel(ChannelId.TOTAL_PHASE_POWER).setNextValue(this.totalPhasePower);
+		this.channel(ChannelId.LEVEL1_ENERGY).setNextValue(level1Energy);
+		this.channel(ChannelId.LEVEL2_ENERGY).setNextValue(level2Energy);
+		this.channel(ChannelId.LEVEL3_ENERGY).setNextValue(level3Energy);
+		this.channel(ChannelId.TOTAL_PHASE_ENERGY).setNextValue(this.totalPhaseEnergy);
+		
+		
+		System.out.println(" level 1 time is : " + level1Time);
+		System.out.println(" level 2 time is : " + level2Time);
+		System.out.println(" level 3 time is : " + level3Time);
+		
+		System.out.println(" level 1 Energy is : " + level1Energy);
+		System.out.println(" level 2 Energy is : " + level2Energy);
+		System.out.println(" level 3 Energy is : " + level3Energy);
 		
 		// keep updating the minKwh comparing it with the total phase power
-		this.countDownMinKwh = this.minKwh - this.totalPhasePower;	
+		this.countDownMinKwh = this.minKwh - this.totalPhaseEnergy;	
 	}
 	
 	/**
@@ -376,7 +398,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		// resetting the variables if there is change in the day.
 		if (checkChangeInDay()) {
 			for (PhaseDef p : phases.values()) {
-				p.setTotalPhasePower(0);
+				p.setTotalPhaseEnergy(0);
 				p.setTotalPhaseTime(0);
 				p.getTimeStopwatch().reset();
 			}
