@@ -3,7 +3,7 @@ package io.openems.edge.controller.timeslotpeakshaving;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Peak-Shaving Symmetric Timeslot", //
 		description = "This controller Peak shaves during the high threshold configured time-slot, and charges the battery outside the timeslot.")
 @interface Config {

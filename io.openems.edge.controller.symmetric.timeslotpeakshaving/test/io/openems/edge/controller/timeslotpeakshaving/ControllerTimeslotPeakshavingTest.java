@@ -9,9 +9,9 @@ import org.junit.Test;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -216,7 +216,7 @@ public class ControllerTimeslotPeakshavingTest {
 						.input(grid, 120000) //
 						.output(essSetPower, 33000)) //
 				.next(new TestCase() //
-						.timeleap(clock, 75, ChronoUnit.MINUTES)/*current time is 12:02 run in normal state */
+						.timeleap(clock, 75, ChronoUnit.MINUTES)/* current time is 12:02 run in normal state */
 						.input(gridMode, GridMode.ON_GRID) //
 						.input(ess, 5000) //
 						.input(grid, 120000)) // nothing set on, Ess's setActivePower

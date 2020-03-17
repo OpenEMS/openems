@@ -1,7 +1,6 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
 import java.time.Clock;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,6 +29,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 //import io.openems.edge.ess.power.api.Phase;
 //import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -61,6 +62,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 				.text("Current State of State-Machine")),
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -114,11 +116,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * Applies the power on the Ess
+	 * Applies the power on the Ess.
 	 * 
-	 * @param ess      managedSymmetricEss where the power needs to be set
-	 * @param pidOuput the power to be set on ess
-	 * @throws OpenemsNamedException
+	 * @param ess      {@link ManagedSymmetricEss} where the power needs to be set
+	 * @param pidOuput the power to be set on ess, or null to set no power
+	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
@@ -130,9 +132,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	/**
 	 * Gets the current ActivePower.
 	 * 
-	 * @return
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsException
+	 * @return the currently valid active power, or null to set no power
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsException         on error
 	 */
 	private Integer getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
 			throws OpenemsException, IllegalArgumentException {
@@ -159,14 +161,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 				if (this.isHighLoadTimeslot(now)) {
 					stateChanged = changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
 				}
-				
-//				int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-//				if (minPower >= 0 ) {
-//					// no need to charge anymore, the soc would be 100 %
-//					stateChanged = changeState(ChargeState.HYSTERESIS);
-//				}
-				
-				if (ess.getSoc().value().orElse(0) == 100) {
+
+				int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+				if (ess.getSoc().value().orElse(0) == 100 || minPower >= 0) {
 					// no need to charge anymore, the soc would be 100 %
 					stateChanged = changeState(ChargeState.HYSTERESIS);
 				}
@@ -216,8 +213,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * This method calculates the power that is required to cut the peak during
 	 * timeslot.
 	 * 
-	 * @param ess
-	 * @param meter
+	 * @param ess   the {@link ManagedSymmetricEss}
+	 * @param meter the {@link SymmetricMeter} of the grid
 	 * @return activepower to be set on the ess
 	 */
 	private int calculatePeakShavePower(ManagedSymmetricEss ess, SymmetricMeter meter) {
@@ -225,13 +222,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
 		GridMode gridMode = ess.getGridMode().value().asEnum();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-
 		switch (gridMode) {
-		case ON_GRID:
 		case UNDEFINED:
+			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
+			break;
+		case ON_GRID:
 			break;
 		case OFF_GRID:
 			return 0;
@@ -256,7 +251,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 		} else {
 			/*
-			 * Do nothing
+			 * Set no charge/discharge
 			 */
 			calculatedPower = 0;
 		}
@@ -265,12 +260,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * Is the current time in a high-load timeslot?
+	 * Is the current time in a high-load timeslot?.
 	 * 
-	 * @param dateTime
-	 * 
-	 * @return boolean specifying the within timeslot or not
-	 * @throws OpenemsException
+	 * @param dateTime the datetime to be checked
+	 * @return boolean true if time is within timeslot
+	 * @throws OpenemsException on error
 	 */
 	private boolean isHighLoadTimeslot(LocalDateTime dateTime) throws OpenemsException {
 
@@ -288,9 +282,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * Is "day" configured to run algorithm?
+	 * Is "day" configured to run algorithm?.
 	 * 
-	 * @param config
+	 * @param config the configuration
 	 * @return configuredDay boolean value specifying the day is set or not.
 	 */
 	private static boolean isConfiguredActiveDay(Config config) {
@@ -340,12 +334,14 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * This method returns true if the Current date is within configured StartDate and endDate
+	 * This method returns true if the Current date is within configured StartDate
+	 * and endDate.
 	 * 
-	 * @param startDate
-	 * @param endDate
-	 * @param dateTime
-	 * @return boolean values which specify the current date is within the configured date range
+	 * @param startDate the configured start date
+	 * @param endDate   the configured end date
+	 * @param dateTime  the date to be tested
+	 * @return boolean values which specify the current date is within the
+	 *         configured date range
 	 */
 	protected static boolean isActiveDate(LocalDate startDate, LocalDate endDate, LocalDateTime dateTime) {
 		LocalDate date = dateTime.toLocalDate();
@@ -353,11 +349,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * Is the time of 'dateTime' within startTime and endTime?
+	 * Is the time of 'dateTime' within startTime and endTime?.
 	 * 
-	 * @param startTime
-	 * @param endTime
-	 * @param dateTime
+	 * @param startTime the configured start time
+	 * @param endTime   the configured end time
+	 * @param dateTime  the time to be tested
 	 * @return
 	 */
 	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {
@@ -366,21 +362,10 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * Is 'dateTime' a Saturday or Sunday?
-	 * 
-	 * @param dateTime
-	 * @return
-	 */
-	protected static boolean isWeekend(LocalDateTime dateTime) {
-		DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
-		return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
-	}
-
-	/**
 	 * Converts a string to a LocalDate.
 	 * 
-	 * @param date
-	 * @return
+	 * @param date the date as a String
+	 * @return the converted date
 	 */
 	protected static LocalDate convertDate(String date) throws OpenemsException {
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -391,8 +376,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	/**
 	 * Converts a string to a LocalTime.
 	 * 
-	 * @param time
-	 * @return
+	 * @param time the time as a string
+	 * @return the converted time
 	 */
 	protected static LocalTime convertTime(String time) throws OpenemsException {
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
@@ -401,12 +386,14 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * This methods calculates the slow charging minutes from slowStartTime and startTime, this is the period for 
-	 * charging the battery to 100% and getting ready for highthreshold period.  
+	 * This methods calculates the slow charging minutes from slowStartTime and
+	 * startTime, this is the period for charging the battery to 100% and getting
+	 * ready for highthreshold period.
 	 * 
 	 * @param slowStartTime start of slow charging the battery
-	 * @param startTime start of the high threshold period
-	 * @return forceChargeMinutes in int, which specifies the total time the battery should be slowly charged
+	 * @param startTime     start of the high threshold period
+	 * @return forceChargeMinutes in int, which specifies the total time the battery
+	 *         should be slowly charged
 	 */
 	private static int calculateSlowForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
 		int forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);
@@ -416,77 +403,5 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			return forceChargeTime + 1440; // 1440 - total minutes in a day
 		}
 	}
-
-//	/**
-//	 * Gets the current ActivePower.
-//	 * 
-//	 * @return
-//	 * @throws IllegalArgumentException
-//	 * @throws OpenemsException
-//	 */
-//	private int getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
-//			throws OpenemsException, IllegalArgumentException {
-//
-//		LocalDateTime now = LocalDateTime.now(this.clock);
-//		int activePower = this.calculatePeakShavePower(ess, meter);
-//
-//		if (this.isHighLoadTimeslot(now)) {
-//			/*
-//			 * We are in a High-Load period -> peak shave and discharge/ charge and
-//			 * hysteresis "soc" within high load timeslot
-//			 */
-//			if (ess.getSoc().value().orElse(0) >= config.hysteresisSoc()) {
-//				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " >= " + config.hysteresisSoc()
-//						+ "]. Switch to Charge-Normal state.");
-//				this.chargeState = ChargeState.HYSTERESIS;
-//				return 0;
-//			}
-//			this.chargeState = ChargeState.NORMAL;
-//			this.logInfo(log, "Within High-Load timeslot. charge with [" + activePower + "]");
-//			return activePower;
-//		} else if (this.isHighLoadTimeslot(now.plusMinutes(this.forceChargeMinutes))) {
-//			/*
-//			 * We are soon going to be in High-Load period -> activate FORCE_CHARGE mode
-//			 */
-//			this.logInfo(log, " We are soon going to be in High-Load period ");
-//			this.chargeState = ChargeState.FORCE_CHARGE;
-//		}
-//		/*
-//		 * We are in a Charge period
-//		 */
-//		switch (this.chargeState) {
-//		case NORMAL:
-//			/*
-//			 * charge with configured charge-power
-//			 */
-//			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
-//			int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-//			if (minPower >= 0) {
-//				this.logInfo(log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
-//				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
-//				this.chargeState = ChargeState.HYSTERESIS;
-//			}
-//			return activePower;
-//		case HYSTERESIS:
-//			/*
-//			 * block charging till configured hysteresisSoc
-//			 */
-//			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
-//			if (ess.getSoc().value().orElse(0) <= config.hysteresisSoc()) {
-//				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " <= " + config.hysteresisSoc()
-//						+ "]. Switch to Charge-Normal state.");
-//				this.chargeState = ChargeState.NORMAL;
-//			}
-//			return 0;
-//		case FORCE_CHARGE:
-//			/*
-//			 * force full charging just before the high-load timeslot starts
-//			 */
-//			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + config.slowChargePower() + "]");
-//			return config.slowChargePower();
-//		}
-//		// we should never come here...
-//		return 0;
-//	}
 
 }
