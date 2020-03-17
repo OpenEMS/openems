@@ -10,6 +10,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.User;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.common.channel.Channel;
@@ -71,6 +72,41 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 
+	public <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
+			throws IllegalArgumentException, OpenemsNamedException {
+		
+		//
+		channelAddress = manipulateChannelAdress(channelAddress);
+		
+		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
+		return component.channel(channelAddress.getChannelId());
+	}
+	
+	private ChannelAddress manipulateChannelAdress(ChannelAddress channelAddress) {
+		
+		String separator = "/";
+		String componentId = channelAddress.getComponentId();
+		String channelNAme = channelAddress.getChannelId();
+		
+		
+		StringBuilder b = new StringBuilder();
+		b.append(componentId);
+		b.append(separator);
+		
+		b.append(channelNAme.substring(0, 1).toUpperCase());
+		b.append(channelNAme.substring(1).toLowerCase());		
+		
+		try {
+			return ChannelAddress.fromString(b.toString());
+		} catch (OpenemsNamedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Error manipulating channel adress!!");
+		}
+		return channelAddress;
+	}
+
+	
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {

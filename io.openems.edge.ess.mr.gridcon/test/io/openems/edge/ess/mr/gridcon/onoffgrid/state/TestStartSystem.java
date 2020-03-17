@@ -9,18 +9,17 @@ import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.Creator;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyComponentManager;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyDecisionTableCondition;
-import io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState;
-import io.openems.edge.ess.mr.gridcon.state.onoffgrid.StartSystem;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.GridconCommunicationFailed;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.MeterCommunicationFailed;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NAProtection_1_On;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NAProtection_2_On;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.SyncBridgeOn;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.VoltageInRange;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.StartSystem;
 
 public class TestStartSystem {
 
@@ -95,12 +94,11 @@ public class TestStartSystem {
 	@Test
 	public void testAct() {
 		try {
-			BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager.getChannel(ChannelAddress.fromString(Creator.OUTPUT_SYNC_DEVICE_BRIDGE));
+			String channelName = adaptName(Creator.OUTPUT_SYNC_DEVICE_BRIDGE);
+			ChannelAddress adress = ChannelAddress.fromString(channelName);
+			// TODO Channel is not found, it's name is converted into lower case
+			BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager.getChannel(adress);
 			
-//			boolean expected = true;
-//			boolean actual = outputSyncDeviceBridgeChannel.value().get();
-//			assertEquals(expected, actual);
-//			
 			sut.act();
 			
 			boolean expected = false;
@@ -112,6 +110,19 @@ public class TestStartSystem {
 		}
 	}
 	
+	private String adaptName(String outputSyncDeviceBridge) {
+		String separator = "/";
+		String s = outputSyncDeviceBridge.toLowerCase();
+		StringBuilder b = new StringBuilder();
+		String parts[] = s.split(separator);
+		b.append(parts[0]);
+		b.append(separator);
+		String p2 = parts[1];
+		b.append(p2.substring(0, 1).toUpperCase());
+		b.append(p2.substring(1));		
+		return b.toString();
+	}
+
 	private static void setCondition(NAProtection_1_On b, NAProtection_2_On c, GridconCommunicationFailed d, MeterCommunicationFailed e, VoltageInRange f, SyncBridgeOn g) {
 		condition.setNaProtection1On(b);
 		condition.setNaProtection2On(c);

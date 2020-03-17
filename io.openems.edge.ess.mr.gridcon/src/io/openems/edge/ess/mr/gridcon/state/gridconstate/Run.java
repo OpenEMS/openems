@@ -41,7 +41,7 @@ public class Run extends BaseState implements StateObject {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
 		}
 		if (isNextStateError()) {
-			return io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState.ERROR;
+			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 		}
 		
 		if (isNextStateStopped()) {

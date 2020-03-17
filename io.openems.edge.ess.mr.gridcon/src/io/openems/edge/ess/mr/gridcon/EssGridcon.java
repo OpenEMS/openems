@@ -37,6 +37,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave, EventHandler {
 
 	public static final int MAX_CURRENT_PER_STRING = 80;
+	
 	String gridconId;
 	String bmsAId;
 	String bmsBId;
@@ -219,8 +220,8 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	 * Handles Battery data, i.e. setting allowed charge/discharge power.
 	 */
 	protected void calculateAllowedPower() {
-		int allowedCharge = 0;
-		int allowedDischarge = 0;
+		double allowedCharge = 0;
+		double allowedDischarge = 0;
 
 		for (SoltaroBattery battery : getBatteries()) {
 			Integer maxChargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getChargeMaxCurrent().value().get());
@@ -229,6 +230,10 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getDischargeMaxCurrent().value().get());
 			allowedDischarge += battery.getVoltage().value().get() * maxDischargeCurrent;
 		}
+		
+		allowedCharge = (allowedCharge * (1 + getGridconPCS().getEfficiencyLossChargeFactor()));
+		allowedDischarge = (allowedDischarge * (1 - getGridconPCS().getEfficiencyLossDischargeFactor()));
+		
 		getAllowedCharge().setNextValue(allowedCharge);
 		getAllowedDischarge().setNextValue(allowedDischarge);
 	}

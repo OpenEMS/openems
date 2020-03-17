@@ -61,6 +61,11 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 		implements OpenemsComponent, GridconPCS {
 
 	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
+	
+	public static final double EFFICIENCY_LOSS_FACTOR = 0.07;
+	public static final double EFFICIENCY_LOSS_DISCHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
+	public static final double EFFICIENCY_LOSS_CHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
+	
 
 	private final Logger log = LoggerFactory.getLogger(GridconPCSImpl.class);
 
@@ -74,6 +79,9 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	private InverterCount inverterCount;
 
 	private int activePowerPreset;
+
+	private double efficiencyLossDischargeFactor;
+	private double efficiencyLossChargeFactor;
 
 	public GridconPCSImpl() {
 		super(//
@@ -91,6 +99,8 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inverterCount = config.inverterCount();
 		this.modbus_id = config.modbus_id();
+		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
+		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();;
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
@@ -1295,5 +1305,15 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public float getActivePowerPreset() {
 		return activePowerPreset;
+	}
+
+	@Override
+	public double getEfficiencyLossChargeFactor() {
+		return efficiencyLossChargeFactor;
+	}
+
+	@Override
+	public double getEfficiencyLossDischargeFactor() {
+		return efficiencyLossDischargeFactor;
 	}
 }

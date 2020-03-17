@@ -37,6 +37,8 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	private Float weightB;
 	private Float weightC;
 	private int stringControlMode;
+	private double efficiencyLossDischargeFactor = 0;
+	private double efficiencyLossChargeFactor = 0;
 	
 	public DummyGridcon(//
 	) { //
@@ -330,6 +332,16 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	public float getActivePowerPreset() {
 		// TODO Auto-generated method stub
 		return activePower;
+	}
+
+	@Override
+	public double getEfficiencyLossChargeFactor() {
+		return efficiencyLossChargeFactor;
+	}
+
+	@Override
+	public double getEfficiencyLossDischargeFactor() {
+		return efficiencyLossDischargeFactor;
 	}
 
 }

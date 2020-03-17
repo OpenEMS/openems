@@ -73,4 +73,6 @@ public interface GridconPCS {
 	boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3);
 	void doWriteTasks() throws OpenemsNamedException;
 	float getActivePowerPreset();
+	double getEfficiencyLossChargeFactor();
+	double getEfficiencyLossDischargeFactor();
 }

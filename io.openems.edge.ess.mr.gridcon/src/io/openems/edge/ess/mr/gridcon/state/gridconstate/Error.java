@@ -8,10 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
@@ -170,7 +174,7 @@ public class Error extends BaseState implements StateObject {
 		// Error code = aktueller fehler im channel
 		// error code feedback -> channel fürs rückschreiben der fehler damit im error code der nächste auftaucht
 		
-		errorMap = new ArrayList<Integer>();
+		errorCollection = new ArrayList<Integer>();
 		errorCount = getGridconPCS().getErrorCount();
 		errorHandlingState = ErrorHandlingState.READING_ERRORS;
 		//getGridconPCS().setStop(true);
@@ -180,18 +184,45 @@ public class Error extends BaseState implements StateObject {
 	private void doReadErrors() {
 		System.out.println("doReadErrors");
 		int currentErrorCode = getGridconPCS().getErrorCode();
-		if (!errorMap.contains(currentErrorCode)) {
-			errorMap.add(currentErrorCode);
+		if (!errorCollection.contains(currentErrorCode)) {
+			errorCollection.add(currentErrorCode);
 			getGridconPCS().setErrorCodeFeedback(currentErrorCode);
 		} else {
 			getGridconPCS().setErrorCodeFeedback(currentErrorCode);
 		}
 		
-		if (errorMap.size() >= errorCount) {
+		if (errorCollection.size() >= errorCount) {
 			errorHandlingState = ErrorHandlingState.ACKNOWLEDGE;
+			//write errors
+			printErrors(errorCollection);
 		}
 	}
 	
+	private void printErrors(Collection<Integer> errorCollection) {
+		for (int i : errorCollection) {
+			printError(i);
+		}		
+	}
+
+	private void printError(int errorCode) {
+		for (ErrorCodeChannelId0 id : ErrorCodeChannelId0.values()) {			
+			printErrorIfCorresponding(errorCode, id);
+		}
+		for (ErrorCodeChannelId1 id : ErrorCodeChannelId1.values()) {
+			printErrorIfCorresponding(errorCode, id);
+		}
+	}
+
+	private void printErrorIfCorresponding(int errorCode, ChannelId id) {
+		ErrorDoc errorDoc = (ErrorDoc) id.doc();
+		if (errorDoc.getCode() == errorCode) {
+			System.out.println(errorDoc.getText());
+		}
+	}
+	
+	
+	
+
 	private void doAcknowledge() {
 		System.out.println("doAcknowledge");
 		errorsAcknowledged = LocalDateTime.now();
@@ -237,7 +268,7 @@ public class Error extends BaseState implements StateObject {
 		//reset all maps etc.
 		
 		errorCount = null;
-		errorMap = null; 
+		errorCollection = null; 
 		errorHandlingState = null;
 		errorsAcknowledged = null;
 		
@@ -260,7 +291,7 @@ public class Error extends BaseState implements StateObject {
 	}
 
 	Integer errorCount = null;
-	private Collection<Integer> errorMap = null; 
+	private Collection<Integer> errorCollection = null; 
 	private ErrorHandlingState errorHandlingState = null;
 	LocalDateTime errorsAcknowledged = null;
 	

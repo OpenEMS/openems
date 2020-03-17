@@ -286,4 +286,16 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	public float getActivePowerPreset() {
 		return currentActivePower;
 	}
+
+	@Override
+	public double getEfficiencyLossChargeFactor() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getEfficiencyLossDischargeFactor() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
