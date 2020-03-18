@@ -55,7 +55,7 @@ export class HeatingElementModalComponent implements OnInit {
                                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
                             }).catch(reason => {
                                 this.controller.properties['endTime'] = oldTime;
-                                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
                                 console.warn(reason);
                             });
                         }
@@ -96,7 +96,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.mode = oldMode;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -119,7 +119,7 @@ export class HeatingElementModalComponent implements OnInit {
             }).catch(reason => {
                 currentController.properties.minTime = oldMinTime;
                 console.warn(reason);
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
             });
         }
     }
@@ -140,7 +140,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.minkwh = oldMinKwh;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -172,7 +172,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.priority = oldProcedureMode;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -190,7 +190,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties['endTime'] = oldTime;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }

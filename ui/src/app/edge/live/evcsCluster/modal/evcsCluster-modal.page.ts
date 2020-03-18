@@ -23,7 +23,6 @@ export class ModalComponentEvcsCluster implements OnInit {
 
     public chargeState: ChargeState;
     private chargePlug: ChargePlug;
-    public displayInfo: boolean = false;
     public evcsAmount: number;
     public swiperIndex: number = 0;
     public slideOpts = {
