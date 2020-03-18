@@ -105,35 +105,35 @@ public class WeightingHelperTest {
 		assertArrayEquals(expected, actual);
 
 		b1.start();
-		expected = new Float[] { 100f, 0f, 0f };
+		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b3 = new DummyBattery();
-		expected = new Float[] { 100f, 0f, 0f };
+		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b3.setVoltage(790);
 		b3.start();
-		expected = new Float[] { 1000f, 0f, 100f };
+		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b1.stop();
-		expected = new Float[] { 0f, 0f, 100f };
+		expected = new Float[] { 0f, 0f, 1f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b2 = new DummyBattery();
 		b2.setVoltage(810);
 		b2.start();
-		expected = new Float[] { 0f, 2000f, 100f };
+		expected = new Float[] { 0f, 1f, 0f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b1.start();
-		expected = new Float[] { 1000f, 2000f, 100f };
+		expected = new Float[] { 100f, 200f, 0f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 	}
@@ -155,35 +155,35 @@ public class WeightingHelperTest {
 		assertArrayEquals(expected, actual);
 
 		b1.start();
-		expected = new Float[] { 100f, 0f, 0f };
+		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b3 = new DummyBattery();
-		expected = new Float[] { 100f, 0f, 0f };
+		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b3.setVoltage(790);
 		b3.start();
-		expected = new Float[] { 1000f, 0f, 100f };
+		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b1.stop();
-		expected = new Float[] { 0f, 0f, 100f };
+		expected = new Float[] { 0f, 0f, 1f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b2 = new DummyBattery();
 		b2.setVoltage(810);
 		b2.start();
-		expected = new Float[] { 0f, 2000f, 100f };
+		expected = new Float[] { 0f, 1f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		b1.start();
-		expected = new Float[] { 1000f, 2000f, 100f };
+		expected = new Float[] { 100f, 200f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 	}

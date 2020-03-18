@@ -90,13 +90,15 @@ public class TestStartSystem {
 		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
 		assertNotEquals(OnOffGridState.ON_GRID_MODE, sut.getNextState());		
 	}
+	
+	// TODO other states that are not allowed
 		
 	@Test
 	public void testAct() {
 		try {
 			String channelName = adaptName(Creator.OUTPUT_SYNC_DEVICE_BRIDGE);
 			ChannelAddress adress = ChannelAddress.fromString(channelName);
-			// TODO Channel is not found, it's name is converted into lower case
+			// TODO Channel is not found regularly, it's name is converted in DummyComponentManager
 			BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager.getChannel(adress);
 			
 			sut.act();

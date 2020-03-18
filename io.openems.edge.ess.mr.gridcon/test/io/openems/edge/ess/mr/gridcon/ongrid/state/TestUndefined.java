@@ -1,13 +1,13 @@
 package io.openems.edge.ess.mr.gridcon.ongrid.state;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined;
-import io.openems.edge.ess.mr.gridcon.state.ongrid.OnGridState;
 
 public class TestUndefined {
 
@@ -29,7 +29,6 @@ public class TestUndefined {
 
 	@Test
 	public final void testGetStateUndefined() {
-		assertEquals(OnGridState.UNDEFINED, sut.getState());
 	}
 
 //	@Test
