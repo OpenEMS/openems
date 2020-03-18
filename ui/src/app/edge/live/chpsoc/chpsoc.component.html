@@ -3,7 +3,7 @@
         <ion-card button (click)="presentModal()">
 
             <ion-item lines="full" color="light">
-                <ion-icon slot="start" size="large" color="primary" name="flame-outline"></ion-icon>
+                <ion-icon slot="start" size="large" color="primary" name="flame"></ion-icon>
                 <ion-label>{{ component.alias }}</ion-label>
             </ion-item>
             <ion-card-content>
@@ -28,7 +28,7 @@
                     <tr>
                         <td style="width:65%" translate>General.state</td>
                         <td style="width:35%" class="align_right" translate>
-                            <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help-outline"></ion-icon>
+                            <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
                             <ng-container *ngIf="currentData.channel[outputChannel] == 1">
                                 General.active
                             </ng-container>
