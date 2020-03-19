@@ -30,9 +30,11 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -50,8 +52,10 @@ import io.openems.edge.ess.power.api.Power;
 		name = "Fenecon.Pro.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
-
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class FeneconProEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
 		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, ModbusSlave, EventHandler {
 
@@ -504,9 +508,24 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.updateChannels();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.activateRemoteMode();
+			break;
 		}
+	}
+
+	/**
+	 * Update Channels on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE.
+	 */
+	private void updateChannels() {
+		// Update Local-Mode Warning Channel
+		EnumReadChannel controlModeChannel = this.channel(ProChannelId.CONTROL_MODE);
+		ControlMode controlMode = controlModeChannel.getNextValue().asEnum();
+		StateChannel localModeChannel = this.channel(ProChannelId.LOCAL_MODE);
+		localModeChannel.setNextValue(controlMode == ControlMode.LOCAL);
 	}
 
 	/**
