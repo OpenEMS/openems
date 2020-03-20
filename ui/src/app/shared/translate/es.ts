@@ -198,16 +198,6 @@ export const TRANSLATION = {
                         name: 'Carga forzada',
                         shortName: 'a mano',
                     }
-                },
-                Heatingelement: {
-                    Heatingelement: 'Elemento de calefacción',
-                    Priority: 'Prioridad',
-                    ActivePhases: 'Fases activas',
-                    Energy: 'Energía',
-                    Time: 'Tiempo',
-                    Endtime: 'Los días pasados',
-                    MinimalEnergyAmount: 'Cantidad mínima de energía',
-                    MinimumRunTime: 'Plazo mínimo'
                 }
             }
         },

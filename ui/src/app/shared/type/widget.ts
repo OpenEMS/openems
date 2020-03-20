@@ -25,9 +25,10 @@ export enum WidgetFactory {
     'Controller.Symmetric.PeakShaving',
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumtion',
+    // TODO remove after all systems with Modbus/TCP-Slave Api are updated to at least 2020.5.1
+    'Controller.Api.ModbusTcp',
     'Controller.Api.ModbusTcp.ReadOnly',
     'Controller.Api.ModbusTcp.ReadWrite',
-    'Controller.HeatingElement',
 }
 
 export class Widget {

@@ -197,16 +197,6 @@ export const TRANSLATION = {
                         name: 'Force charging',
                         shortName: 'Manually',
                     }
-                },
-                Heatingelement: {
-                    Heatingelement: 'Heating element',
-                    Priority: 'Priority',
-                    ActivePhases: 'Active phases',
-                    Energy: 'Energy',
-                    Time: 'Time',
-                    Endtime: 'Endtime',
-                    MinimalEnergyAmount: 'Minimal charge amount',
-                    MinimumRunTime: 'Minimum runtime'
                 }
             }
         },

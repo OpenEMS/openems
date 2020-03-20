@@ -195,16 +195,6 @@ export const TRANSLATION = {
                         name: 'Gedwongen laden',
                         shortName: 'handmatig',
                     }
-                },
-                Heatingelement: {
-                    Heatingelement: 'Verwarmingselement',
-                    Priority: 'Prioriteit',
-                    ActivePhases: 'Actieve fasen',
-                    Energy: 'Energie',
-                    Time: 'Tijd',
-                    Endtime: 'Einde tijd',
-                    MinimalEnergyAmount: 'Minimale hoeveelheid energie',
-                    MinimumRunTime: 'Minimale looptijd'
                 }
             }
         },
