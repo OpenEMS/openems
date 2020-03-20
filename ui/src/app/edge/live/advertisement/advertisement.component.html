@@ -1,8 +1,20 @@
-<ion-slides pager="true" [options]="slideOpts">
+<ion-slides pager="true" [options]="slideOpts" #slider (ionSlidesDidLoad)="slidesDidLoad(slider)">
     <ion-slide>
+        <ion-button fill="clear" (click)="swipePrevious()">
+            <ion-icon name="arrow-dropleft"></ion-icon>
+        </ion-button>
         <miniupgrade></miniupgrade>
+        <ion-button fill="clear" (click)="swipeNext()">
+            <ion-icon name="arrow-dropright"></ion-icon>
+        </ion-button>
     </ion-slide>
     <ion-slide>
+        <ion-button fill="clear" (click)="swipePrevious()">
+            <ion-icon name="arrow-dropleft"></ion-icon>
+        </ion-button>
         <evcsupgrade></evcsupgrade>
+        <ion-button fill="clear" (click)="swipeNext()">
+            <ion-icon name="arrow-dropright"></ion-icon>
+        </ion-button>
     </ion-slide>
 </ion-slides>
