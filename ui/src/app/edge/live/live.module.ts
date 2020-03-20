@@ -1,3 +1,4 @@
+import { AdvertisementComponent } from './advertisement/advertisement.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -21,6 +22,8 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
+import { EvcsUpgradeComponent } from './evcsupgrade/evcsupgrade.component';
+import { EvcsUpgradeModalComponent } from './evcsupgrade/modal/modal.component';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { GridComponent } from './grid/grid.component';
@@ -65,6 +68,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     CorrentlyModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
+    EvcsUpgradeModalComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
     GridModalComponent,
@@ -80,6 +84,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SymmetricPeakshavingModalComponent,
   ],
   declarations: [
+    AdvertisementComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
@@ -100,6 +105,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     EvcsComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
+    EvcsUpgradeComponent,
+    EvcsUpgradeModalComponent,
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
     FixDigitalOutputModalComponent,

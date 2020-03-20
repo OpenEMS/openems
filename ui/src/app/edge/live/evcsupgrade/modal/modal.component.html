@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title translate>Ladesäulen Erweiterung</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-row class="ion-justify-content-center" style="min-height: 100%;">
+    <ion-col size="12" class="ion-align-self-center ion-text-center">
+      <p>
+        Der Trend zur Elektromobilität ist unumkehrbar.
+        Die Autoindustrie plant und führt bereits die Massenfertigung für Elektrische PKW durch.
+      </p>
+      <p>
+        Profitieren Sie von dem technologischen Umschwung und wappnen Sie sich mit einer eigenen Ladesäule für Ihr KFZ!
+      </p>
+      <p>
+        Wir haben für jeden Anwendungszweck die richtige Ladesäule.
+      </p>
+    </ion-col>
+    <ion-col size="12" class="ion-align-self-center ion-text-center">
+      <img src="assets/img/chargingstationadvert.png" style="width: 80%">
+    </ion-col>
+    <ion-col size="4" class="ion-text-center">
+      IES Keywatt - 24 kW DC Leistung
+    </ion-col>
+    <ion-col size="4" class="ion-text-center">
+      ABL - 22 kW AC Leistung auf 2 Steckplätzen
+    </ion-col>
+    <ion-col size="4" class="ion-text-center">
+      KEBA - 22 kW AC Leistung
+    </ion-col>
+    <ion-col size="6" class="ion-text-center">
+      <ion-button
+        href="mailto:innendienst@fenecon.de?subject=Anfrage%20Systemerweiterung%20Lades%C3%A4ule%20{{edge.id}}&body=Sehr%20geehrte%20Damen%20und%20Herren%2C%0D%0A%0D%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Erweiterung%20meines%20Systems%20und%20bitte%20Sie%20hiermit%20mir%20ein%20Angebot%20f%C3%BCr%20eine%20Lades%C3%A4ule%20zu%20zusenden.%0D%0A%0D%0AIch%20bin%20damit%20einverstanden%2C%20dass%20meine%20Daten%20gespeichert%2C%20verarbeitet%20und%20zum%20Zwecke%20der%20Angebotserstellung%20weitergeleitet%20werden%20bis%20ich%20diese%20Zusage%20widerrufe.%0D%0A%0D%0A%5B%20%5D%20Ich%20m%C3%B6chte%20direkt%20ein%20Angebot%20f%C3%BCr%20die%20Komponenten%20der%20FENECON%20erhalten%20und%20k%C3%BCmmere%20mich%20selbst%20um%20die%20Installation.%0D%0A%0D%0A%5B%20%5D%20Ich%20m%C3%B6chte%2C%20dass%20Sie%20sich%20mit%20einem%20Installateur%20f%C3%BCr%20FENECON%20Speichersysteme%20der%20Region%20in%20Verbindung%20setzen%2C%20damit%20dieser%20mir%20ein%20Angebot%20inklusive%20Installation%20erstellt.%0D%0A%0D%0A*Anrede%20*Vorname%20*Nachname%0D%0A*Stra%C3%9Fe%20*Hausnummer%0D%0A*Postleitzahl%20*Ort%0D%0A*Telefonnummer%0D%0A{{edge.id}}%0D%0A%0D%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen%2C%0D%0A">
+        Angebot anfordern</ion-button>
+    </ion-col>
+    <ion-col size="6" class="ion-text-center">
+      <ion-button target="_blank" href="https://www1.fenecon.de/fems-app-keba-ladestation/">
+        weitere Informationen</ion-button>
+    </ion-col>
+  </ion-row>
+</ion-content>
