@@ -297,11 +297,11 @@ export class EdgeConfig {
     public listAvailableFactories(): CategorizedFactories[] {
         let allFactories = [
             {
-                category: { title: 'Simulatoren', icon: 'flask-outline' },
+                category: { title: 'Simulatoren', icon: 'flask' },
                 factories: Object.values(this.factories).filter(factory => factory.id.startsWith('Simulator.'))
             },
             {
-                category: { title: 'Serielle Verbindungen', icon: 'swap-horizontal-outline' },
+                category: { title: 'Serielle Verbindungen', icon: 'swap' },
                 factories: [
                     this.getFactoriesByIds([
                         'Bridge.Mbus', 'Bridge.Onewire', 'Bridge.Modbus.Serial', 'Bridge.Modbus.Tcp'
@@ -309,45 +309,45 @@ export class EdgeConfig {
                 ]
             },
             {
-                category: { title: 'Zähler', icon: 'speedometer-outline' },
+                category: { title: 'Zähler', icon: 'speedometer' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter")
                 ]
             },
             {
-                category: { title: 'Speichersysteme', icon: 'battery-charging-outline' },
+                category: { title: 'Speichersysteme', icon: 'battery-charging' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.ess.api.SymmetricEss"),
                     this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
                 ]
             },
             {
-                category: { title: 'Batterien', icon: 'battery-full-outline' },
+                category: { title: 'Batterien', icon: 'battery-full' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.battery.api.Battery")
                 ]
             },
             {
-                category: { title: 'I/Os', icon: 'log-in-outline' },
+                category: { title: 'I/Os', icon: 'log-in' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.io.api.DigitalOutput"),
                     this.getFactoriesByNature("io.openems.edge.io.api.DigitalInput")
                 ]
             },
             {
-                category: { title: 'E-Auto-Ladestation', icon: 'car-outline' },
+                category: { title: 'E-Auto-Ladestation', icon: 'car' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs")
                 ]
             },
             {
-                category: { title: 'Standard-Controller', icon: 'resize-outline' },
+                category: { title: 'Standard-Controller', icon: 'resize' },
                 factories: [
                     this.getFactoriesByIds(['Controller.Debug.Log', 'Controller.Debug.DetailedLog'])
                 ]
             },
             {
-                category: { title: 'Externe Schnittstellen', icon: 'megaphone-outline' },
+                category: { title: 'Externe Schnittstellen', icon: 'megaphone' },
                 factories: [
                     this.getFactoriesByIds([
                         'Controller.Api.Backend', 'Controller.Api.Websocket', 'Controller.Api.ModbusTcp.ReadOnly',
@@ -356,27 +356,28 @@ export class EdgeConfig {
                 ]
             },
             {
-                category: { title: 'Spezial-Controller', icon: 'repeat-outline' },
+                category: { title: 'Spezial-Controller', icon: 'repeat' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.controller.api.Controller"),
                 ]
             },
             {
-                category: { title: 'Timeseries-Datenbank', icon: 'repeat-outline' },
+                category: { title: 'Timeseries-Datenbank', icon: 'repeat' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.timedata.api.Timedata"),
                 ]
             },
             {
-                category: { title: 'Scheduler', icon: 'stopwatch-outline' },
+                category: { title: 'Scheduler', icon: 'stopwatch' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler")
                 ]
             },
             {
-                category: { title: 'Weitere', icon: 'radio-button-off-outline' },
+                category: { title: 'Weitere', icon: 'radio-button-off' },
                 factories: Object.values(this.factories)
             }
+            // TODO weitere Factories?
         ];
 
         let ignoreFactoryIds: string[] = [];
