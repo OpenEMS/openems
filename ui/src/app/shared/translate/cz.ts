@@ -197,6 +197,16 @@ export const TRANSLATION = {
                         name: 'Nucené nakládání',
                         shortName: 'Ruční',
                     }
+                },
+                Heatingelement: {
+                    heatingelement: 'Topný článek',
+                    priority: 'Priorita',
+                    activePhases: 'Aktivní fáze',
+                    energy: 'Energie',
+                    time: 'čas',
+                    endtime: 'Poslední dny',
+                    minimalEnergyAmount: 'Minimální množství energie',
+                    minimumRunTime: 'Minimální doba'
                 }
             }
         },

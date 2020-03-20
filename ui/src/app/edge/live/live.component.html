@@ -105,6 +105,10 @@
               <singlethreshold [componentId]="widget.componentId"></singlethreshold>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.HeatingElement'" size="12" size-lg="6" class="ion-no-padding">
+              <heatingelement [componentId]="widget.componentId"></heatingelement>
+            </ion-col>
+
             <!-- Widgets for displaying information only -->
 
             <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12" size-lg="6" class="ion-no-padding">

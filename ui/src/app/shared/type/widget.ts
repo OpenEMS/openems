@@ -22,6 +22,7 @@ export enum WidgetFactory {
     'Controller.IO.ChannelSingleThreshold',
     'Controller.CHP.SoC',
     'Controller.Asymmetric.PeakShaving',
+    'Controller.HeatingElement',
     'Controller.Symmetric.PeakShaving',
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumtion',

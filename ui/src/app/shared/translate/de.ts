@@ -198,6 +198,16 @@ export const TRANSLATION = {
                         name: 'Erzwungene Beladung',
                         shortName: 'Manuell',
                     }
+                },
+                Heatingelement: {
+                    heatingelement: 'Heizelement',
+                    priority: 'Priorität',
+                    activePhases: 'Aktive Phasen',
+                    energy: 'Energie',
+                    time: 'Zeit',
+                    endtime: 'Endzeit',
+                    minimalEnergyAmount: 'Minimale Energiemenge',
+                    minimumRunTime: 'Mindestlaufzeit'
                 }
             }
         },
