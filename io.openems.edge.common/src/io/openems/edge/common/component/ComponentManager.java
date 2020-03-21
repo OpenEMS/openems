@@ -1,5 +1,6 @@
 package io.openems.edge.common.component;
 
+import java.time.Clock;
 import java.util.List;
 
 import io.openems.common.OpenemsConstants;
@@ -15,6 +16,8 @@ import io.openems.edge.common.jsonapi.JsonApi;
 /**
  * A Service that provides access to OpenEMS-Components.
  */
+
+// TODO rename to "Openems"
 public interface ComponentManager extends OpenemsComponent, JsonApi {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -35,6 +38,14 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Gets the OpenEMS Clock - either the real system clock or a mocked clock for
+	 * simulations.
+	 * 
+	 * @return the Clock
+	 */
+	public Clock getClock();
 
 	/**
 	 * Gets all enabled OpenEMS-Components.

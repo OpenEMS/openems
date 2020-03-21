@@ -1,0 +1,23 @@
+= io.openems.edge.simulator.application
+
+[source,json]
+----
+{
+	"method": "componentJsonApi",
+	"params": {
+		"componentId": "_simulator",
+		"payload": {
+			"method": "executeSimulation",
+			"params": {
+				"consumption": [{
+					"data": [
+						5000
+					]
+				}]
+			}
+		}
+	}
+}
+----
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.simulator.application[Source Code icon:github[]]

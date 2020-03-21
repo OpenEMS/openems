@@ -102,13 +102,17 @@ public class CsvUtils {
 
 	private static void readRecord(DataContainer result, CsvFormat csvFormat, float factor, String line) {
 		String[] values = line.split(csvFormat.lineSeparator);
-		float[] floatValues = new float[values.length];
+		Float[] floatValues = new Float[values.length];
 		for (int i = 0; i < values.length; i++) {
 			String value = values[i];
-			if (csvFormat.decimalSeparator != ".") {
-				value = value.replace(csvFormat.decimalSeparator, ".");
+			if (value == null || value.isEmpty()) {
+				value = null;
+			} else {
+				if (csvFormat.decimalSeparator != ".") {
+					value = value.replace(csvFormat.decimalSeparator, ".");
+				}
+				floatValues[i] = Float.parseFloat(value) * factor;
 			}
-			floatValues[i] = Float.parseFloat(value) * factor;
 		}
 		result.addRecord(floatValues);
 	}

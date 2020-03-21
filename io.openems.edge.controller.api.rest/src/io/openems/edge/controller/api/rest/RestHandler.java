@@ -30,7 +30,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -97,13 +96,14 @@ public class RestHandler extends AbstractHandler {
 
 			case "jsonrpc":
 				// Validate API Access-Mode
-				switch (this.parent.getAccessMode()) {
-				case READ_ONLY:
-					throw new OpenemsException("REST-Api is in Read-Only mode");
-				case READ_WRITE:
-				case WRITE_ONLY:
-					this.handleJsonRpc(user, baseRequest, request, response);
-				}
+				// TODO
+//				switch (this.parent.getAccessMode()) {
+//				case READ_ONLY:
+//					throw new OpenemsException("REST-Api is in Read-Only mode");
+//				case READ_WRITE:
+//				case WRITE_ONLY:
+				this.handleJsonRpc(user, baseRequest, request, response);
+//				}
 				break;
 
 			default:

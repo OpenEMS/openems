@@ -1,5 +1,7 @@
 package io.openems.edge.controller.debuglog;
 
+import java.time.LocalDateTime;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -87,6 +89,8 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 						b.append("] ");
 					}
 				});
-		this.logInfo(this.log, b.toString());
+// TODO		this.logInfo(this.log, b.toString());
+		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
+		this.logInfo(this.log, now + " " + b.toString());
 	}
 }

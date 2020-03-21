@@ -1,6 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -47,6 +48,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -67,6 +69,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	private final EdgeConfigWorker edgeConfigWorker;
 
 	protected BundleContext bundleContext;
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile ClockProvider clockProvider = null;
 
 	@Reference
 	protected MetaTypeService metaTypeService;
@@ -387,6 +392,16 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// trigger immediate validation on configuration event
 		this.osgiValidateWorker.triggerNextRun();
+	}
+
+	@Override
+	public Clock getClock() {
+		ClockProvider clockProvider = this.clockProvider;
+		if (clockProvider != null) {
+			return clockProvider.getClock();
+		} else {
+			return Clock.systemDefaultZone();
+		}
 	}
 
 }
