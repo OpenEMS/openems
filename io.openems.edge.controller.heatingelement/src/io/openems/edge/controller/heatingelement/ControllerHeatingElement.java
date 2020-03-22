@@ -17,8 +17,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -39,7 +39,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-	private final Logger log = LoggerFactory.getLogger(ControllerHeatingElement.class);
+	//private final Logger log = LoggerFactory.getLogger(ControllerHeatingElement.class);
 	private final Clock clock;
 	private final Map<Phase, PhaseDef> phases = new HashMap<>();	
 
@@ -70,6 +70,36 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * of each phase
 	 */
 	private double countDownMinKwh;
+	/**
+	 * This variable holds the total time of level_1.
+	 * 
+	 */	
+	long level1Time = 0;
+	/**
+	 * This variable holds the total time of level_2.
+	 * 
+	 */
+	long level2Time = 0;
+	/**
+	 * This variable holds the total time of level_3.
+	 * 
+	 */
+	long level3Time = 0;
+	/**
+	 * This variable holds the total energy of level_1.
+	 * 
+	 */	
+	double  level1Energy = 0;
+	/**
+	 * This variable holds the total energy of level_2.
+	 * 
+	 */
+	double  level2Energy = 0;
+	/**
+	 * This variable holds the total energy of level_3.
+	 * 
+	 */
+	double  level3Energy = 0;
 	
 	private long totalPhase1Time = 0;
 	private long totalPhase2Time = 0;
@@ -78,7 +108,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private double totalPhase1Energy = 0;
 	private double totalPhase2Energy = 0;
 	private double totalPhase3Energy = 0;
-
+	
 	private long totalPhaseTime = 0;
 	private double totalPhaseEnergy = 0;
 	private LocalDate today = LocalDate.now();
@@ -88,7 +118,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 	private ModeType modeType = ModeType.NORMAL_MODE;
 
-	private Gear gear = Gear.TOP_GEAR;
+	private Level heatingLevel = Level.LEVEL_3;
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
@@ -190,14 +220,14 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 		this.mode = config.mode();
 		this.priority = config.priority();
-		this.gear = config.gear();
+		this.heatingLevel = config.heatingLevel();
 
 		/**
 		 * Mintime is calculated in both the priority modes and it is also important in
 		 * each levels
 		 */
 		this.minKwh = config.minkwh();
-		this.minTime = this.getSeconds(this.gear, this.priority, config.minTime(), this.minKwh);
+		this.minTime = this.getSeconds(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
 
 		this.endtime = LocalTime.parse(config.endTime());
 
@@ -277,21 +307,21 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		 * this variable holds the total time of level_1
 		 * 
 		 */
-		long level1Time = this.totalPhase1Time - this.totalPhase2Time;
+		this.level1Time = this.totalPhase1Time - this.totalPhase2Time;
 		/**
 		 * this variable holds the total time of level_2
 		 * 
 		 */
-		long level2Time = this.totalPhase2Time - this.totalPhase3Time;
+		this.level2Time = this.totalPhase2Time - this.totalPhase3Time;
 		/**
 		 * this variable holds the total time of level_3
 		 * 
 		 */
-		long level3Time = this.totalPhase3Time;
+		this.level3Time = this.totalPhase3Time;
 		
-		double level1Energy = (level1Time / 3600000.0) * config.powerOfPhase();
-		double level2Energy = (level2Time / 3600000.0) * (config.powerOfPhase() * 2);
-		double level3Energy = (level3Time / 3600000.0) * (config.powerOfPhase() * 3);
+		this.level1Energy = (level1Time / 3600000.0) * config.powerOfPhase();
+		this.level2Energy = (level2Time / 3600000.0) * (config.powerOfPhase() * 2);
+		this.level3Energy = (level3Time / 3600000.0) * (config.powerOfPhase() * 3);
 		
 		
 		this.channel(ChannelId.LEVEL1_TIME).setNextValue(level1Time);
@@ -313,15 +343,15 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @throws IllegalArgumentException
 	 */
 	private void runPriority() throws IllegalArgumentException, OpenemsNamedException {
-		switch (this.gear) {
-		case NEUTRAL_GEAR:
+		switch (this.heatingLevel) {
+		case LEVEL_0:
 			for (PhaseDef p : phases.values()) {
 				p.setSwitchOn(false);
 			}
 			this.computeTime(phases);
 			noRelaisSwitchedOn = 0;
 			break;
-		case FIRST_GEAR:
+		case LEVEL_1:
 			for (Phase p : phases.keySet()) {
 				if (p == Phase.ONE) {
 					phases.get(p).setSwitchOn(true);
@@ -332,7 +362,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			this.computeTime(phases);
 			noRelaisSwitchedOn = 1;
 			break;
-		case SECOND_GEAR:
+		case LEVEL_2:
 			for (Phase p : phases.keySet()) {
 				if (p == Phase.THREE) {
 					phases.get(p).setSwitchOn(false);
@@ -343,7 +373,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			this.computeTime(phases);
 			noRelaisSwitchedOn = 2;
 			break;
-		case TOP_GEAR:
+		case LEVEL_3:
 			for (PhaseDef p : phases.values()) {
 				p.setSwitchOn(true);
 			}
@@ -392,8 +422,14 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 				p.getTimeStopwatch().reset();
 			}
 			this.minKwh = config.minkwh();
-			this.minTime = this.getSeconds(this.gear, this.priority, config.minTime(), this.minKwh);
+			this.minTime = this.getSeconds(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
 			this.endtime = LocalTime.parse(this.config.endTime());
+			this.level1Time = 0;
+			this.level2Time = 0;
+			this.level3Time = 0;
+			this.level1Energy = 0;
+			this.level2Energy = 0;
+			this.level3Energy = 0;
 			return;
 		}
 
@@ -541,33 +577,33 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @param minTime is a double, which is configured as hours in configuration
 	 * @return return the no of minutes.
 	 */
-	private double getSeconds(Gear gear, Priority priority, double configuredTime, double minKwh) {
+	private double getSeconds(Level heatingLevel, Priority priority, double configuredTime, double minKwh) {
 		double calculatedTime = 0;
 		switch (priority) {
 		case TIME:
-			switch (gear) {
-			case NEUTRAL_GEAR:
+			switch (heatingLevel) {
+			case LEVEL_0:
 				// this is basically specifying the minTime is zero
 				return calculatedTime;
-			case FIRST_GEAR:
-			case SECOND_GEAR:
-			case TOP_GEAR:
+			case LEVEL_1:
+			case LEVEL_2:
+			case LEVEL_3:
 				return configuredTime * 3600; // Converting the time configured as hours into mili seconds
 			}
 			break;
 		case KILO_WATT_HOUR:
 
-			switch (gear) {
-			case NEUTRAL_GEAR:
+			switch (heatingLevel) {
+			case LEVEL_0:
 				// this is basically specifying the minTime is zero
 				return calculatedTime;
-			case FIRST_GEAR:
+			case LEVEL_1:
 				calculatedTime = (minKwh / config.powerOfPhase()) * 3600;
 				break;
-			case SECOND_GEAR:
+			case LEVEL_2:
 				calculatedTime = (minKwh / (config.powerOfPhase() * 2)) * 3600;
 				break;
-			case TOP_GEAR:
+			case LEVEL_3:
 				calculatedTime = (minKwh / (config.powerOfPhase() * 4)) * 3600;
 				break;
 			}
