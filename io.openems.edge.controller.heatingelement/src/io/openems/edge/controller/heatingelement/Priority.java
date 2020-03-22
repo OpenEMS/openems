@@ -3,11 +3,9 @@ package io.openems.edge.controller.heatingelement;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum Priority implements OptionsEnum{
-	
-
-	TIME(0, "TIME"),
-	KILO_WATT_HOUR(1, "Kilo watt hour");
+public enum Priority implements OptionsEnum {
+	TIME(0, "TIME"), //
+	KILO_WATT_HOUR(1, "Kilo watt hour");//
 
 	private final int value;
 	private final String name;
@@ -16,7 +14,7 @@ public enum Priority implements OptionsEnum{
 		this.value = value;
 		this.name = name;
 	}
-	
+
 	@Override
 	public int getValue() {
 		return value;

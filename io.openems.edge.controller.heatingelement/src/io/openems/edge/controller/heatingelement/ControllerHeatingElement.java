@@ -39,9 +39,10 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-	//private final Logger log = LoggerFactory.getLogger(ControllerHeatingElement.class);
+	// private final Logger log =
+	// LoggerFactory.getLogger(ControllerHeatingElement.class);
 	private final Clock clock;
-	private final Map<Phase, PhaseDef> phases = new HashMap<>();	
+	private final Map<Phase, PhaseDef> phases = new HashMap<>();
 
 	private Mode mode;
 	private Priority priority;
@@ -72,52 +73,48 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	private double countDownMinKwh;
 	/**
 	 * This variable holds the total time of level_1.
-	 * 
-	 */	
+	 */
 	long level1Time = 0;
 	/**
 	 * This variable holds the total time of level_2.
-	 * 
 	 */
 	long level2Time = 0;
 	/**
-	 * This variable holds the total time of level_3.
-	 * 
+	 * This variable holds the total time of level_3. 
 	 */
 	long level3Time = 0;
 	/**
-	 * This variable holds the total energy of level_1.
-	 * 
-	 */	
-	double  level1Energy = 0;
-	/**
-	 * This variable holds the total energy of level_2.
-	 * 
+	 * This variable holds the total energy of level_1. 
 	 */
-	double  level2Energy = 0;
+	double level1Energy = 0;
 	/**
-	 * This variable holds the total energy of level_3.
-	 * 
+	 * This variable holds the total energy of level_2. 
 	 */
-	double  level3Energy = 0;
-	
+	double level2Energy = 0;
+	/**
+	 * This variable holds the total energy of level_3. 
+	 */
+	double level3Energy = 0;
+
 	private long totalPhase1Time = 0;
 	private long totalPhase2Time = 0;
 	private long totalPhase3Time = 0;
-	
+
 	private double totalPhase1Energy = 0;
 	private double totalPhase2Energy = 0;
 	private double totalPhase3Energy = 0;
-	
+
 	private long totalPhaseTime = 0;
 	private double totalPhaseEnergy = 0;
 	private LocalDate today = LocalDate.now();
 
 	/**
-	 * Normal mode which is before the check for minimum time or minimum kwh
+	 * This enum specify the modeType the algorithm is running.
 	 */
 	private ModeType modeType = ModeType.NORMAL_MODE;
-
+	/**
+	 * 
+	 */
 	private Level heatingLevel = Level.LEVEL_3;
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
@@ -150,7 +147,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LEVEL(Doc.of(Level.values()) //
-				.text("Current Level")),		
+				.text("Current Level")),
 		NO_OF_RELAIS_ON(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.NONE)), //
 		AWAITING_HYSTERESIS(Doc.of(OpenemsType.INTEGER)), //
@@ -202,11 +199,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-		
+
 		ChannelAddress o1 = ChannelAddress.fromString(config.outputChannelAddress1());
 		ChannelAddress o2 = ChannelAddress.fromString(config.outputChannelAddress2());
-		ChannelAddress o3 = ChannelAddress.fromString(config.outputChannelAddress3());		
-		
+		ChannelAddress o3 = ChannelAddress.fromString(config.outputChannelAddress3());
+
 		// Setting the outputchannel for each phases
 		for (Phase p : phases.keySet()) {
 			if (p == Phase.ONE) {
@@ -224,7 +221,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 		/**
 		 * Mintime is calculated in both the priority modes and it is also important in
-		 * each levels
+		 * each levels.
 		 */
 		this.minKwh = config.minkwh();
 		this.minTime = this.getSeconds(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
@@ -302,7 +299,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		if (this.countDownMinTime < 0) {
 			this.countDownMinTime = 0;
 		}
-	
+
 		/**
 		 * this variable holds the total time of level_1
 		 * 
@@ -318,12 +315,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		 * 
 		 */
 		this.level3Time = this.totalPhase3Time;
-		
+
 		this.level1Energy = (level1Time / 3600000.0) * config.powerOfPhase();
 		this.level2Energy = (level2Time / 3600000.0) * (config.powerOfPhase() * 2);
 		this.level3Energy = (level3Time / 3600000.0) * (config.powerOfPhase() * 3);
-		
-		
+
 		this.channel(ChannelId.LEVEL1_TIME).setNextValue(level1Time);
 		this.channel(ChannelId.LEVEL2_TIME).setNextValue(level2Time);
 		this.channel(ChannelId.LEVEL3_TIME).setNextValue(level3Time);
@@ -331,16 +327,17 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.channel(ChannelId.LEVEL2_ENERGY).setNextValue(level2Energy);
 		this.channel(ChannelId.LEVEL3_ENERGY).setNextValue(level3Energy);
 		this.channel(ChannelId.TOTAL_PHASE_ENERGY).setNextValue(this.totalPhaseEnergy);
-		
+
 		// keep updating the minKwh comparing it with the total phase power
-		this.countDownMinKwh = this.minKwh - this.totalPhaseEnergy;	
+		this.countDownMinKwh = this.minKwh - this.totalPhaseEnergy;
 	}
-	
+
 	/**
-	 * This method is running the priority mode at the "end time", force switches on the phases based on the "Gear" configured
+	 * This method is running the priority mode at the "end time", force switches on
+	 * the phases based on the "Gear" configured.
 	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException on error
+	 * @throws IllegalArgumentException on error
 	 */
 	private void runPriority() throws IllegalArgumentException, OpenemsNamedException {
 		switch (this.heatingLevel) {
@@ -384,7 +381,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	/**
-	 * Function to check change in the day
+	 * Function to check change in the day.
 	 * 
 	 * @return changeInDay boolean values represent a change in day
 	 */
@@ -522,11 +519,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	/**
 	 * This method calls the computeTime method on individual phaseDef objects, and
-	 * computes the total time the Phase was switched on
+	 * computes the total time the Phase was switched on.
 	 * 
-	 * @param phases
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
+	 * @param phases All the {@link PhaseDef} objects
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private void computeTime(Map<Phase, PhaseDef> phases) throws IllegalArgumentException, OpenemsNamedException {
 		for (PhaseDef phaseDef : this.phases.values()) {
@@ -558,7 +555,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	/**
-	 * A flag to maintain change in the mode
+	 * A flag to maintain change in the mode.
 	 * 
 	 * @param nextmode the target mode
 	 * @return Flag that the mode is changed or not
@@ -572,7 +569,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	/**
-	 * This method return the minTime in seconds
+	 * This method return the minTime in seconds.
 	 * 
 	 * @param minTime is a double, which is configured as hours in configuration
 	 * @return return the no of minutes.

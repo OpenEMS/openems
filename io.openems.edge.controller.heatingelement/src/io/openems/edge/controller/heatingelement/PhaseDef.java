@@ -6,13 +6,18 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.WriteChannel;
+
+/**
+ * PhaseDef class, which contains whether the phase is switched ON or OFF. Based
+ * on this boolean variable, the totalTime and totalEnergy is calculated using
+ * stopWatch.
+ */
 
 public class PhaseDef {
 
@@ -24,36 +29,35 @@ public class PhaseDef {
 	private ChannelAddress outputChannelAddress;
 
 	/**
-	 * This boolean variable specifies the phase is one or off
+	 * This boolean variable specifies the phase is one or off.
 	 */
 	private boolean isSwitchOn;
-	
+
 	public PhaseDef(ControllerHeatingElement parent) {
 		this.parent = parent;
 		setSwitchOn(false);
 	}
 
 	public void computeTime() throws IllegalArgumentException, OpenemsNamedException {
-		if(!isSwitchOn()) {
-			if(this.timeStopwatch.isRunning()) {
+		if (!isSwitchOn()) {
+			if (this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.stop();
-			}			
+			}
 			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
 			totalPhaseEnergy = calculateEnergy(totalPhaseTime);
 			this.off(getOutputChannelAddress());
-		}else {
-			if(!this.timeStopwatch.isRunning()) {
+		} else {
+			if (!this.timeStopwatch.isRunning()) {
 				this.timeStopwatch.start();
-			}			
+			}
 			totalPhaseTime = this.timeStopwatch.elapsed(TimeUnit.SECONDS);
 			totalPhaseEnergy = calculateEnergy(totalPhaseTime);
 			this.on(getOutputChannelAddress());
 		}
 	}
 
-
 	/**
-	 * function to calculates the Kilowatthour, using the power of each phase
+	 * function to calculates the Kilowatthour, using the power of each phase.
 	 * 
 	 * @param time Long values of time in seconds
 	 * 
@@ -68,8 +72,8 @@ public class PhaseDef {
 	 * 
 	 * @param outputChannelAddress address of the channel which must set to ON
 	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException    on error.
+	 * @throws IllegalArgumentException on error.
 	 */
 	private void on(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true, outputChannelAddress);
@@ -78,10 +82,10 @@ public class PhaseDef {
 	/**
 	 * Switch the output OFF.
 	 * 
-	 * @param outputChannelAddress address of the channel which must set to OFF
+	 * @param outputChannelAddress address of the channel which must set to OFF.
 	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException    on error.
+	 * @throws IllegalArgumentException on error.
 	 */
 	private void off(ChannelAddress outputChannelAddress) throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false, outputChannelAddress);
@@ -91,10 +95,10 @@ public class PhaseDef {
 	 * Helper function to switch an output if it was not switched before.
 	 *
 	 * @param value                The boolean value which must set on the output
-	 *                             channel address
-	 * @param outputChannelAddress The address of the channel
-	 * @throws OpenemsNamedException    on error
-	 * @throws IllegalArgumentException on error
+	 *                             channel address.
+	 * @param outputChannelAddress The address of the channel.
+	 * @throws OpenemsNamedException    on error.
+	 * @throws IllegalArgumentException on error.
 	 */
 	private void setOutput(boolean value, ChannelAddress outputChannelAddress)
 			throws IllegalArgumentException, OpenemsNamedException {
@@ -161,8 +165,6 @@ public class PhaseDef {
 	public ControllerHeatingElement getParent() {
 		return parent;
 	}
-
-
 
 	private final Logger LOGGER = LoggerFactory.getLogger(PhaseDef.class);
 
