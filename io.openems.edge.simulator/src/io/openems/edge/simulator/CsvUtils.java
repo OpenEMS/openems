@@ -80,7 +80,7 @@ public class CsvUtils {
 			throws NumberFormatException, IOException {
 		DataContainer result = new DataContainer();
 		boolean isTitleLine = true;
-		String lines[] = csv.split("\\r?\\n");
+		String[] lines = csv.split("\\r?\\n");
 		for (String line : lines) {
 			if (isTitleLine) {
 				isTitleLine = false;

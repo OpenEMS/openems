@@ -51,18 +51,18 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 			LocalDateTime start = LocalDateTime.parse(JsonUtils.getAsString(j, "start"), dateTimeFormatter);
 			LocalDateTime end = LocalDateTime.parse(JsonUtils.getAsString(j, "end"), dateTimeFormatter);
-			int timeleap = JsonUtils.getAsInt(j, "timeleap");
-			return new Clock(start, end, timeleap);
+			int timeleapPerCycle = JsonUtils.getAsInt(j, "timeleapPerCycle");
+			return new Clock(start, end, timeleapPerCycle);
 		}
 
 		public final LocalDateTime start;
 		public final LocalDateTime end;
-		public final int timeleap;
+		public final int timeleapPerCycle;
 
-		private Clock(LocalDateTime start, LocalDateTime end, int timeleap) {
+		private Clock(LocalDateTime start, LocalDateTime end, int timeleapPerCycle) {
 			this.start = start;
 			this.end = end;
-			this.timeleap = timeleap;
+			this.timeleapPerCycle = timeleapPerCycle;
 		}
 	}
 
