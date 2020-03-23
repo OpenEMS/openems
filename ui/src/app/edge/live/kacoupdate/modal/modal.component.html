@@ -18,7 +18,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/HasUpdate'] !== 2" translate>KacoUpdate.NewUi
+                    <td style="width:100%"
+                        *ngIf="currentData['_kacoUpdate/HasUpdate'] !== 2 && currentData['_kacoUpdate/HasUpdate'] > 0"
+                        translate>KacoUpdate.NewUi
                     </td>
                 </tr>
                 <tr *ngIf="env.backend === 'OpenEMS Edge'">
