@@ -113,7 +113,6 @@ public class KacoUpdateHandler {
 		final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 		Channel<Integer> progressChannel = parent.componentManager.getComponent("_kacoUpdate").channel("Progress");
-		
 
 		WebSocket ws = null;
 		if (wsData != null) {
@@ -141,9 +140,8 @@ public class KacoUpdateHandler {
 
 						CurrentDataNotification progressNotification = new CurrentDataNotification();
 						progressNotification.add(progressChannel.address(), gson.toJsonTree(progress));
-
 						EdgeRpcNotification noti = new EdgeRpcNotification(WebsocketApi.EDGE_ID, progressNotification);
-						
+
 						parent.server.sendMessage(ws, noti);
 					}
 					tmpProgress = progress;
