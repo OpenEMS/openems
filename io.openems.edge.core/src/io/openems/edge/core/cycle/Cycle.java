@@ -1,11 +1,13 @@
 package io.openems.edge.core.cycle;
 
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.common.channel.Level;
 
 public interface Cycle {
+
+	public static final int DEFAULT_CYCLE_TIME = 1000; // in [ms]
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -38,5 +40,12 @@ public interface Cycle {
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Gets the duration of one global OpenEMS Cycle in [ms].
+	 * 
+	 * @return the duration in milliseconds
+	 */
+	public int getCycleTime();
 
 }
