@@ -81,9 +81,6 @@ export class HeatingElementComponent {
             componentProps: {
                 component: this.component,
                 edge: this.edge,
-                outputChannelPhaseOne: this.outputChannelPhaseOne,
-                outputChannelPhaseTwo: this.outputChannelPhaseTwo,
-                outputChannelPhaseThree: this.outputChannelPhaseThree,
                 activePhases: this.activePhases
             }
         });

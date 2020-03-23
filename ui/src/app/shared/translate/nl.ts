@@ -208,7 +208,7 @@ export const TRANSLATION = {
                     minimalEnergyAmount: 'Minimale hoeveelheid energie',
                     minimumRunTime: 'Minimale looptijd',
                     energyCountdown: 'Hoeveelheid energie tot start',
-                    timeCountdown: 'Tijd om te beginnen:',
+                    timeCountdown: 'Tijd om te beginnen',
                 }
             }
         },

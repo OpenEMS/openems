@@ -210,7 +210,7 @@ export const TRANSLATION = {
                     minimumRunTime: 'Minimální doba',
                     priority: 'Priorita',
                     time: 'čas',
-                    timeCountdown: 'Čas začít:',
+                    timeCountdown: 'Čas začít',
                 }
             }
         },

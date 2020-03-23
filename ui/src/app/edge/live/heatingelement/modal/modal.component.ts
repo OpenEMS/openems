@@ -17,9 +17,6 @@ export class HeatingElementModalComponent implements OnInit {
 
     @Input() public edge: Edge;
     @Input() public component: EdgeConfig.Component;
-    @Input() public outputChannelPhaseOne: ChannelAddress;
-    @Input() public outputChannelPhaseTwo: ChannelAddress;
-    @Input() public outputChannelPhaseThree: ChannelAddress;
     @Input() public activePhases: BehaviorSubject<number>;
 
     private static readonly SELECTOR = "heatingelement-modal";

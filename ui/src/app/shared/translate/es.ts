@@ -211,7 +211,7 @@ export const TRANSLATION = {
                     minimumRunTime: 'Plazo mínimo',
                     priority: 'Prioridad',
                     time: 'Tiempo',
-                    timeCountdown: 'Hora de empezar:',
+                    timeCountdown: 'Hora de empezar',
                 }
             }
         },
