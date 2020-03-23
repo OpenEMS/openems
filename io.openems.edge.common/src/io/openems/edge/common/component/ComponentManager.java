@@ -21,7 +21,9 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
 				.text("A configured OpenEMS Component was not activated")), //
 		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
-				.text("OutOfMemory had happened. Found heap dump files."));
+				.text("OutOfMemory had happened. Found heap dump files.")),
+		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT) //
+				.text("Applying the default configuration failed.")),;
 
 		private final Doc doc;
 
@@ -116,7 +118,10 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
 	 * 
-	 * @return the EdgeConfig object
+	 * Internally updates updates the cache if necessary and publishes a
+	 * CONFIG_UPDATE event on update.
+	 * 
+	 * @return the {@link EdgeConfig} object
 	 */
 	public EdgeConfig getEdgeConfig();
 

@@ -28,9 +28,9 @@ public enum BatteryMode implements OptionsEnum {
 	public String getName() {
 		return this.option;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

@@ -25,28 +25,28 @@ export class PickDatePopoverComponent {
     public showCustomDate: boolean = false;
 
     public transDayLables: IMyDayLabels = {
-        su: this.translate.instant('Edge.History.Sun'),
-        mo: this.translate.instant('Edge.History.Mon'),
-        tu: this.translate.instant('Edge.History.Tue'),
-        we: this.translate.instant('Edge.History.Wed'),
-        th: this.translate.instant('Edge.History.Thu'),
-        fr: this.translate.instant('Edge.History.Fri'),
-        sa: this.translate.instant('Edge.History.Sat')
+        su: this.translate.instant('Edge.History.sun'),
+        mo: this.translate.instant('Edge.History.mon'),
+        tu: this.translate.instant('Edge.History.tue'),
+        we: this.translate.instant('Edge.History.wed'),
+        th: this.translate.instant('Edge.History.thu'),
+        fr: this.translate.instant('Edge.History.fri'),
+        sa: this.translate.instant('Edge.History.sat')
     };
 
     public transMonthLabels: IMyMonthLabels = {
-        1: this.translate.instant('Edge.History.Jan'),
-        2: this.translate.instant('Edge.History.Feb'),
-        3: this.translate.instant('Edge.History.Mar'),
-        4: this.translate.instant('Edge.History.Apr'),
-        5: this.translate.instant('Edge.History.May'),
-        6: this.translate.instant('Edge.History.Jun'),
-        7: this.translate.instant('Edge.History.Jul'),
-        8: this.translate.instant('Edge.History.Aug'),
-        9: this.translate.instant('Edge.History.Sep'),
-        10: this.translate.instant('Edge.History.Oct'),
-        11: this.translate.instant('Edge.History.Nov'),
-        12: this.translate.instant('Edge.History.Dec')
+        1: this.translate.instant('Edge.History.jan'),
+        2: this.translate.instant('Edge.History.feb'),
+        3: this.translate.instant('Edge.History.mar'),
+        4: this.translate.instant('Edge.History.apr'),
+        5: this.translate.instant('Edge.History.may'),
+        6: this.translate.instant('Edge.History.jun'),
+        7: this.translate.instant('Edge.History.jul'),
+        8: this.translate.instant('Edge.History.aug'),
+        9: this.translate.instant('Edge.History.sep'),
+        10: this.translate.instant('Edge.History.oct'),
+        11: this.translate.instant('Edge.History.nov'),
+        12: this.translate.instant('Edge.History.dec')
     };
 
     //DateRangePicker Options
@@ -62,8 +62,8 @@ export class PickDatePopoverComponent {
         showClearDateRangeBtn: false,
         editableDateRangeField: false,
         openSelectorOnInputClick: true,
-        selectBeginDateTxt: this.translate.instant('Edge.History.BeginDate'),
-        selectEndDateTxt: this.translate.instant('Edge.History.EndDate'),
+        selectBeginDateTxt: this.translate.instant('Edge.History.beginDate'),
+        selectEndDateTxt: this.translate.instant('Edge.History.endDate'),
         dayLabels: this.transDayLables,
         monthLabels: this.transMonthLabels
     };

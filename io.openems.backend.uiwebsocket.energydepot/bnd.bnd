@@ -11,10 +11,10 @@ Bundle-Version:					1.0.0.${tstamp}
 	io.openems.backend.timedata.api,\
 	io.openems.backend.uiwebsocket.api,\
 	io.openems.common,\
-	io.openems.wrapper.websocket,\
 	com.google.guava;version=27,\
 	io.openems.backend.common,\
-	slf4j.api
+	slf4j.api,\
+	Java-WebSocket
 
 -testpath: \
 	${testpath}

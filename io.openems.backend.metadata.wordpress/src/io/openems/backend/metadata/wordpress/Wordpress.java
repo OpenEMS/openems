@@ -233,7 +233,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 
 				Role role = Role.getRole("ADMIN");
 				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION.toString(),
-						producttype, config, role, 0, "");
+						producttype, config, role);
 
 				this.addListeners(edge);
 
@@ -302,12 +302,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		edge.onSetConfig(config -> {
 			log.debug("Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
 		});
-		edge.onSetSoc(soc -> {
-			log.debug("Edge [" + edge.getId() + "]. Set SoC: " + soc);
-		});
-		edge.onSetIpv4(ipv4 -> {
-			log.debug("Edge [" + edge.getId() + "]. Set IPv4: " + ipv4);
-		});
+		
 	}
 
 
@@ -319,6 +314,11 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 			return this.getEdgeIdForApikey(apikey);
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isInitialized() {
+		return this.isInitialized.get();
 	}
 
 }

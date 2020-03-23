@@ -70,11 +70,16 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 			// TODO send notification to UI
 		} catch (OpenemsException e) {
-			this.parent.logWarn(this.log, "Error in Websocket.OnOpen. Apikey [" + apikey + "]: " + e.getMessage());
-
-			// close websocket
-			ws.closeConnection(CloseFrame.REFUSE,
-					"Connection to backend failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
+			if (this.parent.metadata.isInitialized()) {
+				// close websocket
+				ws.closeConnection(CloseFrame.REFUSE,
+						"Connection to backend failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
+			} else {
+				// close websocket
+				ws.closeConnection(CloseFrame.TRY_AGAIN_LATER,
+						"Connection to backend failed. Metadata is not yet initialized. Apikey [" + apikey
+								+ "]. Error: " + e.getMessage());
+			}
 		}
 	}
 
