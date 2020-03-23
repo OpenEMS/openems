@@ -22,7 +22,10 @@ import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 public class Error extends BaseState implements StateObject {
 
-	private static final long WAITING_TIME = 20;
+	private static final long WAITING_TIME_ERRORS = 20;
+	private static final long WAITING_TIME_HARD_RESTART = 45;
+	private static final float MAX_ALLOWED_DELTA_LINK_VOLTAGE = 20;
+	private static final long COMMUNICATION_TIMEOUT = 60;
 	private final Logger log = LoggerFactory.getLogger(Error.class);
 	
 	private boolean enableIPU1;
@@ -30,8 +33,11 @@ public class Error extends BaseState implements StateObject {
 	private boolean enableIPU3;
 	private ParameterSet parameterSet;
 	
-	public Error(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet ) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id);
+	long SECONDS_TO_WAIT = WAITING_TIME_ERRORS;
+	private LocalDateTime communicationBrokenSince;
+	
+	public Error(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String hardRestartRelayAdress ) {	
+		super(manager, gridconPCSId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 		this.enableIPU1 = enableIPU1;
 		this.enableIPU2 = enableIPU2;
 		this.enableIPU3 = enableIPU3;
@@ -65,12 +71,13 @@ public class Error extends BaseState implements StateObject {
 	@Override
 	public void act() {
 		log.info("Handle Errors!");
-		
+				
 		setStringWeighting();
 		setStringControlMode();
 		setDateAndTime();
 
-		if (!isBatteriesStarted()) {			
+		if (!isBatteriesStarted()) {
+			System.out.println("In error --> start batteries");
 			keepSystemStopped();
 			startBatteries();
 			try {
@@ -83,7 +90,8 @@ public class Error extends BaseState implements StateObject {
 		}
 				
 		//handle also link voltage too low!!
-		if (isLinkVoltageTooLow()) {
+		if (getGridconPCS().isRunning() && isLinkVoltageTooLow()) {
+			System.out.println("In error --> link voltage too low");
 			getGridconPCS().setStop(true);
 			try {
 				getGridconPCS().doWriteTasks();
@@ -97,6 +105,22 @@ public class Error extends BaseState implements StateObject {
 		// first step, read number of errors, then read errors while complete error list is filled
 		
 		//TODO sub state machine: start -> reading errors -> acknowledging --> waiting for a certain period --> finished
+		
+		if (getGridconPCS().isCommunicationBroken()) {
+			System.out.println("Communication broken!");
+			if (communicationBrokenSince == null) {
+				communicationBrokenSince = LocalDateTime.now();
+				System.out.println("Comm broken --> set timestamp!");
+			}
+			if (communicationBrokenSince.plusSeconds(COMMUNICATION_TIMEOUT).isAfter(LocalDateTime.now())) {
+				System.out.println("comm broken --> in waiting time!");
+				return;
+			} else {
+				System.out.println("comm broken --> hard reset!");
+				communicationBrokenSince = null;
+				errorHandlingState = ErrorHandlingState.HARD_RESTART;
+			}
+		}
 		
 		if (errorHandlingState == null) {
 			errorHandlingState = ErrorHandlingState.START;
@@ -118,6 +142,9 @@ public class Error extends BaseState implements StateObject {
 		case FINISHED:
 			finishing();
 			break;
+		case HARD_RESTART:
+			doHardRestart();
+			break;
 		}		
 		try {
 			getGridconPCS().doWriteTasks();
@@ -127,6 +154,22 @@ public class Error extends BaseState implements StateObject {
 		}
 	}
 	
+	private int hardRestartCnt = 0;
+	private void doHardRestart() {
+		System.out.println(" ---> HARD RESET <---");
+		if (hardRestartCnt < 10) {
+			System.out.println(" ---> HARD RESET counting <---");
+			hardRestartCnt++;
+			setHardRestartRelay(true);
+		} else {
+			System.out.println(" ---> HARD RESET get to waiting<---");
+			hardRestartCnt = 0;
+			setHardRestartRelay(false);
+			errorHandlingState = ErrorHandlingState.WAITING;
+			SECONDS_TO_WAIT = WAITING_TIME_HARD_RESTART;
+		}		
+	}
+
 	private void keepSystemStopped() {		
 		System.out.println("Keep system stopped!");
 		getGridconPCS().setEnableIPU1(false);
@@ -164,10 +207,9 @@ public class Error extends BaseState implements StateObject {
 }
 	
 	private boolean isLinkVoltageTooLow() {
-		// TODO Auto-generated method stub
-		return false;
+		return GridconPCS.DC_LINK_VOLTAGE_SETPOINT - getGridconPCS().getDcLinkPositiveVoltage() > MAX_ALLOWED_DELTA_LINK_VOLTAGE;
 	}
-
+	
 	private void doStartErrorHandling() {
 		System.out.println("doStartErrorHandling");
 		// Error Count = anzahl der Fehler
@@ -227,7 +269,7 @@ public class Error extends BaseState implements StateObject {
 		System.out.println("doAcknowledge");
 		errorsAcknowledged = LocalDateTime.now();
 		errorHandlingState = ErrorHandlingState.WAITING;
-		
+		SECONDS_TO_WAIT = WAITING_TIME_ERRORS;
 		
 		getGridconPCS().setEnableIPU1(false);
 		getGridconPCS().setEnableIPU2(false);
@@ -275,12 +317,12 @@ public class Error extends BaseState implements StateObject {
 	}	
 	private void doWait() {
 		System.out.println("doWait");
-		if (errorsAcknowledged.plusSeconds(WAITING_TIME).isBefore(LocalDateTime.now())) {
+		
+		if (errorsAcknowledged.plusSeconds(SECONDS_TO_WAIT).isBefore(LocalDateTime.now())) {
 			
 			if (getGridconPCS().isError()) {
 				System.out.println("Gridcon has still errors.... :-(  start from the beginning");
-				finishing(); // to reset all maps etc...
-				
+				finishing(); // to reset all maps etc...				
 			}
 			
 			errorHandlingState = ErrorHandlingState.FINISHED;
@@ -300,6 +342,6 @@ public class Error extends BaseState implements StateObject {
 		READING_ERRORS,
 		ACKNOWLEDGE,
 		WAITING,
-		FINISHED		
+		FINISHED, HARD_RESTART		
 	}
 }

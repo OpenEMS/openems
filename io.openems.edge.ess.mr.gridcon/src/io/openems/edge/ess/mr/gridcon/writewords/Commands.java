@@ -172,9 +172,11 @@ private static Commands instance;
 		this.parameterU0 = parameterU0;
 	}
 	public Float getParameterF0() {
+		System.out.println("in Command.getParameterF0: " + parameterF0);
 		return parameterF0;
 	}
 	public void setParameterF0(Float parameterF0) {
+		System.out.println("in Command.setParameterF0: " + parameterF0);
 		this.parameterF0 = parameterF0;
 	}
 	public Float getParameterQref() {

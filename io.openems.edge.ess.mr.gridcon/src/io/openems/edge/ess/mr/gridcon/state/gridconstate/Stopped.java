@@ -21,8 +21,8 @@ public class Stopped extends BaseState implements StateObject {
 	private boolean enableIPU3;
 	private ParameterSet parameterSet;
 	
-	public Stopped(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet ) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id);
+	public Stopped(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String hardRestartRelayAdress) {
+		super(manager, gridconPCSId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 		this.enableIPU1 = enableIPU1;
 		this.enableIPU2 = enableIPU2;
 		this.enableIPU3 = enableIPU3;

@@ -19,7 +19,7 @@ public class TestUndefined {
 
 	@Before
 	public void setUp() throws Exception {
-		sut = new Undefined(null, null, null, null, null);
+		sut = new Undefined(null, null, null, null, null, null);
 	}
 
 	@Test

@@ -44,6 +44,9 @@ public @interface Config {
 	@AttributeDefinition(name = "Parameter Set", description = "Parameter Set")
 	ParameterSet parameterSet() default ParameterSet.SET_1;
 	
+	@AttributeDefinition(name = "Output Gridcon Hard Reset", description = "Output for hard reset for gridcon")
+	String outputHardReset() default "io0/DigitalOutputM1C2";
+	
 	String webconsole_configurationFactory_nameHint() default "ESS MR Gridcon PCS[{id}]";
 
 }

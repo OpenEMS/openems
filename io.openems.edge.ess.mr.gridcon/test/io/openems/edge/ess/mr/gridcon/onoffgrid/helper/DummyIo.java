@@ -47,6 +47,19 @@ public class DummyIo extends AbstractOpenemsComponent implements DigitalOutput, 
 		digitalInputChannels = new BooleanReadChannel[] {input_na1_channel, input_na2_channel, input_sync_channel };
 	}
 
+	public static String adaptChannelAdress(String adress) {
+		String separator = "/";
+		String s = adress.toLowerCase();
+		StringBuilder b = new StringBuilder();
+		String parts[] = s.split(separator);
+		b.append(parts[0]);
+		b.append(separator);
+		String p2 = parts[1];
+		b.append(p2.substring(0, 1).toUpperCase());
+		b.append(p2.substring(1));		
+		return b.toString();
+	}
+	
 	public class ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		private final String name;

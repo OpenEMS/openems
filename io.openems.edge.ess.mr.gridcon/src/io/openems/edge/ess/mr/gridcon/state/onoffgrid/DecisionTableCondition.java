@@ -16,91 +16,91 @@ public interface DecisionTableCondition {
 
 		TRUE(true),
 		FALSE(false),
-//		UNSET
+		UNSET(null)
 		;
 
-		private boolean value;
+		private Boolean value;
 
-		private NAProtection_1_On(boolean value) {
+		private NAProtection_1_On(Boolean value) {
 			this.value = value;
 		}
 
-		public boolean getValue() {
+		public Boolean getValue() {
 			return value;
 		}
 	}
 
 	enum NAProtection_2_On {
 
-		TRUE(true), FALSE(false),;
+		TRUE(true), FALSE(false), UNSET(null);
 
-		private boolean value;
+		private Boolean value;
 
-		private NAProtection_2_On(boolean value) {
+		private NAProtection_2_On(Boolean value) {
 			this.value = value;
 		}
 
-		public boolean getValue() {
+		public Boolean getValue() {
 			return value;
 		}
 	}
 
 	enum GridconCommunicationFailed {
 
-		TRUE(true), FALSE(false),;
+		TRUE(true), FALSE(false), UNSET(null);
 
-		private boolean value;
+		private Boolean value;
 
-		private GridconCommunicationFailed(boolean value) {
+		private GridconCommunicationFailed(Boolean value) {
 			this.value = value;
 		}
 
-		public boolean getValue() {
+		public Boolean getValue() {
 			return value;
 		}
 	}
 
 	enum MeterCommunicationFailed {
 
-		TRUE(true), FALSE(false),;
+		TRUE(true), FALSE(false), UNSET(null);
 
-		private boolean value;
+		private Boolean value;
 
-		private MeterCommunicationFailed(boolean value) {
+		private MeterCommunicationFailed(Boolean value) {
 			this.value = value;
 		}
 
-		public boolean getValue() {
+		public Boolean getValue() {
 			return value;
 		}
 	}
 
 	enum VoltageInRange {
 
-		TRUE(true), FALSE(false),;
+		TRUE(true), FALSE(false), UNSET(null);
 
-		private boolean value;
+		private Boolean value;
 
-		private VoltageInRange(boolean value) {
+		private VoltageInRange(Boolean value) {
 			this.value = value;
 		}
 
-		public boolean getValue() {
+		public Boolean getValue() {
 			return value;
 		}
 	}
 
 	enum SyncBridgeOn {
 
-		TRUE(true), FALSE(false),;
+		TRUE(true), FALSE(false), UNSET(null);
 
-		private boolean value;
+		private Boolean value;
 
-		private SyncBridgeOn(boolean value) {
+		private SyncBridgeOn(Boolean value) {
 			this.value = value;
 		}
 
-		public boolean getValue() {
+		public Boolean getValue() {
 			return value;
 		}
 	}

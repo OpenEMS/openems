@@ -22,6 +22,8 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
 import io.openems.edge.ess.mr.gridcon.StateController;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableConditionImpl;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState;
 import io.openems.edge.ess.power.api.Power;
 
@@ -68,16 +70,15 @@ public class EssGridConOnOffGrid extends EssGridcon
 		//TODO
 		GridMode gridMode = GridMode.UNDEFINED;
 		
-//		if (this.stateObject != null) {
-//			if (//
-//				OnOffGridState.GOING_ONGRID == this.stateObject.getState()//
-//				|| OnOffGridState.OFFGRID == this.stateObject.getState()//
-//			) {
-//				gridMode = GridMode.OFF_GRID;
-//			} else if (OnOffGridState.RUN_ONGRID == this.stateObject.getState()) {
-//				gridMode = GridMode.ON_GRID;
-//			}
-//		}
+		if (this.stateObject != null) {
+			if (//
+				OnOffGridState.ON_GRID_MODE == this.stateObject.getState()//
+			) {
+				gridMode = GridMode.ON_GRID;
+			} else if (OnOffGridState.OFF_GRID_MODE == this.stateObject.getState()) {
+				gridMode = GridMode.OFF_GRID;
+			}
+		}
 		
 		getGridMode().setNextValue(gridMode);
 	}
@@ -105,6 +106,8 @@ public class EssGridConOnOffGrid extends EssGridcon
 
 	@Override
 	protected void initializeStateController(String gridconPCS, String b1, String b2, String b3) {
+		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(componentManager, gridconPCS, config.meter_id(), config.inputNAProtection1(), config.inputNAProtection2(), config.inputSyncDeviceBridge());
+		StateController.initDecisionTableCondition(tableCondition);
 		StateController.initOnOffGrid(//
 				componentManager  //
 				, gridconPCS//
@@ -128,6 +131,8 @@ public class EssGridConOnOffGrid extends EssGridcon
 				, config.targetFrequencyOnGrid()
 				, config.targetFrequencyOffGrid()
 				, config.meter_id()
+				, config.deltaFrequency()
+				, config.deltaVoltage()
 				);
 	}
 }

@@ -168,6 +168,30 @@ public abstract class BaseState implements StateObject {
 		}
 		return ret;
 	}
+	
+	protected float getVoltageOnMeter() {
+		float ret = Float.MIN_VALUE;
+		try {
+			SymmetricMeter meter = manager.getComponent(meterId);
+			Channel<Integer> voltageChannel = meter.getVoltage();
+			int voltage = voltageChannel.value().orElse(0); //voltage is in mV
+			ret = voltage / 1000.0f;
+		} catch (OpenemsNamedException e) {
+		}
+		return ret;
+	}
+	
+	protected float getFrequencyOnMeter() {
+		float ret = Float.MIN_VALUE;
+		try {
+			SymmetricMeter meter = manager.getComponent(meterId);
+			Channel<Integer> frequencyChannel = meter.getFrequency();
+			int frequency = frequencyChannel.value().orElse(0); //voltage is in mV
+			ret = frequency / 1000.0f;
+		} catch (OpenemsNamedException e) {
+		}
+		return ret;
+	}
 
 	protected void setSyncBridge(boolean b) {
 		System.out.println("setSyncBridge : parameter --> " + b);

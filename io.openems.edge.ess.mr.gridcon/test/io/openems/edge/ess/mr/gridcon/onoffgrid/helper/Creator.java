@@ -30,6 +30,8 @@ public class Creator {
 	public static final boolean OUTPUT_HARD_RESET_INVERTED = false;
 	public static final float TARGET_FREQUENCY_ONGRID = 52.7f;
 	public static final float TARGET_FREQUENCY_OFFGRID = 50.6f;
+	public static final float DELTA_FREQUENCY = 0.2f;
+	public static final float DELTA_VOLTAGE = 5.0f;
 
 	public static DummyComponentManager getDummyComponentManager() {
 		return new DummyComponentManager();
@@ -167,6 +169,16 @@ public class Creator {
 			@Override
 			public float targetFrequencyOffGrid() {
 				return TARGET_FREQUENCY_OFFGRID;
+			}
+
+			@Override
+			public float deltaFrequency() {				
+				return DELTA_FREQUENCY;
+			}
+
+			@Override
+			public float deltaVoltage() {
+				return DELTA_VOLTAGE;
 			}
 		};
 	}

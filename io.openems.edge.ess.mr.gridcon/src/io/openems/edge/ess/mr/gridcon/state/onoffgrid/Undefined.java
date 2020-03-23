@@ -36,14 +36,17 @@ public class Undefined extends BaseState implements StateObject {
 		}
 		
 		if (DecisionTableHelper.isWaitingForDevices(condition)) {
-			if (getStateBefore() == null || Arrays.asList(OnOffGridState.START_SYSTEM, OnOffGridState.WAITING_FOR_DEVICES).contains(getStateBefore())) {
-				return OnOffGridState.WAITING_FOR_DEVICES;
+			if (getStateBefore() == null || Arrays.asList(OnOffGridState.START_SYSTEM, OnOffGridState.WAIT_FOR_DEVICES).contains(getStateBefore())) {
+				return OnOffGridState.WAIT_FOR_DEVICES;
 			}
 		}
 		
-		if (DecisionTableHelper.isOnGridMode(condition)) {			
-			if (getStateBefore() == null || Arrays.asList(OnOffGridState.START_SYSTEM, OnOffGridState.WAITING_FOR_DEVICES, OnOffGridState.ON_GRID_MODE, OnOffGridState.ON_GRID_RESTART_GRIDCON_AFTER_SYNC).contains(getStateBefore())) {
+		if (DecisionTableHelper.isOnGridMode(condition)) {	
+			System.out.println("DecisionTableHelper -->  On grid conditions!");
+			if (getStateBefore() == null || Arrays.asList(OnOffGridState.START_SYSTEM, OnOffGridState.WAIT_FOR_DEVICES, OnOffGridState.ON_GRID_MODE).contains(getStateBefore())) {
 				return OnOffGridState.ON_GRID_MODE;
+			} else {
+				System.out.println("state before not ok!!!");
 			}
 		}
 		
@@ -71,11 +74,11 @@ public class Undefined extends BaseState implements StateObject {
 			}
 		}
 		
-		if (DecisionTableHelper.isRestartGridconAfterSync(condition)) {			
-			if (getStateBefore() == null || Arrays.asList(OnOffGridState.ON_GRID_RESTART_GRIDCON_AFTER_SYNC).contains(getStateBefore())) {
-				return OnOffGridState.ON_GRID_RESTART_GRIDCON_AFTER_SYNC;
-			}
-		}
+//		if (DecisionTableHelper.isRestartGridconAfterSync(condition)) {			
+//			if (getStateBefore() == null || Arrays.asList(OnOffGridState.ON_GRID_RESTART_GRIDCON_AFTER_SYNC).contains(getStateBefore())) {
+//				return OnOffGridState.ON_GRID_RESTART_GRIDCON_AFTER_SYNC;
+//			}
+//		}
 		
 		return OnOffGridState.UNDEFINED;
 	}

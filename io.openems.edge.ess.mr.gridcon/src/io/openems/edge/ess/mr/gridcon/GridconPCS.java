@@ -15,6 +15,8 @@ public interface GridconPCS {
 	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
 	public static final float Q_LIMIT = 1f;
 	public static final int POWER_PRECISION_WATT =  1; //100 TODO estimated value;
+	public static final float DEFAULT_GRID_FREQUENCY = 50;
+	public static final float DEFAULT_GRID_VOLTAGE = 230;
 	
 	float getMaxApparentPower();
 	boolean isRunning();
@@ -47,8 +49,8 @@ public interface GridconPCS {
 	void setSyncApproval(boolean b);
 	void setBlackStartApproval(boolean b);
 //	void setShortCircuitHAndling(boolean b);
-	void setU0(float onGridVoltageFactor);
-	void setF0(float onGridFrequencyFactor);
+	void setU0(float voltageFactor);
+	void setF0(float frequencyFactor);
 	void setPControlMode(PControlMode activePowerControl);
 	void setQLimit(float f);
 	

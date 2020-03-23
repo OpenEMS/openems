@@ -77,21 +77,12 @@ public class TestDecisionTableHelper {
 		assertTrue(DecisionTableHelper.isAdjustParameters(c1));
 	}
 	
-	@Test
-	public final void testIsFinishGoingOnGrid() {
-		DecisionTableCondition c1 = new DummyDecisionTableCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.TRUE);
-		DecisionTableCondition c2 = new DummyDecisionTableCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.TRUE);
-		
-		assertTrue(DecisionTableHelper.isFinishGoingOnGrid(c1));
-		assertTrue(DecisionTableHelper.isFinishGoingOnGrid(c2));
-	}
-	
-	@Test
-	public final void testIsRestartGridconAfterSync() {
-		DecisionTableCondition c1 = new DummyDecisionTableCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.FALSE);
-		
-		assertTrue(DecisionTableHelper.isRestartGridconAfterSync(c1));
-	}
+//	@Test
+//	public final void testIsRestartGridconAfterSync() {
+//		DecisionTableCondition c1 = new DummyDecisionTableCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.FALSE);
+//		
+//		assertTrue(DecisionTableHelper.isRestartGridconAfterSync(c1));
+//	}
 	
 	@Test
 	public final void testIsUndefined() {

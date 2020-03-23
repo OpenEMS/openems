@@ -6,11 +6,11 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret = 
-				!condition.isNaProtection1On().getValue()  &&
-				!condition.isNaProtection2On().getValue() &&
-				condition.isGridconCommunicationFailed().getValue() &&
-				condition.isMeterCommunicationFailed().getValue() &&
-				condition.isSyncBridgeOn().getValue();
+				condition.isNaProtection1On().getValue() == Boolean.FALSE &&
+				condition.isNaProtection2On().getValue() == Boolean.FALSE &&
+				condition.isGridconCommunicationFailed().getValue() == Boolean.TRUE &&
+				condition.isMeterCommunicationFailed().getValue() == Boolean.TRUE &&
+				condition.isSyncBridgeOn().getValue() == Boolean.TRUE;
 		} catch (Exception e) {
 			ret = false;
 		}
@@ -21,11 +21,11 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret = 
-				!condition.isNaProtection1On().getValue() &&
-				!condition.isNaProtection2On().getValue() &&
-				condition.isGridconCommunicationFailed().getValue() &&
-				condition.isMeterCommunicationFailed().getValue() &&
-				!condition.isSyncBridgeOn().getValue();
+				condition.isNaProtection1On().getValue() == Boolean.FALSE &&
+				condition.isNaProtection2On().getValue() == Boolean.FALSE &&
+				condition.isGridconCommunicationFailed().getValue() == Boolean.TRUE &&
+				condition.isMeterCommunicationFailed().getValue() == Boolean.TRUE &&
+				condition.isSyncBridgeOn().getValue() == Boolean.FALSE;
 		} catch (Exception e) {
 			ret = false;
 		}
@@ -36,10 +36,10 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret = 
-				condition.isNaProtection1On().getValue() &&
-				condition.isNaProtection2On().getValue() &&
-				!condition.isGridconCommunicationFailed().getValue() &&
-				!condition.isMeterCommunicationFailed().getValue()
+				condition.isNaProtection1On().getValue() == Boolean.TRUE &&
+				condition.isNaProtection2On().getValue() == Boolean.TRUE &&			
+				condition.isGridconCommunicationFailed().getValue() == Boolean.FALSE &&
+				condition.isMeterCommunicationFailed().getValue() == Boolean.FALSE
 				;
 		} catch (Exception e) {
 			ret = false;
@@ -51,11 +51,11 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret =
-					!condition.isNaProtection1On().getValue() &&
-					!condition.isNaProtection2On().getValue() &&
-					!condition.isGridconCommunicationFailed().getValue() &&
-					!condition.isMeterCommunicationFailed().getValue() &&
-					!condition.isVoltageInRange().getValue()			
+					condition.isNaProtection1On().getValue() == Boolean.FALSE &&
+					condition.isNaProtection2On().getValue() == Boolean.FALSE &&
+					condition.isGridconCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isMeterCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isVoltageInRange().getValue() == Boolean.FALSE			
 				;
 		} catch (Exception e) {
 			ret = false;
@@ -67,12 +67,12 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret = 
-					!condition.isNaProtection1On().getValue() &&
-					!condition.isNaProtection2On().getValue() &&
-					!condition.isGridconCommunicationFailed().getValue() &&
-					!condition.isMeterCommunicationFailed().getValue() &&
-					condition.isVoltageInRange().getValue() &&
-					!condition.isSyncBridgeOn().getValue()
+					condition.isNaProtection1On().getValue() == Boolean.FALSE &&
+					condition.isNaProtection2On().getValue() == Boolean.FALSE &&
+					condition.isGridconCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isMeterCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isVoltageInRange().getValue() == Boolean.TRUE &&
+					condition.isSyncBridgeOn().getValue() == Boolean.FALSE
 				;
 		} catch (Exception e) {
 			ret = false;
@@ -84,12 +84,12 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret = 
-					!condition.isNaProtection1On().getValue() &&
-					!condition.isNaProtection2On().getValue() &&
-					!condition.isGridconCommunicationFailed().getValue() &&
-					!condition.isMeterCommunicationFailed().getValue() &&
-					condition.isVoltageInRange().getValue() &&
-					condition.isSyncBridgeOn().getValue()
+					condition.isNaProtection1On().getValue() == Boolean.FALSE &&
+					condition.isNaProtection2On().getValue() == Boolean.FALSE &&
+					condition.isGridconCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isMeterCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isVoltageInRange().getValue() == Boolean.TRUE &&
+					condition.isSyncBridgeOn().getValue() == Boolean.TRUE
 				;
 		} catch (Exception e) {
 			ret = false;
@@ -101,12 +101,12 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret = 
-					condition.isNaProtection1On().getValue() &&
-					!condition.isNaProtection2On().getValue() &&
-					!condition.isGridconCommunicationFailed().getValue() &&
-					!condition.isMeterCommunicationFailed().getValue() &&
-					condition.isVoltageInRange().getValue() &&
-					condition.isSyncBridgeOn().getValue()
+					condition.isNaProtection1On().getValue() == Boolean.TRUE &&
+					condition.isNaProtection2On().getValue() == Boolean.FALSE &&
+					condition.isGridconCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isMeterCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isVoltageInRange().getValue() == Boolean.TRUE &&
+					condition.isSyncBridgeOn().getValue() == Boolean.TRUE
 				;
 		} catch (Exception e) {
 			ret = false;
@@ -114,38 +114,22 @@ public class DecisionTableHelper {
 		return ret;
 	}
 
-	public static boolean isFinishGoingOnGrid(DecisionTableCondition condition) {
-		boolean ret = false;
-		try {
-			ret = 
-					condition.isNaProtection1On().getValue() &&
-					condition.isNaProtection2On().getValue() &&
-					!condition.isMeterCommunicationFailed().getValue() &&
-					condition.isVoltageInRange().getValue() &&
-					condition.isSyncBridgeOn().getValue()
-				;
-		} catch (Exception e) {
-			ret = false;
-		}
-		return ret;
-	}
-
-	public static boolean isRestartGridconAfterSync(DecisionTableCondition condition) {
-		boolean ret = false;
-		try {
-			ret = 
-					condition.isNaProtection1On().getValue() &&
-					condition.isNaProtection2On().getValue() &&
-					condition.isGridconCommunicationFailed().getValue() &&
-					!condition.isMeterCommunicationFailed().getValue() &&
-					condition.isVoltageInRange().getValue() &&
-					!condition.isSyncBridgeOn().getValue()
-				;
-		} catch (Exception e) {
-			ret = false;
-		}
-		return ret;
-	}
+//	public static boolean isRestartGridconAfterSync(DecisionTableCondition condition) {
+//		boolean ret = false;
+//		try {
+//			ret = 
+//					condition.isNaProtection1On().getValue() == Boolean.TRUE &&
+//					condition.isNaProtection2On().getValue() == Boolean.TRUE &&
+//					condition.isGridconCommunicationFailed().getValue() == Boolean.TRUE &&
+//					condition.isMeterCommunicationFailed().getValue() == Boolean.FALSE &&
+//					condition.isVoltageInRange().getValue() == Boolean.TRUE &&
+//					condition.isSyncBridgeOn().getValue() == Boolean.FALSE
+//				;
+//		} catch (Exception e) {
+//			ret = false;
+//		}
+//		return ret;
+//	}
 
 	public static boolean isUndefined(DecisionTableCondition condition) {
 		return 
@@ -156,8 +140,7 @@ public class DecisionTableHelper {
 				!isOffGridGridBack(condition) &&
 				!isOffGridWaitForGridAvailable(condition) &&
 				!isAdjustParameters(condition) &&
-				!isFinishGoingOnGrid(condition) &&
-				!isRestartGridconAfterSync(condition) &&
+//				!isRestartGridconAfterSync(condition) &&
 				!isError(condition);
 				
 	}
@@ -166,12 +149,12 @@ public class DecisionTableHelper {
 		boolean ret = false;
 		try {
 			ret = 
-					condition.isNaProtection1On().getValue() &&
-					!condition.isNaProtection2On().getValue() &&
-					condition.isGridconCommunicationFailed().getValue() &&
-					!condition.isMeterCommunicationFailed().getValue() &&
-					condition.isVoltageInRange().getValue() &&
-					condition.isSyncBridgeOn().getValue()
+					condition.isNaProtection1On().getValue() == Boolean.TRUE &&
+					condition.isNaProtection2On().getValue() == Boolean.FALSE &&
+					condition.isGridconCommunicationFailed().getValue() == Boolean.TRUE &&
+					condition.isMeterCommunicationFailed().getValue() == Boolean.FALSE &&
+					condition.isVoltageInRange().getValue() == Boolean.TRUE &&
+					condition.isSyncBridgeOn().getValue() == Boolean.TRUE
 				;
 		} catch (Exception e) {
 			ret = false;

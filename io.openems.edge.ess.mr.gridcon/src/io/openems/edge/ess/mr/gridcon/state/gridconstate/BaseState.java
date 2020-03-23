@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.BitSet;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.IState;
@@ -21,13 +23,15 @@ public abstract class BaseState implements StateObject {
 	protected String battery1Id;
 	protected String battery2Id;
 	protected String battery3Id;
+	protected String hardRestartRelayAdress;
 	
-	public BaseState(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id) {
+	public BaseState(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, String hardRestartRelayAdress) {
 		this.manager = manager;
 		this.gridconPCSId = gridconPCSId;
 		this.battery1Id = b1Id;
 		this.battery2Id = b2Id;
 		this.battery3Id = b3Id;		
+		this.hardRestartRelayAdress = hardRestartRelayAdress;
 	}
 	
 	protected boolean isNextStateUndefined() {
@@ -165,6 +169,16 @@ public abstract class BaseState implements StateObject {
 	
 	GridconPCS getGridconPCS() {
 		return getComponent(gridconPCSId);
+	}
+	
+	protected void setHardRestartRelay(boolean val) {
+		try {
+			ChannelAddress address = ChannelAddress.fromString(this.hardRestartRelayAdress);
+			BooleanWriteChannel outputHardResetChannel = this.manager.getChannel(address);
+			outputHardResetChannel.setNextWriteValue(val);
+		} catch (OpenemsNamedException e) {
+			System.out.println("Failed to set the hard reset");
+		}
 	}
 	
 	SoltaroBattery getBattery1() {

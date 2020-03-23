@@ -11,8 +11,8 @@ public class Undefined extends BaseState implements StateObject {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
-	public Undefined(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id);
+	public Undefined(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, String hardRestartRelayAdress) {
+		super(manager, gridconPCSId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 	}
 
 	@Override

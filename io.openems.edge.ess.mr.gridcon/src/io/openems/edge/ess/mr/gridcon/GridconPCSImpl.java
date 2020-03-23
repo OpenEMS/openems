@@ -159,7 +159,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 		Commands c = Commands.getCommands();
 
-//		System.out.println("Write Command control word:\n" + c.toString());
+		System.out.println("Write Command control word:\n" + c.toString());
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, c.getPlayBit());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, c.getReadyAndStopBit2nd());

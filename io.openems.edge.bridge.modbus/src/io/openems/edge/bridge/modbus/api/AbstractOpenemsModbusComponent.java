@@ -160,7 +160,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 	}
 		
-	protected BridgeModbus getModbus() {
+	public BridgeModbus getModbus() {
 		return modbus.get();
 	}
 

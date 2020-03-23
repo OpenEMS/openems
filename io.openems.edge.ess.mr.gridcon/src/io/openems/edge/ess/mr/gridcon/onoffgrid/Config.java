@@ -83,5 +83,11 @@ public @interface Config {
 	@AttributeDefinition(name = "Target Frequency Off Grid", description = "Target frequency in off grid mode")
 	float targetFrequencyOffGrid() default 50.6f;
 	
+	@AttributeDefinition(name = "Delta Frequency For Sync", description = "Delta Frequency For Sync")
+	float deltaFrequency() default 0.2f;
+	
+	@AttributeDefinition(name = "Delta Voltage For Sync", description = "Delta Voltage For Sync")
+	float deltaVoltage() default 5.0f;
+	
 	String webconsole_configurationFactory_nameHint() default "ESS MR Gridcon PCS On Off[{id}]";
 }

@@ -24,6 +24,7 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	
 	float activePower = 0;
 	float reactivePower = 0;
+
 	private ParameterSet parameterSet;
 	private Mode mode;
 	private boolean syncApproval;
@@ -32,11 +33,12 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	private PControlMode pControlMode;
 	private float f0;
 	private float qLimit;
-	private float dcLinkVoltage;
 	private Float weightA;
 	private Float weightB;
 	private Float weightC;
 	private int stringControlMode;
+	
+	private float dcLinkVoltage;
 	private double efficiencyLossDischargeFactor = 0;
 	private double efficiencyLossChargeFactor = 0;
 	
@@ -342,6 +344,14 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	@Override
 	public double getEfficiencyLossDischargeFactor() {
 		return efficiencyLossDischargeFactor;
+	}
+
+	public float getSetFrequency() {
+		return GridconPCS.DEFAULT_GRID_FREQUENCY * f0;
+	}
+
+	public float getSetVoltage() {
+		return GridconPCS.DEFAULT_GRID_VOLTAGE * u0;
 	}
 
 }

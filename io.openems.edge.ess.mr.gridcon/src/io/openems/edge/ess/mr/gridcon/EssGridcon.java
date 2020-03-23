@@ -104,10 +104,19 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 				IState nextState = this.stateObject.getNextState();
 				StateObject nextStateObject = StateController.getStateObject(nextState);
-				nextStateObject.setStateBefore(this.stateObject.getState());
+				
+				//do not set the state undefined as state before
+				//state before is only necessary (at the moment) to decide what the next
+				// state is coming from undefined
+				if (!this.stateObject.getState().toString().toUpperCase().contains("UNDEFINED")) {
+					nextStateObject.setStateBefore(this.stateObject.getState());
+				}
 				
 				System.out.println("  ----- CURRENT STATE:" + this.stateObject.getState().getName());
 				System.out.println("  ----- NEXT STATE:" + nextStateObject.getState().getName());
+				System.out.println("Conditional: ");
+				StateController.printCondition();
+				
 				
 				this.stateObject = nextStateObject;
 				

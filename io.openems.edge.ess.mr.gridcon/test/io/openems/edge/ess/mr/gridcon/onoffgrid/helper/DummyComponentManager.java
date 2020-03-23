@@ -27,6 +27,7 @@ public class DummyComponentManager implements ComponentManager {
 	private GridconPCS gridconPcs = createGridconPcs();
 	private EssGridcon ess = createEss();
 	private DummyIo io0 = createIo();
+	private DummyMeter meter0 = createMeter();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -49,7 +50,14 @@ public class DummyComponentManager implements ComponentManager {
 		if (Creator.IO_ID.equals(componentId)) {
 			return (T) io0;
 		}
+		if (Creator.METER_ID.equals(componentId)) {
+			return (T) meter0;
+		}
 		return null;
+	}
+
+	private DummyMeter createMeter() {
+		return new DummyMeter();
 	}
 
 	private DummyIo createIo() {

@@ -12,6 +12,7 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.Creator;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyComponentManager;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyDecisionTableCondition;
+import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyIo;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.GridconCommunicationFailed;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.MeterCommunicationFailed;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NAProtection_1_On;
@@ -71,14 +72,14 @@ public class TestStartSystem {
 	public void testGetNextStateWaitForDevices() {
 		// According to the state machine the next state is "WAITING FOR DEVICES" if condition is 0,0,1,1,-,0
 		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
-		assertEquals(OnOffGridState.WAITING_FOR_DEVICES, sut.getNextState());
+		assertEquals(OnOffGridState.WAIT_FOR_DEVICES, sut.getNextState());
 		
 		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.TRUE, SyncBridgeOn.FALSE);
-		assertEquals(OnOffGridState.WAITING_FOR_DEVICES, sut.getNextState());
+		assertEquals(OnOffGridState.WAIT_FOR_DEVICES, sut.getNextState());
 	}
 	
 	@Test
-	public void testGetNextStateWaitError() {
+	public void testGetNextStateError() {
 		// According to the state machine the next state is "ERROR" if ?? --> NOT DEFINED YET		
 	}
 
@@ -90,40 +91,60 @@ public class TestStartSystem {
 		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
 		assertNotEquals(OnOffGridState.ON_GRID_MODE, sut.getNextState());		
 	}
+
+	@Test
+	public void testGetNextStateWaitOffgridNotAllowed() {
+		// According to the state machine the "ONGRID" is not reachable directly
+		// condition is 1,1,0,0,-,- 
+		sut.setStateBefore(OnOffGridState.START_SYSTEM);
+		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
+		assertNotEquals(OnOffGridState.OFF_GRID_MODE, sut.getNextState());		
+		
+		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.TRUE);
+		assertNotEquals(OnOffGridState.OFF_GRID_MODE, sut.getNextState());
+	}
+	
+	@Test
+	public void testGetNextStateWaitOffgridGridBackNotAllowed() {
+		// According to the state machine the "ONGRID" is not reachable directly
+		// condition is 1,1,0,0,-,- 
+		sut.setStateBefore(OnOffGridState.START_SYSTEM);
+		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.FALSE);
+		assertNotEquals(OnOffGridState.OFF_GRID_MODE_GRID_BACK, sut.getNextState());		
+	}
 	
 	// TODO other states that are not allowed
+	
+	@Test
+	public void testGetNextStateUndefined() {
+		// According to the state machine the "ONGRID" is not reachable directly
+		// condition is 1,1,0,0,-,- 
+		sut.setStateBefore(OnOffGridState.START_SYSTEM);
+		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
+		assertNotEquals(OnOffGridState.ON_GRID_MODE, sut.getNextState());		
+	}
+
 		
 	@Test
 	public void testAct() {
 		try {
-			String channelName = adaptName(Creator.OUTPUT_SYNC_DEVICE_BRIDGE);
-			ChannelAddress adress = ChannelAddress.fromString(channelName);
-			// TODO Channel is not found regularly, it's name is converted in DummyComponentManager
-			BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager.getChannel(adress);
-			
 			sut.act();
-			
+
 			boolean expected = false;
+
+			String channelName = DummyIo.adaptChannelAdress(Creator.OUTPUT_SYNC_DEVICE_BRIDGE);
+			ChannelAddress adress = ChannelAddress.fromString(channelName);
+			BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager.getChannel(adress);			
 			boolean actual = outputSyncDeviceBridgeChannel.getNextWriteValue().get();
 			assertEquals(expected, actual);
+			
 
 		} catch (Exception e) {
 			fail("Should not happen, StartSystem.act() should only set syncBridge!");
 		}
 	}
 	
-	private String adaptName(String outputSyncDeviceBridge) {
-		String separator = "/";
-		String s = outputSyncDeviceBridge.toLowerCase();
-		StringBuilder b = new StringBuilder();
-		String parts[] = s.split(separator);
-		b.append(parts[0]);
-		b.append(separator);
-		String p2 = parts[1];
-		b.append(p2.substring(0, 1).toUpperCase());
-		b.append(p2.substring(1));		
-		return b.toString();
-	}
+	
 
 	private static void setCondition(NAProtection_1_On b, NAProtection_2_On c, GridconCommunicationFailed d, MeterCommunicationFailed e, VoltageInRange f, SyncBridgeOn g) {
 		condition.setNaProtection1On(b);
