@@ -13,6 +13,7 @@ import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.Scheduler;
 
@@ -54,13 +55,22 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Before Controllers start: switch to next process image for each channel
 			 */
-			this.parent.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled())
+			this.parent.componentManager.getEnabledComponents().stream() //
+					.filter(c -> c.isEnabled() && !(c instanceof Sum)) //
 					.forEach(component -> {
 						component.channels().forEach(channel -> {
 							channel.nextProcessImage();
 						});
 					});
 			this.parent.channels().forEach(channel -> {
+				channel.nextProcessImage();
+			});
+
+			/*
+			 * Update the Channels in the Sum-Component.
+			 */
+			this.parent.sumComponent.updateChannelsBeforeProcessImage();
+			this.parent.sumComponent.channels().forEach(channel -> {
 				channel.nextProcessImage();
 			});
 

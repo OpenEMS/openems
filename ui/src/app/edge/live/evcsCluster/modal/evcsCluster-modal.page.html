@@ -109,7 +109,7 @@
                                                     <td style="width:50%" class="align_right">
                                                         {{ getState(currentData[evcs_id + "/ChargePower"] | number:'1.0-0',
                                                             currentData[evcs_id + "/Status"], 
-                                                            currentData[evcs_id + "/Plug"], ['evcsCtrl'])}}
+                                                            currentData[evcs_id + "/Plug"], evcsCtrl)}}
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -145,8 +145,7 @@
 
                                                                 <ion-segment-button value="EXCESS_POWER">
                                                                     <ion-item lines="none">
-                                                                        <ion-icon style="width:40px"
-                                                                            name="sunny-outline">
+                                                                        <ion-icon style="width:40px" name="sunny">
                                                                         </ion-icon>
 
                                                                         <ion-label translate>

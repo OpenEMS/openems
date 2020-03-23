@@ -17,6 +17,7 @@ import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Component(//
@@ -32,6 +33,9 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 	@Reference
 	protected EventAdmin eventAdmin;
+
+	@Reference
+	protected Sum sumComponent;
 
 	/**
 	 * Holds the Schedulers and their relative cycleTime. They are sorted ascending
