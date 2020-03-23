@@ -22,15 +22,15 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.scheduler.api.AbstractScheduler;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Scheduler.Daily", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class DailyScheduler extends AbstractScheduler implements Scheduler, OpenemsComponent {
+public class DailyScheduler extends AbstractOpenemsComponent implements Scheduler, OpenemsComponent {
 
 	private final Clock clock;
 	private final TreeMap<LocalTime, List<String>> controllerSchedule = new TreeMap<>();
@@ -69,7 +69,7 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.cycleTime());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		if (config.controllerScheduleJson() != null && !config.controllerScheduleJson().trim().isEmpty()) {
 			this.updateControllerSchedule(JsonUtils.getAsJsonArray(JsonUtils.parse(config.controllerScheduleJson())));
