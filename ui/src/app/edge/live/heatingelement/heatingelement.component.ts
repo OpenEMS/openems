@@ -6,6 +6,8 @@ import { HeatingElementModalComponent } from './modal/modal.component';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+type Level = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
+
 @Component({
     selector: HeatingElementComponent.SELECTOR,
     templateUrl: './heatingelement.component.html'
@@ -47,7 +49,9 @@ export class HeatingElementComponent {
                 edge.subscribeChannels(this.websocket, HeatingElementComponent.SELECTOR + this.componentId, [
                     this.outputChannelPhaseOne,
                     this.outputChannelPhaseTwo,
-                    this.outputChannelPhaseThree
+                    this.outputChannelPhaseThree,
+                    new ChannelAddress(this.component.id, 'CountDownMinTime'),
+                    new ChannelAddress(this.component.id, 'CountDownMinKwh'),
                 ]);
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let outputChannelArray = [this.outputChannelPhaseOne, this.outputChannelPhaseTwo, this.outputChannelPhaseThree];
@@ -79,7 +83,8 @@ export class HeatingElementComponent {
                 edge: this.edge,
                 outputChannelPhaseOne: this.outputChannelPhaseOne,
                 outputChannelPhaseTwo: this.outputChannelPhaseTwo,
-                outputChannelPhaseThree: this.outputChannelPhaseThree
+                outputChannelPhaseThree: this.outputChannelPhaseThree,
+                activePhases: this.activePhases
             }
         });
         return await modal.present();

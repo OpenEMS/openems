@@ -4,6 +4,7 @@ export const TRANSLATION = {
         ActualPower: 'e-car Laad vermogen',
         Autarchy: 'Autarkie',
         Automatic: 'Automatisch',
+        cancel: 'annuleren',
         capacity: 'Hoedanigheid',
         ChangeAccepted: 'Wijziging geaccepteerd',
         ChangeFailed: 'Wijziging mislukt',
@@ -31,6 +32,7 @@ export const TRANSLATION = {
         NoValue: 'Geen waarde',
         Off: 'Van',
         OffGrid: 'Geen Netaansluiting!',
+        ok: 'ok',
         On: 'Naar',
         otherConsumption: 'andere consumptie',
         Percentage: 'Procent',
@@ -199,12 +201,14 @@ export const TRANSLATION = {
                 Heatingelement: {
                     heatingelement: 'Verwarmingselement',
                     priority: 'Prioriteit',
-                    activePhases: 'Actieve fasen',
+                    activeLevel: 'Actieve level',
                     energy: 'Energie',
                     time: 'Tijd',
                     endtime: 'Einde tijd',
                     minimalEnergyAmount: 'Minimale hoeveelheid energie',
-                    minimumRunTime: 'Minimale looptijd'
+                    minimumRunTime: 'Minimale looptijd',
+                    energyCountdown: 'Hoeveelheid energie tot start',
+                    timeCountdown: 'Tijd om te beginnen:',
                 }
             }
         },

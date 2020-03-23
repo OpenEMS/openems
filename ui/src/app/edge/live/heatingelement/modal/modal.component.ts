@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
-
 
 @Component({
     selector: HeatingElementModalComponent.SELECTOR,
@@ -20,6 +20,7 @@ export class HeatingElementModalComponent implements OnInit {
     @Input() public outputChannelPhaseOne: ChannelAddress;
     @Input() public outputChannelPhaseTwo: ChannelAddress;
     @Input() public outputChannelPhaseThree: ChannelAddress;
+    @Input() public activePhases: BehaviorSubject<number>;
 
     private static readonly SELECTOR = "heatingelement-modal";
 
@@ -38,15 +39,19 @@ export class HeatingElementModalComponent implements OnInit {
 
     ngOnInit() {
         this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.component.id, [
-            new ChannelAddress(this.component.id, 'TotalPhasePower'),
-            new ChannelAddress(this.component.id, 'TotalPhaseTime')
+            new ChannelAddress(this.component.id, 'Level1Energy'),
+            new ChannelAddress(this.component.id, 'Level2Energy'),
+            new ChannelAddress(this.component.id, 'Level3Energy'),
+            new ChannelAddress(this.component.id, 'Level1Time'),
+            new ChannelAddress(this.component.id, 'Level2Time'),
+            new ChannelAddress(this.component.id, 'Level3Time'),
         ]);
-
         this.formGroup = this.formBuilder.group({
             minTime: new FormControl(this.component.properties.minTime),
             minkwh: new FormControl(this.component.properties.minkwh),
             endTime: new FormControl(this.component.properties.endTime),
             priority: new FormControl(this.component.properties.priority),
+            heatingLevel: new FormControl(this.component.properties.heatingLevel)
         })
     };
 
@@ -71,10 +76,10 @@ export class HeatingElementModalComponent implements OnInit {
                 { name: 'mode', value: newMode }
             ]).then(() => {
                 currentController.properties.mode = newMode;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
                 currentController.properties.mode = oldMode;
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
         }
@@ -100,6 +105,11 @@ export class HeatingElementModalComponent implements OnInit {
         this.formGroup.controls['priority'].markAsDirty()
     }
 
+    updateLevel(event: CustomEvent) {
+        this.formGroup.controls['heatingLevel'].setValue(event.detail.value);
+        this.formGroup.controls['heatingLevel'].markAsDirty()
+    }
+
     applyChanges() {
         let updateComponentArray = [];
         Object.keys(this.formGroup.controls).forEach((element, index) => {
@@ -115,6 +125,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.component.properties.minkwh = this.formGroup.value.minkwh;
                 this.component.properties.endTime = this.formGroup.value.endTime;
                 this.component.properties.priority = this.formGroup.value.priority;
+                this.component.properties.heatingLevel = this.formGroup.value.heatingLevel;
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
                 this.loading = false;
             }).catch(reason => {
@@ -122,6 +133,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.formGroup.controls['minkwh'].setValue(this.component.properties.minkwh);
                 this.formGroup.controls['endTime'].setValue(this.component.properties.endTime);
                 this.formGroup.controls['priority'].setValue(this.component.properties.priority);
+                this.formGroup.controls['heatingLevel'].setValue(this.component.properties.heatingLevel);
                 this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
                 this.loading = false;
                 console.warn(reason);

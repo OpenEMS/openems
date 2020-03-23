@@ -4,6 +4,7 @@ export const TRANSLATION = {
         ActualPower: 'e-car Carga',
         Autarchy: 'Autosuficiencia',
         Automatic: 'Automático',
+        cancel: 'cancelar',
         capacity: 'Capacidad',
         ChangeAccepted: 'Cambio aceptado',
         ChangeFailed: 'Cambio fallido',
@@ -31,6 +32,7 @@ export const TRANSLATION = {
         NoValue: 'Sin valor',
         Off: 'Apagado',
         OffGrid: 'No hay conexión de red',
+        ok: 'ok',
         On: 'Conmutada',
         otherConsumption: 'otro Consumo',
         Percentage: 'Por ciento',
@@ -200,14 +202,16 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
-                    heatingelement: 'Elemento de calefacción',
-                    priority: 'Prioridad',
-                    activePhases: 'Fases activas',
-                    energy: 'Energía',
-                    time: 'Tiempo',
+                    activeLevel: 'Fases level',
                     endtime: 'Los días pasados',
+                    energy: 'Energía',
+                    energyCountdown: 'Cantidad de energía hasta el inicio',
+                    heatingelement: 'Elemento de calefacción',
                     minimalEnergyAmount: 'Cantidad mínima de energía',
-                    minimumRunTime: 'Plazo mínimo'
+                    minimumRunTime: 'Plazo mínimo',
+                    priority: 'Prioridad',
+                    time: 'Tiempo',
+                    timeCountdown: 'Hora de empezar:',
                 }
             }
         },

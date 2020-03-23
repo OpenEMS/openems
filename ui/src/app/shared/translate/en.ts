@@ -4,6 +4,7 @@ export const TRANSLATION = {
         actualPower: 'e-car Charge power',
         autarchy: 'Autarchy',
         automatic: 'Automatically',
+        cancel: 'cancel',
         capacity: 'Capacity',
         changeAccepted: 'Change accepted',
         changeFailed: 'Change failed',
@@ -31,6 +32,7 @@ export const TRANSLATION = {
         noValue: 'No value',
         off: 'Off',
         offGrid: 'No Grid Connection!',
+        ok: 'ok',
         on: 'On',
         otherConsumption: 'other Consumption',
         percentage: 'Percentage',
@@ -201,12 +203,14 @@ export const TRANSLATION = {
                 Heatingelement: {
                     heatingelement: 'Heating element',
                     priority: 'Priority',
-                    activePhases: 'Active phases',
+                    activeLevel: 'Active level',
                     energy: 'Energy',
                     time: 'Time',
                     endtime: 'Endtime',
                     minimalEnergyAmount: 'Minimal charge amount',
-                    minimumRunTime: 'Minimum runtime'
+                    minimumRunTime: 'Minimum runtime',
+                    energyCountdown: 'energy used until start',
+                    timeCountdown: 'time until start:',
                 }
             }
         },

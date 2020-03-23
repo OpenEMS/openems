@@ -4,6 +4,7 @@ export const TRANSLATION = {
         actualPower: 'E-Car Nabíjecí výkon',
         autarchy: 'Soběstačnost',
         automatic: 'Automaticky',
+        cancel: 'zrušení',
         capacity: 'Kapacita',
         changeAccepted: 'Změna byla přijata',
         changeFailed: 'Změna se nezdařila',
@@ -31,6 +32,7 @@ export const TRANSLATION = {
         noValue: 'Žádná hodnota',
         off: 'Pryč',
         offGrid: 'žádné připojení k síti!',
+        ok: 'ok',
         on: 'zapnutý',
         otherConsumption: 'jiná spotřeba',
         percentage: 'Procentuální vyjádření',
@@ -199,14 +201,16 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
-                    heatingelement: 'Topný článek',
-                    priority: 'Priorita',
-                    activePhases: 'Aktivní fáze',
-                    energy: 'Energie',
-                    time: 'čas',
+                    activeLevel: 'Aktivní level',
                     endtime: 'Poslední dny',
+                    energy: 'Energie',
+                    energyCountdown: 'Množství energie do začátku',
+                    heatingelement: 'Topný článek',
                     minimalEnergyAmount: 'Minimální množství energie',
-                    minimumRunTime: 'Minimální doba'
+                    minimumRunTime: 'Minimální doba',
+                    priority: 'Priorita',
+                    time: 'čas',
+                    timeCountdown: 'Čas začít:',
                 }
             }
         },

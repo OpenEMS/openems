@@ -37,10 +37,27 @@
                     </tr>
                     <tr *ngIf="(activePhases | async) > 0">
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Heatingelement.activePhases
+                            Edge.Index.Widgets.Heatingelement.activeLevel
                         </td>
                         <td style="width:35%" class="align_right">
-                            {{ (activePhases | async) }}</td>
+                            Level&nbsp;{{ (activePhases | async) }}</td>
+                    </tr>
+                    <tr *ngIf="component.properties.mode == 'AUTOMATIC'">
+                        <ng-container *ngIf="component.properties.priority == 'TIME'">
+                            <td style="width: 65%" translate>
+                                Edge.Index.Widgets.Heatingelement.timeCountdown
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ currentData.channel[component.id + '/CountDownMinTime'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                            </td>
+                        </ng-container>
+                        <ng-container *ngIf="component.properties.priority == 'KILO_WATT_HOUR'">
+                            <td style="width: 65%" translate>
+                                Edge.Index.Widgets.Heatingelement.energyCountdown
+                            </td>
+                            <td style="width:35%" class="align_right">
+                                {{ currentData.channel[component.id + '/CountDownMinKwh'] }}&nbsp;kWh</td>
+                        </ng-container>
                     </tr>
                 </table>
             </ion-card-content>
