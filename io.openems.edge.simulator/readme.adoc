@@ -1,4 +1,14 @@
-= io.openems.edge.simulator.application
+= Simulated OpenEMS Components
+
+This bundle provides simulated OpenEMS Components for the Natures. They are useful for testing and demoing without real hardware.
+
+== Simulator-App
+
+The Simulator-App is a very specific component that needs to be handled with care. It provides a full simulation environment to run an OpenEMS Edge instance in simulated realtime environment. 
+
+CAUTION: Be aware that the SimulatorApp Component takes control over the complete OpenEMS Edge Application, i.e. if you enable it, it is going to *delete all existing Component configurations*! 
+
+To run a simulation, the full OpenEMS Edge configuration needs to be provided. Find an example here:
 
 [source,json]
 ----
@@ -113,4 +123,4 @@
 }
 ----
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.simulator.application[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.simulator[Source Code icon:github[]]

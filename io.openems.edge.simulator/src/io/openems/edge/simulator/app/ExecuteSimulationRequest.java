@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.application;
+package io.openems.edge.simulator.app;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

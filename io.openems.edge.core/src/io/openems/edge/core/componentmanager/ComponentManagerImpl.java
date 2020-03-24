@@ -371,6 +371,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 
+		if (configs == null) {
+			// Maybe this is a Singleton?
+			String factoryPid = this.getComponent(componentId).serviceFactoryPid();
+			try {
+				return this.cm.getConfiguration(factoryPid, null);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
+						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+		}
+
 		// Make sure we only have one config
 		if (configs == null || configs.length == 0) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);

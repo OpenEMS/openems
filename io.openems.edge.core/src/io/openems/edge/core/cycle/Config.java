@@ -3,6 +3,8 @@ package io.openems.edge.core.cycle;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.common.cycle.Cycle;
+
 @ObjectClassDefinition(//
 		name = "Core Cycle", //
 		description = "The global OpenEMS Cycle.")
