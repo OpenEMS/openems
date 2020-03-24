@@ -29,7 +29,7 @@ import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.core.OcppInformations;
 import io.openems.edge.evcs.ocpp.core.OcppProfileType;
-import io.openems.edge.evcs.ocpp.core.OcppRequests;
+import io.openems.edge.evcs.ocpp.core.OcppStandardRequests;
 import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)
@@ -116,15 +116,15 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	}
 
 	@Override
-	public OcppRequests getSupportedRequests() {
-		return new OcppRequests() {
+	public OcppStandardRequests getStandardRequests() {
+		return new OcppStandardRequests() {
 
 			@Override
-			public Request setChargePowerLimit(String chargePower) {
+			public Request setChargePowerLimit(int chargePower) {
 				ChangeConfigurationRequest request = new ChangeConfigurationRequest();
 
 				request.setKey("PowerLimit");
-				request.setValue(chargePower);
+				request.setValue(String.valueOf(chargePower));
 				
 				return request;
 			}

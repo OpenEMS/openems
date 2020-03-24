@@ -176,26 +176,31 @@ public class ReadHandler implements Consumer<String> {
 					Channel<Integer> currentL1 = parent.channel(KebaChannelId.CURRENT_L1);
 					Channel<Integer> currentL2 = parent.channel(KebaChannelId.CURRENT_L2);
 					Channel<Integer> currentL3 = parent.channel(KebaChannelId.CURRENT_L3);
+					int currentSum = currentL1.value().orElse(0) + currentL2.value().orElse(0)
+							+ currentL3.value().orElse(0);
 
-					if (currentL1.value().orElse(0) > 10) {
+					if (currentSum > 100) {
 
-						if (currentL3.value().orElse(0) > 100) {
-							this.parent.getPhases().setNextValue(3);
+						int phases = 0;
 
-						} else if (currentL2.value().orElse(0) > 100) {
-							this.parent.getPhases().setNextValue(2);
-
-						} else {
-							this.parent.getPhases().setNextValue(1);
+						if (currentL1.value().orElse(0) > 100) {
+							phases += 1;
 						}
+						if (currentL2.value().orElse(0) > 100) {
+							phases += 1;
+						}
+						if (currentL3.value().orElse(0) > 100) {
+							phases += 1;
+						}
+						this.parent.getPhases().setNextValue(phases);
+
 						if (this.parent.debugMode) {
 							this.parent.logInfo(this.log, "Used phases: " + this.parent.getPhases().value().orElse(3));
 						}
-						Channel<Integer> phases = this.parent.getPhases();
 						this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
-								.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * phases.value().orElse(3));
+								.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * phases);
 						this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
-								.setNextValue(230 /* Spannung */ * 32 /* max Strom */ * phases.value().orElse(3));
+								.setNextValue(230 /* Spannung */ * 32 /* max Strom */ * phases);
 					} else {
 
 						// set Min & Max Power to Default values that allows the User a power setting

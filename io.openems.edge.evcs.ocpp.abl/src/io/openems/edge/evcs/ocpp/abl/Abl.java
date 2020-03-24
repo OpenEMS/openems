@@ -25,8 +25,6 @@ import eu.chargetime.ocpp.UnsupportedFeatureException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
-import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
-import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -38,7 +36,7 @@ import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.core.OcppInformations;
 import io.openems.edge.evcs.ocpp.core.OcppProfileType;
-import io.openems.edge.evcs.ocpp.core.OcppRequests;
+import io.openems.edge.evcs.ocpp.core.OcppStandardRequests;
 import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)
@@ -64,26 +62,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	 */
 	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<OcppInformations>( //
 			Arrays.asList( //
-					OcppInformations.CORE_METER_VALUES_CURRENT_EXPORT, //
-					OcppInformations.CORE_METER_VALUES_CURRENT_IMPORT, //
-					OcppInformations.CORE_METER_VALUES_CURRENT_OFFERED, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_REGISTER, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_INTERVAL, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_INTERVAL, //
-					OcppInformations.CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_INTERVAL, //
-					OcppInformations.CORE_METER_VALUES_FREQUENCY, //
-					OcppInformations.CORE_METER_VALUES_POWER_FACTOR, //
-					OcppInformations.CORE_METER_VALUES_POWER_OFFERED, //
-					OcppInformations.CORE_METER_VALUES_POWER_REACTIVE_EXPORT, //
-					OcppInformations.CORE_METER_VALUES_POWER_REACTIVE_IMPORT, //
-					OcppInformations.CORE_METER_VALUES_RPM, //
-					OcppInformations.CORE_METER_VALUES_SOC, //
-					OcppInformations.CORE_METER_VALUES_TEMPERATURE, //
-					OcppInformations.CORE_METER_VALUES_VOLTAGE //
+					OcppInformations.values()
 			) //
 	);
 
@@ -178,24 +157,26 @@ public class Abl extends AbstractOcppEvcsComponent
 	}
 
 	@Override
-	public OcppRequests getSupportedRequests() {
+	public OcppStandardRequests getStandardRequests() {
 		AbstractOcppEvcsComponent evcs = this;
 
-		return new OcppRequests() {
+		return new OcppStandardRequests() {
 
 			@Override
-			public Request setChargePowerLimit(String chargePower) {
+			public Request setChargePowerLimit(int chargePower) {
+
 				DataTransferRequest request = new DataTransferRequest();
 
 				int phases = evcs.getPhases().getNextValue().orElse(3);
-				int target = Math.round(Integer.valueOf(chargePower) / phases / 230) /* voltage */ ;
+				
+				long target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
 
 				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(22080) / phases / 230;
 				target = target > maxCurrent ? maxCurrent : target;
 
 				request.setVendorId("ABL");
 				request.setMessageId("SetLimit");
-				request.setData("logicalid=" + config.logicalId() + ";value=" + target);
+				request.setData("logicalid=" + config.limitId() + ";value=" + String.valueOf(target));
 				return request;
 			}
 		};
@@ -207,12 +188,12 @@ public class Abl extends AbstractOcppEvcsComponent
 
 		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest();
 		setMeterValueSampleInterval.setKey("MeterValueSampleInterval");
-		setMeterValueSampleInterval.setValue("5");
+		setMeterValueSampleInterval.setValue("10");
 		requests.add(setMeterValueSampleInterval);
 
 		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest();
 		setMeterValueSampledData.setKey("MeterValuesSampledData");
-		setMeterValueSampledData.setValue("POWER_ACTIVE_IMPORT");
+		setMeterValueSampledData.setValue("Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,");
 		requests.add(setMeterValueSampledData);
 
 		return requests;
@@ -221,12 +202,17 @@ public class Abl extends AbstractOcppEvcsComponent
 	@Override
 	public List<Request> getRequiredRequestsDuringConnection() {
 		List<Request> requests = new ArrayList<Request>();
-
+		/*
 		TriggerMessageRequest request = new TriggerMessageRequest();
 		request.setConnectorId(this.getConfiguredConnectorId());
 		request.setRequestedMessage(TriggerMessageRequestType.MeterValues);
 		requests.add(request);
-
+		
+		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest();
+		setMeterValueSampledData.setKey("MeterValuesSampledData");
+		setMeterValueSampledData.setValue("Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
+		requests.add(setMeterValueSampledData);
+		 */
 		return requests;
 	}
 }

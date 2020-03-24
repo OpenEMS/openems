@@ -10,10 +10,9 @@ import org.slf4j.LoggerFactory;
 import eu.chargetime.ocpp.NotConnectedException;
 import eu.chargetime.ocpp.OccurenceConstraintException;
 import eu.chargetime.ocpp.UnsupportedFeatureException;
-import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
+import eu.chargetime.ocpp.model.Request;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
@@ -92,44 +91,20 @@ public class WriteHandler implements Runnable {
 			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
 			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 
+			OcppStandardRequests requests = this.parent.getStandardRequests();
+
 			if (valueOpt.isPresent()) {
 
-				String key = "PowerLimit";
 				int maxPower = this.parent.getMaximumHardwarePower().getNextValue().orElse(0);
 				Integer power = valueOpt.get();
-				Integer target = power;
-				ChangeConfigurationRequest request = new ChangeConfigurationRequest();
-				ChargingType chargeType = this.parent.getChargingType().getNextValue().asEnum();
 
-				switch (chargeType) {
-				case UNDEFINED:
-					this.parent.logInfo(this.log, "Please set the type of charging");
-					return;
-				case AC:
-					int phases = this.parent.getPhases().getNextValue().orElse(3);
-					target = power * 1000 / phases / 230; /* voltage */
-
-					if (target > maxPower / phases / 230) {
-						target = maxPower / phases / 230;
-					}
-					key = "loutAcMax";
-					break;
-				case CCS:
-					target = target > maxPower ? maxPower : target;
-					break;
-				case CHADEMO:
-					this.parent.logInfo(this.log,
-							"The limit cannot be set during the charging because of the charge type chademo");
-					break;
-				}
-
+				Integer target = power > maxPower ? maxPower : power;
+				Request request = requests.setChargePowerLimit(target);
+				
 				/*
 				 * Only if the target has changed or a time has passed.
 				 */
 				if (!target.equals(lastTarget) || this.nextPowerWrite.isBefore(LocalDateTime.now())) {
-
-					request.setKey(key);
-					request.setValue(String.valueOf(target));
 
 					UUID id = UUID.fromString(this.parent.getChargingSessionId().getNextValue().orElse(""));
 
@@ -139,8 +114,8 @@ public class WriteHandler implements Runnable {
 									this.parent.logInfo(log, confirmation.toString());
 								});
 
-						this.parent.logInfo(this.log, "Setting EVCS " + this.parent.alias() + " charge power to ["
-								+ target + " " + (chargeType == ChargingType.AC ? "A" : "W") + "]");
+						this.parent.logInfo(this.log,
+								"Setting EVCS " + this.parent.alias() + " charge power to " + target + " W");
 
 						this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT).setNextValue(target);
 						this.nextPowerWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);

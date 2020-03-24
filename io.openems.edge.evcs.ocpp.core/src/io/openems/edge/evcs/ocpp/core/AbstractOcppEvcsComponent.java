@@ -10,8 +10,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 
-import com.google.common.collect.EvictingQueue;
-
 import eu.chargetime.ocpp.model.Request;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
@@ -29,8 +27,8 @@ import io.openems.edge.evcs.api.Status;
 public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		implements Evcs, MeasuringEvcs, EventHandler {
 
-	private EvictingQueue<ChargingProperty> meterValueQueue = EvictingQueue.create(10);
-	
+	private ChargingProperty lastChargingProperty = null;
+
 	protected final Set<OcppProfileType> profileTypes;
 
 	private final WriteHandler writeHandler = new WriteHandler(this);
@@ -146,27 +144,27 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public abstract Integer getConfiguredMinimumHardwarePower();
 
 	public abstract OcppServer getConfiguredOcppServer();
-	
+
 	/**
 	 * Required requests that should be sent after a connection was established
 	 * 
 	 * @return List of requests
 	 */
 	public abstract List<Request> getRequiredRequestsAfterConnection();
-	
+
 	/**
 	 * Required requests that should be sent permanently during a session
 	 * 
 	 * @return List of requests
 	 */
 	public abstract List<Request> getRequiredRequestsDuringConnection();
-	
+
 	/**
 	 * Default requests that every OCPP EVCS should have
 	 * 
 	 * @return OcppRequests
 	 */
-	public abstract OcppRequests getSupportedRequests();
+	public abstract OcppStandardRequests getStandardRequests();
 
 	private void resetMeasuredChannelValues() {
 		for (MeasuringEvcs.ChannelId c : MeasuringEvcs.ChannelId.values()) {
@@ -215,10 +213,14 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		return this.channel(ChannelId.CONNECTOR_ID);
 	}
 
-	public EvictingQueue<ChargingProperty> getMeterValueQueue(){
-		return this.meterValueQueue;
+	public ChargingProperty getLastChargingProperty() {
+		return this.lastChargingProperty;
 	}
-	
+
+	public void setLastChargingProperty(ChargingProperty chargingProperty) {
+		this.lastChargingProperty = chargingProperty;
+	}
+
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);

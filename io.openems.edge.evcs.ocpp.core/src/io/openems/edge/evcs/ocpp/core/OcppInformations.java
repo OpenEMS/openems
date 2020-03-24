@@ -4,57 +4,59 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.SocEvcs;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 public enum OcppInformations {
-
+	
 	/**
-	 * Instantaneous current flow from EV.
+	 * Instantaneous current flow from EV in mA.
 	 */
 	CORE_METER_VALUES_CURRENT_EXPORT("Current.Export", MeasuringEvcs.ChannelId.CURRENT_TO_GRID),
 
 	/**
-	 * Instantaneous current flow to EV.
+	 * Instantaneous current flow to EV in mA.
 	 */
-	CORE_METER_VALUES_CURRENT_IMPORT("Current.IMPORT", MeasuringEvcs.ChannelId.CURRENT_TO_EV),
+	CORE_METER_VALUES_CURRENT_IMPORT("Current.IMPORT", SymmetricMeter.ChannelId.CURRENT),
 
 	/**
-	 * Maximum current offered to EV.
+	 * Maximum current offered to EV in mA.
 	 */
 	CORE_METER_VALUES_CURRENT_OFFERED("Current.Offered", MeasuringEvcs.ChannelId.CURRENT_OFFERED),
 
 	/**
-	 * Numerical value read from the "active electrical energy" (Wh or kWh) register
-	 * of the (most authoritative) electrical meter measuring energy exported (to
-	 * the grid).
+	 * Numerical value read from the "active electrical energy" (Wh) register
+	 * of the (most authoritative) electrical meter measuring the total energy
+	 * exported (to the grid).
 	 */
 	CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER("Energy.Active.Export.Register",
-			MeasuringEvcs.ChannelId.ENERGY_ACTIVE_TO_GRID_REGISTER),
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY),
 
 	/**
-	 * Numerical value read from the "active electrical energy" (Wh or kWh) register
-	 * of the (most authoritative) electrical meter measuring energy imported (from
-	 * the grid supply).
+	 * Numerical value read from the "active electrical energy" (Wh) register
+	 * of the (most authoritative) electrical meter measuring the total energy
+	 * imported (from the grid supply).
 	 */
-	CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER("Energy.Active.Import.Register", Evcs.ChannelId.ENERGY_SESSION),
+	CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER("Energy.Active.Import.Register",
+			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY),
 
 	/**
-	 * Numerical value read from the "reactive electrical energy" (VARh or kVARh)
+	 * Numerical value read from the "reactive electrical energy" (VARh)
 	 * register of the (most authoritative) electrical meter measuring energy
 	 * exported (to the grid).
 	 */
 	CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER("Energy.Reactive.Export.Register",
-			MeasuringEvcs.ChannelId.ENERGY_REACTIVE_TO_GRID_REGISTER),
+			MeasuringEvcs.ChannelId.ENERGY_REACTIVE_TO_GRID),
 
 	/**
-	 * Numerical value read from the "reactive electrical energy" (VARh or kVARh)
+	 * Numerical value read from the "reactive electrical energy" (VARh)
 	 * register of the (most authoritative) electrical meter measuring energy
 	 * imported (from the grid supply).
 	 */
 	CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_REGISTER("Energy.Reactive.Import.Register",
-			MeasuringEvcs.ChannelId.ENERGY_REACTIVE_TO_EV_REGISTER),
+			MeasuringEvcs.ChannelId.ENERGY_REACTIVE_TO_EV),
 
 	/**
-	 * Absolute amount of "active electrical energy" (Wh or kWh) exported (to the
+	 * Absolute amount of "active electrical energy" (Wh) exported (to the
 	 * grid) during an associated time "interval", specified by a Metervalues
 	 * ReadingContext, and applicable interval duration configuration values (in
 	 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
@@ -63,7 +65,7 @@ public enum OcppInformations {
 			MeasuringEvcs.ChannelId.ENERGY_ACTIVE_TO_GRID_INTERVAL),
 
 	/**
-	 * Absolute amount of "active electrical energy" (Wh or kWh) imported (from the
+	 * Absolute amount of "active electrical energy" (Wh) imported (from the
 	 * grid supply) during an associated time "interval", specified by a Metervalues
 	 * ReadingContext, and applicable interval duration configuration values (in
 	 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
@@ -72,7 +74,7 @@ public enum OcppInformations {
 			MeasuringEvcs.ChannelId.ENERGY_ACTIVE_TO_EV_INTERVAL),
 
 	/**
-	 * Absolute amount of "reactive electrical energy" (VARh or kVARh) exported (to
+	 * Absolute amount of "reactive electrical energy" (VARh) exported (to
 	 * the grid) during an associated time "interval", specified by a Metervalues
 	 * ReadingContext, and applicable interval duration configuration values (in
 	 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
@@ -81,7 +83,7 @@ public enum OcppInformations {
 			MeasuringEvcs.ChannelId.ENERGY_REACTIVE_TO_GRID_INTERVAL),
 
 	/**
-	 * Absolute amount of "reactive electrical energy" (VARh or kVARh) imported
+	 * Absolute amount of "reactive electrical energy" (VARh) imported
 	 * (from the grid supply) during an associated time "interval", specified by a
 	 * Metervalues ReadingContext, and applicable interval duration configuration
 	 * values (in seconds) for "ClockAlignedDataInterval" and
@@ -95,15 +97,15 @@ public enum OcppInformations {
 	 * UnitOfMeasure for frequency, the UnitOfMeasure for any SampledValue with
 	 * measurand: Frequency is Hertz.
 	 */
-	CORE_METER_VALUES_FREQUENCY("Frequency", MeasuringEvcs.ChannelId.FREQUENCY),
+	CORE_METER_VALUES_FREQUENCY("Frequency", SymmetricMeter.ChannelId.FREQUENCY),
 
 	/**
-	 * Instantaneous active power exported by EV. (W or kW)
+	 * Instantaneous active power exported by EV. (W)
 	 */
 	CORE_METER_VALUES_POWER_ACTIVE_EXPORT("Power.Active.Export", MeasuringEvcs.ChannelId.POWER_ACTIVE_TO_GRID),
 
 	/**
-	 * Instantaneous active power imported by EV. (W or kW)
+	 * Instantaneous active power imported by EV. (W)
 	 */
 	CORE_METER_VALUES_POWER_ACTIVE_IMPORT("Power.Active.Import", Evcs.ChannelId.CHARGE_POWER),
 
@@ -117,13 +119,15 @@ public enum OcppInformations {
 	 */
 	CORE_METER_VALUES_POWER_OFFERED("Power.Offered", MeasuringEvcs.ChannelId.POWER_OFFERED),
 
+	
+	//TODO: should be combined to REACTIVE_POWER in SymmetricMeter
 	/**
-	 * Instantaneous reactive power exported by EV. (var or kvar)
+	 * Instantaneous reactive power exported by EV. (var)
 	 */
 	CORE_METER_VALUES_POWER_REACTIVE_EXPORT("Power.Reactive.Export", MeasuringEvcs.ChannelId.POWER_REACTIVE_TO_GRID),
 
 	/**
-	 * Instantaneous reactive power imported by EV. (var or kvar)
+	 * Instantaneous reactive power imported by EV. (var)
 	 */
 	CORE_METER_VALUES_POWER_REACTIVE_IMPORT("Power.Reactive.Import", MeasuringEvcs.ChannelId.POWER_REACTIVE_TO_EV),
 
@@ -145,7 +149,7 @@ public enum OcppInformations {
 	/**
 	 * Instantaneous AC RMS supply voltage.
 	 */
-	CORE_METER_VALUES_VOLTAGE("Voltage", MeasuringEvcs.ChannelId.VOLTAGE);
+	CORE_METER_VALUES_VOLTAGE("Voltage", SymmetricMeter.ChannelId.VOLTAGE);
 
 	String ocppValue;
 	private final ChannelId channelId;

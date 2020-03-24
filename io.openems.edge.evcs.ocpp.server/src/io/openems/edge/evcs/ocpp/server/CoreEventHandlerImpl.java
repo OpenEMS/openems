@@ -8,13 +8,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.EvictingQueue;
-
-import io.openems.edge.evcs.api.MeasuringEvcs;
-import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
-import io.openems.edge.evcs.ocpp.core.ChargingProperty;
-import io.openems.edge.evcs.ocpp.core.OcppInformations;
 import eu.chargetime.ocpp.feature.profile.ServerCoreEventHandler;
 import eu.chargetime.ocpp.model.core.AuthorizationStatus;
 import eu.chargetime.ocpp.model.core.AuthorizeConfirmation;
@@ -40,6 +33,11 @@ import eu.chargetime.ocpp.model.core.StatusNotificationRequest;
 import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
+import io.openems.edge.evcs.api.MeasuringEvcs;
+import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.core.ChargingProperty;
+import io.openems.edge.evcs.ocpp.core.OcppInformations;
 
 public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
@@ -100,7 +98,6 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	@Override
 	public MeterValuesConfirmation handleMeterValuesRequest(UUID sessionIndex, MeterValuesRequest request) {
-
 		server.logInfoInDebug(this.log, "Handle MeterValuesRequest: " + request);
 
 		AbstractOcppEvcsComponent evcs = getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
@@ -124,6 +121,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 				String unitString = value.getUnit();
 				Unit unit = Unit.valueOf(unitString.toUpperCase());
 				String val = value.getValue();
+				String measurandString = value.getMeasurand();
 
 				if (val != null) {
 
@@ -136,28 +134,45 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						val = fromHexToDezString(val);
 					}
 
-					String measurandString = value.getMeasurand();
-
 					OcppInformations measurand = OcppInformations
 							.valueOf("CORE_METER_VALUES_" + measurandString.replace(".", "_").toUpperCase());
+
+					server.logInfoInDebug(this.log,
+							measurandString + ": " + val + " " + unitString + " Phases: " + phases);
 
 					if (evcs.getSupportedMeasurements().contains(measurand)) {
 
 						Object correctValue = val;
 						switch (measurand) {
 						case CORE_METER_VALUES_CURRENT_EXPORT:
-						case CORE_METER_VALUES_CURRENT_IMPORT:
 						case CORE_METER_VALUES_CURRENT_OFFERED:
-							correctValue = Double.valueOf(val) * 1000;
+							correctValue = (int) Math.round(Double.valueOf(val) * 1000);
+							break;
+
+						case CORE_METER_VALUES_CURRENT_IMPORT:
+							correctValue = (int) Math.round(Double.valueOf(val) * 1000);
 							break;
 
 						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER:
-						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER:
 						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL:
 						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_INTERVAL:
 							if (unit.equals(Unit.KWH)) {
-								correctValue = divideByThousand(val);
+								val = multipliedByThousand(val);
 							}
+							correctValue = Double.valueOf(val);
+							break;
+
+						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER:
+							if (unit.equals(Unit.KWH)) {
+								val = multipliedByThousand(val);
+							}
+							correctValue = Double.valueOf(val);
+
+							if (!evcs.getSupportedMeasurements()
+									.contains(OcppInformations.CORE_METER_VALUES_POWER_ACTIVE_IMPORT)) {
+								setPowerDependingOnEnergy(evcs, (Double) correctValue, meterValue.getTimestamp());
+							}
+							// TODO: Set evcs.energySession if we know when the start- and end-time
 							break;
 
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
@@ -165,23 +180,26 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_INTERVAL:
 						case CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_INTERVAL:
 							if (unit.equals(Unit.KVARH)) {
-								correctValue = divideByThousand(val);
+								val = multipliedByThousand(val);
 							}
+							correctValue = Double.valueOf(val);
 							break;
 
 						case CORE_METER_VALUES_POWER_ACTIVE_EXPORT:
 						case CORE_METER_VALUES_POWER_ACTIVE_IMPORT:
 						case CORE_METER_VALUES_POWER_OFFERED:
 							if (unit.equals(Unit.KW)) {
-								correctValue = divideByThousand(val);
+								val = multipliedByThousand(val);
 							}
+							correctValue = (int) Math.round(Double.valueOf(val));
 							break;
 
 						case CORE_METER_VALUES_POWER_REACTIVE_EXPORT:
 						case CORE_METER_VALUES_POWER_REACTIVE_IMPORT:
 							if (unit.equals(Unit.KVAR)) {
-								correctValue = divideByThousand(val);
+								val = multipliedByThousand(val);
 							}
+							correctValue = (int) Math.round(Double.valueOf(val));
 							break;
 
 						case CORE_METER_VALUES_VOLTAGE:
@@ -195,59 +213,12 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_FREQUENCY:
 							break;
 						}
-
 						evcs.channel(measurand.getChannelId()).setNextValue(correctValue);
-						server.logInfoInDebug(this.log,
-								measurandString + ": " + val + " " + unitString + " Phases: " + phases);
-					}
-
-					if (measurand.equals(OcppInformations.CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER)) {
-						// TODO: Set the evcs.energySession if we know when the charging started and
-						// ended.
-
-						if (!evcs.getSupportedMeasurements()
-								.contains(OcppInformations.CORE_METER_VALUES_POWER_ACTIVE_IMPORT)) {
-
-							EvictingQueue<ChargingProperty> meterValueQueue = evcs.getMeterValueQueue();
-							ChargingProperty meterValueOld = meterValueQueue.peek();
-
-							int power = 0;
-							Long currentEnergy = Long.parseLong(val);
-							
-							if (meterValueOld != null) {
-								power = this.calculateChargePower(meterValueOld, currentEnergy, meterValue.getTimestamp());
-								evcs.getChargePower().setNextValue(power);
-							}
-							meterValueQueue.add(new ChargingProperty(power, currentEnergy, meterValue.getTimestamp()));
-						}
 					}
 				}
 			}
 		}
 		return new MeterValuesConfirmation();
-	}
-
-	/**
-	 * Calculates the power depending on the last and current measured Energy.
-	 * 
-	 * @param meterValueOld    Last measured meter values
-	 * @param currentEnergy    Current measured Energy
-	 * @param currentTimestamp Time when the current Energy was measured
-	 * @return current power
-	 */
-	private int calculateChargePower(ChargingProperty lastMeterValue, long currentEnergy, Calendar currentTimestamp) {
-
-		long diffseconds = Math
-				.round((currentTimestamp.getTimeInMillis() - lastMeterValue.getTimestamp().getTimeInMillis()) / 1000.0);
-
-		long lastEnergy = lastMeterValue.getTotalMeterEnergy();
-
-		int power = (int) (Math.round((currentEnergy - lastEnergy) / (diffseconds / 3600.0)));
-
-		this.server.logInfoInDebug(log,
-				"Last: " + lastEnergy + "Wh, Current: " + currentEnergy + "Wh. Calculated Power: " + power);
-
-		return power;
 	}
 
 	@Override
@@ -396,10 +367,54 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	 * @param val value
 	 * @return Value / 1000 as String
 	 */
-	private String divideByThousand(String val) {
+	private String multipliedByThousand(String val) {
 		if (val.isEmpty()) {
 			return val;
 		}
-		return String.valueOf((Double.parseDouble(val) / 1000.0));
+		return String.valueOf((Double.parseDouble(val) * 1000.0));
 	}
+
+	/**
+	 * Sets the calculated power to the given EVCS.
+	 * 
+	 * @param evcs          Corresponding EVCS component.
+	 * @param currentEnergy Current measured Energy.
+	 * @param timestamp     Time when the current Energy was measured.
+	 */
+	private void setPowerDependingOnEnergy(AbstractOcppEvcsComponent evcs, Double currentEnergy, Calendar timestamp) {
+
+		ChargingProperty lastChargingProperty = evcs.getLastChargingProperty();
+		int power = 0;
+		if (lastChargingProperty != null) {
+
+			power = this.calculateChargePower(lastChargingProperty, currentEnergy, timestamp);
+			evcs.getChargePower().setNextValue(power);
+		}
+		evcs.setLastChargingProperty(new ChargingProperty(power, currentEnergy, timestamp));
+	}
+
+	/**
+	 * Calculates the power depending on the last and current measured Energy.
+	 * 
+	 * @param meterValueOld    Last measured meter values.
+	 * @param currentEnergy    Current measured Energy.
+	 * @param currentTimestamp Time when the current Energy was measured.
+	 * @return current power
+	 */
+	private int calculateChargePower(ChargingProperty lastMeterValue, double currentEnergy, Calendar currentTimestamp) {
+
+		double diffseconds = Math
+				.round((currentTimestamp.getTimeInMillis() - lastMeterValue.getTimestamp().getTimeInMillis()) / 1000.0);
+
+		double lastEnergy = lastMeterValue.getTotalMeterEnergy();
+
+		int power = (int) (Math.round((currentEnergy - lastEnergy) / (diffseconds / 3600.0)));
+
+		this.server.logInfoInDebug(log,
+				"Last: " + String.valueOf(lastEnergy) + "Wh, Current: " + String.valueOf(currentEnergy)
+						+ "Wh. Calculated Power: " + power + "; Sekunden differenz: " + diffseconds);
+
+		return power;
+	}
+
 }

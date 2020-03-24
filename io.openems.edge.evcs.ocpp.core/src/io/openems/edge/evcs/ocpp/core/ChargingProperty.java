@@ -11,10 +11,10 @@ import java.util.Calendar;
 public class ChargingProperty {
 
 	private int chargePower;
-	private long totalMeterEnergy;
+	private double totalMeterEnergy;
 	private Calendar timestamp;
 	
-	public ChargingProperty(int chargePower, long totalMeterEnergy, Calendar timestamp) {
+	public ChargingProperty(int chargePower, double totalMeterEnergy, Calendar timestamp) {
 		this.chargePower = chargePower;
 		this.totalMeterEnergy = totalMeterEnergy;
 		this.timestamp = timestamp;
@@ -28,11 +28,11 @@ public class ChargingProperty {
 		this.chargePower = chargePower;
 	}
 
-	public long getTotalMeterEnergy() {
+	public double getTotalMeterEnergy() {
 		return totalMeterEnergy;
 	}
 
-	public void setTotalMeterEnergy(long totalMeterEnergy) {
+	public void setTotalMeterEnergy(double totalMeterEnergy) {
 		this.totalMeterEnergy = totalMeterEnergy;
 	}
 
@@ -43,5 +43,4 @@ public class ChargingProperty {
 	public void setTimestamp(Calendar timestamp) {
 		this.timestamp = timestamp;
 	}
-	
 }

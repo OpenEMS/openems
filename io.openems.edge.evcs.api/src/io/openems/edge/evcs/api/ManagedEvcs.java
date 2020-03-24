@@ -12,7 +12,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
-public interface ManagedEvcs extends Evcs {
+public interface ManagedEvcs extends Evcs{
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 

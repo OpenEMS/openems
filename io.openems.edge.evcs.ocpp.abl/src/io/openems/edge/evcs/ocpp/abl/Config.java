@@ -30,7 +30,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String limitId() default "limit100";
 
 	@AttributeDefinition(name = "Maximum power", description = "Maximum power of the charger in Watt.", required = true)
-	int maxHwPower() default 22000;
+	int maxHwPower() default 22080;
 
 	@AttributeDefinition(name = "Minimum power", description = "Minimum power of the charger in Watt.", required = true)
 	int minHwPower() default 0;

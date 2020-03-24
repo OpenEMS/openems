@@ -10,6 +10,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.evcs.api,\
 	io.openems.edge.evcs.ocpp.core,\
 	io.openems.edge.evcs.ocpp.server,\
+	io.openems.edge.meter.api,\
 	slf4j.api
 
 -testpath: \
