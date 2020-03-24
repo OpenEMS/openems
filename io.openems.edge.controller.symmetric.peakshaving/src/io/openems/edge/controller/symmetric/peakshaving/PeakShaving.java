@@ -15,13 +15,10 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -43,7 +40,6 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	protected Power power;
 
 	private Config config;
-	private PidFilter pidFilter;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -71,7 +67,6 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		this.pidFilter = this.power.buildPidFilter();
 	}
 
 	@Deactivate
@@ -91,7 +86,11 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != GridMode.ON_GRID) {
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
 			return;
 		}
 
@@ -120,21 +119,9 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		/*
-		 * Apply PID filter
-		 */
-		int minPower = this.power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		int maxPower = this.power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-		this.pidFilter.setLimits(minPower, maxPower);
-		int pidOutput = (int) this.pidFilter.applyPidFilter(ess.getActivePower().value().orElse(0), calculatedPower);
-
-		// TODO remove before release
-		this.logInfo(this.log, "Without PID: " + calculatedPower + "; With PID: " + pidOutput);
-
-		/*
 		 * set result
 		 */
-//		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
-		ess.getSetActivePowerEquals().setNextWriteValue(pidOutput);
+		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
 		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 }

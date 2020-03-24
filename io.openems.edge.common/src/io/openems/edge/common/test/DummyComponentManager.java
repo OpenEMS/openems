@@ -87,7 +87,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {		
+			throws OpenemsNamedException {
 		return null;
 	}
 

@@ -3,7 +3,7 @@ package io.openems.edge.fenecon.dess.gridmeter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "FENECON DESS Grid-Meter", //
 		description = "The grid-meter implementation of a FENECON DESS (PRO Hybrid, PRO Compact,...)")
 @interface Config {

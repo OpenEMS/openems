@@ -50,10 +50,15 @@
           <ion-list>
             <ng-container *ngFor="let category of components">
               <ion-item-group>
-                {{ category.title }}
+                <ion-item lines="inset">
+                  <ion-icon name="{{category.category.icon}}"></ion-icon>
+                  <ion-label class="ion-padding-start">
+                    {{ category.category.title }}
+                  </ion-label>
+                </ion-item>
               </ion-item-group>
-              <ion-item *ngFor="let item of category.components">
-                <ion-label (click)="item.showProperties = !item.showProperties" style="cursor: pointer"
+              <ion-item lines="none" *ngFor="let item of category.components">
+                <ion-label (click)="item['showProperties'] = !item['showProperties']" style="cursor: pointer"
                   class="ion-text-wrap">
                   <ion-text color="primary">
                     <h3>{{ item.alias }}
@@ -64,7 +69,7 @@
                   <ng-container *ngIf="config.factories[item.factoryId] as factory">
                     <p>{{ factory.name }} <small>({{ factory.description }})</small></p>
                   </ng-container>
-                  <ul *ngIf="item.showProperties" style="font-family: monospace">
+                  <ul *ngIf="item['showProperties']" style="font-family: monospace">
                     <ng-container *ngFor="let p of (item.properties | keys)">
                       <li
                         *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key)">

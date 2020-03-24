@@ -1,9 +1,9 @@
-import { TranslateService } from '@ngx-translate/core';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
-import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
+import { TranslateService } from '@ngx-translate/core';
 
 export abstract class AbstractHistoryChart {
 
@@ -53,6 +53,7 @@ export abstract class AbstractHistoryChart {
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
+                    this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
@@ -72,7 +73,7 @@ export abstract class AbstractHistoryChart {
     /**
      * Sets the Label of Chart
      */
-    protected abstract setLabel()
+    protected abstract setLabel(config: EdgeConfig)
 
     /**
      * Updates and Fills the Chart

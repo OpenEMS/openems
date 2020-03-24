@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.gson,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
@@ -13,8 +12,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.meter.api,\
 	io.openems.edge.scheduler.api,\
 	io.openems.edge.timedata.api,\
-	io.openems.wrapper.sdnotify,\
-	slf4j.api
+	io.openems.wrapper.sdnotify
 
 -testpath: \
 	${testpath}

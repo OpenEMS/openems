@@ -5,13 +5,11 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.guava,\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.ess.api,\
-	slf4j.api
+	io.openems.edge.ess.api
 
 -testpath: \
 	${testpath}

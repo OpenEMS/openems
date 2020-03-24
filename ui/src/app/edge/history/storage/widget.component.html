@@ -3,12 +3,12 @@
         <ion-avatar slot="start">
             <img src="assets/img/storage.png">
         </ion-avatar>
-        <ion-label translate>General.StorageSystem</ion-label>
+        <ion-label translate>General.storageSystem</ion-label>
     </ion-item>
     <ion-card-content>
         <table class="full_width" *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
             <tr>
-                <td style="width:65%"><span translate>General.ChargePower</span>/<span
+                <td style="width:65%"><span translate>General.chargePower</span>/<span
                         translate>General.DischargePower</span></td>
                 <td style="width:35%" class="align_right">
                     {{data["_sum/EssAmpereHours"] | unitvalue:'Ah'}}

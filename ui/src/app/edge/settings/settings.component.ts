@@ -23,7 +23,7 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.EdgeSettings'), this.route).then(edge => {
+    this.service.setCurrentComponent(this.translate.instant('Menu.edgeSettings'), this.route).then(edge => {
       this.edge = edge
     });
   }
