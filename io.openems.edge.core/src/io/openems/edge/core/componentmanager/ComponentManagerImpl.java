@@ -230,29 +230,42 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				componentId = JsonUtils.getAsString(property.getValue());
 			}
 		}
-		if (componentId == null) {
-			throw new OpenemsException("Component-ID is missing in " + request.toString());
-		}
-
-		// Check that there is currently no Component with the same ID.
-		Configuration[] configs;
-		try {
-			configs = this.cm.listConfigurations("(id=" + componentId + ")");
-		} catch (IOException | InvalidSyntaxException e) {
-			throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
-					+ e.getClass().getSimpleName() + ": " + e.getMessage());
-		}
-		if (configs != null && configs.length > 0) {
-			throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
-		}
 
 		Configuration config;
-		try {
-			config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID ["
-					+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		if (componentId != null) {
+			// Normal OpenEMS Component with ID.
+			// Check that there is currently no Component with the same ID.
+			Configuration[] configs;
+			try {
+				configs = this.cm.listConfigurations("(id=" + componentId + ")");
+			} catch (IOException | InvalidSyntaxException e) {
+				throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
+						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+			if (configs != null && configs.length > 0) {
+				throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
+			}
+			try {
+				config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID ["
+						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+
+		} else {
+			// Singleton?
+			try {
+				config = this.cm.getConfiguration(request.getFactoryPid(), null);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw OpenemsError.GENERIC.exception("Unable to get Configurations for Factory-PID ["
+						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+			if (config.getProperties() != null) {
+				throw new OpenemsException(
+						"A Singleton Component for PID [" + request.getFactoryPid() + "] is already existing!");
+			}
 		}
 
 		// Create map with configuration attributes
@@ -378,8 +391,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				return this.cm.getConfiguration(factoryPid, null);
 			} catch (IOException e) {
 				e.printStackTrace();
-				throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
-						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+				throw OpenemsError.GENERIC.exception(
+						"Unable to get Singleton-Component Configuration for ID [" + componentId + "], Factory-PID ["
+								+ factoryPid + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 		}
 
