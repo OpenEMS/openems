@@ -48,10 +48,14 @@ export class AppComponent {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
-        showCloseButton: true,
         position: 'top',
-        closeButtonText: 'Ok',
-        duration: 2000
+        duration: 2000,
+        buttons: [
+          {
+            text: 'Ok',
+            role: 'cancel',
+          }
+        ]
       });
       toast.present();
     });
