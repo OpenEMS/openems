@@ -56,7 +56,11 @@ To run a simulation, the full OpenEMS Edge configuration needs to be provided. F
                             },
                             {
                                 "name": "source",
-                                "value": "1000\n2000\n3000\n2000"
+                                "value": "1000\n2000\n2500\n2000"
+                            },
+                            {
+                                "name": "timeDelta",
+                                "value": 5
                             }
                         ]
                     },
@@ -114,8 +118,8 @@ To run a simulation, the full OpenEMS Edge configuration needs to be provided. F
                 ],
                 "clock": {
                     "start": "2000-01-01 00:00",
-                    "end": "2000-01-02 00:00",
-                    "timeleap": 900
+                    "end": "2000-01-01 10:00",
+                    "timeleapPerCycle": 1000
                 }
             }
         }
