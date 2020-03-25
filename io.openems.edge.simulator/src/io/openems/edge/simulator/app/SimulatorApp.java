@@ -29,6 +29,7 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
@@ -94,10 +95,6 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext componentContext, Config config) throws OpenemsException {
 		super.activate(componentContext, OpenemsConstants.SIMULATOR_ID, "Simulator", config.enabled());
-		if (config.enabled()) {
-			// Stop Core-Cycle
-			this.setCycleTime(AbstractWorker.ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN);
-		}
 	}
 
 	@Deactivate
@@ -121,7 +118,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
+		if (!this.isEnabled() || this.currentSimulationRequest == null || this.currentSimulationUser == null) {
 			return;
 		}
 		switch (event.getTopic()) {
@@ -161,12 +158,15 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	 */
 	private void deleteAllConfigurations(User user) throws OpenemsNamedException {
 		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
-			if (component.serviceFactoryPid() == null || component.serviceFactoryPid().trim().isEmpty()) {
+			String factoryPid = component.serviceFactoryPid();
+			if (factoryPid == null || factoryPid.trim().isEmpty()) {
 				continue;
 			}
-			switch (component.serviceFactoryPid()) {
-			case "Controller.Api.Rest.ReadOnly":
-			case "Controller.Api.ModbusTcp.ReadOnly":
+			if (factoryPid.startsWith("Core.") || factoryPid.startsWith("Controller.Api.")) {
+				continue;
+			}
+			switch (factoryPid) {
+			case "Simulator.App":
 				// ignore
 				break;
 			default:
@@ -186,6 +186,9 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		this.logInfo(this.log, "# Stopping Simulation");
 		this.logInfo(this.log, "#");
 
+		this.clock = Clock.systemDefaultZone();
+		this.currentSimulationRequest = null;
+		this.currentSimulationUser = null;
 		this.setCycleTime(Cycle.DEFAULT_CYCLE_TIME);
 		try {
 			this.deleteAllConfigurations(user);
@@ -250,10 +253,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		 */
 		this.setCycleTime(AbstractWorker.DO_NOT_WAIT);
 
-//		NetworkConfiguration config = this.operatingSystem.getNetworkConfiguration();
-//		GetNetworkConfigResponse response = new GetNetworkConfigResponse(request.getId(), config);
-//		return CompletableFuture.completedFuture(response);
-		return CompletableFuture.completedFuture(null);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	private void deleteComponent(User user, String componentId) throws OpenemsNamedException {

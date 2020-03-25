@@ -94,8 +94,6 @@ public interface OpenemsComponent {
 				return servicePid.toString();
 			}
 
-			System.out.println(this.getClass().toString());
-
 			// Singleton?
 			servicePid = properties.get("component.name");
 			if (servicePid != null) {
