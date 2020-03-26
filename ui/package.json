@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "2020.7.0-SNAPSHOT",
+  "version": "2020.7.0",
   "author": "OpenEMS Association e.V.",
   "homepage": "http://openems.io",
   "scripts": {
