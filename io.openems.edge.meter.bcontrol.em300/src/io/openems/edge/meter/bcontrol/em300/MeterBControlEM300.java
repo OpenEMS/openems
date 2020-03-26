@@ -130,13 +130,11 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 		return this.meterType;
 	}
 
+	/*
+	 * Waring: Modbus Registers are not completely checked and could be incorrect!!!
+	 */
 	@Override
-	//
-	// Waring: Modbus Registers are not checked and are uncorrect !!!
-	//
 	protected ModbusProtocol defineModbusProtocol() {
-		// Update values here?
-
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0, Priority.HIGH, //
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_POS, new UnsignedDoublewordElement(0),
@@ -203,10 +201,6 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
 								ElementToChannelConverter.SCALE_FACTOR_1)));
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
-	// Channel get methods
-	///////////////////////////////////////////////////////////
 
 	Channel<Integer> getActivePowerPos() {
 		return this.channel(ChannelId.ACTIVE_POWER_POS);
@@ -288,34 +282,37 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 			// write the result of the arithmetic operation into the corresponding channel
 
 			// Active Power
-			this.getActivePower().setNextValue(invertIfTrue(this.getActivePowerPos().getNextValue().orElse(0)
+			this.getActivePower().setNextValue(this.invertIfTrue(this.getActivePowerPos().getNextValue().orElse(0)
 					- this.getActivePowerNeg().getNextValue().orElse(0)));
 
 			// Active Power L1
-			this.getActivePowerL1().setNextValue(invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
+			this.getActivePowerL1().setNextValue(this.invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
 					- this.getActivePowerL1Neg().getNextValue().orElse(0)));
 
 			// Active Power L2
-			this.getActivePowerL2().setNextValue(invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
+			this.getActivePowerL2().setNextValue(this.invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
 					- this.getActivePowerL2Neg().getNextValue().orElse(0)));
 			// Active Power L3
-			this.getActivePowerL3().setNextValue(invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
+			this.getActivePowerL3().setNextValue(this.invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
 					- this.getActivePowerL3Neg().getNextValue().orElse(0)));
 
 			// Reactive Power
-			this.getReactivePower().setNextValue(invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
+			this.getReactivePower().setNextValue(this.invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
 					- this.getReactivePowerNeg().getNextValue().orElse(0)));
 
 			// Reactive Power L1
-			this.getReactivePowerL1().setNextValue(invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
+			this.getReactivePowerL1()
+					.setNextValue(this.invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
+							- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
 
 			// Reactive Power L2
-			this.getReactivePowerL2().setNextValue(invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
+			this.getReactivePowerL2()
+					.setNextValue(this.invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
+							- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
 			// Reactive Power L3
-			this.getReactivePowerL3().setNextValue(invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
+			this.getReactivePowerL3()
+					.setNextValue(this.invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
+							- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
 
 			// Current
 			Channel<Integer> currL1 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L1);
@@ -332,14 +329,20 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 
-	public Integer invertIfTrue(int invertValue) {
+	/**
+	 * Returning the inverted value if the invert parameter is true.
+	 * 
+	 * @param invertValue value that should be inverted
+	 * @return normal or inverted value
+	 */
+	private int invertIfTrue(int invertValue) {
 		if (config.invert()) {
 			return -invertValue;
 		} else {
