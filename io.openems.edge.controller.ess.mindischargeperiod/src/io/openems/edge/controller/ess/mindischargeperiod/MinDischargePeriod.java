@@ -31,7 +31,7 @@ import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Min.Discharge.Power", //
+		name = "Controller.Ess.MinimumDischargePower", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -45,7 +45,8 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		TIME_PASSED(Doc.of(OpenemsType.INTEGER).text("Current time passed in the discharge period"));
+		TIME_PASSED(Doc.of(OpenemsType.INTEGER) //
+				.text("Current time passed in the discharge period"));
 
 		private final Doc doc;
 
@@ -68,7 +69,7 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 	}
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
 	private Power power;
@@ -108,7 +109,8 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 			int essActivePower = ess.getActivePower().value().orElse(0);
 			if (essActivePower >= this.config.activateDischargePower()) {
 				this.stopwatch.start();
-				this.logInfo(log, "Started the stopwatch. Try to discharge with " + this.config.minDischargePower());
+				this.logInfo(this.log,
+						"Started the stopwatch. Trying to discharge with " + this.config.minDischargePower());
 			}
 			this.channel(ChannelId.TIME_PASSED).setNextValue(this.stopwatch.elapsed(TimeUnit.SECONDS));
 			this.channel(ChannelId.STATE_MACHINE).setNextValue(State.NOT_ACTIVE);
@@ -118,7 +120,6 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 		if (this.stopwatch.elapsed(TimeUnit.SECONDS) > this.config.dischargeTime()) {
 			this.stopwatch.stop();
 			this.stopwatch.reset();
-			System.out.println(this.stopwatch.elapsed(TimeUnit.SECONDS));
 			return;
 		}
 
@@ -134,7 +135,7 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 
 		} catch (OpenemsException e) {
 			this.logWarn(this.log, e.getMessage());
-			this.logInfo(log, "Make sure that the controller is running before balancing or peakshaving.");
+			this.logInfo(this.log, "Make sure that the controller is running before balancing or peakshaving.");
 		}
 	}
 }
