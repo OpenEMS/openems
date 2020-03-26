@@ -96,14 +96,13 @@ public class RestHandler extends AbstractHandler {
 
 			case "jsonrpc":
 				// Validate API Access-Mode
-				// TODO
-//				switch (this.parent.getAccessMode()) {
-//				case READ_ONLY:
-//					throw new OpenemsException("REST-Api is in Read-Only mode");
-//				case READ_WRITE:
-//				case WRITE_ONLY:
-				this.handleJsonRpc(user, baseRequest, request, response);
-//				}
+				switch (this.parent.getAccessMode()) {
+				case READ_ONLY:
+					throw new OpenemsException("REST-Api is in Read-Only mode");
+				case READ_WRITE:
+				case WRITE_ONLY:
+					this.handleJsonRpc(user, baseRequest, request, response);
+				}
 				break;
 
 			default:

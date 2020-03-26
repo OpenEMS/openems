@@ -89,8 +89,6 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 						b.append("] ");
 					}
 				});
-// TODO		this.logInfo(this.log, b.toString());
-		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
-		this.logInfo(this.log, now + " " + b.toString());
+		this.logInfo(this.log, b.toString());
 	}
 }

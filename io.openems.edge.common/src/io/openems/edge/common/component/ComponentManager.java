@@ -16,8 +16,6 @@ import io.openems.edge.common.jsonapi.JsonApi;
 /**
  * A Service that provides access to OpenEMS-Components.
  */
-
-// TODO rename to "Openems"
 public interface ComponentManager extends OpenemsComponent, JsonApi {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
