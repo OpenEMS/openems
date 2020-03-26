@@ -117,7 +117,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.11</version>
+			<version>0.10.13</version>
 		</dependency>
 		<dependency>
 			<!-- https://mvnrepository.com/artifact/org.influxdb/influxdb-java -->
