@@ -30,15 +30,6 @@ To run a simulation, the full OpenEMS Edge configuration needs to be provided. F
                         ]
                     },
                     {
-                        "factoryPid": "Controller.Debug.Log",
-                        "properties": [
-                            {
-                                "name": "id",
-                                "value": "ctrlDebugLog0"
-                            }
-                        ]
-                    },
-                    {
                         "factoryPid": "Simulator.GridMeter.Reacting",
                         "properties": [
                             {
@@ -117,8 +108,8 @@ To run a simulation, the full OpenEMS Edge configuration needs to be provided. F
                     }
                 ],
                 "clock": {
-                    "start": "2000-01-01 00:00",
-                    "end": "2000-01-01 10:00",
+                    "start": "2000-01-01T13:00:00.00Z",
+                    "end": "2000-01-01T14:00:00.00Z",
                     "timeleapPerCycle": 1000
                 }
             }

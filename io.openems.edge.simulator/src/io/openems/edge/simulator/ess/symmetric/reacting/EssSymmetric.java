@@ -137,7 +137,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 */
 		// TODO timedelta
 		float watthours = (float) activePower * 1 / 3600;
-//		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
+		// float watthours = (float) activePower * this.datasource.getTimeDelta() /
+		// 3600;
 		float socChange = watthours / this.capacity;
 		this.soc -= socChange;
 		if (this.soc > 100) {
