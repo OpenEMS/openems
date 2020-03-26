@@ -51,7 +51,7 @@ class BackendWorker extends AbstractCycleWorker {
 	// is set to 'false', it sends all values once.
 	private final AtomicBoolean sendChangedValuesOnly = new AtomicBoolean(false);
 
-	BackendWorker(BackendApi parent) {
+	protected BackendWorker(BackendApi parent) {
 		this.parent = parent;
 	}
 
