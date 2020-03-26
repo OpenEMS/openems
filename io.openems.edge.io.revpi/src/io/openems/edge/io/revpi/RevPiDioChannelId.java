@@ -7,9 +7,9 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 
 public enum RevPiDioChannelId implements ChannelId {
-	
+
 	/**
-	 * ioX/Out1
+	 * ioX/Out1.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -19,10 +19,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_1(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out2
+	 * ioX/Out2.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -32,10 +32,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_2(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out3
+	 * ioX/Out3.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -45,10 +45,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_3(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
-	
+			.accessMode(AccessMode.READ_WRITE)), //
+
 	/**
-	 * ioX/Out4
+	 * ioX/Out4.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -58,10 +58,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_4(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out5
+	 * ioX/Out5.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -71,10 +71,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_5(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out6
+	 * ioX/Out6.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -84,10 +84,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_6(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out7
+	 * ioX/Out7.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -97,10 +97,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_7(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out8
+	 * ioX/Out8.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -110,10 +110,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_8(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out9
+	 * ioX/Out9.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -123,10 +123,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_9(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out10
+	 * ioX/Out10.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -136,10 +136,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_10(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out11
+	 * ioX/Out11.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -149,10 +149,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_11(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out12
+	 * ioX/Out12.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -162,10 +162,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_12(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out13
+	 * ioX/Out13.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -175,10 +175,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_13(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	/**
-	 * ioX/Out14
+	 * ioX/Out14.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -188,11 +188,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_14(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_WRITE)),  // 
+			.accessMode(AccessMode.READ_WRITE)), //
 
-	
 	/**
-	 * ioX/In1
+	 * ioX/In1.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -202,10 +201,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_1(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In2
+	 * ioX/In2.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -215,10 +214,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_2(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In3
+	 * ioX/In3.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -228,10 +227,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_3(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
-	
+			.accessMode(AccessMode.READ_ONLY)), //
+
 	/**
-	 * ioX/In4
+	 * ioX/In4.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -241,10 +240,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_4(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In5
+	 * ioX/In5.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -254,10 +253,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_5(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In6
+	 * ioX/In6.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -267,10 +266,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_6(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In7
+	 * ioX/In7.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -280,10 +279,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_7(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In8
+	 * ioX/In8.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -293,10 +292,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_8(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In9
+	 * ioX/In9.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -306,10 +305,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_9(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In10
+	 * ioX/In10.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -319,10 +318,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_10(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In11
+	 * ioX/In11.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -332,10 +331,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_11(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In12
+	 * ioX/In12.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -345,10 +344,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_12(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In13
+	 * ioX/In13.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -358,10 +357,10 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_13(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
+			.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * ioX/In14
+	 * ioX/In14.
 	 * 
 	 * <ul>
 	 * <li>Interface: KunbusRevPiDataIOModule
@@ -371,9 +370,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	IN_14(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
-			.accessMode(AccessMode.READ_ONLY)),  // 
-	
-	
+			.accessMode(AccessMode.READ_ONLY)), //
 	;
 
 	private final Doc doc;

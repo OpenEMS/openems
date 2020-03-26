@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -35,18 +34,19 @@ import io.openems.edge.io.api.DigitalOutput;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		} //
 )
-public class RevPiDigitalIoDevice extends AbstractOpenemsComponent implements DigitalOutput, DigitalInput, OpenemsComponent, EventHandler {
+public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
+		implements DigitalOutput, DigitalInput, OpenemsComponent, EventHandler {
+
+	private static final Object INVALIDATE_CHANNEL = null;
 
 	private final Logger log = LoggerFactory.getLogger(RevPiDigitalIoDevice.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 	private final BooleanReadChannel[] digitalInputChannels;
-	private static final Object	INVALIDATE_CHANNEL							= null;
-	
-	
-	//maybe used, when two DIO boards are attached to the Revolutionpi 
-	@SuppressWarnings("unused")  
+
+	// maybe used, when two DIO boards are attached to the Revolutionpi
+	@SuppressWarnings("unused")
 	private Config config = null;
-	
+
 	private DataInOut revPiHardware;
 
 	public RevPiDigitalIoDevice() {
@@ -72,7 +72,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent implements Di
 				this.channel(RevPiDioChannelId.OUT_13), //
 				this.channel(RevPiDioChannelId.OUT_14) //
 		};
-		
+
 		this.digitalInputChannels = new BooleanReadChannel[] { //
 				this.channel(RevPiDioChannelId.IN_1), //
 				this.channel(RevPiDioChannelId.IN_2), //
@@ -90,83 +90,73 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent implements Di
 				this.channel(RevPiDioChannelId.IN_14) //
 		};
 	}
-	
+
 	private void deactivateAllWriteChannels() {
 		for (BooleanWriteChannel channel : this.digitalOutputChannels) {
 			try {
 				channel.setNextWriteValue(Boolean.FALSE);
-			} catch (OpenemsNamedException e) {}
+			} catch (OpenemsNamedException e) {
+				// ignore
+			}
 		}
 	}
 
 	private void updateChannelValues() {
-		//read all digital in pins
+		// read all digital in pins
 		for (int i = 0; i < this.digitalInputChannels.length; i++) {
 			try {
-				boolean in = this.revPiHardware.getDataIn(i+1);
+				boolean in = this.revPiHardware.getDataIn(i + 1);
 				Optional<Boolean> inOpt = Optional.ofNullable(in);
-				
-				//TODO pruefen ob geht
+
 				if (this.digitalInputChannels[i].value().asOptional().equals(inOpt)) {
-					//channel already in the desired state
-				}else {
+					// channel already in the desired state
+				} else {
 					this.digitalInputChannels[i].setNextValue(in);
 				}
-			}catch(Exception e) {
-				log.error("Unable to update channel values ex: " + e.getMessage());
+			} catch (Exception e) {
+				this.logError(this.log, "Unable to update channel values ex: " + e.getMessage());
 				this.digitalInputChannels[i].setNextValue(INVALIDATE_CHANNEL);
 			}
 		}
-
-//		//cyclically write all dataOut, even if we have set in already in onChange
-//		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
-//			try {
-//				Value<Boolean> val = this.digitalOutputChannels[i].value();
-//				this.revPiHardware.setDataOut(i+1, val.orElse(false));
-//			}catch(Exception e) {
-//				this.digitalOutputChannels[i].setNextValue(INVALIDATE_CHANNEL);
-//			}
-//		}
 	}
 
 	private void installOnDataOutCallback(BooleanWriteChannel wc, final int idx) {
 		wc.onUpdate((newValue) -> {
 			try {
-				if(this.revPiHardware != null) {
-					this.revPiHardware.setDataOut(idx+1, newValue.orElse(false));
+				if (this.revPiHardware != null) {
+					this.revPiHardware.setDataOut(idx + 1, newValue.orElse(false));
 				}
-			}catch(Exception e) {
-				log.error("Unable to set data out " + (idx+1));
+			} catch (Exception e) {
+				this.logError(this.log, "Unable to set data out " + (idx + 1));
 			}
 		});
 	}
-	
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
 		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
-			installOnDataOutCallback(this.digitalOutputChannels[i], i);
+			this.installOnDataOutCallback(this.digitalOutputChannels[i], i);
 		}
-		deactivateAllWriteChannels();
+		this.deactivateAllWriteChannels();
 		this.revPiHardware = new DataInOut();
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		deactivateAllWriteChannels();
+		this.deactivateAllWriteChannels();
 		super.deactivate();
 		try {
 			this.revPiHardware.close();
 		} catch (IOException e) {
-			log.error("Exception on closing driver ex: " + e.getMessage());
+			this.logError(this.log, "Exception on closing driver ex: " + e.getMessage());
 			e.printStackTrace();
 		}
 		this.revPiHardware = null;
 	}
 
-	
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -174,11 +164,10 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent implements Di
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			updateChannelValues();
+			this.updateChannelValues();
 			break;
 		}
 	}
-
 
 	@Override
 	public String debugLog() {
@@ -188,38 +177,38 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent implements Di
 		for (BooleanReadChannel channel : this.digitalInputChannels) {
 			Optional<Boolean> valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
-				if(valueOpt.get()) {
+				if (valueOpt.get()) {
 					b.append("1");
-				}else {
+				} else {
 					b.append("0");
 				}
 			} else {
 				b.append("-");
 			}
-			if ((i++)%4==3) {
+			if ((i++) % 4 == 3) {
 				b.append(" ");
 			}
 		}
-		i=0;
+		i = 0;
 		b.append("  OUT:");
 		for (BooleanWriteChannel channel : this.digitalOutputChannels) {
 			Optional<Boolean> valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
-				if(valueOpt.get()) {
+				if (valueOpt.get()) {
 					b.append("1");
-				}else {
+				} else {
 					b.append("0");
 				}
 			} else {
 				b.append("-");
 			}
-			if ((i++)%4==3) {
+			if ((i++) % 4 == 3) {
 				b.append(" ");
 			}
 		}
 		return b.toString();
 	}
-	
+
 	@Override
 	public BooleanReadChannel[] digitalInputChannels() {
 		return this.digitalInputChannels;

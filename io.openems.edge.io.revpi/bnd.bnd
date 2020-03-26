@@ -2,10 +2,8 @@ Bundle-Name: OpenEMS Edge RevolutionPi Data IO module
 Bundle-Vendor: opernikus GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.io.revpi	
 
--includeresource: \
+-includeresource.librevpi: \
 	@lib/librevpi-dio-java.jar; lib:=true
 
 -buildpath: \
@@ -14,7 +12,6 @@ Export-Package: \
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.io.api,\
-	slf4j.api,\
 	lib/librevpi-dio-java.jar;version=file
 
 -testpath: \
