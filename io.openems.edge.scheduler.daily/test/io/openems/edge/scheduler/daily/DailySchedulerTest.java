@@ -15,8 +15,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.scheduler.daily.Config;
-import io.openems.edge.scheduler.daily.DailyScheduler;
 
 public class DailySchedulerTest {
 
@@ -59,11 +57,6 @@ public class DailySchedulerTest {
 			@Override
 			public boolean enabled() {
 				return true;
-			}
-
-			@Override
-			public int cycleTime() {
-				return 0;
 			}
 
 			@Override

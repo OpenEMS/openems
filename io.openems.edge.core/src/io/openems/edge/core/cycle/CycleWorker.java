@@ -3,7 +3,6 @@ package io.openems.edge.core.cycle;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -30,16 +30,11 @@ public class CycleWorker extends AbstractWorker {
 
 	@Override
 	protected int getCycleTime() {
-		return this.parent.commonCycleTime;
+		return this.parent.getCycleTime();
 	}
 
 	@Override
 	protected void forever() {
-		// handle cycle number
-		if (++this.parent.cycle > this.parent.maxCycles) {
-			this.parent.cycle = 1;
-		}
-
 		// Kick Operating System Watchdog
 		if (SDNotify.isAvailable()) {
 			SDNotify.sendWatchdog();
@@ -94,14 +89,9 @@ public class CycleWorker extends AbstractWorker {
 			if (this.parent.schedulers.isEmpty()) {
 				this.parent.logWarn(this.log, "There are no Schedulers configured!");
 			} else {
-				for (Entry<Scheduler, Integer> entry : this.parent.schedulers.entrySet()) {
+				for (Scheduler scheduler : this.parent.schedulers) {
 					boolean schedulerHasError = false;
 
-					Scheduler scheduler = entry.getKey();
-					if (this.parent.cycle % entry.getValue() != 0) {
-						// abort if relativeCycleTime is not matching this cycle
-						return;
-					}
 					try {
 						for (Controller controller : scheduler.getControllers()) {
 							if (!controller.isEnabled()) {

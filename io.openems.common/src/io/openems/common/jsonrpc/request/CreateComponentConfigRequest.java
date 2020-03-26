@@ -32,10 +32,19 @@ import io.openems.common.utils.JsonUtils;
 public class CreateComponentConfigRequest extends JsonrpcRequest {
 
 	public static CreateComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String factoryPid = JsonUtils.getAsString(p, "factoryPid");
-		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
-		return new CreateComponentConfigRequest(r.getId(), factoryPid, properties);
+		return CreateComponentConfigRequest.from(r.getId(), r.getParams());
+	}
+
+	public static CreateComponentConfigRequest from(UUID id, JsonObject params) throws OpenemsNamedException {
+		String factoryPid = JsonUtils.getAsString(params, "factoryPid");
+		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(params, "properties"));
+		return new CreateComponentConfigRequest(id, factoryPid, properties);
+	}
+
+	public static CreateComponentConfigRequest from(JsonObject params) throws OpenemsNamedException {
+		String factoryPid = JsonUtils.getAsString(params, "factoryPid");
+		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(params, "properties"));
+		return new CreateComponentConfigRequest(factoryPid, properties);
 	}
 
 	public final static String METHOD = "createComponentConfig";
@@ -67,6 +76,15 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 
 	public String getFactoryPid() {
 		return factoryPid;
+	}
+
+	public String getComponentId() {
+		for (UpdateComponentConfigRequest.Property property : this.properties) {
+			if (property.getName().equals("id")) {
+				return property.getValue().getAsString();
+			}
+		}
+		return "";
 	}
 
 	public List<UpdateComponentConfigRequest.Property> getProperties() {
