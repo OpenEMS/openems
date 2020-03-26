@@ -91,7 +91,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 			// Apply ConfigurationEvents from queue
 			ConfigurationEvent event;
 			while ((event = this.events.poll()) != null) {
-				wasConfigUpdated |= this.updateFromEvent(this.cache, event);
+				wasConfigUpdated |= this.updateCacheFromEvent(event);
 			}
 			// Update Cache Channels
 			this.updateChannels(this.cache);
@@ -129,7 +129,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 	 * @param event  the {@link ConfigurationEvent}
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
-	private boolean updateFromEvent(EdgeConfig config, ConfigurationEvent event) {
+	private boolean updateCacheFromEvent(ConfigurationEvent event) {
 		if (event.getType() == ConfigurationEvent.CM_UPDATED) {
 			// Update/Create: apply only changes
 			String pid = event.getPid();
@@ -259,11 +259,22 @@ public class EdgeConfigWorker extends AbstractWorker {
 				Dictionary<String, Object> properties = config.getProperties();
 
 				// Read Component-ID
+				String componentId = null;
 				Object componentIdObj = properties.get("id");
-				if (componentIdObj == null || !(componentIdObj instanceof String)) {
+				if (componentIdObj != null && (componentIdObj instanceof String)) {
+					componentId = (String) componentIdObj;
+				} else {
+					// Singleton?
+					for (OpenemsComponent component : this.parent.getAllComponents()) {
+						if (config.getPid().equals(component.serviceFactoryPid())) {
+							componentId = component.id();
+							break;
+						}
+					}
+				}
+				if (componentId == null) {
 					continue;
 				}
-				String componentId = (String) componentIdObj;
 
 				// Remove from missingComponentIds
 				missingComponentIds.remove(componentId);
@@ -278,16 +289,17 @@ public class EdgeConfigWorker extends AbstractWorker {
 					}
 				}
 
-				// Get Factory; only if this is not a singleton Component
-				String factoryPid = null;
-				EdgeConfig.Factory factory = null;
-				{
-					Object factoryPidObj = properties.get("service.factoryPid");
-					if (factoryPidObj != null && factoryPidObj instanceof String) {
-						factoryPid = (String) factoryPidObj;
-						factory = result.getFactories().get(factoryPid);
-					}
+				String factoryPid;
+				if (config.getFactoryPid() != null) {
+					// Get Factory
+					factoryPid = config.getFactoryPid();
+				} else {
+					// Singleton Component
+					factoryPid = config.getPid();
 				}
+
+				// Read Factory
+				EdgeConfig.Factory factory = result.getFactories().get(factoryPid);
 
 				// Read all Properties
 				TreeMap<String, JsonElement> propertyMap = convertProperties(properties, factory);
@@ -387,6 +399,19 @@ public class EdgeConfigWorker extends AbstractWorker {
 					// Add Factory to config
 					result.addFactory(factoryPid,
 							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
+				}
+			}
+
+			// get Singleton PIDs in this Bundle
+			for (String pid : mti.getPids()) {
+				switch (pid) {
+				default:
+					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
+					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(pid, null);
+					// Get Natures implemented by this Factory-PID
+					String[] natures = getNatures(bundle, manifest, pid);
+					// Add Factory to config
+					result.addFactory(pid, EdgeConfig.Factory.create(pid, objectClassDefinition, natures));
 				}
 			}
 		}

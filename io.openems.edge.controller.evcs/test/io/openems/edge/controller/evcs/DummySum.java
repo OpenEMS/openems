@@ -15,4 +15,9 @@ public class DummySum extends AbstractOpenemsComponent implements OpenemsCompone
 		}
 		super.activate(null, "_sum", "", true);
 	}
+
+	@Override
+	public void updateChannelsBeforeProcessImage() {
+		// nothing to do
+	}
 }

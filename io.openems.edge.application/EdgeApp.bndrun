@@ -45,6 +45,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
+	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
@@ -65,6 +66,7 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
@@ -83,6 +85,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.goodwe.et',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
+	bnd.identity;id='io.openems.edge.io.revpi',\
 	bnd.identity;id='io.openems.edge.io.wago',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
 	bnd.identity;id='io.openems.edge.meter.abb',\
@@ -114,6 +117,7 @@
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
 
 -runbundles: \
+	Java-WebSocket;version='[1.4.1,1.4.2)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	com.google.gson;version='[2.8.5,2.8.6)',\
@@ -146,6 +150,7 @@
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
+	io.openems.edge.controller.ess.mindischargeperiod;version=snapshot,\
 	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
 	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
@@ -166,6 +171,7 @@
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
+	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.api;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
@@ -187,6 +193,7 @@
 	io.openems.edge.goodwe.et;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
+	io.openems.edge.io.revpi;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
@@ -226,7 +233,6 @@
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
-	io.openems.wrapper.websocket;version=snapshot,\
 	org.apache.commons.fileupload;version='[1.3.3,1.3.4)',\
 	org.apache.commons.io;version='[2.6.0,2.6.1)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
