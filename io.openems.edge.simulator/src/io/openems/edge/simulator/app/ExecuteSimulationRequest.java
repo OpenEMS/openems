@@ -1,7 +1,6 @@
 package io.openems.edge.simulator.app;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,8 +32,8 @@ import io.openems.common.utils.JsonUtils;
  *         }]
  *       },
  *       "clock": {
- *         "start": "yyyy-mm-dd HH:MM",
- *         "end": "yyyy-mm-dd HH:MM",
+ *         "start": "yyyy-mm-ddTHH:MM:00.00Z", // ISO_INSTANT
+ *         "end": "yyyy-mm-ddTHH:MM:00.00Z", // ISO_INSTANT
  *         "timeleap": number [s]
  *       }
  *     }
@@ -44,22 +43,19 @@ import io.openems.common.utils.JsonUtils;
  */
 public class ExecuteSimulationRequest extends JsonrpcRequest {
 
-	public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
-
 	public static class Clock {
 		public static Clock from(JsonObject j) throws OpenemsNamedException {
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
-			LocalDateTime start = LocalDateTime.parse(JsonUtils.getAsString(j, "start"), dateTimeFormatter);
-			LocalDateTime end = LocalDateTime.parse(JsonUtils.getAsString(j, "end"), dateTimeFormatter);
+			ZonedDateTime start = ZonedDateTime.parse(JsonUtils.getAsString(j, "start"));
+			ZonedDateTime end = ZonedDateTime.parse(JsonUtils.getAsString(j, "end"));
 			int timeleapPerCycle = JsonUtils.getAsInt(j, "timeleapPerCycle");
 			return new Clock(start, end, timeleapPerCycle);
 		}
 
-		public final LocalDateTime start;
-		public final LocalDateTime end;
+		public final ZonedDateTime start;
+		public final ZonedDateTime end;
 		public final int timeleapPerCycle;
 
-		private Clock(LocalDateTime start, LocalDateTime end, int timeleapPerCycle) {
+		private Clock(ZonedDateTime start, ZonedDateTime end, int timeleapPerCycle) {
 			this.start = start;
 			this.end = end;
 			this.timeleapPerCycle = timeleapPerCycle;
