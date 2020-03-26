@@ -155,6 +155,15 @@ export class AppComponent {
     }
   }
 
+  updateLiveHistorySegment(event) {
+    if (event.detail.value == "IndexLive") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
+    }
+    if (event.detail.value == "IndexHistory") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
+    }
+  }
+
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
