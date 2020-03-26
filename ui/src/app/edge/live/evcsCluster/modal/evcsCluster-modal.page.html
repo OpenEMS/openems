@@ -11,7 +11,7 @@
             </ion-title>
             <ion-buttons slot="end">
                 <ion-button (click)="cancel()">
-                    <ion-icon name="close"></ion-icon>
+                    <ion-icon name="close-outline"></ion-icon>
                 </ion-button>
             </ion-buttons>
         </ion-toolbar>
@@ -25,7 +25,7 @@
                             <ion-title style="text-align: center" translate>
                                 Edge.Index.Widgets.EVCS.overviewChargingStations
                             </ion-title>
-                            <ion-icon size="large" slot="end" name="arrow-dropright">
+                            <ion-icon size="large" slot="end" name="arrow-dropright-outline">
                             </ion-icon>
                         </ion-toolbar>
                     </ion-header>
@@ -84,7 +84,7 @@
                                     <ion-header>
                                         <ion-toolbar ion-background="transparent">
                                             <ion-icon *ngIf="evcs_id != prioritizedEvcsList[0] || evcsAmount > 1"
-                                                size="large" slot="start" name="arrow-dropleft">
+                                                size="large" slot="start" name="arrow-dropleft-outline">
                                             </ion-icon>
                                             <ion-title style="text-align: center">
                                                 <ion-label *ngIf="evcsConfigMap[evcs_id] as evcsConfig">
@@ -96,7 +96,7 @@
                                             </ion-title>
                                             <ion-icon
                                                 *ngIf="evcs_id != prioritizedEvcsList[prioritizedEvcsList.length-1]"
-                                                size="large" slot="end" name="arrow-dropright"></ion-icon>
+                                                size="large" slot="end" name="arrow-dropright-outline"></ion-icon>
                                         </ion-toolbar>
                                     </ion-header>
                                     <ion-label class="normalFontSize" *ngIf="currentData[evcs_id + '/State'] != 3">

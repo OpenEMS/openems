@@ -23,7 +23,7 @@ public interface SimulatorDatasource {
 	/**
 	 * Gets the value for the given key (channelId) in the given type.
 	 * 
-	 * @param           <T> the type
+	 * @param <T>       the type
 	 * @param type      the expected type
 	 * @param channelId the Channel-Id
 	 * @return the value

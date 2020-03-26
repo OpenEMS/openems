@@ -350,7 +350,7 @@ export class EdgeConfig {
                 category: { title: 'Externe Schnittstellen', icon: 'megaphone' },
                 factories: [
                     this.getFactoriesByIds([
-                        'Controller.Api.Backend', 'Controller.Api.Websocket', 'Controller.Api.ModbusTcp.ReadOnly',
+                        'Controller.Api.Backend', 'Controller.Api.Websocket', 'Controller.Api.ModbusTcp', 'Controller.Api.ModbusTcp.ReadOnly',
                         'Controller.Api.ModbusTcp.ReadWrite', 'Controller.Api.Rest.ReadOnly', 'Controller.Api.Rest.ReadWrite'
                     ])
                 ]

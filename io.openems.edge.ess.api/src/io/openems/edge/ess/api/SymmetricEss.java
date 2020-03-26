@@ -195,6 +195,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
 				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
+				.channel(2, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
 				.build();
 	}
 

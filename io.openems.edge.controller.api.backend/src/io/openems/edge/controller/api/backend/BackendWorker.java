@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.backend;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -50,7 +51,7 @@ class BackendWorker extends AbstractCycleWorker {
 	// is set to 'false', it sends all values once.
 	private final AtomicBoolean sendChangedValuesOnly = new AtomicBoolean(false);
 
-	BackendWorker(BackendApi parent) {
+	protected BackendWorker(BackendApi parent) {
 		this.parent = parent;
 	}
 
@@ -119,7 +120,8 @@ class BackendWorker extends AbstractCycleWorker {
 		if (!sendValues.isEmpty()) {
 			// Get timestamp and round to Cycle-Time
 			int cycleTime = this.getCycleTime();
-			long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
+			long timestamp = Instant.now(this.parent.componentManager.getClock()).toEpochMilli() / cycleTime
+					* cycleTime;
 
 			// create JSON-RPC notification
 			TimestampedDataNotification message = new TimestampedDataNotification();

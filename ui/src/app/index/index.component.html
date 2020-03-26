@@ -34,13 +34,13 @@
 
   <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-sm="6" size-md="4">
+      <ion-col size-md="12" size-xl="4">
         <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
       </ion-col>
     </ion-row>
 
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-sm="6" size-md="4">
+      <ion-col size-md="12" size-xl="4">
         <ion-list lines="full">
 
           <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
