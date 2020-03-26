@@ -22,7 +22,6 @@ import { GridModalComponent } from './grid/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
-import { ModbusApiComponent } from './modbusapi/modbusapi.component';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { ProductionComponent } from './production/production.component';
@@ -84,7 +83,6 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     InfoComponent,
     LiveComponent,
     ModalComponentEvcsCluster,
-    ModbusApiComponent,
     OfflineComponent,
     ProductionComponent,
     ProductionModalComponent,

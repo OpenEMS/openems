@@ -1,4 +1,4 @@
-package io.openems.edge.core.cycle;
+package io.openems.edge.common.cycle;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;

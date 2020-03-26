@@ -5,14 +5,14 @@ Bundle-License: https://opensource.org/licenses/MIT
 Bundle-Version: 2.17
 
 Include-Resource: \
-	@converter-moshi-2.7.2.jar,\
+	@converter-moshi-2.8.1.jar,\
 	@influxdb-java-2.17.jar,\
 	@logging-interceptor-3.14.7.jar,\
 	@moshi-1.9.2.jar,\
 	@msgpack-core-0.8.20.jar,\
 	@okhttp-3.14.6.jar,\
 	@okio-1.17.2.jar,\
-	@retrofit-2.7.1.jar
+	@retrofit-2.8.1.jar
  
 Import-Package: \
 	android.os;resolution:=optional,\

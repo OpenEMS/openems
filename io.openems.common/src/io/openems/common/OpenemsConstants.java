@@ -92,6 +92,7 @@ public class OpenemsConstants {
 	public final static String META_ID = "_meta";
 	public final static String SUM_ID = "_sum";
 	public final static String HOST_ID = "_host";
+	public final static String SIMULATOR_ID = "_simulator";
 
 	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 

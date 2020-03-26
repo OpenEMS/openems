@@ -21,6 +21,7 @@ import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.scheduler.api.Scheduler;
 
@@ -66,7 +67,9 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	}
 
 	protected void removeScheduler(Scheduler scheduler) {
-		this.schedulers.remove(scheduler);
+		synchronized (this.schedulers) {
+			this.schedulers.remove(scheduler);
+		}
 	}
 
 	public CycleImpl() {
@@ -91,7 +94,12 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 	@Modified
 	void modified(Config config) {
+		Config oldConfig = this.config;
 		this.config = config;
+		// make sure the worker starts if it had been stopped
+		if (oldConfig.cycleTime() <= 0 && oldConfig.cycleTime() != config.cycleTime()) {
+			this.worker.triggerNextRun();
+		}
 	}
 
 	@Override

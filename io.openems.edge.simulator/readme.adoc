@@ -1,0 +1,124 @@
+= Simulated OpenEMS Components
+
+This bundle provides simulated OpenEMS Components for the Natures. They are useful for testing and demoing without real hardware.
+
+== Simulator-App
+
+The Simulator-App is a very specific component that needs to be handled with care. It provides a full simulation environment to run an OpenEMS Edge instance in simulated realtime environment. 
+
+CAUTION: Be aware that the SimulatorApp Component takes control over the complete OpenEMS Edge Application, i.e. if you enable it, it is going to *delete all existing Component configurations*! 
+
+To run a simulation:
+- Run OpenEMS Edge using the EdgeApp.bndrun
+- Configure a read-write JSON/REST Api
+- Send a https://openems.github.io/openems.io/openems/latest/edge/controller.html#_endpoint_jsonrpc[JSON-RPC Request] like the following, providing full configurations for all required OpenEMS Edge Components
+
+[source,json]
+----
+{
+    "method": "componentJsonApi",
+    "params": {
+        "componentId": "_simulator",
+        "payload": {
+            "method": "executeSimulation",
+            "params": {
+                "components": [
+                    {
+                        "factoryPid": "Scheduler.AllAlphabetically",
+                        "properties": [
+                            {
+                                "name": "id",
+                                "value": "scheduler0"
+                            }
+                        ]
+                    },
+                    {
+                        "factoryPid": "Simulator.GridMeter.Reacting",
+                        "properties": [
+                            {
+                                "name": "id",
+                                "value": "meter0"
+                            }
+                        ]
+                    },
+                    {
+                        "factoryPid": "Simulator.Datasource.CSV.Direct",
+                        "properties": [
+                            {
+                                "name": "id",
+                                "value": "datasource1"
+                            },
+                            {
+                                "name": "source",
+                                "value": "1000\n2000\n2500\n2000"
+                            },
+                            {
+                                "name": "timeDelta",
+                                "value": 5
+                            }
+                        ]
+                    },
+                    {
+                        "factoryPid": "Simulator.NRCMeter.Acting",
+                        "properties": [
+                            {
+                                "name": "id",
+                                "value": "meter1"
+                            },
+                            {
+                                "name": "datasource.id",
+                                "value": "datasource1"
+                            }
+                        ]
+                    },
+                    {
+                        "factoryPid": "Simulator.EssSymmetric.Reacting",
+                        "properties": [
+                            {
+                                "name": "id",
+                                "value": "ess0"
+                            },
+                            {
+                                "name": "maxApparentPower",
+                                "value": 10000
+                            },
+                            {
+                                "name": "capacity",
+                                "value": 10000
+                            },
+                            {
+                                "name": "initialSoc",
+                                "value": 50
+                            }
+                        ]
+                    },
+                    {
+                        "factoryPid": "Controller.Symmetric.Balancing",
+                        "properties": [
+                            {
+                                "name": "id",
+                                "value": "ctrlBalancing0"
+                            },
+                            {
+                                "name": "ess.id",
+                                "value": "ess0"
+                            },
+                            {
+                                "name": "meter.id",
+                                "value": "meter0"
+                            }
+                        ]
+                    }
+                ],
+                "clock": {
+                    "start": "2000-01-01T13:00:00.00Z",
+                    "end": "2000-01-01T14:00:00.00Z",
+                    "timeleapPerCycle": 1000
+                }
+            }
+        }
+    }
+}
+----
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.simulator[Source Code icon:github[]]

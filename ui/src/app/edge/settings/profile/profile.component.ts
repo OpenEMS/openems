@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { ModbusApiUtil } from './modbusapi/modbusapi';
 
 @Component({
   selector: ProfileComponent.SELECTOR,
@@ -34,4 +35,8 @@ export class ProfileComponent {
       this.components = config.listActiveComponents(categorizedComponentIds);
     })
   }
+
+  public getModbusProtocol(componentId: string) {
+    ModbusApiUtil.getModbusProtocol(this.service, componentId);
+  };
 }
