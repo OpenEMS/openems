@@ -8,14 +8,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
-import io.openems.edge.battery.soltaro.controller.helper.DummyEss;
-import io.openems.edge.battery.soltaro.controller.state.FullCharge;
 import io.openems.edge.battery.soltaro.controller.Config;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
 import io.openems.edge.battery.soltaro.controller.helper.Creator;
 import io.openems.edge.battery.soltaro.controller.helper.DummyBattery;
+import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
+import io.openems.edge.battery.soltaro.controller.helper.DummyEss;
 
 public class TestFullCharge {
 

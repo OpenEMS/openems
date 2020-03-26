@@ -15,7 +15,6 @@ import io.openems.edge.battery.soltaro.controller.helper.Creator;
 import io.openems.edge.battery.soltaro.controller.helper.DummyBattery;
 import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
 import io.openems.edge.battery.soltaro.controller.helper.DummyEss;
-import io.openems.edge.battery.soltaro.controller.state.Check;
 
 public class TestCheck {
 
