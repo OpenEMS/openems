@@ -1,8 +1,7 @@
 package io.openems.edge.common.component;
 
+import java.time.Clock;
 import java.util.List;
-
-import org.osgi.service.cm.ConfigurationEvent;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
@@ -37,6 +36,14 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Gets the OpenEMS Clock - either the real system clock or a mocked clock for
+	 * simulations.
+	 * 
+	 * @return the Clock
+	 */
+	public Clock getClock();
 
 	/**
 	 * Gets all enabled OpenEMS-Components.
@@ -120,10 +127,11 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
 	 * 
-	 * @param event a ConfigurationEvent to incorporate; or null to refresh the
-	 *              config completely
-	 * @return the EdgeConfig object
+	 * Internally updates updates the cache if necessary and publishes a
+	 * CONFIG_UPDATE event on update.
+	 * 
+	 * @return the {@link EdgeConfig} object
 	 */
-	public EdgeConfig getEdgeConfig(ConfigurationEvent event);
+	public EdgeConfig getEdgeConfig();
 
 }

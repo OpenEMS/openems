@@ -8,8 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	org.openmuc.jmbus;version=3.2,\
-	org.openmuc.jrxtx;version=1.0,\
-	slf4j.api
+	org.openmuc.jrxtx;version=1.0
 
 -testpath: \
 	${testpath}

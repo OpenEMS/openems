@@ -79,10 +79,12 @@ public class OsgiValidateWorker extends AbstractWorker {
 				for (Configuration config : configs) {
 					Dictionary<String, Object> properties = config.getProperties();
 					String componentId = (String) properties.get("id");
-					if (this.isComponentActivated(componentId)) {
-						this.componentDefectiveSince.remove(componentId);
-					} else {
-						this.componentDefectiveSince.putIfAbsent(componentId, new DefectiveComponent());
+					if (componentId != null) {
+						if (this.isComponentActivated(componentId)) {
+							this.componentDefectiveSince.remove(componentId);
+						} else {
+							this.componentDefectiveSince.putIfAbsent(componentId, new DefectiveComponent());
+						}
 					}
 				}
 			}

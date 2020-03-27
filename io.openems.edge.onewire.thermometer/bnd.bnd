@@ -8,8 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.bridge.onewire,\
 	io.openems.edge.common,\
-	io.openems.edge.thermometer.api,\
-	slf4j.api
+	io.openems.edge.thermometer.api
 
 -testpath: \
 	${testpath}

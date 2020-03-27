@@ -1,7 +1,8 @@
 package io.openems.common.types;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -12,10 +13,9 @@ import com.google.common.collect.SortedMapDifference;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.types.EdgeConfigDiff.ComponentDiff.Change;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty;
-import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty.Change;
 import io.openems.common.utils.StringUtils;
 
 public class EdgeConfigDiff {
@@ -36,10 +36,7 @@ public class EdgeConfigDiff {
 		 */
 		if (!diffComponents.entriesOnlyOnLeft().isEmpty()) {
 			for (Entry<String, EdgeConfig.Component> onlyOnNew : diffComponents.entriesOnlyOnLeft().entrySet()) {
-				for (Entry<String, JsonElement> newEntry : onlyOnNew.getValue().getProperties().entrySet()) {
-					result.add(onlyOnNew.getKey(), onlyOnNew.getValue(), Change.CREATED, newEntry.getKey(),
-							JsonNull.INSTANCE, newEntry.getValue());
-				}
+				result.addCreated(onlyOnNew.getKey(), onlyOnNew.getValue(), onlyOnNew.getValue().getProperties());
 			}
 		}
 
@@ -48,10 +45,7 @@ public class EdgeConfigDiff {
 		 */
 		if (!diffComponents.entriesOnlyOnRight().isEmpty()) {
 			for (Entry<String, EdgeConfig.Component> onlyOnOld : diffComponents.entriesOnlyOnRight().entrySet()) {
-				for (Entry<String, JsonElement> oldEntry : onlyOnOld.getValue().getProperties().entrySet()) {
-					result.add(onlyOnOld.getKey(), onlyOnOld.getValue(), Change.DELETED, oldEntry.getKey(),
-							oldEntry.getValue(), JsonNull.INSTANCE);
-				}
+				result.addDeleted(onlyOnOld.getKey(), onlyOnOld.getValue(), onlyOnOld.getValue().getProperties());
 			}
 		}
 
@@ -72,27 +66,26 @@ public class EdgeConfigDiff {
 					continue;
 				}
 
+				// ignoring deleted properties from diffProperties.entriesOnlyOnRight(). This
+				// can happen with optional properties.
+
+				Map<String, OldNewProperty> properties = new HashMap<>();
 				if (!diffProperties.entriesOnlyOnLeft().isEmpty()) {
 					// created
 					for (Entry<String, JsonElement> newEntry : diffProperties.entriesOnlyOnLeft().entrySet()) {
-						result.add(differingComponent.getKey(), newComponent, Change.CREATED, newEntry.getKey(),
-								JsonNull.INSTANCE, newEntry.getValue());
+						properties.put(newEntry.getKey(), new OldNewProperty(JsonNull.INSTANCE, newEntry.getValue()));
 					}
 				}
-				if (!diffProperties.entriesOnlyOnRight().isEmpty()) {
-					// deleted
-					for (Entry<String, JsonElement> oldEntry : diffProperties.entriesOnlyOnRight().entrySet()) {
-						result.add(differingComponent.getKey(), newComponent, Change.DELETED, oldEntry.getKey(),
-								oldEntry.getValue(), JsonNull.INSTANCE);
-					}
-				}
-				// updated
 				if (!diffProperties.entriesDiffering().isEmpty()) {
+					// updated
 					for (Entry<String, ValueDifference<JsonElement>> updatedEntry : diffProperties.entriesDiffering()
 							.entrySet()) {
-						result.add(differingComponent.getKey(), newComponent, Change.UPDATED, updatedEntry.getKey(),
-								updatedEntry.getValue().rightValue(), updatedEntry.getValue().leftValue());
+						properties.put(updatedEntry.getKey(), new OldNewProperty(updatedEntry.getValue().rightValue(),
+								updatedEntry.getValue().leftValue()));
 					}
+				}
+				if (!properties.isEmpty()) {
+					result.addUpdated(differingComponent.getKey(), newComponent, properties);
 				}
 			}
 		}
@@ -104,36 +97,30 @@ public class EdgeConfigDiff {
 	 * Component.
 	 */
 	public static class ComponentDiff {
-		public static class OldNewProperty {
-			public static enum Change {
-				CREATED("Created"), //
-				DELETED("Deleted"), //
-				UPDATED("Created");
+		public static enum Change {
+			CREATED("Created"), //
+			DELETED("Deleted"), //
+			UPDATED("Updated");
 
-				private final String name;
+			private final String name;
 
-				private Change(String name) {
-					this.name = name;
-				}
-
-				@Override
-				public String toString() {
-					return this.name;
-				}
+			private Change(String name) {
+				this.name = name;
 			}
 
-			private final Change change;
+			@Override
+			public String toString() {
+				return this.name;
+			}
+		}
+
+		public static class OldNewProperty {
 			private final JsonElement oldP;
 			private final JsonElement newP;
 
-			public OldNewProperty(Change change, JsonElement oldP, JsonElement newP) {
-				this.change = change;
+			public OldNewProperty(JsonElement oldP, JsonElement newP) {
 				this.oldP = oldP;
 				this.newP = newP;
-			}
-
-			public Change getChange() {
-				return change;
 			}
 
 			public JsonElement getOld() {
@@ -151,10 +138,12 @@ public class EdgeConfigDiff {
 		}
 
 		private final Component component;
+		private final Change change;
 		protected TreeMap<String, OldNewProperty> properties = new TreeMap<>();
 
-		public ComponentDiff(Component component) {
+		public ComponentDiff(Component component, Change change) {
 			this.component = component;
+			this.change = change;
 		}
 
 		public ComponentDiff add(String name, OldNewProperty property) {
@@ -164,7 +153,7 @@ public class EdgeConfigDiff {
 
 		@Override
 		public String toString() {
-			return "[" + component.getFactoryId() + ": properties=" + properties + "]";
+			return "[" + this.change.toString() + " " + component.getFactoryId() + ": properties=" + properties + "]";
 		}
 
 		public Component getComponent() {
@@ -179,34 +168,48 @@ public class EdgeConfigDiff {
 	private final TreeMap<String, ComponentDiff> components = new TreeMap<>();
 
 	/**
-	 * Add the difference of a Property to the List.
+	 * Add a newly created component configuration.
 	 * 
-	 * @param componentId  the Component-ID of the Property
-	 * @param component    the Component instance of the Property
-	 * @param change       the type of {@link Change}
-	 * @param propertyName the name of the Property
-	 * @param oldValue     the old value
-	 * @param newValue     the new value
+	 * @param componentId the Component-ID of the Property
+	 * @param component   the Component instance of the Property
+	 * @param properties  the properties
 	 */
-	private void add(String componentId, Component component, Change change, String propertyName, JsonElement oldValue,
-			JsonElement newValue) {
-		ComponentDiff.OldNewProperty oldNewProperty = new ComponentDiff.OldNewProperty(change, oldValue, newValue);
-		if (this.components.containsKey(componentId)) {
-			this.components.get(componentId).add(propertyName, oldNewProperty);
-		} else {
-			JsonElement lastChangeBy = Optional.ofNullable(//
-					component.getProperties().get(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)).orElse(JsonNull.INSTANCE);
-			JsonElement lastChangeAt = Optional.ofNullable(//
-					component.getProperties().get(OpenemsConstants.PROPERTY_LAST_CHANGE_AT)).orElse(JsonNull.INSTANCE);
-			this.components.put(componentId, new ComponentDiff(component) //
-					// add some important properties on top first
-					.add(OpenemsConstants.PROPERTY_LAST_CHANGE_BY,
-							new OldNewProperty(Change.CREATED, JsonNull.INSTANCE, lastChangeBy)) //
-					.add(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
-							new OldNewProperty(Change.CREATED, JsonNull.INSTANCE, lastChangeAt)) //
-					// add this property
-					.add(propertyName, oldNewProperty));
+	private void addCreated(String componentId, Component component, Map<String, JsonElement> properties) {
+		ComponentDiff diff = new ComponentDiff(component, Change.CREATED);
+		for (Entry<String, JsonElement> entry : properties.entrySet()) {
+			diff.add(entry.getKey(), new ComponentDiff.OldNewProperty(JsonNull.INSTANCE, entry.getValue()));
 		}
+		this.components.put(componentId, diff);
+	}
+
+	/**
+	 * Add a deleted component configuration.
+	 * 
+	 * @param componentId the Component-ID of the Property
+	 * @param component   the Component instance of the Property
+	 * @param properties  the properties
+	 */
+	private void addDeleted(String componentId, Component component, Map<String, JsonElement> properties) {
+		ComponentDiff diff = new ComponentDiff(component, Change.DELETED);
+		for (Entry<String, JsonElement> entry : properties.entrySet()) {
+			diff.add(entry.getKey(), new ComponentDiff.OldNewProperty(entry.getValue(), JsonNull.INSTANCE));
+		}
+		this.components.put(componentId, diff);
+	}
+
+	/**
+	 * Add an updated component configuration.
+	 * 
+	 * @param componentId the Component-ID of the Property
+	 * @param component   the Component instance of the Property
+	 * @param properties  the properties
+	 */
+	private void addUpdated(String componentId, Component component, Map<String, OldNewProperty> properties) {
+		ComponentDiff diff = new ComponentDiff(component, Change.UPDATED);
+		for (Entry<String, OldNewProperty> property : properties.entrySet()) {
+			diff.add(property.getKey(), property.getValue());
+		}
+		this.components.put(componentId, diff);
 	}
 
 	/**
@@ -219,9 +222,9 @@ public class EdgeConfigDiff {
 		b.append("<table border=\"1\" style=\"border-collapse: collapse\"" + //
 				"	<thead>" + //
 				"		<tr>" + //
+				"			<th>Change</th>" + //
 				"			<th>Component</th>" + //
 				"			<th>Name</th>" + //
-				"			<th>Change</th>" + //
 				"			<th>Old Value</th>" + //
 				"			<th>New Value</th>" + //
 				"		</tr>" + //
@@ -230,22 +233,30 @@ public class EdgeConfigDiff {
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
 			String componentId = componentEntry.getKey();
 			ComponentDiff component = componentEntry.getValue();
-			b.append(String.format("<tr><td rowspan=\"%s\" style=\"vertical-align: top\">%s<br/>(%s)</td>",
-					component.properties.size(), componentId, component.component.getFactoryId()));
+			b.append("<tr>");
+			// Change column
+			b.append(String.format("<td rowspan=\"%s\" style=\"vertical-align: top\">%s</td>",
+					component.properties.size(), component.change.toString()));
+			// Component-ID + Factory-PID column
+			b.append(String.format("<td rowspan=\"%s\" style=\"vertical-align: top\">", component.properties.size()));
+			b.append(componentId);
+			if (!component.component.getFactoryId().isEmpty()) {
+				b.append(String.format("<br/>(%s)", component.component.getFactoryId()));
+			}
+			b.append("</td>");
 
+			// Properties
 			boolean isFirstProperty = true;
 			for (Entry<String, OldNewProperty> propertyEntry : component.properties.entrySet()) {
 				String propertyName = propertyEntry.getKey();
 				OldNewProperty property = propertyEntry.getValue();
-				Change change = property.getChange();
 				String oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
 				String newP = property.newP.isJsonNull() ? "" : property.newP.toString();
 
 				if (!isFirstProperty) {
 					b.append("<tr>");
 				}
-				b.append(String.format("<td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, change, oldP,
-						newP));
+				b.append(String.format("<td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP));
 				isFirstProperty = false;
 			}
 			b.append("</tr>");
@@ -263,7 +274,7 @@ public class EdgeConfigDiff {
 	public String getAsText() {
 		StringBuilder b = new StringBuilder();
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
-			ComponentDiff component = componentEntry.getValue();
+			final ComponentDiff component = componentEntry.getValue();
 			String change = component.properties.entrySet().stream() //
 					.filter(e -> {
 						switch (e.getKey()) {
@@ -277,14 +288,16 @@ public class EdgeConfigDiff {
 						}
 					}) //
 					.map(e -> {
-						String value = StringUtils.toShortString(e.getValue().getNew(), 20);
-						switch (e.getValue().getChange()) {
+						String oldValue = StringUtils.toShortString(e.getValue().getOld(), 20);
+						String newValue = StringUtils.toShortString(e.getValue().getNew(), 20);
+
+						switch (component.change) {
 						case CREATED:
-							return e.getKey() + "=" + value + " [new]";
+							return e.getKey() + "=" + newValue;
 						case UPDATED:
-							return e.getKey() + "=" + value;
+							return e.getKey() + "=" + newValue + " [was:" + oldValue + "]";
 						case DELETED:
-							return e.getKey() + "!=" + value + " [deleted]";
+							return e.getKey() + " [was:" + oldValue + "]";
 						}
 						assert true;
 						return ""; // can never happen
@@ -293,14 +306,15 @@ public class EdgeConfigDiff {
 			if (change.isEmpty()) {
 				continue;
 			}
-			String componentId = componentEntry.getKey();
-			b.append(String.format("%s", componentId));
+			
+			b.append(component.change);
+			b.append(" ");
+			b.append(componentEntry.getKey());
 			String factoryId = component.component.getFactoryId();
-			if (factoryId.isEmpty()) {
-				b.append(": ");
-			} else {
-				b.append(String.format(" (%s): ", factoryId));
+			if (!factoryId.isEmpty()) {
+				b.append(String.format(" (%s)", factoryId));
 			}
+			b.append(": ");
 			b.append(change);
 			b.append("\n");
 		}

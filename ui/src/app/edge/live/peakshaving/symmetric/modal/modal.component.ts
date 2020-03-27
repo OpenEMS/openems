@@ -61,7 +61,7 @@ export class SymmetricPeakshavingModalComponent {
                         peakShavingPower.setValue(this.component.properties.peakShavingPower);
                         rechargePower.setValue(this.component.properties.rechargePower);
                         this.loading = false;
-                        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                         console.warn(reason);
                     })
                     this.formGroup.markAsPristine()

@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.odoo.postgres.task;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -7,7 +8,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 import io.openems.backend.metadata.odoo.Field.EdgeConfigUpdate;
-import io.openems.backend.metadata.odoo.postgres.MyConnection;
 import io.openems.common.types.EdgeConfigDiff;
 
 public class InsertEdgeConfigUpdate implements DatabaseTask {
@@ -25,7 +25,7 @@ public class InsertEdgeConfigUpdate implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(MyConnection connection) throws SQLException {
+	public void execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psInsertEdgeConfigUpdate(connection);
 		ps.setTimestamp(1, this.createDate);
 		ps.setInt(2, this.odooId);
@@ -41,8 +41,8 @@ public class InsertEdgeConfigUpdate implements DatabaseTask {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psInsertEdgeConfigUpdate(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psInsertEdgeConfigUpdate(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"INSERT INTO " + EdgeConfigUpdate.ODOO_TABLE //
 						+ " (create_date" //
 						+ ", " + EdgeConfigUpdate.DEVICE_ID.id() //
@@ -50,4 +50,10 @@ public class InsertEdgeConfigUpdate implements DatabaseTask {
 						+ ", " + EdgeConfigUpdate.DETAILS.id() + ")" //
 						+ " VALUES(?, ?, ?, ?)");
 	}
+
+	@Override
+	public String toString() {
+		return "InsertEdgeConfigUpdate [createDate=" + createDate + ", odooId=" + odooId + ", teaser=" + teaser + "]";
+	}
+
 }

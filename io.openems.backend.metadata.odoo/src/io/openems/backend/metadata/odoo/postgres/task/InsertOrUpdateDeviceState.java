@@ -1,11 +1,11 @@
 package io.openems.backend.metadata.odoo.postgres.task;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import io.openems.backend.metadata.odoo.Field.EdgeDeviceStatus;
-import io.openems.backend.metadata.odoo.postgres.MyConnection;
 import io.openems.common.channel.Level;
 import io.openems.common.types.ChannelAddress;
 
@@ -26,7 +26,7 @@ public class InsertOrUpdateDeviceState implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(MyConnection connection) throws SQLException {
+	public void execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psInsertOrUpdateDeviceState(connection);
 		// device_id
 		ps.setInt(1, this.odooId);
@@ -54,8 +54,8 @@ public class InsertOrUpdateDeviceState implements DatabaseTask {
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */
-	private PreparedStatement psInsertOrUpdateDeviceState(MyConnection connection) throws SQLException {
-		return connection.get().prepareStatement(//
+	private PreparedStatement psInsertOrUpdateDeviceState(Connection connection) throws SQLException {
+		return connection.prepareStatement(//
 				"INSERT INTO " + EdgeDeviceStatus.ODOO_TABLE //
 						+ " (device_id, channel_address, level, component_id, channel_name, last_appearance)" //
 						+ " VALUES(?, ?, ?, ?, ?, ?)" //
@@ -65,4 +65,9 @@ public class InsertOrUpdateDeviceState implements DatabaseTask {
 						+ "channel_name=EXCLUDED.channel_name,last_appearance=EXCLUDED.last_appearance");
 	}
 
+	@Override
+	public String toString() {
+		return "InsertOrUpdateDeviceState [odooId=" + odooId + ", channelAddress=" + channelAddress + ", level=" + level
+				+ ", stateChannelName=" + stateChannelName + ", timestamp=" + timestamp + "]";
+	}
 }

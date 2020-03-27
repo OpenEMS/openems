@@ -1,6 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
 
@@ -46,6 +48,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -63,15 +66,21 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	private final OsgiValidateWorker osgiValidateWorker;
 	private final OutOfMemoryHeapDumpWorker outOfMemoryHeapDumpWorker;
 	private final DefaultConfigurationWorker defaultConfigurationWorker;
-	private final EdgeConfigFactory edgeConfigFactory;
+	private final EdgeConfigWorker edgeConfigWorker;
 
-	private BundleContext bundleContext;
+	protected BundleContext bundleContext;
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile ClockProvider clockProvider = null;
 
 	@Reference
-	private MetaTypeService metaTypeService;
+	protected MetaTypeService metaTypeService;
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference
+	protected EventAdmin eventAdmin;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
@@ -93,7 +102,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		this.osgiValidateWorker = new OsgiValidateWorker(this);
 		this.outOfMemoryHeapDumpWorker = new OutOfMemoryHeapDumpWorker(this);
 		this.defaultConfigurationWorker = new DefaultConfigurationWorker(this);
-		this.edgeConfigFactory = new EdgeConfigFactory();
+		this.edgeConfigWorker = new EdgeConfigWorker(this);
 	}
 
 	@Activate
@@ -110,6 +119,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Start the Default-Configuration Worker
 		this.defaultConfigurationWorker.activate(this.id());
+
+		// Start the EdgeConfig Worker
+		this.edgeConfigWorker.activate(this.id());
 	}
 
 	@Deactivate
@@ -124,6 +136,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Stop the Default-Configuration Worker
 		this.defaultConfigurationWorker.deactivate();
+
+		// Stop the EdgeConfig Worker
+		this.edgeConfigWorker.deactivate();
 	}
 
 	@Override
@@ -193,7 +208,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		EdgeConfig config = this.getEdgeConfig(null);
+		EdgeConfig config = this.getEdgeConfig();
 		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
 	}
@@ -215,29 +230,42 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				componentId = JsonUtils.getAsString(property.getValue());
 			}
 		}
-		if (componentId == null) {
-			throw new OpenemsException("Component-ID is missing in " + request.toString());
-		}
-
-		// Check that there is currently no Component with the same ID.
-		Configuration[] configs;
-		try {
-			configs = this.cm.listConfigurations("(id=" + componentId + ")");
-		} catch (IOException | InvalidSyntaxException e) {
-			throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
-					+ e.getClass().getSimpleName() + ": " + e.getMessage());
-		}
-		if (configs != null && configs.length > 0) {
-			throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
-		}
 
 		Configuration config;
-		try {
-			config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID ["
-					+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		if (componentId != null) {
+			// Normal OpenEMS Component with ID.
+			// Check that there is currently no Component with the same ID.
+			Configuration[] configs;
+			try {
+				configs = this.cm.listConfigurations("(id=" + componentId + ")");
+			} catch (IOException | InvalidSyntaxException e) {
+				throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
+						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+			if (configs != null && configs.length > 0) {
+				throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
+			}
+			try {
+				config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID ["
+						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+
+		} else {
+			// Singleton?
+			try {
+				config = this.cm.getConfiguration(request.getFactoryPid(), null);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw OpenemsError.GENERIC.exception("Unable to get Configurations for Factory-PID ["
+						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+			if (config.getProperties() != null) {
+				throw new OpenemsException(
+						"A Singleton Component for PID [" + request.getFactoryPid() + "] is already existing!");
+			}
 		}
 
 		// Create map with configuration attributes
@@ -356,6 +384,19 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 
+		if (configs == null) {
+			// Maybe this is a Singleton?
+			String factoryPid = this.getComponent(componentId).serviceFactoryPid();
+			try {
+				return this.cm.getConfiguration(factoryPid, null);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw OpenemsError.GENERIC.exception(
+						"Unable to get Singleton-Component Configuration for ID [" + componentId + "], Factory-PID ["
+								+ factoryPid + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			}
+		}
+
 		// Make sure we only have one config
 		if (configs == null || configs.length == 0) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
@@ -366,16 +407,27 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public synchronized EdgeConfig getEdgeConfig(ConfigurationEvent event) {
-		return this.edgeConfigFactory.getEdgeConfig(this.bundleContext, this.metaTypeService, this.cm,
-				this.allComponents, event);
+	public synchronized EdgeConfig getEdgeConfig() {
+		return this.edgeConfigWorker.getEdgeConfig();
 	}
 
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
+		// trigger update of EdgeConfig
+		this.edgeConfigWorker.handleEvent(event);
+
 		// trigger immediate validation on configuration event
 		this.osgiValidateWorker.triggerNextRun();
-
-		// Update EdgeConfig and send Event
 	}
+
+	@Override
+	public Clock getClock() {
+		ClockProvider clockProvider = this.clockProvider;
+		if (clockProvider != null) {
+			return clockProvider.getClock();
+		} else {
+			return Clock.systemDefaultZone();
+		}
+	}
+
 }

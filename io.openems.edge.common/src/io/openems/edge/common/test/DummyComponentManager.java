@@ -1,12 +1,12 @@
 package io.openems.edge.common.test;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.OpenemsConstants;
@@ -52,8 +52,8 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public EdgeConfig getEdgeConfig(ConfigurationEvent event) {
-		return new EdgeConfig();	
+	public EdgeConfig getEdgeConfig() {
+		return new EdgeConfig();
 	}
 
 	@Override
@@ -90,6 +90,11 @@ public class DummyComponentManager implements ComponentManager {
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		return null;
+	}
+
+	@Override
+	public Clock getClock() {
+		return Clock.systemDefaultZone();
 	}
 
 }
