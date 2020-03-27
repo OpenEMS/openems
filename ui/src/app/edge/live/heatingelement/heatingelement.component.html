@@ -2,7 +2,8 @@
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card button (click)="presentModal()">
             <ion-item lines="full" color="light">
-                <ion-icon class="ion-no-margin" slot="start" size="large" color="danger" name="flame"></ion-icon>
+                <ion-icon class="ion-no-margin" slot="start" size="large" color="danger" name="flame-outline">
+                </ion-icon>
                 <ion-label *ngIf="controller.alias != controller.id">{{ controller.alias }}</ion-label>
                 <ion-label *ngIf="controller.alias == controller.id">Heizelement</ion-label>
             </ion-item>
@@ -29,7 +30,8 @@
                         <td style="width:65%" translate>General.State</td>
                         <td style="width:35%" class="align_right" translate>
                             <ion-icon *ngIf="currentData.channel[outputChannelPhaseOne] == null && currentData.channel[outputChannelPhaseTwo] == null 
-                                && currentData.channel[outputChannelPhaseThree] == null" name="help"></ion-icon>
+                                && currentData.channel[outputChannelPhaseThree] == null" name="help-outline">
+                            </ion-icon>
                             <ng-container *ngIf="currentData.channel[outputChannelPhaseOne] == 1 || currentData.channel[outputChannelPhaseTwo] == 1 
                                 || currentData.channel[outputChannelPhaseThree] == 1">
                                 General.Active
