@@ -34,8 +34,25 @@ public class PreConfig {
 		Configuration factory;
 
 		Configuration[] configs;
-		
+		try {
+			configs = cm.listConfigurations("(id=rrd4j0)");
 
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Timedata.Rrd4j", null);
+
+				Hashtable<String, Object> rrd4j = new Hashtable<>();
+				rrd4j.put("enabled", true);
+				rrd4j.put("id", "rrd4j0");
+				rrd4j.put("alias", "");
+				rrd4j.put("noOfCycles", 60);
+				factory.update(rrd4j);
+			} 
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/*
 		try {
 			configs = cm.listConfigurations("(id=influx0)");
 
@@ -71,7 +88,7 @@ public class PreConfig {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		*/
 		try {
 			configs = cm.listConfigurations("(service.pid=Core.User)");
 

@@ -23,9 +23,6 @@
 	bnd.identity;id='io.openems.backend.common',\
 	bnd.identity;id='io.openems.backend.core',\
 	bnd.identity;id='io.openems.backend.edgewebsocket.impl',\
-	bnd.identity;id='io.openems.backend.metadata.dummy',\
-	bnd.identity;id='io.openems.backend.metadata.file',\
-	bnd.identity;id='io.openems.backend.metadata.odoo',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
 	bnd.identity;id='io.openems.backend.uiwebsocket.energydepot',\

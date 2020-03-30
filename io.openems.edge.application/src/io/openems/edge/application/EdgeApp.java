@@ -1,8 +1,10 @@
 package io.openems.edge.application;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,9 @@ public class EdgeApp {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeApp.class);
 
+	@Reference
+	ConfigurationAdmin cm;
+
 	@Activate
 	void activate() {
 		String message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
@@ -28,6 +33,7 @@ public class EdgeApp {
 		if (SDNotify.isAvailable()) {
 			SDNotify.sendNotify();
 		}
+		PreConfig.initConfig(cm);
 	}
 
 	@Deactivate

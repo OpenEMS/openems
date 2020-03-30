@@ -7,7 +7,8 @@
 -runproperties:\
 	org.osgi.service.http.port=8080,\
 	felix.cm.dir=c:/openems-config,\
-	openems.data.dir=/usr/lib/hy-control/data
+	openems.data.dir=/usr/lib/hy-control/data,\
+	#openems.data.dir=c:/openems-data
 	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
 
 -runbundles+: \
