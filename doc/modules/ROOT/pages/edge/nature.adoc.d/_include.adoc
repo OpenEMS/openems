@@ -15,4 +15,6 @@ include::io.openems.edge.predictor.api.adoc[leveloffset=+1]
 
 include::io.openems.edge.scheduler.api.adoc[leveloffset=+1]
 
+include::io.openems.edge.thermometer.api.adoc[leveloffset=+1]
+
 include::io.openems.edge.timedata.api.adoc[leveloffset=+1]
