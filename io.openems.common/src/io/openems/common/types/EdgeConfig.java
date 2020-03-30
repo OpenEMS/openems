@@ -815,7 +815,7 @@ public class EdgeConfig {
 	}
 
 	public TreeMap<String, Factory> getFactories() {
-		return factories;
+		return this.factories;
 	}
 
 	/**
