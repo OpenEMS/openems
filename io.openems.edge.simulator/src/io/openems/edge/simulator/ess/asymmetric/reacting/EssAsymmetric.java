@@ -18,9 +18,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -59,8 +57,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	private int maxApparentPower = 0;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT));
+		;
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -127,26 +124,13 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	}
 
 	private void updateChannels() {
-		
-		/*
-		 * get and store Simulated Grid Active Power
-		 */
-		int simulatedGridActivePower = this.datasource.getValue(OpenemsType.INTEGER, "GridActivePower");
-		this.channel(ChannelId.SIMULATED_GRID_ACTIVE_POWER).setNextValue(simulatedGridActivePower / 10000);
-		
-		
-		/*
-		 * Calculate Active Power
-		 */
-		//int gridActivePower = simulatedGridActivePower/ 10000;		
-
+		// nothing to do
 	}
 
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|GridActivePower:" + this.channel(ChannelId.SIMULATED_GRID_ACTIVE_POWER).value().asString() //
 				+ "|" + this.getGridMode().value().asOptionString();
 	}
 
