@@ -340,11 +340,7 @@ export class Service implements ErrorHandler {
    * checks if fems is allowed to show kWh
    */
   public isKwhAllowed(edge: Edge): boolean {
-    if (edge && ['fems7', 'fems66', 'fems566', 'fems888'].includes(edge.id)) {
-      return true;
-    } else {
-      return true;
-    }
+    return true;
   }
 
   /**

@@ -26,8 +26,6 @@ export enum WidgetFactory {
     'Controller.Symmetric.PeakShaving',
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumtion',
-    'Controller.Api.ModbusTcp.ReadOnly',
-    'Controller.Api.ModbusTcp.ReadWrite',
 }
 
 export class Widget {

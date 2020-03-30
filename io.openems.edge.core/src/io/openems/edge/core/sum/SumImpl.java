@@ -9,9 +9,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
@@ -23,7 +20,6 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
@@ -43,10 +39,9 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		property = { //
 				"id=" + OpenemsConstants.SUM_ID, //
-				"enabled=true", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+				"enabled=true" //
 		})
-public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave, EventHandler {
+public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave {
 
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	protected Timedata timedata = null;
@@ -84,16 +79,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.calculateChannelValues();
-			this.calculateState();
-		}
+	public void updateChannelsBeforeProcessImage() {
+		this.calculateChannelValues();
+		this.calculateState();
 	}
 
 	/**
@@ -348,7 +336,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				// ignore myself
 				continue;
 			}
-			Level level = component.getState().getNextValue().asEnum();
+			Level level = component.getState().value().asEnum();
 			if (level.getValue() > highestLevel.getValue()) {
 				highestLevel = level;
 			}

@@ -475,6 +475,14 @@ public interface Sum extends OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Update all Channel-Values of this Sum-Component.
+	 * 
+	 * This method is called by the 'Cycle' just before the
+	 * TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
+	 */
+	public void updateChannelsBeforeProcessImage();
+
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(Sum.class, accessMode, 220) //
 				.channel(0, ChannelId.ESS_SOC, ModbusType.UINT16) //

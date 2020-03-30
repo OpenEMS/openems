@@ -95,7 +95,8 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 		 * @param value the new value
 		 */
 		public Property(String name, JsonElement value) {
-			this.name = name;
+			// convert underscore ('_') to point ('.') in property name
+			this.name = name.replace("_", ".");
 			this.value = value;
 		}
 

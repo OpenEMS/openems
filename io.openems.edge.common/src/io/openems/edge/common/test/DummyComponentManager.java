@@ -1,5 +1,6 @@
 package io.openems.edge.common.test;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -89,6 +90,11 @@ public class DummyComponentManager implements ComponentManager {
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		return null;
+	}
+
+	@Override
+	public Clock getClock() {
+		return Clock.systemDefaultZone();
 	}
 
 }

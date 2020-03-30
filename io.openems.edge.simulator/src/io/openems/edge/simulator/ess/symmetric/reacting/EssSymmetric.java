@@ -11,9 +11,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -33,7 +30,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssSymmetric.Reacting", //
@@ -76,20 +72,12 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	@Reference
 	private Power power;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected SimulatorDatasource datasource;
-
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
-		}
 
 		this.getSoc().setNextValue(config.initialSoc());
 		this.soc = config.initialSoc();
@@ -147,7 +135,10 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		/*
 		 * calculate State of charge
 		 */
-		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
+		// TODO timedelta
+		float watthours = (float) activePower * 1 / 3600;
+		// float watthours = (float) activePower * this.datasource.getTimeDelta() /
+		// 3600;
 		float socChange = watthours / this.capacity;
 		this.soc -= socChange;
 		if (this.soc > 100) {

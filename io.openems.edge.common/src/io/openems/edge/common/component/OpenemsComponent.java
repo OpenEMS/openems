@@ -88,7 +88,14 @@ public interface OpenemsComponent {
 		ComponentContext context = this.getComponentContext();
 		if (context != null) {
 			Dictionary<String, Object> properties = context.getProperties();
+
 			Object servicePid = properties.get("service.factoryPid");
+			if (servicePid != null) {
+				return servicePid.toString();
+			}
+
+			// Singleton?
+			servicePid = properties.get("component.name");
 			if (servicePid != null) {
 				return servicePid.toString();
 			}
