@@ -19,8 +19,6 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,8 +42,7 @@ public class GridMeter extends AbstractOpenemsComponent
 	// private final Logger log = LoggerFactory.getLogger(GridMeter.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT));
+		;
 
 		private final Doc doc;
 
@@ -121,14 +118,14 @@ public class GridMeter extends AbstractOpenemsComponent
 					// ignore
 					break;
 				case CONSUMPTION_NOT_METERED:
-					powerSum -= (Integer) sm.getActivePower().getNextValue().get();
+					powerSum -= sm.getActivePower().getNextValue().get();
 					break;
 				case GRID:
 					gridCount++;
 					break;
 				case PRODUCTION:
 				case PRODUCTION_AND_CONSUMPTION:
-					powerSum += (Integer) sm.getActivePower().getNextValue().get();
+					powerSum += sm.getActivePower().getNextValue().get();
 					break;
 				}
 			} catch (NullPointerException e) {
@@ -143,7 +140,6 @@ public class GridMeter extends AbstractOpenemsComponent
 			activePower /= gridCount;
 		}
 
-		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(activePower);
 		this.getActivePower().setNextValue(activePower);
 		this.getActivePowerL1().setNextValue(activePower / 3);
 		this.getActivePowerL2().setNextValue(activePower / 3);

@@ -22,11 +22,9 @@ import io.openems.edge.simulator.CsvFormat;
 	@AttributeDefinition(name = "Factor", description = "Each value in the csv-file is multiplied by this factor.")
 	float factor() default 1;
 
-	@AttributeDefinition(name = "Time-Delta", description = "Time-Delta between two entries in the csv-file in seconds.")
-	int timeDelta() default 60;
-
-	@AttributeDefinition(name = "Realtime", description = "If true the output-value doesn't change, until the Time-Delta has passed in realtime.")
-	boolean realtime() default false;
+	@AttributeDefinition(name = "Time-Delta", description = "Time-Delta between two entries in the csv-file in seconds. "
+			+ "If set the output-value doesn't change, until the Time-Delta has passed in realtime.", required = false)
+	int timeDelta() default -1;
 
 	@AttributeDefinition(name = "Source", description = "A CSV-Input containing an optional title line and a series of values.")
 	String source() default "0";

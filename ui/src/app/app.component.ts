@@ -48,10 +48,14 @@ export class AppComponent {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
-        showCloseButton: true,
         position: 'top',
-        closeButtonText: 'Ok',
-        duration: 2000
+        duration: 2000,
+        buttons: [
+          {
+            text: 'Ok',
+            role: 'cancel',
+          }
+        ]
       });
       toast.present();
     });
@@ -148,6 +152,15 @@ export class AppComponent {
       }
     } else {
       this.currentPage = 'Other';
+    }
+  }
+
+  updateLiveHistorySegment(event) {
+    if (event.detail.value == "IndexLive") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
+    }
+    if (event.detail.value == "IndexHistory") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
     }
   }
 

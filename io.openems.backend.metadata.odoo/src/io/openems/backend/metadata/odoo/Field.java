@@ -44,7 +44,7 @@ public interface Field {
 		OPENEMS_SUM_STATE_TEXT("openems_sum_state_text", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
-		public final static String ODOO_MODEL = "edge.device";
+		public static final String ODOO_MODEL = "edge.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -94,7 +94,7 @@ public interface Field {
 		LAST_ACKNOWLEDGE("last_acknowledge", false), //
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
-		public final static String ODOO_MODEL = "edge.device_status";
+		public static final String ODOO_MODEL = "edge.device_status";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -140,7 +140,7 @@ public interface Field {
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
-		public final static String ODOO_MODEL = "edge.openemsconfigupdate";
+		public static final String ODOO_MODEL = "edge.openemsconfigupdate";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {

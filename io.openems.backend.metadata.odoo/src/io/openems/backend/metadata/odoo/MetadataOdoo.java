@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.odoo;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +49,7 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 	}
 
 	@Activate
-	void activate(Config config) {
+	void activate(Config config) throws SQLException {
 		this.logInfo(this.log, "Activate. " //
 				+ "Odoo [" + config.odooHost() + ":" + config.odooPort() + ";PW "
 				+ (config.odooPassword() != null ? "ok" : "NOT_SET") + "] " //

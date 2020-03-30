@@ -52,11 +52,6 @@ public class AllAlphabeticallyTest {
 			}
 
 			@Override
-			public int cycleTime() {
-				return 0;
-			}
-
-			@Override
 			public String[] controllers_ids() {
 				return new String[] { "c3", "c2" };
 			}
