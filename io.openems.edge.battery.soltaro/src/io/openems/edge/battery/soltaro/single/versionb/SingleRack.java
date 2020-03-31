@@ -1000,7 +1000,11 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRackChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),
 						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)) //
-						.onUpdateCallback( v -> { this.channel(Battery.ChannelId.SOH).setNextValue( (int) v / 10 );  }  ), //write into api channel
+								.onUpdateCallback(v -> {
+									if (v != null) {
+										this.channel(Battery.ChannelId.SOH).setNextValue((Integer) v / 10);
+									}
+								}), // write into api channel
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, new UnsignedWordElement(0x2106)), //
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
