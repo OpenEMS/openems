@@ -1,7 +1,7 @@
 package io.openems.edge.fenecon.dess.ess;
 
-import com.google.common.collect.EvictingQueue;
 import java.util.OptionalDouble;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,6 +14,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.google.common.collect.EvictingQueue;
+
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -25,22 +27,25 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.fenecon.dess.FeneconDessConstants;
-import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Dess.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class FeneconDessEss extends AbstractOpenemsModbusComponent
 		implements AsymmetricEss, SymmetricEss, OpenemsComponent {
+
+	private static final int MAX_APPARENT_POWER = 9_000; // [VA]
+	private static final int CAPACITY = 10_000; // [Wh]
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -57,6 +62,9 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 				AsymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
+
+		this.getMaxApparentPower().setNextValue(MAX_APPARENT_POWER);
+		this.getCapacity().setNextValue(CAPACITY);
 
 		// automatically calculate Active/ReactivePower from L1/L2/L3
 		AsymmetricEss.initializePowerSumChannels(this);
@@ -169,7 +177,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 				+ "|L:" + this.getActivePower().value().asString(); //
 	}
 
-	private final static ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter( //
+	private static final ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter(//
 			// element -> channel
 			value -> {
 				if (value == null) {
@@ -181,6 +189,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 				}
 				return intValue - 10_000; // apply delta of 10_000
 			}, //
-				// channel -> element
+
+			// channel -> element
 			value -> value);
 }

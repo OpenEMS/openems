@@ -1,11 +1,11 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { formatNumber } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'socStorageChart',
@@ -30,14 +30,13 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
-        this.setLabel();
     }
 
     protected updateChart() {
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then((edge) => {
-                this.service.getConfig().then((config) => {
+            this.service.getCurrentEdge().then(edge => {
+                this.service.getConfig().then(config => {
                     let result = response.result;
                     // convert labels
                     let labels: Date[] = [];
@@ -68,7 +67,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             } else {
                                 if (channelAddress.channelId == 'EssSoc') {
                                     datasets.push({
-                                        label: (moreThanOneESS ? this.translate.instant('General.Total') : this.translate.instant('General.Soc')),
+                                        label: (moreThanOneESS ? this.translate.instant('General.total') : this.translate.instant('General.soc')),
                                         data: data
                                     })
                                     this.colors.push({
@@ -123,7 +122,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     protected setLabel() {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;

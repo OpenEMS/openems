@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.ModbusWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;

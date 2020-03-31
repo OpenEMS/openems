@@ -1,9 +1,9 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ChannelAddress, Edge, Service } from '../../../shared/shared';
+import { Component, Input } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, Service } from '../../../shared/shared';
+import { ModalController } from '@ionic/angular';
 import { ProductionModalComponent } from './modal/modal.component';
 
 @Component({
@@ -17,7 +17,6 @@ export class ProductionComponent {
     private static readonly SELECTOR = "productionWidget";
 
     public data: Cumulated = null;
-    public values: any;
     public edge: Edge = null;
 
     constructor(

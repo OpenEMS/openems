@@ -1,0 +1,5 @@
+= Asymmetric Peak-Shaving
+
+Applies asymmetric peak-shaving at the grid meter using a energy storage system. The controller evaluates the grid meter phase with the highest load and discharges the energy storage system accordingly to cut this power peak in order to avoid the fuse to be triggered. On low consumption periods the energy storage system recharges.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.asymmetric.peakshaving[Source Code icon:github[]]

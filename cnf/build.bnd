@@ -40,6 +40,7 @@
 		pom=${build}/pom.xml; \
 		readOnly=true; \
 		name="Maven Central"
+
 -plugin.7.Local: \
 	aQute.bnd.deployer.repository.LocalIndexedRepo; \
 		name = Local; \
@@ -69,22 +70,20 @@ Git-Descriptor:           ${system-allow-fail;git describe --dirty --always}
 Git-SHA:                  ${system-allow-fail;git rev-list -1 HEAD}
 
 # JUnit
-junit: org.apache.servicemix.bundles.junit; version=4.12
-mockito: org.mockito.mockito-core; version=2.13.0
-mockito-deps: org.objenesis; version=2.6.0,\
-  net.bytebuddy.byte-buddy; version=1.7.9,\
-  net.bytebuddy.byte-buddy-agent; version=1.7.9 
+junit: \
+	org.apache.servicemix.bundles.junit;version=4.12
 
 # OpenEMS bnd.bnd defaults
 buildpath: \
-	osgi.annotation; version=7.0.0,\
-	osgi.core; version=7.0.0,\
-	osgi.cmpn; version=7.0.0
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
+	slf4j.api;version=1.7.30,\
+	com.google.guava;version=28.2,\
+	com.google.gson;version=2.8.5
 
 testpath: \
-    \${junit},\
-    \${mockito},\
-    \${mockito-deps}
+    \${junit}
 
 javac.source: 1.8
 javac.target: 1.8

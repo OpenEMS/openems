@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -30,7 +30,8 @@ export class AppComponent {
     public service: Service,
     public router: Router,
     public toastController: ToastController,
-    public menu: MenuController
+    public menu: MenuController,
+    private cdRef: ChangeDetectorRef
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
@@ -47,10 +48,14 @@ export class AppComponent {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
-        showCloseButton: true,
         position: 'top',
-        closeButtonText: 'Ok',
-        duration: 2000
+        duration: 2000,
+        buttons: [
+          {
+            text: 'Ok',
+            role: 'cancel',
+          }
+        ]
       });
       toast.present();
     });
@@ -63,6 +68,11 @@ export class AppComponent {
     ).subscribe(event => {
       this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
     })
+  }
+
+  // used to prevent 'Expression has changed after it was checked' error
+  ngAfterViewChecked() {
+    this.cdRef.detectChanges()
   }
 
   updateUrl(url: string) {
@@ -142,6 +152,15 @@ export class AppComponent {
       }
     } else {
       this.currentPage = 'Other';
+    }
+  }
+
+  updateLiveHistorySegment(event) {
+    if (event.detail.value == "IndexLive") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
+    }
+    if (event.detail.value == "IndexHistory") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
     }
   }
 

@@ -3,7 +3,7 @@ package io.openems.edge.goodwe.et.gridmeter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "GoodWe ET Grid-Meter", //
 		description = "The grid-meter implementation of a Goodwe.")
 
@@ -16,7 +16,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Modbus Unit-id", description = "Unit-id")
 	int unit_id() default 0xF7;
 
@@ -27,5 +27,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String Modbus_target() default "";
 
 	String webconsole_configurationFactory_nameHint() default "GoodWe ET Grid-Meter [{id}]";
-	
+
 }

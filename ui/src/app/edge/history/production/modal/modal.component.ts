@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 import { EdgeConfig, Service, Utils } from '../../../../shared/shared';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: ProductionModalComponent.SELECTOR,

@@ -36,7 +36,7 @@ export class SettingsComponent {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.GeneralSettings'), this.route).then(edge => {
+    this.service.setCurrentComponent(this.translate.instant('Menu.generalSettings'), this.route).then(edge => {
       this.edge = edge
     });
   }

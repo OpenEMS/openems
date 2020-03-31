@@ -22,14 +22,15 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	}
 
 	@Override
-	protected final ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() {
 		int startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(startAddress, Priority.LOW, //
-						m(PvChannelId.V, new UnsignedWordElement(startAddress),
+				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
+						m(PvChannelId.V, new UnsignedWordElement(startAddress), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(PvChannelId.I, new UnsignedWordElement(startAddress + 1),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+				new FC3ReadRegistersTask(startAddress + 2, Priority.HIGH, //
 						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
 	}
 

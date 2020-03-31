@@ -24,7 +24,7 @@ public class CalculateLongSum {
 	 * @param channel the Channel
 	 */
 	public void addValue(Channel<Long> channel) {
-		Optional<Long> value = channel.getNextValue().asOptional();
+		Optional<Long> value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
 				this.values.add(value.get());

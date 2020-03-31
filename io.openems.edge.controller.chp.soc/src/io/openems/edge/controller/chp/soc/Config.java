@@ -16,7 +16,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 
@@ -31,6 +31,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "High threshold", description = "High boundary of the threshold")
 	int highThreshold();
+
+	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour of switching ON and OFF is inverted")
+	boolean invert() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Controller CHP SOC [{id}]";
 }
