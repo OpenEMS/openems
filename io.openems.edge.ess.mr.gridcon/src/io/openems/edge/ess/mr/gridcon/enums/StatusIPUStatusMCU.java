@@ -19,8 +19,8 @@ public enum StatusIPUStatusMCU implements OptionsEnum {
 	READY_INTERN(13, "Ready intern"), //
 	RUN(14, "Run extern"), //
 	RUN_INTERN(15, "Run intern"), //
-	UNKNOWN_STATE_18(18, "Unknown State"), //
-	UNKNOWN_STATE_21(21, "Unknown State");
+	UNKNOWN_STATE_18(18, "Unknown StateObject"), //
+	UNKNOWN_STATE_21(21, "Unknown StateObject");
 
 	private final int value;
 	private final String name;

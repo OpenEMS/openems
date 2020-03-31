@@ -5,6 +5,7 @@ public enum BatteryState {
 	DEFAULT,
 	ON,
 	OFF,
-	CONFIGURE
+	CONFIGURE,
+	OVER_CONTROLLED 
 	;
 }
