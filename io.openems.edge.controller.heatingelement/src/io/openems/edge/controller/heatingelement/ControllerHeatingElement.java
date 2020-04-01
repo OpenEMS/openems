@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 //import org.slf4j.Logger;
@@ -34,7 +35,9 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.HeatingElement", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "Controller.HeatingElement", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE)//
 public class ControllerHeatingElement extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -80,19 +83,19 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 	long level2Time = 0;
 	/**
-	 * This variable holds the total time of level_3. 
+	 * This variable holds the total time of level_3.
 	 */
 	long level3Time = 0;
 	/**
-	 * This variable holds the total energy of level_1. 
+	 * This variable holds the total energy of level_1.
 	 */
 	double level1Energy = 0;
 	/**
-	 * This variable holds the total energy of level_2. 
+	 * This variable holds the total energy of level_2.
 	 */
 	double level2Energy = 0;
 	/**
-	 * This variable holds the total energy of level_3. 
+	 * This variable holds the total energy of level_3.
 	 */
 	double level3Energy = 0;
 
@@ -232,6 +235,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.config = config;
 	}
 
+	@Modified
+	void modified(Config config) {
+		this.config = config;
+	}
+
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -336,7 +344,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * This method is running the priority mode at the "end time", force switches on
 	 * the phases based on the "Gear" configured.
 	 * 
-	 * @throws OpenemsNamedException on error
+	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
 	private void runPriority() throws IllegalArgumentException, OpenemsNamedException {
@@ -523,7 +531,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * 
 	 * @param phases All the {@link PhaseDef} objects
 	 * @throws IllegalArgumentException on error
-	 * @throws OpenemsNamedException on error
+	 * @throws OpenemsNamedException    on error
 	 */
 	private void computeTime(Map<Phase, PhaseDef> phases) throws IllegalArgumentException, OpenemsNamedException {
 		for (PhaseDef phaseDef : this.phases.values()) {
