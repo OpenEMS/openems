@@ -37,13 +37,15 @@ import io.openems.edge.controller.api.Controller;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.HeatingElement", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)//
+		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 public class ControllerHeatingElement extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+	public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+	public static final double MILI_SEC_PER_DAY = 3600000.0;
+	public static final int SEC_PER_DAY = 3600;
+	public static final int TWO = 2;
+	public static final int THREE = 3;
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(ControllerHeatingElement.class);
 	private final Clock clock;
 	private final Map<Phase, PhaseDef> phases = new HashMap<>();
 
@@ -203,18 +205,14 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 
-		ChannelAddress o1 = ChannelAddress.fromString(config.outputChannelAddress1());
-		ChannelAddress o2 = ChannelAddress.fromString(config.outputChannelAddress2());
-		ChannelAddress o3 = ChannelAddress.fromString(config.outputChannelAddress3());
-
 		// Setting the outputchannel for each phases
 		for (Phase p : phases.keySet()) {
 			if (p == Phase.ONE) {
-				phases.get(p).setOutputChannelAddress(o1);
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress1()));
 			} else if (p == Phase.TWO) {
-				phases.get(p).setOutputChannelAddress(o2);
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress2()));
 			} else {
-				phases.get(p).setOutputChannelAddress(o3);
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress3()));
 			}
 		}
 
@@ -236,7 +234,32 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	@Modified
-	void modified(Config config) {
+	void modified(Config config) throws OpenemsNamedException {
+		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
+
+		// Setting the outputchannel for each phases
+		for (Phase p : phases.keySet()) {
+			if (p == Phase.ONE) {
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress1()));
+			} else if (p == Phase.TWO) {
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress2()));
+			} else {
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress3()));
+			}
+		}
+
+		this.mode = config.mode();
+		this.priority = config.priority();
+		this.heatingLevel = config.heatingLevel();
+
+		/**
+		 * Mintime is calculated in both the priority modes and it is also important in
+		 * each levels.
+		 */
+		this.minKwh = config.minkwh();
+		this.minTime = this.getSeconds(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
+
+		this.endtime = LocalTime.parse(config.endTime());
 		this.config = config;
 	}
 
@@ -324,9 +347,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		 */
 		this.level3Time = this.totalPhase3Time;
 
-		this.level1Energy = (level1Time / 3600000.0) * config.powerOfPhase();
-		this.level2Energy = (level2Time / 3600000.0) * (config.powerOfPhase() * 2);
-		this.level3Energy = (level3Time / 3600000.0) * (config.powerOfPhase() * 3);
+		this.level1Energy = (level1Time / MILI_SEC_PER_DAY) * config.powerOfPhase();
+		this.level2Energy = (level2Time / MILI_SEC_PER_DAY) * (config.powerOfPhase() * TWO);
+		this.level3Energy = (level3Time / MILI_SEC_PER_DAY) * (config.powerOfPhase() * THREE);
 
 		this.channel(ChannelId.LEVEL1_TIME).setNextValue(level1Time);
 		this.channel(ChannelId.LEVEL2_TIME).setNextValue(level2Time);
@@ -438,7 +461,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			return;
 		}
 
-		LocalTime now = LocalTime.parse(formatter.format(LocalTime.now()));
+		LocalTime now = LocalTime.parse(FORMATTER.format(LocalTime.now()));
 		LocalTime updateEndtime = endtime.minusSeconds((long) this.countDownMinTime);
 
 //		System.out.println("Current time is " + now);
@@ -467,9 +490,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		case NORMAL_MODE:
 			boolean stateChanged;
 			do {
-				if (excessPower >= (config.powerOfPhase() * 3)) {
+				if (excessPower >= (config.powerOfPhase() * THREE)) {
 					stateChanged = this.changeState(Level.LEVEL_3);
-				} else if (excessPower >= (config.powerOfPhase() * 2)) {
+				} else if (excessPower >= (config.powerOfPhase() * TWO)) {
 					stateChanged = this.changeState(Level.LEVEL_2);
 				} else if (excessPower >= config.powerOfPhase()) {
 					stateChanged = this.changeState(Level.LEVEL_1);
@@ -593,23 +616,23 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			case LEVEL_1:
 			case LEVEL_2:
 			case LEVEL_3:
-				return configuredTime * 3600; // Converting the time configured as hours into mili seconds
+				return configuredTime * SEC_PER_DAY; // Converting the time configured as hours into mili seconds
 			}
 			break;
 		case KILO_WATT_HOUR:
 
 			switch (heatingLevel) {
 			case LEVEL_0:
-				// this is basically specifying the minTime is zero
+				// this is basically specifying the minTime equal to zero
 				return calculatedTime;
 			case LEVEL_1:
-				calculatedTime = (minKwh / config.powerOfPhase()) * 3600;
+				calculatedTime = (minKwh / config.powerOfPhase()) * SEC_PER_DAY;
 				break;
 			case LEVEL_2:
-				calculatedTime = (minKwh / (config.powerOfPhase() * 2)) * 3600;
+				calculatedTime = (minKwh / (config.powerOfPhase() * TWO)) * SEC_PER_DAY;
 				break;
 			case LEVEL_3:
-				calculatedTime = (minKwh / (config.powerOfPhase() * 4)) * 3600;
+				calculatedTime = (minKwh / (config.powerOfPhase() * THREE)) * SEC_PER_DAY;
 				break;
 			}
 			return calculatedTime;
