@@ -65,7 +65,6 @@ export class AdvertisementComponent {
   }
 
   swipeNext() {
-    console.log("config", this.config)
     this.slides.slideNext()
   }
 
