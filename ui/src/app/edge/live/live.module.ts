@@ -22,8 +22,6 @@ import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 import { EvcsComponent } from './evcs/evcs.component';
 import { EvcsModalComponent } from './evcs/modal/modal.page';
 import { EvcsPopoverComponent } from './evcs/modal/popover/popover.page';
-import { EvcsUpgradeComponent } from './evcsupgrade/evcsupgrade.component';
-import { EvcsUpgradeModalComponent } from './evcsupgrade/modal/modal.component';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { GridComponent } from './grid/grid.component';
@@ -32,8 +30,6 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
 import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
-import { MiniupgradeComponent } from './miniupgrade/miniupgrade.component';
-import { MiniupgradeModalComponent } from './miniupgrade/modal/modal.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { ModbusApiComponent } from './modbusapi/modbusapi.component';
 import { NgModule } from '@angular/core';
@@ -50,9 +46,11 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { AdvertisementModule } from './advertisement/advertisement.module';
 
 @NgModule({
   imports: [
+    AdvertisementModule,
     BrowserAnimationsModule,
     BrowserModule,
     EnergymonitorModule,
@@ -68,12 +66,10 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     CorrentlyModalComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
-    EvcsUpgradeModalComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
     GridModalComponent,
     HeatingElementModalComponent,
-    MiniupgradeModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -84,7 +80,6 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SymmetricPeakshavingModalComponent,
   ],
   declarations: [
-    AdvertisementComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
@@ -105,8 +100,6 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     EvcsComponent,
     EvcsModalComponent,
     EvcsPopoverComponent,
-    EvcsUpgradeComponent,
-    EvcsUpgradeModalComponent,
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
     FixDigitalOutputModalComponent,
@@ -116,8 +109,6 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     HeatingElementModalComponent,
     InfoComponent,
     LiveComponent,
-    MiniupgradeComponent,
-    MiniupgradeModalComponent,
     ModalComponentEvcsCluster,
     ModbusApiComponent,
     OfflineComponent,

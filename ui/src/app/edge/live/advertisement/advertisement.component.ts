@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component, ViewChild } from '@angular/core';
-import { Edge, Service } from '../../../shared/shared';
+import { Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { ModalController, IonSlides } from '@ionic/angular';
 
 @Component({
@@ -15,12 +15,15 @@ export class AdvertisementComponent {
 
   private static readonly SELECTOR = "advertisement";
 
-  private edge: Edge = null;
+  public edge: Edge = null;
+  public disablePrevBtn = null;
+  public disableNextBtn = null;
+  private config: EdgeConfig = null;
 
 
   slideOpts = {
     initialSlide: 1,
-    speed: 1600
+    speed: 5000
   };
 
   constructor(
@@ -32,20 +35,41 @@ export class AdvertisementComponent {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
+      this.service.getConfig().then(config => {
+        this.config = config;
+      });
+    })
+    this.slides.length().then(length => {
+      if (length > 1) {
+        this.disablePrevBtn = true;
+        this.disableNextBtn = false;
+      } else {
+        this.disablePrevBtn = true;
+        this.disableNextBtn = true;
+      }
     })
   }
 
-  slidesDidLoad(slides: IonSlides) {
-    slides.startAutoplay();
+  slidesDidLoad(slider: IonSlides) {
+    slider.startAutoplay();
+  }
+
+  isLastSlide() {
+    let isBeginning = this.slides.isBeginning();
+    let isEnd = this.slides.isEnd();
+
+    Promise.all([isBeginning, isEnd]).then(data => {
+      data[0] ? this.disablePrevBtn = true : this.disablePrevBtn = false;
+      data[1] ? this.disableNextBtn = true : this.disableNextBtn = false;
+    });
   }
 
   swipeNext() {
-    this.slides.slideNext();
-    this.slides.startAutoplay();
+    console.log("config", this.config)
+    this.slides.slideNext()
   }
 
   swipePrevious() {
     this.slides.slidePrev()
-    this.slides.startAutoplay();
   }
 }

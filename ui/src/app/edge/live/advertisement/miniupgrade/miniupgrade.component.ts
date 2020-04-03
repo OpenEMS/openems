@@ -1,34 +1,38 @@
-import { ActivatedRoute } from '@angular/router';
-import { EvcsUpgradeModalComponent } from './modal/modal.component';
 import { Component } from '@angular/core';
-import { Edge, Service } from '../../../shared/shared';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
+import { ChannelAddress, Edge, Service, Websocket } from '../../../../shared/shared';
+import { MiniupgradeModalComponent } from './modal/modal.component';
 
 @Component({
-  selector: EvcsUpgradeComponent.SELECTOR,
-  templateUrl: './evcsupgrade.component.html'
+  selector: MiniupgradeComponent.SELECTOR,
+  templateUrl: './miniupgrade.component.html'
 })
-export class EvcsUpgradeComponent {
+export class MiniupgradeComponent {
 
-  private static readonly SELECTOR = "evcsupgrade";
+  private static readonly SELECTOR = "miniupgrade";
 
   private edge: Edge = null;
 
   constructor(
+    public service: Service,
+    private websocket: Websocket,
     private route: ActivatedRoute,
     public modalCtrl: ModalController,
-    public service: Service,
   ) { }
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-    })
+    });
+  }
+
+  ngOnDestroy() {
   }
 
   async presentModal() {
     const modal = await this.modalCtrl.create({
-      component: EvcsUpgradeModalComponent,
+      component: MiniupgradeModalComponent,
       componentProps: {
         edge: this.edge,
       }
