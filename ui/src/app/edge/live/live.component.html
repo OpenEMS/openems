@@ -119,7 +119,7 @@
             <awattar></awattar>
           </ion-col>
 
-          <ion-col size="12" size-lg="6" class="ion-no-padding">
+          <ion-col size="12" size-lg="6" class="ion-no-padding" *ngIf="service.isAdvertAllowed(edge, widgets)">
             <advertisement></advertisement>
           </ion-col>
 

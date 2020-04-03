@@ -15,6 +15,7 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { Widgets } from '../type/widget';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -305,6 +306,19 @@ export class Service implements ErrorHandler {
       return false;
     }
     if (['fems1267', 'fems1495', 'fems1886'].includes(edge.id)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * checks if fems is allowed to show advertisement widget
+   */
+  public isAdvertAllowed(edge: Edge, widgets: Widgets) {
+    if (edge.producttype == 'MiniES 3-3') {
+      return true;
+    }
+    if (widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
       return true;
     }
     return false;

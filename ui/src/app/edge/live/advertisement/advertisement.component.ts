@@ -16,7 +16,7 @@ export class AdvertisementComponent {
   private static readonly SELECTOR = "advertisement";
 
   public edge: Edge = null;
-  public disableButtons = false;
+  public disableButtons = true;
   public config: EdgeConfig = null;
 
   slideOpts = {
@@ -35,13 +35,12 @@ export class AdvertisementComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
-        console.log("config", config.widgets);
-        console.log("config", config.widgets.names.includes('io.openems.edge.evcs.api.Evcs'));
-        console.log(config.getComponentIdsByFactory("Evcs.Cluster.PeakShaving"));
-        console.log(config.getComponentIdsByFactory("Evcs.Cluster.SelfConsumtion"));
-        console.log("widgets")
       });
     })
+  }
+
+  ngOnDestroy() {
+    this.disableButtons = true;
   }
 
   slidesDidLoad(slider: IonSlides) {

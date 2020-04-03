@@ -3,12 +3,13 @@
         <ion-avatar slot="start">
             <ion-img src="assets/img/fems-app.png"></ion-img>
         </ion-avatar>
-        <ion-label>FEMS APP für Ihr System</ion-label>
-        <ion-buttons slot="end" *ngIf="!disableButtons">
-            <ion-button fill="clear" (click)="swipePrevious()">
+        <ion-label>FEMS-App
+        </ion-label>
+        <ion-buttons slot="end" *ngIf="disableButtons == false">
+            <ion-button size="small" fill="clear" (click)="swipePrevious()">
                 <ion-icon name="arrow-dropleft" color="primary"></ion-icon>
             </ion-button>
-            <ion-button fill="clear" (click)="swipeNext()">
+            <ion-button size="small" fill="clear" (click)="swipeNext()">
                 <ion-icon name="arrow-dropright" color="primary"></ion-icon>
             </ion-button>
         </ion-buttons>
@@ -16,15 +17,12 @@
     <ion-card-content>
         <ion-slides [options]="slideOpts" #slider (ionSlidesDidLoad)="slidesDidLoad(slider)">
             <ng-container *ngIf="edge && config">
-                <ion-slide class="ion-align-self-center" *ngIf="edge.producttype == 'MiniES 3-3'">
+                <ion-slide *ngIf="edge.producttype == 'MiniES 3-3'">
                     <miniupgrade></miniupgrade>
                 </ion-slide>
-
-                <ion-slide>
+                <ion-slide *ngIf="config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false">
                     <evcsupgrade></evcsupgrade>
                 </ion-slide>
-
-
             </ng-container>
         </ion-slides>
     </ion-card-content>
