@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component, ViewChild } from '@angular/core';
-import { Edge, Service, EdgeConfig } from '../../../shared/shared';
+import { Edge, Service, EdgeConfig, Widgets, WidgetNature } from '../../../shared/shared';
 import { ModalController, IonSlides } from '@ionic/angular';
 
 @Component({
@@ -16,10 +16,8 @@ export class AdvertisementComponent {
   private static readonly SELECTOR = "advertisement";
 
   public edge: Edge = null;
-  public disablePrevBtn = null;
-  public disableNextBtn = null;
-  private config: EdgeConfig = null;
-
+  public disableButtons = false;
+  public config: EdgeConfig = null;
 
   slideOpts = {
     initialSlide: 1,
@@ -37,31 +35,24 @@ export class AdvertisementComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
+        console.log("config", config.widgets);
+        console.log("config", config.widgets.names.includes('io.openems.edge.evcs.api.Evcs'));
+        console.log(config.getComponentIdsByFactory("Evcs.Cluster.PeakShaving"));
+        console.log(config.getComponentIdsByFactory("Evcs.Cluster.SelfConsumtion"));
+        console.log("widgets")
       });
-    })
-    this.slides.length().then(length => {
-      if (length > 1) {
-        this.disablePrevBtn = true;
-        this.disableNextBtn = false;
-      } else {
-        this.disablePrevBtn = true;
-        this.disableNextBtn = true;
-      }
     })
   }
 
   slidesDidLoad(slider: IonSlides) {
     slider.startAutoplay();
-  }
-
-  isLastSlide() {
-    let isBeginning = this.slides.isBeginning();
-    let isEnd = this.slides.isEnd();
-
-    Promise.all([isBeginning, isEnd]).then(data => {
-      data[0] ? this.disablePrevBtn = true : this.disablePrevBtn = false;
-      data[1] ? this.disableNextBtn = true : this.disableNextBtn = false;
-    });
+    slider.length().then(length => {
+      if (length == 1) {
+        this.disableButtons = true;
+      } else {
+        this.disableButtons = false;
+      }
+    })
   }
 
   swipeNext() {

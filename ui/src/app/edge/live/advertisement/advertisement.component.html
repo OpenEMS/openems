@@ -1,45 +1,31 @@
-<ion-slides pager="true" [options]="slideOpts" #slider (ionSlidesDidLoad)="slidesDidLoad(slider)"
-    (ionSlideWillChange)="isLastSlide()">
-    <ng-container *ngIf="edge && config">
-        <ion-slide *ngIf="edge.producttype == 'MiniES 3-3'">
-            <ion-grid>
-                <ion-row class="ion-justify-content-center">
+<ion-card>
+    <ion-item lines="full" color="light">
+        <ion-avatar slot="start">
+            <ion-img src="assets/img/fems-app.png"></ion-img>
+        </ion-avatar>
+        <ion-label>FEMS APP für Ihr System</ion-label>
+        <ion-buttons slot="end" *ngIf="!disableButtons">
+            <ion-button fill="clear" (click)="swipePrevious()">
+                <ion-icon name="arrow-dropleft" color="primary"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" (click)="swipeNext()">
+                <ion-icon name="arrow-dropright" color="primary"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-item>
+    <ion-card-content>
+        <ion-slides [options]="slideOpts" #slider (ionSlidesDidLoad)="slidesDidLoad(slider)">
+            <ng-container *ngIf="edge && config">
+                <ion-slide class="ion-align-self-center" *ngIf="edge.producttype == 'MiniES 3-3'">
                     <miniupgrade></miniupgrade>
-                </ion-row>
-                <ion-row>
-                    <ion-col>
-                        <ion-button class="ion-float-start" *ngIf="!disablePrevBtn" fill="clear"
-                            (click)="swipePrevious()">
-                            <ion-icon name="arrow-dropleft"></ion-icon>
-                        </ion-button>
-                    </ion-col>
-                    <ion-col>
-                        <ion-button class="ion-float-end" *ngIf="!disableNextBtn" fill="clear" (click)="swipeNext()">
-                            <ion-icon name="arrow-dropright"></ion-icon>
-                        </ion-button>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
-        </ion-slide>
-        <ion-slide>
-            <ion-grid>
-                <ion-row>
+                </ion-slide>
+
+                <ion-slide>
                     <evcsupgrade></evcsupgrade>
-                </ion-row>
-                <ion-row>
-                    <ion-col class="ion-justify-content-start">
-                        <ion-button class="ion-float-start" *ngIf="!disablePrevBtn" fill="clear"
-                            (click)="swipePrevious()">
-                            <ion-icon name="arrow-dropleft"></ion-icon>
-                        </ion-button>
-                    </ion-col>
-                    <ion-col>
-                        <ion-button class="ion-float-end" *ngIf="!disableNextBtn" fill="clear" (click)="swipeNext()">
-                            <ion-icon name="arrow-dropright"></ion-icon>
-                        </ion-button>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
-        </ion-slide>
-    </ng-container>
-</ion-slides>
+                </ion-slide>
+
+
+            </ng-container>
+        </ion-slides>
+    </ion-card-content>
+</ion-card>

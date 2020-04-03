@@ -1,19 +1,9 @@
-<ion-card button (click)="presentModal()">
-    <ion-item lines="full" color="light">
-        <ion-avatar slot="start">
-            <ion-img src="assets/img/evcs.png"></ion-img>
-        </ion-avatar>
-        <ion-label>Ladesäulen Erweiterung</ion-label>
-    </ion-item>
-    <ion-card-content>
-        <table class="full_width">
-            <tr>
-                <td style="width: 100%" style="text-align: center;">
-                    <p>Starten auch Sie in die Elektromobilität?</p>
-                    <p>FEMS integriert Ladesäulen intelligent mit Ihrer PV-Anlage und Stromspeicher!</p>
-                    <p>Für weitere Informationen hier klicken.</p>
-                </td>
-            </tr>
-        </table>
-    </ion-card-content>
-</ion-card>
+<table class="full_width" style="cursor: pointer;" (click)="presentModal()">
+    <tr>
+        <td style="width: 100%" style="text-align: center;">
+            <p>Starten auch Sie in die Elektromobilität?</p>
+            <p>FEMS integriert Ladesäulen intelligent mit Ihrer PV-Anlage und Stromspeicher!</p>
+            <p>Für weitere Informationen <ion-text color="primary">hier</ion-text> klicken.</p>
+        </td>
+    </tr>
+</table>
