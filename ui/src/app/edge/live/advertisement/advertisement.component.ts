@@ -2,6 +2,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Component, ViewChild } from '@angular/core';
 import { Edge, Service, EdgeConfig, Widgets, WidgetNature } from '../../../shared/shared';
 import { ModalController, IonSlides } from '@ionic/angular';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: AdvertisementComponent.SELECTOR,
@@ -16,8 +17,9 @@ export class AdvertisementComponent {
   private static readonly SELECTOR = "advertisement";
 
   public edge: Edge = null;
-  public disableButtons = true;
+  // public enableButtons: BehaviorSubject<boolean> = new BehaviorSubject(false);
   public config: EdgeConfig = null;
+  public didInit: boolean = false;
 
   slideOpts = {
     initialSlide: 1,
@@ -40,25 +42,32 @@ export class AdvertisementComponent {
   }
 
   ngOnDestroy() {
-    this.disableButtons = true;
+    // this.enableButtons.complete();
+  }
+
+  ngAfterViewInit() {
+    this.didInit = true;
   }
 
   slidesDidLoad(slider: IonSlides) {
     slider.startAutoplay();
-    slider.length().then(length => {
-      if (length == 1) {
-        this.disableButtons = true;
-      } else {
-        this.disableButtons = false;
-      }
-    })
+    // slider.length().then(length => {
+    //   if (length == 1) {
+    //     this.enableButtons.next(false);
+    //   } else {
+    //     this.enableButtons.next(true);
+    //   }
+    // })
   }
 
   swipeNext() {
+    // this.slides.updateAutoHeight();
+    console.log("yup")
     this.slides.slideNext()
   }
 
   swipePrevious() {
+    // this.slides.updateAutoHeight();
     this.slides.slidePrev()
   }
 }

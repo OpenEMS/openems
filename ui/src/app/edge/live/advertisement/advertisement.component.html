@@ -5,7 +5,7 @@
         </ion-avatar>
         <ion-label>FEMS-App
         </ion-label>
-        <ion-buttons slot="end" *ngIf="disableButtons == false">
+        <ion-buttons slot="end">
             <ion-button size="small" fill="clear" (click)="swipePrevious()">
                 <ion-icon name="arrow-dropleft" color="primary"></ion-icon>
             </ion-button>
@@ -15,7 +15,7 @@
         </ion-buttons>
     </ion-item>
     <ion-card-content>
-        <ion-slides [options]="slideOpts" #slider (ionSlidesDidLoad)="slidesDidLoad(slider)">
+        <ion-slides *ngIf="didInit" [options]="slideOpts" #slider (ionSlidesDidLoad)="slidesDidLoad(slider)">
             <ng-container *ngIf="edge && config">
                 <ion-slide *ngIf="edge.producttype == 'MiniES 3-3'">
                     <miniupgrade></miniupgrade>
