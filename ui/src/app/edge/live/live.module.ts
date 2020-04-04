@@ -46,9 +46,11 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { AdvertisementModule } from './advertisement/advertisement.module';
 
 @NgModule({
   imports: [
+    AdvertisementModule,
     BrowserAnimationsModule,
     BrowserModule,
     EnergymonitorModule,

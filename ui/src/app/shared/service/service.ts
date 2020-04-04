@@ -11,7 +11,7 @@ import { JsonrpcResponseError } from '../jsonrpc/base';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { Edges } from '../jsonrpc/shared';
-import { ChannelAddress } from '../shared';
+import { ChannelAddress, Widgets } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
@@ -309,6 +309,21 @@ export class Service implements ErrorHandler {
     }
     return false;
   }
+
+  /**
+   * checks if fems is allowed to show advertisement widget
+   */
+  public isAdvertAllowed(edge: Edge, widgets: Widgets) {
+    if (edge.producttype == 'MiniES 3-3') {
+      return true;
+    }
+    if (widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
+      return true;
+    }
+    return false;
+  }
+
+
 
   /**
    * Currently selected history period
