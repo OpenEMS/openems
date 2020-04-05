@@ -1,5 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
-import { Component, ViewChild } from '@angular/core';
+import { AdvertWidgets } from 'src/app/shared/type/widget';
+import { Component, ViewChild, Input } from '@angular/core';
 import { Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { ModalController, IonSlides } from '@ionic/angular';
 
@@ -10,6 +11,8 @@ import { ModalController, IonSlides } from '@ionic/angular';
 
 export class AdvertisementComponent {
 
+  @Input() public advertWidgets: AdvertWidgets;
+
   @ViewChild('slides', { static: true }) slides: IonSlides;
 
   public edge: Edge;
@@ -18,15 +21,15 @@ export class AdvertisementComponent {
   private static readonly SELECTOR = "advertisement";
 
   public enableBtn: boolean = false;
-  public disablePrevBtn: boolean = true;
-  public disableNextBtn: boolean = false;
+  public disablePrevBtn: boolean = null;
+  public disableNextBtn: boolean = null;
 
   slideOpts = {
-    initialSlide: 1,
-    speed: 5000,
     allowTouchMove: false,
+    initialSlide: 0,
     preventClicks: false,
     preventClicksPropagation: false,
+    speed: 5000,
   };
 
   constructor(
@@ -38,25 +41,15 @@ export class AdvertisementComponent {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-      this.service.getConfig().then(config => {
-        this.config = config;
-        // gets the length of slides (slides.length() sometimes returns 0 after initializing)
-        let length: number = 0;
-        if (edge.producttype == 'MiniES 3-3') {
-          length += 1;
-        }
-        if (config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
-          length += 1;
-        }
-        // sets the prev/next button
-        if (length > 1) {
-          this.enableBtn = true;
-        } else {
-          this.enableBtn = false;
-        }
-        this.slides.update();
-      });
     })
+    // enables or disables nav buttons generally
+    if (this.advertWidgets.names.length > 1) {
+      this.enableBtn = true;
+      this.disablePrevBtn = true;
+      this.disableNextBtn = false;
+    } else {
+      this.enableBtn = false;
+    }
   }
 
   ngOnDestroy() {
@@ -69,14 +62,26 @@ export class AdvertisementComponent {
 
   changeSlides() {
     this.slides.update();
+  }
 
+  changeNextPrevButtons() {
     // checks if slide is first/last element and sets the next/previous button accordingly
-    let isBeginning = this.slides.isBeginning();
-    let isEnd = this.slides.isEnd();
-    Promise.all([isBeginning, isEnd]).then((data) => {
-      data[0] ? this.disablePrevBtn = true : this.disablePrevBtn = false;
-      data[1] ? this.disableNextBtn = true : this.disableNextBtn = false;
-    });
+    if (this.enableBtn == true) {
+      this.slides.getSwiper().then(swiper => {
+        // not using isEnd/Beginning Promise because at 2 slides it sometimes returns false for both options
+        let index = swiper.realIndex
+        if (index == 0) {
+          this.disablePrevBtn = true
+          this.disableNextBtn = false
+        } else if (index == this.advertWidgets.names.length - 1) {
+          this.disablePrevBtn = false
+          this.disableNextBtn = true
+        } else {
+          this.disablePrevBtn = false
+          this.disableNextBtn = false
+        }
+      })
+    }
   }
 
   swipeNext() {

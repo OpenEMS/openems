@@ -32,6 +32,61 @@ export class Widget {
     componentId: string
 }
 
+export class AdvertWidget {
+    name: string
+}
+
+export enum advertisableWidgetNautre {
+    'io.openems.edge.evcs.api.Evcs',
+}
+
+export enum advertisableWidgetProducttype {
+    'MiniES 3-3'
+}
+
+export class AdvertWidgets {
+
+    public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
+
+        let list: AdvertWidget[] = [];
+
+        for (let producttype of Object.values(advertisableWidgetProducttype).filter(v => typeof v === 'string')) {
+            if (producttype == 'MiniES 3-3' && edge.producttype == 'MiniES 3-3') {
+                list.push({ name: producttype });
+            }
+        }
+
+        for (let nature of Object.values(advertisableWidgetNautre).filter(v => typeof v === 'string')) {
+            if (nature == 'io.openems.edge.evcs.api.Evcs' && config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
+                list.push({ name: nature });
+            }
+        }
+
+        return new AdvertWidgets(list);
+    }
+
+    /**
+     * Names of Widgets.
+     */
+    public readonly names: string[] = [];
+
+    private constructor(
+        /**
+         * List of all Widgets.
+         */
+        public readonly list: AdvertWidget[],
+    ) {
+        // fill names
+        for (let widget of list) {
+            let name: string = widget.name.toString();
+            if (!this.names.includes(name)) {
+                this.names.push(name);
+            }
+        }
+    }
+
+}
+
 export class Widgets {
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {

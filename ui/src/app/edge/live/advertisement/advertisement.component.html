@@ -1,5 +1,5 @@
 <ion-card>
-    <ion-item lines="full" color="light">
+    <ion-item lines="full" color="light" *ngIf="slides">
         <ion-avatar slot="start">
             <ion-img src="assets/img/fems-app.png"></ion-img>
         </ion-avatar>
@@ -16,12 +16,12 @@
     </ion-item>
     <ion-card-content>
         <ion-slides [options]="slideOpts" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
-            (ionSlideWillChange)="changeSlides()">
-            <ng-container *ngIf="edge && config">
-                <ion-slide class="ion-align-self-center" *ngIf="edge.producttype == 'MiniES 3-3'">
+            (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
+            <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
+                <ion-slide class="ion-align-self-center" *ngSwitchCase="'MiniES 3-3'">
                     <miniupgrade></miniupgrade>
                 </ion-slide>
-                <ion-slide *ngIf="config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false">
+                <ion-slide *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'">
                     <evcsupgrade></evcsupgrade>
                 </ion-slide>
             </ng-container>
