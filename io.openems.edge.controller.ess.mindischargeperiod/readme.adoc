@@ -1,0 +1,7 @@
+= ESS Minimum Discharge Period
+
+Provides a minimum discharge power of the storage system for a configured time period, if a certain power peak has been reached.
+
+This can be used in some systems where the allowed charge power has been set to zero and the storage needs a minimum discharge power for a certain time, to recognize that the storage is not full and the allowed charge power should be higher.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.mindischargeperiod[Source Code icon:github[]]

@@ -24,6 +24,7 @@ export const TRANSLATION = {
         InputNotValid: 'Invoer ongeldig',
         Live: 'Live',
         Load: 'Laden',
+        manual: 'instructies',
         Manually: 'handmatig',
         measuredValue: 'Gemeten Waarde',
         Mode: 'Mode',

@@ -45,6 +45,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
+	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.predictivedelaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
@@ -65,6 +66,7 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
@@ -83,6 +85,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.goodwe.et',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
+	bnd.identity;id='io.openems.edge.io.revpi',\
 	bnd.identity;id='io.openems.edge.io.wago',\
 	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
@@ -148,6 +151,7 @@
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
+	io.openems.edge.controller.ess.mindischargeperiod;version=snapshot,\
 	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
 	io.openems.edge.controller.ess.predictivedelaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
@@ -168,6 +172,7 @@
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
+	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.api;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
@@ -189,6 +194,7 @@
 	io.openems.edge.goodwe.et;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
+	io.openems.edge.io.revpi;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\

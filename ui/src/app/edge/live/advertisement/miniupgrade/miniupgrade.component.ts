@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { ChannelAddress, Edge, Service, Websocket } from '../../../../shared/shared';
+import { Edge, Service, Websocket } from '../../../../shared/shared';
 import { MiniupgradeModalComponent } from './modal/modal.component';
 
 @Component({

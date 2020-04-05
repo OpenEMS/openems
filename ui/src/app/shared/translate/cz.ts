@@ -24,6 +24,7 @@ export const TRANSLATION = {
         inputNotValid: 'Vstup je neplatný',
         live: 'Live',
         load: 'nálož',
+        manual: 'pokyny',
         manually: 'Ruční',
         measuredValue: 'Měřená Hodnota',
         mode: 'Režim',

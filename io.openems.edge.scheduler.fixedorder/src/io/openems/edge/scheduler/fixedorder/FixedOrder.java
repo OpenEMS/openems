@@ -12,10 +12,10 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.scheduler.api.AbstractScheduler;
 import io.openems.edge.scheduler.api.Scheduler;
 
 /**
@@ -23,8 +23,12 @@ import io.openems.edge.scheduler.api.Scheduler;
  * statically sorted by this order.
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Scheduler.FixedOrder", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class FixedOrder extends AbstractScheduler implements Scheduler {
+@Component(//
+		name = "Scheduler.FixedOrder", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class FixedOrder extends AbstractOpenemsComponent implements Scheduler {
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -55,7 +59,7 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.cycleTime());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Deactivate

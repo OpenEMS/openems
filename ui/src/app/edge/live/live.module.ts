@@ -31,7 +31,6 @@ import { HeatingElementModalComponent } from './heatingelement/modal/modal.compo
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
-import { ModbusApiComponent } from './modbusapi/modbusapi.component';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
 import { PartnerComponent } from './partner/partner.component';
@@ -110,7 +109,6 @@ import { AdvertisementModule } from './advertisement/advertisement.module';
     InfoComponent,
     LiveComponent,
     ModalComponentEvcsCluster,
-    ModbusApiComponent,
     OfflineComponent,
     PartnerComponent,
     ProductionComponent,

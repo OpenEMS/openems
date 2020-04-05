@@ -69,6 +69,7 @@ public abstract class SlidingValue<T> {
 		if (Objects.equals(this.lastSentValue, value)) {
 			return null;
 		}
+		this.lastSentValue = value;
 		return TypeUtils.getAsJson(this.getType(), value);
 	}
 
