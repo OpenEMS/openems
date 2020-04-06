@@ -40,7 +40,6 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       this.service.getConfig().then(config => {
         let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
         let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
-
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
         // convert labels
         let labels: Date[] = [];
@@ -65,8 +64,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
               label: address.channelId,
               data: data,
               hidden: false,
-              yAxisID: 'yAxis1',
-              position: 'left'
+              yAxisID: 'yAxis2',
+              position: 'right'
             });
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
@@ -118,19 +117,28 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 }
               });
             }
-            datasets.push({
-              label: inputLabel,
-              data: data,
-              hidden: false,
-              yAxisID: 'yAxis2',
-              position: 'right',
-            });
             if (address.channelId == 'EssSoc') {
+              datasets.push({
+                label: address.channelId,
+                data: data,
+                hidden: false,
+                yAxisID: 'yAxis2',
+                position: 'right'
+              });
+
               this.colors.push({
                 backgroundColor: 'rgba(189, 195, 199,0.05)',
                 borderColor: 'rgba(189, 195, 199,1)',
               })
             } else {
+              datasets.push({
+                label: inputLabel,
+                data: data,
+                hidden: false,
+                yAxisID: 'yAxis1',
+                position: 'left',
+              });
+
               this.colors.push({
                 backgroundColor: 'rgba(0,0,0,0.05)',
                 borderColor: 'rgba(0,0,0,1)'
@@ -181,17 +189,20 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       position: 'right',
       scaleLabel: {
         display: true,
-        labelString: labelString
+        labelString: "%"
       },
       gridLines: {
         display: false
       },
       ticks: {
-        beginAtZero: false,
+        beginAtZero: true,
+        max: 100,
+        padding: -5,
+        stepSize: 20
       }
     })
     options.scales.yAxes[0].id = "yAxis1"
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
+    options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
