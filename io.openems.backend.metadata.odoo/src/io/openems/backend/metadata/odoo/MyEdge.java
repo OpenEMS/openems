@@ -9,8 +9,8 @@ public class MyEdge extends Edge {
 	private final String apikey;
 
 	public MyEdge(int odooId, String edgeId, String apikey, String comment, State state, String version,
-			String producttype, EdgeConfig config, Integer soc, String ipv4) {
-		super(edgeId, comment, state, version, producttype, config, soc, ipv4);
+			String producttype, EdgeConfig config) {
+		super(edgeId, comment, state, version, producttype, config);
 		this.apikey = apikey;
 		this.odooId = odooId;
 	}

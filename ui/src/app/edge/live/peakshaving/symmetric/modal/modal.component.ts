@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
+import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Service, EdgeConfig, Edge, Websocket } from '../../../../../shared/shared';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -19,10 +19,10 @@ export class SymmetricPeakshavingModalComponent {
     public loading: boolean = false;
 
     constructor(
+        public formBuilder: FormBuilder,
+        public modalCtrl: ModalController,
         public service: Service,
         public translate: TranslateService,
-        public modalCtrl: ModalController,
-        public formBuilder: FormBuilder,
         public websocket: Websocket,
     ) { }
 
@@ -56,12 +56,12 @@ export class SymmetricPeakshavingModalComponent {
                         this.component.properties.peakShavingPower = peakShavingPower.value;
                         this.component.properties.rechargePower = rechargePower.value;
                         this.loading = false;
-                        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                     }).catch(reason => {
                         peakShavingPower.setValue(this.component.properties.peakShavingPower);
                         rechargePower.setValue(this.component.properties.rechargePower);
                         this.loading = false;
-                        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                         console.warn(reason);
                     })
                     this.formGroup.markAsPristine()
@@ -70,7 +70,7 @@ export class SymmetricPeakshavingModalComponent {
                 this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
             }
         } else {
-            this.service.toast(this.translate.instant('General.InputNotValid'), 'danger');
+            this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
         }
     }
 }

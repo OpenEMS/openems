@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.goodwe.et.GoodWeEtConstants;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "GoodWe ET Battery-Inverter", //
 		description = "Implements the GoodWe ET-Series battery inverter.")
 
@@ -19,8 +19,14 @@ import io.openems.edge.goodwe.et.GoodWeEtConstants;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
+	boolean readOnlyMode() default false;
+
 	@AttributeDefinition(name = "Modbus Unit-id", description = "Unit-id")
 	int unit_id() default GoodWeEtConstants.DEFAULT_UNIT_ID;
+
+	@AttributeDefinition(name = "Power Mode", description = "Mode of the power")
+	PowerModeEms Powermode() default PowerModeEms.AUTO;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";

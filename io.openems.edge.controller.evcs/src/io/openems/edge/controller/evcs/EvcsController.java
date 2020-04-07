@@ -147,7 +147,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				configUpdate("defaultChargeMinPower", maxHW);
 			}
 			if (config.forceChargeMinPower() * evcs.getPhases().getNextValue().orElse(3) > maxHW) {
-				configUpdate("forceChargeMinPower", maxHW);
+				configUpdate("forceChargeMinPower", maxHW / 3);
 			}
 		}
 

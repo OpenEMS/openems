@@ -10,7 +10,7 @@ node {
 task buildAntoraDocs(type: NodeTask) {
     dependsOn npmInstall
     script = file("build/node_modules/@antora/cli/bin/antora")
-    args = ["build/site.yml"]
+    args = ["site.yml"]
     doLast {
         copy {
             from "build/.nojekyll", "build/CNAME"

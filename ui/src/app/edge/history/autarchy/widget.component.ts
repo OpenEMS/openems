@@ -1,10 +1,10 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { AutarchyModalComponent } from './modal/modal.component';
+import { ChannelAddress, Edge, Service } from '../../../shared/shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, Service } from '../../../shared/shared';
-import { AutarchyModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: AutarchyWidgetComponent.SELECTOR,
@@ -29,9 +29,6 @@ export class AutarchyWidgetComponent implements OnInit, OnChanges {
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-    }
-
-    ngOnDestroy() {
     }
 
     ngOnChanges() {

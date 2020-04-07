@@ -131,6 +131,51 @@ public interface SymmetricEss extends OpenemsComponent {
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
 		),
+		/**
+		 * Max Cell Voltage.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: mV
+		 * <li>Range: > 0
+		 * </ul>
+		 * 
+		 * @since 2019.17.0
+		 */
+		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+		),
+		/**
+		 * Min Cell Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: °C
+		 * <li>Range: -273 to positive infinity
+		 * </ul>
+		 * 
+		 * @since 2019.17.0
+		 */
+		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS) //
+		),
+		/**
+		 * Max Cell Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: °C
+		 * <li>Range: -273 to positive infinity
+		 * </ul>
+		 * 
+		 * @since 2019.17.0
+		 */
+		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS) //
+		),
 		;
 
 		private final Doc doc;
@@ -150,6 +195,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
 				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
+				.channel(2, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -234,5 +280,32 @@ public interface SymmetricEss extends OpenemsComponent {
 	 */
 	default Channel<Integer> getMinCellVoltage() {
 		return this.channel(ChannelId.MIN_CELL_VOLTAGE);
+	}
+	
+	/**
+	 * Gets the maximum cell voltage in [mV].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMaxCellVoltage() {
+		return this.channel(ChannelId.MAX_CELL_VOLTAGE);
+	}
+	
+	/**
+	 * Gets the minimum cell temperature in [°C].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMinCellTemperature() {
+		return this.channel(ChannelId.MIN_CELL_TEMPERATURE);
+	}
+	
+	/**
+	 * Gets the maximum cell temperature in [°C].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMaxCellTemperature() {
+		return this.channel(ChannelId.MAX_CELL_TEMPERATURE);
 	}
 }

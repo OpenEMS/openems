@@ -24,7 +24,7 @@ public class CalculateAverage {
 	 * @param channel
 	 */
 	public void addValue(Channel<Integer> channel) {
-		Optional<Integer> value = channel.getNextValue().asOptional();
+		Optional<Integer> value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
 				this.values.add(Double.valueOf(value.get()));

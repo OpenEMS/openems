@@ -1,0 +1,17 @@
+<ion-card button (click)="presentModal()" *ngIf="component">
+  <ion-item lines="full" color="light">
+    <ion-icon slot="start" color="primary" size="large" name="aperture-outline"></ion-icon>
+    <ion-label>{{ component.alias }}</ion-label>
+  </ion-item>
+  <ion-card-content>
+    <table class="full_width">
+      <tr>
+        <td style="width:65%" translate>
+          Edge.History.activeDuration</td>
+        <td style="width:35%" class="align_right">
+          {{ activeTimeOverPeriod }}
+        </td>
+      </tr>
+    </table>
+  </ion-card-content>
+</ion-card>

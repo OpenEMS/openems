@@ -1,8 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { Component, Input, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Edge, Service, EdgeConfig, Websocket, ChannelAddress } from 'src/app/shared/shared';
+import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
+import { ModalController } from '@ionic/angular';
 import { SymmetricPeakshavingModalComponent } from './modal/modal.component';
 
 @Component({
@@ -12,12 +12,11 @@ import { SymmetricPeakshavingModalComponent } from './modal/modal.component';
 export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private controllerId: string;
+    @Input() private componentId: string;
 
 
     private static readonly SELECTOR = "symmetricPeakshavingWidget";
 
-    public autarchyValue: number = null;
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
@@ -25,14 +24,13 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
         public service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
-        private websocket: Websocket,
     ) { }
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
-                this.component = config.getComponent(this.controllerId);
+                this.component = config.getComponent(this.componentId);
             });
         });
     }

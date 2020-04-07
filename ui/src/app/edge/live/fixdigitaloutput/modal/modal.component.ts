@@ -1,8 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, Input } from '@angular/core';
 import { Edge, Service, Websocket, EdgeConfig } from '../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
+import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'fixdigitaloutput-modal',
@@ -11,14 +11,14 @@ import { Router } from '@angular/router';
 export class FixDigitalOutputModalComponent {
 
   @Input() public edge: Edge;
-  @Input() public controller: EdgeConfig.Component;
+  @Input() public component: EdgeConfig.Component;
 
   constructor(
     protected service: Service,
-    public websocket: Websocket,
-    public router: Router,
     protected translate: TranslateService,
     public modalCtrl: ModalController,
+    public router: Router,
+    public websocket: Websocket,
   ) { }
 
   /**  
@@ -27,18 +27,18 @@ export class FixDigitalOutputModalComponent {
    * @param event 
    */
   updateMode(event: CustomEvent) {
-    let oldMode = this.controller.properties.isOn;
+    let oldMode = this.component.properties.isOn;
     let newMode = event.detail.value;
 
     if (oldMode != newMode) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+      this.edge.updateComponentConfig(this.websocket, this.component.id, [
         { name: 'isOn', value: newMode }
       ]).then(() => {
-        this.controller.properties.isOn = newMode;
-        this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+        this.component.properties.isOn = newMode;
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
       }).catch(reason => {
-        this.controller.properties.isOn = oldMode;
-        this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+        this.component.properties.isOn = oldMode;
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }

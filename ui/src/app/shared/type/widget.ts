@@ -2,13 +2,13 @@ import { EdgeConfig } from '../edge/edgeconfig';
 import { Edge } from '../edge/edge';
 
 export enum WidgetClass {
+    'Energymonitor',
     'Autarchy',
     'Selfconsumption',
     'Storage',
     'Grid',
     'Production',
     'Consumption',
-    'Energymonitor'
 }
 
 export enum WidgetNature {
@@ -17,15 +17,14 @@ export enum WidgetNature {
 }
 
 export enum WidgetFactory {
-    'Evcs.Cluster.SelfConsumtion',
-    'Evcs.Cluster.PeakShaving',
-    'Controller.Api.ModbusTcp.ReadOnly',
-    'Controller.Api.ModbusTcp.ReadWrite',
-    'Controller.Asymmetric.PeakShaving',
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
+    'Controller.IO.ChannelSingleThreshold',
     'Controller.CHP.SoC',
+    'Controller.Asymmetric.PeakShaving',
     'Controller.Symmetric.PeakShaving',
+    'Evcs.Cluster.PeakShaving',
+    'Evcs.Cluster.SelfConsumtion',
 }
 
 export class Widget {

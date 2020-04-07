@@ -5,21 +5,21 @@
                 <ion-avatar slot="start">
                     <img src="assets/img/grid.png">
                 </ion-avatar>
-                <ion-label translate>General.Grid</ion-label>
+                <ion-label translate>General.grid</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.grid as sum">
                 <table class="full_width">
                     <tr class="underline" *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
-                        <td colspan="4" translate>General.OffGrid</td>
+                        <td colspan="4" translate>General.offGrid</td>
                     </tr>
                     <tr>
-                        <td style="width:65%" translate>General.GridBuyAdvanced</td>
+                        <td style="width:65%" translate>General.gridBuyAdvanced</td>
                         <td style="width:35%" class="align_right">
                             {{ sum.buyActivePower | unitvalue:'kW' }}
                         </td>
                     </tr>
                     <tr>
-                        <td style="width:65%" translate>General.GridSellAdvanced</td>
+                        <td style="width:65%" translate>General.gridSellAdvanced</td>
                         <td style="width:35%" class="align_right">
                             {{ sum.sellActivePower | unitvalue:'kW' }}
                         </td>

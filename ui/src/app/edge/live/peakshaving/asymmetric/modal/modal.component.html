@@ -1,10 +1,9 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title *ngIf="component.alias != component.id">{{ component.alias }}</ion-title>
-        <ion-title *ngIf="component.alias == component.id">{{ component.id }}</ion-title>
+        <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
+                <ion-icon name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -17,7 +16,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            General.currentValue
+                            General.measuredValue
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
@@ -30,7 +29,7 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.currentValue<span>&nbsp;L1</span>
+                            General.measuredValue<span>&nbsp;L1</span>
                         </td>
                         <td style="width: 35%" class="align_right"
                             [class.bold]="(mostStressedPhase | async)?.name == 'L1'">
@@ -42,7 +41,7 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.currentValue<span>&nbsp;L2</span>
+                            General.measuredValue<span>&nbsp;L2</span>
                         </td>
                         <td style="width: 35%" class="align_right"
                             [class.bold]="(mostStressedPhase | async)?.name == 'L2'">
@@ -54,7 +53,7 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.currentValue<span>&nbsp;L3</span>
+                            General.measuredValue<span>&nbsp;L3</span>
                         </td>
                         <td style="width: 35%" class="align_right"
                             [class.bold]="(mostStressedPhase | async)?.name == 'L3'">
@@ -103,7 +102,7 @@
         <ion-grid class="ion-padding-top">
             <ion-row class="ion-justify-content-center ion-align-items-center">
                 <ion-col size="2" class="ion-text-center">
-                    <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+                    <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
                 </ion-col>
                 <ion-col size="10">
                     <ion-note class="ion-text-wrap"><small

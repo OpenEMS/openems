@@ -5,10 +5,8 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.guava,\
 	io.openems.common,\
-	io.openems.wrapper.sdnotify,\
-	slf4j.api
+	io.openems.wrapper.sdnotify
 
 -testpath: \
 	${testpath}

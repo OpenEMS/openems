@@ -1,13 +1,13 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title class="ion-text-start ion-padding-left" translate>General.StorageSystem</ion-title>
+        <ion-title class="ion-text-start ion-padding-left" translate>General.storageSystem</ion-title>
         <ion-buttons slot="start">
             <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
                 [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
         </ion-buttons>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
+                <ion-icon name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -22,7 +22,7 @@
     <ion-card-content class="underline">
         <table class="full_width">
             <tr>
-                <td style="width: 100%" class="ion-padding" translate>General.Soc</td>
+                <td style="width: 100%" class="ion-padding" translate>General.soc</td>
             </tr>
         </table>
         <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod"></socStorageChart>
@@ -31,7 +31,7 @@
         <ion-card-content>
             <table class="full_width">
                 <tr>
-                    <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                    <td style="width: 100%" class="ion-padding" translate>General.total</td>
                 </tr>
             </table>
             <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod">
@@ -39,7 +39,7 @@
             <!-- Info Text -->
             <ion-row class="ion-justify-content-center">
                 <ion-item class="ion-text-center" lines="none">
-                    <ion-icon color="primary" size="large" slot="start" name="alert"></ion-icon>
+                    <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
                     <ion-label>
                         <small translate>
                             Edge.Index.Widgets.twoWayInfoStorage
@@ -54,7 +54,7 @@
             <ion-card-content class="underline">
                 <table class="full_width">
                     <tr>
-                        <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                        <td style="width: 100%" class="ion-padding" translate>General.total</td>
                     </tr>
                 </table>
                 <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod">
@@ -64,7 +64,7 @@
             <ion-card-content class="underline">
                 <ion-row class="ion-justify-content-center">
                     <ion-item class="ion-text-center" lines="none">
-                        <ion-icon color="primary" size="large" slot="start" name="alert"></ion-icon>
+                        <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
                         <ion-label>
                             <small translate>
                                 Edge.Index.Widgets.twoWayInfoStorage
@@ -78,7 +78,7 @@
             <ion-card-content class="underline">
                 <table class="full_width">
                     <tr>
-                        <td style="width: 100%" class="ion-padding" translate>General.Total</td>
+                        <td style="width: 100%" class="ion-padding" translate>General.total</td>
                     </tr>
                 </table>
                 <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod"></storageSingleChart>
@@ -103,7 +103,7 @@
             <ion-card-content class="underline">
                 <ion-row class="ion-justify-content-center">
                     <ion-item class="ion-text-center" lines="none">
-                        <ion-icon color="primary" size="large" slot="start" name="alert"></ion-icon>
+                        <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
                         <ion-label>
                             <small translate>
                                 Edge.Index.Widgets.twoWayInfoStorage

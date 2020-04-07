@@ -1,10 +1,9 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title *ngIf="component.alias != component.id">{{ component.alias }}</ion-title>
-        <ion-title *ngIf="component.alias == component.id">{{ component.id }}</ion-title>
+        <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
+                <ion-icon name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -17,7 +16,7 @@
 
 <ion-content>
     <ion-card-content>
-        <symmetricpeakshavingchart [component]="component" [period]="service.historyPeriod">
+        <symmetricpeakshavingchart [componentId]="component.id" [period]="service.historyPeriod">
         </symmetricpeakshavingchart>
     </ion-card-content>
 </ion-content>

@@ -29,7 +29,7 @@ export class IndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AddComponents'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.addComponents'), this.route);
     this.service.getConfig().then(config => {
       this.list = config.listAvailableFactories();
       for (let entry of this.list) {

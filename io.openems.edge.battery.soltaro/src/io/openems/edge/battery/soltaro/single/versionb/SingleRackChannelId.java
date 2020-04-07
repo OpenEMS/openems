@@ -4,8 +4,8 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
-import io.openems.edge.battery.soltaro.single.versionb.Enums.ChargeIndication;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactExport;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactorControl;
@@ -14,7 +14,6 @@ import io.openems.edge.battery.soltaro.single.versionb.Enums.FanStatus;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.PreContactorState;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ShortCircuitFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.SystemRunMode;
-import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.common.channel.Doc;
 
 public enum SingleRackChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -256,7 +255,7 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	SYSTEM_RUN_MODE(Doc.of(SystemRunMode.values())), //
 	PRE_CONTACTOR_STATUS(Doc.of(PreContactorState.values())), //
 	SHORT_CIRCUIT_FUNCTION(Doc.of(ShortCircuitFunction.values())), //
-	CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
+//	CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 	CLUSTER_RUN_STATE(Doc.of(ClusterRunState.values())), //
 
 	// IntegerReadChannels
