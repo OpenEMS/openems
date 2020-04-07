@@ -836,19 +836,30 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(0x20F3, //
 						m(SingleRackChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)) //
 				), //
-				new FC3ReadRegistersTask(0x20F4, Priority.LOW, //
-						m(SingleRackChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
+
+				new FC3ReadRegistersTask(0x200B, Priority.LOW, //
+						m(SingleRackChannelId.EMS_ADDRESS, new UnsignedWordElement(0x200B)), //
+						m(SingleRackChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x200C)), //
+						new DummyRegisterElement(0x200D, 0x200F),
+						m(SingleRackChannelId.PRE_CHARGE_CONTROL, new UnsignedWordElement(0x2010)), //
+						new DummyRegisterElement(0x2011, 0x2013),
+						m(SingleRackChannelId.AUTO_SET_SLAVES_ID, new UnsignedWordElement(0x2014)), //
+						m(SingleRackChannelId.SET_SUB_MASTER_ADDRESS, new UnsignedWordElement(0x2015)), //
+						new DummyRegisterElement(0x2016, 0x2018),
+						m(SingleRackChannelId.AUTO_SET_SLAVES_TEMPERATURE_ID, new UnsignedWordElement(0x2019)), //
+						new DummyRegisterElement(0x201A, 0x201C),
+						m(SingleRackChannelId.SLEEP, new UnsignedWordElement(0x201D)) //
 				), //
-				new FC3ReadRegistersTask(0x20CC, Priority.LOW, //
+				new FC3ReadRegistersTask(0x20C1, Priority.LOW, //
+						m(SingleRackChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE, new UnsignedWordElement(0x20C1)), //
+						new DummyRegisterElement(0x20C2, 0x20CB),
 						m(SingleRackChannelId.SYSTEM_TOTAL_CAPACITY, new UnsignedWordElement(0x20CC)) //
 				), //
-				new FC3ReadRegistersTask(0x2015, Priority.LOW, //
-						m(SingleRackChannelId.SET_SUB_MASTER_ADDRESS, new UnsignedWordElement(0x2015)) //
-				), //
 				new FC3ReadRegistersTask(0x20F3, Priority.LOW, //
-						m(SingleRackChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)) //
-				),
-				// Single Cluster Running Status Registers
+						m(SingleRackChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)), //
+						m(SingleRackChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
+				), //
+					// Single Cluster Running Status Registers
 				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
 						m(new UnsignedWordElement(0x2100)) //
 								.m(SingleRackChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) // [mV]

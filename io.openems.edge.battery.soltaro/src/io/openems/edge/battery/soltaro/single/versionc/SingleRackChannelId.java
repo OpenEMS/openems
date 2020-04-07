@@ -16,7 +16,7 @@ import io.openems.edge.common.channel.Doc;
 public enum SingleRackChannelId implements io.openems.edge.common.channel.ChannelId {
 	// EnumWriteChannels
 	PRE_CHARGE_CONTROL(Doc.of(PreChargeControl.values()) //
-			.accessMode(AccessMode.WRITE_ONLY)), //
+			.accessMode(AccessMode.READ_WRITE)), //
 	EMS_BAUDRATE(Doc.of(EmsBaudrate.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
 	SYSTEM_RESET(Doc.of(SystemReset.values()) //
