@@ -5,6 +5,12 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
+import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
+import io.openems.edge.battery.soltaro.single.versionc.enums.EmsBaudrate;
+import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
+import io.openems.edge.battery.soltaro.single.versionc.enums.Sleep;
+import io.openems.edge.battery.soltaro.single.versionc.enums.SystemReset;
 import io.openems.edge.common.channel.Doc;
 
 public enum SingleRackChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -13,12 +19,24 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 			.accessMode(AccessMode.WRITE_ONLY)), //
 	EMS_BAUDRATE(Doc.of(EmsBaudrate.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
+	SYSTEM_RESET(Doc.of(SystemReset.values()) //
+			.text("Resets the system") //
+			.accessMode(AccessMode.WRITE_ONLY)), //
+	SLEEP(Doc.of(Sleep.values()) //
+			.accessMode(AccessMode.WRITE_ONLY)), //
+	AUTO_SET_SLAVES_ID(Doc.of(AutoSetFunction.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	AUTO_SET_SLAVES_TEMPERATURE_ID(Doc.of(AutoSetFunction.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	// IntegerWriteChannels
 	EMS_ADDRESS(Doc.of(OpenemsType.INTEGER) //
 			.accessMode(AccessMode.READ_WRITE)), //
 	EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.SECONDS) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	WORK_PARAMETER_PCS_COMMUNICATION_RATE(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_WRITE)), //
 	SYSTEM_TOTAL_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.AMPERE_HOURS) //
@@ -323,15 +341,8 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	// EnumReadChannels
 	STATE_MACHINE(Doc.of(State.values()) //
 			.text("Current State of State-Machine")), //
-//	FAN_STATUS(Doc.of(FanStatus.values())), //
-//	MAIN_CONTACTOR_STATE(Doc.of(ContactorState.values())), //
-//	DRY_CONTACT_1_EXPORT(Doc.of(ContactExport.values())), //
-//	DRY_CONTACT_2_EXPORT(Doc.of(ContactExport.values())), //
-//	SYSTEM_RUN_MODE(Doc.of(SystemRunMode.values())), //
-//	PRE_CONTACTOR_STATUS(Doc.of(PreContactorState.values())), //
-//	SHORT_CIRCUIT_FUNCTION(Doc.of(ShortCircuitFunction.values())), //
-////	CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 
+	// IntegerReadChannels
 	CLUSTER_1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIVOLT)), //
 	CLUSTER_1_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -387,6 +398,10 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	CLUSTER_1_VERSION_MODIFY(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.NONE) //
 			.text("Project Firmware Version")), //
+	CYCLE_TIME(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.NONE)), //
+	TOTAL_CAPACITY(Doc.of(OpenemsType.LONG) //
+			.unit(Unit.NONE)), //
 
 	// Faults and warnings
 	// Alarm Level 2
@@ -512,6 +527,48 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 			.text("Slave BMS Hardware: EEPROM Fault")), //
 	SLAVE_BMS_INIT(Doc.of(Level.WARNING) //
 			.text("Slave BMS Hardware: Slave BMS Initialization Failure")), //
+
+	// Communication Errors
+	SLAVE_1_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 1 communication error")), //
+	SLAVE_2_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 2 communication error")), //
+	SLAVE_3_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 3 communication error")), //
+	SLAVE_4_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 4 communication error")), //
+	SLAVE_5_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 5 communication error")), //
+	SLAVE_6_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 6 communication error")), //
+	SLAVE_7_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 7 communication error")), //
+	SLAVE_8_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 8 communication error")), //
+	SLAVE_9_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 9 communication error")), //
+	SLAVE_10_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 10 communication error")), //
+	SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 11 communication error")), //
+	SLAVE_12_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 12 communication error")), //
+	SLAVE_13_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 13 communication error")), //
+	SLAVE_14_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 14 communication error")), //
+	SLAVE_15_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 15 communication error")), //
+	SLAVE_16_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 16 communication error")), //
+	SLAVE_17_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 17 communication error")), //
+	SLAVE_18_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 18 communication error")), //
+	SLAVE_19_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 19 communication error")), //
+	SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
+			.text("Slave 20 communication error")), //
 	;
 
 	private final Doc doc;

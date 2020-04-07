@@ -1,16 +1,15 @@
-package io.openems.edge.battery.soltaro.single.versionc;
+package io.openems.edge.battery.soltaro.single.versionc.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum PreChargeControl implements OptionsEnum {
+public enum Sleep implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	SWITCH_OFF(0x0, "Switch ON Pre-charge & Main Power Contactor"), //
-	SWITCH_ON(0x1, "Shut Down Main Power Contactor & Pre-charge");
+	ACTIVATE(0x1, "Activates the Sleep");
 
 	private final int value;
 	private final String name;
 
-	private PreChargeControl(int value, String name) {
+	private Sleep(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
