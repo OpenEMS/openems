@@ -12,6 +12,8 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class HeatingElementTest {
@@ -32,8 +34,8 @@ public class HeatingElementTest {
 		private final Level heatinglevel;
 
 		public MyConfig(String id, String inputChannelAddress, String outputChannelAddress1,
-				String outputChannelAddress2, String outputChannelAddress3, String endtime, int powerOfPhase, Mode mode, Level heatinglevel, 
-				Priority priority, int minTime, int minKwh) {
+				String outputChannelAddress2, String outputChannelAddress3, String endtime, int powerOfPhase, Mode mode,
+				Level heatinglevel, Priority priority, int minTime, int minKwh) {
 			super(Config.class, id);
 			this.inputChannelAddress = inputChannelAddress;
 			this.outputChannelAddress1 = outputChannelAddress1;
@@ -102,7 +104,6 @@ public class HeatingElementTest {
 		public Level heatingLevel() {
 			return heatinglevel;
 		}
-		
 
 	}
 
@@ -121,15 +122,16 @@ public class HeatingElementTest {
 		ChannelAddress output3 = new ChannelAddress("io0", "InputOutput3");
 
 		MyConfig myconfig = new MyConfig("ctrl1", ess0.toString(), output1.toString(), output2.toString(),
-				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_3,  Priority.TIME, 1, 4000);
+				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_3, Priority.TIME, 1, 4000);
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);
 
 		DummyInputOutput io = new DummyInputOutput("io0");
+		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
 
 		// Build and run test
 		try {
-			new ControllerTest(controller, componentManager, io)//
+			new ControllerTest(controller, componentManager, ess, io)//
 					.next(new TestCase() //
 							.input(ess0, 0) //
 							.output(output1, false) //
@@ -203,5 +205,4 @@ public class HeatingElementTest {
 		}
 	}
 
-	// .timeleap(clock, 6, ChronoUnit.MINUTES)
 }

@@ -118,7 +118,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 */
 	private ModeType modeType = ModeType.NORMAL_MODE;
 	/**
-	 * 
+	 * This enum would specify the heating level during the endtime.
 	 */
 	private Level heatingLevel = Level.LEVEL_3;
 	/**
@@ -203,63 +203,14 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-
-		// Setting the outputchannel for each phases
-		for (Phase p : phases.keySet()) {
-			if (p == Phase.ONE) {
-				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress1()));
-			} else if (p == Phase.TWO) {
-				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress2()));
-			} else {
-				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress3()));
-			}
-		}
-
-		this.mode = config.mode();
-		this.priority = config.priority();
-		this.heatingLevel = config.heatingLevel();
-
-		/**
-		 * Mintime is calculated in both the priority modes and it is also important in
-		 * each levels.
-		 */
-		this.minKwh = config.minkwh();
-		this.minTime = this.getSeconds(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
-
-		this.endtime = LocalTime.parse(config.endTime());
-
+		initializeVar(config);
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}
 
 	@Modified
 	void modified(Config config) throws OpenemsNamedException {
-		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-
-		// Setting the outputchannel for each phases
-		for (Phase p : phases.keySet()) {
-			if (p == Phase.ONE) {
-				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress1()));
-			} else if (p == Phase.TWO) {
-				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress2()));
-			} else {
-				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress3()));
-			}
-		}
-
-		this.mode = config.mode();
-		this.priority = config.priority();
-		this.heatingLevel = config.heatingLevel();
-
-		/**
-		 * Mintime is calculated in both the priority modes and it is also important in
-		 * each levels.
-		 */
-		this.minKwh = config.minkwh();
-		this.minTime = this.getSeconds(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
-
-		this.endtime = LocalTime.parse(config.endTime());
+		initializeVar(config);
 		this.config = config;
 	}
 
@@ -268,11 +219,39 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		super.deactivate();
 	}
 
+	/**
+	 * This method would initialize the required variable from the configuration.
+	 * 
+	 * @param values from the {@link Config}.
+	 * @throws OpenemsNamedException
+	 */
+	public void initializeVar(Config config) throws OpenemsNamedException {
+		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
+
+		// Setting the outputchannel for each phases
+		for (Phase p : phases.keySet()) {
+			if (p == Phase.ONE) {
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress1()));
+			} else if (p == Phase.TWO) {
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress2()));
+			} else {
+				phases.get(p).setOutputChannelAddress(ChannelAddress.fromString(config.outputChannelAddress3()));
+			}
+		}
+
+		this.mode = config.mode();
+		this.priority = config.priority();
+		this.heatingLevel = config.heatingLevel();
+		this.minKwh = config.minkwh();
+		this.minTime = this.getMinTime(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
+
+		this.endtime = LocalTime.parse(config.endTime());
+	}
+
 	@Override
 	public void run() throws OpenemsNamedException {
 
 		boolean modeChanged;
-
 		do {
 			modeChanged = false;
 			switch (this.mode) {
@@ -331,20 +310,14 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			this.countDownMinTime = 0;
 		}
 
-		/**
-		 * this variable holds the total time of level_1
-		 * 
-		 */
+		// keep updating the minKwh comparing it with the total phase power
+		this.countDownMinKwh = this.minKwh - this.totalPhaseEnergy;
+		if (this.countDownMinKwh < 0) {
+			this.countDownMinKwh = 0;
+		}
+
 		this.level1Time = this.totalPhase1Time - this.totalPhase2Time;
-		/**
-		 * this variable holds the total time of level_2
-		 * 
-		 */
 		this.level2Time = this.totalPhase2Time - this.totalPhase3Time;
-		/**
-		 * this variable holds the total time of level_3
-		 * 
-		 */
 		this.level3Time = this.totalPhase3Time;
 
 		this.level1Energy = (level1Time / MILI_SEC_PER_DAY) * config.powerOfPhase();
@@ -358,21 +331,121 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.channel(ChannelId.LEVEL2_ENERGY).setNextValue(level2Energy);
 		this.channel(ChannelId.LEVEL3_ENERGY).setNextValue(level3Energy);
 		this.channel(ChannelId.TOTAL_PHASE_ENERGY).setNextValue(this.totalPhaseEnergy);
-
-		// keep updating the minKwh comparing it with the total phase power
-		this.countDownMinKwh = this.minKwh - this.totalPhaseEnergy;
 	}
 
 	/**
-	 * This method is running the priority mode at the "end time", force switches on
-	 * the phases based on the "Gear" configured.
+	 * Function to check change in the day.
 	 * 
-	 * @throws OpenemsNamedException    on error
-	 * @throws IllegalArgumentException on error
+	 * @return changeInDay boolean values represent a change in day.
 	 */
-	private void runPriority() throws IllegalArgumentException, OpenemsNamedException {
-		switch (this.heatingLevel) {
+	private boolean checkChangeInDay() {
+		boolean changeInDay = false;
+		LocalDate nextDay = LocalDate.now();
+		if (this.today.equals(nextDay)) {
+			return changeInDay;
+		} else {
+			changeInDay = true;
+			this.today = nextDay;
+			return changeInDay;
+		}
+	}
+
+	/**
+	 * Checking of excess power and switching the phases automatically.
+	 * 
+	 * @throws IllegalArgumentException on error.
+	 * @throws OpenemsNamedException  on error.
+	 */
+	protected void automaticMode() throws IllegalArgumentException, OpenemsNamedException {
+		// Get the input channel addresses
+		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
+		int gridActivePower = TypeUtils.getAsType(OpenemsType.INTEGER, (inputChannel).value().getOrError());
+		long excessPower = 0;
+
+		// Calculate the Excess power
+		if (gridActivePower > 0) {
+			excessPower = 0;
+		} else {
+			excessPower = Math.abs(gridActivePower);
+			excessPower += this.noRelaisSwitchedOn * config.powerOfPhase();
+		}
+
+		// resetting the variables if there is change in the day.
+		if (checkChangeInDay()) {
+			for (PhaseDef p : phases.values()) {
+				p.setTotalPhaseEnergy(0);
+				p.setTotalPhaseTime(0);
+				p.getTimeStopwatch().reset();
+			}
+			this.minKwh = config.minkwh();
+			this.minTime = this.getMinTime(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
+			this.endtime = LocalTime.parse(this.config.endTime());
+			this.level1Time = 0;
+			this.level2Time = 0;
+			this.level3Time = 0;
+			this.level1Energy = 0;
+			this.level2Energy = 0;
+			this.level3Energy = 0;
+			return;
+		}
+
+		LocalTime now = LocalTime.parse(FORMATTER.format(LocalTime.now()));
+		LocalTime updateEndtime = endtime.minusSeconds((long) this.countDownMinTime);
+
+		if (now.isAfter(updateEndtime) && now.isBefore(this.endtime)) {
+			this.modeType = ModeType.PRIORITY_MODE;
+		} else if (updateEndtime.isAfter(this.endtime)) {
+			this.modeType = ModeType.NORMAL_MODE;
+		} else {
+			this.modeType = ModeType.NORMAL_MODE;
+		}
+
+		switch (this.modeType) {
+		case PRIORITY_MODE:
+			switch (this.priority) {
+			case TIME:
+			case KILO_WATT_HOUR:
+				startLevel(this.heatingLevel);
+				break;
+			}
+			break;
+		case NORMAL_MODE:
+			boolean stateChanged;
+			do {
+				if (excessPower >= (config.powerOfPhase() * THREE)) {
+					stateChanged = this.changeState(Level.LEVEL_3);
+				} else if (excessPower >= (config.powerOfPhase() * TWO)) {
+					stateChanged = this.changeState(Level.LEVEL_2);
+				} else if (excessPower >= config.powerOfPhase()) {
+					stateChanged = this.changeState(Level.LEVEL_1);
+				} else {
+					stateChanged = this.changeState(Level.LEVEL_0);
+				}
+			} while (stateChanged); // execute again if the state changed
+
+			startLevel(this.level);
+
+			// store current state in StateMachine channel
+			this.channel(ChannelId.LEVEL).setNextValue(this.level);
+			this.channel(ChannelId.NO_OF_RELAIS_ON).setNextValue(this.noRelaisSwitchedOn);
+			this.channel(ChannelId.COUNT_DOWN_MIN_TIME).setNextValue(this.countDownMinTime);
+			this.channel(ChannelId.COUNT_DOWN_MIN_KWH).setNextValue(this.countDownMinKwh);
+			break;
+		}
+	}
+
+	/**
+	 * A helper function which would switch on the phases based on the level
+	 * 
+	 * @param {@link Level}.
+	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException
+	 */
+
+	public void startLevel(Level level) throws IllegalArgumentException, OpenemsNamedException {
+		switch (this.level) {
 		case LEVEL_0:
+
 			for (PhaseDef p : phases.values()) {
 				p.setSwitchOn(false);
 			}
@@ -407,143 +480,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			}
 			this.computeTime(phases);
 			noRelaisSwitchedOn = 3;
-			break;
-		}
-	}
-
-	/**
-	 * Function to check change in the day.
-	 * 
-	 * @return changeInDay boolean values represent a change in day
-	 */
-	private boolean checkChangeInDay() {
-		boolean changeInDay = false;
-		LocalDate nextDay = LocalDate.now();
-		if (this.today.equals(nextDay)) {
-			return changeInDay;
-		} else {
-			changeInDay = true;
-			this.today = nextDay;
-			return changeInDay;
-		}
-	}
-
-	protected void automaticMode() throws IllegalArgumentException, OpenemsNamedException {
-		// Get the input channel addresses
-		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
-		int gridActivePower = TypeUtils.getAsType(OpenemsType.INTEGER, (inputChannel).value().getOrError());
-		long excessPower = 0;
-
-		// Calculate the Excess power
-		if (gridActivePower > 0) {
-			excessPower = 0;
-		} else {
-			excessPower = Math.abs(gridActivePower);
-			excessPower += this.noRelaisSwitchedOn * config.powerOfPhase();
-		}
-
-		// resetting the variables if there is change in the day.
-		if (checkChangeInDay()) {
-			for (PhaseDef p : phases.values()) {
-				p.setTotalPhaseEnergy(0);
-				p.setTotalPhaseTime(0);
-				p.getTimeStopwatch().reset();
-			}
-			this.minKwh = config.minkwh();
-			this.minTime = this.getSeconds(this.heatingLevel, this.priority, config.minTime(), this.minKwh);
-			this.endtime = LocalTime.parse(this.config.endTime());
-			this.level1Time = 0;
-			this.level2Time = 0;
-			this.level3Time = 0;
-			this.level1Energy = 0;
-			this.level2Energy = 0;
-			this.level3Energy = 0;
-			return;
-		}
-
-		LocalTime now = LocalTime.parse(FORMATTER.format(LocalTime.now()));
-		LocalTime updateEndtime = endtime.minusSeconds((long) this.countDownMinTime);
-
-//		System.out.println("Current time is " + now);
-//		System.out.println("endtime from config : " + this.endtime);
-//		System.out.println("Updated end time is : " + updateEndtime);
-//		System.out.println("updated min kwh is : " + this.countDownMinKwh);
-//		System.out.println("updated min time is : " + this.countDownMinTime);
-
-		if (now.isAfter(updateEndtime) && now.isBefore(this.endtime)) {
-			this.modeType = ModeType.PRIORITY_MODE;
-		} else if (updateEndtime.isAfter(this.endtime)) {
-			this.modeType = ModeType.NORMAL_MODE;
-		} else {
-			this.modeType = ModeType.NORMAL_MODE;
-		}
-
-		switch (this.modeType) {
-		case PRIORITY_MODE:
-			switch (this.priority) {
-			case TIME:
-			case KILO_WATT_HOUR:
-				runPriority();
-				break;
-			}
-			break;
-		case NORMAL_MODE:
-			boolean stateChanged;
-			do {
-				if (excessPower >= (config.powerOfPhase() * THREE)) {
-					stateChanged = this.changeState(Level.LEVEL_3);
-				} else if (excessPower >= (config.powerOfPhase() * TWO)) {
-					stateChanged = this.changeState(Level.LEVEL_2);
-				} else if (excessPower >= config.powerOfPhase()) {
-					stateChanged = this.changeState(Level.LEVEL_1);
-				} else {
-					stateChanged = this.changeState(Level.LEVEL_0);
-				}
-			} while (stateChanged); // execute again if the state changed
-
-			switch (this.level) {
-			case LEVEL_0:
-				for (PhaseDef p : phases.values()) {
-					p.setSwitchOn(false);
-				}
-				this.computeTime(phases);
-				noRelaisSwitchedOn = 0;
-				break;
-			case LEVEL_1:
-				for (Phase p : phases.keySet()) {
-					if (p == Phase.ONE) {
-						phases.get(p).setSwitchOn(true);
-					} else {
-						phases.get(p).setSwitchOn(false);
-					}
-				}
-				this.computeTime(phases);
-				noRelaisSwitchedOn = 1;
-				break;
-			case LEVEL_2:
-				for (Phase p : phases.keySet()) {
-					if (p == Phase.THREE) {
-						phases.get(p).setSwitchOn(false);
-					} else {
-						phases.get(p).setSwitchOn(true);
-					}
-				}
-				this.computeTime(phases);
-				noRelaisSwitchedOn = 2;
-				break;
-			case LEVEL_3:
-				for (PhaseDef p : phases.values()) {
-					p.setSwitchOn(true);
-				}
-				this.computeTime(phases);
-				noRelaisSwitchedOn = 3;
-				break;
-			}
-			// store current state in StateMachine channel
-			this.channel(ChannelId.LEVEL).setNextValue(this.level);
-			this.channel(ChannelId.NO_OF_RELAIS_ON).setNextValue(this.noRelaisSwitchedOn);
-			this.channel(ChannelId.COUNT_DOWN_MIN_TIME).setNextValue(this.countDownMinTime);
-			this.channel(ChannelId.COUNT_DOWN_MIN_KWH).setNextValue(this.countDownMinKwh);
 			break;
 		}
 	}
@@ -605,7 +541,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @param minTime is a double, which is configured as hours in configuration
 	 * @return return the no of minutes.
 	 */
-	private double getSeconds(Level heatingLevel, Priority priority, double configuredTime, double minKwh) {
+	private double getMinTime(Level heatingLevel, Priority priority, double configuredTime, double minKwh) {
 		double calculatedTime = 0;
 		switch (priority) {
 		case TIME:

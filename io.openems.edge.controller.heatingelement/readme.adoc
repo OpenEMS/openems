@@ -23,6 +23,8 @@ Controls the heating element controller.
                 - `outputChannelAddress2` Channel address of the Digital Output that should be switched
 
                 - `outputChannelAddress3` Channel address of the Digital Output that should be switched
+                
+                - `heatingLevel` This is the unit which tell which level the heating element runs
 
                 - `endTime` End time to check the minmum run time
 
@@ -32,7 +34,7 @@ Controls the heating element controller.
 
                 - `minkwh` Minimun Kilo watt hour for heating element to run in kwh
 
-                - `powerOfPhase` Power of the single phase
+                - `powerOfPhase` Power of the single phase in Kw
 
 
 
@@ -47,6 +49,7 @@ Controls the heating element controller.
 - `Output Channel1` : io0/Relay1
 - `Output Channel2` : io0/Relay2
 - `Output Channel3` : io0/Relay3
+- `Heating Level` : level_3 
 - `End time` : "17:00:00" 
 - `Priority` : "Time"
 - `Minimum Time` : 1

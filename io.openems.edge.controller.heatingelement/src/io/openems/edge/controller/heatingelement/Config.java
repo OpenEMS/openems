@@ -20,20 +20,20 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	Mode mode() default Mode.AUTOMATIC;
 
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel for the grid power")
-	String inputChannelAddress() default "ess0/SimulatedGridActivePower";
+	String inputChannelAddress() default "_sum/GridActivePower";
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress1() default "io0/InputOutput1";
+	String outputChannelAddress1() default "io0/Relay1";
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress2() default "io0/InputOutput2";
+	String outputChannelAddress2() default "io0/Relay2";
 
 	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
-	String outputChannelAddress3() default "io0/InputOutput3";
-	
-	@AttributeDefinition(name = "This is the Level which tell which level the heating element runs", description = "Levels")
+	String outputChannelAddress3() default "io0/Relay3";
+
+	@AttributeDefinition(name = "Levels", description = "This is the Level which tell which level the heating element runs")
 	Level heatingLevel() default Level.LEVEL_3;
-	
+
 	@AttributeDefinition(name = "End Time", description = "End time to check the minmum run time")
 	String endTime() default "17:00:00";
 
@@ -41,7 +41,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	Priority priority() default Priority.TIME;
 
 	@AttributeDefinition(name = "Minimum time", description = "Minimum time for heating element to run in hours")
-	double minTime() default 0.83333;
+	double minTime() default 1;
 
 	@AttributeDefinition(name = "Min Kwh", description = "Minimun Kilo watt hour for heating element to run in kwh")
 	int minkwh() default 4;
