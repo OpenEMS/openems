@@ -110,7 +110,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				SingleRackChannelId.values() //
+				SingleRackChannelId.values(), //
+				SoltaroBattery.ChannelId.values() //
 		);
 	}
 
@@ -830,57 +831,72 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRackChannelId.SYSTEM_TOTAL_CAPACITY, new UnsignedWordElement(0x20CC)) //
 				), //
 				new FC6WriteRegisterTask(0x2015, //
-						m(SingleRackChannelId.SYSTEM_TOTAL_CAPACITY, new UnsignedWordElement(0x20CC)) //
-				), //
-				new FC6WriteRegisterTask(0x2015, //
 						m(SingleRackChannelId.SET_SUB_MASTER_ADDRESS, new UnsignedWordElement(0x2015)) //
-				), new FC6WriteRegisterTask(0x20F3, //
+				), //
+				new FC6WriteRegisterTask(0x20F3, //
 						m(SingleRackChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)) //
-				), new FC3ReadRegistersTask(0x20F4, Priority.LOW, //
+				), //
+				new FC3ReadRegistersTask(0x20F4, Priority.LOW, //
 						m(SingleRackChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
 				), //
 				new FC3ReadRegistersTask(0x20CC, Priority.LOW, //
 						m(SingleRackChannelId.SYSTEM_TOTAL_CAPACITY, new UnsignedWordElement(0x20CC)) //
 				), //
 				new FC3ReadRegistersTask(0x2015, Priority.LOW, //
-						m(SingleRackChannelId.SYSTEM_TOTAL_CAPACITY, new UnsignedWordElement(0x20CC)) //
-				), //
-				new FC3ReadRegistersTask(0x2015, Priority.LOW, //
 						m(SingleRackChannelId.SET_SUB_MASTER_ADDRESS, new UnsignedWordElement(0x2015)) //
-				), new FC3ReadRegistersTask(0x20F3, Priority.LOW, //
+				), //
+				new FC3ReadRegistersTask(0x20F3, Priority.LOW, //
 						m(SingleRackChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)) //
 				),
 				// Single Cluster Running Status Registers
 				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
-						m(new UnsignedDoublewordElement(0x2100)) //
+						m(new UnsignedWordElement(0x2100)) //
 								.m(SingleRackChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
 								.build(), //
-						m(SingleRackChannelId.CLUSTER_1_CURRENT, new SignedWordElement(0x2101),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(new UnsignedWordElement(0x2101)) //
+								.m(SingleRackChannelId.CLUSTER_1_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) // [mA]
+								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
+								.build(), //
 						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
-						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),
-						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)),
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), m(new UnsignedWordElement(0x2104)) //
+								.m(SingleRackChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
-						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, new UnsignedWordElement(0x2106)), //
+						m(new UnsignedWordElement(0x2106)) //
+								.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE,
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
-						m(new UnsignedDoublewordElement(0x2108)) //
+						m(new UnsignedWordElement(0x2108)) //
 								.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
-						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, new UnsignedWordElement(0x210A)), //
+						m(new UnsignedWordElement(0x210A)) //
+								.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE,
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
-						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, new UnsignedWordElement(0x210C)), //
+						m(new UnsignedWordElement(0x210C)) //
+								.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE,
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
 						m(SingleRackChannelId.CLUSTER_1_AVERAGE_VOLTAGE, new UnsignedWordElement(0x210D)), //
 						m(SingleRackChannelId.CLUSTER_1_SYSTEM_INSULATION, new UnsignedWordElement(0x210E)), //
-						m(new UnsignedDoublewordElement(0x210F)) //
+						m(new UnsignedWordElement(0x210F)) //
 								.m(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build(), //
-						m(new UnsignedDoublewordElement(0x2110)) //
+						m(new UnsignedWordElement(0x2110)) //
 								.m(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
@@ -1056,8 +1072,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					m(SingleRackChannelId.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM, new UnsignedWordElement(0x209C)), //
 					m(SingleRackChannelId.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER,
 							new UnsignedWordElement(0x209D)), //
-					m(SingleRackChannelId.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER,
-							new UnsignedWordElement(0x209D)), //
 					m(SingleRackChannelId.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM, new UnsignedWordElement(0x209E)), //
 					m(SingleRackChannelId.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER,
 							new UnsignedWordElement(0x209F)), //
@@ -1076,8 +1090,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					m(SingleRackChannelId.LEVEL1_CELL_OVER_VOLTAGE_RECOVER, new UnsignedWordElement(0x2041)), //
 					m(SingleRackChannelId.LEVEL1_SYSTEM_OVER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2042),
 							ElementToChannelConverter.SCALE_FACTOR_2), //
-					m(SingleRackChannelId.LEVEL1_SYSTEM_OVER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2042),
-							ElementToChannelConverter.SCALE_FACTOR_2),
 					m(SingleRackChannelId.LEVEL1_SYSTEM_OVER_VOLTAGE_RECOVER, new UnsignedWordElement(0x2043),
 							ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackChannelId.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION, new UnsignedWordElement(0x2044),
@@ -1134,7 +1146,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
 					m(SingleRackChannelId.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2400)), //
 					m(SingleRackChannelId.LEVEL2_CELL_OVER_VOLTAGE_RECOVER, new UnsignedWordElement(0x2401)), //
-					m(new UnsignedDoublewordElement(0x2402)) //
+					m(new UnsignedWordElement(0x2402)) //
 							.m(SingleRackChannelId.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION,
 									ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 							.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
@@ -1147,7 +1159,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 							ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(SingleRackChannelId.LEVEL2_CELL_UNDER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2406)), //
 					m(SingleRackChannelId.LEVEL2_CELL_UNDER_VOLTAGE_RECOVER, new UnsignedWordElement(0x2407)), //
-					m(new UnsignedDoublewordElement(0x2408)) //
+					m(new UnsignedWordElement(0x2408)) //
 							.m(SingleRackChannelId.LEVEL2_SYSTEM_UNDER_VOLTAGE_PROTECTION,
 									ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 							.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
@@ -1189,8 +1201,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					m(SingleRackChannelId.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER,
 							new UnsignedWordElement(0x2421)) //
 			};
-			protocol.addTask(new FC16WriteRegistersTask(0x2040, elements));
-			protocol.addTask(new FC3ReadRegistersTask(0x2040, Priority.LOW, elements));
+			protocol.addTask(new FC16WriteRegistersTask(0x2400, elements));
+			protocol.addTask(new FC3ReadRegistersTask(0x2400, Priority.LOW, elements));
 		}
 
 		// Add tasks for cell voltages and temperatures according to the number of
