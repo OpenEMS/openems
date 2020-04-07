@@ -28,11 +28,9 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.jsonrpc.request.HasUpdateRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
-import io.openems.common.jsonrpc.request.RestartSoftwareRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
@@ -176,6 +174,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		JsonObject result = new JsonObject();
 		int success = 0;
 		int error = 0;
+		
+		WebSocket ws = wsData.getWebsocket();
 
 		OpenemsComponent kacoUpdateComponent = this.parent.componentManager.getComponent("_kacoUpdate");
 
@@ -185,7 +185,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		try {
 
 			if (hasUpdate != 2) {
-				KacoUpdateHandler.updateUI(parent);
+				
+				KacoUpdateHandler.updateUI(parent, ws);
 				success++;
 				hasUpdate--;
 			}
@@ -195,7 +196,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			e.printStackTrace();
 			this.log.error(e.getMessage(), e);
 			try {
-				KacoUpdateHandler.uiRestore();
+				KacoUpdateHandler.uiRestore(parent, ws);
 			} catch (IOException e1) {
 				
 				this.log.error(e1.getMessage(), e1);
@@ -204,13 +205,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		try {
 
 			if (hasUpdate > 1) {
-				KacoUpdateHandler.updateEdge(wsData, parent);
+				
+				KacoUpdateHandler.updateEdge(ws, parent);
 				success += 2;
 				hasUpdate -= 2;
 
 			}
 		} catch (IllegalArgumentException | IOException e) {
 			error += 2;
+			KacoUpdateHandler.restoreEdge();
 			this.log.error(e.getMessage(), e);
 		}
 		hasUpdateChannel.setNextValue(hasUpdate);
