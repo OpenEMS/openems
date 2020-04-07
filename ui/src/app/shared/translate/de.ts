@@ -329,5 +329,12 @@ export const TRANSLATION = {
         Error1: "<p>Beim Update der UI ist ein Fehler aufgetreten. Bitte versuchen Sie es bei der nächsten Aufforderung erneut.</p>",
         Error2: "<p>Beim Update der Software ist ein Fehler aufgetreten. Bitte versuchen Sie es bei der nächsten Aufforderung erneut.</p>",
         Error3: "<p>Beim Update der Software und der UI ist ein Fehler aufgetreten. Bitte versuchen Sie es bei der nächsten Aufforderung erneut.</p>",
+        IsUpdating: "Updates werden werden installiert. Bitte dieses Fenster nicht schließen!",
+        Step1: "UI Update wird runtergeladen...",
+        Step2: "Backup wird erstellt...",
+        Step3: "UI Update wird installiert...",
+        Step4: "Software Update wird runtergeladen...",
+        Step5: "Software Update wird installiert...",
+        Step6: "Update wird rückgängig gemacht...",
     }
 }

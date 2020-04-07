@@ -38,6 +38,8 @@ export class Edge {
   // holds current data
   public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
 
+  public updateData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
+
   // holds system log
   public systemLog: Subject<SystemLog> = new Subject<SystemLog>();
 
@@ -175,6 +177,13 @@ export class Edge {
    */
   public handleCurrentDataNotification(message: CurrentDataNotification): void {
     this.currentData.next(new CurrentData(message.params));
+  }
+
+  /**
+ * Handles a CurrentDataNotification
+ */
+  public handleUpdateDataNotification(message: CurrentDataNotification): void {
+    this.updateData.next(new CurrentData(message.params));
   }
 
   /**

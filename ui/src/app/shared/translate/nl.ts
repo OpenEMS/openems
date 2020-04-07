@@ -314,5 +314,24 @@ export const TRANSLATION = {
     },
     KacoError: {
         Errors: "Fout / Waarschuwing"
+    },
+    KacoUpdate: {
+        NewSoftware: "Er is een nieuwe versie van de hy-control-software beschikbaar!",
+        NewUi: "Er is een nieuwe versie van de hy-control gebruikersinterface beschikbaar!",
+        Update: "Update",
+        OpenLocal: "Open de lokale hy-control en volg de instructies.",
+        Success1: "<p> UI-update geslaagd! </p> <p> Sluit de bewaking en open deze opnieuw. </p>",
+        Success2: "<p> Software-update geslaagd! </p> <p> De software wordt nu opnieuw opgestart. Het kan enkele minuten duren voordat de bewaking opnieuw kan worden gebruikt. </p>",
+        Success3: "<p> Update van software en gebruikersinterface geslaagd! </p> <p> De software wordt nu opnieuw opgestart. Het kan enkele minuten duren voordat de bewaking opnieuw kan worden gebruikt. </p>",
+        Fout1: "<p> Er is een fout opgetreden bij het updaten van de gebruikersinterface. Probeer het de volgende keer opnieuw. </p>",
+        Error2: "<p> Er is een fout opgetreden bij het updaten van de software. Probeer het opnieuw bij de volgende prompt. </p>",
+        Error3: "<p> Er is een fout opgetreden bij het updaten van de software en de gebruikersinterface. Probeer het opnieuw bij de volgende prompt. </p>",
+        IsUpdating: "Updates worden geïnstalleerd. Sluit dit venster niet!",
+        Step1: "UI-update wordt gedownload ...",
+        Step2: "Een back-up maken ...",
+        Step3: "UI-update wordt geïnstalleerd ...",
+        Step4: "Software-update wordt gedownload ...",
+        Step5: "Software-update wordt geïnstalleerd ...",
+        Step6: "Update wordt ongedaan gemaakt ...",
     }
 }

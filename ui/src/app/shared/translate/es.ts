@@ -318,5 +318,24 @@ export const TRANSLATION = {
     },
     KacoError: {
         Errors: "Error / Advertencia"
+    },
+    KacoUpdate: {
+        NewSoftware: "¡Una nueva versión del software hy-control está disponible!",
+        NewUi: "¡Una nueva versión de la interfaz de usuario hy-control está disponible!",
+        Update: "Actualizar",
+        OpenLocal: "Abra su hy-control local y siga las instrucciones.",
+        Success1: "<p>¡Actualización de la IU exitosa!</p><p>Cierre la IU y ábrala nuevamente.</p>",
+        Success2: "<p>¡Actualización de software exitosa!</p><p>El software se reiniciará ahora. Pueden pasar unos minutos hasta que pueda volver a usar el software.</p>",
+        Success3: "<p>¡Actualizaciones de software y UI exitosas!</p><p>El software se reiniciará ahora. Pueden pasar unos minutos hasta que pueda volver a usar el software.</p>",
+        Error1: "<p>Se produjo un error durante la actualización de la interfaz de usuario. Inténtalo de nuevo la próxima vez que abras la interfaz de usuario.</p>",
+        Error2: "<p>Se produjo un error durante la actualización del software. Inténtalo de nuevo la próxima vez que abras la interfaz de usuario.</p>",
+        Error3: "<p>Se produjo un error durante las actualizaciones de software y UI. Inténtalo de nuevo la próxima vez que abras la interfaz de usuario.</p>",
+        IsUpdating: "Actualización en progreso. ¡Por favor no cierre esta ventana!",
+        Step1: "Descargando actualización de IU...",
+        Step2: "Crear copia de seguridad...",
+        Step3: "Instalación de la actualización de la interfaz de usuario...",
+        Step4: "Descarga de actualización de software...",
+        Step5: "Instalar actualización de software...",
+        Step6: "Restaurar copia de seguridad...",
     }
 }

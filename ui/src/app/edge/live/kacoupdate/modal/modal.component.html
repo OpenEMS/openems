@@ -24,8 +24,8 @@
                     </td>
                 </tr>
                 <tr *ngIf="env.backend === 'OpenEMS Edge'">
-                    <td style="width:100%">
-                        <ion-button (click)="updateSoftware()" [disabled]="btnDisabled" translate>
+                    <td style="width:100%" *ngIf="!isUpdating">
+                        <ion-button (click)="updateSoftware()" translate>
                             KacoUpdate.Update
                         </ion-button>
                     </td>
@@ -35,11 +35,48 @@
                         KacoUpdate.OpenLocal
                     </td>
                 </tr>
-                <tr>
-                    <td style="width:100%" *ngIf="currentData['_kacoUpdate/Progress'] !== -1">
-                        <percentagebar [value]="currentData['_kacoUpdate/Progress']"></percentagebar>
-                    </td>
-                </tr>
+                <ng-container *ngIf="(edge.updateData | async)['channel'] as updateData">
+                    <tr>
+                        <td style="width:100%" *ngIf="isUpdating">
+                            <ion-text color="danger" translate>KacoUpdate.IsUpdating</ion-text>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%" *ngIf="updateData['_kacoUpdate/UpdateStep'] === 1" translate>
+                            KacoUpdate.Step1
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%" *ngIf="updateData['_kacoUpdate/UpdateStep'] === 2" translate>
+                            KacoUpdate.Step2
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%" *ngIf="updateData['_kacoUpdate/UpdateStep'] === 3" translate>
+                            KacoUpdate.Step3
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%" *ngIf="updateData['_kacoUpdate/UpdateStep'] === 4" translate>
+                            KacoUpdate.Step4
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%" *ngIf="updateData['_kacoUpdate/UpdateStep'] === 5" translate>
+                            KacoUpdate.Step5
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%" *ngIf="updateData['_kacoUpdate/UpdateStep'] === 6">
+                            KacoUpdate.Step6
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%" *ngIf="updateData['_kacoUpdate/Progress'] > -1">
+                            <percentagebar [value]="updateData['_kacoUpdate/Progress']"></percentagebar>
+                        </td>
+                    </tr>
+                </ng-container>
             </table>
         </ion-card-content>
     </ng-container>

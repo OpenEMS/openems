@@ -29,6 +29,7 @@ export class KacoUpdateModalComponent implements OnInit {
     public edgeError = false;
     public env = environment;
     public btnDisabled = false;
+    public isUpdating = false;
 
     constructor(
         public service: Service,
@@ -43,12 +44,13 @@ export class KacoUpdateModalComponent implements OnInit {
 
     updateSoftware() {
         this.btnDisabled = true;
+        this.isUpdating = true;
 
         let request = new UpdateSoftwareRequest();
         this.edge.sendRequest(this.websocket, request).then(response => {
 
             let result = (response as UpdateSoftwareResponse).result;
-            this.modalCtrl.dismiss();
+
             let message = "";
             let restart = false;
             switch (result.Success) {
@@ -80,8 +82,9 @@ export class KacoUpdateModalComponent implements OnInit {
                 default:
                     break;
             }
-
+            this.modalCtrl.dismiss();
             this.alerts.updateConfirm(message, restart);
+            this.isUpdating = false;
             this.btnDisabled = false;
 
         });

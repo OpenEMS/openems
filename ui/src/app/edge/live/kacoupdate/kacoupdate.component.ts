@@ -40,7 +40,8 @@ export class KacoUpdateComponent {
             let channels = [];
             channels.push(
                 new ChannelAddress('_kacoUpdate', 'HasUpdate'),
-                new ChannelAddress('_kacoUpdate', 'Progress'),
+                //new ChannelAddress('_kacoUpdate', 'Progress'),
+                //new ChannelAddress('_kacoUpdate', 'UpdateStep'),
             );
             this.edge.subscribeChannels(this.websocket, KacoUpdateComponent.SELECTOR, channels);
 
@@ -76,7 +77,10 @@ export class KacoUpdateComponent {
             componentProps: {
                 edge: this.edge,
                 config: this.config,
-            }
+            },
+            backdropDismiss: false,
+
+
         });
         return await modal.present();
     }

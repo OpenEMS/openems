@@ -15,6 +15,7 @@ import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLog
 import { DefaultTypes } from './defaulttypes';
 import { Service } from '../shared';
 import { WsData } from './wsdata';
+import { UpdateDataNotification } from '../jsonrpc/notification/updateDataNotification';
 
 @Injectable()
 export class Websocket {
@@ -299,6 +300,10 @@ export class Websocket {
       case SystemLogNotification.METHOD:
         this.handleSystemLogNotification(edgeId, message as SystemLogNotification);
         break;
+
+      case UpdateDataNotification.METHOD:
+        this.handleUpdateDataNotification(edgeId, message as UpdateDataNotification);
+        break;
     }
   }
 
@@ -327,6 +332,15 @@ export class Websocket {
     if (edgeId in edges) {
       let edge = edges[edgeId];
       edge.handleCurrentDataNotification(message);
+    }
+  }
+
+  private handleUpdateDataNotification(edgeId: string, message: UpdateDataNotification): void {
+    let edges = this.service.edges.getValue();
+
+    if (edgeId in edges) {
+      let edge = edges[edgeId];
+      edge.handleUpdateDataNotification(message);
     }
   }
 

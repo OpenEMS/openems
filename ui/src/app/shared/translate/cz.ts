@@ -316,5 +316,24 @@ export const TRANSLATION = {
     },
     KacoError: {
         Errors: "Chyba / Varování"
+    },
+    KacoUpdate: {
+        NewSoftware: "K dispozici je nová verze softwaru hy-control!",
+        NewUi: "K dispozici je nová verze uživatelského rozhraní hy-control!",
+        Update: "Aktualizace",
+        OpenLocal: "Otevřete místní hy-control a postupujte podle pokynů.",
+        Success1: "<p>Aktualizace uživatelského rozhraní byla úspěšná!</p><p>Zavřete prosím uživatelské rozhraní a znovu jej otevřete.</p>",
+        Success2: "<p>Aktualizace softwaru byla úspěšná!</p><p>Software se nyní restartuje. Může trvat několik minut, než tento software znovu použijete.</p>",
+        Success3: "<p>Aktualizace softwaru a uživatelského rozhraní byla úspěšná!</p><p>Software se nyní restartuje. Může trvat několik minut, než tento software znovu použijete.</p>",
+        Error1: "<p>Během aktualizace uživatelského rozhraní došlo k chybě. Zkuste to znovu při příštím otevření uživatelského rozhraní. </p>",
+        Error2: "<p>Během aktualizace softwaru došlo k chybě. Zkuste to znovu při příštím otevření uživatelského rozhraní. </p>",
+        Error3: "<p>Během aktualizace softwaru a uživatelského rozhraní došlo k chybě. Zkuste to znovu při příštím otevření uživatelského rozhraní.</p>",
+        IsUpdating: "Aktualizace probíhá. Nezavírejte prosím toto okno!",
+        Step1: "Stahování aktualizace uživatelského rozhraní ...",
+        Step2: "Vytváření zálohy ...",
+        Step3: "Nainstalujte aktualizaci uživatelského rozhraní ...",
+        Step4: "Stahování aktualizace softwaru ...",
+        Step5: "Instalace aktualizace softwaru ...",
+        Step6: "Obnovení zálohy ...",
     }
 }

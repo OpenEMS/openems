@@ -325,8 +325,15 @@ export const TRANSLATION = {
         Success1: "<p>UI update successful!</p><p>Please close the UI and open it again.</p>",
         Success2: "<p>Software update successful!</p><p>The Software will restart now. It can take a few minutes until you can use the software again.</p>",
         Success3: "<p>Software and UI updates successful!</p><p>The Software will restart now. It can take a few minutes until you can use the software again.</p>",
-        Error1: "<p>An error occured during the UI update. Please try it again the next time you open the UI.</p>",
-        Error2: "<p>An error occured during the software update. Please try it again the next time you open the UI.</p>",
-        Error3: "<p>An error occured during the software and UI updates. Please try it again the next time you open the UI.</p>",
+        Error1: "<p>An error occurred during the UI update. Please try it again the next time you open the UI.</p>",
+        Error2: "<p>An error occurred during the software update. Please try it again the next time you open the UI.</p>",
+        Error3: "<p>An error occurred during the software and UI updates. Please try it again the next time you open the UI.</p>",
+        IsUpdating: "Update in progress. Please do not close this window!",
+        Step1: "Downloading UI update...",
+        Step2: "Creating backup...",
+        Step3: "Installing UI update...",
+        Step4: "Downloading software update...",
+        Step5: "Installing software update...",
+        Step6: "Restoring backup...",
     }
 }
