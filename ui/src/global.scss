@@ -23,6 +23,13 @@
     overflow-x: hidden;
 }
 
+.slides {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100%;
+}
+
 ion-label {
     font-family: Arial, Helvetica, sans-serif;
 }

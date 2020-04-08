@@ -1,3 +1,4 @@
+import { AdvertisementComponent } from './advertisement/advertisement.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -29,8 +30,6 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
 import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
-import { MiniupgradeComponent } from './miniupgrade/miniupgrade.component';
-import { MiniupgradeModalComponent } from './miniupgrade/modal/modal.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
 import { NgModule } from '@angular/core';
 import { OfflineComponent } from './offline/offline.component';
@@ -46,9 +45,11 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { AdvertisementModule } from './advertisement/advertisement.module';
 
 @NgModule({
   imports: [
+    AdvertisementModule,
     BrowserAnimationsModule,
     BrowserModule,
     EnergymonitorModule,
@@ -68,7 +69,6 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     GridModalComponent,
     GridModalComponent,
     HeatingElementModalComponent,
-    MiniupgradeModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -108,8 +108,6 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     HeatingElementModalComponent,
     InfoComponent,
     LiveComponent,
-    MiniupgradeComponent,
-    MiniupgradeModalComponent,
     ModalComponentEvcsCluster,
     OfflineComponent,
     PartnerComponent,

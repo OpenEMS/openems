@@ -4,7 +4,7 @@
     <ion-col size="12" size-md="6" *ngIf="edge">
       <ion-card>
         <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="today" color="primary"></ion-icon>
+          <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
           <ion-label>Allgemeine Daten</ion-label>
         </ion-item>
 
@@ -41,7 +41,7 @@
     <ion-col size="12" size-md="6" *ngIf="config">
       <ion-card>
         <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="today" color="primary"></ion-icon>
+          <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
           <ion-label>Konfiguration</ion-label>
         </ion-item>
 
@@ -83,14 +83,42 @@
                     <ng-container *ngFor="let factoryId of [item.factoryId]" [ngSwitch]="factoryId">
                       <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'">
                         <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                        <ion-button target="_blank"
+                          href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend"
+                          translate>General.manual</ion-button>
                       </ion-text>
                       <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
                         <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                        <ion-button target="_blank"
+                          href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_schreibzugriff"
+                          translate>General.manual</ion-button>
                       </ion-text>
                       <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp'">
                         <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                        <ion-button target="_blank"
+                          href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend"
+                          translate>General.manual</ion-button>
                       </ion-text>
-                      <ion-icon name="arrow-dropdown-outline"></ion-icon>
+                      <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
+                        <ion-button target="_blank"
+                          href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend"
+                          translate>General.manual</ion-button>
+                      </ion-text>
+                      <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadWrite'">
+                        <ion-button target="_blank"
+                          href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_schreibzugriff"
+                          translate>General.manual</ion-button>
+                      </ion-text>
+                      <ion-text *ngSwitchCase="'Controller.Api.Backend'">
+                        <ion-button target="_blank"
+                          href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_cloud_schnittstellen" translate>
+                          General.manual</ion-button>
+                      </ion-text>
+                      <ion-text *ngSwitchCase="'Controller.Api.Websocket'">
+                        <ion-button target="_blank"
+                          href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_cloud_websocketjson_api"
+                          translate>General.manual</ion-button>
+                      </ion-text>
                     </ng-container>
                   </ng-container>
                 </ion-label>

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Service, Edge } from '../../../../shared/shared';
+import { Service, Edge } from '../../../../../shared/shared';
 
 @Component({
   selector: MiniupgradeModalComponent.SELECTOR,

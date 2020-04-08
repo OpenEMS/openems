@@ -25,6 +25,7 @@ export const TRANSLATION = {
         inputNotValid: 'Eingabe ungültig',
         live: 'Live',
         load: 'Last',
+        manual: 'Anleitung',
         manually: 'Manuell',
         measuredValue: 'Gemessener Wert',
         mode: 'Modus',
