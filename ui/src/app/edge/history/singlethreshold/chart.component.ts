@@ -41,6 +41,15 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
         let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        let yAxisID
+
+        // set yAxis for % values (if there are no other % values: use left yAxis, if there are: use right yAxis - for percent values)
+        if (result.data["_sum/EssSoc"]) {
+          yAxisID = "yAxis1";
+        } else {
+          yAxisID = "yAxis2";
+        }
+
         // convert labels
         let labels: Date[] = [];
         for (let timestamp of result.timestamps) {
@@ -64,7 +73,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
               label: address.channelId,
               data: data,
               hidden: false,
-              yAxisID: 'yAxis2',
+              yAxisID: yAxisID,
               position: 'right'
             });
             this.colors.push({
@@ -91,7 +100,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             }
             let data
             if (address.channelId == 'EssSoc') {
-              data.result.data[channel].map(value => {
+              data = result.data[channel].map(value => {
                 if (value == null) {
                   return null
                 } else if (value > 100 || value < 0) {
@@ -119,10 +128,10 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             }
             if (address.channelId == 'EssSoc') {
               datasets.push({
-                label: address.channelId,
+                label: inputLabel,
                 data: data,
                 hidden: false,
-                yAxisID: 'yAxis2',
+                yAxisID: yAxisID,
                 position: 'right'
               });
 
@@ -172,37 +181,44 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   protected setLabel(config: EdgeConfig) {
     let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
     let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-
     let labelString;
-    if (inputChannel.channelId == 'Soc') {
-      labelString = '%';
-    } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
-      labelString = 'kW';
-    } else {
-      labelString = config.getChannel(inputChannel)['unit'];
-    }
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     let translate = this.translate;
-    // adds second y-axis to chart
-    options.scales.yAxes.push({
-      id: 'yAxis2',
-      position: 'right',
-      scaleLabel: {
-        display: true,
-        labelString: "%"
-      },
-      gridLines: {
-        display: false
-      },
-      ticks: {
-        beginAtZero: true,
-        max: 100,
-        padding: -5,
-        stepSize: 20
-      }
-    })
-    options.scales.yAxes[0].id = "yAxis1"
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
+
+    if (inputChannel.channelId == 'EssSoc') {
+      labelString = '%';
+      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].scaleLabel.labelString = labelString;
+    } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
+      labelString = 'kW';
+      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].scaleLabel.labelString = labelString;
+    } else {
+      labelString = config.getChannel(inputChannel)['unit'];
+      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].scaleLabel.labelString = labelString;
+    }
+
+    if (inputChannel.channelId != 'EssSoc') {
+      // adds second y-axis to chart
+      options.scales.yAxes.push({
+        id: 'yAxis2',
+        position: 'right',
+        scaleLabel: {
+          display: true,
+          labelString: "%"
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          beginAtZero: true,
+          max: 100,
+          padding: -5,
+          stepSize: 20
+        }
+      })
+    }
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
@@ -214,7 +230,6 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
       }
     }
-    options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 
