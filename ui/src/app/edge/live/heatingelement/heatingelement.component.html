@@ -42,13 +42,14 @@
                         <td style="width:35%" class="align_right">
                             Level&nbsp;{{ (activePhases | async) }}</td>
                     </tr>
-                    <tr *ngIf="component.properties.mode == 'AUTOMATIC'">
+                    <tr
+                        *ngIf="component.properties.mode == 'AUTOMATIC' && currentData.channel[component.id + '/ForceStartAtSecondOfDay'] as forceStartAtSecondOfDay">
                         <ng-container>
                             <td style="width: 65%" translate>
                                 Edge.Index.Widgets.Heatingelement.timeCountdown
                             </td>
                             <td style="width:35%" class="align_right">
-                                {{ currentData.channel[component.id + '/ForceStartAtSecondOfDay'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
                             </td>
                         </ng-container>
                     </tr>

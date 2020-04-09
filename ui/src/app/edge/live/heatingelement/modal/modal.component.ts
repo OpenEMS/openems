@@ -45,10 +45,10 @@ export class HeatingElementModalComponent implements OnInit {
         ]);
         this.formGroup = this.formBuilder.group({
             minTime: new FormControl(this.component.properties.minTime),
-            minkwh: new FormControl(this.component.properties.minkwh),
+            minKwh: new FormControl(this.component.properties.minKwh),
             endTime: new FormControl(this.component.properties.endTime),
-            priority: new FormControl(this.component.properties.priority),
-            heatingLevel: new FormControl(this.component.properties.level)
+            workMode: new FormControl(this.component.properties.workMode),
+            defaultLevel: new FormControl(this.component.properties.defaultLevel)
         })
     };
 
@@ -93,18 +93,18 @@ export class HeatingElementModalComponent implements OnInit {
     }
 
     updateMinKwh(event: CustomEvent) {
-        this.formGroup.controls['minkwh'].setValue(event.detail.value);
-        this.formGroup.controls['minkwh'].markAsDirty()
+        this.formGroup.controls['minKwh'].setValue(event.detail.value);
+        this.formGroup.controls['minKwh'].markAsDirty()
     }
 
-    updatePriorityMode(event: CustomEvent) {
-        this.formGroup.controls['priority'].setValue(event.detail.value);
-        this.formGroup.controls['priority'].markAsDirty()
+    updateWorkMode(event: CustomEvent) {
+        this.formGroup.controls['workMode'].setValue(event.detail.value);
+        this.formGroup.controls['workMode'].markAsDirty()
     }
 
-    updateLevel(event: CustomEvent) {
-        this.formGroup.controls['heatingLevel'].setValue(event.detail.value);
-        this.formGroup.controls['heatingLevel'].markAsDirty()
+    updateDefaultLevel(event: CustomEvent) {
+        this.formGroup.controls['defaultLevel'].setValue(event.detail.value);
+        this.formGroup.controls['defaultLevel'].markAsDirty()
     }
 
     applyChanges() {
@@ -121,16 +121,16 @@ export class HeatingElementModalComponent implements OnInit {
                 this.component.properties.minTime = this.formGroup.value.minTime;
                 this.component.properties.minkwh = this.formGroup.value.minkwh;
                 this.component.properties.endTime = this.formGroup.value.endTime;
-                this.component.properties.priority = this.formGroup.value.priority;
-                this.component.properties.heatingLevel = this.formGroup.value.heatingLevel;
+                this.component.properties.workMode = this.formGroup.value.workMode;
+                this.component.properties.defaultLevel = this.formGroup.value.defaultLevel;
                 this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
                 this.loading = false;
             }).catch(reason => {
                 this.formGroup.controls['minTime'].setValue(this.component.properties.minTime);
-                this.formGroup.controls['minkwh'].setValue(this.component.properties.minkwh);
+                this.formGroup.controls['minKwh'].setValue(this.component.properties.minkwh);
                 this.formGroup.controls['endTime'].setValue(this.component.properties.endTime);
-                this.formGroup.controls['priority'].setValue(this.component.properties.priority);
-                this.formGroup.controls['heatingLevel'].setValue(this.component.properties.heatingLevel);
+                this.formGroup.controls['workMode'].setValue(this.component.properties.workMode);
+                this.formGroup.controls['defaultLevel'].setValue(this.component.properties.defaultLevel);
                 this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
                 this.loading = false;
                 console.warn(reason);

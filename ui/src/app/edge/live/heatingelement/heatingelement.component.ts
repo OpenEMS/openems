@@ -41,16 +41,16 @@ export class HeatingElementComponent {
             this.service.getConfig().then(config => {
                 this.component = config.components[this.componentId];
                 this.outputChannelPhaseOne = ChannelAddress.fromString(
-                    this.component.properties['outputChannelAddress1']);
+                    this.component.properties['outputChannelPhaseL1']);
                 this.outputChannelPhaseTwo = ChannelAddress.fromString(
-                    this.component.properties['outputChannelAddress2']);
+                    this.component.properties['outputChannelPhaseL2']);
                 this.outputChannelPhaseThree = ChannelAddress.fromString(
-                    this.component.properties['outputChannelAddress3']);
+                    this.component.properties['outputChannelPhaseL3']);
                 edge.subscribeChannels(this.websocket, HeatingElementComponent.SELECTOR + this.componentId, [
                     this.outputChannelPhaseOne,
                     this.outputChannelPhaseTwo,
                     this.outputChannelPhaseThree,
-                    new ChannelAddress(this.component.id, 'ForceStartAtSecondOfDay'),
+                    new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
                 ]);
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let outputChannelArray = [this.outputChannelPhaseOne, this.outputChannelPhaseTwo, this.outputChannelPhaseThree];
