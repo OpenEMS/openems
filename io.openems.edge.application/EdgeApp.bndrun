@@ -55,6 +55,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
+	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
@@ -161,6 +162,7 @@
 	io.openems.edge.controller.io.alarm;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.channelsinglethreshold;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.fixdigitaloutput;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.io.heatingelement;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.symmetric.balancing;version='[1.0.0,1.0.1)',\
@@ -252,4 +254,4 @@
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	org.osgi.service.event;version='[1.4.0,1.4.1)',\
 	org.osgi.service.metatype;version='[1.4.0,1.4.1)',\
-	rrd4j;version='[3.5.0,3.5.1)'
+	rrd4j;version='[3.6.0,3.6.1)'

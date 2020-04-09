@@ -19,6 +19,9 @@ import { EnergyModalComponent } from './energy/modal/modal.component';
 import { GridChartComponent } from './grid/chart.component';
 import { GridComponent } from './grid/widget.component';
 import { GridModalComponent } from './grid/modal/modal.component';
+import { HeatingelementChartComponent } from './heatingelement/chart.component';
+import { HeatingelementModalComponent } from './heatingelement/modal/modal.component';
+import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
 import { HistoryComponent } from './history.component';
 import { NgModule } from '@angular/core';
 import { ProductionChargerChartComponent } from './production/chargerchart.component';
@@ -58,6 +61,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ConsumptionModalComponent,
     EnergyModalComponent,
     GridModalComponent,
+    HeatingelementModalComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
@@ -86,6 +90,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     GridChartComponent,
     GridComponent,
     GridModalComponent,
+    HeatingelementChartComponent,
+    HeatingelementModalComponent,
+    HeatingelementWidgetComponent,
     HistoryComponent,
     ProductionChargerChartComponent,
     ProductionComponent,

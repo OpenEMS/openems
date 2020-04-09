@@ -4,6 +4,7 @@ export const TRANSLATION = {
         actualPower: 'e-car Charge power',
         autarchy: 'Autarchy',
         automatic: 'Automatically',
+        cancel: 'cancel',
         capacity: 'Capacity',
         changeAccepted: 'Change accepted',
         changeFailed: 'Change failed',
@@ -32,6 +33,7 @@ export const TRANSLATION = {
         noValue: 'No value',
         off: 'Off',
         offGrid: 'No Grid Connection!',
+        ok: 'ok',
         on: 'On',
         otherConsumption: 'other Consumption',
         percentage: 'Percentage',
@@ -198,6 +200,17 @@ export const TRANSLATION = {
                         name: 'Force charging',
                         shortName: 'Manually',
                     }
+                },
+                Heatingelement: {
+                    heatingelement: 'Heating element',
+                    priority: 'Priority',
+                    activeLevel: 'Active level',
+                    energy: 'Energy',
+                    time: 'Time',
+                    endtime: 'Endtime',
+                    minimalEnergyAmount: 'Minimal charge amount',
+                    minimumRunTime: 'Minimum runtime',
+                    timeCountdown: 'time until start',
                 }
             }
         },

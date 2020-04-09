@@ -114,6 +114,72 @@ public enum EssChannelId implements io.openems.edge.common.channel.ChannelId {
 			.unit(Unit.VOLT)), //
 	BECU_CURRENT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.AMPERE)), //
+	
+	BATTERY_VOLTAGE_SECTION_1(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_2(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_3(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_4(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_5(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_6(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_7(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_8(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_9(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_10(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_11(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_12(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_13(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_14(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_15(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	BATTERY_VOLTAGE_SECTION_16(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIVOLT)), //
+	// TODO add .delta(-40L)
+	BATTERY_TEMPERATURE_SECTION_1(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_2(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_3(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_4(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_5(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_6(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_7(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_8(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_9(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_10(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_11(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_12(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_13(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_14(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_15(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
+	BATTERY_TEMPERATURE_SECTION_16(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.DEGREE_CELSIUS)), //
 
 	// StateChannels
 	STATE_1(Doc.of(Level.INFO) //

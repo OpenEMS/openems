@@ -18,6 +18,5 @@
         </ion-label>
     </ion-item>
 </ion-list>
-<my-date-range-picker *ngIf="showCustomDate" [options]="dateRangePickerOptions"
-    (dateRangeChanged)="onDateRangeChanged($event)">
-</my-date-range-picker>
+<input *ngIf="showCustomDate" (dateChanged)="onDateChanged($event.dateRange)" type="hidden" [locale]="locale"
+    angular-mydatepicker name="mydate" [options]="myDpOptions" />

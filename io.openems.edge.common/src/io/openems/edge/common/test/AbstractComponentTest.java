@@ -118,9 +118,10 @@ public abstract class AbstractComponentTest {
 		 * Validates the output values.
 		 * 
 		 * @param components Referenced components
+		 * @param index
 		 * @throws Exception on validation failure
 		 */
-		public void validateOutputs(Map<String, OpenemsComponent> components) throws Exception {
+		public void validateOutputs(Map<String, OpenemsComponent> components, int index) throws Exception {
 			for (ChannelValue output : this.outputs) {
 				Object expected = output.value;
 				Channel<?> channel = components.get(output.address.getComponentId())
@@ -132,8 +133,8 @@ public abstract class AbstractComponentTest {
 					got = channel.getNextValue().orElse(null);
 				}
 				if (!Objects.equals(expected, got)) {
-					throw new Exception("Expected [" + expected + "], Got [" + got + "] for Channel ["
-							+ output.address.toString() + "] on Inputs [" + this.inputs + "]");
+					throw new Exception("On TestCase #" + index + ": expected [" + expected + "] got [" + got
+							+ "] for Channel [" + output.address.toString() + "] on Inputs [" + this.inputs + "]");
 				}
 			}
 		}
@@ -178,11 +179,12 @@ public abstract class AbstractComponentTest {
 	 * @throws Exception on validation failure
 	 */
 	public void run() throws Exception {
+		int index = 0;
 		for (TestCase testCase : this.testCases) {
 			testCase.applyTimeLeap();
 			testCase.applyInputs(this.components);
 			this.executeLogic();
-			testCase.validateOutputs(this.components);
+			testCase.validateOutputs(this.components, ++index);
 		}
 	}
 
