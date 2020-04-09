@@ -1,55 +1,99 @@
 = IO Heating Element
 
-Controls a three-phase heating element via Relays, according to grid active power  
+Controls a three-phase heating element via Relays, according to grid active power.
 
-== Configuration
+== Phase and Level
 
-                - `id` Unique ID of this Component (id), e.g. "ctrlIoAlarm0", "ctrlIoAlarm1"
+The Controller distinguishes the definition of Phase and Level.
+*Phase* represents the electrical phase L1, L2 or L3.
+*Level* represents how many Phases are active at one point in time:
 
-                - `alias` Human-readable name of this Component; defaults to Component-ID (alias)
+* Level 1: only Phase L1 is active
+* Level 2: Phase L1 and L2 are active
+* Level 3: all three Phases are active
 
-                - `enabled` Is this Component enabled?
+== Channels
 
-                - `mode` Selection of the Mode, 1) always on 2) always off or 3) Automatic
+Example:
+* the power of the heating element per phase is 1000 W
+* each "x" below represents one hour
 
-                - `inputChannelAddress` Address of the input channel for the grid power
+Assume the Controller was activating Phases L1, L2 and L3 during the day like this:
 
-                - `outputChannelAddress1` Channel address of the Digital Output that should be switched
+----
+L3|           xxx
+L2|        xxxxxxxxx
+L1|     xxxxxxxxxxxxxxxx
+ t|------------------------
+----
 
-                - `outputChannelAddress2` Channel address of the Digital Output that should be switched
+Channel _Phase1Time_::
+`= 16 h = *57600 sec*`
 
-                - `outputChannelAddress3` Channel address of the Digital Output that should be switched
-                
-                - `heatingLevel` This is the unit which tell which level the heating element runs
+----
+        |--------------|
+----
 
-                - `endTime` End time to check the minimum run time
+Channel _Phase2Time_::
+`= 9 hours = *32400 sec*`
 
-                - `priority` Decide the priority, time or the Kilowatthours
+----
+           |-------|
+----
 
-                - `minTime` Minimum time for heating element to run in hours
+Channel _Phase3Time_::
+`= 3 hours = *10800 sec*`
 
-                - `minkwh` Minimum Kilowatthours for heating element to run in kWh
+----
+              |-|
+----
 
-                - `powerOfPhase` Power of the single phase in W
+Channel _Level1Time_::
+`= Phase1Time - Phase2Time = 7 hours = *25200 sec*`
 
+----
+        |-|         |--|
+----
 
+Channel _Level2Time_::
+`= Phase2Time - Phase3Time = 6 hours = *21600 sec*`
 
+----
+           |-|   |-|
+----
 
-== Example Configuration
+Channel _Level3Time_::
+`= Phase3Time = 3 hours = *10800 sec*`
 
-- `Component-ID` : ctrlHeatingElement00
-- `Alias` : myCtrl
-- `enabled` : true
-- `Mode` : Automatic
-- `Input Channels` : _sum/GridActivePower
-- `Output Channel1` : io0/Relay1
-- `Output Channel2` : io0/Relay2
-- `Output Channel3` : io0/Relay3
-- `Heating Level` : level_3 
-- `End time` : "17:00:00" 
-- `Priority` : "Time"
-- `Minimum Time` : 1
-- `Minimum Kwh` : 4
-- `Power of Phase` : 2000
+----
+              |-|
+----
+
+Channel _Phase1Energy_::
+`= Phase1Time (16) x 1000 W = *16000 Wh* = 16 kWh`
+
+Channel _Phase2Energy_::
+`= Phase2Time (9) x 1000 W = *9000 Wh* = 9 kWh` 
+
+Channel _Phase3Energy_::
+`= Phase3Time (3) x 1000 W = *3000 Wh* = 3 kWh` 
+
+NOTE: Sum of Phase1Energy, Phase2Energy and Phase3Energy is `16 \+ 9 \+ 3 = 28 kWh`
+
+Channel _Level1Energy_::
+`= Phase1Energy - Phase2Energy = *7000 Wh* = 7 kWh`
+
+Channel _Level2Energy_::
+`= (Phase2Energy - Phase3Energy) x 2 = 6000 Wh x 2 = *12000 Wh* = 12 kWh`
+
+Channel _Level3Energy_::
+`= Phase3Energy x 3 = 3000 Wh x 3 = *9000 Wh* = 9 kWh`
+
+NOTE: Sum of Level1Energy, Level2Energy and Level3Energy is `7 \+ 12 \+ 9 = 28 kWh`
+
+Channel _TotalTime_:: `*28000 Wh* = 28 kWh`
+
+Channel _TotalPhaseTime_:: 
+`= Phase1Time + Phase2Time + Phase3Time = 16 + 9 + 3 = 28 h = *100800 sec*`
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heatingelement[Source Code icon:github[]]

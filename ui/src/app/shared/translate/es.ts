@@ -205,7 +205,6 @@ export const TRANSLATION = {
                     activeLevel: 'Fases level',
                     endtime: 'Los días pasados',
                     energy: 'Energía',
-                    energyCountdown: 'Cantidad de energía hasta el inicio',
                     heatingelement: 'Elemento de calefacción',
                     minimalEnergyAmount: 'Cantidad mínima de energía',
                     minimumRunTime: 'Plazo mínimo',

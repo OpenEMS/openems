@@ -204,7 +204,6 @@ export const TRANSLATION = {
                     activeLevel: 'Aktivní level',
                     endtime: 'Poslední dny',
                     energy: 'Energie',
-                    energyCountdown: 'Množství energie do začátku',
                     heatingelement: 'Topný článek',
                     minimalEnergyAmount: 'Minimální množství energie',
                     minimumRunTime: 'Minimální doba',

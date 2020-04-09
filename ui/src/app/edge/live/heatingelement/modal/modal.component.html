@@ -155,18 +155,10 @@
                             <table class="full_width">
                                 <tr>
                                     <td style="width: 65%" translate>
-                                        Edge.Index.Widgets.Heatingelement.minimumRunTime
-                                    </td>
-                                    <td style="width: 35%" class="align_right">
-                                        {{ formGroup.value.minTime | unitvalue:'h' }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 65%" translate>
                                         Edge.Index.Widgets.Heatingelement.timeCountdown
                                     </td>
                                     <td style="width: 35%" class="align_right">
-                                        {{ currentData.channel[component.id + '/CountDownMinTime'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                        {{ currentData.channel[component.id + '/ForceStartAtSecondOfDay'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
                                     </td>
                                 </tr>
                             </table>
@@ -178,10 +170,10 @@
                                         color="dark" pin="true" style="padding-top: 8px;" debounce="500"
                                         [value]="component.properties.minkwh">
                                         <ion-label slot="start">
-                                            {{ 0 | unitvalue:'kWH'}}
+                                            {{ 0 | unitvalue:'kWh'}}
                                         </ion-label>
                                         <ion-label slot="end">
-                                            {{ 60 | unitvalue:'kWH'}}
+                                            {{ 60 | unitvalue:'kWh'}}
                                         </ion-label>
                                     </ion-range>
                                 </tr>
@@ -192,7 +184,7 @@
                                         Edge.Index.Widgets.Heatingelement.minimalEnergyAmount<span>:</span>
                                     </td>
                                     <td style="width: 35%" class="align_right">
-                                        {{ formGroup.value.minkwh | unitvalue:'kWH' }}
+                                        {{ formGroup.value.minkwh | unitvalue:'kWh' }}
                                     </td>
                                 </tr>
                                 <tr>

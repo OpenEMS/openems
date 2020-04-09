@@ -205,13 +205,12 @@ export const TRANSLATION = {
                     activeLevel: 'Aktives Level',
                     endtime: 'Endzeit',
                     energy: 'Energie',
-                    energyCountdown: 'Energiemenge bis Start',
                     heatingelement: 'Heizelement',
                     minimalEnergyAmount: 'Minimale Energiemenge',
                     minimumRunTime: 'Mindestlaufzeit',
                     priority: 'Priorität',
                     time: 'Zeit',
-                    timeCountdown: 'Zeit bis Start',
+                    timeCountdown: 'Spätester Start',
                 }
             }
         },

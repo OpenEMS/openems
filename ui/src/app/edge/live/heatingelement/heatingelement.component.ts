@@ -50,8 +50,7 @@ export class HeatingElementComponent {
                     this.outputChannelPhaseOne,
                     this.outputChannelPhaseTwo,
                     this.outputChannelPhaseThree,
-                    new ChannelAddress(this.component.id, 'CountDownMinTime'),
-                    new ChannelAddress(this.component.id, 'CountDownMinKwh'),
+                    new ChannelAddress(this.component.id, 'ForceStartAtSecondOfDay'),
                 ]);
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let outputChannelArray = [this.outputChannelPhaseOne, this.outputChannelPhaseTwo, this.outputChannelPhaseThree];

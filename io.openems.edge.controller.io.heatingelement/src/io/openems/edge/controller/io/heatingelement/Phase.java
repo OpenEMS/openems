@@ -1,5 +1,5 @@
-package io.openems.edge.controller.heatingelement;
+package io.openems.edge.controller.io.heatingelement;
 
 public enum Phase {
-	ONE, TWO, THREE
+	L1, L2, L3
 }

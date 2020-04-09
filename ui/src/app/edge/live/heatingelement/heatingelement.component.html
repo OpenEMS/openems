@@ -43,20 +43,13 @@
                             Level&nbsp;{{ (activePhases | async) }}</td>
                     </tr>
                     <tr *ngIf="component.properties.mode == 'AUTOMATIC'">
-                        <ng-container *ngIf="component.properties.priority == 'TIME'">
+                        <ng-container>
                             <td style="width: 65%" translate>
                                 Edge.Index.Widgets.Heatingelement.timeCountdown
                             </td>
                             <td style="width:35%" class="align_right">
-                                {{ currentData.channel[component.id + '/CountDownMinTime'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                {{ currentData.channel[component.id + '/ForceStartAtSecondOfDay'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
                             </td>
-                        </ng-container>
-                        <ng-container *ngIf="component.properties.priority == 'KILO_WATT_HOUR'">
-                            <td style="width: 65%" translate>
-                                Edge.Index.Widgets.Heatingelement.energyCountdown
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ currentData.channel[component.id + '/CountDownMinKwh'] }}&nbsp;kWh</td>
                         </ng-container>
                     </tr>
                 </table>

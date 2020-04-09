@@ -209,7 +209,6 @@ export const TRANSLATION = {
                     endtime: 'Endtime',
                     minimalEnergyAmount: 'Minimal charge amount',
                     minimumRunTime: 'Minimum runtime',
-                    energyCountdown: 'energy used until start',
                     timeCountdown: 'time until start',
                 }
             }
