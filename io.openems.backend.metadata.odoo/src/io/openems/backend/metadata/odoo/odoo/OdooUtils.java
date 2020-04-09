@@ -123,6 +123,8 @@ public class OdooUtils {
 				case "odoo.exceptions.AccessDenied":
 					throw new OpenemsException(
 							"Access Denied for Request [" + request.toString() + "] to URL [" + url + "]");
+				case "odoo.http.SessionExpiredException":
+					throw new OpenemsException("Session Expired for Request to URL [" + url + "]");
 				default:
 					String exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
 							+ dataMessage + ";" //
