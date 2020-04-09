@@ -1,4 +1,5 @@
 import { AdvertisementComponent } from './advertisement/advertisement.component';
+import { AdvertisementModule } from './advertisement/advertisement.module';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -45,7 +46,8 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
-import { AdvertisementModule } from './advertisement/advertisement.module';
+import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
+import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 
 @NgModule({
   imports: [
@@ -67,15 +69,12 @@ import { AdvertisementModule } from './advertisement/advertisement.module';
     EvcsPopoverComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
-    GridModalComponent,
     HeatingElementModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
     StorageModalComponent,
-    StorageModalComponent,
-    SymmetricPeakshavingModalComponent,
     SymmetricPeakshavingModalComponent,
   ],
   declarations: [

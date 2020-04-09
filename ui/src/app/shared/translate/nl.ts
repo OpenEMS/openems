@@ -4,6 +4,7 @@ export const TRANSLATION = {
         ActualPower: 'e-car Laad vermogen',
         Autarchy: 'Autarkie',
         Automatic: 'Automatisch',
+        cancel: 'annuleren',
         capacity: 'Hoedanigheid',
         ChangeAccepted: 'Wijziging geaccepteerd',
         ChangeFailed: 'Wijziging mislukt',
@@ -32,6 +33,7 @@ export const TRANSLATION = {
         NoValue: 'Geen waarde',
         Off: 'Van',
         OffGrid: 'Geen Netaansluiting!',
+        ok: 'ok',
         On: 'Naar',
         otherConsumption: 'andere consumptie',
         Percentage: 'Procent',
@@ -196,6 +198,17 @@ export const TRANSLATION = {
                         name: 'Gedwongen laden',
                         shortName: 'handmatig',
                     }
+                },
+                Heatingelement: {
+                    heatingelement: 'Verwarmingselement',
+                    priority: 'Prioriteit',
+                    activeLevel: 'Actieve level',
+                    energy: 'Energie',
+                    time: 'Tijd',
+                    endtime: 'Einde tijd',
+                    minimalEnergyAmount: 'Minimale hoeveelheid energie',
+                    minimumRunTime: 'Minimale looptijd',
+                    timeCountdown: 'Tijd om te beginnen',
                 }
             }
         },
