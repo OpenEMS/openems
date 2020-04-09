@@ -45,4 +45,9 @@ public class AuthenticateWithUsernameAndPasswordRequest extends OdooCallRequest 
 				.addProperty("password", this.password) //
 				.build();
 	}
+
+	@Override
+	public String toString() {
+		return "AuthenticateWithUsernameAndPasswordRequest [db=" + db + ", login=" + login + ", password=HIDDEN]";
+	}
 }
