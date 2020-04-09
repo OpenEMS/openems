@@ -1,10 +1,6 @@
-= Heating element controller, controls via excess grid active power
+= IO Heating Element
 
-Controls the heating element controller.
-
-
-  
-  
+Controls a three-phase heating element via Relays, according to grid active power  
 
 == Configuration
 
@@ -26,15 +22,15 @@ Controls the heating element controller.
                 
                 - `heatingLevel` This is the unit which tell which level the heating element runs
 
-                - `endTime` End time to check the minmum run time
+                - `endTime` End time to check the minimum run time
 
-                - `priority` Decide the priority, time or the Kilo watt hour
+                - `priority` Decide the priority, time or the Kilowatthours
 
                 - `minTime` Minimum time for heating element to run in hours
 
-                - `minkwh` Minimun Kilo watt hour for heating element to run in kwh
+                - `minkwh` Minimum Kilowatthours for heating element to run in kWh
 
-                - `powerOfPhase` Power of the single phase in Kw
+                - `powerOfPhase` Power of the single phase in W
 
 
 
@@ -56,5 +52,4 @@ Controls the heating element controller.
 - `Minimum Kwh` : 4
 - `Power of Phase` : 2000
 
-NOTE: _sum/GridActivePower - represents the Grid active power channel of the ESS0, 
-io0/relay1 - represents the relay 1 of the relay board.
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heatingelement[Source Code icon:github[]]

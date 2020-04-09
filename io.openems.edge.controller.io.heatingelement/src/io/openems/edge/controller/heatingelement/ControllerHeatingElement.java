@@ -18,8 +18,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -35,7 +33,7 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.HeatingElement", //
+@Component(name = "Controller.IO.HeatingElement", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 public class ControllerHeatingElement extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
@@ -354,7 +352,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * Checking of excess power and switching the phases automatically.
 	 * 
 	 * @throws IllegalArgumentException on error.
-	 * @throws OpenemsNamedException  on error.
+	 * @throws OpenemsNamedException    on error.
 	 */
 	protected void automaticMode() throws IllegalArgumentException, OpenemsNamedException {
 		// Get the input channel addresses
