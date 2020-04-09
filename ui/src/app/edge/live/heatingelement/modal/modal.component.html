@@ -16,6 +16,21 @@
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
+                            <td style="width:65%" translate>General.state</td>
+                            <td style="width:35%" class="align_right" translate>
+                                <ng-container *ngIf="(activePhases | async) > 0">
+                                    General.active
+                                </ng-container>
+                                <ng-container *ngIf="(activePhases | async) == 0">
+                                    General.inactive
+                                </ng-container>
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
+                <ion-card-content class="underline">
+                    <table class="full_width">
+                        <tr>
                             <td style="width:55%" [class.bold]="(activePhases | async) == 1">
                                 Level 1</td>
                             <td class="align_right" style="width: 30%">
@@ -87,7 +102,6 @@
                                     <ion-item lines="none" class="ion-text-end">
                                         <ion-label>
                                             Endzeit:
-
                                         </ion-label>
                                         <ion-datetime [cancelText]="translate.instant('General.cancel')"
                                             [value]="component.properties.endTime"
@@ -101,8 +115,8 @@
                                     <ion-item lines="none">
                                         Level:
                                         <ion-select formControlName="heatingLevel"
-                                            [value]="component.properties.heatingLevel"
-                                            (ionChange)="updateLevel($event)" [okText]="translate.instant('General.ok')"
+                                            [value]="component.properties['level']" (ionChange)="updateLevel($event)"
+                                            [okText]="translate.instant('General.ok')"
                                             [cancelText]="translate.instant('General.cancel')">
                                             <ion-select-option value="LEVEL_1">Level 1</ion-select-option>
                                             <ion-select-option value="LEVEL_2">Level 2</ion-select-option>
@@ -115,24 +129,20 @@
                         <ion-grid>
                             <ion-row class="ion-justify-content-center">
                                 <ion-segment (ionChange)="updatePriorityMode($event)"
-                                    value="{{ component.properties['priority'] }}" class="small">
+                                    [value]="component.properties['priority']" class="small">
                                     <ion-segment-button value="TIME">
-                                        <ion-item lines="none">
-                                            <ion-icon style="width:40px" name="sunny">
-                                            </ion-icon>
-                                            <ion-label translate>
-                                                Edge.Index.Widgets.Heatingelement.time
-                                            </ion-label>
-                                        </ion-item>
+                                        <ion-icon color="primary" name="sunny-outline">
+                                        </ion-icon>
+                                        <ion-label translate>
+                                            Edge.Index.Widgets.Heatingelement.time
+                                        </ion-label>
                                     </ion-segment-button>
                                     <ion-segment-button value="KILO_WATT_HOUR">
-                                        <ion-item lines="none">
-                                            <ion-img style="width:30px" src="assets/img/gridStorage.png">
-                                            </ion-img>
-                                            <ion-label>
-                                                KWH
-                                            </ion-label>
-                                        </ion-item>
+                                        <ion-icon color="primary" name="battery-charging-outline">
+                                        </ion-icon>
+                                        <ion-label>
+                                            KWH
+                                        </ion-label>
                                     </ion-segment-button>
                                 </ion-segment>
                             </ion-row>

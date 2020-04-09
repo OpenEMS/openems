@@ -48,7 +48,7 @@ export class HeatingElementModalComponent implements OnInit {
             minkwh: new FormControl(this.component.properties.minkwh),
             endTime: new FormControl(this.component.properties.endTime),
             priority: new FormControl(this.component.properties.priority),
-            heatingLevel: new FormControl(this.component.properties.heatingLevel)
+            heatingLevel: new FormControl(this.component.properties.level)
         })
     };
 
