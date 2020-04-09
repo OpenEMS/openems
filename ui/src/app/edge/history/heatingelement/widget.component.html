@@ -1,0 +1,32 @@
+<ion-card button (click)="presentModal()" *ngIf="component">
+  <ion-item lines="full" color="light">
+    <ion-icon slot="start" color="danger" name="flame"></ion-icon>
+    <ion-label *ngIf="component.alias != component.id">{{ component.alias }}</ion-label>
+    <ion-label *ngIf="component.alias == component.id">{{ component.id }}</ion-label>
+  </ion-item>
+  <ion-card-content>
+    <table class="full_width">
+      <tr>
+        <td style="width:65%" translate>
+          Edge.History.activeDuration<span>&nbsp;L1</span></td>
+        <td style="width:35%" class="align_right">
+          {{ activeTimeOverPeriodL1 }}
+        </td>
+      </tr>
+      <tr>
+        <td style="width:65%" translate>
+          Edge.History.activeDuration<span>&nbsp;L2</span></td>
+        <td style="width:35%" class="align_right">
+          {{ activeTimeOverPeriodL2 }}
+        </td>
+      </tr>
+      <tr>
+        <td style="width:65%" translate>
+          Edge.History.activeDuration<span>&nbsp;L3</span></td>
+        <td style="width:35%" class="align_right">
+          {{ activeTimeOverPeriodL3 }}
+        </td>
+      </tr>
+    </table>
+  </ion-card-content>
+</ion-card>
