@@ -1,6 +1,8 @@
 
 include::io.openems.edge.battery.soltaro.adoc[leveloffset=+1]
 
+include::io.openems.edge.core.adoc[leveloffset=+1]
+
 include::io.openems.edge.ess.byd.container.adoc[leveloffset=+1]
 
 include::io.openems.edge.ess.cluster.adoc[leveloffset=+1]
@@ -31,9 +33,13 @@ include::io.openems.edge.goodwe.et.adoc[leveloffset=+1]
 
 include::io.openems.edge.io.kmtronic.adoc[leveloffset=+1]
 
+include::io.openems.edge.io.revpi.adoc[leveloffset=+1]
+
 include::io.openems.edge.io.wago.adoc[leveloffset=+1]
 
 include::io.openems.edge.kostal.piko.adoc[leveloffset=+1]
+
+include::io.openems.edge.meter.abb.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.artemes.am2.adoc[leveloffset=+1]
 
@@ -49,6 +55,8 @@ include::io.openems.edge.meter.microcare.sdm630.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.pqplus.umd97.adoc[leveloffset=+1]
 
+include::io.openems.edge.meter.schneider.acti9.smartlink.adoc[leveloffset=+1]
+
 include::io.openems.edge.meter.socomec.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.sunspec.adoc[leveloffset=+1]
@@ -56,6 +64,8 @@ include::io.openems.edge.meter.sunspec.adoc[leveloffset=+1]
 include::io.openems.edge.meter.virtual.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.weidmueller.adoc[leveloffset=+1]
+
+include::io.openems.edge.onewire.thermometer.adoc[leveloffset=+1]
 
 include::io.openems.edge.predictor.persistencemodel.adoc[leveloffset=+1]
 
@@ -66,6 +76,8 @@ include::io.openems.edge.pvinverter.kaco.blueplanet.adoc[leveloffset=+1]
 include::io.openems.edge.pvinverter.solarlog.adoc[leveloffset=+1]
 
 include::io.openems.edge.pvinverter.sunspec.adoc[leveloffset=+1]
+
+include::io.openems.edge.simulator.adoc[leveloffset=+1]
 
 include::io.openems.edge.solaredge.adoc[leveloffset=+1]
 

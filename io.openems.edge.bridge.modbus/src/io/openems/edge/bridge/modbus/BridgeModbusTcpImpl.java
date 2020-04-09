@@ -12,7 +12,6 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
@@ -40,13 +39,11 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
-
 	/**
 	 * The configured IP address.
 	 */
 	private InetAddress ipAddress = null;
+	private int port;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -75,6 +72,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
 		this.setIpAddress(InetAddress.getByName(config.ip()));
+		this.port = config.port();
 	}
 
 	@Deactivate
@@ -106,7 +104,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 			 * create new connection
 			 */
 			TCPMasterConnection connection = new TCPMasterConnection(this.getIpAddress());
-			connection.setPort(Modbus.DEFAULT_PORT);
+			connection.setPort(this.port);
 			this._connection = connection;
 		}
 		if (!this._connection.isConnected()) {
