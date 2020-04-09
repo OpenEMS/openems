@@ -80,7 +80,7 @@ public class OdooUtils {
 
 			// send JSON-RPC request
 			try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
-				out.write(request.toString());
+				out.write(request.toJsonObject().toString());
 				out.flush();
 			}
 
