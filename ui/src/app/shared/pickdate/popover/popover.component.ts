@@ -1,11 +1,11 @@
+import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, endOfWeek } from 'date-fns/esm';
 import { Component, Input } from '@angular/core';
+import { DefaultTypes } from '../../service/defaulttypes';
+import { IAngularMyDpOptions, IMyDate, IMyDateRangeModel, CalAnimation } from 'angular-mydatepicker';
+import { isFuture } from 'date-fns';
 import { PopoverController } from '@ionic/angular';
-import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, startOfMonth, startOfYear, endOfWeek, endOfMonth, endOfYear } from 'date-fns/esm';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from '../../service/defaulttypes';
-import { IMyDate, IMyDateRangeModel, IMyDrpOptions, IMyDayLabels, IMyMonthLabels } from 'mydaterangepicker';
-import { isFuture } from 'date-fns';
 
 
 @Component({
@@ -14,58 +14,37 @@ import { isFuture } from 'date-fns';
 })
 export class PickDatePopoverComponent {
 
+
     @Input() public disableArrow: boolean;
 
     public readonly TODAY = new Date();
     public readonly YESTERDAY = subDays(new Date(), 1);
     public readonly TOMORROW = addDays(new Date(), 1);
-
-
     public activePeriod: DefaultTypes.PeriodString = this.service.periodString;
     public showCustomDate: boolean = false;
 
-    public transDayLables: IMyDayLabels = {
-        su: this.translate.instant('Edge.History.sun'),
-        mo: this.translate.instant('Edge.History.mon'),
-        tu: this.translate.instant('Edge.History.tue'),
-        we: this.translate.instant('Edge.History.wed'),
-        th: this.translate.instant('Edge.History.thu'),
-        fr: this.translate.instant('Edge.History.fri'),
-        sa: this.translate.instant('Edge.History.sat')
-    };
+    public locale: string = 'de';
 
-    public transMonthLabels: IMyMonthLabels = {
-        1: this.translate.instant('Edge.History.jan'),
-        2: this.translate.instant('Edge.History.feb'),
-        3: this.translate.instant('Edge.History.mar'),
-        4: this.translate.instant('Edge.History.apr'),
-        5: this.translate.instant('Edge.History.may'),
-        6: this.translate.instant('Edge.History.jun'),
-        7: this.translate.instant('Edge.History.jul'),
-        8: this.translate.instant('Edge.History.aug'),
-        9: this.translate.instant('Edge.History.sep'),
-        10: this.translate.instant('Edge.History.oct'),
-        11: this.translate.instant('Edge.History.nov'),
-        12: this.translate.instant('Edge.History.dec')
-    };
-
-    //DateRangePicker Options
-    public dateRangePickerOptions: IMyDrpOptions = {
-        selectorHeight: '225px',
-        inline: true,
-        showClearBtn: false,
-        showApplyBtn: false,
+    myDpOptions: IAngularMyDpOptions = {
+        stylesData: {
+            selector: 'dp1',
+            styles: `
+               .dp1 .myDpMarkCurrDay, 
+               .dp1 .myDpMarkCurrMonth, 
+               .dp1 .myDpMarkCurrYear {
+                   border-bottom: 2px solid #2d8fab;
+                   color: #2d8fab;
+                }
+             `
+        },
+        calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
         dateFormat: 'dd.mm.yyyy',
-        disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
+        dateRange: true,
         disableSince: this.toIMyDate(this.TOMORROW),
+        disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
+        inline: true,
+        selectorHeight: '225px',
         showWeekNumbers: true,
-        showClearDateRangeBtn: false,
-        editableDateRangeField: false,
-        openSelectorOnInputClick: true,
-        selectBeginDateTxt: this.translate.instant('Edge.History.beginDate'),
-        selectEndDateTxt: this.translate.instant('Edge.History.endDate'),
-        dayLabels: this.transDayLables,
-        monthLabels: this.transMonthLabels
     };
 
     constructor(
@@ -74,16 +53,8 @@ export class PickDatePopoverComponent {
         public translate: TranslateService,
     ) { }
 
-
-    /**
-     * Sets the current time period.
-     * 
-     * @param fromDate the starting date
-     * @param toDate   the end date
-     */
-    public setDateRange(period: DefaultTypes.HistoryPeriod) {
-        this.service.historyPeriod = period;
-        // this.updateActivePeriod();
+    ngOnInit() {
+        this.locale = this.translate.getBrowserLang();
     }
 
     /**
@@ -113,6 +84,16 @@ export class PickDatePopoverComponent {
     }
 
     /**
+     * Sets the current time period.
+     * 
+     * @param fromDate the starting date
+     * @param toDate   the end date
+     */
+    public setDateRange(period: DefaultTypes.HistoryPeriod) {
+        this.service.historyPeriod = period;
+    }
+
+    /**
      * Converts a 'Date' to 'IMyDate' format.
      * 
      * @param date the 'Date'
@@ -122,7 +103,7 @@ export class PickDatePopoverComponent {
         return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
     }
 
-    public onDateRangeChanged(event: IMyDateRangeModel) {
+    onDateChanged(event: IMyDateRangeModel) {
         this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
         this.service.periodString = 'custom';
         let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
