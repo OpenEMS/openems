@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingFormatArgumentException;
 import java.util.UUID;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -123,17 +124,21 @@ public class OdooUtils {
 					throw new OpenemsException(
 							"Access Denied for Request [" + request.toString() + "] to URL [" + url + "]");
 				default:
-					throw new OpenemsException(
-							"Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
-									+ dataMessage + ";" //
-									+ " Code [" + code + "]" //
-									+ " Code [" + code + "]" //
-									+ " Message [" + message + "]" //
-									+ " Name [" + dataName + "]" //
-									+ " ExceptionType [" + dataExceptionType + "]" //
-									+ " Arguments [" + dataArguments + "]" //
-									+ " Debug [" + dataDebug + "]" //
-					);
+					String exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
+							+ dataMessage + ";" //
+							+ " Code [" + code + "]" //
+							+ " Code [" + code + "]" //
+							+ " Message [" + message + "]" //
+							+ " Name [" + dataName + "]" //
+							+ " ExceptionType [" + dataExceptionType + "]" //
+							+ " Arguments [" + dataArguments + "]" //
+							+ " Debug [" + dataDebug + "]";
+					try {
+						throw new OpenemsException(exception);
+					} catch (MissingFormatArgumentException e) {
+						System.out.println("Unable to throw Exception: " + exception + "; " + e.getMessage());
+						e.printStackTrace();
+					}
 				}
 			}
 			throw new OpenemsException("Unable to parse JsonrpcResponse from " + StringUtils.toShortString(json, 100));
