@@ -32,7 +32,7 @@ public class HeatingElementTest2 {
 		ChannelAddress output3 = new ChannelAddress("io0", "InputOutput3");
 
 		MyConfig myconfig = new MyConfig("ctrl1", grid.toString(), output1.toString(), output2.toString(),
-				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_3, WorkMode.TIME, 1, 4000);
+				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_3, WorkMode.TIME, 1, 4);
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);
 
