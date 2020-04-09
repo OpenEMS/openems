@@ -20,6 +20,7 @@ export enum WidgetFactory {
     'Controller.ChannelThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.IO.ChannelSingleThreshold',
+    'Controller.IO.HeatingElement',
     'Controller.CHP.SoC',
     'Controller.Asymmetric.PeakShaving',
     'Controller.Symmetric.PeakShaving',
