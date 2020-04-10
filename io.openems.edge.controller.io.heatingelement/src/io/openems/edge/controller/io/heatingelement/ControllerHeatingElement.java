@@ -1,7 +1,6 @@
 package io.openems.edge.controller.io.heatingelement;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
@@ -73,7 +72,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.currentDay = LocalDate.now(this.componentManager.getClock());
 		this.updateConfig(config);
 	}
 
@@ -94,9 +92,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// Handle Day-Change on midnight
-		this.resetValuesOnMidnight();
-
 		// Handle Mode AUTOMATIC, MANUAL_OFF or MANUAL_ON
 		switch (this.config.mode()) {
 		case AUTOMATIC:
@@ -113,9 +108,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		}
 
 		// Calculate Phase Time
-		int phase1Time = this.phase1.getTotalTime();
-		int phase2Time = this.phase2.getTotalTime();
-		int phase3Time = this.phase3.getTotalTime();
+		int phase1Time = (int) this.phase1.getTotalDuration().getSeconds();
+		int phase2Time = (int) this.phase2.getTotalDuration().getSeconds();
+		int phase3Time = (int) this.phase3.getTotalDuration().getSeconds();
 		int totalPhaseTime = phase1Time + phase2Time + phase3Time;
 
 		// Calculate Phase Energy
@@ -143,24 +138,6 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		this.channel(MyChannelId.LEVEL2_ENERGY).setNextValue((phase2Energy - phase3Energy) * 2);
 		this.channel(MyChannelId.LEVEL3_ENERGY).setNextValue(phase3Energy * 3);
 	}
-
-	/**
-	 * Resetting the variables at midnight.
-	 */
-	private void resetValuesOnMidnight() {
-		if (this.currentDay.equals(LocalDate.now(this.componentManager.getClock()))) {
-			// still same day
-			return;
-		} else {
-			// passed midnight -> next day
-			this.phase1.resetStopwatch();
-			this.phase2.resetStopwatch();
-			this.phase3.resetStopwatch();
-		}
-	}
-
-	// Keeps track of the current day to recognize day-changes.
-	private LocalDate currentDay;
 
 	/**
 	 * Handle Mode "Manual On".
@@ -196,13 +173,16 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		// Get the input channel addresses
 		IntegerReadChannel gridActivePowerChannel = this.sum.channel(Sum.ChannelId.GRID_ACTIVE_POWER);
 		int gridActivePower = gridActivePowerChannel.value().getOrError();
+		IntegerReadChannel essActivePowerChannel = this.sum.channel(Sum.ChannelId.ESS_ACTIVE_POWER);
+		int essActivePower = essActivePowerChannel.value().orElse(0 /* if there is no storage */);
+		int essDischargePower = essActivePower > 0 ? essActivePower : 0;
 
-		// Calculate the Excess power
-		long excessPower = 0;
+		long excessPower;
 		if (gridActivePower > 0) {
 			excessPower = 0;
 		} else {
-			excessPower = (gridActivePower * -1) + (this.currentLevel.getValue() * this.config.powerPerPhase());
+			excessPower = (gridActivePower * -1) - essDischargePower
+					+ (this.currentLevel.getValue() * this.config.powerPerPhase());
 		}
 
 		// Calculate Level from excessPower
@@ -268,7 +248,9 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * @return the time, or {@link LocalTime#MAX} if no force-heating is required
 	 */
 	private LocalTime calculateLatestForceHeatingStartTime() {
-		int totalPhaseTime = this.phase1.getTotalTime() + this.phase2.getTotalTime() + this.phase3.getTotalTime(); // [s]
+		long totalPhaseTime = this.phase1.getTotalDuration().getSeconds() //
+				+ this.phase2.getTotalDuration().getSeconds() //
+				+ this.phase3.getTotalDuration().getSeconds(); // [s]
 		long totalEnergy = (totalPhaseTime /* [s] */ * this.getPowerPerPhase() /* [W] */); // [Ws]
 		long remainingEnergy = this.minimumEnergy - totalEnergy; // [Ws]
 		if (remainingEnergy < 0) {
@@ -339,7 +321,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		return this.currentLevel;
 	}
 
-	private Level currentLevel = Level.LEVEL_0;
+	private Level currentLevel = Level.UNDEFINED;
 	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
 
 	/**
