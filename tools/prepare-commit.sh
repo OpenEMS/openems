@@ -102,7 +102,7 @@ done
 bndrun='io.openems.edge.application/EdgeApp.bndrun'
 head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 for D in io.openems.edge.*; do
@@ -124,11 +124,10 @@ rm "$bndrun.new"
 bndrun='io.openems.backend.application/BackendApp.bndrun'
 head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.eclipse.equinox.metatype',\\" >> "$bndrun.new"
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
