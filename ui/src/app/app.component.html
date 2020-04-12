@@ -91,53 +91,45 @@
     <systemLog *ngIf="isSystemLogEnabled"></systemLog>
 
   </ion-content>
-    <!-- Side Menu  -->
-    <ion-menu type="overlay" side="start" contentId="content">
-      <ion-header>
-        <ion-toolbar color="primary">
+  <!-- Side Menu  -->
+  <ion-menu type="overlay" side="start" contentId="content">
+    <ion-header>
+      <ion-toolbar color="primary">
         <ion-buttons slot="start">
           <ion-menu-button autoHide="false"></ion-menu-button>
         </ion-buttons>
-          <ion-title translate>Menu.menu</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content>
-        <ion-row style="min-height: 100%;">
-          <ion-col>
-        <ion-list>
-          <ion-item lines="full" *ngIf="env.backend === 'OpenEMS Backend'" routerLinkActive="active" routerLink="/index"
-            (click)="menu.close()">
-            <ion-label translate>Menu.overview</ion-label>
-          </ion-item>
-          <ion-item lines="inset" routerLinkActive="active" routerLink="/about" (click)="menu.close()">
-            <ion-label translate>Menu.aboutUI</ion-label>
-          </ion-item>
-          <ion-item lines="inset" routerLinkActive="active" routerLink="/settings" (click)="menu.close()">
-            <ion-label translate>Menu.generalSettings</ion-label>
-          </ion-item>
-          <nav *ngIf="(service.currentEdge | async) as edge">
-            <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-              <ion-label translate>Menu.edgeSettings</ion-label>
+        <ion-title translate>Menu.menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-row style="min-height: 100%;">
+        <ion-col>
+          <ion-list>
+            <ion-item lines="full" *ngIf="env.backend === 'OpenEMS Backend'" routerLinkActive="active"
+              routerLink="/index" (click)="menu.close()">
+              <ion-label translate>Menu.overview</ion-label>
             </ion-item>
-          </nav>
-        </ion-list>
-          </ion-col>
-          <ion-col class="ion-align-self-end">
-            <ion-item lines="full" routerLinkActive="active"
-              href="https://portal.fenecon.de/web/session/logout?redirect=https://fenecon.de" (click)="menu.close()">
-              <ion-label translate>Menu.logout</ion-label>
-              <ion-icon color="primary" name="log-out-outline"></ion-icon>
+            <ion-item lines="inset" routerLinkActive="active" routerLink="/about" (click)="menu.close()">
+              <ion-label translate>Menu.aboutUI</ion-label>
             </ion-item>
-          </ion-col>
-        </ion-row>
-      </ion-content>
-    </ion-menu>
-
-    <!-- Show Sub-Views -->
-    <router-outlet id="content"></router-outlet>
-    <!-- TODO use ion-router-outlet once it does not break anymore the screen width <ion-router-outlet></ion-router-outlet> -->
-
-    <systemLog *ngIf="isSystemLogEnabled"></systemLog>
-
-  </ion-content>
+            <ion-item lines="inset" routerLinkActive="active" routerLink="/settings" (click)="menu.close()">
+              <ion-label translate>Menu.generalSettings</ion-label>
+            </ion-item>
+            <nav *ngIf="(service.currentEdge | async) as edge">
+              <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
+                <ion-label translate>Menu.edgeSettings</ion-label>
+              </ion-item>
+            </nav>
+          </ion-list>
+        </ion-col>
+        <ion-col class="ion-align-self-end">
+          <ion-item lines="full" routerLinkActive="active"
+            href="https://portal.fenecon.de/web/session/logout?redirect=https://fenecon.de" (click)="menu.close()">
+            <ion-label translate>Menu.logout</ion-label>
+            <ion-icon color="primary" name="log-out-outline"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-content>
+  </ion-menu>
 </ion-app>

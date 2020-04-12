@@ -1,8 +1,8 @@
 # Prepares a Release
 #
-# - Increases the minor version number
+# - Increases the patch version number
 #
-#   E.g. increases 2020.1.0-SNAPSHOT to 2020.2.0
+#   E.g. increases 2020.1.0 to 2020.1.1
 
 # Basic definitions
 release_date=$(date --iso-8601)
@@ -23,8 +23,10 @@ git checkout $about_component
 major=$(grep 'VERSION_MAJOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
 minor=$(grep 'VERSION_MINOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
 patch=$(grep 'VERSION_PATCH =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
+old_version="${major}.${minor}.${patch}"
 new_patch=$(echo $patch | awk '{print $0+1}')
 new_version="${major}.${minor}.${new_patch}"
+echo "#     Old version: $old_version"
 echo "# Release version: $new_version"
 echo "#            date: $release_date"
 
