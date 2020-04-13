@@ -10,18 +10,21 @@
 	openems.data.dir=c:/openems/data,\
 	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
 
--runbundles+: \
-    org.ops4j.pax.logging.pax-logging-api;startlevel=10
-
 -runsystempackages:\
 	sun.misc,\
 	com.sun.net.httpserver
 
+-runbundles+: \
+	org.apache.felix.scr;startlevel=10,\
+	org.eclipse.equinox.event;startlevel=11,\
+    org.ops4j.pax.logging.pax-logging-log4j1;startlevel=12
+
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
-	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\
+	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\
 	bnd.identity;id='org.apache.felix.http.jetty',\
 	bnd.identity;id='org.apache.felix.webconsole',\
+	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
@@ -55,6 +58,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
+	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
@@ -160,6 +164,7 @@
 	io.openems.edge.controller.io.alarm;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.channelsinglethreshold;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.io.fixdigitaloutput;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.io.heatingelement;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.symmetric.balancing;version='[1.0.0,1.0.1)',\
@@ -233,21 +238,23 @@
 	io.openems.wrapper.influxdb-java;version='[2.17.0,2.17.1)',\
 	io.openems.wrapper.opczip;version='[1.0.2,1.0.3)',\
 	io.openems.wrapper.sdnotify;version='[1.3.0,1.3.1)',\
-	org.apache.commons.fileupload;version='[1.3.3,1.3.4)',\
+	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.io;version='[2.6.0,2.6.1)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
-	org.apache.felix.configadmin;version='[1.9.8,1.9.9)',\
-	org.apache.felix.http.jetty;version='[4.0.6,4.0.7)',\
+	org.apache.felix.configadmin;version='[1.9.16,1.9.17)',\
+	org.apache.felix.eventadmin;version='[1.5.0,1.5.1)',\
+	org.apache.felix.http.jetty;version='[4.0.16,4.0.17)',\
 	org.apache.felix.http.servlet-api;version='[1.1.2,1.1.3)',\
-	org.apache.felix.scr;version='[2.1.10,2.1.11)',\
-	org.apache.felix.webconsole;version='[4.3.4,4.3.5)',\
-	org.eclipse.equinox.event;version='[1.4.300,1.4.301)',\
-	org.eclipse.equinox.metatype;version='[1.4.500,1.4.501)',\
+	org.apache.felix.inventory;version='[1.0.4,1.0.5)',\
+	org.apache.felix.metatype;version='[1.2.2,1.2.3)',\
+	org.apache.felix.scr;version='[2.1.16,2.1.17)',\
+	org.apache.felix.webconsole;version='[4.4.0,4.4.1)',\
+	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.2.1,3.2.2)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.11.2,1.11.3)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
-	org.osgi.service.event;version='[1.4.0,1.4.1)',\
-	org.osgi.service.metatype;version='[1.4.0,1.4.1)',\
-	rrd4j;version='[3.5.0,3.5.1)'
+	org.ops4j.pax.logging.pax-logging-api;version='[2.0.2,2.0.3)',\
+	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.2,2.0.3)',\
+	org.osgi.util.function;version='[1.1.0,1.1.1)',\
+	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
+	rrd4j;version='[3.6.0,3.6.1)'
