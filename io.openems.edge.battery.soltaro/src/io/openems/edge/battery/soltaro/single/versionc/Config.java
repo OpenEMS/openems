@@ -3,13 +3,12 @@ package io.openems.edge.battery.soltaro.single.versionc;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleType;
 
 @ObjectClassDefinition( //
 		name = "BMS Soltaro Single Rack Version C", //
 		description = "Implements the Soltaro battery rack system.")
-@interface Config {
+public @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "bms0";
@@ -20,18 +19,18 @@ import io.openems.edge.battery.soltaro.ModuleType;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Is switched On?", description = "Should this Component be switched on?")
+	boolean switchedOn() default true;
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 0;
 
-	@AttributeDefinition(name = "Battery state", description = "Switches the battery into the given state, if default is used, battery state is set automatically")
-	BatteryState batteryState() default BatteryState.DEFAULT;
-
 	@AttributeDefinition(name = "Number of slaves", description = "The number of slaves in this battery rack (max. 20)", min = "1", max = "20")
 	int numberOfSlaves() default 20;
-	
+
 	@AttributeDefinition(name = "Module type", description = "The type of modules in the rack")
 	ModuleType moduleType() default ModuleType.MODULE_3_KWH;
 
@@ -39,7 +38,7 @@ import io.openems.edge.battery.soltaro.ModuleType;
 	int errorLevel2Delay() default 600;
 
 	@AttributeDefinition(name = "Max Start Attempts", description = "Sets the counter how many time the system should try to start")
-	int maxStartAppempts() default 5;
+	int maxStartAttempts() default 5;
 
 	@AttributeDefinition(name = "Max Start Time", description = "Max Time in seconds allowed for starting the system")
 	int maxStartTime() default 30;
@@ -49,7 +48,7 @@ import io.openems.edge.battery.soltaro.ModuleType;
 
 	@AttributeDefinition(name = "Watchdog", description = "Watchdog timeout in seconds")
 	int watchdog() default 60;
-	
+
 	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determinated e.g. in case of reading errors")
 	int pendingTolerance() default 15;
 
