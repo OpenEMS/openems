@@ -1,119 +1,89 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.base.CaseFormat;
-
-import io.openems.common.types.OptionsEnum;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.single.versionc.Config;
-import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
-import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
 
-public enum StateMachine implements OptionsEnum {
-	UNDEFINED(-1, new Undefined()), //
-
-	GO_RUNNING(10, new GoRunning()), //
-	RUNNING(11, new Running()), //
-
-	GO_STOPPED(20, new GoStopped()), //
-	STOPPED(21, new Stopped()), //
-
-	GO_ERROR_HANDLING(30, new GoErrorHandling()), //
-	ERROR_HANDLING(31, new ErrorHandling());
-
-	public abstract static class Handler {
-		/**
-		 * Holds the main logic of StateMachine State.
-		 * 
-		 * @param context the Context.
-		 * @return the next State
-		 */
-		protected abstract StateMachine getNextState(Context context);
-
-		/**
-		 * Gets called before the StateMachine changes from another State to this State.
-		 * 
-		 * @return
-		 */
-		protected void onEntry() {
-		}
-
-		/**
-		 * Gets called after the StateMachine changes from this State to another State.
-		 */
-		protected void onExit() {
-		}
-	}
+/**
+ * Manages the States of the StateMachine.
+ */
+// TODO convert to abstract, reusable class
+public class StateMachine {
 
 	public static class Context {
+		protected final SingleRackVersionC component;
+		protected final Config config;
 
-		// Input values
-		public final Config config;
-		public final PreChargeControl preChargeControl;
-		public final List<ChannelId> faults;
-
-		// Output values
-		public Boolean setReadyForWorking = null;
-		public PreChargeControl setPreChargeControl = null;
-
-		public Context(Config config, PreChargeControl preChargeControl, List<ChannelId> faults) {
+		public Context(SingleRackVersionC component, Config config) {
+			super();
+			this.component = component;
 			this.config = config;
-			this.faults = faults;
-			this.preChargeControl = preChargeControl;
+		}
+	}
+
+	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
+
+	private State state = State.UNDEFINED;
+
+	/**
+	 * Gets the currently activate {@link State}.
+	 * 
+	 * @return the State
+	 */
+	public State getCurrentState() {
+		return this.state;
+	}
+
+	/**
+	 * Execute the StateMachine.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	public void run(Context context) throws OpenemsNamedException {
+		// Keep last State
+		State lastState = this.state;
+
+		OpenemsNamedException exception = null;
+
+		// Call the State Handler and receive next State.
+		try {
+			this.state = this.state.getNextState(context);
+		} catch (OpenemsNamedException e) {
+			exception = e;
 		}
 
+		// Call StateMachine events on transition
+		if (lastState != this.state) {
+			this.log.info("Changing StateMachine from [" + lastState + "] to [" + this.state + "]");
+
+			// On-Exit of the last State
+			try {
+				lastState.onExit(context);
+			} catch (OpenemsNamedException e) {
+				if (exception != null) {
+					e.addSuppressed(exception);
+				}
+				exception = e;
+			}
+
+			// On-Entry of next State
+			try {
+				this.state.onEntry(context);
+			} catch (OpenemsNamedException e) {
+				if (exception != null) {
+					e.addSuppressed(exception);
+				}
+				exception = e;
+			}
+		}
+
+		// Handle Exception
+		if (exception != null) {
+			throw exception;
+		}
 	}
 
-	private final int value;
-	private final Handler handler;
-
-	private StateMachine(int value, Handler handler) {
-		this.value = value;
-		this.handler = handler;
-	}
-
-	@Override
-	public int getValue() {
-		return this.value;
-	}
-
-	@Override
-	public String getName() {
-		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name());
-	}
-
-	/*
-	 * Map Handler methods to enum for fluent access.
-	 */
-
-	/**
-	 * Holds the main logic of StateMachine State.
-	 * 
-	 * @param context the Context.
-	 * @return the next State
-	 */
-	public StateMachine getNextState(Context context) {
-		return this.handler.getNextState(context);
-	}
-
-	/**
-	 * Gets called before the StateMachine changes from another State to this State.
-	 * 
-	 * @return
-	 */
-	public void onEntry() {
-		this.handler.onEntry();
-	}
-
-	/**
-	 * Gets called after the StateMachine changes from this State to another State.
-	 */
-	public void onExit() {
-		this.handler.onExit();
-	}
-
-	@Override
-	public OptionsEnum getUndefined() {
-		return UNDEFINED;
-	}
 }

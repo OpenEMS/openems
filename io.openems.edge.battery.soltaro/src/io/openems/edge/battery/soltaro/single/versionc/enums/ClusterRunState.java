@@ -3,7 +3,7 @@ package io.openems.edge.battery.soltaro.single.versionc.enums;
 import io.openems.common.types.OptionsEnum;
 
 /**
- * NOTE:
+ * NOTE.
  * 
  * <ul>
  * <li>Standby <-> Charge&Discharge forbidden but main contactor keeps on
@@ -28,12 +28,12 @@ public enum ClusterRunState implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

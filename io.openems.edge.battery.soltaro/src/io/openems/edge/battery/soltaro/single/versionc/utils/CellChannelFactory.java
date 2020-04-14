@@ -16,13 +16,13 @@ public class CellChannelFactory {
 		TEMPERATURE(//
 				"_TEMPERATURE", //
 				Unit.DEZIDEGREE_CELSIUS, //
-				BatteryModuleConstants.TEMPERATURE_ADDRESS_OFFSET, //
-				BatteryModuleConstants.TEMPERATURE_SENSORS_PER_MODULE), //
+				Constants.TEMPERATURE_ADDRESS_OFFSET, //
+				Constants.TEMPERATURE_SENSORS_PER_MODULE), //
 		VOLTAGE(//
 				"_VOLTAGE", //
 				Unit.MILLIVOLT, //
-				BatteryModuleConstants.VOLTAGE_ADDRESS_OFFSET, //
-				BatteryModuleConstants.VOLTAGE_SENSORS_PER_MODULE); //
+				Constants.VOLTAGE_ADDRESS_OFFSET, //
+				Constants.VOLTAGE_SENSORS_PER_MODULE); //
 
 		private final String key;
 		private final Unit unit;
@@ -32,7 +32,7 @@ public class CellChannelFactory {
 		private Type(String key, Unit unit, int offset, int sensorsPerModule) {
 			this.key = key;
 			this.unit = unit;
-			this.offset = BatteryModuleConstants.ADDRESS_OFFSET + offset;
+			this.offset = Constants.ADDRESS_OFFSET + offset;
 			this.sensorsPerModule = sensorsPerModule;
 		}
 

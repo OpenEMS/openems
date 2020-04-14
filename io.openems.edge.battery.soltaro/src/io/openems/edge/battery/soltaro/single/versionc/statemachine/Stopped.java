@@ -1,10 +1,12 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
-public class Stopped extends StateMachine.Handler {
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
+
+public class Stopped extends State.Handler {
 
 	@Override
-	public StateMachine getNextState(StateMachine.Context context) {
-		return StateMachine.UNDEFINED;
+	public State getNextState(Context context) {
+		return State.UNDEFINED;
 	}
 
 }

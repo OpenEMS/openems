@@ -1,21 +1,26 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
-public class Running extends StateMachine.Handler {
+import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
 
-//	if (this.isError()) {
-//	this.setStateMachineState(State.ERROR);
-//} else if (!this.isSystemRunning()) {
-//	this.setStateMachineState(State.UNDEFINED);
-//} else {
-//	this.setStateMachineState(State.RUNNING);
-//	this.checkAllowedCurrent();
-//	readyForWorking = true;
-//}
-//break;
-	
+public class Running extends State.Handler {
+
 	@Override
-	public StateMachine getNextState(StateMachine.Context context) {
-		return StateMachine.UNDEFINED;
+	public State getNextState(Context context) {
+		if (context.component.hasFaults()) {
+			return State.UNDEFINED;
+		}
+
+		if (context.component.getPreChargeControl() != PreChargeControl.RUNNING) {
+			return State.UNDEFINED;
+		}
+
+		// TODO
+		// this.checkAllowedCurrent();
+
+		context.component.setReadyForWorking(true);
+
+		return State.RUNNING;
 	}
 
 }

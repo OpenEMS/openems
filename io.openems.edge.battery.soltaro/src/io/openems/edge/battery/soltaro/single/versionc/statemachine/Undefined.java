@@ -1,21 +1,24 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
-public class Undefined extends StateMachine.Handler {
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
+
+public class Undefined extends State.Handler {
 
 	@Override
-	public StateMachine getNextState(StateMachine.Context context) {
+	public State getNextState(Context context) {
 		if (context.config.switchedOn()) {
 			// Switched ON
-			if (context.faults.isEmpty()) {
-				// No Faults -> start
-				return StateMachine.GO_RUNNING;
-			} else {
+			if (context.component.hasFaults()) {
 				// Has Faults -> error handling
-				return StateMachine.GO_ERROR_HANDLING;
+				return State.ERROR_HANDLING;
+			} else {
+				// No Faults -> start
+				return State.GO_RUNNING;
 			}
 		} else {
 			// Switched OFF
-			return StateMachine.GO_STOPPED;
+			return State.GO_STOPPED;
 		}
 	}
+
 }

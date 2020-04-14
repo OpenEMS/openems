@@ -3,45 +3,53 @@ package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 import java.time.Duration;
 import java.time.Instant;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
+import io.openems.edge.battery.soltaro.single.versionc.utils.Constants;
 
-public class GoRunning extends StateMachine.Handler {
+public class GoRunning extends State.Handler {
 
-	private Instant lastStartAttempt = Instant.MIN;
-	private int startAttemptCounter = 0;
+	private Instant lastAttempt = Instant.MIN;
+	private int attemptCounter = 0;
 
 	@Override
-	protected void onExit() {
-		this.lastStartAttempt = Instant.MIN;
-		this.startAttemptCounter = 0;
+	protected void onEntry(Context context) throws OpenemsNamedException {
+		this.lastAttempt = Instant.MIN;
+		this.attemptCounter = 0;
+		context.component.setMaxStartAttempts(false);
 	}
 
 	@Override
-	public StateMachine getNextState(StateMachine.Context context) {
-		if (context.preChargeControl == PreChargeControl.RUNNING) {
-			return StateMachine.RUNNING;
+	public State getNextState(Context context) throws OpenemsNamedException {
+		PreChargeControl preChargeControl = context.component.getPreChargeControl();
+
+		if (preChargeControl == PreChargeControl.RUNNING) {
+			return State.RUNNING;
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastStartAttempt, Instant.now())
-				.getSeconds() > context.config.maxStartTime();
+		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+				.getSeconds() > Constants.RETRY_COMMAND_SECONDS;
 		if (isMaxStartTimePassed) {
 			// First try - or waited long enough for next try
-			if (this.startAttemptCounter > context.config.maxStartAttempts()) {
+
+			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				// TODO figure out what to do now... possible setting a Fault-Channel, stopping
-				// + restarting the system
-				System.out.println("Too many tries");
-				return StateMachine.GO_ERROR_HANDLING;
+				context.component.setMaxStartAttempts(true);
+				return State.UNDEFINED;
+
 			} else {
 				// Trying to switch on
-				context.setPreChargeControl = PreChargeControl.SWITCH_ON;
-				this.lastStartAttempt = Instant.now();
-				this.startAttemptCounter++;
-				return StateMachine.GO_RUNNING;
+				context.component.setPreChargeControl(PreChargeControl.SWITCH_ON);
+				this.lastAttempt = Instant.now();
+				this.attemptCounter++;
+				return State.GO_RUNNING;
+
 			}
+
 		} else {
 			// Still waiting...
-			return StateMachine.GO_RUNNING;
+			return State.GO_RUNNING;
 		}
 	}
 
