@@ -26,7 +26,7 @@ public class EdgeApp {
 
 		// Announce Operating System that OpenEMS Edge started
 		String socketName = System.getenv().get("NOTIFY_SOCKET");
-		if (socketName != null && socketName.length() == 0) {
+		if (socketName != null && socketName.length() != 0) {
 			if (SDNotify.isAvailable()) {
 				SDNotify.sendNotify();
 			}
