@@ -18,7 +18,9 @@
                 </td>
             </tr>
         </table>
-        <ion-segment (ionChange)="updateMode($event)" value="{{ component.properties['isOn'] }}" scrollable="false">
+        <!-- ngIf prevents ionChange to trigger on init -->
+        <ion-segment *ngIf="component" (ionChange)="updateMode($event)" value="{{ component.properties['isOn'] }}"
+            scrollable="false">
             <ion-segment-button value="true">
                 <ion-label translate>
                     General.on
