@@ -1,11 +1,10 @@
-# Prepares a Release
+# Prepares the next SNAPSHOT development version
 #
-# - Increases the patch version number
+# - Sets SNAPSHOT version number
 #
-#   E.g. increases 2020.1.0 to 2020.1.1
+#   E.g. changes 2020.2.0 to 2020.2.1-SNAPSHOT
 
 # Basic definitions
-release_date=$(date --iso-8601)
 openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java"
 single_document="doc/modules/ROOT/pages/single_document.adoc"
 package_json="ui/package.json"
@@ -19,19 +18,18 @@ git checkout $package_json
 git checkout $package_lock
 git checkout $about_component
 
-# Find new Version"
+# Find new Version
 major=$(grep 'VERSION_MAJOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
 minor=$(grep 'VERSION_MINOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
 patch=$(grep 'VERSION_PATCH =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
-old_version="${major}.${minor}.${patch}"
 new_patch=$(echo $patch | awk '{print $0+1}')
-new_version="${major}.${minor}.${new_patch}"
-echo "#     Old version: $old_version"
-echo "# Release version: $new_version"
-echo "#            date: $release_date"
+new_version="${major}.${minor}.${new_patch}-SNAPSHOT"
+
+echo "# SNAPSHOT version: $new_version"
 
 echo "# Update $openems_constants"
 sed --in-place "s/\(VERSION_PATCH = \)\([0-9]\+\)\(.*\)/\1$new_patch\3/" $openems_constants
+sed --in-place 's/\(public .* VERSION_STRING = "\)\(".*$\)/\1SNAPSHOT\2/' $openems_constants
 
 echo "# Update $single_document"
 sed --in-place "s/\(^Version \).*$/\1$new_version/" $single_document
@@ -43,10 +41,10 @@ echo "# Update $package_lock"
 sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
 
 echo "# Update $about_component"
-sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1releases\/tag\/$new_version\2/" $about_component
-sed --in-place "s/\(.*About.Build.*: \).*\(<\/a>\)/\1$new_version ($release_date)\2/" $about_component
+sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1tree\/develop\2/" $about_component
+sed --in-place "s/\(.*About.Build.*: \).*\(<\/a>\)/\1$new_version\2/" $about_component
 
 echo "# Finished"
 
 echo ""
-echo "# Ready for commit: \"Push version to $new_version\""
+echo "# Ready for commit: \"Start development of version $new_version\""
