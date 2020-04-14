@@ -2,6 +2,7 @@ package io.openems.edge.timedata.rrd4j;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.OptionalDouble;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -79,7 +80,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 			return;
 		}
 
-		long timestamp = recordTimestamp.toEpochSecond(ZoneOffset.UTC);
+		// long timestamp = recordTimestamp.toEpochSecond(ZoneOffset.UTC);
+		long timestamp = ZonedDateTime.now().toEpochSecond();
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
 				if (channel.channelDoc().getAccessMode() != AccessMode.READ_ONLY
@@ -87,7 +89,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 					// Ignore WRITE_ONLY Channels
 					continue;
 				}
-				
+
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
 				Function<DoubleStream, OptionalDouble> channelAggregateFunction = getChannelAggregateFunction(
