@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { endOfDay } from 'date-fns';
-import { addDays, addWeeks, endOfWeek, getDate, getMonth, getYear, isFuture, subDays, subWeeks } from 'date-fns/esm';
-import { IMyDate } from 'mydaterangepicker';
+import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
 import { isUndefined } from 'util';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Service } from '../shared';
@@ -58,9 +57,6 @@ export class PickDateComponent {
         }
     }
 
-    ngOnDestroy() { }
-
-
     /**
      * Sets the current time period.
      * 
@@ -69,16 +65,6 @@ export class PickDateComponent {
      */
     public setDateRange(period: DefaultTypes.HistoryPeriod) {
         this.service.historyPeriod = period;
-    }
-
-    /**
-     * Converts a 'Date' to 'IMyDate' format.
-     * 
-     * @param date the 'Date'
-     * @returns the 'IMyDate'
-     */
-    public toIMyDate(date: Date): IMyDate {
-        return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
     }
 
     async presentPopover(ev: any) {

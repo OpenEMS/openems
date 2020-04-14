@@ -36,8 +36,11 @@ public class CycleWorker extends AbstractWorker {
 	@Override
 	protected void forever() {
 		// Kick Operating System Watchdog
-		if (SDNotify.isAvailable()) {
-			SDNotify.sendWatchdog();
+		String socketName = System.getenv().get("NOTIFY_SOCKET");
+		if (socketName != null && socketName.length() != 0) {
+			if (SDNotify.isAvailable()) {
+				SDNotify.sendWatchdog();
+			}
 		}
 
 		try {

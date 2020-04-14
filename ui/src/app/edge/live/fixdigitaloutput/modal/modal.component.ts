@@ -30,7 +30,8 @@ export class FixDigitalOutputModalComponent {
     let oldMode = this.component.properties.isOn;
     let newMode = event.detail.value;
 
-    if (oldMode != newMode) {
+    // checking manually if values are equal, otherwise updateComponentConfig would fire on init
+    if ((oldMode == true && newMode == false) || (oldMode == false && newMode == true)) {
       this.edge.updateComponentConfig(this.websocket, this.component.id, [
         { name: 'isOn', value: newMode }
       ]).then(() => {

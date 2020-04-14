@@ -1,0 +1,219 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title>{{ component.alias }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ng-container *ngIf="!loading">
+        <ng-container *ngIf="component && service.currentEdge | async as edge">
+            <ng-container *ngIf="edge.currentData | async as currentData">
+                <ion-card-content class="underline">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:65%" translate>General.state</td>
+                            <td style="width:35%" class="align_right" translate>
+                                <ng-container *ngIf="(activePhases | async) > 0">
+                                    General.active
+                                </ng-container>
+                                <ng-container *ngIf="(activePhases | async) == 0">
+                                    General.inactive
+                                </ng-container>
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
+                <ion-card-content class="underline">
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:55%" [class.bold]="(activePhases | async) == 1">
+                                Level 1</td>
+                            <td class="align_right" style="width: 30%">
+                                {{ currentData.channel[component.id + '/Level1Time'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                            </td>
+                            <td class="align_right" style="width: 15%">
+                                {{ currentData.channel[component.id + '/Level1Energy'] / 1000 | unitvalue:'kWh' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:55%" [class.bold]="(activePhases | async) == 2">
+                                Level 2</td>
+                            <td class="align_right" style="width: 30%">
+                                {{ currentData.channel[component.id + '/Level2Time'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                            </td>
+                            <td class="align_right" style="width: 15%">
+                                {{ currentData.channel[component.id + '/Level2Energy'] / 1000 | unitvalue:'kWh' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:55%" [class.bold]="(activePhases | async) == 3">
+                                Level 3</td>
+                            <td class="align_right" style="width: 30%">
+                                {{ currentData.channel[component.id + '/Level3Time'] * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                            </td>
+                            <td class="align_right" style="width: 15%">
+                                {{ currentData.channel[component.id + '/Level3Energy'] /1000 | unitvalue:'kWh' }}
+                            </td>
+                        </tr>
+                    </table>
+                </ion-card-content>
+
+                <ion-card-content class="underline">
+                    <table class="full_width">
+                        <tr>
+                            <td translate>
+                                General.mode
+                            </td>
+                        </tr>
+                    </table>
+                    <ion-segment (ionChange)="updateMode($event, component)" value="{{ component.properties['mode'] }}"
+                        scrollable="false">
+                        <ion-segment-button value="MANUAL_ON">
+                            <ion-label translate>
+                                General.on
+                            </ion-label>
+                            <ion-icon color="success" style="width:40px" name="power"></ion-icon>
+                        </ion-segment-button>
+                        <ion-segment-button value="AUTOMATIC">
+                            <ion-label translate>
+                                General.automatic
+                            </ion-label>
+                            <ion-icon style="width:40px" name="sunny">
+                            </ion-icon>
+                        </ion-segment-button>
+                        <ion-segment-button value="MANUAL_OFF">
+                            <ion-label translate>
+                                General.off
+                            </ion-label>
+                            <ion-icon name="power" style="width: 40px"></ion-icon>
+                        </ion-segment-button>
+                    </ion-segment>
+                </ion-card-content>
+                <ion-card-content *ngIf="component.properties['mode'] == 'AUTOMATIC'">
+                    <form [formGroup]="formGroup">
+                        <ion-grid>
+                            <ion-row class="ion-justify-content-center">
+                                <ion-col size="6">
+                                    <ion-item lines="none" class="ion-text-end">
+                                        <ion-label>
+                                            Endzeit:
+                                        </ion-label>
+                                        <ion-datetime [cancelText]="translate.instant('General.cancel')"
+                                            [value]="component.properties.endTime"
+                                            [doneText]="translate.instant('General.ok')"
+                                            (ionChange)="updateEndTime($event)" displayFormat="HH:mm"
+                                            pickerFormat="HH:mm">
+                                        </ion-datetime>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="6">
+                                    <ion-item lines="none">
+                                        Level:
+                                        <ion-select formControlName="defaultLevel"
+                                            [value]="component.properties['defaultLevel']"
+                                            (ionChange)="updateDefaultLevel($event)"
+                                            [okText]="translate.instant('General.ok')"
+                                            [cancelText]="translate.instant('General.cancel')">
+                                            <ion-select-option value="LEVEL_1">Level 1</ion-select-option>
+                                            <ion-select-option value="LEVEL_2">Level 2</ion-select-option>
+                                            <ion-select-option value="LEVEL_3">Level 3</ion-select-option>
+                                        </ion-select>
+                                    </ion-item>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                        <ion-grid>
+                            <ion-row class="ion-justify-content-center">
+                                <ion-segment (ionChange)="updateWorkMode($event)"
+                                    [value]="component.properties['workMode']" class="small">
+                                    <ion-segment-button value="TIME">
+                                        <ion-icon color="primary" name="sunny-outline">
+                                        </ion-icon>
+                                        <ion-label translate>
+                                            Edge.Index.Widgets.Heatingelement.time
+                                        </ion-label>
+                                    </ion-segment-button>
+                                    <ion-segment-button value="KWH">
+                                        <ion-icon color="primary" name="battery-charging-outline">
+                                        </ion-icon>
+                                        <ion-label>
+                                            KWH
+                                        </ion-label>
+                                    </ion-segment-button>
+                                </ion-segment>
+                            </ion-row>
+                        </ion-grid>
+                        <ng-container *ngIf="formGroup.value.workMode == 'TIME'">
+                            <table class="full_width">
+                                <tr>
+                                    <ion-range (ionChange)="updateMinTime($event)" style="width: 100%" color="dark"
+                                        pin="true" min="0" max="10" style="padding-top: 8px;"
+                                        [value]="component.properties.minTime" debounce="500">
+                                        <ion-label slot="start">
+                                            {{ 0 | unitvalue:'H'}}
+                                        </ion-label>
+                                        <ion-label slot="end">
+                                            {{ 10 | unitvalue:'H'}}
+                                        </ion-label>
+                                    </ion-range>
+                                </tr>
+                            </table>
+                            <table class="full_width"
+                                *ngIf="currentData.channel[component.id + '/ForceStartAtSecondOfDay'] as forceStartAtSecondOfDay">
+                                <tr>
+                                    <td style="width: 65%" translate>
+                                        Edge.Index.Widgets.Heatingelement.timeCountdown
+                                    </td>
+                                    <td style="width: 35%" class="align_right">
+                                        {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                    </td>
+                                </tr>
+                            </table>
+                        </ng-container>
+                        <ng-container *ngIf="formGroup.value.workMode == 'KWH'">
+                            <table class="full_width">
+                                <tr>
+                                    <ion-range (ionChange)="updateMinKwh($event)" style="width: 100%" min="0" max="60"
+                                        color="dark" pin="true" style="padding-top: 8px;" debounce="500"
+                                        [value]="component.properties.minKwh">
+                                        <ion-label slot="start">
+                                            {{ 0 | unitvalue:'kWh'}}
+                                        </ion-label>
+                                        <ion-label slot="end">
+                                            {{ 60 | unitvalue:'kWh'}}
+                                        </ion-label>
+                                    </ion-range>
+                                </tr>
+                            </table>
+                            <table class="full_width"
+                                *ngIf="currentData.channel[component.id + '/ForceStartAtSecondOfDay'] as forceStartAtSecondOfDay">
+                                <tr>
+                                    <td style="width: 65%" translate>
+                                        Edge.Index.Widgets.Heatingelement.timeCountdown
+                                    </td>
+                                    <td style="width: 35%" class="align_right">
+                                        {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                    </td>
+                                </tr>
+                            </table>
+                        </ng-container>
+                    </form>
+                </ion-card-content>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
+        <ion-fab-button (click)="applyChanges()">
+            <ion-icon size="large" name="checkmark-circle-outline">
+            </ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+    <ion-grid *ngIf="loading == true">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ion-grid>
+</ion-content>
