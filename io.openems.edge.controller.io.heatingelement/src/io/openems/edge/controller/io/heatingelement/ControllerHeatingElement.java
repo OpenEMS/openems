@@ -3,7 +3,6 @@ package io.openems.edge.controller.io.heatingelement;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -33,11 +32,6 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerHeatingElement extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
-
-	/**
-	 * Length of hysteresis in seconds. States are not changed quicker than this.
-	 */
-	private static final TemporalAmount HYSTERESIS = Duration.ofSeconds(30);
 
 	private final Logger log = LoggerFactory.getLogger(ControllerHeatingElement.class);
 
@@ -303,9 +297,10 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 *         currentLevel if hysteresis is to be applied
 	 */
 	private Level applyHysteresis(Level targetLevel) {
-		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
 		if (this.currentLevel != targetLevel) {
-			if (this.lastLevelChange.plus(HYSTERESIS).isBefore(now)) {
+			LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
+			Duration hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
+			if (this.lastLevelChange.plus(hysteresis).isBefore(now)) {
 				// no hysteresis applied
 				this.currentLevel = targetLevel;
 				this.lastLevelChange = now;

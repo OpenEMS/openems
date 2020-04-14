@@ -37,7 +37,7 @@ public class HeatingElementTest {
 		ChannelAddress phase3Time = new ChannelAddress("ctrl1", "Phase3Time");
 
 		MyConfig myconfig = new MyConfig("ctrl1", grid.toString(), output1.toString(), output2.toString(),
-				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_3, WorkMode.TIME, 1, 4);
+				output3.toString(), "15:45:00", 2000, Mode.AUTOMATIC, Level.LEVEL_3, WorkMode.TIME, 1, 4, 60);
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);
 
