@@ -46,5 +46,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Power per Phase", description = "Power of one single phase of the heating element in [W]")
 	int powerPerPhase() default 2000;
 
+	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time (Seconds) is applied to avoid continuous switching on threshold")
+	int minimumSwitchingTime() default 60;
+
 	String webconsole_configurationFactory_nameHint() default "Controller IO Heating Element [{id}]";
 }
