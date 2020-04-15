@@ -255,4 +255,5 @@
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
-	org.apache.felix.webconsole;version='[4.3.4,4.3.5)'
+	org.apache.felix.webconsole;version='[4.3.4,4.3.5)',\
+	io.openems.edge.ess.refu88k;version=snapshot
