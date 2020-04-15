@@ -165,6 +165,16 @@ public class HeatingElementTest {
 						.output(phase1Time, 90 * 60) //
 						.output(phase2Time, 75 * 60) //
 						.output(phase3Time, 60 * 60)) //
+				.next(new TestCase() //
+						// Switch to next day
+						.timeleap(clock, 22, ChronoUnit.HOURS)//
+						.input(grid, 0) //
+						.output(output1, true) //
+						.output(output2, true) //
+						.output(output3, false) //
+						.output(phase1Time, 30 * 60) //
+						.output(phase2Time, 30 * 60) //
+						.output(phase3Time, 0)) //
 				.run();
 	}
 
