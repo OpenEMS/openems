@@ -69,7 +69,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                                 data: data,
                             });
                             this.colors.push({
-                                backgroundColor: 'rgba(0,191,255,0,05)',
+                                backgroundColor: 'rgba(0,191,255,0.05)',
                                 borderColor: 'rgba(0,191,255,1)',
                             })
                         } else {
