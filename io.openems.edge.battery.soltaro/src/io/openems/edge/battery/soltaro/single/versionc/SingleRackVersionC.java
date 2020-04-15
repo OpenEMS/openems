@@ -6,6 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
@@ -19,7 +20,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface SingleRackVersionC extends Battery, OpenemsComponent {
+public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComponent {
 
 	public default boolean hasFaults() {
 		Level level = this.getState().value().asEnum();

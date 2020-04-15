@@ -54,7 +54,7 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
 public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
-		implements SingleRackVersionC, Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements SingleRackVersionC, SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(SingleRackVersionCImpl.class);
 
