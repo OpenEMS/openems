@@ -578,45 +578,45 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent {
 				.text("Slave BMS Hardware: Slave BMS Initialization Failure")), //
 
 		// Communication Errors
-		SLAVE_1_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_1_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 1 communication error")), //
-		SLAVE_2_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_2_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 2 communication error")), //
-		SLAVE_3_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_3_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 3 communication error")), //
-		SLAVE_4_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_4_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 4 communication error")), //
-		SLAVE_5_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_5_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 5 communication error")), //
-		SLAVE_6_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_6_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 6 communication error")), //
-		SLAVE_7_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_7_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 7 communication error")), //
-		SLAVE_8_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_8_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 8 communication error")), //
-		SLAVE_9_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_9_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 9 communication error")), //
-		SLAVE_10_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_10_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 10 communication error")), //
-		SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 11 communication error")), //
-		SLAVE_12_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_12_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 12 communication error")), //
-		SLAVE_13_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_13_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 13 communication error")), //
-		SLAVE_14_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_14_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 14 communication error")), //
-		SLAVE_15_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_15_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 15 communication error")), //
-		SLAVE_16_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_16_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 16 communication error")), //
-		SLAVE_17_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_17_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 17 communication error")), //
-		SLAVE_18_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_18_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 18 communication error")), //
-		SLAVE_19_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_19_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 19 communication error")), //
-		SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
 				.text("Slave 20 communication error")), //
 
 		// OpenEMS Faults
