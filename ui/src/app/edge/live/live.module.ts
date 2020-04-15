@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
-import { ChpsocModalComponent } from './chpsoc/chpsoc-modal/modal.page';
+import { ChpsocModalComponent } from './chpsoc/modal/modal.page';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';

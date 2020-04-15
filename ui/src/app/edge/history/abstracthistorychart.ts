@@ -16,8 +16,8 @@ export abstract class AbstractHistoryChart {
 
     // Colors for Phase 1-3
     protected phase1Color = {
-        backgroundColor: 'rgba(255,0,0,0.05)',
-        borderColor: 'rgba(255,0,0,1)',
+        backgroundColor: 'rgba(255,127,80,0.05)',
+        borderColor: 'rgba(255,127,80,1)',
     }
     protected phase2Color = {
         backgroundColor: 'rgba(0,0,255,0.1)',

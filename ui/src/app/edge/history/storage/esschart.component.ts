@@ -28,7 +28,6 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
-        private websocket: Websocket,
     ) {
         super(service, translate);
     }

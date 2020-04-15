@@ -1,17 +1,12 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { HeatingelementModalComponent } from './modal/modal.component';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { HeatingelementModalComponent } from './modal/modal.component';
-import { calculateActiveTimeOverPeriod } from '../shared';
-import { isEmpty } from 'rxjs/operators';
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,
@@ -25,19 +20,17 @@ export class HeatingelementWidgetComponent implements OnInit, OnChanges {
     private static readonly SELECTOR = "heatingelementWidget";
 
     public component: EdgeConfig.Component = null;
-    public activeTimeOverPeriod = []
-    public activeTimeOverPeriodL1: string = null;
-    public activeTimeOverPeriodL2: string = null;
-    public activeTimeOverPeriodL3: string = null;
-    public data: Cumulated = null;
-    public values: any;
+
+    public activeTimeOverPeriodLevel1: number = null;
+    public activeTimeOverPeriodLevel2: number = null;
+    public activeTimeOverPeriodLevel3: number = null;
+
     public edge: Edge = null;
 
     constructor(
+        public modalCtrl: ModalController,
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
-        private decimalPipe: DecimalPipe,
     ) { }
 
     ngOnInit() {
@@ -49,54 +42,62 @@ export class HeatingelementWidgetComponent implements OnInit, OnChanges {
         });
     }
 
-
-    ngOnDestroy() {
-    }
-
     ngOnChanges() {
-        this.updateValues();
-    };
-
-
-    updateValues() {
         this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to);
     };
 
-    // Gather result & timestamps to calculate effective active time in % 
     queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
-                    this.getChannelAddresses(config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
-                        edge.sendRequest(this.service.websocket, request).then(response => {
-                            let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            let outputChannel1 = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress1']);
-                            let outputChannel2 = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress2']);
-                            let outputChannel3 = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress3']);
+                this.getChannelAddresses().then(channelAddresses => {
+                    let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
+                    edge.sendRequest(this.service.websocket, request).then(response => {
+                        let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-                            this.activeTimeOverPeriodL1 = calculateActiveTimeOverPeriod(outputChannel1, result);
-                            this.activeTimeOverPeriodL2 = calculateActiveTimeOverPeriod(outputChannel2, result);
-                            this.activeTimeOverPeriodL3 = calculateActiveTimeOverPeriod(outputChannel3, result);
+                        let Level1Time = result.data[this.componentId + '/Level1Time'];
+                        let Level2Time = result.data[this.componentId + '/Level2Time']
+                        let Level3Time = result.data[this.componentId + '/Level3Time']
 
-                            if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
-                                resolve(response as QueryHistoricTimeseriesDataResponse);
-                            } else {
-                                reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                        // takes last value as active time in seconds
+                        for (let value of Level1Time.reverse()) {
+                            if (value != null && value != 0) {
+                                this.activeTimeOverPeriodLevel1 = value;
+                                break;
                             }
-                        }).catch(reason => reject(reason));
+                        }
+
+                        for (let value of Level2Time.reverse()) {
+                            if (value != null && value != 0) {
+                                this.activeTimeOverPeriodLevel2 = value;
+                                break;
+                            }
+                        }
+
+                        for (let value of Level3Time.reverse()) {
+                            if (value != null && value != 0) {
+                                this.activeTimeOverPeriodLevel3 = value;
+                                break;
+                            }
+                        }
+
+                        if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
+                            resolve(response as QueryHistoricTimeseriesDataResponse);
+                        } else {
+                            reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                        }
                     }).catch(reason => reject(reason));
                 })
             });
         });
     }
 
-    getChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
+    getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel1 = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress1']);
-            const outputChannel2 = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress2']);
-            const outputChannel3 = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress3']);
-            let channeladdresses = [outputChannel1, outputChannel2, outputChannel3];
+            let channeladdresses = [
+                new ChannelAddress(this.componentId, 'Level1Time'),
+                new ChannelAddress(this.componentId, 'Level2Time'),
+                new ChannelAddress(this.componentId, 'Level3Time'),
+            ];
             resolve(channeladdresses);
         });
     }

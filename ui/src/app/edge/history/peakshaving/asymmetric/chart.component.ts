@@ -170,7 +170,6 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 datasets.push({
                     label: this.translate.instant('General.chargePower'),
                     data: chargeData,
-                    borderDash: [10, 10]
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(0,223,0,0.05)',
@@ -191,7 +190,6 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 datasets.push({
                     label: this.translate.instant('General.dischargePower'),
                     data: dischargeData,
-                    borderDash: [10, 10]
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(200,0,0,0.05)',
