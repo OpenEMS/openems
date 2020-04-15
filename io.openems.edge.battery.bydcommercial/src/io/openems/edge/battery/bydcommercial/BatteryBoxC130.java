@@ -1,5 +1,6 @@
 package io.openems.edge.battery.bydcommercial;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -35,7 +36,10 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -44,7 +48,7 @@ import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Bms.Byd.BatteryBoxC130", //
+		name = "Bms.Byd.Commercial.C130", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
@@ -66,6 +70,7 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 	private Config config;
 
 	private String modbusBridgeId;
+	private BatteryState batteryState;
 	private State state = State.UNDEFINED;
 
 	@Reference
@@ -73,15 +78,15 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 
 	// If an error has occurred, this indicates the time when next action could be
 	// done
-//	private LocalDateTime errorDelayIsOver = null;
-//	private int unsuccessfulStarts = 0;
-//	private LocalDateTime startAttemptTime = null;
+	private LocalDateTime errorDelayIsOver = null;
+	private int unsuccessfulStarts = 0;
+	private LocalDateTime startAttemptTime = null;
 
 	// indicates that system is stopping; during that time no commands should be
 	// sent
 	private boolean isStopping = false;
 
-//	private LocalDateTime pendingTimestamp;
+	private LocalDateTime pendingTimestamp;
 
 	public BatteryBoxC130() {
 		super(//
@@ -106,7 +111,8 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
-		this.getCapacity().setNextValue(config.capacity());
+		this.batteryState = config.batteryState();
+		this.getCapacity().setNextValue(config.capacity() * 1000);
 		initializeCallbacks();
 	}
 
@@ -143,183 +149,187 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			// handleBatteryState();
-			startSystem();
+			handleBatteryState();
 			break;
 		}
 	}
 
-	/*
-	 * private void handleBatteryState() { switch (this.batteryState) { case
-	 * DEFAULT: handleStateMachine(); break; case OFF: stopSystem(); break; case ON:
-	 * startSystem(); break; case CONFIGURE:
-	 * log.error("Not possible with version A of the Soltaro batteries!"); } }
-	 */
-//	private void handleStateMachine() {
-//		log.info("BatteryCommercialC130.handleStateMachine(): State: " + this.getStateMachineState());
-//		boolean readyForWorking = false;
-//		switch (this.getStateMachineState()) {
-//		case ERROR:
-//			stopSystem();
-//			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-//			setStateMachineState(State.ERRORDELAY);
-//			break;
-//
-//		case ERRORDELAY:
-//			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
-//				errorDelayIsOver = null;
-//				if (this.isError()) {
-//					this.setStateMachineState(State.ERROR);
-//				} else {
-//					this.setStateMachineState(State.OFF);
-//				}
-//			}
-//			break;
-//		case INIT:
-//			if (this.isSystemRunning()) {
-//				this.setStateMachineState(State.RUNNING);
-//				unsuccessfulStarts = 0;
-//				startAttemptTime = null;
-//			} else {
-//				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
-//					startAttemptTime = null;
-//					unsuccessfulStarts++;
-//					this.stopSystem();
-//					this.setStateMachineState(State.STOPPING);
-//					if (unsuccessfulStarts >= config.maxStartAppempts()) {
-//						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
-//						this.setStateMachineState(State.ERRORDELAY);
-//						unsuccessfulStarts = 0;
-//					}
-//				}
-//			}
-//			break;
-//		case OFF:
-//			log.debug("in case 'OFF'; try to start the system");
-//			this.startSystem();
-//			log.debug("set state to 'INIT'");
-//			this.setStateMachineState(State.INIT);
-//			startAttemptTime = LocalDateTime.now();
-//			break;
-//		case RUNNING:
-//			if (this.isError()) {
-//				this.setStateMachineState(State.ERROR);
-//			} else if (!this.isSystemRunning()) {
-//				this.setStateMachineState(State.UNDEFINED);
-//			} else {
-////				// if minimal cell voltage is lower than configured minimal cell voltage, then
-////				// force system to charge
-////				IntegerReadChannel minCellVoltageChannel = this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE);
-////				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
-////				if (minCellVoltageOpt.isPresent()) {
-////					int minCellVoltage = minCellVoltageOpt.get();
-////					if (minCellVoltage < this.config.minimalCellVoltage()) {
-////						// set the discharge current negative to force the system to charge
-////						// TODO check if this is working!
-////						this.getDischargeMaxCurrent().setNextValue((-1) * this.getChargeMaxCurrent().value().get());
-////					}
-////				}
-//				readyForWorking = true;
-//				this.setStateMachineState(State.RUNNING);
-//			}
-//			break;
-//		case STOPPING:
-//			if (this.isError()) {
-//				this.setStateMachineState(State.ERROR);
-//			} else {
-//				if (this.isSystemStopped()) {
-//					this.setStateMachineState(State.OFF);
-//				}
-//			}
-//			break;
-//		case UNDEFINED:
-//			if (this.isError()) {
-//				this.setStateMachineState(State.ERROR);
-//			} else if (this.isSystemStopped()) {
-//				this.setStateMachineState(State.OFF);
-//			} else if (this.isSystemRunning()) {
-//				this.setStateMachineState(State.RUNNING);
-//			} else if (this.isSystemStatePending()) {
-//				this.setStateMachineState(State.PENDING);
-//			}
-//			break;
-//		case PENDING:
-//			if (this.pendingTimestamp == null) {
-//				this.pendingTimestamp = LocalDateTime.now();
-//			}
-//			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
-//				// System state could not be determined, stop and start it
-//				this.pendingTimestamp = null;
-//				this.stopSystem();
-//				this.setStateMachineState(State.OFF);
-//			} else {
-//				if (this.isError()) {
-//					this.setStateMachineState(State.ERROR);
-//					this.pendingTimestamp = null;
-//				} else if (this.isSystemStopped()) {
-//					this.setStateMachineState(State.OFF);
-//					this.pendingTimestamp = null;
-//				} else if (this.isSystemRunning()) {
-//					this.setStateMachineState(State.RUNNING);
-//					this.pendingTimestamp = null;
-//				}
-//			}
-//			break;
-//		case ERROR_CELL_VOLTAGES_DRIFT:
-//			// not possible to handle in version A
-//			this.setStateMachineState(State.UNDEFINED);
-//			break;
-//		case ONE_CELL_DRIFTING:
-//			// not possible to handle in version A
-//			this.setStateMachineState(State.UNDEFINED);
-//			break;
-//		}
-//
-//		this.getReadyForWorking().setNextValue(readyForWorking);
-//	}
-//
-//	private boolean isError() {
-//		return isAlarmLevel2Error();
-//	}
-//
-//	private boolean isAlarmLevel2Error() {
-//		return (readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
-//				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
-//	}
-//
-//	private boolean isSystemRunning() {
-//		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-//		ContactorControl cc = contactorControlChannel.value().asEnum();
-//		return cc == ContactorControl.ON_GRID;
-//	}
-//
-//	private boolean isSystemStopped() {
-//		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-//		ContactorControl cc = contactorControlChannel.value().asEnum();
-//		return cc == ContactorControl.CUT_OFF;
-//	}
+	private void handleBatteryState() {
+		switch (this.batteryState) {
+		case DEFAULT:
+			handleStateMachine();
+			break;
+		case OFF:
+			stopSystem();
+			break;
+		case ON:
+			startSystem();
+			break;
+		case CONFIGURE:
+			log.error("Not possible with Byd Commerical C130 batteries!");
+		}
+	}
+
+	private void handleStateMachine() {
+		log.info("BatteryBoxC130.handleStateMachine(): State: " + this.getStateMachineState());
+		boolean readyForWorking = false;
+		switch (this.getStateMachineState()) {
+		case ERROR:
+			stopSystem();
+			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
+			setStateMachineState(State.ERRORDELAY);
+			break;
+
+		case ERRORDELAY:
+			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
+				errorDelayIsOver = null;
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+				} else {
+					this.setStateMachineState(State.OFF);
+				}
+			}
+			break;
+		case INIT:
+			if (this.isSystemRunning()) {
+				this.setStateMachineState(State.RUNNING);
+				unsuccessfulStarts = 0;
+				startAttemptTime = null;
+			} else {
+				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
+					startAttemptTime = null;
+					unsuccessfulStarts++;
+					this.stopSystem();
+					this.setStateMachineState(State.STOPPING);
+					if (unsuccessfulStarts >= config.maxStartAppempts()) {
+						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
+						this.setStateMachineState(State.ERRORDELAY);
+						unsuccessfulStarts = 0;
+					}
+				}
+			}
+			break;
+		case OFF:
+			log.debug("in case 'OFF'; try to start the system");
+			this.startSystem();
+			log.debug("set state to 'INIT'");
+			this.setStateMachineState(State.INIT);
+			startAttemptTime = LocalDateTime.now();
+			break;
+		case RUNNING:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else if (!this.isSystemRunning()) {
+				this.setStateMachineState(State.UNDEFINED);
+			} else {
+				// if minimal cell voltage is lower than configured minimal cell voltage, then
+				// force system to charge
+				IntegerReadChannel minCellVoltageChannel = this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE);
+				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
+				if (minCellVoltageOpt.isPresent()) {
+					int minCellVoltage = minCellVoltageOpt.get();
+					if (minCellVoltage < this.config.minimalCellVoltage()) {
+						// set the discharge current negative to force the system to charge
+						// TODO check if this is working!
+						this.getDischargeMaxCurrent().setNextValue((-1) * this.getChargeMaxCurrent().value().get());
+					}
+				}
+				readyForWorking = true;
+				this.setStateMachineState(State.RUNNING);
+			}
+			break;
+		case STOPPING:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else {
+				if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+				}
+			}
+			break;
+		case UNDEFINED:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else if (this.isSystemStopped()) {
+				this.setStateMachineState(State.OFF);
+			} else if (this.isSystemRunning()) {
+				this.setStateMachineState(State.RUNNING);
+			} else if (this.isSystemStatePending()) {
+				this.setStateMachineState(State.PENDING);
+			}
+			break;
+		case PENDING:
+			if (this.pendingTimestamp == null) {
+				this.pendingTimestamp = LocalDateTime.now();
+			}
+			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
+				// System state could not be determined, stop and start it
+				this.pendingTimestamp = null;
+				this.stopSystem();
+				this.setStateMachineState(State.OFF);
+			} else {
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+					this.pendingTimestamp = null;
+				} else if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+					this.pendingTimestamp = null;
+				} else if (this.isSystemRunning()) {
+					this.setStateMachineState(State.RUNNING);
+					this.pendingTimestamp = null;
+				}
+			}
+			break;
+		case ERROR_HANDLING:
+			// Cannot handle errors
+			break;
+		}
+
+		this.getReadyForWorking().setNextValue(readyForWorking);
+	}
+
+	private boolean isError() {
+		return isAlarmLevel2Error();
+	}
+
+	private boolean isAlarmLevel2Error() {
+		return (readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
+	}
+
+	private boolean isSystemRunning() {
+		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		ContactorControl cc = contactorControlChannel.value().asEnum();
+		return cc == ContactorControl.ON_GRID;
+	}
+
+	private boolean isSystemStopped() {
+		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		ContactorControl cc = contactorControlChannel.value().asEnum();
+		return cc == ContactorControl.CUT_OFF;
+	}
 
 	/**
 	 * Checks whether system has an undefined state
 	 */
-//	private boolean isSystemStatePending() {
-//		return !isSystemRunning() && !isSystemStopped();
-//	}
-//
-//	private boolean readValueFromBooleanChannel(ChannelId channelId) {
-//		StateChannel r = this.channel(channelId);
-//		Optional<Boolean> bOpt = r.value().asOptional();
-//		return bOpt.isPresent() && bOpt.get();
-//	}
+	private boolean isSystemStatePending() {
+		return !isSystemRunning() && !isSystemStopped();
+	}
+
+	private boolean readValueFromBooleanChannel(ChannelId channelId) {
+		StateChannel r = this.channel(channelId);
+		Optional<Boolean> bOpt = r.value().asOptional();
+		return bOpt.isPresent() && bOpt.get();
+	}
 
 	public State getStateMachineState() {
 		return state;
@@ -332,13 +342,6 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 
 	public String getModbusBridgeId() {
 		return modbusBridgeId;
-	}
-
-	@Override
-	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
 	}
 
 	private void startSystem() {
@@ -362,22 +365,23 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 		}
 	}
 
-//	private void stopSystem() {
-//		EnumWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-//		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
-//		// To avoid hardware damages do not send stop command if system has already
-//		// stopped
-//		if (contactorControlOpt.isPresent() && contactorControlOpt.get() == ContactorControl.CUT_OFF.getValue()) {
-//			return;
-//		}
-//
-//		try {
-//			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
-//			isStopping = true;
-//		} catch (OpenemsNamedException e) {
-//			log.error("Error while trying to stop system\n" + e.getMessage());
-//		}
-//	}
+	private void stopSystem() {
+		EnumWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+
+		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
+		// To avoid hardware damages do not send stop command if system has already
+		// stopped
+		if (contactorControlOpt.isPresent() && contactorControlOpt.get() == ContactorControl.CUT_OFF.getValue()) {
+			return;
+		}
+
+		try {
+			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
+			isStopping = true;
+		} catch (OpenemsNamedException e) {
+			log.error("Error while trying to stop system\n" + e.getMessage());
+		}
+	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// IntegerWriteChannels
@@ -1052,23 +1056,23 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 				.text("Cluster 1 Total Voltage High Alarm Level 1")), //
 		ALARM_LEVEL_1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Voltage High Alarm Level 1")), //
-		ALARM_FUSE((Doc.of(Level.WARNING)) //
+		ALARM_FUSE(Doc.of(Level.WARNING) //
 				.text(" Fuse Alarm")), //
-		SHIELDED_SWITCH_STATE((Doc.of(Level.WARNING)) //
+		SHIELDED_SWITCH_STATE(Doc.of(Level.WARNING) //
 				.text("Shielded switch state")), //
-		ALARM_BAU_COMMUNICATION((Doc.of(Level.WARNING)) //
+		ALARM_BAU_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("BAU Communication Alarm")), //
-		ALARM_INSULATION_CHECK((Doc.of(Level.WARNING)) //
+		ALARM_INSULATION_CHECK(Doc.of(Level.WARNING) //
 				.text("Inuslation Resistance Alarm")), //
-		ALARM_CURRENT_SENSOR((Doc.of(Level.WARNING)) //
+		ALARM_CURRENT_SENSOR(Doc.of(Level.WARNING) //
 				.text("Current Sensor Alarm")), //
-		ALARM_BCU_BMU_COMMUNICATION((Doc.of(Level.WARNING)) //
+		ALARM_BCU_BMU_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("BCU BMU Communication Alarm")), //
-		ALARM_CONTACTOR_ADHESION((Doc.of(Level.WARNING))//
+		ALARM_CONTACTOR_ADHESION(Doc.of(Level.WARNING)//
 				.text("Contactor Adhesion Alarm ")), //
-		ALARM_BCU_NTC((Doc.of(Level.WARNING)) //
+		ALARM_BCU_NTC(Doc.of(Level.WARNING) //
 				.text("BCU NTC Alarm")), //
-		ALARM_SLAVE_CONTROL_SUMMARY((Doc.of(Level.WARNING)) //
+		ALARM_SLAVE_CONTROL_SUMMARY(Doc.of(Level.WARNING) //
 				.text(" Slave Contorl Summary Alarm")), //
 		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
 				.text("Initialization failure")), //
@@ -1110,76 +1114,76 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 				.text("sampling wire fault")), //
 		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.FAULT) //
 				.text("precharge time was too long")), //
-		NEED_CHARGE((Doc.of(Level.WARNING)) //
+		NEED_CHARGE(Doc.of(Level.WARNING) //
 				.text("Battery Need Charge")), //
-		FAULT((Doc.of(Level.FAULT)) //
+		FAULT(Doc.of(Level.FAULT) //
 				.text("battery fault state")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		ALARM_LEVEL_2_SYSTEM_VOLTAGE_HIGH(Doc.of(State.values()) //
+		ALARM_LEVEL_2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE HIGH")), //
-		ALARM_LEVEL_2_SYSTEM_VOLTAGE_LOW(Doc.of(State.values()) //
+		ALARM_LEVEL_2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(State.values()) //
+		ALARM_LEVEL_2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_2_INSULATION_RESISTANCE_LOWER(Doc.of(State.values()) //
+		ALARM_LEVEL_2_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(State.values()) //
+		ALARM_LEVEL_2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 POS INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(State.values()) //
+		ALARM_LEVEL_2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 NEG INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_2_SYSTEM_SOC_LOWER(Doc.of(State.values()) //
+		ALARM_LEVEL_2_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM SOC LOWER")), //
-		ALARM_LEVEL_2_SYSTEM_SOC_HIGH(Doc.of(State.values()) //
+		ALARM_LEVEL_2_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM SOC HIGH")), //
-		ALARM_LEVEL_2_SOH_LOWER(Doc.of(State.values()) //
+		ALARM_LEVEL_2_SOH_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SOH LOWER")), //
-		ALARM_LEVEL_2_PACK_TEMP_HIGH(Doc.of(State.values()) //
+		ALARM_LEVEL_2_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 PACK TEMP HIGH")), //
-		SLAVE_CTRL_11(Doc.of(State.values())//
+		SLAVE_CTRL_11(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_11")), //
-		SLAVE_CTRL_12(Doc.of(State.values())//
+		SLAVE_CTRL_12(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_12")), //
-		SLAVE_CTRL_13(Doc.of(State.values())//
+		SLAVE_CTRL_13(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_13")), //
-		SLAVE_CTRL_14(Doc.of(State.values())//
+		SLAVE_CTRL_14(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_14")), //
-		SLAVE_CTRL_15(Doc.of(State.values())//
+		SLAVE_CTRL_15(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_15")), //
-		SLAVE_CTRL_16(Doc.of(State.values())//
+		SLAVE_CTRL_16(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_16")), //
-		SLAVE_CTRL_17(Doc.of(State.values())//
+		SLAVE_CTRL_17(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_17")), //
-		SLAVE_CTRL_18(Doc.of(State.values()) //
+		SLAVE_CTRL_18(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_18")), //
-		SLAVE_CTRL_19(Doc.of(State.values()) //
+		SLAVE_CTRL_19(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_19")), //
-		SLAVE_CTRL_20(Doc.of(State.values()) //
+		SLAVE_CTRL_20(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_20")), //
-		SLAVE_CTRL_21(Doc.of(State.values()) //
+		SLAVE_CTRL_21(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_21")), //
-		SLAVE_CTRL_22(Doc.of(State.values()) //
+		SLAVE_CTRL_22(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_22")), //
-		SLAVE_CTRL_23(Doc.of(State.values()) //
+		SLAVE_CTRL_23(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_23")), //
-		SLAVE_CTRL_24(Doc.of(State.values()) //
+		SLAVE_CTRL_24(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_24")), //
-		SLAVE_CTRL_25(Doc.of(State.values()) //
+		SLAVE_CTRL_25(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_25")), //
-		SLAVE_CTRL_26(Doc.of(State.values()) //
+		SLAVE_CTRL_26(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_26")), //
-		SLAVE_CTRL_27(Doc.of(State.values()) //
+		SLAVE_CTRL_27(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_27")), //
-		SLAVE_CTRL_28(Doc.of(State.values()) //
+		SLAVE_CTRL_28(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_28")), //
-		SLAVE_CTRL_29(Doc.of(State.values()) //
+		SLAVE_CTRL_29(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_29")), //
-		SLAVE_CTRL_30(Doc.of(State.values()) //
+		SLAVE_CTRL_30(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_30")), //
-		SLAVE_CTRL_31(Doc.of(State.values()) //
+		SLAVE_CTRL_31(Doc.of(Level.FAULT) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_31")), //
-		SLAVE_CTRL_32(Doc.of(State.values()) //
-				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_31")),//
+		SLAVE_CTRL_32(Doc.of(Level.FAULT) //
+				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_31"))//
 		;
 
 		private final Doc doc;
@@ -1218,10 +1222,10 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
 						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new UnsignedWordElement(0x210C),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(0x210D, 0x2115), //
-						m(BatteryBoxC130.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)), //
-						m(BatteryBoxC130.ChannelId.BATTERY_CHARGE_STATE, new UnsignedWordElement(0x211D)) //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+//						new DummyRegisterElement(0x210D, 0x2115), //
+//						m(BatteryBoxC130.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
+//						m(BatteryBoxC130.ChannelId.BATTERY_CHARGE_STATE, new UnsignedWordElement(0x211D)) //
 				), //
 				new FC3ReadRegistersTask(0x211D, Priority.HIGH, //
 						m(new BitsWordElement(0x211D, this) //
@@ -1325,6 +1329,7 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(0x216D), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
+
 				new FC3ReadRegistersTask(0x2183, Priority.LOW, //
 						m(new BitsWordElement(0x2183, this) //
 								.bit(0, BatteryBoxC130.ChannelId.SLAVE_CTRL_17)//
@@ -1351,7 +1356,8 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 								.bit(3, BatteryBoxC130.ChannelId.SLAVE_CTRL_14)//
 								.bit(4, BatteryBoxC130.ChannelId.SLAVE_CTRL_15)//
 								.bit(5, BatteryBoxC130.ChannelId.SLAVE_CTRL_16)//
-						), //
+						)), //
+				new FC3ReadRegistersTask(0x2185, Priority.LOW, //
 						m(new BitsWordElement(0x2185, this) //
 								.bit(0, BatteryBoxC130.ChannelId.FAILURE_SLAVE_UNIT_INITIALIZATION)//
 								.bit(1, BatteryBoxC130.ChannelId.FAILURE_VOLTAGE_SAMPLING_LINE)//
@@ -1639,6 +1645,15 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new UnsignedWordElement(0x2C2F)) //
 				)//
 		); //
+	}
+
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc().value() //
+				+ "|Current: " + this.getCurrent().value() //
+				+ "|Voltage: " + this.getVoltage().value() //
+				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
 	}
 
 	@Override

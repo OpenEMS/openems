@@ -11,8 +11,7 @@ public enum State implements OptionsEnum {
 	STOPPING("Stopping", 4), //
 	ERROR("Error", 5), //	
 	ERRORDELAY("Errordelay", 6), //
-	ERROR_CELL_VOLTAGES_DRIFT("Error cell voltages drift", 7), //
-    ONE_CELL_DRIFTING("One cell is drifting", 8)
+	ERROR_HANDLING("Errordelay", 7), //
 	;
 
 	private State(String name, int value) {

@@ -1,8 +1,3 @@
-# io.openems.edge.battery.bydcommercial Provider
+= io.openems.edge.battery.bydcommercial
 
-${Bundle-Description}
-
-## Example
-
-## References
-
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.bydcommercial[Source Code icon:github[]]

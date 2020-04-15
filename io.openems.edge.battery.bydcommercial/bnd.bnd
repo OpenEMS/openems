@@ -1,7 +1,8 @@
-Bundle-Name: OpenEMS Edge BYD Commercial Battery  
-Bundle-Vendor: FENECON GmbH
+Bundle-Name: OpenEMS Edge io.openems.edge.battery.bydcommercial
+Bundle-Vendor: OpenEMS Association e.V.
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
+
 
 -buildpath: \
 	${buildpath},\
@@ -9,7 +10,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.battery.api,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
-	slf4j.api
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api
 
 -testpath: \
 	${testpath}
