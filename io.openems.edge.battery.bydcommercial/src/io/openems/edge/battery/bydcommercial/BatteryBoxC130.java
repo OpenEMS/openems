@@ -31,7 +31,6 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -1120,6 +1119,26 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 				.text("battery fault state")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
+		ALARM_LEVEL_1_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 SYSTEM VOLTAGE HIGH")), //
+		ALARM_LEVEL_1_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 SYSTEM VOLTAGE LOW")), //
+		ALARM_LEVEL_1_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 SYSTEM VOLTAGE LOW")), //
+		ALARM_LEVEL_1_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 INSULATION RESISTANCE LOWER")), //
+		ALARM_LEVEL_1_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 POS INSULATION RESISTANCE LOWER")), //
+		ALARM_LEVEL_1_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 NEG INSULATION RESISTANCE LOWER")), //
+		ALARM_LEVEL_1_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 SYSTEM SOC LOWER")), //
+		ALARM_LEVEL_1_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 SYSTEM SOC HIGH")), //
+		ALARM_LEVEL_1_SOH_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 SOH LOWER")), //
+		ALARM_LEVEL_1_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 1 PACK TEMP HIGH")), //
 		ALARM_LEVEL_2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE HIGH")), //
 		ALARM_LEVEL_2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
@@ -1140,6 +1159,48 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 				.text("ALARM LEVEL 2 SOH LOWER")), //
 		ALARM_LEVEL_2_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 PACK TEMP HIGH")), //
+		ALARM_LEVEL_3_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 SYSTEM VOLTAGE HIGH")), //
+		ALARM_LEVEL_3_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 SYSTEM VOLTAGE LOW")), //
+		ALARM_LEVEL_3_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 SYSTEM VOLTAGE LOW")), //
+		ALARM_LEVEL_3_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 INSULATION RESISTANCE LOWER")), //
+		ALARM_LEVEL_3_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 POS INSULATION RESISTANCE LOWER")), //
+		ALARM_LEVEL_3_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 NEG INSULATION RESISTANCE LOWER")), //
+		ALARM_LEVEL_3_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 SYSTEM SOC LOWER")), //
+		ALARM_LEVEL_3_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 SYSTEM SOC HIGH")), //
+		ALARM_LEVEL_3_SOH_LOWER(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 SOH LOWER")), //
+		ALARM_LEVEL_3_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM LEVEL 3 PACK TEMP HIGH")), //
+		ALARM_LEVEL_3_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_VOLTAGE_HIGH")), //
+		ALARM_LEVEL_3_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_VOLTAGE_LOW")), //
+		ALARM_LEVEL_3_CELLS_UNBALANCE(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELLS_UNBALANCE")), //
+		ALARM_LEVEL_3_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_DISCHA_TEMP_HIGH")), //
+		ALARM_LEVEL_3_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_DISCHA_TEMP_LOW")), //
+		ALARM_LEVEL_3_CELL_CHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_CHA_TEMP_HIGH")), //
+		ALARM_LEVEL_3_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_CHA_TEMP_LOW")), //
+		ALARM_LEVEL_3_CELL_TEMP_DIFF_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_TEMP_DIFF_HIGH")), //
+		ALARM_LEVEL_3_CELL_TEMP_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CELL_TEMP_HIGH")), //
+		ALARM_LEVEL_3_DISCHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_DISCHA_CURRENT_HIGH")), //
+		ALARM_LEVEL_3_CHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+				.text("ALARM_LEVEL_3_CHA_CURRENT_HIGH")), //
 		SLAVE_CTRL_11(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_11")), //
 		SLAVE_CTRL_12(Doc.of(Level.FAULT)//
@@ -1261,17 +1322,17 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 						), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2142)), //
 						m(new BitsWordElement(0x2143, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELLS_UNBALANCE) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_LOW) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_TEMP_HIGH) //
-								.bit(10, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_DISCHA_CURRENT_HIGH) //
-								.bit(11, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
+								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELLS_UNBALANCE) //
+								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_DISCHA_TEMP_HIGH) //
+								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_DISCHA_TEMP_LOW) //
+								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_CHA_TEMP_HIGH) //
+								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_CHA_TEMP_LOW) //
+								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_TEMP_DIFF_HIGH) //
+								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_TEMP_HIGH) //
+								.bit(10, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_DISCHA_CURRENT_HIGH) //
+								.bit(11, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CHA_CURRENT_HIGH) //
 						), //
 						m(new BitsWordElement(0x2144, this) //
 								.bit(0, BatteryBoxC130.ChannelId.ALARM_SLAVE_CONTROL_SUMMARY) //
@@ -1286,16 +1347,16 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 								.bit(9, BatteryBoxC130.ChannelId.ALARM_FUSE) //
 						), //
 						m(new BitsWordElement(0x2145, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_UNBALANCED) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_INSULATION_RESISTANCE_LOWER) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_POS_INSULATION_RESISTANCE_LOWER) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_NEG_INSULATION_RESISTANCE_LOWER) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_SOC_LOWER) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_SOC_HIGH) //
-								.bit(8, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SOH_LOWER) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_PACK_TEMP_HIGH) //
+								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_VOLTAGE_UNBALANCED) //
+								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_INSULATION_RESISTANCE_LOWER) //
+								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_POS_INSULATION_RESISTANCE_LOWER) //
+								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_NEG_INSULATION_RESISTANCE_LOWER) //
+								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_SOC_LOWER) //
+								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_SOC_HIGH) //
+								.bit(8, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SOH_LOWER) //
+								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_PACK_TEMP_HIGH) //
 						), //
 
 						m(new BitsWordElement(0x2146, this) //
@@ -1311,16 +1372,16 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_PACK_TEMP_HIGH) //
 						), //
 						m(new BitsWordElement(0x2147, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_UNBALANCED) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_INSULATION_RESISTANCE_LOWER) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_POS_INSULATION_RESISTANCE_LOWER) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_NEG_INSULATION_RESISTANCE_LOWER) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_SOC_LOWER) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_SOC_HIGH) //
-								.bit(8, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SOH_LOWER) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_PACK_TEMP_HIGH))//
+								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_VOLTAGE_UNBALANCED) //
+								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_INSULATION_RESISTANCE_LOWER) //
+								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_POS_INSULATION_RESISTANCE_LOWER) //
+								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_NEG_INSULATION_RESISTANCE_LOWER) //
+								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_SOC_LOWER) //
+								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_SOC_HIGH) //
+								.bit(8, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SOH_LOWER) //
+								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_PACK_TEMP_HIGH))//
 
 				), //
 				new FC3ReadRegistersTask(0x216C, Priority.HIGH, //
