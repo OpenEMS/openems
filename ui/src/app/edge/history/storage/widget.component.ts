@@ -41,8 +41,8 @@ export class StorageComponent {
 
     updateValues() {
         let channels: ChannelAddress[] = [
-            new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
-            new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
+            //new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+            //new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
             new ChannelAddress('_sum', 'EssAmpereHours')
         ];
         this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {

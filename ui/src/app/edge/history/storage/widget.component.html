@@ -9,7 +9,7 @@
         <table class="full_width" *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
             <tr>
                 <td style="width:65%"><span translate>General.chargePower</span>/<span
-                        translate>General.DischargePower</span></td>
+                        translate>General.dischargePower</span></td>
                 <td style="width:35%" class="align_right">
                     {{data["_sum/EssAmpereHours"] | unitvalue:'Ah'}}
                 </td>
