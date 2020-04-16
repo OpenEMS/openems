@@ -33,11 +33,11 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -306,13 +306,13 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 	}
 
 	private boolean isSystemRunning() {
-		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 		ContactorControl cc = contactorControlChannel.value().asEnum();
 		return cc == ContactorControl.ON_GRID;
 	}
 
 	private boolean isSystemStopped() {
-		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 		ContactorControl cc = contactorControlChannel.value().asEnum();
 		return cc == ContactorControl.CUT_OFF;
 	}
@@ -348,7 +348,7 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		EnumWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
 		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
 		// To avoid hardware damages do not send start command if system has already
@@ -358,14 +358,14 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 		}
 
 		try {
-			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
+			contactorControlChannel.setNextWriteValue(1);
 		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
 
 	private void stopSystem() {
-		EnumWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
 		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
 		// To avoid hardware damages do not send stop command if system has already
@@ -396,10 +396,11 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 		CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 		BATTERY_WORK_STATE(Doc.of(BatteryWorkState.values())), //
 		// EnumWriteChannels
-		BMS_CONTACTOR_CONTROL(Doc.of(ContactorControl.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
+//		BMS_CONTACTOR_CONTROL(Doc.of(ContactorControl.values()) //
+//				.accessMode(AccessMode.READ_WRITE)), //
 
 		// IntegerReadChannels
+		BMS_CONTACTOR_CONTROL(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		BATTERY_FAULT_STATE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
 		BATTERY_CHARGE_STATE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
 		SYSTEM_OVER_VOLTAGE_PROTECTION(Doc.of(OpenemsType.INTEGER) //
@@ -1262,7 +1263,11 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
+//				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
+//						m(BatteryBoxC130.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
+//				), //
+
+				new FC16WriteRegistersTask(0x2010, //
 						m(BatteryBoxC130.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
@@ -1708,9 +1713,14 @@ public class BatteryBoxC130 extends AbstractOpenemsModbusComponent
 		); //
 	}
 
+	public String getBmsContactorControl() {
+		return this.channel(ChannelId.BMS_CONTACTOR_CONTROL).value().asString();
+	}
+
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
+				+ "|Bms Contactor Control : " + this.getBmsContactorControl() //
 				+ "|Current: " + this.getCurrent().value() //
 				+ "|Voltage: " + this.getVoltage().value() //
 				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
