@@ -1,7 +1,6 @@
 package io.openems.edge.timedata.rrd4j;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.OptionalDouble;
@@ -80,7 +79,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 			return;
 		}
 
-		// long timestamp = recordTimestamp.toEpochSecond(ZoneOffset.UTC);
 		long timestamp = ZonedDateTime.now().toEpochSecond();
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {

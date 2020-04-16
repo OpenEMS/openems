@@ -162,7 +162,54 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// TODO implement Energy calculation
-		throw new OpenemsException("This method is not implemented");
+		// throw new OpenemsException("This method is not implemented");
+
+		SortedMap<ChannelAddress, JsonElement> table = new TreeMap<>();
+
+		try {
+			long fromTimestamp = fromDate.toEpochSecond();
+			long toTimeStamp = toDate.toEpochSecond();
+
+			for (ChannelAddress channelAddress : channels) {
+				Channel<?> channel = this.componentManager.getChannel(channelAddress);
+				RrdDb database = this.getExistingRrdDb(channel.address());
+				if (database == null) {
+					continue; // not existing -> abort
+				}
+
+				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+
+				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
+
+				FetchData data = request.fetchData();
+				// data.exportXml("/usr/lib/hy-control/" + channelAddress.getChannelId() +
+				// ".xml");
+
+				double first = Double.NaN;
+				double last = Double.NaN;
+
+				for (Double tmp : data.getValues(0)) {
+					if (Double.isNaN(first) && !Double.isNaN(tmp)) {
+						first = tmp;
+					}
+					if (!Double.isNaN(tmp)) {
+						last = tmp;
+					}
+				}
+
+				double value = last - first;
+
+				if (Double.isNaN(value)) {
+					table.put(channelAddress, JsonNull.INSTANCE);
+				} else {
+					table.put(channelAddress, new JsonPrimitive(value));
+				}
+
+			}
+		} catch (IOException | IllegalArgumentException e) {
+			throw new OpenemsException("Unable to read historic data: " + e.getMessage());
+		}
+		return table;
 	}
 
 	@Override
@@ -336,7 +383,7 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 		case VOLT_AMPERE_HOURS:
 		case VOLT_AMPERE_REACTIVE_HOURS:
 		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return new ChannelDef(DsType.GAUGE, Double.NaN, 1, ConsolFun.MAX);
+			return new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
 		}
 		throw new IllegalArgumentException("Unhandled Channel unit [" + channelUnit + "]");
 	}
