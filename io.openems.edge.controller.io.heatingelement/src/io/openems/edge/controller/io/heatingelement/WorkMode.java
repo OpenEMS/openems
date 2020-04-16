@@ -9,5 +9,9 @@ public enum WorkMode {
 	/**
 	 * kWh (= use at least Minimum kWh).
 	 */
-	KWH;
+	KWH,
+	/**
+	 * None (= only run on excess power, no guaranteed Minimum Time or kWh)
+	 */
+	NONE;
 }

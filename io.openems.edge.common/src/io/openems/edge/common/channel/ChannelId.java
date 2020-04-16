@@ -13,6 +13,29 @@ import com.google.common.base.CaseFormat;
 public interface ChannelId {
 
 	/**
+	 * Converts a Channel-ID in UPPER_UNDERSCORE format (like from an {@link Enum})
+	 * to the preferred UPPER_CAMEL format.
+	 * 
+	 * <p>
+	 * Examples: converts "ACTIVE_POWER" to "ActivePower".
+	 * 
+	 * <p>
+	 * Special reserved Channel-IDs starting with "_" have a special handling:
+	 * "_PROPERTY_ENABLED" is converted to "_PropertyEnabled".
+	 * 
+	 * @param name a Channel-ID in UPPER_UNDERSCORE format
+	 * @return the Channel-ID in UPPER_CAMEL format.
+	 */
+	public static String channelIdUpperToCamel(String name) {
+		if (name.startsWith("_")) {
+			// special handling for reserved Channel-IDs starting with "_".
+			return "_" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name.substring(1));
+		} else {
+			return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name);
+		}
+	}
+
+	/**
 	 * Gets the name in format {@link CaseFormat#UPPER_UNDERSCORE}. This is
 	 * available by default for an Enum.
 	 * 
@@ -29,12 +52,7 @@ public interface ChannelId {
 	 * @return the Channel-ID in CamelCase
 	 */
 	default String id() {
-		if (this.name().startsWith("_")) {
-			// special handling for reserved Channel-IDs starting with "_".
-			return "_" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name().substring(1));
-		} else {
-			return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name());
-		}
+		return channelIdUpperToCamel(this.name());
 	}
 
 	/**

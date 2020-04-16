@@ -127,8 +127,9 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
 	 * 
-	 * Internally updates updates the cache if necessary and publishes a
-	 * CONFIG_UPDATE event on update.
+	 * <p>
+	 * Internally updates the cache if necessary and publishes a CONFIG_UPDATE event
+	 * on update.
 	 * 
 	 * @return the {@link EdgeConfig} object
 	 */
