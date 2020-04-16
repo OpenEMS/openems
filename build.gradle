@@ -1,47 +1,15 @@
-// Available to customize the build
-
 plugins {
-    id "com.github.node-gradle.node" version "1.3.0"
-    id "org.ajoberstar.reckon" version "0.9.0"
+    id "com.github.node-gradle.node" version "2.2.3"
 }
 
 tasks.named('wrapper') {
   jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
-reckon {
-    scopeFromProp()
-    stageFromProp('dev', 'final')
-}
-
-/*
- * Updates the OpenemsConstants file with the generated Version number
- */
-task updateVersion {
-    doLast {
-        def openemsConstantsFilePath = 'io.openems.common/src/io/openems/common/OpenemsConstants.java'
-        exec {
-            commandLine 'git', 'checkout', 'HEAD', '--', openemsConstantsFilePath
-        }
-        def version = project.version.version.getVersion()
-        def versionString = version.getPreReleaseVersion()
-        if (!version.getBuildMetadata().isEmpty()) {
-            versionString += "+" + version.getBuildMetadata()
-        }
-        def openemsConstantsFile = new File(openemsConstantsFilePath)
-        def constants = openemsConstantsFile.getText('UTF-8')
-        constants = constants.replaceAll('(short VERSION_MAJOR = ).*;', '$1' + version.getMajorVersion() + ';')
-        constants = constants.replaceAll('(short VERSION_MINOR = ).*;', '$1' + version.getMinorVersion() + ';')
-        constants = constants.replaceAll('(short VERSION_PATCH = ).*;', '$1' + version.getPatchVersion() + ';')
-        //constants = constants.replaceAll('(String VERSION_STRING = \").+(\";)', '$1' + versionString + '$2')
-        openemsConstantsFile.write(constants, 'UTF-8')
-    }
-}
-
 /*
  * Build OpenEMS Edge and Backend Components
  */
-task buildComponents(dependsOn: updateVersion) {
+task buildComponents() {
     subprojects.each { proj ->
         if (proj.tasks.findAll { it.name == 'compileJava' }) {
             dependsOn(proj.compileJava)
@@ -52,14 +20,14 @@ task buildComponents(dependsOn: updateVersion) {
 /*
  * Build OpenEMS Edge fat-jar
  */
-task buildEdge(dependsOn: buildComponents) {
+task buildEdge() {
     dependsOn ":io.openems.edge.application:export.EdgeApp"
     doLast {
-        file("${buildDir}/hy-control.jar").delete()
+        file("${buildDir}/openems-edge.jar").delete()
         copy {
             from file("${project(":io.openems.edge.application").distsDir}/executable/EdgeApp.jar")
             into file("${buildDir}")
-            rename ("EdgeApp.jar", "hy-control.jar")
+            rename ("EdgeApp.jar", "openems-edge.jar")
         }
     }
 }
@@ -186,4 +154,4 @@ task buildAntoraDocs(dependsOn: copyBundleReadmes) {
             into "${buildDir}/www"
         }
     }
-}	
+}

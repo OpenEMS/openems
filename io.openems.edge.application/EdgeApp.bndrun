@@ -73,6 +73,7 @@
 	io.openems.edge.ess.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.core;version='[1.0.0,1.0.1)',\
 	io.openems.edge.kaco.blueplanet.hybrid10;version='[1.0.0,1.0.1)',\
+	io.openems.edge.meter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.scheduler.allalphabetically;version='[1.0.0,1.0.1)',\
 	io.openems.edge.scheduler.api;version='[1.0.0,1.0.1)',\
@@ -102,5 +103,4 @@
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.2,1.11.3)',\
 	org.osgi.service.event;version='[1.4.0,1.4.1)',\
 	org.osgi.service.metatype;version='[1.4.0,1.4.1)',\
-	rrd4j;version='[3.5.0,3.5.1)',\
-	io.openems.edge.meter.api;version='[1.0.0,1.0.1)'
+	rrd4j;version='[3.6.0,3.6.1)'

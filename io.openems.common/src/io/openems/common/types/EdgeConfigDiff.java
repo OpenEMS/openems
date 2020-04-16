@@ -12,7 +12,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SortedMapDifference;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.Change;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty;
@@ -139,15 +141,29 @@ public class EdgeConfigDiff {
 
 		private final Component component;
 		private final Change change;
+		private OldNewProperty lastChangeBy;
+		private OldNewProperty lastChangeAt;
 		protected TreeMap<String, OldNewProperty> properties = new TreeMap<>();
 
-		public ComponentDiff(Component component, Change change) {
+		public ComponentDiff(Component component, Change change, OldNewProperty lastChangeBy,
+				OldNewProperty lastChangeAt) {
 			this.component = component;
 			this.change = change;
+			this.lastChangeBy = lastChangeBy;
+			this.lastChangeAt = lastChangeAt;
 		}
 
 		public ComponentDiff add(String name, OldNewProperty property) {
-			this.properties.put(name, property);
+			switch (name) {
+			case OpenemsConstants.PROPERTY_LAST_CHANGE_BY:
+				this.lastChangeBy = property;
+				break;
+			case OpenemsConstants.PROPERTY_LAST_CHANGE_AT:
+				this.lastChangeAt = property;
+				break;
+			default:
+				this.properties.put(name, property);
+			}
 			return this;
 		}
 
@@ -175,7 +191,12 @@ public class EdgeConfigDiff {
 	 * @param properties  the properties
 	 */
 	private void addCreated(String componentId, Component component, Map<String, JsonElement> properties) {
-		ComponentDiff diff = new ComponentDiff(component, Change.CREATED);
+		ComponentDiff.OldNewProperty lastChangeBy = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
+				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)
+						.orElse(new JsonPrimitive("Apache Felix Webconsole")));
+		ComponentDiff.OldNewProperty lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
+				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_AT).orElse(JsonNull.INSTANCE));
+		ComponentDiff diff = new ComponentDiff(component, Change.CREATED, lastChangeBy, lastChangeAt);
 		for (Entry<String, JsonElement> entry : properties.entrySet()) {
 			diff.add(entry.getKey(), new ComponentDiff.OldNewProperty(JsonNull.INSTANCE, entry.getValue()));
 		}
@@ -190,7 +211,14 @@ public class EdgeConfigDiff {
 	 * @param properties  the properties
 	 */
 	private void addDeleted(String componentId, Component component, Map<String, JsonElement> properties) {
-		ComponentDiff diff = new ComponentDiff(component, Change.DELETED);
+		ComponentDiff.OldNewProperty lastChangeBy = new ComponentDiff.OldNewProperty(
+				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)
+						.orElse(new JsonPrimitive("Apache Felix Webconsole")),
+				JsonNull.INSTANCE);
+		ComponentDiff.OldNewProperty lastChangeAt = new ComponentDiff.OldNewProperty(
+				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_AT).orElse(JsonNull.INSTANCE),
+				JsonNull.INSTANCE);
+		ComponentDiff diff = new ComponentDiff(component, Change.DELETED, lastChangeBy, lastChangeAt);
 		for (Entry<String, JsonElement> entry : properties.entrySet()) {
 			diff.add(entry.getKey(), new ComponentDiff.OldNewProperty(entry.getValue(), JsonNull.INSTANCE));
 		}
@@ -205,7 +233,12 @@ public class EdgeConfigDiff {
 	 * @param properties  the properties
 	 */
 	private void addUpdated(String componentId, Component component, Map<String, OldNewProperty> properties) {
-		ComponentDiff diff = new ComponentDiff(component, Change.UPDATED);
+		ComponentDiff.OldNewProperty lastChangeBy = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
+				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)
+						.orElse(new JsonPrimitive("Apache Felix Webconsole")));
+		ComponentDiff.OldNewProperty lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
+				JsonNull.INSTANCE);
+		ComponentDiff diff = new ComponentDiff(component, Change.UPDATED, lastChangeBy, lastChangeAt);
 		for (Entry<String, OldNewProperty> property : properties.entrySet()) {
 			diff.add(property.getKey(), property.getValue());
 		}
@@ -236,30 +269,41 @@ public class EdgeConfigDiff {
 			b.append("<tr>");
 			// Change column
 			b.append(String.format("<td rowspan=\"%s\" style=\"vertical-align: top\">%s</td>",
-					component.properties.size(), component.change.toString()));
+					component.properties.size() + 2, component.change.toString()));
 			// Component-ID + Factory-PID column
-			b.append(String.format("<td rowspan=\"%s\" style=\"vertical-align: top\">", component.properties.size()));
+			b.append(String.format("<td rowspan=\"%s\" style=\"vertical-align: top\">",
+					component.properties.size() + 2));
 			b.append(componentId);
 			if (!component.component.getFactoryId().isEmpty()) {
 				b.append(String.format("<br/>(%s)", component.component.getFactoryId()));
 			}
 			b.append("</td>");
 
+			// LastChangeBy
+			{
+				String propertyName = OpenemsConstants.PROPERTY_LAST_CHANGE_BY;
+				OldNewProperty property = component.lastChangeBy;
+				String oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
+				String newP = property.newP.isJsonNull() ? "" : property.newP.toString();
+				b.append(String.format("<td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP)); // no <tr>!
+			}
+			// LastChangeAt
+			{
+				String propertyName = OpenemsConstants.PROPERTY_LAST_CHANGE_AT;
+				OldNewProperty property = component.lastChangeAt;
+				String oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
+				String newP = property.newP.isJsonNull() ? "" : property.newP.toString();
+				b.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP));
+			}
 			// Properties
-			boolean isFirstProperty = true;
 			for (Entry<String, OldNewProperty> propertyEntry : component.properties.entrySet()) {
 				String propertyName = propertyEntry.getKey();
 				OldNewProperty property = propertyEntry.getValue();
 				String oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
 				String newP = property.newP.isJsonNull() ? "" : property.newP.toString();
 
-				if (!isFirstProperty) {
-					b.append("<tr>");
-				}
-				b.append(String.format("<td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP));
-				isFirstProperty = false;
+				b.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP));
 			}
-			b.append("</tr>");
 		}
 
 		b.append("</tbody></table>");
@@ -306,7 +350,7 @@ public class EdgeConfigDiff {
 			if (change.isEmpty()) {
 				continue;
 			}
-			
+
 			b.append(component.change);
 			b.append(" ");
 			b.append(componentEntry.getKey());
