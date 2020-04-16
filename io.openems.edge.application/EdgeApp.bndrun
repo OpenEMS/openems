@@ -97,7 +97,7 @@
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
-	bnd.identity;id='io.openems.edge.meter.janitza.umg96rme',\
+	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
 	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
@@ -206,7 +206,7 @@
 	io.openems.edge.meter.bcontrol.em300;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.carlo.gavazzi.em300;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.discovergy;version='[1.0.0,1.0.1)',\
-	io.openems.edge.meter.janitza.umg96rme;version='[1.0.0,1.0.1)',\
+	io.openems.edge.meter.janitza;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.microcare.sdm630;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.pqplus.umd97;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.schneider.acti9.smartlink;version='[1.0.0,1.0.1)',\
