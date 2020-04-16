@@ -7,10 +7,10 @@ openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java
 
 git fetch openems develop
 git checkout develop
-git merge openems/develop
+git merge openems/develop --no-edit
 git push origin develop
 
-version="$(grep version ui/package.json | cut -d'"' -f4)"
+version="$(grep version ui/package.json | cut -d'"' -f4 | cut -d'-' -f1)"
 git flow release start "$version"
 bash tools/prepare-release.sh
 git add .
