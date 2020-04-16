@@ -1,7 +1,6 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title translate>Edge.Index.Widgets.Channeltreshold.Output
-        </ion-title>
+        <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -19,5 +18,18 @@
     <ion-card-content>
         <heatingelementChart [component]="component" [period]="service.historyPeriod">
         </heatingelementChart>
+    </ion-card-content>
+    <!-- Info Text -->
+    <ion-card-content class="underline">
+        <ion-row class="ion-justify-content-center">
+            <ion-item class="ion-text-center" lines="none">
+                <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+                <ion-label>
+                    <small>
+                        kWh unter der Annahme, dass das Thermostat nicht ausgeschaltet hat.
+                    </small>
+                </ion-label>
+            </ion-item>
+        </ion-row>
     </ion-card-content>
 </ion-content>

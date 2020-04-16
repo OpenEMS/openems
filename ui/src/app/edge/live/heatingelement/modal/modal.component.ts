@@ -23,6 +23,7 @@ export class HeatingElementModalComponent implements OnInit {
 
     public pickerOptions: any;
     public formGroup: FormGroup;
+    public allowMinimumHeating: boolean;
     public loading: boolean = false;
 
     constructor(
@@ -35,22 +36,28 @@ export class HeatingElementModalComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        if (this.component.properties['workMode'] == 'KWH' && this.component.properties['minKwh'] == 0) {
+            this.allowMinimumHeating = false;
+        } else if (this.component.properties['workMode'] == 'TIME' && this.component.properties['minTime'] == 0) {
+            this.allowMinimumHeating = false;
+        } else {
+            this.allowMinimumHeating = true;
+        }
         this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.component.id, [
-            new ChannelAddress(this.component.id, 'Level1Energy'),
-            new ChannelAddress(this.component.id, 'Level2Energy'),
-            new ChannelAddress(this.component.id, 'Level3Energy'),
-            new ChannelAddress(this.component.id, 'Level1Time'),
-            new ChannelAddress(this.component.id, 'Level2Time'),
-            new ChannelAddress(this.component.id, 'Level3Time'),
+            new ChannelAddress(this.component.id, 'TotalEnergy'),
         ]);
         this.formGroup = this.formBuilder.group({
             minTime: new FormControl(this.component.properties.minTime),
             minKwh: new FormControl(this.component.properties.minKwh),
             endTime: new FormControl(this.component.properties.endTime),
             workMode: new FormControl(this.component.properties.workMode),
-            defaultLevel: new FormControl(this.component.properties.defaultLevel)
+            defaultLevel: new FormControl(this.component.properties.defaultLevel),
         })
     };
+
+    switchAllowMinimumHeating(event: CustomEvent) {
+        this.allowMinimumHeating = event.detail.checked
+    }
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldMode = currentController.properties.mode;

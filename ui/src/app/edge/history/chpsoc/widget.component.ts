@@ -37,7 +37,6 @@ export class ChpSocWidgetComponent implements OnInit, OnChanges {
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-                console.log("componento", this.component)
                 this.inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
             })
         });
