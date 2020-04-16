@@ -84,7 +84,13 @@ public class BatteryHandlingController extends AbstractOpenemsComponent implemen
 
 	@Override
 	public String debugLog() {
-		return "State: " + stateObject.getState().getName() + "| Next State: " + stateObject.getNextState().getName();
+		State currentState = stateObject.getState();
+		State nextState = stateObject.getNextState();
+		if (currentState == nextState) {
+			return "State:" + currentState.getName();
+		} else {
+			return "Changing State from [" + currentState.getName() + "] to [" + nextState.getName() + "]";
+		}
 	}
 
 	protected void checkConfiguration(Config config) throws OpenemsException {
