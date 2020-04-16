@@ -1,6 +1,7 @@
 package io.openems.edge.controller.io.heatingelement;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -25,6 +26,11 @@ public class PhaseDef {
 	 * switchOff() and reset after midnight by getTotalDuration().
 	 */
 	private Duration duration = Duration.ZERO;
+
+	/**
+	 * Keeps the current day to detect changes in day.
+	 */
+	private LocalDate currentDay = LocalDate.MIN;
 
 	/**
 	 * Keeps the moment of the last switchOn().
@@ -75,17 +81,21 @@ public class PhaseDef {
 	 * @return the total elapsed time
 	 */
 	public Duration getTotalDuration() {
-		LocalTime now = LocalTime.now(this.parent.componentManager.getClock());
 
 		// Did we pass midnight?
-		if (this.lastSwitchOn != null && now.isBefore(this.lastSwitchOn)) {
+		LocalDate today = LocalDate.now(this.parent.componentManager.getClock());
+		if (!this.currentDay.equals(today)) {
 			// Always reset Duration
+			this.currentDay = today;
 			this.duration = Duration.ZERO;
-			this.lastSwitchOn = LocalTime.MIN;
+			if (this.lastSwitchOn != null) {
+				this.lastSwitchOn = LocalTime.MIN;
+			}
 		}
 
 		// Calculate and return the Duration
 		if (this.lastSwitchOn != null) {
+			LocalTime now = LocalTime.now(this.parent.componentManager.getClock());
 			return this.duration.plus(Duration.between(this.lastSwitchOn, now));
 		} else {
 			return this.duration;
