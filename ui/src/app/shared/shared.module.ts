@@ -13,7 +13,6 @@ import { IonicModule } from '@ionic/angular';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { KeysPipe } from './pipe/keys/keys.pipe';
 import { Language } from './translate/language';
-import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { NgModule } from '@angular/core';
 import { NgxLoadingModule } from 'ngx-loading';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
@@ -35,7 +34,6 @@ import { ToArray } from './pipe/toarray/toarray.pipe';
     CommonModule,
     FormsModule,
     IonicModule,
-    MyDateRangePickerModule,
     NgxLoadingModule,
     ReactiveFormsModule,
     RouterModule,
@@ -75,7 +73,6 @@ import { ToArray } from './pipe/toarray/toarray.pipe';
     FormlyModule,
     FormsModule,
     IonicModule,
-    MyDateRangePickerModule,
     NgxLoadingModule,
     ReactiveFormsModule,
     RouterModule,

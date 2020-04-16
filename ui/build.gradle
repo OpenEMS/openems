@@ -1,51 +1,10 @@
 apply plugin: 'com.github.node-gradle.node'
 
 /*
- * Updates the Version in the package.json file
- */
-task updatePackageJsonVersion {
-    doLast {
-        def path = 'package.json'
-        exec {
-            commandLine 'git', 'checkout', 'HEAD', '--', path
-        }
-        def file = new File("ui", path)
-        def content = file.getText('UTF-8')
-        content = content.replaceAll('(\"version": \").+(\",)', '$1' + project.version.toString() + '$2')
-        file.write(content, 'UTF-8')
-    }
-}
-
-/*
- * Updates the Version in the about.component.html file
- */
-task updateAboutComponentVersion {
-    doLast {
-        def path = 'src/app/about/about.component.html'
-        exec {
-            commandLine 'git', 'checkout', 'HEAD', '--', path
-        }
-        def file = new File("ui", path)
-        def content = file.getText('UTF-8')
-        content = content.replaceAll('(<span translate>About.Build</span>: ).+(</a>)', '$1' + project.version.toString() + '$2')
-        file.write(content, 'UTF-8')
-    }
-}
-
-/*
- * Updates the Version with the generated Version number
- */
-task updateVersion {
-    dependsOn updatePackageJsonVersion
-    dependsOn updateAboutComponentVersion
-}
-
-/*
  * Build OpenEMS UI for OpenEMS Backend
  */
 task buildForBackend(type: NodeTask) {
     dependsOn npmInstall
-    dependsOn updateVersion
     script = file("node_modules/@angular/cli/bin/ng")
     args = ["build", "-c", "backend"]
 }
@@ -55,7 +14,6 @@ task buildForBackend(type: NodeTask) {
  */
 task buildForEdge(type: NodeTask) {
     dependsOn npmInstall
-    dependsOn updateVersion
     script = file("node_modules/@angular/cli/bin/ng")
     args = ["build", "-c", "edge"]
 }

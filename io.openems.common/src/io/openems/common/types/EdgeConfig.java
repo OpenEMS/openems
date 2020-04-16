@@ -280,6 +280,10 @@ public class EdgeConfig {
 			return this.properties;
 		}
 
+		public Optional<JsonElement> getProperty(String propertyId) {
+			return Optional.ofNullable(this.properties.get(propertyId));
+		}
+
 		public Map<String, Channel> getChannels() {
 			return this.channels;
 		}
@@ -797,6 +801,10 @@ public class EdgeConfig {
 
 	public void removeComponent(String id) {
 		this.components.remove(id);
+	}
+
+	public Optional<Component> getComponent(String componentId) {
+		return Optional.ofNullable(this.components.get(componentId));
 	}
 
 	/**

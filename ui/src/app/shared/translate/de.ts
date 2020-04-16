@@ -4,6 +4,7 @@ export const TRANSLATION = {
         actualPower: 'E-Auto Beladung',
         autarchy: 'Autarkie',
         automatic: 'Automatisch',
+        cancel: 'abbrechen',
         capacity: 'Kapazität',
         changeAccepted: 'Änderung übernommen',
         changeFailed: 'Änderung fehlgeschlagen',
@@ -32,6 +33,7 @@ export const TRANSLATION = {
         noValue: 'Kein Wert',
         off: 'Aus',
         offGrid: 'Keine Netzverbindung!',
+        ok: 'ok',
         on: 'An',
         otherConsumption: 'Sonstiger',
         percentage: 'Prozent',
@@ -198,6 +200,17 @@ export const TRANSLATION = {
                         name: 'Erzwungene Beladung',
                         shortName: 'Manuell',
                     }
+                },
+                Heatingelement: {
+                    activeLevel: 'Aktives Level',
+                    endtime: 'Endzeit',
+                    energy: 'Energie',
+                    heatingelement: 'Heizelement',
+                    minimalEnergyAmount: 'Minimale Energiemenge',
+                    minimumRunTime: 'Mindestlaufzeit',
+                    priority: 'Priorität',
+                    time: 'Zeit',
+                    timeCountdown: 'Spätester Start',
                 }
             }
         },
