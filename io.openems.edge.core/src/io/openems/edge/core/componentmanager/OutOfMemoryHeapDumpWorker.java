@@ -31,33 +31,39 @@ public class OutOfMemoryHeapDumpWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
+		boolean foundhprof = false;
+
 		File currentWorkingDir = Paths.get("").toAbsolutePath().toFile();
 		File[] files = currentWorkingDir.listFiles();
-		Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+		// From the docs: 'files' is null if this abstract pathname does not denote a
+		// directory, or if an I/O error occurs.
+		if (files != null) {
 
-		boolean foundhprof = false;
-		for (File file : files) {
-			String filename = file.getName();
+			Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
 
-			// delete 'core' files
-			if (filename.equals("core")) {
-				// delete core files
-				this.delete(file);
-				continue;
-			}
+			for (File file : files) {
+				String filename = file.getName();
 
-			// delete all but the first *.hprof files
-			if (filename.endsWith(".hprof")) {
-				if (!foundhprof) {
-					foundhprof = true;
-				} else {
+				// delete 'core' files
+				if (filename.equals("core")) {
+					// delete core files
+					this.delete(file);
+					continue;
+				}
+
+				// delete all but the first *.hprof files
+				if (filename.endsWith(".hprof")) {
+					if (!foundhprof) {
+						foundhprof = true;
+					} else {
+						this.delete(file);
+					}
+				}
+
+				// delete all *.log files
+				if (filename.endsWith(".log")) {
 					this.delete(file);
 				}
-			}
-
-			// delete all *.log files
-			if (filename.endsWith(".log")) {
-				this.delete(file);
 			}
 		}
 
