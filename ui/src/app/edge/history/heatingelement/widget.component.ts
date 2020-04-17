@@ -1,5 +1,5 @@
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { HeatingelementModalComponent } from './modal/modal.component';
@@ -31,6 +31,7 @@ export class HeatingelementWidgetComponent implements OnInit, OnChanges {
         public modalCtrl: ModalController,
         public service: Service,
         private route: ActivatedRoute,
+        private websocket: Websocket,
     ) { }
 
     ngOnInit() {
@@ -38,6 +39,9 @@ export class HeatingelementWidgetComponent implements OnInit, OnChanges {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
+                this.edge.subscribeChannels(this.websocket, HeatingelementWidgetComponent.SELECTOR + this.component.id, [
+                    new ChannelAddress(this.component.id, 'TotalEnergy'),
+                ]);
             });
         });
     }
@@ -111,6 +115,12 @@ export class HeatingelementWidgetComponent implements OnInit, OnChanges {
             }
         });
         return await modal.present();
+    }
+
+    ngOnDestroy() {
+        if (this.edge != null) {
+            this.edge.unsubscribeChannels(this.websocket, HeatingelementWidgetComponent.SELECTOR + this.component.id);
+        }
     }
 }
 

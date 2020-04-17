@@ -145,7 +145,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
       if (label == 'Level') {
         return label + ": " + formatNumber(value, 'de', '1.0-0'); // TODO get locale dynamically
       } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + ' kWh'; // TODO get locale dynamically
+        return label + ": " + formatNumber(value, 'de', '1.0-1') + ' kWh'; // TODO get locale dynamically
       }
     }
     this.options = options;

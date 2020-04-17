@@ -45,6 +45,7 @@ import { SinglethresholdModalComponent } from './singlethreshold/modal/modal.com
 import { SinglethresholdComponent } from './singlethreshold/singlethreshold.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { StorageComponent } from './storage/storage.component';
+import { HeatingelementPopoverComponent } from './heatingelement/modal/popover/popover.page';
 
 @NgModule({
   imports: [
@@ -67,6 +68,7 @@ import { StorageComponent } from './storage/storage.component';
     FixDigitalOutputModalComponent,
     GridModalComponent,
     HeatingElementModalComponent,
+    HeatingelementPopoverComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -102,6 +104,7 @@ import { StorageComponent } from './storage/storage.component';
     GridModalComponent,
     HeatingElementComponent,
     HeatingElementModalComponent,
+    HeatingelementPopoverComponent,
     InfoComponent,
     LiveComponent,
     ModalComponentEvcsCluster,
