@@ -1,32 +1,50 @@
 <ion-card button (click)="presentModal()" *ngIf="component">
   <ion-item lines="full" color="light">
     <ion-icon slot="start" color="danger" name="flame"></ion-icon>
-    <ion-label *ngIf="component.alias != component.id">{{ component.alias }}</ion-label>
-    <ion-label *ngIf="component.alias == component.id">{{ component.id }}</ion-label>
+    <ion-label>{{ component.alias }}</ion-label>
   </ion-item>
-  <ion-card-content>
-    <table class="full_width">
-      <tr>
-        <td style="width:65%" translate>
-          Edge.History.activeDuration<span>&nbsp;L1</span></td>
-        <td style="width:35%" class="align_right">
-          {{ activeTimeOverPeriodL1 }}
-        </td>
-      </tr>
-      <tr>
-        <td style="width:65%" translate>
-          Edge.History.activeDuration<span>&nbsp;L2</span></td>
-        <td style="width:35%" class="align_right">
-          {{ activeTimeOverPeriodL2 }}
-        </td>
-      </tr>
-      <tr>
-        <td style="width:65%" translate>
-          Edge.History.activeDuration<span>&nbsp;L3</span></td>
-        <td style="width:35%" class="align_right">
-          {{ activeTimeOverPeriodL3 }}
-        </td>
-      </tr>
-    </table>
-  </ion-card-content>
+  <ng-container *ngIf="component && service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <ion-card-content>
+        <table class="full_width">
+          <tr>
+            <td style="width:65%" translate>
+              Edge.History.activeDuration<span>&nbsp;Level 1</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel1 / 60 > 59">
+              {{ activeTimeOverPeriodLevel1 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel1 / 60 < 59">
+              {{ activeTimeOverPeriodLevel1 * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+          <tr>
+            <td style="width:65%" translate>
+              Edge.History.activeDuration<span>&nbsp;Level 2</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel2 / 60 > 59">
+              {{ activeTimeOverPeriodLevel2 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel2 / 60 < 59">
+              {{ activeTimeOverPeriodLevel2 * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+          <tr class="underline">
+            <td style="width:65%" translate>
+              Edge.History.activeDuration<span>&nbsp;Level 3</span></td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 > 59">
+              {{ activeTimeOverPeriodLevel3 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+            </td>
+            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 < 59">
+              {{ activeTimeOverPeriodLevel3 * 1000 | date:'m':'UTC' }}&nbsp;m
+            </td>
+          </tr>
+          <tr>
+            <td style="width:65%">Abgegebene Energie</td>
+            <td style="width:35%" class="align_right">
+              {{ currentData.channel[component.id + '/TotalEnergy'] | unitvalue:'kWh' }}
+            </td>
+          </tr>
+        </table>
+      </ion-card-content>
+    </ng-container>
+  </ng-container>
 </ion-card>

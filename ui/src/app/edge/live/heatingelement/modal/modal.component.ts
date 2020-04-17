@@ -1,10 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { HeatingelementPopoverComponent } from './popover/popover.page';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
@@ -31,26 +32,33 @@ export class HeatingElementModalComponent implements OnInit {
         public router: Router,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
-        public formBuilder: FormBuilder
+        public formBuilder: FormBuilder,
+        public popoverController: PopoverController,
     ) { }
 
     ngOnInit() {
         this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.component.id, [
-            new ChannelAddress(this.component.id, 'Level1Energy'),
-            new ChannelAddress(this.component.id, 'Level2Energy'),
-            new ChannelAddress(this.component.id, 'Level3Energy'),
-            new ChannelAddress(this.component.id, 'Level1Time'),
-            new ChannelAddress(this.component.id, 'Level2Time'),
-            new ChannelAddress(this.component.id, 'Level3Time'),
+            new ChannelAddress(this.component.id, 'TotalEnergy'),
         ]);
         this.formGroup = this.formBuilder.group({
             minTime: new FormControl(this.component.properties.minTime),
             minKwh: new FormControl(this.component.properties.minKwh),
             endTime: new FormControl(this.component.properties.endTime),
             workMode: new FormControl(this.component.properties.workMode),
-            defaultLevel: new FormControl(this.component.properties.defaultLevel)
+            defaultLevel: new FormControl(this.component.properties.defaultLevel),
         })
     };
+
+    //allowMinimumHeating == workMode: none
+    switchAllowMinimumHeating(event: CustomEvent) {
+        if (event.detail.checked == true) {
+            this.formGroup.controls['workMode'].setValue('TIME');
+            this.formGroup.controls['workMode'].markAsDirty()
+        } else if (event.detail.checked == false) {
+            this.formGroup.controls['workMode'].setValue('NONE');
+            this.formGroup.controls['workMode'].markAsDirty()
+        }
+    }
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldMode = currentController.properties.mode;
@@ -123,7 +131,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.component.properties.endTime = this.formGroup.value.endTime;
                 this.component.properties.workMode = this.formGroup.value.workMode;
                 this.component.properties.defaultLevel = this.formGroup.value.defaultLevel;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 this.loading = false;
             }).catch(reason => {
                 this.formGroup.controls['minTime'].setValue(this.component.properties.minTime);
@@ -131,12 +139,21 @@ export class HeatingElementModalComponent implements OnInit {
                 this.formGroup.controls['endTime'].setValue(this.component.properties.endTime);
                 this.formGroup.controls['workMode'].setValue(this.component.properties.workMode);
                 this.formGroup.controls['defaultLevel'].setValue(this.component.properties.defaultLevel);
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
                 this.loading = false;
                 console.warn(reason);
             });
             this.formGroup.markAsPristine()
         }
+    }
+
+    async presentPopover(ev: any) {
+        const popover = await this.popoverController.create({
+            component: HeatingelementPopoverComponent,
+            event: ev,
+            translucent: true,
+        });
+        return await popover.present();
     }
 
     ngOnDestroy() {
