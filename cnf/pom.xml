@@ -158,7 +158,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.13</version>
+			<version>0.10.14</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
