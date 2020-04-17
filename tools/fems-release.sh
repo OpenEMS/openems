@@ -10,7 +10,7 @@ git checkout develop
 git merge openems/develop
 git push origin develop
 
-version="$(grep version ui/package.json | cut -d'"' -f4)"
+version="$(grep version ui/package.json | cut -d'"' -f4 | cut -d'-' -f1)"
 git flow release start "$version"
 bash tools/prepare-release.sh
 git add .
