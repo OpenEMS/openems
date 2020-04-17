@@ -1,10 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { HeatingelementPopoverComponent } from './popover/popover.page';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
@@ -31,7 +32,8 @@ export class HeatingElementModalComponent implements OnInit {
         public router: Router,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
-        public formBuilder: FormBuilder
+        public formBuilder: FormBuilder,
+        public popoverController: PopoverController,
     ) { }
 
     ngOnInit() {
@@ -143,6 +145,15 @@ export class HeatingElementModalComponent implements OnInit {
             });
             this.formGroup.markAsPristine()
         }
+    }
+
+    async presentPopover(ev: any) {
+        const popover = await this.popoverController.create({
+            component: HeatingelementPopoverComponent,
+            event: ev,
+            translucent: true,
+        });
+        return await popover.present();
     }
 
     ngOnDestroy() {

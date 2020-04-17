@@ -19,6 +19,9 @@ import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.c
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { GridComponent } from './grid/grid.component';
 import { GridModalComponent } from './grid/modal/modal.component';
+import { HeatingElementComponent } from './heatingelement/heatingelement.component';
+import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
+import { HeatingelementPopoverComponent } from './heatingelement/modal/popover/popover.page';
 import { InfoComponent } from './info/info.component';
 import { LiveComponent } from './live.component';
 import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
@@ -35,8 +38,6 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
-import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
-import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 
 @NgModule({
   imports: [
@@ -56,6 +57,7 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     FixDigitalOutputModalComponent,
     GridModalComponent,
     HeatingElementModalComponent,
+    HeatingelementPopoverComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -85,6 +87,7 @@ import { HeatingElementComponent } from './heatingelement/heatingelement.compone
     GridModalComponent,
     HeatingElementComponent,
     HeatingElementModalComponent,
+    HeatingelementPopoverComponent,
     InfoComponent,
     LiveComponent,
     ModalComponentEvcsCluster,
