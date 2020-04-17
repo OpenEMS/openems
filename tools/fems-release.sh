@@ -6,24 +6,28 @@ openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java
 
 
 git fetch openems develop
-
 git checkout develop
-
 git merge openems/develop
-
 git push origin develop
 
-major=$(grep 'VERSION_MAJOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
-minor=$(grep 'VERSION_MINOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
-patch=$(grep 'VERSION_PATCH =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
-version="${major}.${minor}.${patch}"
-
+version="$(grep version ui/package.json | cut -d'"' -f4 | cut -d'-' -f1)"
 git flow release start "$version"
-
 bash tools/prepare-release.sh
-
 git add .
-
+git status
 git commit -m "Push version to $version"
 
-git flow release finish "$version"
+git flow release finish "$version" -n
+git checkout develop
+bash tools/prepare-next-snapshot-patch.sh
+
+version="$(grep version ui/package.json | cut -d'"' -f4)"
+git add .
+git status
+git commit -m "Start development of version $version"
+
+git push -u origin develop
+git push -u origin master
+
+echo
+echo "FINISHED"
