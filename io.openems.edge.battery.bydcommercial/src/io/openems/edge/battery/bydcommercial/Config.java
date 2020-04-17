@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Byd.BatteryBox.Commercial.C130", //
+		name = "BatteryBox Commercial C130", //
 		description = "Implements the Byd Commercial C130 battery rack system.")
 public @interface Config {
 
