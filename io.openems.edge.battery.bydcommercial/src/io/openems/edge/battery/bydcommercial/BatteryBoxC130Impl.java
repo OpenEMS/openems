@@ -135,8 +135,6 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
@@ -179,6 +177,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) // [mA]
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
+						m(BatteryBoxC130.ChannelId.BATTERY_WORK_STATE, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), m(new UnsignedWordElement(0x2104)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
