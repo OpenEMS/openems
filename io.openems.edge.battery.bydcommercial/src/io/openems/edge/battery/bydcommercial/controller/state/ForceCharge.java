@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.BydCommercial;
+import io.openems.edge.battery.bydcommercial.BydCommercialBattery;
 import io.openems.edge.battery.bydcommercial.controller.IState;
 import io.openems.edge.battery.bydcommercial.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -19,7 +19,7 @@ public class ForceCharge extends BaseState implements IState {
 	private int reachableMinCellVoltage;
 	private LocalDateTime startTime = null;
 
-	public ForceCharge(ManagedSymmetricEss ess, BydCommercial bms, int chargePowerPercent, int chargingTime,
+	public ForceCharge(ManagedSymmetricEss ess, BydCommercialBattery bms, int chargePowerPercent, int chargingTime,
 			int reachableMinCellVoltage) {
 		super(ess, bms);
 		this.chargePowerPercent = chargePowerPercent;

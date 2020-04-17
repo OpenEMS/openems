@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.BydCommercial;
+import io.openems.edge.battery.bydcommercial.BydCommercialBattery;
 import io.openems.edge.battery.bydcommercial.controller.IState;
 import io.openems.edge.battery.bydcommercial.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -17,7 +17,7 @@ public class FullCharge extends BaseState implements IState {
 
 	private int criticalHighCellVoltage;
 
-	public FullCharge(ManagedSymmetricEss ess, BydCommercial bms, int criticalHighCellVoltage) {
+	public FullCharge(ManagedSymmetricEss ess, BydCommercialBattery bms, int criticalHighCellVoltage) {
 		super(ess, bms);
 		this.criticalHighCellVoltage = criticalHighCellVoltage;
 	}

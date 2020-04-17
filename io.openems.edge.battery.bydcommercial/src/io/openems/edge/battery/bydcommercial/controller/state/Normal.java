@@ -3,7 +3,7 @@ package io.openems.edge.battery.bydcommercial.controller.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.battery.bydcommercial.BydCommercial;
+import io.openems.edge.battery.bydcommercial.BydCommercialBattery;
 import io.openems.edge.battery.bydcommercial.controller.IState;
 import io.openems.edge.battery.bydcommercial.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -21,7 +21,7 @@ public class Normal extends BaseState implements IState {
 
 	public Normal(//
 			ManagedSymmetricEss ess, //
-			BydCommercial bms, //
+			BydCommercialBattery bms, //
 			int warningLowCellVoltage, //
 			int criticalHighCellVoltage, //
 			int warningSoC, //

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.battery.bydcommercial.BydCommercial;
+import io.openems.edge.battery.bydcommercial.BydCommercialBattery;
 import io.openems.edge.battery.bydcommercial.controller.BatteryHandlingController;
 import io.openems.edge.battery.bydcommercial.controller.IState;
 import io.openems.edge.common.channel.Channel;
@@ -24,9 +24,9 @@ public abstract class BaseState implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(BaseState.class);
 	private ManagedSymmetricEss ess;
-	private BydCommercial bms;
+	private BydCommercialBattery bms;
 
-	public BaseState(ManagedSymmetricEss ess, BydCommercial bms) {
+	public BaseState(ManagedSymmetricEss ess, BydCommercialBattery bms) {
 		this.ess = ess;
 		this.bms = bms;
 	}

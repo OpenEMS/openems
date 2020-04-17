@@ -7,7 +7,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 
-public interface BydCommercial extends Battery {
+public interface BydCommercialBattery extends Battery {
 	
 	public static final ZoneOffset ZONE_OFFSET = ZoneOffset.UTC;
 	public static final long NANOS = 0;

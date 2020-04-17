@@ -3,7 +3,7 @@ package io.openems.edge.battery.bydcommercial.controller.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.battery.bydcommercial.BydCommercial;
+import io.openems.edge.battery.bydcommercial.BydCommercialBattery;
 import io.openems.edge.battery.bydcommercial.controller.IState;
 import io.openems.edge.battery.bydcommercial.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -12,7 +12,7 @@ public class Undefined extends BaseState implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
-	public Undefined(ManagedSymmetricEss ess, BydCommercial bms) {
+	public Undefined(ManagedSymmetricEss ess, BydCommercialBattery bms) {
 		super(ess, bms);
 	}
 

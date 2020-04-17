@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.BydCommercial;
+import io.openems.edge.battery.bydcommercial.BydCommercialBattery;
 import io.openems.edge.battery.bydcommercial.controller.IState;
 import io.openems.edge.battery.bydcommercial.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -19,7 +19,7 @@ public class Check extends BaseState implements IState {
 	private int criticalLowCellVoltage;
 	private int startSoC = UNDEFINED_VALUE;
 
-	public Check(ManagedSymmetricEss ess, BydCommercial bms, int deltaSoC, long unusedTime,
+	public Check(ManagedSymmetricEss ess, BydCommercialBattery bms, int deltaSoC, long unusedTime,
 			int criticalLowCellVoltage) {
 		super(ess, bms);
 		this.deltaSoC = deltaSoC;

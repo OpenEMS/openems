@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.BydCommercial;
+import io.openems.edge.battery.bydcommercial.BydCommercialBattery;
 import io.openems.edge.battery.bydcommercial.controller.Config;
 import io.openems.edge.battery.bydcommercial.controller.IState;
 import io.openems.edge.battery.bydcommercial.controller.State;
@@ -19,7 +19,7 @@ public class StateController {
 		stateObjects = new HashMap<State, IState>();
 
 		ManagedSymmetricEss ess;
-		BydCommercial bms;
+		BydCommercialBattery bms;
 
 		ess = componentManager.getComponent(c.ess_id());
 		bms = componentManager.getComponent(c.bms_id());
