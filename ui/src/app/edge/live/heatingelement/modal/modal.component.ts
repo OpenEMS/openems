@@ -23,7 +23,6 @@ export class HeatingElementModalComponent implements OnInit {
 
     public pickerOptions: any;
     public formGroup: FormGroup;
-    public allowMinimumHeating: boolean;
     public loading: boolean = false;
 
     constructor(
@@ -36,13 +35,6 @@ export class HeatingElementModalComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        if (this.component.properties['workMode'] == 'KWH' && this.component.properties['minKwh'] == 0) {
-            this.allowMinimumHeating = false;
-        } else if (this.component.properties['workMode'] == 'TIME' && this.component.properties['minTime'] == 0) {
-            this.allowMinimumHeating = false;
-        } else {
-            this.allowMinimumHeating = true;
-        }
         this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.component.id, [
             new ChannelAddress(this.component.id, 'TotalEnergy'),
         ]);
@@ -55,8 +47,15 @@ export class HeatingElementModalComponent implements OnInit {
         })
     };
 
+    //allowMinimumHeating == workMode: none
     switchAllowMinimumHeating(event: CustomEvent) {
-        this.allowMinimumHeating = event.detail.checked
+        if (event.detail.checked == true) {
+            this.formGroup.controls['workMode'].setValue('TIME');
+            this.formGroup.controls['workMode'].markAsDirty()
+        } else if (event.detail.checked == false) {
+            this.formGroup.controls['workMode'].setValue('NONE');
+            this.formGroup.controls['workMode'].markAsDirty()
+        }
     }
 
     updateMode(event: CustomEvent, currentController: EdgeConfig.Component) {
@@ -130,7 +129,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.component.properties.endTime = this.formGroup.value.endTime;
                 this.component.properties.workMode = this.formGroup.value.workMode;
                 this.component.properties.defaultLevel = this.formGroup.value.defaultLevel;
-                this.service.toast(this.translate.instant('General.ChangeAccepted'), 'success');
+                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 this.loading = false;
             }).catch(reason => {
                 this.formGroup.controls['minTime'].setValue(this.component.properties.minTime);
@@ -138,7 +137,7 @@ export class HeatingElementModalComponent implements OnInit {
                 this.formGroup.controls['endTime'].setValue(this.component.properties.endTime);
                 this.formGroup.controls['workMode'].setValue(this.component.properties.workMode);
                 this.formGroup.controls['defaultLevel'].setValue(this.component.properties.defaultLevel);
-                this.service.toast(this.translate.instant('General.ChangeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
                 this.loading = false;
                 console.warn(reason);
             });

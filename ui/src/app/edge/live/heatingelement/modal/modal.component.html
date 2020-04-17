@@ -117,17 +117,17 @@
                                     </td>
                                     <td style="width: 35%" class="align_right">
                                         <ion-toggle (ionChange)="switchAllowMinimumHeating($event)"
-                                            [checked]="allowMinimumHeating">
+                                            [checked]="formGroup.value.workMode != 'NONE'">
                                         </ion-toggle>
                                     </td>
                                 </tr>
                             </table>
                         </ion-card-content>
-                        <ion-card-content *ngIf="allowMinimumHeating">
+                        <ion-card-content *ngIf="formGroup.value.workMode != 'NONE'">
                             <ion-grid>
                                 <ion-row class="ion-justify-content-center">
-                                    <ion-segment (ionChange)="updateWorkMode($event)"
-                                        [value]="component.properties['workMode']" class="small">
+                                    <ion-segment (ionChange)="updateWorkMode($event)" [value]="formGroup.value.workMode"
+                                        class="small">
                                         <ion-segment-button value="TIME">
                                             <ion-icon color="primary" name="sunny-outline">
                                             </ion-icon>
@@ -149,10 +149,10 @@
                                 <table class="full_width">
                                     <tr>
                                         <ion-range (ionChange)="updateMinTime($event)" style="width: 100%" color="dark"
-                                            pin="true" min="0" max="10" style="padding-top: 8px;"
+                                            pin="true" min="1" max="10" style="padding-top: 8px;"
                                             [value]="component.properties.minTime" debounce="500">
                                             <ion-label slot="start">
-                                                {{ 0 | unitvalue:'H'}}
+                                                {{ 1 | unitvalue:'H'}}
                                             </ion-label>
                                             <ion-label slot="end">
                                                 {{ 10 | unitvalue:'H'}}
@@ -175,11 +175,11 @@
                             <ng-container *ngIf="formGroup.value.workMode == 'KWH'">
                                 <table class="full_width">
                                     <tr>
-                                        <ion-range (ionChange)="updateMinKwh($event)" style="width: 100%" min="0"
+                                        <ion-range (ionChange)="updateMinKwh($event)" style="width: 100%" min="1"
                                             max="60" color="dark" pin="true" style="padding-top: 8px;" debounce="500"
                                             [value]="component.properties.minKwh">
                                             <ion-label slot="start">
-                                                {{ 0 | unitvalue:'kWh'}}
+                                                {{ 1000 | unitvalue:'kWh'}}
                                             </ion-label>
                                             <ion-label slot="end">
                                                 {{ 60000 | unitvalue:'kWh'}}
