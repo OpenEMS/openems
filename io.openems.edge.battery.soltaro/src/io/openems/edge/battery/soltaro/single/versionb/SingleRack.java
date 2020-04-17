@@ -112,6 +112,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
+				SoltaroBattery.ChannelId.values(), //
 				SingleRackChannelId.values() //
 		);
 	}
