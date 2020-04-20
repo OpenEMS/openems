@@ -4,10 +4,18 @@ import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { TranslateService } from '@ngx-translate/core';
+import { interval, Subject, fromEvent } from 'rxjs';
+import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 
 export abstract class AbstractHistoryChart {
 
+
     public loading: boolean = true;
+
+    protected refreshChartData = interval(300000);
+    protected refreshChartHeight = fromEvent(window, 'resize', null, null);
+
+    protected ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
@@ -68,6 +76,20 @@ export abstract class AbstractHistoryChart {
                 })
             });
         });
+    }
+
+    protected subscribeChartRefresh() {
+        this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            this.updateChart()
+        })
+        this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+            this.getChartHeight();
+        });
+    }
+
+    protected unsubscribeChartRefresh() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     /**

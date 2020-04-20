@@ -35,6 +35,11 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
+        this.subscribeChartRefresh();
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {

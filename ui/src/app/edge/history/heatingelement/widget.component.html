@@ -27,7 +27,7 @@
               {{ activeTimeOverPeriodLevel2 * 1000 | date:'m':'UTC' }}&nbsp;m
             </td>
           </tr>
-          <tr class="underline">
+          <tr>
             <td style="width:65%" translate>
               Edge.History.activeDuration<span>&nbsp;Level 3</span></td>
             <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 > 59">
@@ -35,12 +35,6 @@
             </td>
             <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 < 59">
               {{ activeTimeOverPeriodLevel3 * 1000 | date:'m':'UTC' }}&nbsp;m
-            </td>
-          </tr>
-          <tr>
-            <td style="width:65%">Abgegebene Energie</td>
-            <td style="width:35%" class="align_right">
-              {{ currentData.channel[component.id + '/TotalEnergy'] | unitvalue:'kWh' }}
             </td>
           </tr>
         </table>

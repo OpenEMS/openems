@@ -1,18 +1,17 @@
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { HeatingelementModalComponent } from './modal/modal.component';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { ModalController } from '@ionic/angular';
-import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class HeatingelementWidgetComponent implements OnInit, OnChanges {
+export class HeatingelementWidgetComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
@@ -31,71 +30,80 @@ export class HeatingelementWidgetComponent implements OnInit, OnChanges {
         public modalCtrl: ModalController,
         public service: Service,
         private route: ActivatedRoute,
-        private websocket: Websocket,
-    ) { }
+    ) {
+        super(service);
+    }
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-                this.edge.subscribeChannels(this.websocket, HeatingelementWidgetComponent.SELECTOR + this.component.id, [
-                    new ChannelAddress(this.component.id, 'TotalEnergy'),
-                ]);
             });
         });
+        this.subscribeValueRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeValueRefresh()
     }
 
     ngOnChanges() {
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to);
+        this.updateValues();
     };
 
-    queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
-        return new Promise((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                this.getChannelAddresses().then(channelAddresses => {
-                    let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
-                    edge.sendRequest(this.service.websocket, request).then(response => {
-                        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+    protected updateValues() {
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
+            let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-                        let Level1Time = result.data[this.componentId + '/Level1Time'];
-                        let Level2Time = result.data[this.componentId + '/Level2Time']
-                        let Level3Time = result.data[this.componentId + '/Level3Time']
+            let Level1Time = result.data[this.componentId + '/Level1Time'];
+            let Level2Time = result.data[this.componentId + '/Level2Time'];
+            let Level3Time = result.data[this.componentId + '/Level3Time'];
 
-                        // takes last value as active time in seconds
-                        for (let value of Level1Time.reverse()) {
-                            if (value != null && value != 0) {
-                                this.activeTimeOverPeriodLevel1 = value;
-                                break;
-                            }
-                        }
+            let lastValueLevel1 = null;
+            let lastValueLevel2 = null;
+            let lastValueLevel3 = null;
 
-                        for (let value of Level2Time.reverse()) {
-                            if (value != null && value != 0) {
-                                this.activeTimeOverPeriodLevel2 = value;
-                                break;
-                            }
-                        }
+            let sumLevel1 = 0;
+            let sumLevel2 = 0;
+            let sumLevel3 = 0;
 
-                        for (let value of Level3Time.reverse()) {
-                            if (value != null && value != 0) {
-                                this.activeTimeOverPeriodLevel3 = value;
-                                break;
-                            }
-                        }
+            for (let value of Level1Time.slice().reverse()) {
+                if (value == null) {
+                    continue;
+                }
+                if (lastValueLevel1 == null || value > lastValueLevel1) {
+                    sumLevel1 += value;
+                }
+                lastValueLevel1 = value;
+            }
+            this.activeTimeOverPeriodLevel1 = sumLevel1;
 
-                        if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
-                            resolve(response as QueryHistoricTimeseriesDataResponse);
-                        } else {
-                            reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
-                        }
-                    }).catch(reason => reject(reason));
-                })
-            });
+            for (let value of Level2Time.slice().reverse()) {
+                if (value == null) {
+                    continue;
+                }
+                if (lastValueLevel2 == null || value > lastValueLevel2) {
+                    sumLevel2 += value;
+                }
+                lastValueLevel2 = value;
+            }
+            this.activeTimeOverPeriodLevel2 = sumLevel2;
+
+            for (let value of Level3Time.slice().reverse()) {
+                if (value == null) {
+                    continue;
+                }
+                if (lastValueLevel3 == null || value > lastValueLevel3) {
+                    sumLevel3 += value;
+                }
+                lastValueLevel3 = value;
+            }
+            this.activeTimeOverPeriodLevel3 = sumLevel3;
         });
-    }
+    };
 
-    getChannelAddresses(): Promise<ChannelAddress[]> {
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channeladdresses = [
                 new ChannelAddress(this.componentId, 'Level1Time'),
@@ -116,11 +124,4 @@ export class HeatingelementWidgetComponent implements OnInit, OnChanges {
         });
         return await modal.present();
     }
-
-    ngOnDestroy() {
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, HeatingelementWidgetComponent.SELECTOR + this.component.id);
-        }
-    }
 }
-
