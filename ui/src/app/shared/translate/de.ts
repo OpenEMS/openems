@@ -88,6 +88,18 @@ export const TRANSLATION = {
         connectionSuccessful: 'Verbindung zu {{value}} hergestellt.', // value = name of websocket
         isOffline: 'OpenEMS ist offline!',
         toEnergymonitor: 'Zum Energiemonitor...',
+        PleaseLogin: "Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich anzumelden.",
+        Username: "Benutzername / Email",
+        Password: "Passwort",
+        LostPassword: "Passwort vergessen",
+        FormInvalid: "Bitte füllen Sie das Formular komplett aus.",
+        Connecting: "Verbindung wird aufgebaut.",
+        LoginWrong: "Benutzername / Passwort falsch.",
+        NotOnline: "Das Gerät ist nicht verbunden.",
+        Type: "Typ:",
+        ConnectedAs: "Angemeldet als:",
+        MoreDevices: "Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.",
+        SaveLogin: "Login Daten speichern"
     },
     Edge: {
         Index: {
@@ -349,5 +361,19 @@ export const TRANSLATION = {
         Step4: "Software Update wird runtergeladen...",
         Step5: "Software Update wird installiert...",
         Step6: "Update wird rückgängig gemacht...",
+    },
+    Alerts: {
+        Error: "Fehler",
+        Default: "Etwas is schief gelaufen. Bitte versuchen Sie es noch einmal.",
+        RetrievePwdHeader: "Passwort vergessen",
+        RetrievePwdMsg: "Bitte geben Sie Ihre(n) Email / Benutzernamen um ein neues Passwort zu erstellen.",
+        RetrievePwdPlaceholder: "Email/Benutzername",
+        Cancel: "Abbrechen",
+        Send: "Senden",
+        RetrievePwdSent: "Ein Link zur Wiederherstellung Ihres Passworts wurde an Sie gesendet. Bitte überprüfen Sie Ihre Emails.",
+        RetrievePwdError: "Bei der Wiederherstellung Ihres Passworts is ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Eingabe und versuchen es erneut.",
+        ClearLoginHeader: "Login Daten löschen",
+        ClearLoginMsg: "Wenn Sie Ihre Login Daten löschen, müssen Sie Ihren Benutzernamen und Ihr Passwort bei der nächsten Anmeldung erneut eingeben. Jetz Login Daten löschen?",
+        ClearLoginDone: "Login Daten gelöscht."
     }
 }
