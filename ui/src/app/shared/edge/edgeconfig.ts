@@ -127,9 +127,11 @@ export class EdgeConfig {
     public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
         let result = [];
         let nature = this.natures[natureId];
-        for (let factoryId of nature.factoryIds) {
-            if (factoryId in this.factories) {
-                result.push(this.factories[factoryId])
+        if (nature) {
+            for (let factoryId of nature.factoryIds) {
+                if (factoryId in this.factories) {
+                    result.push(this.factories[factoryId])
+                }
             }
         }
         return result;
