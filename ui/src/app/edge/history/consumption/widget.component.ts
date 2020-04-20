@@ -35,7 +35,7 @@ export class ConsumptionComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges() {
-        this.updateValues();
+        //this.updateValues();
     };
 
     updateValues() {
