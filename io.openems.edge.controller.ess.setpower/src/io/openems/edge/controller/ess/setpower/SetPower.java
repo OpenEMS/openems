@@ -92,13 +92,14 @@ public class SetPower extends AbstractOpenemsComponent implements Controller, Op
 
 		// adjust value so that it fits into Min/MaxActivePower
 		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-				requiredPower);
-
+				-requiredPower);
+		if (this.config.invert()) {
+			requiredPower = (-1) * requiredPower;
+		}
 		/*
 		 * set result
 		 */
-		ess.addPowerConstraintAndValidate("SetPower", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				calculatedPower);
+		ess.addPowerConstraintAndValidate("SetPower", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, calculatedPower);
 
 	}
 }

@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller io.openems.edge.controller.ess.setpower", //
+		name = "Controller Set Power", //
 		description = "")
 @interface Config {
 
@@ -22,6 +22,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is within a configured threshold, the output channel is switched ON.")
 	String inputChannelAddress();
+
+	@AttributeDefinition(name = "Invert Charge behaviour", description = "If this option is activated the behaviour is inverted, i.e according to grid meter instead charge has to discharge")
+	boolean invert() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Set Power [{id}]";
 

@@ -9,7 +9,6 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
@@ -20,11 +19,13 @@ public class SetPowerTest {
 
 		private final String inputChannelAddress;
 		private final String ess_id;
+		private final Boolean invert;
 
-		public MyConfig(String id, String inputChannelAddress, String ess_id) {
+		public MyConfig(String id, String inputChannelAddress, String ess_id, Boolean invert) {
 			super(Config.class, id);
 			this.inputChannelAddress = inputChannelAddress;
 			this.ess_id = ess_id;
+			this.invert = invert;
 		}
 
 		@Override
@@ -35,6 +36,11 @@ public class SetPowerTest {
 		@Override
 		public String ess_id() {
 			return this.ess_id;
+		}
+
+		@Override
+		public boolean invert() {
+			return this.invert;
 		}
 
 	}
@@ -53,7 +59,7 @@ public class SetPowerTest {
 		ChannelAddress output0 = new ChannelAddress("ess0", "ActivePower");
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", input0.toString(), "ess0");
+		MyConfig config = new MyConfig("ctrl0", input0.toString(), "ess0", false);
 		controller.activate(null, config);
 		controller.activate(null, config);
 		ManagedSymmetricEss essComponent = new DummyManagedSymmetricEss("ess0");
