@@ -26,8 +26,10 @@
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='io.openems.edge.application',\
+	bnd.identity;id='io.openems.edge.battery.microcare.ubmu',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
+	bnd.identity;id='io.openems.edge.bridge.mccomms',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
@@ -132,7 +134,9 @@
 	io.openems.edge.application;version='[1.0.0,1.0.1)',\
 	io.openems.edge.battery.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.battery.soltaro;version='[1.0.0,1.0.1)',\
+	io.openems.edge.battery.microcare.ubmu;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.mbus;version='[1.0.0,1.0.1)',\
+	io.openems.edge.bridge.mccomms;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.modbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.onewire;version='[1.0.0,1.0.1)',\
 	io.openems.edge.common;version='[1.0.0,1.0.1)',\

@@ -1,0 +1,27 @@
+Bundle-Name: OpenEMS Edge Bridge Microcare MC-Comms
+Bundle-Vendor: Microcare
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: io.openems.edge.controller.api
+Private-Package:  \
+	io.openems.edge.bridge.mccomms
+	
+Export-Package: \
+	io.openems.edge.bridge.mccomms,\
+	io.openems.edge.bridge.mccomms.api,\
+	io.openems.edge.bridge.mccomms.packet,\
+	io.openems.edge.bridge.mccomms.task
+	
+-includeresource: {readme.adoc}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.edge.common;version=latest,\
+	com.google.guava,\
+	com.fazecast.jSerialComm;version=2.5.1,\
+	io.openems.common;version=latest,\
+	slf4j.api
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
