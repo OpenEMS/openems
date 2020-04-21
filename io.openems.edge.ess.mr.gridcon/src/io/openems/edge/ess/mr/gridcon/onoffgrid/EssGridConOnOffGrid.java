@@ -52,7 +52,7 @@ public class EssGridConOnOffGrid extends EssGridcon
 	void activate(ComponentContext context, Config c) throws OpenemsNamedException {
 		this.config = c;
 		EssGridConOnOffGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.gridcon_id(), c.bms_a_id(),
-				c.bms_b_id(), c.bms_c_id());
+				c.bms_b_id(), c.bms_c_id(), c.offsetCurrent());
 		this.checkConfiguration(config);
 	}
 
@@ -133,6 +133,7 @@ public class EssGridConOnOffGrid extends EssGridcon
 				, config.meter_id()
 				, config.deltaFrequency()
 				, config.deltaVoltage()
+				, config.offsetCurrent()
 				);
 	}
 }

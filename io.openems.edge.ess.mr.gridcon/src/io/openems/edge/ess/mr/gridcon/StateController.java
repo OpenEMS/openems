@@ -24,13 +24,14 @@ public class StateController {
 			boolean enableIPU2, //
 			boolean enableIPU3, //
 			ParameterSet parameterSet, //
-			String hardRestartRelayAdress
+			String hardRestartRelayAdress, //
+			float offsetCurrent
 			) {
 	
 		stateObjects = new HashMap<IState, StateObject>();
 
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Stopped(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, hardRestartRelayAdress));
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Run(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, hardRestartRelayAdress));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Run(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, hardRestartRelayAdress, offsetCurrent));
 		StateObject gridconUndefined = new io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined(manager, gridconPCS, b1, b2, b3, hardRestartRelayAdress);
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED, gridconUndefined );
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Error(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, hardRestartRelayAdress));
@@ -55,18 +56,18 @@ public class StateController {
 			String inputNAProtection1, boolean na1Inverted, String inputNAProtection2, boolean na2Inverted,
 			String inputSyncDeviceBridge, boolean inputSyncDeviceBridgeInverted, String outputSyncDeviceBridge,
 			boolean outputSyncDeviceBridgeInverted, String outputHardReset, boolean outputHardResetInverted,
-			float targetFrequencyOnGrid, float targetFrequencyOffGrid, String meterId, float deltaFrequency, float deltaVoltage) {
+			float targetFrequencyOnGrid, float targetFrequencyOffGrid, String meterId, float deltaFrequency, float deltaVoltage, //
+			float offsetCurrent) {
 		
 		
 		stateObjects = new HashMap<IState, StateObject>();
 		
 		// State objects for gridcon in ongrid mode
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Stopped(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, outputHardReset));
-		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Run(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, outputHardReset));
+		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Run(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, outputHardReset, offsetCurrent));
 		StateObject gridconUndefined = new io.openems.edge.ess.mr.gridcon.state.gridconstate.Undefined(manager, gridconPCS, b1, b2, b3, outputHardReset);
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED, gridconUndefined );
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR, new io.openems.edge.ess.mr.gridcon.state.gridconstate.Error(manager, gridconPCS, b1, b2, b3, enableIPU1, enableIPU2, enableIPU3, parameterSet, outputHardReset));
-		
 		
 		
 		stateObjects.put(io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnOffGridState.UNDEFINED, new io.openems.edge.ess.mr.gridcon.state.onoffgrid.Undefined(manager, condition, gridconPCS, b1, b2, b3, inputNAProtection1, inputNAProtection2, inputSyncDeviceBridge, outputSyncDeviceBridge, meterId));

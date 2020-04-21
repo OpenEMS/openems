@@ -50,7 +50,7 @@ public class EssGridConOnGrid extends EssGridcon
 	void activate(ComponentContext context, Config c) throws OpenemsNamedException {
 		this.config = c;
 		EssGridConOnGrid.super.activate(context, c.id(), c.alias(), c.enabled(), c.gridcon_id(), c.bms_a_id(),
-				c.bms_b_id(), c.bms_c_id());
+				c.bms_b_id(), c.bms_c_id(), c.offsetCurrent());
 		this.checkConfiguration(config);
 	}
 
@@ -91,6 +91,6 @@ public class EssGridConOnGrid extends EssGridcon
 	@Override
 	protected void initializeStateController(String gridconPCS, String b1, String b2, String b3) {
 		StateController.initOnGrid(componentManager, gridconPCS, b1, b2, b3, config.enableIPU1(), config.enableIPU2(),
-				config.enableIPU3(), config.parameterSet(), config.outputHardReset());		
+				config.enableIPU3(), config.parameterSet(), config.outputHardReset(), config.offsetCurrent());		
 	}
 }

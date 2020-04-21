@@ -298,4 +298,22 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public void setIRefStringA(Float current) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIRefStringB(Float current) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIRefStringC(Float current) {
+		// TODO Auto-generated method stub
+		
+	}
 }

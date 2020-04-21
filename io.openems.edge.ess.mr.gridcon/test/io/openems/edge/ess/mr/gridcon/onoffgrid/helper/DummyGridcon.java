@@ -37,6 +37,9 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	private Float weightB;
 	private Float weightC;
 	private int stringControlMode;
+	private Float iRefA;
+	private Float iRefB;
+	private Float iRefC;
 	
 	private float dcLinkVoltage;
 	private double efficiencyLossDischargeFactor = 0;
@@ -352,6 +355,21 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 
 	public float getSetVoltage() {
 		return GridconPCS.DEFAULT_GRID_VOLTAGE * u0;
+	}
+
+	@Override
+	public void setIRefStringA(Float current) {
+		this.iRefA = current;
+	}
+
+	@Override
+	public void setIRefStringB(Float current) {
+		this.iRefB = current;
+	}
+
+	@Override
+	public void setIRefStringC(Float current) {
+		this.iRefC = current;
 	}
 
 }

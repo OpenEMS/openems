@@ -66,6 +66,15 @@ public class DcDcParameter {
 	public float getiRefStringC() {
 		return iRefStringC;
 	}
+	public void setiRefStringA(float iRefStringA) {
+		this.iRefStringA = iRefStringA;
+	}
+	public void setiRefStringB(float iRefStringB) {
+		this.iRefStringB = iRefStringB;
+	}
+	public void setiRefStringC(float iRefStringC) {
+		this.iRefStringC = iRefStringC;
+	}
 	@Override
 	public String toString() {
 		return "DcDcParameter [dcVoltageSetpoint=" + dcVoltageSetpoint + ", weightStringA=" + weightStringA

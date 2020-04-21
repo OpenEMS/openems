@@ -65,6 +65,9 @@ public interface GridconPCS {
 	void setWeightStringA(Float weight);
 	void setWeightStringB(Float weight);
 	void setWeightStringC(Float weight);
+	void setIRefStringA(Float current);
+	void setIRefStringB(Float current);
+	void setIRefStringC(Float current);
 	void setStringControlMode(int stringControlMode);
 	
 	int getErrorCount();

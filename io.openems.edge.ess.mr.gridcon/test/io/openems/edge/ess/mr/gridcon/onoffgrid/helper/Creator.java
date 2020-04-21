@@ -18,6 +18,7 @@ public class Creator {
 	public static final boolean ENABLE_IPU_1 = true;
 	public static final boolean ENABLE_IPU_2 = true;
 	public static final boolean ENABLE_IPU_3 = true;
+	public static final float OFFSET_CURRENT = 0;
 	public static final String INPUT_NA_PROTECTION_1 = "io0/DigitalInputM1C1";
 	public static final boolean INPUT_NA_PROTECTION_1_INVERTED = false;
 	public static final String INPUT_NA_PROTECTION_2 = "io0/DigitalInputM1C2";
@@ -179,6 +180,11 @@ public class Creator {
 			@Override
 			public float deltaVoltage() {
 				return DELTA_VOLTAGE;
+			}
+
+			@Override
+			public float offsetCurrent() {
+				return OFFSET_CURRENT;
 			}
 		};
 	}

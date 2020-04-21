@@ -42,12 +42,14 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	String bmsAId;
 	String bmsBId;
 	String bmsCId;
+	private float offsetCurrent;
 
 	protected io.openems.edge.ess.mr.gridcon.StateObject stateObject = null;
 
 	protected abstract ComponentManager getComponentManager();
 
 	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
+
 
 	public EssGridcon(io.openems.edge.common.channel.ChannelId[] otherChannelIds) {
 		super(//
@@ -62,7 +64,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	}
 
 	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridconId,
-			String bmsA, String bmsB, String bmsC) throws OpenemsNamedException {
+			String bmsA, String bmsB, String bmsC, float offsetCurrent) throws OpenemsNamedException {
 		
 		super.activate(context, id, alias, enabled);
 		
@@ -70,6 +72,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		this.bmsAId = bmsA;
 		this.bmsBId = bmsB;
 		this.bmsCId = bmsC;
+		this.offsetCurrent = offsetCurrent;
 
 		initializeStateController(gridconId, bmsA, bmsB, bmsC);
 		stateObject = getFirstStateObjectUndefined();		
@@ -165,11 +168,9 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		int maxCellVoltageMilliVolt = (int) (maxCellVoltage * 1000);
 
 		getMinCellVoltage().setNextValue(minCellVoltageMilliVolt);
-
-		//TODO uncomment after merge, because ess should have these values
-//		getMaxCellVoltage().setNextValue(maxCellVoltageMilliVolt);
-//		getMinCellTemperature().setNextValue(minCellTemperature);
-//		getMaxCellTemperature().setNextValue(maxCellTemperature);
+		getMaxCellVoltage().setNextValue(maxCellVoltageMilliVolt);
+		getMinCellTemperature().setNextValue(minCellTemperature);
+		getMaxCellTemperature().setNextValue(maxCellTemperature);
 
 	}
 
@@ -231,12 +232,18 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	protected void calculateAllowedPower() {
 		double allowedCharge = 0;
 		double allowedDischarge = 0;
-
+		
+		int offset = (int) Math.ceil(Math.abs(this.offsetCurrent));
+		
 		for (SoltaroBattery battery : getBatteries()) {
 			Integer maxChargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getChargeMaxCurrent().value().get());
+			maxChargeCurrent = maxChargeCurrent - offset; // Reduce the max power by the value for the offset current
+			maxChargeCurrent = Math.max(maxChargeCurrent, 0);  
 			allowedCharge += battery.getVoltage().value().get() * maxChargeCurrent * -1;
 			
 			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getDischargeMaxCurrent().value().get());
+			maxDischargeCurrent = maxDischargeCurrent - offset; // Reduce the max power by the value for the offset current
+			maxDischargeCurrent = Math.max(maxDischargeCurrent, 0);
 			allowedDischarge += battery.getVoltage().value().get() * maxDischargeCurrent;
 		}
 		

@@ -1161,6 +1161,21 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
+	public void setIRefStringA(Float current) {
+		DcDcParameter.getDcdcParameter().setiRefStringA(current);
+	}
+
+	@Override
+	public void setIRefStringB(Float current) {
+		DcDcParameter.getDcdcParameter().setiRefStringB(current);
+	}
+
+	@Override
+	public void setIRefStringC(Float current) {
+		DcDcParameter.getDcdcParameter().setiRefStringC(current);
+	}
+	
+	@Override
 	public void enableDCDC() {
 		switch (inverterCount) {
 		case ONE:

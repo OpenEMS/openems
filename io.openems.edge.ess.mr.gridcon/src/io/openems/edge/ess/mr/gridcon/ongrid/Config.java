@@ -40,6 +40,9 @@ public @interface Config {
 	
 	@AttributeDefinition(name = "Enable IPU 3", description = "IPU 3 is enabled")
 	boolean enableIPU3() default false;
+	
+	@AttributeDefinition(name = "Offset Current", description = "An offset current is put on the rack with the highest cell voltage")
+	float offsetCurrent() default 0;
 
 	@AttributeDefinition(name = "Parameter Set", description = "Parameter Set")
 	ParameterSet parameterSet() default ParameterSet.SET_1;
