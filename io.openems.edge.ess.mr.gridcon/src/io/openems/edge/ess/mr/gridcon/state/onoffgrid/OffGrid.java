@@ -4,6 +4,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.IState;
+import io.openems.edge.ess.mr.gridcon.WeightingHelper;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class OffGrid extends BaseState {
@@ -53,6 +54,15 @@ public class OffGrid extends BaseState {
 		getGridconPCS().setBlackStartApproval(true);
 		getGridconPCS().setSyncApproval(false);
 		getGridconPCS().setModeSelection(Mode.VOLTAGE_CONTROL);
+		
+		// Set weighting to strings, use a fix value for active power because in
+		// off grid mode it is always discharging
+		float activePower = 1000; 
+		Float[] weightings = WeightingHelper.getWeighting(activePower, getBattery1(), getBattery2(), getBattery3());
+		
+		getGridconPCS().setWeightStringA(weightings[0]);
+		getGridconPCS().setWeightStringB(weightings[1]);
+		getGridconPCS().setWeightStringC(weightings[2]);
 		
 		try {
 			getGridconPCS().doWriteTasks();
