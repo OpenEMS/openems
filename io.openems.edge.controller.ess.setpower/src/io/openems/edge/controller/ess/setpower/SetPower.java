@@ -7,8 +7,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -30,8 +28,6 @@ import io.openems.edge.ess.power.api.Relationship;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class SetPower extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
-
-	private final Logger log = LoggerFactory.getLogger(SetPower.class);
 
 	@Reference
 	protected ComponentManager componentManager;
