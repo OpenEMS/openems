@@ -14,8 +14,8 @@ public class Undefined extends BaseState implements StateObject {
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
 	public Undefined(ComponentManager manager, DecisionTableCondition condition, String gridconPCSId, String b1Id, String b2Id, String b3Id,
-			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId) {
-		super(manager, condition, gridconPCSId, b1Id, b2Id, b3Id, inputNA1, inputNA2, inputSyncBridge, outputSyncBridge, meterId);
+			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId, boolean na1Inverted, boolean na2Inverted, boolean inputSyncInverted) {
+		super(manager, condition, gridconPCSId, b1Id, b2Id, b3Id, inputNA1, inputNA2, inputSyncBridge, outputSyncBridge, meterId, na1Inverted, na2Inverted, inputSyncInverted);
 	}
 
 	@Override

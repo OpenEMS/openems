@@ -24,15 +24,18 @@ public abstract class BaseState implements StateObject {
 	public static final float ONOFF_GRID_FREQUENCY_FACTOR_ONLY_ONGRID = 1.054f;
 	
 	private ComponentManager manager;
-	protected String gridconPCSId;
-	protected String battery1Id;
-	protected String battery2Id;
-	protected String battery3Id;
-	protected String inputNA1;
-	protected String inputNA2;
-	protected String inputSyncBridge;
-	protected String outputSyncBridge;
-	protected String meterId;
+	private String gridconPCSId;
+	private String battery1Id;
+	private String battery2Id;
+	private String battery3Id;
+	private String inputNA1;
+	private boolean na1Inverted;
+	private String inputNA2;
+	private boolean na2Inverted;
+	private String inputSyncBridge;
+	private boolean inputSyncInverted;
+	private String outputSyncBridge;
+	private String meterId;
 	private IState stateBefore;
 	protected DecisionTableCondition condition; //TODO besser wäre es die Methode IState getNextState(); so zu deklarieren
 	private StateObject subStateObject;
@@ -42,7 +45,7 @@ public abstract class BaseState implements StateObject {
 	
 	
 	public BaseState(ComponentManager manager, DecisionTableCondition condition, String gridconPCSId, String b1Id, String b2Id, String b3Id,
-			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId) {
+			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId, boolean na1Inverted, boolean na2Inverted, boolean inputSyncInverted) {
 		this.manager = manager;
 		this.gridconPCSId = gridconPCSId;
 		this.battery1Id = b1Id;
@@ -54,6 +57,9 @@ public abstract class BaseState implements StateObject {
 		this.outputSyncBridge = outputSyncBridge;
 		this.meterId = meterId;
 		this.condition = condition;
+		this.na1Inverted = na1Inverted;
+		this.na2Inverted = na2Inverted;
+		this.inputSyncInverted = inputSyncInverted;
 	}
 
 	protected boolean isNextStateUndefined() {
@@ -210,7 +216,18 @@ public abstract class BaseState implements StateObject {
 	protected boolean isSystemOngrid() {
 		if (isDigitalInputDefined(inputNA1) && isDigitalInputDefined(inputNA2)) {
 			try {
-				return getBooleanReadChannel(inputNA1).value().get() && getBooleanReadChannel(inputNA2).value().get();
+				boolean na1Value = getBooleanReadChannel(inputNA1).value().get();
+				boolean na2Value = getBooleanReadChannel(inputNA2).value().get();
+				
+				if (na1Inverted) {
+					na1Value = !na1Value;
+				}
+				
+				if (na2Inverted) {
+					na2Value = !na2Value;
+				}
+				
+				return na1Value && na2Value;
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
 				return false;
 			}
@@ -221,7 +238,18 @@ public abstract class BaseState implements StateObject {
 	protected boolean isSystemOffgrid() {
 		if (isDigitalInputDefined(inputNA1) && isDigitalInputDefined(inputNA2)) {
 			try {
-				return !getBooleanReadChannel(inputNA1).value().get() || !getBooleanReadChannel(inputNA2).value().get();
+				boolean na1Value = getBooleanReadChannel(inputNA1).value().get();
+				boolean na2Value = getBooleanReadChannel(inputNA2).value().get();
+				
+				if (na1Inverted) {
+					na1Value = !na1Value;
+				}
+				
+				if (na2Inverted) {
+					na2Value = !na2Value;
+				}
+				
+				return !na1Value || !na2Value;
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
 				return false;
 			}

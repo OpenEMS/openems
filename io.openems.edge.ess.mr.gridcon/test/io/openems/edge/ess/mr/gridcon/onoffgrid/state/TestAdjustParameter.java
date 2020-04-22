@@ -43,6 +43,9 @@ public class TestAdjustParameter {
 				, Creator.METER_ID//
 				, Creator.DELTA_FREQUENCY//
 				, Creator.DELTA_VOLTAGE//
+				, Creator.INPUT_NA_PROTECTION_1_INVERTED//
+				, Creator.INPUT_NA_PROTECTION_2_INVERTED//
+				, Creator.INPUT_SYNC_DEVICE_BRIDGE_INVERTED				
 				);
 	}
 

@@ -20,9 +20,13 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	private String inputNAProtection1;
 	private String inputNAProtection2;
 	private String inputSyncBridge;
+	private boolean isNA1Inverted;
+	private boolean isNA2Inverted;
+	private boolean isSyncBridgeInverted;
 
-	public DecisionTableConditionImpl(ComponentManager manager, String gridconPcsId, 
-			String meterId, String inputNAProtection1, String inputNAProtection2, String inputSyncBridge) {
+	public DecisionTableConditionImpl(ComponentManager manager, String gridconPcsId, String meterId,
+			String inputNAProtection1, String inputNAProtection2, String inputSyncBridge, boolean isNA1Inverted,
+			boolean isNA2Inverted, boolean isSyncBridgeInverted) {
 		super();
 		this.manager = manager;
 		this.gridconPcsId = gridconPcsId;
@@ -30,13 +34,23 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 		this.inputNAProtection1 = inputNAProtection1;
 		this.inputNAProtection2 = inputNAProtection2;
 		this.inputSyncBridge = inputSyncBridge;
+		this.isNA1Inverted = isNA1Inverted;
+		this.isNA2Inverted = isNA2Inverted;
+		this.isSyncBridgeInverted = isSyncBridgeInverted;
 	}
 
 	@Override
 	public NAProtection_1_On isNaProtection1On() {
 		try {
 			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNAProtection1));
-			if (c.value().get()) {
+
+			boolean value = c.value().get();
+
+			if (isNA1Inverted) {
+				value = !value;
+			}
+
+			if (value) {
 				return NAProtection_1_On.TRUE;
 			} else {
 				return NAProtection_1_On.FALSE;
@@ -51,7 +65,13 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	public NAProtection_2_On isNaProtection2On() {
 		try {
 			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNAProtection2));
-			if (c.value().get()) {
+			boolean value = c.value().get();
+
+			if (isNA2Inverted) {
+				value = !value;
+			}
+
+			if (value) {
 				return NAProtection_2_On.TRUE;
 			} else {
 				return NAProtection_2_On.FALSE;
@@ -97,7 +117,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 				}
 			} else {
 				return MeterCommunicationFailed.UNSET;
-			}	
+			}
 		} catch (Exception e) {
 			return MeterCommunicationFailed.UNSET;
 		}
@@ -123,7 +143,15 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	public SyncBridgeOn isSyncBridgeOn() {
 		try {
 			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputSyncBridge));
-			if (c.value().get()) {
+
+			boolean value = c.value().get();
+
+			if (isSyncBridgeInverted) {
+				value = !value;
+			}
+
+			if (value) {
+
 				return SyncBridgeOn.TRUE;
 			} else {
 				return SyncBridgeOn.FALSE;
@@ -139,27 +167,27 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 		sb.append("Input NA Protection 1: ");
 		sb.append(isNaProtection1On());
 		sb.append("\n");
-		
+
 		sb.append("Input NA Protection 2: ");
 		sb.append(isNaProtection2On());
 		sb.append("\n");
-		
+
 		sb.append("GridconCommunicationFailed: ");
 		sb.append(isGridconCommunicationFailed());
 		sb.append("\n");
-		
+
 		sb.append("MeterCommunicationFailed: ");
 		sb.append(isMeterCommunicationFailed());
 		sb.append("\n");
-		
+
 		sb.append("Voltage in Range: ");
 		sb.append(isVoltageInRange());
 		sb.append("\n");
-		
+
 		sb.append("Sync Bridge On: ");
 		sb.append(isSyncBridgeOn());
 		sb.append("\n");
-		
+
 		return sb.toString();
 	}
 }

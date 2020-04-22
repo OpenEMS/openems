@@ -106,7 +106,8 @@ public class EssGridConOnOffGrid extends EssGridcon
 
 	@Override
 	protected void initializeStateController(String gridconPCS, String b1, String b2, String b3) {
-		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(componentManager, gridconPCS, config.meter_id(), config.inputNAProtection1(), config.inputNAProtection2(), config.inputSyncDeviceBridge());
+		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(componentManager, gridconPCS, config.meter_id(), config.inputNAProtection1(), config.inputNAProtection2(), config.inputSyncDeviceBridge(), config.isNAProtection1Inverted()
+				, config.isNAProtection2Inverted(), config.isInputSyncDeviceBridgeInverted());
 		StateController.initDecisionTableCondition(tableCondition);
 		StateController.initOnOffGrid(//
 				componentManager  //

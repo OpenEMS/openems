@@ -38,6 +38,9 @@ public class TestUndefined {
 				, Creator.INPUT_SYNC_DEVICE_BRIDGE//
 				, Creator.OUTPUT_SYNC_DEVICE_BRIDGE//
 				, Creator.METER_ID//
+				, Creator.INPUT_NA_PROTECTION_1_INVERTED//
+				, Creator.INPUT_NA_PROTECTION_2_INVERTED//
+				, Creator.INPUT_SYNC_DEVICE_BRIDGE_INVERTED
 				);
 	}
 

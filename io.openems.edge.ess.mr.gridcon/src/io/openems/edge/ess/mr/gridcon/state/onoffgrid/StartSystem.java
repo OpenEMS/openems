@@ -9,9 +9,9 @@ public class StartSystem extends BaseState implements StateObject {
 
 	public StartSystem(ComponentManager manager, DecisionTableCondition condition, String gridconPCSId, String b1Id,
 			String b2Id, String b3Id, String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge,
-			String meterId) {
+			String meterId, boolean na1Inverted, boolean na2Inverted, boolean inputSyncInverted) {
 		super(manager, condition, gridconPCSId, b1Id, b2Id, b3Id, inputNA1, inputNA2, inputSyncBridge, outputSyncBridge,
-				meterId);
+				meterId, na1Inverted, na2Inverted, inputSyncInverted);
 	}
 
 	@Override
