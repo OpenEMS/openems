@@ -1,9 +1,9 @@
 import { interval, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { Service, ChannelAddress, Edge, EdgeConfig } from 'src/app/shared/shared';
-import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { takeUntil } from 'rxjs/operators';
 
 export abstract class AbstractHistoryTimePeriod {
 

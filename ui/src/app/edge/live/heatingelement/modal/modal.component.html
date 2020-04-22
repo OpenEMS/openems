@@ -33,17 +33,6 @@
                             <td style="width:35%" class="align_right">
                                 Level&nbsp;{{ (activePhases | async) }}</td>
                         </tr>
-                        <tr>
-                            <td style="width: 65%">
-                                Heute bisher abgegebene Energie
-                                <ion-icon (click)="presentPopover()" color="primary" style="cursor: pointer"
-                                    name="information-circle-outline">
-                                </ion-icon>
-                            </td>
-                            <td style="width:35%" class="align_right">
-                                {{ currentData.channel[component.id + '/TotalEnergy'] | unitvalue:'kWh' }}
-                            </td>
-                        </tr>
                     </table>
                 </ion-card-content>
                 <ion-card-content class="underline">

@@ -64,7 +64,7 @@ export class AutarchyWidgetComponent extends AbstractHistoryTimePeriod implement
         });
     }
 
-    protected async presentModal() {
+    async presentModal() {
         const modal = await this.modalCtrl.create({
             component: AutarchyModalComponent,
             cssClass: 'wide-modal'
