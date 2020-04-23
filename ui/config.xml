@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="de.kaco.hycontrol" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>hy-control App</name>
+    <name>hy-control</name>
     <description>hy-control online monitoring app</description>
     <author email="info@kaco-newenergy.de" href="http://www.kaco-newenergy.com">KACO new energy GmbH</author>
     <content src="index.html" />
