@@ -33,7 +33,7 @@ public class EdgeApp {
 		if (SDNotify.isAvailable()) {
 			SDNotify.sendNotify();
 		}
-		PreConfig.initConfig(cm);
+		//PreConfig.initConfig(cm);
 	}
 
 	@Deactivate

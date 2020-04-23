@@ -41,9 +41,11 @@
 	bnd.identity;id='io.openems.edge.ess.core',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
+	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.balancing'
+	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.fixactivepower'
 
 -runbundles: \
 	Java-WebSocket;version='[1.4.1,1.4.2)',\
@@ -55,6 +57,7 @@
 	com.sun.jna;version='[5.5.0,5.5.1)',\
 	io.openems.common;version='[1.0.0,1.0.1)',\
 	io.openems.edge.application;version='[1.0.0,1.0.1)',\
+	io.openems.edge.battery.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.mbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.modbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.onewire;version='[1.0.0,1.0.1)',\
@@ -68,15 +71,19 @@
 	io.openems.edge.controller.debug.detailedlog;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.debug.log;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.symmetric.balancing;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.symmetric.fixactivepower;version='[1.0.0,1.0.1)',\
 	io.openems.edge.core;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.core;version='[1.0.0,1.0.1)',\
+	io.openems.edge.evcs.api;version='[1.0.0,1.0.1)',\
+	io.openems.edge.io.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.kaco.blueplanet.hybrid10;version='[1.0.0,1.0.1)',\
 	io.openems.edge.meter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.scheduler.allalphabetically;version='[1.0.0,1.0.1)',\
 	io.openems.edge.scheduler.api;version='[1.0.0,1.0.1)',\
+	io.openems.edge.simulator;version='[1.0.0,1.0.1)',\
 	io.openems.edge.timedata.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.timedata.influxdb;version='[1.0.0,1.0.1)',\
 	io.openems.edge.timedata.rrd4j;version='[1.0.0,1.0.1)',\
