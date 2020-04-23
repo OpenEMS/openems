@@ -79,6 +79,7 @@
 	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
 	bnd.identity;id='io.openems.edge.ess.refu',\
+	bnd.identity;id='io.openems.edge.ess.refu88k',\
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
@@ -186,6 +187,7 @@
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.mr.gridcon;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.refu;version='[1.0.0,1.0.1)',\
+	io.openems.edge.ess.refu88k;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.sinexcel;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.sma;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.streetscooter;version='[1.0.0,1.0.1)',\
