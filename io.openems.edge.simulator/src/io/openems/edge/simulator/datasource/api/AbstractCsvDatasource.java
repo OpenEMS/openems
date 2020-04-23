@@ -3,6 +3,7 @@ package io.openems.edge.simulator.datasource.api;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
@@ -37,6 +38,12 @@ public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
 		super.activate(context, id, alias, enabled);
 		this.timeDelta = timeDelta;
 		this.data = this.getData();
+		
+			ZonedDateTime now = ZonedDateTime.now();
+			int minutes = (now.getHour() * 60) + now.getMinute();
+			this.data.setIndex(minutes + 1);
+		
+
 	}
 
 	@Override
