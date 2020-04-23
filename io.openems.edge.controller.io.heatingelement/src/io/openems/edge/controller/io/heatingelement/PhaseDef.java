@@ -1,8 +1,8 @@
 package io.openems.edge.controller.io.heatingelement;
 
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Stopwatch;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
@@ -20,7 +20,22 @@ public class PhaseDef {
 
 	private final ControllerHeatingElement parent;
 	private final Phase phase;
-	private final Stopwatch stopwatch = Stopwatch.createUnstarted();
+
+	/**
+	 * keeps the total summed up Duration of the current day; it is updated on
+	 * switchOff() and reset after midnight by getTotalDuration().
+	 */
+	private Duration duration = Duration.ZERO;
+
+	/**
+	 * Keeps the current day to detect changes in day.
+	 */
+	private LocalDate currentDay = LocalDate.MIN;
+
+	/**
+	 * Keeps the moment of the last switchOn().
+	 */
+	private LocalTime lastSwitchOn = null;
 
 	public PhaseDef(ControllerHeatingElement parent, Phase phase) {
 		this.parent = parent;
@@ -36,8 +51,8 @@ public class PhaseDef {
 	 * @throws IllegalArgumentException on error.
 	 */
 	protected void switchOn() throws IllegalArgumentException, OpenemsNamedException {
-		if (!this.stopwatch.isRunning()) {
-			this.stopwatch.start();
+		if (this.lastSwitchOn == null) {
+			this.lastSwitchOn = LocalTime.now(this.parent.componentManager.getClock());
 		}
 
 		this.parent.setOutput(this.phase, true);
@@ -52,8 +67,9 @@ public class PhaseDef {
 	 * @throws IllegalArgumentException on error.
 	 */
 	protected void switchOff() throws IllegalArgumentException, OpenemsNamedException {
-		if (this.stopwatch.isRunning()) {
-			this.stopwatch.stop();
+		if (this.lastSwitchOn != null) {
+			this.duration = this.getTotalDuration();
+			this.lastSwitchOn = null;
 		}
 
 		this.parent.setOutput(this.phase, false);
@@ -62,10 +78,28 @@ public class PhaseDef {
 	/**
 	 * Gets the total switch-on time in seconds since last reset on midnight.
 	 * 
-	 * @return the total time in [s]
+	 * @return the total elapsed time
 	 */
-	public int getTotalTime() {
-		return (int) this.stopwatch.elapsed(TimeUnit.SECONDS);
+	public Duration getTotalDuration() {
+
+		// Did we pass midnight?
+		LocalDate today = LocalDate.now(this.parent.componentManager.getClock());
+		if (!this.currentDay.equals(today)) {
+			// Always reset Duration
+			this.currentDay = today;
+			this.duration = Duration.ZERO;
+			if (this.lastSwitchOn != null) {
+				this.lastSwitchOn = LocalTime.MIN;
+			}
+		}
+
+		// Calculate and return the Duration
+		if (this.lastSwitchOn != null) {
+			LocalTime now = LocalTime.now(this.parent.componentManager.getClock());
+			return this.duration.plus(Duration.between(this.lastSwitchOn, now));
+		} else {
+			return this.duration;
+		}
 	}
 
 	/**
@@ -75,18 +109,7 @@ public class PhaseDef {
 	 * @return the total energy in [Wh]
 	 */
 	public int getTotalEnergy() {
-		return (int) Math.round(
-				(this.stopwatch.elapsed(TimeUnit.MILLISECONDS) / MILLISECONDS_PER_HOUR) * parent.getPowerPerPhase());
-	}
-
-	/**
-	 * Resets the Stopwatch - to be called at midnight.
-	 */
-	public void resetStopwatch() {
-		boolean wasRunning = this.stopwatch.isRunning();
-		this.stopwatch.reset();
-		if (wasRunning) {
-			this.stopwatch.start();
-		}
+		return (int) Math
+				.round((this.getTotalDuration().toMillis() / MILLISECONDS_PER_HOUR) * parent.getPowerPerPhase());
 	}
 }

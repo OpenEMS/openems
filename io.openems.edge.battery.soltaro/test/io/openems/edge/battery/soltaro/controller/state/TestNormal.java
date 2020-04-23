@@ -56,9 +56,9 @@ public class TestNormal {
 	@Test
 	public final void testGetNextStateNormalNoChargingValuesPresent() {
 		// writing two times causes past values in the channel
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
 		bms.getChargeIndication().nextProcessImage();
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
 		bms.getChargeIndication().nextProcessImage();
 
 		State next = sut.getNextState();
@@ -70,7 +70,7 @@ public class TestNormal {
 			fail();
 		}
 
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
 		bms.getChargeIndication().nextProcessImage();
 
 		// Waiting long enough means that the last charge or discharge action is too
@@ -82,9 +82,9 @@ public class TestNormal {
 	@Test
 	public final void testGetNextStateNormalNoChargingValuePresent() {
 		// writing two times causes past values in the channel
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
 		bms.getChargeIndication().nextProcessImage();
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGING);
+		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
 		bms.getChargeIndication().nextProcessImage();
 
 		State next = sut.getNextState();

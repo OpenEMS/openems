@@ -3,6 +3,8 @@ package io.openems.edge.controller.io.channelsinglethreshold;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -22,6 +24,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -124,9 +127,16 @@ public class ChannelSingleThreshold extends AbstractOpenemsComponent implements 
 
 		// Get average input value of the last 'minimumSwitchingTime' seconds
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
-		OptionalDouble inputValueOpt = inputChannel.getPastValues()
-				.tailMap(LocalDateTime.now(this.clock).minusSeconds(this.config.minimumSwitchingTime()), true).values()
-				.stream().filter(v -> v.isDefined()) //
+		Collection<Value<Integer>> values = inputChannel.getPastValues()
+				.tailMap(LocalDateTime.now(this.clock).minusSeconds(this.config.minimumSwitchingTime()), true).values();
+
+		// make sure we have at least one value
+		if (values.isEmpty()) {
+			values = new ArrayList<Value<Integer>>();
+			values.add(inputChannel.value());
+		}
+
+		OptionalDouble inputValueOpt = values.stream().filter(v -> v.isDefined()) //
 				.mapToInt(v -> v.get()) //
 				.average();
 		int inputValue;

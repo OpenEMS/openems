@@ -41,8 +41,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     super(service, translate);
   }
 
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
-
   // EXPORT WILL MOVE TO MODAL WHEN KWH ARE READY
 
   /**
@@ -107,15 +105,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.service.setCurrentComponent('', this.route);
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
-    const source = fromEvent(window, 'resize', null, null);
-    source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-      this.getChartHeight();
-    });
+    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.unsubscribeChartRefresh()
   }
 
   protected updateChart() {
