@@ -6,6 +6,15 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.ess.refu88k.enums.Conn;
+import io.openems.edge.ess.refu88k.enums.DerTyp;
+import io.openems.edge.ess.refu88k.enums.LocRemCtl;
+import io.openems.edge.ess.refu88k.enums.OperatingState;
+import io.openems.edge.ess.refu88k.enums.OutPFSetEna;
+import io.openems.edge.ess.refu88k.enums.PCSSetOperation;
+import io.openems.edge.ess.refu88k.enums.VArPctEna;
+import io.openems.edge.ess.refu88k.enums.VendorOperatingState;
+import io.openems.edge.ess.refu88k.enums.WMaxLimEna;
 
 public enum REFUStore88KChannelId implements ChannelId {
 	BAT_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -72,43 +81,43 @@ public enum REFUStore88KChannelId implements ChannelId {
 	TMP_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	ST(Doc.of(OperatingState.values())), //
 	ST_VND(Doc.of(VendorOperatingState.values())), //
-	//Evt1 Alarms and Warnings
-		GROUND_FAULT(Doc.of(Level.FAULT) //
-				.text("Ground fault")), //
-		DC_OVER_VOLTAGE(Doc.of(Level.FAULT) //
-				.text("Dc over voltage")), //
-		AC_DISCONNECT(Doc.of(Level.FAULT) //
-				.text("AC disconnect open")), //
-		DC_DISCONNECT(Doc.of(Level.FAULT) //
-				.text("DC disconnect open")), //
-		GRID_DISCONNECT(Doc.of(Level.FAULT) //
-				.text("Grid shutdown")), //
-		CABINET_OPEN(Doc.of(Level.FAULT) //
-				.text("Cabinet open")), //
-		MANUAL_SHUTDOWN(Doc.of(Level.FAULT) //
-				.text("Manual shutdown")), //
-		OVER_TEMP(Doc.of(Level.FAULT) //
-				.text("Over temperature")), //
-		OVER_FREQUENCY(Doc.of(Level.FAULT) //
-				.text("Frequency above limit")), //
-		UNDER_FREQUENCY(Doc.of(Level.FAULT) //
-				.text("Frequency under limit")), //
-		AC_OVER_VOLT(Doc.of(Level.FAULT) //
-				.text("AC Voltage above limit")), //
-		AC_UNDER_VOLT(Doc.of(Level.FAULT) //
-				.text("AC Voltage under limit")), //
-		BLOWN_STRING_FUSE(Doc.of(Level.FAULT) //
-				.text("Blown String fuse on input")), //
-		UNDER_TEMP(Doc.of(Level.FAULT) //
-				.text("Under temperature")), //
-		MEMORY_LOSS(Doc.of(Level.FAULT) //
-				.text("Generic Memory or Communication error (internal)")), //
-		HW_TEST_FAILURE(Doc.of(Level.FAULT) //
-				.text("Hardware test failure")), //
-		OTHER_ALARM(Doc.of(Level.FAULT) //
-				.text("Other alarm")), //
-		OTHER_WARNING(Doc.of(Level.FAULT) //
-				.text("Other warning")), //
+	// Evt1 Alarms and Warnings
+	GROUND_FAULT(Doc.of(Level.FAULT) //
+			.text("Ground fault")), //
+	DC_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+			.text("Dc over voltage")), //
+	AC_DISCONNECT(Doc.of(Level.FAULT) //
+			.text("AC disconnect open")), //
+	DC_DISCONNECT(Doc.of(Level.FAULT) //
+			.text("DC disconnect open")), //
+	GRID_DISCONNECT(Doc.of(Level.FAULT) //
+			.text("Grid shutdown")), //
+	CABINET_OPEN(Doc.of(Level.FAULT) //
+			.text("Cabinet open")), //
+	MANUAL_SHUTDOWN(Doc.of(Level.FAULT) //
+			.text("Manual shutdown")), //
+	OVER_TEMP(Doc.of(Level.FAULT) //
+			.text("Over temperature")), //
+	OVER_FREQUENCY(Doc.of(Level.FAULT) //
+			.text("Frequency above limit")), //
+	UNDER_FREQUENCY(Doc.of(Level.FAULT) //
+			.text("Frequency under limit")), //
+	AC_OVER_VOLT(Doc.of(Level.FAULT) //
+			.text("AC Voltage above limit")), //
+	AC_UNDER_VOLT(Doc.of(Level.FAULT) //
+			.text("AC Voltage under limit")), //
+	BLOWN_STRING_FUSE(Doc.of(Level.FAULT) //
+			.text("Blown String fuse on input")), //
+	UNDER_TEMP(Doc.of(Level.FAULT) //
+			.text("Under temperature")), //
+	MEMORY_LOSS(Doc.of(Level.FAULT) //
+			.text("Generic Memory or Communication error (internal)")), //
+	HW_TEST_FAILURE(Doc.of(Level.FAULT) //
+			.text("Hardware test failure")), //
+	OTHER_ALARM(Doc.of(Level.FAULT) //
+			.text("Other alarm")), //
+	OTHER_WARNING(Doc.of(Level.FAULT) //
+			.text("Other warning")), //
 	EVT_2(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	EVT_VND_1(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 	EVT_VND_2(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
@@ -206,9 +215,10 @@ public enum REFUStore88KChannelId implements ChannelId {
 	MAX_A_CUR_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	PADDING_1(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	PADDING_2(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	
+
 	TEST(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
 	;
+
 	private final Doc doc;
 
 	private REFUStore88KChannelId(Doc doc) {

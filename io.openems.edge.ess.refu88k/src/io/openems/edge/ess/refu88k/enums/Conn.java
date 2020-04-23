@@ -1,17 +1,16 @@
-package io.openems.edge.ess.refu88k;
+package io.openems.edge.ess.refu88k.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum VArPctEna implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"),
-	DISABLED(0, "Disabled"),
-	ENABLED(1, "Enabled")
-	;
+public enum Conn implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
+	DISCONNECT(0, "Disconnect"), //
+	CONNECT(1, "Connect");
 
 	private final int value;
 	private final String name;
 
-	private VArPctEna(int value, String name) {
+	private Conn(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

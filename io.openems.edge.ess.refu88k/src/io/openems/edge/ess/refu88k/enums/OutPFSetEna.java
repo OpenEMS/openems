@@ -1,18 +1,16 @@
-package io.openems.edge.ess.refu88k;
+package io.openems.edge.ess.refu88k.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum WMaxLimEna implements OptionsEnum {
-
-	UNDEFINED(-1, "Undefined"),
-	DISABLED(0, "Disabled"),
-	ENABLED(1, "Enabled")
-	;
+public enum OutPFSetEna implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
+	DISABLED(0, "Disabled"), //
+	ENABLED(1, "Enabled");
 
 	private final int value;
 	private final String name;
 
-	private WMaxLimEna(int value, String name) {
+	private OutPFSetEna(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
@@ -31,7 +29,4 @@ public enum WMaxLimEna implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
 	}
-	
-	
-	
 }

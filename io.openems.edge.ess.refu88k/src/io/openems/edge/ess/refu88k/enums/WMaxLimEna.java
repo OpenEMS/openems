@@ -1,17 +1,16 @@
-package io.openems.edge.ess.refu88k;
+package io.openems.edge.ess.refu88k.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum Conn implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"),
-	DISCONNECT(0, "Disconnect"),
-	CONNECT(1, "Connect")
-	;
+public enum WMaxLimEna implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
+	DISABLED(0, "Disabled"), //
+	ENABLED(1, "Enabled");
 
 	private final int value;
 	private final String name;
 
-	private Conn(int value, String name) {
+	private WMaxLimEna(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
@@ -29,5 +28,6 @@ public enum Conn implements OptionsEnum {
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	} 
+	}
+
 }

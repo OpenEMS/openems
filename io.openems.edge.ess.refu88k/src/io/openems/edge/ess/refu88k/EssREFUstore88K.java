@@ -54,6 +54,10 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.refu88k.enums.OperatingState;
+import io.openems.edge.ess.refu88k.enums.PCSSetOperation;
+import io.openems.edge.ess.refu88k.enums.VArPctEna;
+import io.openems.edge.ess.refu88k.enums.WMaxLimEna;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -852,8 +856,6 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 						m(REFUStore88KChannelId.PADDING_2, new SignedWordElement(SUNSPEC_64800 + 15)))); // 40240
 
 	}
-
-
 
 	@Override
 	public String debugLog() {

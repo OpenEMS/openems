@@ -1,13 +1,11 @@
-package io.openems.edge.ess.refu88k;
+package io.openems.edge.ess.refu88k.enums;
 
 import io.openems.common.types.OptionsEnum;
 
 public enum LocRemCtl implements OptionsEnum {
-		
-	UNDEFINED(-1, "Undefined"),
-	REMOTE(0, "PCS Remote Control"),
-	LOCAL(1, "PCS Local Control"),
-	;
+	UNDEFINED(-1, "Undefined"), //
+	REMOTE(0, "PCS Remote Control"), //
+	LOCAL(1, "PCS Local Control"),;
 
 	private final int value;
 	private final String name;

@@ -1,15 +1,16 @@
-package io.openems.edge.ess.refu88k;
+package io.openems.edge.ess.refu88k.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum VendorOperatingState implements OptionsEnum {
-	UNDEFINED (-1, "Undefinded")	
-	;
+public enum VArPctEna implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
+	DISABLED(0, "Disabled"), //
+	ENABLED(1, "Enabled");
 
 	private final int value;
 	private final String name;
 
-	private VendorOperatingState(int value, String name) {
+	private VArPctEna(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
@@ -28,5 +29,4 @@ public enum VendorOperatingState implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
 	}
-
 }
