@@ -6,13 +6,13 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ChanneltresholdWidgetComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
+export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
@@ -40,11 +40,11 @@ export class ChanneltresholdWidgetComponent extends AbstractHistoryTimePeriod im
                 this.component = config.getComponent(this.componentId);
             })
         });
-        this.subscribeValueRefresh()
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeValueRefresh()
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {

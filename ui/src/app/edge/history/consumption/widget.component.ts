@@ -5,13 +5,13 @@ import { ConsumptionModalComponent } from './modal/modal.component';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
-import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ConsumptionComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ConsumptionComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
+export class ConsumptionComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -32,11 +32,11 @@ export class ConsumptionComponent extends AbstractHistoryTimePeriod implements O
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeValueRefresh()
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeValueRefresh()
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {

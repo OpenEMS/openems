@@ -5,13 +5,13 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
-import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: AutarchyWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class AutarchyWidgetComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
+export class AutarchyWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -32,11 +32,11 @@ export class AutarchyWidgetComponent extends AbstractHistoryTimePeriod implement
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeValueRefresh()
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeValueRefresh()
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {

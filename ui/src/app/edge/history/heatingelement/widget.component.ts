@@ -5,13 +5,13 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { HeatingelementModalComponent } from './modal/modal.component';
 import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class HeatingelementWidgetComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
+export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
@@ -41,11 +41,11 @@ export class HeatingelementWidgetComponent extends AbstractHistoryTimePeriod imp
                 this.component = config.getComponent(this.componentId);
             });
         });
-        this.subscribeValueRefresh()
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeValueRefresh()
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {
@@ -56,9 +56,9 @@ export class HeatingelementWidgetComponent extends AbstractHistoryTimePeriod imp
         this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-            let Level1Time = result.data[this.componentId + '/Level1Time'];
-            let Level2Time = result.data[this.componentId + '/Level2Time'];
-            let Level3Time = result.data[this.componentId + '/Level3Time'];
+            let level1Time = result.data[this.componentId + '/Level1Time'];
+            let level2Time = result.data[this.componentId + '/Level2Time'];
+            let level3Time = result.data[this.componentId + '/Level3Time'];
 
             let lastValueLevel1 = null;
             let lastValueLevel2 = null;
@@ -68,7 +68,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryTimePeriod imp
             let sumLevel2 = 0;
             let sumLevel3 = 0;
 
-            for (let value of Level1Time.slice().reverse()) {
+            for (let value of level1Time.slice().reverse()) {
                 if (value == null) {
                     continue;
                 }
@@ -79,7 +79,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryTimePeriod imp
             }
             this.activeTimeOverPeriodLevel1 = sumLevel1;
 
-            for (let value of Level2Time.slice().reverse()) {
+            for (let value of level2Time.slice().reverse()) {
                 if (value == null) {
                     continue;
                 }
@@ -90,7 +90,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryTimePeriod imp
             }
             this.activeTimeOverPeriodLevel2 = sumLevel2;
 
-            for (let value of Level3Time.slice().reverse()) {
+            for (let value of level3Time.slice().reverse()) {
                 if (value == null) {
                     continue;
                 }

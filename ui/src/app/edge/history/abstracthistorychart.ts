@@ -12,10 +12,12 @@ export abstract class AbstractHistoryChart {
 
     public loading: boolean = true;
 
-    protected refreshChartData = interval(300000);
-    protected refreshChartHeight = fromEvent(window, 'resize', null, null);
+    //observable is used to fetch new chart data every 5 minutes
+    private refreshChartData = interval(300000);
+    //observable is used to refresh chart height dependend on the window size
+    private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
-    protected ngUnsubscribe: Subject<void> = new Subject<void>();
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
@@ -78,6 +80,9 @@ export abstract class AbstractHistoryChart {
         });
     }
 
+    /**
+     * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
+     */
     protected subscribeChartRefresh() {
         this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.updateChart()
@@ -87,6 +92,9 @@ export abstract class AbstractHistoryChart {
         });
     }
 
+    /**
+     * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
+     */
     protected unsubscribeChartRefresh() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();

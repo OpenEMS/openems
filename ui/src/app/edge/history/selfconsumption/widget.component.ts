@@ -5,13 +5,13 @@ import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
 import { SelfconsumptionModalComponent } from './modal/modal.component';
-import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: SelfconsumptionWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class SelfconsumptionWidgetComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
+export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -32,11 +32,11 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryTimePeriod im
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeValueRefresh()
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeValueRefresh()
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {

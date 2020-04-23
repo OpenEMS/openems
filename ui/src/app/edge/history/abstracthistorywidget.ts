@@ -5,23 +5,30 @@ import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/resp
 import { Service, ChannelAddress, Edge, EdgeConfig } from 'src/app/shared/shared';
 import { takeUntil } from 'rxjs/operators';
 
-export abstract class AbstractHistoryTimePeriod {
+export abstract class AbstractHistoryWidget {
 
-    protected refreshTimePeriod = interval(300000);
+    //observable is used to fetch new widget data every 5 minutes
+    private refreshWidgetData = interval(300000);
 
-    protected ngUnsubscribe: Subject<void> = new Subject<void>();
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
         protected service: Service,
     ) { }
 
-    protected subscribeValueRefresh() {
-        this.refreshTimePeriod.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+    /**
+     * Subscribes to 5 minute Interval Observable to update data in Flat Widget
+     */
+    protected subscribeWidgetRefresh() {
+        this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.updateValues()
         })
     }
 
-    protected unsubscribeValueRefresh() {
+    /**
+     * Unsubscribes to 5 minute Interval Observable
+     */
+    protected unsubscribeWidgetRefresh() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }

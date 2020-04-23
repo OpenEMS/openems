@@ -5,13 +5,13 @@ import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseri
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { GridModalComponent } from './modal/modal.component';
 import { ModalController } from '@ionic/angular';
-import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: GridComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class GridComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
+export class GridComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -32,11 +32,11 @@ export class GridComponent extends AbstractHistoryTimePeriod implements OnInit, 
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
-        this.subscribeValueRefresh()
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeValueRefresh()
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {

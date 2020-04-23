@@ -3,18 +3,16 @@ import { calculateActiveTimeOverPeriod } from '../shared';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { ModalController } from '@ionic/angular';
-import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { SinglethresholdModalComponent } from './modal/modal.component';
-import { AbstractHistoryTimePeriod } from '../abstracthistorytimeperiod';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: SinglethresholdWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class SinglethresholdWidgetComponent extends AbstractHistoryTimePeriod implements OnInit, OnChanges {
+export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
@@ -43,11 +41,11 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryTimePeriod im
                 this.inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
             })
         });
-        this.subscribeValueRefresh()
+        this.subscribeWidgetRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeValueRefresh()
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {
