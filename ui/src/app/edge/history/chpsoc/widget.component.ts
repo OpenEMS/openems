@@ -1,23 +1,23 @@
 import { ActivatedRoute } from '@angular/router';
 import { calculateActiveTimeOverPeriod } from '../shared';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
+import { ChpSocModalComponent } from './modal/modal.component';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { SinglethresholdModalComponent } from './modal/modal.component';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
-    selector: SinglethresholdWidgetComponent.SELECTOR,
+    selector: ChpSocWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
 
-    private static readonly SELECTOR = "singlethresholdWidget";
+    private static readonly SELECTOR = "chpsocWidget";
 
     public activeTimeOverPeriod: string = null;
     public edge: Edge = null;
@@ -73,7 +73,7 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
 
     async presentModal() {
         const modal = await this.modalCtrl.create({
-            component: SinglethresholdModalComponent,
+            component: ChpSocModalComponent,
             cssClass: 'wide-modal',
             componentProps: {
                 component: this.component,
@@ -83,3 +83,4 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
         return await modal.present();
     }
 }
+

@@ -30,6 +30,11 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
