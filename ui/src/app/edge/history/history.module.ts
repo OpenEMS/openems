@@ -49,6 +49,9 @@ import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
+import { ChpSocWidgetComponent } from './chpsoc/widget.component';
+import { ChpSocModalComponent } from './chpsoc/modal/modal.component';
+import { ChpSocChartComponent } from './chpsoc/chart.component';
 
 @NgModule({
   imports: [
@@ -58,6 +61,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChannelthresholdModalComponent,
+    ChpSocModalComponent,
     ConsumptionModalComponent,
     EnergyModalComponent,
     GridModalComponent,
@@ -79,6 +83,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ChannelthresholdSingleChartComponent,
     ChannelthresholdTotalChartComponent,
     ChanneltresholdWidgetComponent,
+    ChpSocChartComponent,
+    ChpSocModalComponent,
+    ChpSocWidgetComponent,
     ConsumptionComponent,
     ConsumptionEvcsChartComponent,
     ConsumptionModalComponent,

@@ -854,7 +854,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				),
 
 				// System reset
-				new FC6WriteRegisterTask(0x2004, m(SingleRackChannelId.SYSTEM_RESET, new UnsignedWordElement(0x2004)) //
+				new FC6WriteRegisterTask(0x2004, //
+						m(SingleRackChannelId.SYSTEM_RESET, new UnsignedWordElement(0x2004)) //
 				),
 
 				// EMS timeout --> Watchdog
