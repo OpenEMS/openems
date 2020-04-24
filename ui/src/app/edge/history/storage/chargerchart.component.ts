@@ -34,6 +34,11 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {

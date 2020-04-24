@@ -13,13 +13,6 @@
 		revision=org.osgi.enroute:enterprise-api:7.0.0; \
 		readOnly=true; \
 		name="Enterprise Java APIs"
--plugin.3.R7.Impl: \
-	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
-		releaseUrls=https://repo.maven.apache.org/maven2/; \
-		revision=org.osgi.enroute:impl-index:7.0.0; \
-		readOnly=true; \
-		name="OSGi R7 Reference Implementations"
 -plugin.4.Test: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
 		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \

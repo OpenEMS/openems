@@ -33,6 +33,11 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
