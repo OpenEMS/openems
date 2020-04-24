@@ -5,6 +5,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -13,6 +14,14 @@ import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface Battery extends OpenemsComponent {
+
+	public default BooleanReadChannel getReadyForWorkingChannel() {
+		return this.channel(ChannelId.READY_FOR_WORKING);
+	}
+
+	public default void setReadyForWorking(boolean isReadyForWorking) {
+		this.getReadyForWorkingChannel().setNextValue(isReadyForWorking);
+	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -23,7 +32,6 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		// TODO: why can this not be handled using 'STATE'?
 		READY_FOR_WORKING(Doc.of(OpenemsType.BOOLEAN)),
 
 		/**

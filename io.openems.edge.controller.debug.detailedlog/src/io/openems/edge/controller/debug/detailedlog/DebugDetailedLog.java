@@ -119,32 +119,45 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 						/*
 						 * create descriptive text
 						 */
-						String description = "";
-						if (channel instanceof EnumReadChannel) {
-							try {
-								description += channel.value().asOptionString();
-							} catch (IllegalArgumentException e) {
-								description += "UNKNOWN OPTION VALUE [" + channel.value().asString() + "]";
-								description += "ERROR: " + e.getMessage();
+						String channelText = "";
+						switch (channel.channelDoc().getAccessMode()) {
+						case READ_ONLY:
+						case READ_WRITE:
+							String description = "";
+							if (channel instanceof EnumReadChannel) {
+								try {
+									description += channel.value().asOptionString();
+								} catch (IllegalArgumentException e) {
+									description += "UNKNOWN OPTION VALUE [" + channel.value().asString() + "]";
+									description += "ERROR: " + e.getMessage();
+								}
 							}
-						}
-						if (channel instanceof StateChannel && ((StateChannel) channel).value().orElse(false) == true) {
-							if (!description.isEmpty()) {
-								description += "; ";
+							if (channel instanceof StateChannel
+									&& ((StateChannel) channel).value().orElse(false) == true) {
+								if (!description.isEmpty()) {
+									description += "; ";
+								}
+								description += ((StateChannel) channel).channelDoc().getText();
 							}
-							description += ((StateChannel) channel).channelDoc().getText();
-						}
-						if (channel instanceof StateCollectorChannel
-								&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
-							if (!description.isEmpty()) {
-								description += "; ";
+							if (channel instanceof StateCollectorChannel
+									&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
+								if (!description.isEmpty()) {
+									description += "; ";
+								}
+								description += ((StateCollectorChannel) channel).listStates();
 							}
-							description += ((StateCollectorChannel) channel).listStates();
+							channelText = String.format("%15s %-3s %s", //
+									channel.value().asStringWithoutUnit(), //
+									unit, //
+									description.isEmpty() ? "" : "(" + description + ")");
+							break;
+
+						case WRITE_ONLY:
+							channelText += "WRITE_ONLY";
 						}
 						// Build complete line
-						String line = String.format("%-" + WIDTH_FIRST + "s : %15s %-3s %s", channel.channelId().id(),
-								channel.value().asStringWithoutUnit(), unit,
-								description.isEmpty() ? "" : "(" + description + ")");
+						String line = String.format("%-" + WIDTH_FIRST + "s : %s", channel.channelId().id(),
+								channelText);
 						// Print the line only if is not equal to the last printed line
 						if ((!this.lastPrinted.containsKey(channel.address()))
 								|| !(this.lastPrinted.get(channel.address()).equals(line))) {

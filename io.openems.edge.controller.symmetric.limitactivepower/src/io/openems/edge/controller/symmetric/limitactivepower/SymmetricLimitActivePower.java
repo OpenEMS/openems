@@ -84,17 +84,25 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedMaxDischargePower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-				this.maxDischargePower);
-		int calculatedMaxChargePower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-				this.maxChargePower);
+		int maxPower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+		int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+		int calculatedMaxDischargePower = fitIntoMinMax(minPower, maxPower, this.maxDischargePower);
+		int calculatedMaxChargePower = fitIntoMinMax(minPower, maxPower, this.maxChargePower);
 
-		/*
-		 * set result
-		 */
+		// set result
 		ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", Phase.ALL, Pwr.ACTIVE,
 				Relationship.GREATER_OR_EQUALS, calculatedMaxChargePower);
 		ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", Phase.ALL, Pwr.ACTIVE,
 				Relationship.LESS_OR_EQUALS, calculatedMaxDischargePower);
+	}
+
+	private static int fitIntoMinMax(int min, int max, int value) {
+		if (value > max) {
+			value = max;
+		}
+		if (value < min) {
+			value = min;
+		}
+		return value;
 	}
 }

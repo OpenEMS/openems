@@ -1,0 +1,8 @@
+= REFUstore 88K
+
+Implemented Natures::
+- SymmetricEss
+- ManagedSymmetricEss
+
+https://www.refu.com/storage-solutions/?L=1[Manufacturer Product Page]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.refu88[Source Code icon:github[]]

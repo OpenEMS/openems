@@ -34,10 +34,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "End Time", description = "End time for minmum run time")
 	String endTime() default "17:00";
 
-	@AttributeDefinition(name = "Work-Mode Time or kWh", description = "Sets the Work-Mode to Time (= run at least Minimum Time) or kWh (= use at least Minimum kWh)")
+	@AttributeDefinition(name = "Work-Mode Time or kWh", description = "Sets the Work-Mode to Time (= run at least Minimum Time), kWh (= use at least Minimum kWh) or None (only run on excess power)")
 	WorkMode workMode() default WorkMode.TIME;
 
-	@AttributeDefinition(name = "Minimum Time", description = "For Work-Mode 'Time': Minimum Time for activating 'Levels'")
+	@AttributeDefinition(name = "Minimum Time [h]", description = "For Work-Mode 'Time': Minimum Time in hours for activating 'Levels'")
 	int minTime() default 1;
 
 	@AttributeDefinition(name = "Minimum kWh", description = "For Work-Mode 'kWh': Minimum kWh for activating 'Levels'")
