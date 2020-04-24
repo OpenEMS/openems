@@ -1,12 +1,10 @@
-import { Component, Input, Output } from '@angular/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { Component, Input, Output } from '@angular/core';
 import { HeatingElementModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
-type Level = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
 
 @Component({
     selector: HeatingElementComponent.SELECTOR,
@@ -29,10 +27,10 @@ export class HeatingElementComponent {
     public activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
 
     constructor(
-        public service: Service,
-        private websocket: Websocket,
         private route: ActivatedRoute,
-        public modalController: ModalController
+        private websocket: Websocket,
+        public modalController: ModalController,
+        public service: Service,
     ) { }
 
     ngOnInit() {
