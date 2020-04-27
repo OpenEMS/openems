@@ -497,34 +497,34 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	public Power getPower() {
 		return this.power;
 	}
-//
-//	public String getSerialNumber() {
-//		return this.channel(REFUStore88KChannelId.SN).value().asString();
-//	}
-//
-//	public Channel<Integer> getDcVoltage() {
-//		return this.channel(REFUStore88KChannelId.DCV);
-//	}
-//
-//	public Channel<Integer> getAcVoltage() {
-//		return this.channel(REFUStore88KChannelId.PP_VPH_AB);
-//	}
-//
-//	public Channel<Integer> getAcCurrent() {
-//		return this.channel(REFUStore88KChannelId.A);
-//	}
 
-//	public Channel<Integer> getActivePower() {
-//		return this.channel(REFUStore88KChannelId.W);
-//	}
-//
-//	public Channel<Integer> getReactivePower() {
-//		return this.channel(REFUStore88KChannelId.VA_R);
-//	}
-//
-//	public Channel<Integer> getApparentPower() {
-//		return this.channel(REFUStore88KChannelId.VA);
-//	}
+	public String getSerialNumber() {
+		return this.channel(REFUStore88KChannelId.SN).value().asString();
+	}
+
+	public Channel<Integer> getDcVoltage() {
+		return this.channel(REFUStore88KChannelId.DCV);
+	}
+
+	public Channel<Integer> getAcVoltage() {
+		return this.channel(REFUStore88KChannelId.PP_VPH_AB);
+	}
+
+	public Channel<Integer> getAcCurrent() {
+		return this.channel(REFUStore88KChannelId.A);
+	}
+
+	public Channel<Integer> getActivePower() {
+		return this.channel(REFUStore88KChannelId.W);
+	}
+
+	public Channel<Integer> getReactivePower() {
+		return this.channel(REFUStore88KChannelId.VA_R);
+	}
+
+	public Channel<Integer> getApparentPower() {
+		return this.channel(REFUStore88KChannelId.VA);
+	}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
