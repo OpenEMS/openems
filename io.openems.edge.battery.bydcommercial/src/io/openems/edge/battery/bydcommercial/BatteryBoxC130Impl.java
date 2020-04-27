@@ -175,9 +175,11 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build() //
-//						new DummyRegisterElement(0x210D, 0x2115), //
-//						m(BatteryBoxC130.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
-//						m(BatteryBoxC130.ChannelId.BATTERY_CHARGE_STATE, new UnsignedWordElement(0x211D)) //
+				// new DummyRegisterElement(0x210D, 0x2115), //
+				// m(BatteryBoxC130.ChannelId.SYSTEM_INSULATION, new
+				// UnsignedWordElement(0x2116)) //
+				// m(BatteryBoxC130.ChannelId.BATTERY_CHARGE_STATE, new
+				// UnsignedWordElement(0x211D)) //
 				), //
 				new FC3ReadRegistersTask(0x211D, Priority.HIGH, //
 						m(new BitsWordElement(0x211D, this) //
