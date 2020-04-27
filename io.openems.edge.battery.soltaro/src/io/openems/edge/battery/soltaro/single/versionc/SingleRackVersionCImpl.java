@@ -238,7 +238,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
 				), //
 					// Single Cluster Running Status Registers
-				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100)) //
 								.m(SingleRackVersionC.ChannelId.CLUSTER_1_VOLTAGE,
 										ElementToChannelConverter.SCALE_FACTOR_2) // [mV]

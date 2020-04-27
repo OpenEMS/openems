@@ -579,45 +579,45 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 				.text("Slave BMS Hardware: Slave BMS Initialization Failure")), //
 
 		// Communication Errors
-		SLAVE_1_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_1_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 1 communication error")), //
-		SLAVE_2_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_2_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 2 communication error")), //
-		SLAVE_3_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_3_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 3 communication error")), //
-		SLAVE_4_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_4_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 4 communication error")), //
-		SLAVE_5_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_5_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 5 communication error")), //
-		SLAVE_6_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_6_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 6 communication error")), //
-		SLAVE_7_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_7_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 7 communication error")), //
-		SLAVE_8_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_8_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 8 communication error")), //
-		SLAVE_9_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_9_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 9 communication error")), //
-		SLAVE_10_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_10_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 10 communication error")), //
-		SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_11_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 11 communication error")), //
-		SLAVE_12_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_12_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 12 communication error")), //
-		SLAVE_13_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_13_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 13 communication error")), //
-		SLAVE_14_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_14_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 14 communication error")), //
-		SLAVE_15_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_15_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 15 communication error")), //
-		SLAVE_16_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_16_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 16 communication error")), //
-		SLAVE_17_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_17_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 17 communication error")), //
-		SLAVE_18_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_18_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 18 communication error")), //
-		SLAVE_19_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_19_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 19 communication error")), //
-		SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.INFO) //
+		SLAVE_20_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 20 communication error")), //
 
 		// OpenEMS Faults

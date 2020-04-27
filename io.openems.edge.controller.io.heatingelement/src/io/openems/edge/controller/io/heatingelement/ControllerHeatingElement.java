@@ -70,7 +70,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	}
 
 	@Modified
-	void modified(Config config) throws OpenemsNamedException {
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.updateConfig(config);
 	}
 
@@ -221,6 +222,7 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 	 * <li>in {@link WorkMode#KWH}: kWh x 1000 * 3600
 	 * <li>in {@link WorkMode#TIME}: minTime [h] x 3600 x defaultLevel-Phases x
 	 * power-per-phase [W]
+	 * <li>in {@link WorkMode#NONE}: always return 0
 	 * </ul>
 	 * 
 	 * @return the minimum demanded energy in [Ws]
@@ -231,6 +233,8 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 			return config.minTime() * 3600 * config.defaultLevel().getValue() * config.powerPerPhase();
 		case KWH:
 			return config.minKwh() * 1000 * 3600;
+		case NONE:
+			return 0;
 		}
 		assert (true);
 		return 0;
