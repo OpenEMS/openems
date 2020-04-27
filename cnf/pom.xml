@@ -81,7 +81,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>3.4.2</version>
+			<version>3.4.3</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
