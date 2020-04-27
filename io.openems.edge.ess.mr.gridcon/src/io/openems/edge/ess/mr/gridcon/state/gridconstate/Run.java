@@ -62,7 +62,7 @@ public class Run extends BaseState implements StateObject {
 		// in case of that, restart the system, but this should be detected by isError() function
 		
 		
-		
+		checkBatteries();
 		setRunParameters();
 		setStringWeighting();
 		setOffsetCurrent();
@@ -74,6 +74,24 @@ public class Run extends BaseState implements StateObject {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private void checkBatteries() {
+		if (getBattery1() != null) {
+			if (!getBattery1().isRunning() && !getBattery1().isError()) {
+				getBattery1().start();
+			}
+			}
+			if (getBattery2() != null) {
+			if (!getBattery2().isRunning() && !getBattery2().isError()) {
+				getBattery2().start();
+			}
+			}
+			if (getBattery3() != null) {
+			if (!getBattery3().isRunning() && !getBattery3().isError()) {
+				getBattery3().start();
+			}
+			}
 	}
 
 	private void setOffsetCurrent() {
