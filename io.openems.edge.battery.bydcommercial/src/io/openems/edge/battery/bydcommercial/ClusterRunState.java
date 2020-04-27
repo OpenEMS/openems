@@ -5,9 +5,10 @@ import io.openems.common.types.OptionsEnum;
 public enum ClusterRunState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NORMAL(0, "Normal"), //
-	STOP_CHARGING(1, "Stop charging"), //
-	STOP_DISCHARGE(2, "Stop discharging"), //
-	STANDBY(3, "Standby");
+	FULL(0x1, "Full"), //
+	EMPTY(0x2, "Empty"), //
+	STANDBY(0x3, "Standby"), //
+	STOP(0x4, "Stop");
 
 	private int value;
 	private String name;
@@ -19,12 +20,12 @@ public enum ClusterRunState implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

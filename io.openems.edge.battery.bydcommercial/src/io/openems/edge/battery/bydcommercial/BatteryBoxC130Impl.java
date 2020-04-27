@@ -77,16 +77,6 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
-
-//		// Set Watchdog Timeout
-//		IntegerWriteChannel c = this.channel(BatteryBoxC130.ChannelId.EMS_COMMUNICATION_TIMEOUT);
-//		c.setNextWriteValue(config.watchdog());
-//
-//		// Set State-Of-Charge Low Alarrm
-//		IntegerWriteChannel protectionChannel = this.channel(BatteryBoxC130.ChannelId.LEVEL1_SOC_LOW_PROTECTION);
-//		protectionChannel.setNextWriteValue(config.SocLowAlarm());
-//		IntegerWriteChannel recoverChannel = this.channel(BatteryBoxC130.ChannelId.LEVEL1_SOC_LOW_PROTECTION_RECOVER);
-//		recoverChannel.setNextWriteValue(config.SocLowAlarm());
 	}
 
 	@Deactivate
@@ -107,9 +97,6 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	/**
-	 * Handles the State-Machine.
-	 */
 	private void handleStateMachine() {
 		// Store the current State
 		this.channel(BatteryBoxC130.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
@@ -138,26 +125,6 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
-//	private void checkAllowedCurrent() {
-//		if (isPoleTemperatureTooHot()) {
-//			this.limitMaxCurrent();
-//		}
-//	}
-//
-//	private void limitMaxCurrent() {
-//		// TODO limit current
-//	}
-//
-//	private boolean isPoleTemperatureTooHot() {
-//		StateChannel preAlarmChannel = this.channel(SingleRackVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH);
-//		boolean preAlarm = preAlarmChannel.value().orElse(false);
-//		StateChannel level1Channel = this.channel(SingleRackVersionC.ChannelId.LEVEL1_POWER_POLE_TEMP_HIGH);
-//		boolean level1 = level1Channel.value().orElse(false);
-//		StateChannel level2Channel = this.channel(SingleRackVersionC.ChannelId.LEVEL2_POWER_POLE_TEMP_HIGH);
-//		boolean level2 = level2Channel.value().orElse(false);
-//		return preAlarm || level1 || level2;
-//	}
-
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
@@ -168,7 +135,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(0x2010, //
 						m(BatteryBoxC130.ChannelId.PRE_CHARGE_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
-				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]

@@ -6,7 +6,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.bydcommercial.enums.PreChargeControl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -57,29 +56,13 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		// IntegerWriteChannels
-		CELL_VOLTAGE_PROTECT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		CELL_VOLTAGE_RECOVER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE)),
-
 		// EnumReadChannels
-		CLUSTER_RUN_STATE(Doc.of(ClusterRunState.values())), //
-		CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
+		CLUSTER_RUN_STATE(Doc.of(OpenemsType.INTEGER)), //
 		BATTERY_WORK_STATE(Doc.of(BatteryWorkState.values())), //
 
 		// IntegerReadChannels
 		PRE_CHARGE_CONTROL(Doc.of(PreChargeControl.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		BATTERY_FAULT_STATE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-		BATTERY_CHARGE_STATE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-		SYSTEM_OVER_VOLTAGE_PROTECTION(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)), //
-		SYSTEM_UNDER_VOLTAGE_PROTECTION(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)), //
-
 		CLUSTER_1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_CURRENT(Doc.of(OpenemsType.INTEGER) //

@@ -1,6 +1,6 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
-import io.openems.edge.battery.bydcommercial.enums.PreChargeControl;
+import io.openems.edge.battery.bydcommercial.PreChargeControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.Context;
 
 public class Running extends State.Handler {

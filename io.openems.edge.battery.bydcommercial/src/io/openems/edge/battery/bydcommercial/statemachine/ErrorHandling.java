@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.enums.PreChargeControl;
+import io.openems.edge.battery.bydcommercial.PreChargeControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.Context;
 
 public class ErrorHandling extends State.Handler {
