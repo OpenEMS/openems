@@ -77,22 +77,36 @@ public class Run extends BaseState implements StateObject {
 	}
 
 	private void setOffsetCurrent() {
+		
+		System.out.println(" ----- Setting the offset current --------");
+		
 		//find out the battery rack with the highest cell voltage and put the offset to it
 		if (hasBattery1HighestCellVoltage()) {
+			
+			System.out.println("Battery 1 has the highest cell voltage, set offset current to " + offsetCurrent);
+			
 			getGridconPCS().setIRefStringA(offsetCurrent);
 			getGridconPCS().setIRefStringB(0f);
 			getGridconPCS().setIRefStringC(0f);
 		}
 		if (hasBattery2HighestCellVoltage()) {
+			
+			System.out.println("Battery 2 has the highest cell voltage, set offset current to " + offsetCurrent);
+			
 			getGridconPCS().setIRefStringA(0f);
 			getGridconPCS().setIRefStringB(offsetCurrent);
 			getGridconPCS().setIRefStringC(0f);
 		}
 		if (hasBattery3HighestCellVoltage()) {
+			
+			System.out.println("Battery 3 has the highest cell voltage, set offset current to " + offsetCurrent);
+			
 			getGridconPCS().setIRefStringA(0f);
 			getGridconPCS().setIRefStringB(0f);
 			getGridconPCS().setIRefStringC(offsetCurrent);
 		}
+		
+		System.out.println(" ----- End of setting the offset current --------");
 	}
 
 	private boolean hasBattery1HighestCellVoltage() {		
@@ -129,7 +143,7 @@ public class Run extends BaseState implements StateObject {
 		}
 		
 		if (getBattery3() == null) { // only battery one and two are existing
-			return getMaxCellVoltage(getBattery1()) >= getMaxCellVoltage(getBattery2());
+			return getMaxCellVoltage(getBattery2()) >= getMaxCellVoltage(getBattery1());
 		}
 		
 		return getMaxCellVoltage(getBattery2()) >= Math.max(getMaxCellVoltage(getBattery1()), getMaxCellVoltage(getBattery3())); 
@@ -145,11 +159,11 @@ public class Run extends BaseState implements StateObject {
 		}
 		
 		if (getBattery2() == null) { // only battery one and three are existing
-			return getMaxCellVoltage(getBattery1()) >= getMaxCellVoltage(getBattery3());
+			return getMaxCellVoltage(getBattery3()) >= getMaxCellVoltage(getBattery1());
 		}
 		
 		if (getBattery1() == null) { // only battery two and three are existing
-			return getMaxCellVoltage(getBattery2()) >= getMaxCellVoltage(getBattery3());
+			return getMaxCellVoltage(getBattery3()) >= getMaxCellVoltage(getBattery2());
 		}
 		
 		return getMaxCellVoltage(getBattery3()) >= Math.max(getMaxCellVoltage(getBattery1()), getMaxCellVoltage(getBattery2())); 

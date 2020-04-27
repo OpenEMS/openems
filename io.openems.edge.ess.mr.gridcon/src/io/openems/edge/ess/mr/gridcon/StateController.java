@@ -59,6 +59,8 @@ public class StateController {
 			float targetFrequencyOnGrid, float targetFrequencyOffGrid, String meterId, float deltaFrequency, float deltaVoltage, //
 			float offsetCurrent) {
 		
+		System.out.println("INIT state controller: offset current is: " + offsetCurrent);
+		
 		
 		stateObjects = new HashMap<IState, StateObject>();
 		

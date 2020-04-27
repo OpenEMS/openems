@@ -28,58 +28,22 @@ public class WeightingHelper {
 	}
 	
 	protected static Float[] getWeightingForNoPower(SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
-				
-		float voltageA = Float.MAX_VALUE;
-		float voltageB = Float.MAX_VALUE;
-		float voltageC = Float.MAX_VALUE;
 		
 		float weightA = 0;
 		if(isBatteryReady(b1)) {
 			weightA = 1;
-			voltageA = b1.getVoltage().value().get();
 		} 
 		float weightB = 0;
 		if(isBatteryReady(b2)) {
 			weightB = 1;
-			voltageB = b2.getVoltage().value().get();
 		}
 		
 		float weightC = 0;
 		if(isBatteryReady(b3)) {
 			weightC = 1;
-			voltageC = b3.getVoltage().value().get();
 		}		
 		
-		float minVoltage = Math.min(voltageA, Math.min(voltageB, voltageC));
-		
-		float factor = 10;
-		
-		Float[] ret = { 0f, 0f, 0f };
-		
-		if (weightA + weightB + weightC <= 1) {
-			
-			ret = new Float[] { weightA, weightB, weightC };
-			
-		} else {
-			if (weightA + weightB + weightC == 2) {
-				
-				weightA = Math.min((voltageA - minVoltage), 1) * weightA;
-				weightB = Math.min((voltageB - minVoltage), 1) * weightB;
-				weightC = Math.min((voltageC - minVoltage), 1) * weightC ;
-				
-				ret =  new Float[] {weightA, weightB, weightC};
-				
-			} else if (weightA + weightB + weightC == 3) {
-				
-				weightA = (voltageA - minVoltage) * weightA * factor;
-				weightB = (voltageB - minVoltage) * weightB * factor;
-				weightC = (voltageC - minVoltage) * weightC * factor;
-				
-				ret =  new Float[] {weightA, weightB, weightC};
-			}
-		}
-		
-		return ret;
+		return new Float[] {weightA, weightB, weightC};
 	}
 
 	static float getWeightingForCharge(SoltaroBattery b) {
