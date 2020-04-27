@@ -694,73 +694,73 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 				.unit(Unit.DEZIDEGREE_CELSIUS)), //
 
 		// StateChannels
-		ALARM_LEVEL_1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Voltage High Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Voltage Low Alarm Level 1")), //
-		ALARM_LEVEL_1_CELLS_UNBALANCE(Doc.of(Level.WARNING) //
+		PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Alarm Level 1 Battery Cells Unbalanced")), //
-		ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Discharge Temperature High Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Discharge Temperature Low Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Charge Temperature High Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Charge Temperature Low Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_TEMP_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell temperature Diff High Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_TEMP_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_POWER_POLE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Temperature High Alarm Level 1")), //
-		ALARM_LEVEL_1_DISCHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Discharge Current High Alarm Level 1")), //
-		ALARM_LEVEL_1_CHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Charge Current High Alarm Level 1")), //
 
-		ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Voltage High Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		LEVEL1_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Voltage Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELLS_UNBALANCE(Doc.of(Level.WARNING) //
+		LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Alarm Level 2 Battery Cells Unbalanced")), //
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Discharge Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
+		LEVEL1_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Discharge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Charge Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
+		LEVEL1_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Charge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_TEMP_DIFF_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_TEMP_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell temperature Diff High Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_POWER_POLE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Cell Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Discharge Current High Alarm Level 2")), //
-		ALARM_LEVEL_2_CHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Charge Current High Alarm Level 2")), //
 
-		ALARM_LEVEL_3_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Voltage High Alarm Level 3")), //
-		ALARM_LEVEL_3_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Voltage Low Alarm Level 3")), //
-		ALARM_LEVEL_3_CELLS_UNBALANCE(Doc.of(Level.WARNING) //
+		LEVEL2_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Alarm Level 3 Battery Cells Unbalanced")), //
-		ALARM_LEVEL_3_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Discharge Temperature High Alarm Level 3")), //
-		ALARM_LEVEL_3_CELL_DISCHA_TEMP_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Discharge Temperature Low Alarm Level 3")), //
-		ALARM_LEVEL_3_CELL_CHA_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Charge Temperature High Alarm Level 3")), //
-		ALARM_LEVEL_3_CELL_CHA_TEMP_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Charge Temperature Low Alarm Level 3")), //
-		ALARM_LEVEL_3_CELL_TEMP_DIFF_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_TEMP_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell temperature Diff High Alarm Level 3")), //
-		ALARM_LEVEL_3_CELL_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_POWER_POLE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Temperature High Alarm Level 3")), //
-		ALARM_LEVEL_3_DISCHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Discharge Current High Alarm Level 3")), //
-		ALARM_LEVEL_3_CHA_CURRENT_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Charge Current High Alarm Level 3")), //
 
 		ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH(Doc.of(Level.WARNING) //
@@ -839,65 +839,65 @@ public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 				.text("battery fault state")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		ALARM_LEVEL_1_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 SYSTEM VOLTAGE HIGH")), //
-		ALARM_LEVEL_1_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_1_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_1_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_1_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 POS INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_1_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 NEG INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_1_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 SYSTEM SOC LOWER")), //
-		ALARM_LEVEL_1_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 SYSTEM SOC HIGH")), //
-		ALARM_LEVEL_1_SOH_LOWER(Doc.of(Level.WARNING) //
+		PRE_ALARM_SOH_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 SOH LOWER")), //
-		ALARM_LEVEL_1_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
+		PRE_ALARM_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 1 PACK TEMP HIGH")), //
-		ALARM_LEVEL_2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE HIGH")), //
-		ALARM_LEVEL_2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		LEVEL1_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
+		LEVEL1_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_2_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL1_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL1_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 POS INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL1_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 NEG INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_2_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
+		LEVEL1_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM SOC LOWER")), //
-		ALARM_LEVEL_2_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SYSTEM SOC HIGH")), //
-		ALARM_LEVEL_2_SOH_LOWER(Doc.of(Level.WARNING) //
+		LEVEL1_SOH_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 SOH LOWER")), //
-		ALARM_LEVEL_2_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL1_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 PACK TEMP HIGH")), //
-		ALARM_LEVEL_3_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE HIGH")), //
-		ALARM_LEVEL_3_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_3_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE LOW")), //
-		ALARM_LEVEL_3_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_3_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 POS INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_3_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 NEG INSULATION RESISTANCE LOWER")), //
-		ALARM_LEVEL_3_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM SOC LOWER")), //
-		ALARM_LEVEL_3_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM SOC HIGH")), //
-		ALARM_LEVEL_3_SOH_LOWER(Doc.of(Level.WARNING) //
+		LEVEL2_SOH_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SOH LOWER")), //
-		ALARM_LEVEL_3_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
+		LEVEL2_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 PACK TEMP HIGH")), //
 		SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_11")), //

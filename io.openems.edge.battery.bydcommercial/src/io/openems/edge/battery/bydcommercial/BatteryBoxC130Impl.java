@@ -219,44 +219,44 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						m(new BitsWordElement(0x2140, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELLS_UNBALANCE) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_LOW) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CELL_TEMP_HIGH) //
-								.bit(10, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_DISCHA_CURRENT_HIGH) //
-								.bit(11, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
+								.bit(0, BatteryBoxC130.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG) //
+								.bit(3, BatteryBoxC130.ChannelId.PRE_ALARM_DISCHARGE_TEMP_HIGH) //
+								.bit(4, BatteryBoxC130.ChannelId.PRE_ALARM_DISCHARGE_TEMP_LOW) //
+								.bit(5, BatteryBoxC130.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
+								.bit(6, BatteryBoxC130.ChannelId.PRE_ALARM_CHARGE_TEMP_LOW) //
+								.bit(7, BatteryBoxC130.ChannelId.PRE_ALARM_TEMP_DIFF_TOO_BIG) //
+								.bit(9, BatteryBoxC130.ChannelId.PRE_ALARM_POWER_POLE_HIGH) //
+								.bit(10, BatteryBoxC130.ChannelId.PRE_ALARM_DISCHARGE_CURRENT_HIGH) //
+								.bit(11, BatteryBoxC130.ChannelId.PRE_ALARM_CHARGE_CURRENT_HIGH) //
 						), //
 						m(new BitsWordElement(0x2141, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELLS_UNBALANCE) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_TEMP_DIFF_HIGH) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CELL_TEMP_HIGH) //
-								.bit(10, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH) //
-								.bit(11, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH) //
+								.bit(0, BatteryBoxC130.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.LEVEL1_CELL_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG) //
+								.bit(3, BatteryBoxC130.ChannelId.LEVEL1_DISCHARGE_TEMP_HIGH) //
+								.bit(4, BatteryBoxC130.ChannelId.LEVEL1_DISCHARGE_TEMP_LOW) //
+								.bit(5, BatteryBoxC130.ChannelId.LEVEL1_CHARGE_TEMP_HIGH) //
+								.bit(6, BatteryBoxC130.ChannelId.LEVEL1_CHARGE_TEMP_LOW) //
+								.bit(7, BatteryBoxC130.ChannelId.LEVEL1_TEMP_DIFF_TOO_BIG) //
+								.bit(9, BatteryBoxC130.ChannelId.LEVEL1_POWER_POLE_HIGH) //
+								.bit(10, BatteryBoxC130.ChannelId.LEVEL1_DISCHARGE_CURRENT_HIGH) //
+								.bit(11, BatteryBoxC130.ChannelId.LEVEL1_CHARGE_CURRENT_HIGH) //
 						), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2142)), //
 						m(new BitsWordElement(0x2143, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELLS_UNBALANCE) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_DISCHA_TEMP_HIGH) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_DISCHA_TEMP_LOW) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_CHA_TEMP_HIGH) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_CHA_TEMP_LOW) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_TEMP_DIFF_HIGH) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CELL_TEMP_HIGH) //
-								.bit(10, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_DISCHA_CURRENT_HIGH) //
-								.bit(11, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_CHA_CURRENT_HIGH) //
+								.bit(0, BatteryBoxC130.ChannelId.LEVEL2_CELL_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.LEVEL2_CELL_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.LEVEL2_CELL_VOLTAGE_DIFF_TOO_BIG) //
+								.bit(3, BatteryBoxC130.ChannelId.LEVEL2_DISCHARGE_TEMP_HIGH) //
+								.bit(4, BatteryBoxC130.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW) //
+								.bit(5, BatteryBoxC130.ChannelId.LEVEL2_CHARGE_TEMP_HIGH) //
+								.bit(6, BatteryBoxC130.ChannelId.LEVEL2_CHARGE_TEMP_LOW) //
+								.bit(7, BatteryBoxC130.ChannelId.LEVEL2_TEMP_DIFF_TOO_BIG) //
+								.bit(9, BatteryBoxC130.ChannelId.LEVEL2_POWER_POLE_HIGH) //
+								.bit(10, BatteryBoxC130.ChannelId.LEVEL2_DISCHARGE_CURRENT_HIGH) //
+								.bit(11, BatteryBoxC130.ChannelId.LEVEL2_CHARGE_CURRENT_HIGH) //
 						), //
 						m(new BitsWordElement(0x2144, this) //
 								.bit(0, BatteryBoxC130.ChannelId.ALARM_SLAVE_CONTROL_SUMMARY) //
@@ -271,41 +271,41 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 								.bit(9, BatteryBoxC130.ChannelId.ALARM_FUSE) //
 						), //
 						m(new BitsWordElement(0x2145, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_VOLTAGE_UNBALANCED) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_INSULATION_RESISTANCE_LOWER) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_POS_INSULATION_RESISTANCE_LOWER) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_NEG_INSULATION_RESISTANCE_LOWER) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_SOC_LOWER) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SYSTEM_SOC_HIGH) //
-								.bit(8, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_SOH_LOWER) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_1_PACK_TEMP_HIGH) //
+								.bit(0, BatteryBoxC130.ChannelId.PRE_ALARM_SYSTEM_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.PRE_ALARM_SYSTEM_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.PRE_ALARM_SYSTEM_VOLTAGE_UNBALANCED) //
+								.bit(3, BatteryBoxC130.ChannelId.PRE_ALARM_INSULATION_RESISTANCE_LOWER) //
+								.bit(4, BatteryBoxC130.ChannelId.PRE_ALARM_POS_INSULATION_RESISTANCE_LOWER) //
+								.bit(5, BatteryBoxC130.ChannelId.PRE_ALARM_NEG_INSULATION_RESISTANCE_LOWER) //
+								.bit(6, BatteryBoxC130.ChannelId.PRE_ALARM_SYSTEM_SOC_LOWER) //
+								.bit(7, BatteryBoxC130.ChannelId.PRE_ALARM_SYSTEM_SOC_HIGH) //
+								.bit(8, BatteryBoxC130.ChannelId.PRE_ALARM_SOH_LOWER) //
+								.bit(9, BatteryBoxC130.ChannelId.PRE_ALARM_PACK_TEMP_HIGH) //
 						), //
 
 						m(new BitsWordElement(0x2146, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_VOLTAGE_UNBALANCED) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_INSULATION_RESISTANCE_LOWER) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_POS_INSULATION_RESISTANCE_LOWER) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_NEG_INSULATION_RESISTANCE_LOWER) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_SOC_LOWER) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SYSTEM_SOC_HIGH) //
-								.bit(8, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_SOH_LOWER) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_2_PACK_TEMP_HIGH) //
+								.bit(0, BatteryBoxC130.ChannelId.LEVEL1_SYSTEM_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.LEVEL1_SYSTEM_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.LEVEL1_SYSTEM_VOLTAGE_UNBALANCED) //
+								.bit(3, BatteryBoxC130.ChannelId.LEVEL1_INSULATION_RESISTANCE_LOWER) //
+								.bit(4, BatteryBoxC130.ChannelId.LEVEL1_POS_INSULATION_RESISTANCE_LOWER) //
+								.bit(5, BatteryBoxC130.ChannelId.LEVEL1_NEG_INSULATION_RESISTANCE_LOWER) //
+								.bit(6, BatteryBoxC130.ChannelId.LEVEL1_SYSTEM_SOC_LOWER) //
+								.bit(7, BatteryBoxC130.ChannelId.LEVEL1_SYSTEM_SOC_HIGH) //
+								.bit(8, BatteryBoxC130.ChannelId.LEVEL1_SOH_LOWER) //
+								.bit(9, BatteryBoxC130.ChannelId.LEVEL1_PACK_TEMP_HIGH) //
 						), //
 						m(new BitsWordElement(0x2147, this) //
-								.bit(0, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_VOLTAGE_HIGH) //
-								.bit(1, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_VOLTAGE_LOW) //
-								.bit(2, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_VOLTAGE_UNBALANCED) //
-								.bit(3, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_INSULATION_RESISTANCE_LOWER) //
-								.bit(4, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_POS_INSULATION_RESISTANCE_LOWER) //
-								.bit(5, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_NEG_INSULATION_RESISTANCE_LOWER) //
-								.bit(6, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_SOC_LOWER) //
-								.bit(7, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SYSTEM_SOC_HIGH) //
-								.bit(8, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_SOH_LOWER) //
-								.bit(9, BatteryBoxC130.ChannelId.ALARM_LEVEL_3_PACK_TEMP_HIGH))//
+								.bit(0, BatteryBoxC130.ChannelId.LEVEL2_SYSTEM_VOLTAGE_HIGH) //
+								.bit(1, BatteryBoxC130.ChannelId.LEVEL2_SYSTEM_VOLTAGE_LOW) //
+								.bit(2, BatteryBoxC130.ChannelId.LEVEL2_SYSTEM_VOLTAGE_UNBALANCED) //
+								.bit(3, BatteryBoxC130.ChannelId.LEVEL2_INSULATION_RESISTANCE_LOWER) //
+								.bit(4, BatteryBoxC130.ChannelId.LEVEL2_POS_INSULATION_RESISTANCE_LOWER) //
+								.bit(5, BatteryBoxC130.ChannelId.LEVEL2_NEG_INSULATION_RESISTANCE_LOWER) //
+								.bit(6, BatteryBoxC130.ChannelId.LEVEL2_SYSTEM_SOC_LOWER) //
+								.bit(7, BatteryBoxC130.ChannelId.LEVEL2_SYSTEM_SOC_HIGH) //
+								.bit(8, BatteryBoxC130.ChannelId.LEVEL2_SOH_LOWER) //
+								.bit(9, BatteryBoxC130.ChannelId.LEVEL2_PACK_TEMP_HIGH))//
 
 				), //
 				new FC3ReadRegistersTask(0x216C, Priority.HIGH, //
