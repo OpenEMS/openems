@@ -74,6 +74,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public class SingleRack extends AbstractOpenemsModbusComponent
 		implements Battery, SoltaroBattery, OpenemsComponent, EventHandler, ModbusSlave {
 
+
 	// , // JsonApi // TODO
 
 	protected static final int SYSTEM_ON = 1;

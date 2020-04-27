@@ -35,6 +35,8 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { HeatingElementModalComponent } from './heatingelement/modal/modal.component';
+import { HeatingElementComponent } from './heatingelement/heatingelement.component';
 
 @NgModule({
   imports: [
@@ -53,6 +55,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     EvcsPopoverComponent,
     FixDigitalOutputModalComponent,
     GridModalComponent,
+    HeatingElementModalComponent,
     ModalComponentEvcsCluster,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
@@ -80,6 +83,8 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     FixDigitalOutputModalComponent,
     GridComponent,
     GridModalComponent,
+    HeatingElementComponent,
+    HeatingElementModalComponent,
     InfoComponent,
     LiveComponent,
     ModalComponentEvcsCluster,
