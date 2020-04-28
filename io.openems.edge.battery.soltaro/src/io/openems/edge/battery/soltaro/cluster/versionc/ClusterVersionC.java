@@ -1,5 +1,8 @@
 package io.openems.edge.battery.soltaro.cluster.versionc;
 
+import java.util.Optional;
+import java.util.Set;
+
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.Level;
@@ -7,47 +10,72 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
+import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
+import io.openems.edge.battery.soltaro.cluster.enums.Rack;
+import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 
-public interface ClusterVersionC extends Battery, OpenemsComponent, EventHandler, ModbusSlave {
+public interface ClusterVersionC extends //
+		SoltaroBatteryVersionC, SoltaroCluster, Battery, //
+		OpenemsComponent, EventHandler, ModbusSlave {
+
+	/**
+	 * Is the system stopped?
+	 * 
+	 * @return true if stopped
+	 */
+	public boolean isSystemStopped();
+
+	/**
+	 * Is the system running?
+	 * 
+	 * @return true if running
+	 */
+	public boolean isSystemRunning();
+
+	/**
+	 * Gets the common {@link ContactorControl}. If all Racks share the same
+	 * {@link ContactorControl} state, that one is returned; otherwise
+	 * Optional.empty.
+	 * 
+	 * @return the ContactorControl state of all Reacks; or empty if they are
+	 *         different
+	 */
+	public Optional<ContactorControl> getCommonContactorControlState();
+
+	/**
+	 * Gets the active Racks.
+	 * 
+	 * @return a set of Racks
+	 */
+	Set<Rack> getRacks();
+
+	/**
+	 * Gets the Channel for a Rack.
+	 * 
+	 * @param <T>        the expected typed Channel
+	 * @param rack       the {@link Rack}
+	 * @param rackChannel the {@link RackChannel}
+	 * @return the typed Channel
+	 */
+	public <T extends Channel<?>> T channel(Rack rack, RackChannel rackChannel);
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		// EnumReadChannels
+		/*
+		 * EnumReadChannels
+		 */
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-//		CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
-//		SYSTEM_RUNNING_STATE(Doc.of(Enums.RunningState.values())), //
 
-		// IntegerWriteChannels
-//		RESET(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.NONE) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-//		RACK_1_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-//		RACK_2_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-//		RACK_3_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-//		RACK_4_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-//		RACK_5_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-//		SYSTEM_INSULATION_LEVEL_1(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.OHM) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-//		SYSTEM_INSULATION_LEVEL_2(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.OHM) //
-//				.accessMode(AccessMode.READ_WRITE)), //
-
-		// IntegerReadChannels
+		/*
+		 * IntegerReadChannels
+		 */
 		ORIGINAL_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)),
-//		SYSTEM_CURRENT(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.MILLIAMPERE)), //
-//		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.OHM)), //
 
 		/*
 		 * StateChannels
@@ -123,79 +151,7 @@ public interface ClusterVersionC extends Battery, OpenemsComponent, EventHandler
 		RACK_5_OVER_CURRENT(Doc.of(Level.FAULT) //
 				.text("Rack 5 Too big circulating Current among clusters (>4A)")),
 		RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-				.text("Rack 5 Too big boltage difference among clusters (>50V)")),
-//		MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER(Doc.of(Level.FAULT) //
-//				.text("Communication error with submaster")),
-//		MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE(Doc.of(Level.FAULT) //
-//				.text("PCS/EMS communication failure alarm")),
-//		MASTER_ALARM_PCS_EMS_CONTROL_FAIL(Doc.of(Level.FAULT) //
-//				.text("PCS/EMS control fail alarm")),
-//		MASTER_ALARM_LEVEL_1_INSULATION(Doc.of(Level.WARNING) //
-//				.text("System insulation alarm level 1")),
-//		MASTER_ALARM_LEVEL_2_INSULATION(Doc.of(Level.FAULT) //
-//				.text("System insulation alarm level 2")),
-//		SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(Doc.of(Level.OK) //
-//				.text("Communication to sub master 1 fault")),
-//		SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(Doc.of(Level.OK) //
-//				.text("Communication to sub master 2 fault")),
-//		SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(Doc.of(Level.OK) //
-//				.text("Communication to sub master 3 fault")),
-//		SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4(Doc.of(Level.OK) //
-//				.text("Communication to sub master 4 fault")),
-
-		//
-//		RACK_2_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
-//				.text("Rack 2 Level 2 Alarm")),
-//		RACK_2_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
-//				.text("Rack 2 PCS control fault")),
-//		RACK_2_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 2 Communication with master error")),
-//		RACK_2_DEVICE_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 2 Device error")),
-//		RACK_2_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Cycle over current")),
-//		RACK_2_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Voltage difference")),
-		//
-//		RACK_3_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
-//				.text("Rack 3 Level 2 Alarm")),
-//		RACK_3_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
-//				.text("Rack 3 PCS control fault")),
-//		RACK_3_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 3 Communication with master error")),
-//		RACK_3_DEVICE_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 3 Device error")),
-//		RACK_3_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Cycle over current")),
-//		RACK_3_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Voltage difference")),
-		//
-//		RACK_4_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
-//				.text("Rack 4 Level 2 Alarm")),
-//		RACK_4_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
-//				.text("Rack 4 PCS control fault")),
-//		RACK_4_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 4 Communication with master error")),
-//		RACK_4_DEVICE_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 4 Device error")),
-//		RACK_4_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Cycle over current")),
-//		RACK_4_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Voltage difference")),
-		//
-//		RACK_5_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
-//				.text("Rack 5 Level 2 Alarm")),
-//		RACK_5_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
-//				.text("Rack 5 PCS control fault")),
-//		RACK_5_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 5 Communication with master error")),
-//		RACK_5_DEVICE_ERROR(Doc.of(Level.FAULT) //
-//				.text("Rack 5 Device error")),
-//		RACK_5_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Cycle over current")),
-//		RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-//				.text("Rack 1 Voltage difference"))
-		;
+				.text("Rack 5 Too big boltage difference among clusters (>50V)")),;
 
 		private final Doc doc;
 
@@ -208,5 +164,4 @@ public interface ClusterVersionC extends Battery, OpenemsComponent, EventHandler
 			return this.doc;
 		}
 	}
-
 }

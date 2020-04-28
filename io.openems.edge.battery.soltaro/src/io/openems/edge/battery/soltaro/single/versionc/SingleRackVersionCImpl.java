@@ -141,10 +141,10 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		try {
 			this.stateMachine.run(context);
 
-			this.channel(SingleRackVersionC.ChannelId.RUN_FAILED).setNextValue(false);
+			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(false);
 
 		} catch (OpenemsNamedException e) {
-			this.channel(SingleRackVersionC.ChannelId.RUN_FAILED).setNextValue(true);
+			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
@@ -373,10 +373,10 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				// Other Alarm Info
 				new FC3ReadRegistersTask(0x21A5, Priority.LOW, //
 						m(new BitsWordElement(0x21A5, this) //
-								.bit(0, SingleRackVersionC.ChannelId.ALARM_COMMUNICATION_TO_MASTER_BMS) //
-								.bit(1, SingleRackVersionC.ChannelId.ALARM_COMMUNICATION_TO_SLAVE_BMS) //
-								.bit(2, SingleRackVersionC.ChannelId.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS) //
-								.bit(3, SingleRackVersionC.ChannelId.ALARM_SLAVE_BMS_HARDWARE) //
+								.bit(0, SoltaroBatteryVersionC.ChannelId.ALARM_COMMUNICATION_TO_MASTER_BMS) //
+								.bit(1, SoltaroBatteryVersionC.ChannelId.ALARM_COMMUNICATION_TO_SLAVE_BMS) //
+								.bit(2, SoltaroBatteryVersionC.ChannelId.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS) //
+								.bit(3, SoltaroBatteryVersionC.ChannelId.ALARM_SLAVE_BMS_HARDWARE) //
 						)), //
 
 				// Slave BMS Fault Message Registers

@@ -1,7 +1,7 @@
 package io.openems.edge.battery.soltaro.cluster.versionc;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -22,15 +22,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.BatteryState;
-import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
-import io.openems.edge.battery.soltaro.cluster.enums.RackInfo;
+import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
+import io.openems.edge.battery.soltaro.cluster.enums.Rack;
+import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
+import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -43,6 +45,9 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -54,35 +59,26 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.Cluster.VersionC", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-)
-public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
-		implements ClusterVersionC, SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
-
-	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
-	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
+public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implements //
+		ClusterVersionC, SoltaroBattery, SoltaroBatteryVersionC, SoltaroCluster, //
+		Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(ClusterVersionCImpl.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	// If an error has occurred, this indicates the time when next action could be
-	// done
-	private LocalDateTime errorDelayIsOver = null;
-	private int unsuccessfulStarts = 0;
-	private LocalDateTime startAttemptTime = null;
-	private String modbusBridgeId;
-	private BatteryState batteryState;
-	private State state = State.UNDEFINED;
-	private Config config;
-	private Set<RackInfo> racks = new HashSet<>();
-	// this timestamp is used to wait a certain time if system state could no be
-	// determined at once
-	private LocalDateTime pendingTimestamp;
+	/**
+	 * Manages the {@link State}s of the StateMachine.
+	 */
+	private final StateMachine stateMachine = new StateMachine();
 
-	private ResetState resetState = ResetState.NONE;
-	private boolean resetDone;
+	private Config config;
+	private Set<Rack> racks = new HashSet<>();
 
 	public ClusterVersionCImpl() {
 		super(//
@@ -90,6 +86,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 				Battery.ChannelId.values(), //
 				SoltaroBattery.ChannelId.values(), //
 				SoltaroBatteryVersionC.ChannelId.values(), //
+				SoltaroCluster.ChannelId.values(), //
 				ClusterVersionC.ChannelId.values() //
 		);
 	}
@@ -100,39 +97,43 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		// Initialize active racks
 		if (config.isRack1Used()) {
-			this.racks.add(RackInfo.RACK_1);
+			this.racks.add(Rack.RACK_1);
 		}
 		if (config.isRack2Used()) {
-			this.racks.add(RackInfo.RACK_2);
+			this.racks.add(Rack.RACK_2);
 		}
 		if (config.isRack3Used()) {
-			this.racks.add(RackInfo.RACK_3);
+			this.racks.add(Rack.RACK_3);
 		}
 		if (config.isRack4Used()) {
-			this.racks.add(RackInfo.RACK_4);
+			this.racks.add(Rack.RACK_4);
 		}
 		if (config.isRack5Used()) {
-			this.racks.add(RackInfo.RACK_5);
+			this.racks.add(Rack.RACK_5);
 		}
 
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
-		this.config = config;
-//		this.modbusBridgeId = config.modbus_id();
-//		this.batteryState = config.batteryState();
-//
-//		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(ClusterVersionCImpl.CHARGE_MAX_A);
-//		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(ClusterVersionCImpl.DISCHARGE_MAX_A);
-//		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
-//				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
-//		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
-//				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
-//		this.channel(Battery.ChannelId.CAPACITY).setNextValue(
-//				this.config.racks().length * this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh());
+		// Calculate Capacity
+		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
+		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
+
+		// Set Watchdog Timeout
+		IntegerWriteChannel c = this.channel(SoltaroBatteryVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT);
+		c.setNextWriteValue(config.watchdog());
+
+		// Initialize Battery Limits
+		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */ );
+		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */ );
+		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
+				.setNextValue(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT / 1000);
+		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
+				.setNextValue(this.config.numberOfSlaves() * Constants.MIN_VOLTAGE_MILLIVOLT / 1000);
 	}
 
 	@Override
@@ -142,323 +143,48 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
-//			this.handleBatteryState();
+			break;
+
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.handleStateMachine();
 			break;
 		}
 	}
 
 	/**
-	 * Updates Channels on AFTER_PROCESS_IMAGE event.
+	 * Handles the State-Machine.
 	 */
-	private void updateChannels() {
-//		this.recalculateSoc();
+	private void handleStateMachine() {
+		// Store the current State
+		this.channel(ClusterVersionC.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
+
+		// Initialize 'Ready-For-Working' Channel
+		this.setReadyForWorking(false);
+
+		// Prepare Context
+		StateMachine.Context context = new StateMachine.Context(this, this.config);
+
+		// Call the StateMachine
+		try {
+			this.stateMachine.run(context);
+
+			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(false);
+
+		} catch (OpenemsNamedException e) {
+			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(true);
+			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+		}
 	}
 
-//	private void handleBatteryState() {
-//		switch (this.batteryState) {
-//		case DEFAULT:
-//			this.handleStateMachine();
-//			break;
-//		case OFF:
-//			this.stopSystem();
-//			break;
-//		case ON:
-//			this.startSystem();
-//			break;
-//		case CONFIGURE:
-//			this.logWarn(this.log, "Cluster cannot be configured currently!");
-//			break;
-//		}
-//	}
-//
-//	private void handleStateMachine() {
-//		// log.info("Cluster.doNormalHandling(): State: " +
-//		// this.getStateMachineState());
-//		boolean readyForWorking = false;
-//		switch (this.getStateMachineState()) {
-//		case ERROR:
-//			stopSystem();
-//			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-//			setStateMachineState(State.ERRORDELAY);
-//			break;
-//		case ERRORDELAY:
-//			// If we are in the error delay time, the system is resetted, this can help
-//			// handling the rrors
-//			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
-//				errorDelayIsOver = null;
-//				resetDone = false;
-//				if (this.isError()) {
-//					this.setStateMachineState(State.ERROR);
-//				} else {
-//					this.setStateMachineState(State.UNDEFINED);
-//				}
-//			} else if (!resetDone) {
-//				this.handleErrorsWithReset();
-//			}
-//			break;
-//
-//		case INIT:
-//			if (this.isSystemRunning()) {
-//				this.setStateMachineState(State.RUNNING);
-//				unsuccessfulStarts = 0;
-//				startAttemptTime = null;
-//			} else {
-//				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
-//					startAttemptTime = null;
-//					unsuccessfulStarts++;
-//					this.stopSystem();
-//					this.setStateMachineState(State.STOPPING);
-//					if (unsuccessfulStarts >= config.maxStartAppempts()) {
-//						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
-//						this.setStateMachineState(State.ERRORDELAY);
-//						unsuccessfulStarts = 0;
-//					}
-//				}
-//			}
-//			break;
-//		case OFF:
-//			this.startSystem();
-//			this.setStateMachineState(State.INIT);
-//			startAttemptTime = LocalDateTime.now();
-//			break;
-//		case RUNNING:
-//			if (this.isSystemRunning()) {
-//				if (this.isError()) {
-//					this.setStateMachineState(State.ERROR);
-//				} else {
-//					readyForWorking = true;
-//					this.setStateMachineState(State.RUNNING);
-//				}
-//			} else {
-//				this.setStateMachineState(State.UNDEFINED);
-//			}
-//			break;
-//		case STOPPING:
-//			if (this.isError()) {
-//				this.setStateMachineState(State.ERROR);
-//			} else {
-//				if (this.isSystemStopped()) {
-//					this.setStateMachineState(State.OFF);
-//				}
-//			}
-//			break;
-//		case UNDEFINED:
-//			if (this.isError()) {
-//				this.setStateMachineState(State.ERROR);
-//			} else if (this.isSystemStopped()) {
-//				this.setStateMachineState(State.OFF);
-//			} else if (this.isSystemRunning()) {
-//				this.setStateMachineState(State.RUNNING);
-//			} else if (this.isSystemStatePending()) {
-//				this.setStateMachineState(State.PENDING);
-//			}
-//			break;
-//		case PENDING:
-//			if (this.pendingTimestamp == null) {
-//				this.pendingTimestamp = LocalDateTime.now();
-//			}
-//			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
-//				// System state could not be determined, stop and start it
-//				this.pendingTimestamp = null;
-//				this.stopSystem();
-//				this.setStateMachineState(State.OFF);
-//			} else {
-//				if (this.isError()) {
-//					this.setStateMachineState(State.ERROR);
-//					this.pendingTimestamp = null;
-//				} else if (this.isSystemStopped()) {
-//					this.setStateMachineState(State.OFF);
-//					this.pendingTimestamp = null;
-//				} else if (this.isSystemRunning()) {
-//					this.setStateMachineState(State.RUNNING);
-//					this.pendingTimestamp = null;
-//				}
-//			}
-//			break;
-//		case ERROR_HANDLING:
-//			this.handleErrorsWithReset();
-//			break;
-//		}
-//		this.getReadyForWorking().setNextValue(readyForWorking);
-//	}
-//
-//	private void handleErrorsWithReset() {
-//		// To reset the cell drift phenomenon, first sleep and then reset the system
-//		switch (this.resetState) {
-//		case NONE:
-//			this.resetState = ResetState.SLEEP;
-//			break;
-//		case SLEEP:
-//			this.sleepSystem();
-//			this.resetState = ResetState.RESET;
-//			break;
-//		case RESET:
-//			this.resetSystem();
-//			this.resetState = ResetState.FINISHED;
-//			break;
-//		case FINISHED:
-//			this.resetState = ResetState.NONE;
-//			this.setStateMachineState(State.ERRORDELAY);
-//			resetDone = true;
-//			break;
-//		}
-//	}
-//
-//	private boolean isError() {
-//		// still TODO define what is exactly an error
-//		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
-//			return true;
-//		}
-//		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
-//			return true;
-//		}
-//		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
-//			return true;
-//		}
-//		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
-//			return true;
-//		}
-//
-//		// Check for communication errors
-//		for (int key : this.racks.keySet()) {
-//			if (this.readValueFromStateChannel(RACK_INFO.get(key).subMasterCommunicationAlarmChannelId)) {
-//				return true;
-//			}
-//		}
-//
-//		return false;
-//	}
-//
-//	protected Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
-//		return super.addChannel(channelId);
-//	}
-//
-//	private boolean readValueFromStateChannel(io.openems.edge.common.channel.ChannelId channelId) {
-//		StateChannel s = this.channel(channelId);
-//		Optional<Boolean> val = s.value().asOptional();
-//		return val.isPresent() && val.get();
-//	}
-//
-//	private boolean isSystemStopped() {
-//		return haveAllRacksTheSameContactorControlState(ContactorControl.CUT_OFF);
-//	}
-//
-//	private boolean isSystemRunning() {
-//		return haveAllRacksTheSameContactorControlState(ContactorControl.ON_GRID);
-//	}
-//
-//	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
-//		boolean b = true;
-//		for (SingleRack r : this.racks.values()) {
-//			b = b && cctrl == this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value()
-//					.asEnum();
-//		}
-//		return b;
-//	}
-//
-//	/**
-//	 * Checks whether system has an undefined state, e.g. rack 1 & 2 are configured,
-//	 * but only rack 1 is running. This state can only be reached at startup coming
-//	 * from state undefined
-//	 */
-//	private boolean isSystemStatePending() {
-//		boolean b = true;
-//
-//		for (SingleRack r : this.racks.values()) {
-//			EnumReadChannel channel = this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId);
-//			Optional<Integer> val = channel.value().asOptional();
-//			b = b && val.isPresent();
-//		}
-//
-//		return b && !isSystemRunning() && !isSystemStopped();
-//	}
-//
-//	@Override
-//	public String debugLog() {
-//		return "SoC:" + this.getSoc().value() //
-//				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-//				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
-//	}
-//
-//	private void sleepSystem() {
-//		// Write sleep and reset to all racks
-//		for (SingleRack rack : this.racks.values()) {
-//			IntegerWriteChannel sleepChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_SLEEP);
-//			try {
-//				sleepChannel.setNextWriteValue(0x1);
-//			} catch (OpenemsNamedException e) {
-//				this.logError(this.log, "Error while trying to sleep the system!");
-//			}
-//			this.setStateMachineState(State.UNDEFINED);
-//		}
-//	}
-//
-//	private void resetSystem() {
-//		// Write reset to all racks and the master
-//
-//		IntegerWriteChannel resetMasterChannel = (IntegerWriteChannel) this.channel(ClusterChannelId.RESET);
-//		try {
-//			resetMasterChannel.setNextWriteValue(0x1);
-//		} catch (OpenemsNamedException e) {
-//			this.logError(this.log, "Error while trying to reset the master!");
-//		}
-//
-//		for (SingleRack rack : this.racks.values()) {
-//			IntegerWriteChannel resetChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_RESET);
-//			try {
-//				resetChannel.setNextWriteValue(0x1);
-//			} catch (OpenemsNamedException e) {
-//				this.logError(this.log, "Error while trying to reset the system!");
-//			}
-//		}
-//	}
-//
-//	private void startSystem() {
-//		EnumWriteChannel startStopChannel = this.channel(ClusterChannelId.START_STOP);
-//		try {
-//			startStopChannel.setNextWriteValue(StartStop.START);
-//			// Only set the racks that are used, but set the others to unused
-//			for (int i : RACK_INFO.keySet()) {
-//				EnumWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(i).usageChannelId);
-//				if (this.racks.containsKey(i)) {
-//					rackUsageChannel.setNextWriteValue(RackUsage.USED);
-//				} else {
-//					rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
-//				}
-//			}
-//		} catch (OpenemsNamedException e) {
-//			this.logError(this.log, "Error while trying to start system\n" + e.getMessage());
-//		}
-//	}
-//
-//	private void stopSystem() {
-//		EnumWriteChannel startStopChannel = this.channel(ClusterChannelId.START_STOP);
-//		try {
-//			startStopChannel.setNextWriteValue(StartStop.STOP);
-//			// write to all racks unused!!
-//			for (RackInfo r : RACK_INFO.values()) {
-//				EnumWriteChannel rackUsageChannel = this.channel(r.usageChannelId);
-//				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
-//			}
-//		} catch (OpenemsNamedException e) {
-//			this.logError(this.log, "Error while trying to stop system\n" + e.getMessage());
-//		}
-//	}
-//
-//	public String getModbusBridgeId() {
-//		return modbusBridgeId;
-//	}
-//
-//	public State getStateMachineState() {
-//		return state;
-//	}
-//
-//	public void setStateMachineState(State state) {
-//		this.state = state;
-//		this.channel(ClusterChannelId.STATE_MACHINE).setNextValue(this.state);
-//	}
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc().value() //
+				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() //
+				+ "|State:" + this.stateMachine.getCurrentState();
+	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
@@ -654,164 +380,165 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 
 		// Create racks dynamically, do this before super() call because super() uses
 		// getModbusProtocol, and it is using racks...
-		for (RackInfo r : this.racks) {
+		for (Rack r : this.racks) {
 			protocol.addTasks(//
 					// Single Cluster Control Registers (running without Master BMS)
 					new FC6WriteRegisterTask(r.offset + 0x0010, //
-							m(rack(r, SingleRack.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)) //
+							m(rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)) //
 					), //
 					new FC16WriteRegistersTask(r.offset + 0x000B, //
-							m(rack(r, SingleRack.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
-							m(rack(r, SingleRack.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)) //
+							m(rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
+							m(rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)) //
 					), //
-					new FC6WriteRegisterTask(r.offset + 0x00F4,
-							m(rack(r, SingleRack.EMS_COMMUNICATION_TIMEOUT), new UnsignedWordElement(r.offset + 0x00F4)) //
+					new FC6WriteRegisterTask(r.offset + 0x00F4, m(rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
+							new UnsignedWordElement(r.offset + 0x00F4)) //
 					), //
 					new FC3ReadRegistersTask(r.offset + 0x000B, Priority.LOW, //
-							m(rack(r, SingleRack.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
-							m(rack(r, SingleRack.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)), //
+							m(rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
+							m(rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)), //
 							new DummyRegisterElement(r.offset + 0x000D, r.offset + 0x000F),
-							m(rack(r, SingleRack.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)), //
+							m(rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)), //
 							new DummyRegisterElement(r.offset + 0x0011, r.offset + 0x0014),
-							m(rack(r, SingleRack.SET_SUB_MASTER_ADDRESS), new UnsignedWordElement(r.offset + 0x0015)) //
+							m(rack(r, RackChannel.SET_SUB_MASTER_ADDRESS), new UnsignedWordElement(r.offset + 0x0015)) //
 					), //
 					new FC3ReadRegistersTask(r.offset + 0x00F4, Priority.LOW, //
-							m(rack(r, SingleRack.EMS_COMMUNICATION_TIMEOUT), new UnsignedWordElement(r.offset + 0x00F4)) //
+							m(rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
+									new UnsignedWordElement(r.offset + 0x00F4)) //
 					),
 
 					// Single Cluster Control Registers (General)
 					new FC6WriteRegisterTask(r.offset + 0x00CC, //
-							m(rack(r, SingleRack.SYSTEM_TOTAL_CAPACITY), new UnsignedWordElement(r.offset + 0x00CC)) //
+							m(rack(r, RackChannel.SYSTEM_TOTAL_CAPACITY), new UnsignedWordElement(r.offset + 0x00CC)) //
 					), //
 					new FC6WriteRegisterTask(r.offset + 0x0015, //
-							m(rack(r, SingleRack.SET_SUB_MASTER_ADDRESS), new UnsignedWordElement(r.offset + 0x0015)) //
+							m(rack(r, RackChannel.SET_SUB_MASTER_ADDRESS), new UnsignedWordElement(r.offset + 0x0015)) //
 					), //
 					new FC6WriteRegisterTask(r.offset + 0x00F3, //
-							m(rack(r, SingleRack.VOLTAGE_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x00F3)) //
+							m(rack(r, RackChannel.VOLTAGE_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x00F3)) //
 					), //
 					new FC3ReadRegistersTask(r.offset + 0x00CC, Priority.LOW, //
-							m(this.rack(r, SingleRack.SYSTEM_TOTAL_CAPACITY),
+							m(this.rack(r, RackChannel.SYSTEM_TOTAL_CAPACITY),
 									new UnsignedWordElement(r.offset + 0x00CC)) //
 					),
 
 					// Single Cluster Status Registers
 					new FC3ReadRegistersTask(r.offset + 0x100, Priority.HIGH, //
-							m(rack(r, SingleRack.VOLTAGE), new UnsignedWordElement(r.offset + 0x100),
+							m(rack(r, RackChannel.VOLTAGE), new UnsignedWordElement(r.offset + 0x100),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, SingleRack.CURRENT), new UnsignedWordElement(r.offset + 0x101),
+							m(rack(r, RackChannel.CURRENT), new UnsignedWordElement(r.offset + 0x101),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, SingleRack.CHARGE_INDICATION), new UnsignedWordElement(r.offset + 0x102)),
-							m(rack(r, SingleRack.SOC), new UnsignedWordElement(r.offset + 0x103)),
-							m(rack(r, SingleRack.SOH), new UnsignedWordElement(r.offset + 0x104)),
-							m(rack(r, SingleRack.MAX_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x105)),
-							m(rack(r, SingleRack.MAX_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x106)),
-							m(rack(r, SingleRack.MIN_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x107)),
-							m(rack(r, SingleRack.MIN_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x108)),
-							m(rack(r, SingleRack.MAX_CELL_TEMPERATURE_ID), new UnsignedWordElement(r.offset + 0x109)),
-							m(rack(r, SingleRack.MAX_CELL_TEMPERATURE), new UnsignedWordElement(r.offset + 0x10A)),
-							m(rack(r, SingleRack.MIN_CELL_TEMPERATURE_ID), new UnsignedWordElement(r.offset + 0x10B)),
-							m(rack(r, SingleRack.MIN_CELL_TEMPERATURE), new UnsignedWordElement(r.offset + 0x10C)),
-							m(rack(r, SingleRack.AVERAGE_VOLTAGE), new UnsignedWordElement(r.offset + 0x10D)),
-							m(rack(r, SingleRack.SYSTEM_INSULATION), new UnsignedWordElement(r.offset + 0x10E)),
-							m(rack(r, SingleRack.SYSTEM_MAX_CHARGE_CURRENT), new UnsignedWordElement(r.offset + 0x10F),
+							m(rack(r, RackChannel.CHARGE_INDICATION), new UnsignedWordElement(r.offset + 0x102)),
+							m(rack(r, RackChannel.SOC), new UnsignedWordElement(r.offset + 0x103)),
+							m(rack(r, RackChannel.SOH), new UnsignedWordElement(r.offset + 0x104)),
+							m(rack(r, RackChannel.MAX_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x105)),
+							m(rack(r, RackChannel.MAX_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x106)),
+							m(rack(r, RackChannel.MIN_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x107)),
+							m(rack(r, RackChannel.MIN_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x108)),
+							m(rack(r, RackChannel.MAX_CELL_TEMPERATURE_ID), new UnsignedWordElement(r.offset + 0x109)),
+							m(rack(r, RackChannel.MAX_CELL_TEMPERATURE), new UnsignedWordElement(r.offset + 0x10A)),
+							m(rack(r, RackChannel.MIN_CELL_TEMPERATURE_ID), new UnsignedWordElement(r.offset + 0x10B)),
+							m(rack(r, RackChannel.MIN_CELL_TEMPERATURE), new UnsignedWordElement(r.offset + 0x10C)),
+							m(rack(r, RackChannel.AVERAGE_VOLTAGE), new UnsignedWordElement(r.offset + 0x10D)),
+							m(rack(r, RackChannel.SYSTEM_INSULATION), new UnsignedWordElement(r.offset + 0x10E)),
+							m(rack(r, RackChannel.SYSTEM_MAX_CHARGE_CURRENT), new UnsignedWordElement(r.offset + 0x10F),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, SingleRack.SYSTEM_MAX_DISCHARGE_CURRENT),
+							m(rack(r, RackChannel.SYSTEM_MAX_DISCHARGE_CURRENT),
 									new UnsignedWordElement(r.offset + 0x110),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, SingleRack.POSITIVE_INSULATION), new UnsignedWordElement(r.offset + 0x111)),
-							m(rack(r, SingleRack.NEGATIVE_INSULATION), new UnsignedWordElement(r.offset + 0x112)),
-							m(rack(r, SingleRack.CLUSTER_RUN_STATE), new UnsignedWordElement(r.offset + 0x113)),
-							m(rack(r, SingleRack.AVG_TEMPERATURE), new UnsignedWordElement(r.offset + 0x114))),
+							m(rack(r, RackChannel.POSITIVE_INSULATION), new UnsignedWordElement(r.offset + 0x111)),
+							m(rack(r, RackChannel.NEGATIVE_INSULATION), new UnsignedWordElement(r.offset + 0x112)),
+							m(rack(r, RackChannel.CLUSTER_RUN_STATE), new UnsignedWordElement(r.offset + 0x113)),
+							m(rack(r, RackChannel.AVG_TEMPERATURE), new UnsignedWordElement(r.offset + 0x114))),
 					new FC3ReadRegistersTask(r.offset + 0x18b, Priority.LOW,
-							m(rack(r, SingleRack.PROJECT_ID), new UnsignedWordElement(r.offset + 0x18b)),
-							m(rack(r, SingleRack.VERSION_MAJOR), new UnsignedWordElement(r.offset + 0x18c)),
-							m(rack(r, SingleRack.VERSION_SUB), new UnsignedWordElement(r.offset + 0x18d)),
-							m(rack(r, SingleRack.VERSION_MODIFY), new UnsignedWordElement(r.offset + 0x18e))),
+							m(rack(r, RackChannel.PROJECT_ID), new UnsignedWordElement(r.offset + 0x18b)),
+							m(rack(r, RackChannel.VERSION_MAJOR), new UnsignedWordElement(r.offset + 0x18c)),
+							m(rack(r, RackChannel.VERSION_SUB), new UnsignedWordElement(r.offset + 0x18d)),
+							m(rack(r, RackChannel.VERSION_MODIFY), new UnsignedWordElement(r.offset + 0x18e))),
 
 					// System Warning/Shut Down Status Registers
 					new FC3ReadRegistersTask(r.offset + 0x140, Priority.LOW,
 							// Level 2 Alarm: BMS Self-protect, main contactor shut down
 							m(new BitsWordElement(r.offset + 0x140, this) //
-									.bit(0, rack(r, SingleRack.LEVEL2_CELL_VOLTAGE_HIGH)) //
-									.bit(1, rack(r, SingleRack.LEVEL2_TOTAL_VOLTAGE_HIGH)) //
-									.bit(2, rack(r, SingleRack.LEVEL2_CHARGE_CURRENT_HIGH)) //
-									.bit(3, rack(r, SingleRack.LEVEL2_CELL_VOLTAGE_LOW)) //
-									.bit(4, rack(r, SingleRack.LEVEL2_TOTAL_VOLTAGE_LOW)) //
-									.bit(5, rack(r, SingleRack.LEVEL2_DISCHARGE_CURRENT_HIGH)) //
-									.bit(6, rack(r, SingleRack.LEVEL2_CHARGE_TEMP_HIGH)) //
-									.bit(7, rack(r, SingleRack.LEVEL2_CHARGE_TEMP_LOW)) //
+									.bit(0, rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_HIGH)) //
+									.bit(1, rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, rack(r, RackChannel.LEVEL2_CHARGE_CURRENT_HIGH)) //
+									.bit(3, rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_LOW)) //
+									.bit(4, rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, rack(r, RackChannel.LEVEL2_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, rack(r, RackChannel.LEVEL2_CHARGE_TEMP_HIGH)) //
+									.bit(7, rack(r, RackChannel.LEVEL2_CHARGE_TEMP_LOW)) //
 									// 8 -> Reserved
 									// 9 -> Reserved
-									.bit(10, rack(r, SingleRack.LEVEL2_POWER_POLE_TEMP_HIGH)) //
+									.bit(10, rack(r, RackChannel.LEVEL2_POWER_POLE_TEMP_HIGH)) //
 									// 11 -> Reserved
-									.bit(12, rack(r, SingleRack.LEVEL2_INSULATION_VALUE)) //
+									.bit(12, rack(r, RackChannel.LEVEL2_INSULATION_VALUE)) //
 									// 13 -> Reserved
-									.bit(14, rack(r, SingleRack.LEVEL2_DISCHARGE_TEMP_HIGH)) //
-									.bit(15, rack(r, SingleRack.LEVEL2_DISCHARGE_TEMP_LOW)) //
+									.bit(14, rack(r, RackChannel.LEVEL2_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, rack(r, RackChannel.LEVEL2_DISCHARGE_TEMP_LOW)) //
 							),
 							// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
 							m(new BitsWordElement(r.offset + 0x141, this) //
-									.bit(0, rack(r, SingleRack.LEVEL1_CELL_VOLTAGE_HIGH)) //
-									.bit(1, rack(r, SingleRack.LEVEL1_TOTAL_VOLTAGE_HIGH)) //
-									.bit(2, rack(r, SingleRack.LEVEL1_CHARGE_CURRENT_HIGH)) //
-									.bit(3, rack(r, SingleRack.LEVEL1_CELL_VOLTAGE_LOW)) //
-									.bit(4, rack(r, SingleRack.LEVEL1_TOTAL_VOLTAGE_LOW)) //
-									.bit(5, rack(r, SingleRack.LEVEL1_DISCHARGE_CURRENT_HIGH)) //
-									.bit(6, rack(r, SingleRack.LEVEL1_CHARGE_TEMP_HIGH)) //
-									.bit(7, rack(r, SingleRack.LEVEL1_CHARGE_TEMP_LOW)) //
-									.bit(8, rack(r, SingleRack.LEVEL1_SOC_LOW)) //
-									.bit(9, rack(r, SingleRack.LEVEL1_TEMP_DIFF_TOO_BIG)) //
-									.bit(10, rack(r, SingleRack.LEVEL1_POWER_POLE_TEMP_HIGH)) //
-									.bit(11, rack(r, SingleRack.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(12, rack(r, SingleRack.LEVEL1_INSULATION_VALUE)) //
-									.bit(13, rack(r, SingleRack.LEVEL1_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(14, rack(r, SingleRack.LEVEL1_DISCHARGE_TEMP_HIGH)) //
-									.bit(15, rack(r, SingleRack.LEVEL1_DISCHARGE_TEMP_LOW)) //
+									.bit(0, rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_HIGH)) //
+									.bit(1, rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, rack(r, RackChannel.LEVEL1_CHARGE_CURRENT_HIGH)) //
+									.bit(3, rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_LOW)) //
+									.bit(4, rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, rack(r, RackChannel.LEVEL1_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, rack(r, RackChannel.LEVEL1_CHARGE_TEMP_HIGH)) //
+									.bit(7, rack(r, RackChannel.LEVEL1_CHARGE_TEMP_LOW)) //
+									.bit(8, rack(r, RackChannel.LEVEL1_SOC_LOW)) //
+									.bit(9, rack(r, RackChannel.LEVEL1_TEMP_DIFF_TOO_BIG)) //
+									.bit(10, rack(r, RackChannel.LEVEL1_POWER_POLE_TEMP_HIGH)) //
+									.bit(11, rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(12, rack(r, RackChannel.LEVEL1_INSULATION_VALUE)) //
+									.bit(13, rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(14, rack(r, RackChannel.LEVEL1_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, rack(r, RackChannel.LEVEL1_DISCHARGE_TEMP_LOW)) //
 							),
 							// Pre-Alarm: Temperature Alarm will active current limication
 							m(new BitsWordElement(r.offset + 0x142, this) //
-									.bit(0, rack(r, SingleRack.PRE_ALARM_CELL_VOLTAGE_HIGH)) //
-									.bit(1, rack(r, SingleRack.PRE_ALARM_TOTAL_VOLTAGE_HIGH)) //
-									.bit(2, rack(r, SingleRack.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
-									.bit(3, rack(r, SingleRack.PRE_ALARM_CELL_VOLTAGE_LOW)) //
-									.bit(4, rack(r, SingleRack.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
-									.bit(5, rack(r, SingleRack.PRE_ALARM_DISCHARGE_CURRENT_HIGH)) //
-									.bit(6, rack(r, SingleRack.PRE_ALARM_CHARGE_TEMP_HIGH)) //
-									.bit(7, rack(r, SingleRack.PRE_ALARM_CHARGE_TEMP_LOW)) //
-									.bit(8, rack(r, SingleRack.PRE_ALARM_SOC_LOW)) //
-									.bit(9, rack(r, SingleRack.PRE_ALARM_TEMP_DIFF_TOO_BIG)) //
-									.bit(10, rack(r, SingleRack.PRE_ALARM_POWER_POLE_HIGH))//
-									.bit(11, rack(r, SingleRack.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(12, rack(r, SingleRack.PRE_ALARM_INSULATION_FAIL)) //
-									.bit(13, rack(r, SingleRack.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(14, rack(r, SingleRack.PRE_ALARM_DISCHARGE_TEMP_HIGH)) //
-									.bit(15, rack(r, SingleRack.PRE_ALARM_DISCHARGE_TEMP_LOW)) //
+									.bit(0, rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_HIGH)) //
+									.bit(1, rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, rack(r, RackChannel.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
+									.bit(3, rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_LOW)) //
+									.bit(4, rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, rack(r, RackChannel.PRE_ALARM_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, rack(r, RackChannel.PRE_ALARM_CHARGE_TEMP_HIGH)) //
+									.bit(7, rack(r, RackChannel.PRE_ALARM_CHARGE_TEMP_LOW)) //
+									.bit(8, rack(r, RackChannel.PRE_ALARM_SOC_LOW)) //
+									.bit(9, rack(r, RackChannel.PRE_ALARM_TEMP_DIFF_TOO_BIG)) //
+									.bit(10, rack(r, RackChannel.PRE_ALARM_POWER_POLE_HIGH))//
+									.bit(11, rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(12, rack(r, RackChannel.PRE_ALARM_INSULATION_FAIL)) //
+									.bit(13, rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(14, rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_LOW)) //
 							) //
 					),
 					// Other Alarm Info
 					new FC3ReadRegistersTask(r.offset + 0x1A5, Priority.LOW, //
 							m(new BitsWordElement(r.offset + 0x1A5, this) //
-									.bit(0, rack(r, SingleRack.ALARM_COMMUNICATION_TO_MASTER_BMS)) //
-									.bit(1, rack(r, SingleRack.ALARM_COMMUNICATION_TO_SLAVE_BMS)) //
-									.bit(2, rack(r, SingleRack.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS)) //
-									.bit(3, rack(r, SingleRack.ALARM_SLAVE_BMS_HARDWARE)) //
+									.bit(0, rack(r, RackChannel.ALARM_COMMUNICATION_TO_MASTER_BMS)) //
+									.bit(1, rack(r, RackChannel.ALARM_COMMUNICATION_TO_SLAVE_BMS)) //
+									.bit(2, rack(r, RackChannel.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS)) //
+									.bit(3, rack(r, RackChannel.ALARM_SLAVE_BMS_HARDWARE)) //
 							)),
 					// Slave BMS Fault Message Registers
 					new FC3ReadRegistersTask(r.offset + 0x185, Priority.LOW, //
 							m(new BitsWordElement(r.offset + 0x185, this) //
-									.bit(0, rack(r, SingleRack.SLAVE_BMS_VOLTAGE_SENSOR_CABLES)) //
-									.bit(1, rack(r, SingleRack.SLAVE_BMS_POWER_CABLE)) //
-									.bit(2, rack(r, SingleRack.SLAVE_BMS_LTC6803)) //
-									.bit(3, rack(r, SingleRack.SLAVE_BMS_VOLTAGE_SENSORS)) //
-									.bit(4, rack(r, SingleRack.SLAVE_BMS_TEMP_SENSOR_CABLES)) //
-									.bit(5, rack(r, SingleRack.SLAVE_BMS_TEMP_SENSORS)) //
-									.bit(6, rack(r, SingleRack.SLAVE_BMS_POWER_POLE_TEMP_SENSOR)) //
-									.bit(7, rack(r, SingleRack.SLAVE_BMS_TEMP_BOARD_COM)) //
-									.bit(8, rack(r, SingleRack.SLAVE_BMS_BALANCE_MODULE)) //
-									.bit(9, rack(r, SingleRack.SLAVE_BMS_TEMP_SENSORS2)) //
-									.bit(10, rack(r, SingleRack.SLAVE_BMS_INTERNAL_COM)) //
-									.bit(11, rack(r, SingleRack.SLAVE_BMS_EEPROM)) //
-									.bit(12, rack(r, SingleRack.SLAVE_BMS_INIT)) //
+									.bit(0, rack(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSOR_CABLES)) //
+									.bit(1, rack(r, RackChannel.SLAVE_BMS_POWER_CABLE)) //
+									.bit(2, rack(r, RackChannel.SLAVE_BMS_LTC6803)) //
+									.bit(3, rack(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSORS)) //
+									.bit(4, rack(r, RackChannel.SLAVE_BMS_TEMP_SENSOR_CABLES)) //
+									.bit(5, rack(r, RackChannel.SLAVE_BMS_TEMP_SENSORS)) //
+									.bit(6, rack(r, RackChannel.SLAVE_BMS_POWER_POLE_TEMP_SENSOR)) //
+									.bit(7, rack(r, RackChannel.SLAVE_BMS_TEMP_BOARD_COM)) //
+									.bit(8, rack(r, RackChannel.SLAVE_BMS_BALANCE_MODULE)) //
+									.bit(9, rack(r, RackChannel.SLAVE_BMS_TEMP_SENSORS2)) //
+									.bit(10, rack(r, RackChannel.SLAVE_BMS_INTERNAL_COM)) //
+									.bit(11, rack(r, RackChannel.SLAVE_BMS_EEPROM)) //
+									.bit(12, rack(r, RackChannel.SLAVE_BMS_INIT)) //
 							)) //
 			); //
 
@@ -829,7 +556,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 						// Register the Channel at this Component
 						this.addChannel(channelId);
 						// Add the Modbus Element and map it to the Channel
-						elements[j] = m(channelId, new UnsignedWordElement(type.getOffset() + sensorIndex));
+						elements[j] = m(channelId, new UnsignedWordElement(r.offset + type.getOffset() + sensorIndex));
 					}
 					// Add a Modbus read task for this module
 					protocol.addTask(//
@@ -843,68 +570,68 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
 				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
-						m(rack(r, SingleRack.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x080)), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x081)), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_OVER_VOLTAGE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x082), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_OVER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x083), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_ALARM),
 								new UnsignedWordElement(r.offset + 0x084), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x085), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_UNDER_VOLTAGE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x086)), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_UNDER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x087)), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x088), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x089), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM),
 								new UnsignedWordElement(r.offset + 0x08A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x08B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_OVER_TEMPERATURE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_ALARM),
 								new UnsignedWordElement(r.offset + 0x08C)), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_OVER_TEMPERATURE_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x08D)), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_UNDER_TEMPERATURE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_TEMPERATURE_ALARM),
 								new UnsignedWordElement(r.offset + 0x08E)), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_UNDER_TEMPERATURE_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x08F)), //
-						m(rack(r, SingleRack.PRE_ALARM_SOC_LOW_ALARM), new UnsignedWordElement(r.offset + 0x090)), //
-						m(rack(r, SingleRack.PRE_ALARM_SOC_LOW_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_SOC_LOW_ALARM), new UnsignedWordElement(r.offset + 0x090)), //
+						m(rack(r, RackChannel.PRE_ALARM_SOC_LOW_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x091)), //
 						new DummyRegisterElement(r.offset + 0x092, r.offset + 0x093),
-						m(rack(r, SingleRack.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM),
 								new UnsignedWordElement(r.offset + 0x094)), //
-						m(rack(r, SingleRack.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x095)), //
-						m(rack(r, SingleRack.PRE_ALARM_INSULATION_ALARM), new UnsignedWordElement(r.offset + 0x096)), //
-						m(rack(r, SingleRack.PRE_ALARM_INSULATION_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_INSULATION_ALARM), new UnsignedWordElement(r.offset + 0x096)), //
+						m(rack(r, RackChannel.PRE_ALARM_INSULATION_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x097)), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM),
 								new UnsignedWordElement(r.offset + 0x098)), //
-						m(rack(r, SingleRack.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x099)), //
-						m(rack(r, SingleRack.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM),
 								new UnsignedWordElement(r.offset + 0x09A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x09B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM),
 								new UnsignedWordElement(r.offset + 0x09C)), //
-						m(rack(r, SingleRack.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x09D)), //
-						m(rack(r, SingleRack.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM),
 								new UnsignedWordElement(r.offset + 0x09E)), //
-						m(rack(r, SingleRack.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x09F)), //
-						m(rack(r, SingleRack.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM),
+						m(rack(r, RackChannel.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM),
 								new UnsignedWordElement(r.offset + 0x0A0)), //
-						m(rack(r, SingleRack.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM_RECOVER),
+						m(rack(r, RackChannel.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x0A1)) //
 				};
 				protocol.addTask(new FC16WriteRegistersTask(r.offset + 0x080, elements));
@@ -914,68 +641,68 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 			// WARN_LEVEL1 (Level1 warning registers RW)
 			{
 				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
-						m(rack(r, SingleRack.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x040)), //
-						m(rack(r, SingleRack.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x041)), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_OVER_VOLTAGE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x042), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_OVER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x043), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x044), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x045), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_CELL_UNDER_VOLTAGE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x046)), //
-						m(rack(r, SingleRack.LEVEL1_CELL_UNDER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x047)), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_UNDER_VOLTAGE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x048), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_UNDER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x049), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x04A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x04B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_CELL_OVER_TEMPERATURE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x04C)), //
-						m(rack(r, SingleRack.LEVEL1_CELL_OVER_TEMPERATURE_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x04D)), //
-						m(rack(r, SingleRack.LEVEL1_CELL_UNDER_TEMPERATURE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x04E)), //
-						m(rack(r, SingleRack.LEVEL1_CELL_UNDER_TEMPERATURE_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x04F)), //
-						m(rack(r, SingleRack.LEVEL1_SOC_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x050)), //
-						m(rack(r, SingleRack.LEVEL1_SOC_LOW_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_SOC_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x050)), //
+						m(rack(r, RackChannel.LEVEL1_SOC_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x051)), //
 						new DummyRegisterElement(r.offset + 0x052, r.offset + 0x053), //
-						m(rack(r, SingleRack.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x054)), //
-						m(rack(r, SingleRack.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x055)), //
-						m(rack(r, SingleRack.LEVEL1_INSULATION_PROTECTION), new UnsignedWordElement(r.offset + 0x056)), //
-						m(rack(r, SingleRack.LEVEL1_INSULATION_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_INSULATION_PROTECTION), new UnsignedWordElement(r.offset + 0x056)), //
+						m(rack(r, RackChannel.LEVEL1_INSULATION_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x057)), //
-						m(rack(r, SingleRack.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x058)), //
-						m(rack(r, SingleRack.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x059)), //
-						m(rack(r, SingleRack.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x05A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x05B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x05C)), //
-						m(rack(r, SingleRack.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x05D)), //
-						m(rack(r, SingleRack.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x05E)), //
-						m(rack(r, SingleRack.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x05F)), //
-						m(rack(r, SingleRack.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x060)), //
-						m(rack(r, SingleRack.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x061)) //
 				};
 				protocol.addTask(new FC16WriteRegistersTask(r.offset + 0x040, elements));
@@ -985,71 +712,71 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 			// WARN_LEVEL2 (Level2 Protection registers RW)
 			{
 				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
-						m(rack(r, SingleRack.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x400)), //
-						m(rack(r, SingleRack.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x401)), //
 						m(new UnsignedWordElement(r.offset + 0x402)) //
-								.m(rack(r, SingleRack.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION),
+								.m(rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION),
 										ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 								.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
 								.build(), //
-						m(rack(r, SingleRack.LEVEL2_SYSTEM_OVER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x403), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x404), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x405), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_CELL_UNDER_VOLTAGE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x406)), //
-						m(rack(r, SingleRack.LEVEL2_CELL_UNDER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x407)), //
-						m(rack(r, SingleRack.LEVEL2_SYSTEM_UNDER_VOLTAGE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x408), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_SYSTEM_UNDER_VOLTAGE_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x409), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x40A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x40B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_CELL_OVER_TEMPERATURE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x40C)), //
-						m(rack(r, SingleRack.LEVEL2_CELL_OVER_TEMPERATURE_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x40D)), //
-						m(rack(r, SingleRack.LEVEL2_CELL_UNDER_TEMPERATURE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x40E)), //
-						m(rack(r, SingleRack.LEVEL2_CELL_UNDER_TEMPERATURE_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x40F)), //
-						m(rack(r, SingleRack.LEVEL2_SOC_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x410)), //
-						m(rack(r, SingleRack.LEVEL2_SOC_LOW_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_SOC_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x410)), //
+						m(rack(r, RackChannel.LEVEL2_SOC_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x411)), //
 						new DummyRegisterElement(r.offset + 0x412, r.offset + 0x413), //
-						m(rack(r, SingleRack.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x414)), //
-						m(rack(r, SingleRack.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x415)), //
-						m(rack(r, SingleRack.LEVEL2_INSULATION_PROTECTION), new UnsignedWordElement(r.offset + 0x416)), //
-						m(rack(r, SingleRack.LEVEL2_INSULATION_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_INSULATION_PROTECTION), new UnsignedWordElement(r.offset + 0x416)), //
+						m(rack(r, RackChannel.LEVEL2_INSULATION_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x417)), //
-						m(rack(r, SingleRack.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x418)), //
-						m(rack(r, SingleRack.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x419)), //
-						m(rack(r, SingleRack.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x41A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x41B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, SingleRack.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x41C)), //
-						m(rack(r, SingleRack.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x41D)), //
-						m(rack(r, SingleRack.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x41E)), //
-						m(rack(r, SingleRack.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x41F)), //
-						m(rack(r, SingleRack.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION),
+						m(rack(r, RackChannel.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x420)), //
-						m(rack(r, SingleRack.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
+						m(rack(r, RackChannel.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x421)) //
 				};
 				protocol.addTask(new FC16WriteRegistersTask(r.offset + 0x400, elements));
@@ -1057,19 +784,6 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 			}
 
 		}
-
-//				
-//				for (int i : config.racks()) {
-//					this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
-//				}
-//				
-//				// -------- control registers of master --------------------------------------
-//				new FC16WriteRegistersTask(0x1004, //
-//						m(ClusterChannelId.RESET, new UnsignedWordElement(0x1004)) //
-//				), //
-
-		// -------- state registers of master --------------------------------------
-
 		return protocol;
 	}
 
@@ -1077,89 +791,160 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent
 	 * Factory-Function for SingleRack-ChannelIds. Creates a ChannelId, registers
 	 * the Channel and returns the ChannelId.
 	 * 
-	 * @param rackInfo   the {@link RackInfo}
-	 * @param singleRack the {@link SingleRack}
+	 * @param rack        the {@link Rack}
+	 * @param rackChannel the {@link RackChannel}
 	 * @return the {@link io.openems.edge.common.channel.ChannelId}
 	 */
-	private final io.openems.edge.common.channel.ChannelId rack(RackInfo rackInfo, SingleRack singleRack) {
-		Channel<?> existingChannel = this._channel(singleRack.toChannelIdString(rackInfo));
+	private final io.openems.edge.common.channel.ChannelId rack(Rack rack, RackChannel rackChannel) {
+		Channel<?> existingChannel = this._channel(rackChannel.toChannelIdString(rack));
 		if (existingChannel != null) {
 			return existingChannel.channelId();
 		} else {
-			io.openems.edge.common.channel.ChannelId channelId = singleRack.toChannelId(rackInfo);
+			io.openems.edge.common.channel.ChannelId channelId = rackChannel.toChannelId(rack);
 			this.addChannel(channelId);
 			return channelId;
 		}
 	}
 
+	/**
+	 * Updates Channels on BEFORE_PROCESS_IMAGE event.
+	 */
+	private void updateChannels() {
+		final Integer soc;
+		final Integer maxCellVoltage;
+		final Integer minCellVoltage;
+		final Integer maxCellTemperature;
+		final Integer minCellTemperature;
+
+		if (this.racks.isEmpty()) {
+			soc = null;
+			maxCellVoltage = null;
+			minCellVoltage = null;
+			maxCellTemperature = null;
+			minCellTemperature = null;
+
+		} else {
+			soc = this.calculateAverageSoc();
+			maxCellVoltage = this.calculateMaxCellVoltage();
+			minCellVoltage = this.calculateMinCellVoltage();
+			maxCellTemperature = this.calculateMaxCellTemperature();
+			minCellTemperature = this.calculateMinCellTemperature();
+		}
+
+		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
+		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(maxCellVoltage);
+		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
+		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(maxCellTemperature);
+		this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(minCellTemperature);
+	}
+
+	/**
+	 * Calculates the State-of-Charge as average of all active Racks.
+	 * 
+	 * @return the average State-of-Charge
+	 */
+	private int calculateAverageSoc() {
+		int cumulatedSoc = 0;
+		for (Rack rack : this.racks) {
+			IntegerReadChannel socChannel = this.channel(rack, RackChannel.SOC);
+			cumulatedSoc += socChannel.getNextValue().orElse(0);
+		}
+		return cumulatedSoc / this.racks.size();
+	}
+
+	/**
+	 * Finds the max cell voltage of all Racks.
+	 */
+	private int calculateMaxCellVoltage() {
+		int result = Integer.MIN_VALUE;
+		for (Rack rack : this.racks) {
+			IntegerReadChannel maxCellVoltageChannel = this.channel(rack, RackChannel.MAX_CELL_VOLTAGE);
+			result = Math.max(result, maxCellVoltageChannel.getNextValue().orElse(Integer.MIN_VALUE));
+		}
+		return result;
+	}
+
+	/**
+	 * Finds the min cell voltage of all Racks.
+	 */
+	private int calculateMinCellVoltage() {
+		int result = Integer.MAX_VALUE;
+		for (Rack rack : this.racks) {
+			IntegerReadChannel minCellVoltageChannel = this.channel(rack, RackChannel.MIN_CELL_VOLTAGE);
+			result = Math.min(result, minCellVoltageChannel.getNextValue().orElse(Integer.MAX_VALUE));
+		}
+		return result;
+	}
+
+	/**
+	 * Finds the max cell temperature of all Racks.
+	 */
+	protected int calculateMaxCellTemperature() {
+		int result = Integer.MIN_VALUE;
+		for (Rack rack : this.racks) {
+			IntegerReadChannel maxCellTemperatureChannel = this.channel(rack, RackChannel.MAX_CELL_TEMPERATURE);
+			result = Math.max(result, maxCellTemperatureChannel.getNextValue().orElse(Integer.MIN_VALUE));
+		}
+		return result;
+	}
+
+	/**
+	 * Finds the min cell temperature of all Racks.
+	 */
+	private int calculateMinCellTemperature() {
+		int result = Integer.MAX_VALUE;
+		for (Rack rack : this.racks) {
+			IntegerReadChannel minCellTemperatureChannel = this.channel(rack, RackChannel.MIN_CELL_TEMPERATURE);
+			result = Math.min(result, minCellTemperatureChannel.getNextValue().orElse(Integer.MAX_VALUE));
+		}
+		return result;
+	}
+
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		// TODO Auto-generated method stub
-		return null;
-	};
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Battery.getModbusSlaveNatureTable(accessMode) //
+		);
+	}
 
-//	private int getAddressContactorControl(int addressOffsetRack) {
-//		return addressOffsetRack + OFFSET_CONTACTOR_CONTROL;
-//	}
+	@Override
+	public <T extends Channel<?>> T channel(Rack rack, RackChannel rackChannel) {
+		return this.channel(rackChannel.toChannelIdString(rack));
+	}
 
-//
-//	protected void recalculateSoc() {
-//		int i = 0;
-//		int soc = 0;
-//
-//		for (SingleRack rack : this.racks.values()) {
-//			soc = soc + rack.getSoC();
-//			i++;
-//		}
-//
-//		if (i > 0) {
-//			soc = soc / i;
-//		}
-//
-//		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
-//	}
-//
-//	protected void recalculateMaxCellVoltage() {
-//		int max = Integer.MIN_VALUE;
-//
-//		for (SingleRack rack : this.racks.values()) {
-//			max = Math.max(max, rack.getMaximalCellVoltage());
-//		}
-//		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(max);
-//	}
-//
-//	protected void recalculateMinCellVoltage() {
-//		int min = Integer.MAX_VALUE;
-//
-//		for (SingleRack rack : this.racks.values()) {
-//			min = Math.min(min, rack.getMinimalCellVoltage());
-//		}
-//		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(min);
-//	}
-//
-//	protected void recalculateMaxCellTemperature() {
-//		int max = Integer.MIN_VALUE;
-//
-//		for (SingleRack rack : this.racks.values()) {
-//			max = Math.max(max, rack.getMaximalCellTemperature());
-//		}
-//		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(max);
-//	}
-//
-//	protected void recalculateMinCellTemperature() {
-//		int min = Integer.MAX_VALUE;
-//
-//		for (SingleRack rack : this.racks.values()) {
-//			min = Math.min(min, rack.getMinimalCellTemperature());
-//		}
-//		this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(min);
-//	}
-//
-//	@Override
-//	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-//		return new ModbusSlaveTable( //
-//				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-//				Battery.getModbusSlaveNatureTable(accessMode) //
-//		);
-//	}
+	@Override
+	public boolean isSystemStopped() {
+		return this.getCommonContactorControlState().orElse(ContactorControl.UNDEFINED) == ContactorControl.CUT_OFF;
+	}
+
+	@Override
+	public boolean isSystemRunning() {
+		return this.getCommonContactorControlState().orElse(ContactorControl.UNDEFINED) == ContactorControl.ON_GRID;
+	}
+
+	@Override
+	public Optional<ContactorControl> getCommonContactorControlState() {
+		ContactorControl result = null;
+		for (Rack rack : this.racks) {
+			EnumReadChannel channel = this.channel(rack.positiveContactorChannelId);
+			ContactorControl value = channel.value().asEnum();
+			if (result != value) {
+				if (result == null) {
+					// first match
+					result = value;
+				} else {
+					// no common ContactorControl
+					return Optional.empty();
+				}
+			}
+		}
+		return Optional.ofNullable(result);
+	}
+
+	@Override
+	public Set<Rack> getRacks() {
+		return racks;
+	}
+
 }

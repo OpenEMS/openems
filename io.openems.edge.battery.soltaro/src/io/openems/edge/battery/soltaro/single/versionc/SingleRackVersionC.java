@@ -13,18 +13,12 @@ import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.enums.Sleep;
 import io.openems.edge.battery.soltaro.single.versionc.enums.SystemReset;
+import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComponent {
-
-	public default boolean hasFaults() {
-		Level level = this.getState().value().asEnum();
-		return level.isAtLeast(Level.FAULT);
-	}
+public interface SingleRackVersionC extends SoltaroBatteryVersionC, SoltaroBattery, Battery, OpenemsComponent {
 
 	public default EnumWriteChannel getPreChargeControlChannel() {
 		return this.channel(ChannelId.PRE_CHARGE_CONTROL);
@@ -36,30 +30,6 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 
 	public default void setPreChargeControl(PreChargeControl preChargeControl) throws OpenemsNamedException {
 		this.getPreChargeControlChannel().setNextWriteValue(preChargeControl);
-	}
-
-	public default StateChannel getMaxStartAttemptsChannel() {
-		return this.channel(ChannelId.MAX_START_ATTEMPTS);
-	}
-
-	public default Value<Boolean> getMaxStartAttempts() {
-		return this.getMaxStartAttemptsChannel().value();
-	}
-
-	public default void setMaxStartAttempts(boolean isMaxStartAttempts) throws OpenemsNamedException {
-		this.getMaxStartAttemptsChannel().setNextValue(isMaxStartAttempts);
-	}
-
-	public default StateChannel getMaxStopAttemptsChannel() {
-		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
-	}
-
-	public default Value<Boolean> getMaxStopAttempts() {
-		return this.getMaxStopAttemptsChannel().value();
-	}
-
-	public default void setMaxStopAttempts(boolean isMaxStopAttempts) throws OpenemsNamedException {
-		this.getMaxStopAttemptsChannel().setNextValue(isMaxStopAttempts);
 	}
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -446,16 +416,6 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 				.unit(Unit.NONE)), //
 
 		// Faults and warnings
-		// Other Alarm Info
-		ALARM_COMMUNICATION_TO_MASTER_BMS(Doc.of(Level.WARNING) //
-				.text("Communication Failure to Master BMS")), //
-		ALARM_COMMUNICATION_TO_SLAVE_BMS(Doc.of(Level.WARNING) //
-				.text("Communication Failure to Slave BMS")), //
-		ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS(Doc.of(Level.WARNING) //
-				.text("Communication Failure between Slave BMS and Temperature Sensors")), //
-		ALARM_SLAVE_BMS_HARDWARE(Doc.of(Level.WARNING) //
-				.text("Slave BMS Hardware Failure")), //
-
 		// Slave BMS Fault Message Registers
 		SLAVE_BMS_VOLTAGE_SENSOR_CABLES(Doc.of(Level.WARNING) //
 				.text("Slave BMS Hardware: Voltage Sensor Cables Fault")), //
@@ -525,14 +485,6 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 				.text("Slave 19 communication error")), //
 		SLAVE_20_COMMUNICATION_ERROR(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Slave 20 communication error")), //
-
-		// OpenEMS Faults
-		RUN_FAILED(Doc.of(Level.FAULT) //
-				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
-				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
-				.text("The maximum number of stop attempts failed")), //
 		;
 
 		private final Doc doc;

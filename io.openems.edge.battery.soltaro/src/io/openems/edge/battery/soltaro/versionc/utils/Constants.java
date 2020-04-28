@@ -20,4 +20,10 @@ public class Constants {
 	public static int TEMPERATURE_ADDRESS_OFFSET = 0xC00;
 	public static int TEMPERATURE_SENSORS_PER_MODULE = 12;
 
+	/**
+	 * Cell constants
+	 */
+	public static int MIN_VOLTAGE_MILLIVOLT = 34_800;
+	public static int MAX_VOLTAGE_MILLIVOLT = 42_700;
+
 }

@@ -1,19 +1,51 @@
 package io.openems.edge.battery.soltaro.versionc;
 
-import java.time.ZoneOffset;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 
 public interface SoltaroBatteryVersionC extends Battery {
 
-	public static final ZoneOffset ZONE_OFFSET = ZoneOffset.UTC;
-	public static final long NANOS = 0;
+	/**
+	 * Returns true if any {@link StateChannel} is {@link Level#FAULT}.
+	 * 
+	 * @return true for faults; false if there are no faults
+	 */
+	public default boolean hasFaults() {
+		Level level = this.getState().value().asEnum();
+		return level.isAtLeast(Level.FAULT);
+	}
+
+	public default StateChannel getMaxStartAttemptsChannel() {
+		return this.channel(ChannelId.MAX_START_ATTEMPTS);
+	}
+
+	public default Value<Boolean> getMaxStartAttempts() {
+		return this.getMaxStartAttemptsChannel().value();
+	}
+
+	public default void setMaxStartAttempts(boolean isMaxStartAttempts) throws OpenemsNamedException {
+		this.getMaxStartAttemptsChannel().setNextValue(isMaxStartAttempts);
+	}
+
+	public default StateChannel getMaxStopAttemptsChannel() {
+		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
+	}
+
+	public default Value<Boolean> getMaxStopAttempts() {
+		return this.getMaxStopAttemptsChannel().value();
+	}
+
+	public default void setMaxStopAttempts(boolean isMaxStopAttempts) throws OpenemsNamedException {
+		this.getMaxStopAttemptsChannel().setNextValue(isMaxStopAttempts);
+	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/*
@@ -34,6 +66,13 @@ public interface SoltaroBatteryVersionC extends Battery {
 		/*
 		 * StateChannels
 		 */
+		// OpenEMS Faults
+		RUN_FAILED(Doc.of(Level.FAULT) //
+				.text("Running the Logic failed")), //
+		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+				.text("The maximum number of start attempts failed")), //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+				.text("The maximum number of stop attempts failed")), //
 		// Other Alarm Info
 		ALARM_COMMUNICATION_TO_MASTER_BMS(Doc.of(Level.WARNING) //
 				.text("Communication Failure to Master BMS")), //

@@ -31,7 +31,7 @@ import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
-import io.openems.edge.battery.soltaro.cluster.enums.RackInfo;
+import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.StartStop;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -111,7 +111,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		// Create racks dynamically, do this before super() call because super() uses
 		// getModbusProtocol, and it is using racks...
 		for (int i : config.racks()) {
-			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), RackInfo.getRack(i).offset, this));
+			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), Rack.getRack(i).offset, this));
 		}
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
@@ -312,7 +312,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 
 		// Check for communication errors
 		for (int key : this.racks.keySet()) {
-			if (this.readValueFromStateChannel(RackInfo.getRack(key).subMasterCommunicationAlarmChannelId)) {
+			if (this.readValueFromStateChannel(Rack.getRack(key).subMasterCommunicationAlarmChannelId)) {
 				return true;
 			}
 		}
@@ -341,7 +341,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
 		boolean b = true;
 		for (SingleRack r : this.racks.values()) {
-			b = b && cctrl == this.channel(RackInfo.getRack(r.getRackNumber()).positiveContactorChannelId).value()
+			b = b && cctrl == this.channel(Rack.getRack(r.getRackNumber()).positiveContactorChannelId).value()
 					.asEnum();
 		}
 		return b;
@@ -356,7 +356,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		boolean b = true;
 
 		for (SingleRack r : this.racks.values()) {
-			EnumReadChannel channel = this.channel(RackInfo.getRack(r.getRackNumber()).positiveContactorChannelId);
+			EnumReadChannel channel = this.channel(Rack.getRack(r.getRackNumber()).positiveContactorChannelId);
 			Optional<Integer> val = channel.value().asOptional();
 			b = b && val.isPresent();
 		}
@@ -409,7 +409,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		try {
 			startStopChannel.setNextWriteValue(StartStop.START);
 			// Only set the racks that are used, but set the others to unused
-			for (RackInfo rackInfo : RackInfo.values()) {
+			for (Rack rackInfo : Rack.values()) {
 				EnumWriteChannel rackUsageChannel = this.channel(rackInfo.usageChannelId);
 				if (this.racks.containsKey(rackInfo.id)) {
 					rackUsageChannel.setNextWriteValue(RackUsage.USED);
@@ -427,7 +427,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		try {
 			startStopChannel.setNextWriteValue(StartStop.STOP);
 			// write to all racks unused!!
-			for (RackInfo r : RackInfo.values()) {
+			for (Rack r : Rack.values()) {
 				EnumWriteChannel rackUsageChannel = this.channel(r.usageChannelId);
 				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
 			}

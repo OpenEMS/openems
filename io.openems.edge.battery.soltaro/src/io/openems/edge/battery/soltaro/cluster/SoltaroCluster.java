@@ -5,21 +5,31 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.RunningState;
 import io.openems.edge.battery.soltaro.cluster.enums.StartStop;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 
 public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler, ModbusSlave {
+
+	public default EnumWriteChannel getStartStopChannel() {
+		return this.channel(ChannelId.START_STOP);
+	}
+
+	public default StartStop getStartStop() {
+		return this.getStartStopChannel().value().asEnum();
+	}
+
+	public default void setStartStop(StartStop value) throws OpenemsNamedException {
+		this.getStartStopChannel().setNextWriteValue(value);
+	}
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/*
@@ -90,42 +100,5 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 			return this.doc;
 		}
 	}
-
-	/**
-	 * Adds a Channel. Called by SingleRack.
-	 * 
-	 * @param channelId the ChannelId.
-	 * @return the Channel
-	 */
-	public Channel<?> _addChannel(io.openems.edge.common.channel.ChannelId channelId);
-
-	/**
-	 * Adds a Channel-Mapping. Called by SingleRack.
-	 * 
-	 * @param channelId the ChannelId.
-	 * @param element   the Modbus-Element
-	 * @return the Modbus-Element
-	 */
-	public AbstractModbusElement<?> _map(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?> element);
-
-	/**
-	 * Adds a Channel-Mapping. Called by SingleRack.
-	 * 
-	 * @param channelId the ChannelId.
-	 * @param element   the Modbus-Element
-	 * @return the Modbus-Element
-	 */
-	public AbstractModbusElement<?> _map(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?> element, ElementToChannelConverter converter);
-
-	/**
-	 * Adds a Channel-Mapping. Called by SingleRack.
-	 * 
-	 * @param channelId the ChannelId.
-	 * @param element   the Modbus-Element
-	 * @return the Modbus-Element
-	 */
-	public AbstractModbusElement<?> _map(BitsWordElement bitsWordElement);
 
 }

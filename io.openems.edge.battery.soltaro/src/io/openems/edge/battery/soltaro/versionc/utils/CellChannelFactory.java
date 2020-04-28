@@ -2,7 +2,7 @@ package io.openems.edge.battery.soltaro.versionc.utils;
 
 import io.openems.common.channel.Unit;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
-import io.openems.edge.battery.soltaro.cluster.enums.RackInfo;
+import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerDoc;
 
@@ -63,13 +63,13 @@ public class CellChannelFactory {
 	/**
 	 * Create ChannelId for a Rack as part of a Cluster.
 	 * 
-	 * @param rackInfo the {@link RackInfo}
-	 * @param type     the {@link Type}
-	 * @param index    the index
+	 * @param rack  the {@link Rack}
+	 * @param type  the {@link Type}
+	 * @param index the index
 	 * @return the ChannelId
 	 */
-	public static ChannelId create(RackInfo rackInfo, Type type, int index) {
-		String key = rackInfo.getChannelIdPrefix() + String.format(NUMBER_FORMAT, index) + type.key;
+	public static ChannelId create(Rack rack, Type type, int index) {
+		String key = rack.getChannelIdPrefix() + String.format(NUMBER_FORMAT, index) + type.key;
 		IntegerDoc doc = new IntegerDoc();
 		doc.unit(type.unit);
 		return new ChannelIdImpl(key, doc);

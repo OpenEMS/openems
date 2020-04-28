@@ -2,10 +2,10 @@ package io.openems.edge.battery.soltaro.cluster.enums;
 
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 
-/*
- *  Helper class to get infos about connected racks
+/**
+ * Helper enum to wrap information about racks.
  */
-public enum RackInfo {
+public enum Rack {
 	RACK_1(1, 0x2000, SoltaroCluster.ChannelId.RACK_1_USAGE, SoltaroCluster.ChannelId.RACK_1_POSITIVE_CONTACTOR,
 			SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE), //
 	RACK_2(2, 0x3000, SoltaroCluster.ChannelId.RACK_2_USAGE, SoltaroCluster.ChannelId.RACK_2_POSITIVE_CONTACTOR,
@@ -18,15 +18,15 @@ public enum RackInfo {
 			SoltaroCluster.ChannelId.SUB_MASTER_5_COMMUNICATION_FAILURE);
 
 	/**
-	 * Get the {@link RackInfo} for the given ID
+	 * Get the {@link Rack} for the given ID
 	 * 
 	 * @param rackId from 1 to 5
-	 * @return the RackInfo
+	 * @return the {@link Rack}
 	 */
-	public static RackInfo getRack(int rackId) {
-		for (RackInfo rackInfo : RackInfo.values()) {
-			if (rackId == rackInfo.id) {
-				return rackInfo;
+	public static Rack getRack(int rackId) {
+		for (Rack rack : Rack.values()) {
+			if (rackId == rack.id) {
+				return rack;
 			}
 		}
 		throw new IllegalArgumentException("Rack with ID [" + rackId + "] is not available!");
@@ -38,7 +38,7 @@ public enum RackInfo {
 	public final SoltaroCluster.ChannelId positiveContactorChannelId;
 	public final SoltaroCluster.ChannelId subMasterCommunicationAlarmChannelId;
 
-	private RackInfo( //
+	private Rack( //
 			int id, //
 			int addressOffset, //
 			SoltaroCluster.ChannelId usageChannelId, //
