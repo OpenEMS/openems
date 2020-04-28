@@ -369,6 +369,29 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely subtract Integers.
+	 * 
+	 * <ul>
+	 * <li>if minuend is null -> result is null
+	 * <li>if subtrahend is null -> result is minuend
+	 * <li>if both are null -> result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 */
+	public static Integer subtract(Integer minuend, Integer subtrahend) {
+		if (minuend == null) {
+			return null;
+		}
+		if (subtrahend == null) {
+			return minuend;
+		}
+		return minuend - subtrahend;
+	}
+
+	/**
 	 * Throws an descriptive exception if the object is null.
 	 * 
 	 * @param description text that is added to the exception
