@@ -10,7 +10,6 @@ import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
-import io.openems.edge.battery.soltaro.single.versionc.enums.EmsBaudrate;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.enums.Sleep;
 import io.openems.edge.battery.soltaro.single.versionc.enums.SystemReset;
@@ -67,8 +66,6 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 		// EnumWriteChannels
 		PRE_CHARGE_CONTROL(Doc.of(PreChargeControl.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		EMS_BAUDRATE(Doc.of(EmsBaudrate.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
 		SYSTEM_RESET(Doc.of(SystemReset.values()) //
 				.text("Resets the system") //
 				.accessMode(AccessMode.WRITE_ONLY)), //
@@ -80,11 +77,6 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// IntegerWriteChannels
-		EMS_ADDRESS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
-				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_PARAMETER_PCS_COMMUNICATION_RATE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -454,92 +446,6 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 				.unit(Unit.NONE)), //
 
 		// Faults and warnings
-		// Alarm Level 2
-		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
-				.text("Discharge Temperature Low Alarm Level 2")), //
-		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
-				.text("Discharge Temperature High Alarm Level 2")), //
-		LEVEL2_INSULATION_VALUE(Doc.of(Level.FAULT) //
-				.text("Insulation Value Failure Alarm Level 2")), //
-		LEVEL2_POWER_POLE_TEMP_HIGH(Doc.of(Level.FAULT) //
-				.text("Power Pole temperature too high Alarm Level 2")), //
-		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
-				.text("Cell Charge Temperature Low Alarm Level 2")), //
-		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
-				.text("Charge Temperature High Alarm Level 2")), //
-		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
-				.text("Discharge Current High Alarm Level 2")), //
-		LEVEL2_TOTAL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
-				.text("Total Voltage Low Alarm Level 2")), //
-		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
-				.text("Cell Voltage Low Alarm Level 2")), //
-		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
-				.text("Charge Current High Alarm Level 2")), //
-		LEVEL2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
-				.text("Total Voltage High Alarm Level 2")), //
-		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
-				.text("Cell Voltage High Alarm Level 2")), //
-
-		// Alarm Level 1
-		LEVEL1_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
-				.text("Discharge Temperature Low Alarm Level 1")), //
-		LEVEL1_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
-				.text("Discharge Temperature High Alarm Level 1")), //
-		LEVEL1_INSULATION_VALUE(Doc.of(Level.WARNING) //
-				.text("Insulation Value Failure Alarm Level 1")), //
-		LEVEL1_POWER_POLE_TEMP_HIGH(Doc.of(Level.WARNING) //
-				.text("Power Pole temperature too high Alarm Level 1")), //
-		LEVEL1_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
-				.text("Cell Charge Temperature Low Alarm Level 1")), //
-		LEVEL1_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
-				.text("Charge Temperature High Alarm Level 1")), //
-		LEVEL1_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
-				.text("Discharge Current High Alarm Level 1")), //
-		LEVEL1_TOTAL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
-				.text("Total Voltage Low Alarm Level 1")), //
-		LEVEL1_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
-				.text("Cell Voltage Low Alarm Level 1")), //
-		LEVEL1_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
-				.text("Charge Current High Alarm Level 1")), //
-		LEVEL1_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
-				.text("Total Voltage High Alarm Level 1")), //
-		LEVEL1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
-				.text("Cell Voltage High Alarm Level 1")), //
-
-		// Pre-Alarm
-		PRE_ALARM_CELL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
-				.text("Cell Voltage High Pre-Alarm")), //
-		PRE_ALARM_TOTAL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
-				.text("Total Voltage High Pre-Alarm")), //
-		PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
-				.text("Charge Current High Pre-Alarm")), //
-		PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(Level.INFO) //
-				.text("Cell Voltage Low Pre-Alarm")), //
-		PRE_ALARM_TOTAL_VOLTAGE_LOW(Doc.of(Level.INFO) //
-				.text("Total Voltage Low Pre-Alarm")), //
-		PRE_ALARM_DISCHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
-				.text("Discharge Current High Pre-Alarm")), //
-		PRE_ALARM_CHARGE_TEMP_HIGH(Doc.of(Level.INFO) //
-				.text("Charge Temperature High Pre-Alarm")), //
-		PRE_ALARM_CHARGE_TEMP_LOW(Doc.of(Level.INFO) //
-				.text("Charge Temperature Low Pre-Alarm")), //
-		PRE_ALARM_SOC_LOW(Doc.of(Level.INFO) //
-				.text("State-Of-Charge Low Pre-Alarm")), //
-		PRE_ALARM_TEMP_DIFF_TOO_BIG(Doc.of(Level.INFO) //
-				.text("Temperature Difference Too Big Pre-Alarm")), //
-		PRE_ALARM_POWER_POLE_HIGH(Doc.of(Level.INFO) //
-				.text("Power Pole Temperature High Pre-Alarm")), //
-		PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.INFO) //
-				.text("Cell Voltage Difference Too Big Pre-Alarm")), //
-		PRE_ALARM_INSULATION_FAIL(Doc.of(Level.INFO) //
-				.text("Insulation Failure Pre-Alarm")), //
-		PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.INFO) //
-				.text("Total Voltage Difference Too Big Pre-Alarm")), //
-		PRE_ALARM_DISCHARGE_TEMP_HIGH(Doc.of(Level.INFO) //
-				.text("Discharge Temperature High Pre-Alarm")), //
-		PRE_ALARM_DISCHARGE_TEMP_LOW(Doc.of(Level.INFO) //
-				.text("Discharge Temperature Low Pre-Alarm")), //
-
 		// Other Alarm Info
 		ALARM_COMMUNICATION_TO_MASTER_BMS(Doc.of(Level.WARNING) //
 				.text("Communication Failure to Master BMS")), //

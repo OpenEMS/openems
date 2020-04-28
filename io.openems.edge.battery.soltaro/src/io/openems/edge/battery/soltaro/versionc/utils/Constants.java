@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro.single.versionc.utils;
+package io.openems.edge.battery.soltaro.versionc.utils;
 
 public class Constants {
 

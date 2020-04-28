@@ -6,7 +6,7 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
-import io.openems.edge.battery.soltaro.single.versionc.utils.Constants;
+import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 
 public class GoRunning extends State.Handler {
 

@@ -108,11 +108,11 @@ public class SingleRack {
 	private int rackNumber;
 	private int numberOfSlaves;
 	private int addressOffset;
-	private Cluster parent;
+	private ClusterVersionB parent;
 	private final Map<String, ChannelId> channelIds;
 	private final Map<String, Channel<?>> channelMap;
 
-	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset, Cluster parent) {
+	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset, ClusterVersionB parent) {
 		this.rackNumber = racknumber;
 		this.numberOfSlaves = numberOfSlaves;
 		this.addressOffset = addressOffset;
@@ -136,23 +136,22 @@ public class SingleRack {
 	public int getMinimalCellVoltage() {
 		return getIntFromChannel(KEY_MIN_CELL_VOLTAGE, -1);
 	}
-	
+
 	public int getMaximalCellVoltage() {
-		return getIntFromChannel(KEY_MAX_CELL_VOLTAGE, -1);		
+		return getIntFromChannel(KEY_MAX_CELL_VOLTAGE, -1);
 	}
 
 	public int getMinimalCellTemperature() {
 		return getIntFromChannel(KEY_MIN_CELL_TEMPERATURE, -1);
 	}
-	
+
 	public int getMaximalCellTemperature() {
-		return getIntFromChannel(KEY_MAX_CELL_TEMPERATURE, -1);		
+		return getIntFromChannel(KEY_MAX_CELL_TEMPERATURE, -1);
 	}
-	
+
 	private int getIntFromChannel(String key, int defaultValue) {
 		@SuppressWarnings("unchecked")
-		Optional<Integer> opt = (Optional<Integer>) this.channelMap.get(key).value()
-				.asOptional();
+		Optional<Integer> opt = (Optional<Integer>) this.channelMap.get(key).value().asOptional();
 		int value = defaultValue;
 		if (opt.isPresent()) {
 			value = opt.get();
@@ -417,30 +416,32 @@ public class SingleRack {
 				parent.map(channelIds.get(KEY_CURRENT), getSWE(0x101), ElementToChannelConverter.SCALE_FACTOR_2), //
 				parent.map(channelIds.get(KEY_CHARGE_INDICATION), getUWE(0x102)), //
 				parent.map(channelIds.get(KEY_SOC), getUWE(0x103)). //
-					onUpdateCallback(val -> {
-						parent.recalculateSoc();
-					}), //
+						onUpdateCallback(val -> {
+							parent.recalculateSoc();
+						}), //
 				parent.map(channelIds.get(KEY_SOH), getUWE(0x104)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE_ID), getUWE(0x105)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE), getUWE(0x106)). //
-					onUpdateCallback(val -> {
-						parent.recalculateMaxCellVoltage();
-					}), //
+						onUpdateCallback(val -> {
+							parent.recalculateMaxCellVoltage();
+						}), //
 				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE_ID), getUWE(0x107)), //
 				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE), getUWE(0x108)). //
-					onUpdateCallback(val -> {
-						parent.recalculateMinCellVoltage();
-					}), //
+						onUpdateCallback(val -> {
+							parent.recalculateMinCellVoltage();
+						}), //
 				parent.map(channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID), getUWE(0x109)), //
-				parent.map(channelIds.get(KEY_MAX_CELL_TEMPERATURE), getUWE(0x10A), ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
-					onUpdateCallback(val -> {
-						parent.recalculateMaxCellTemperature();
-					}), //
+				parent.map(channelIds.get(KEY_MAX_CELL_TEMPERATURE), getUWE(0x10A),
+						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						onUpdateCallback(val -> {
+							parent.recalculateMaxCellTemperature();
+						}), //
 				parent.map(channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID), getUWE(0x10B)), //
-				parent.map(channelIds.get(KEY_MIN_CELL_TEMPERATURE), getUWE(0x10C), ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
-					onUpdateCallback(val -> {
-						parent.recalculateMinCellTemperature();
-					}) //
+				parent.map(channelIds.get(KEY_MIN_CELL_TEMPERATURE), getUWE(0x10C),
+						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						onUpdateCallback(val -> {
+							parent.recalculateMinCellTemperature();
+						}) //
 		));
 
 		// Alarm levels

@@ -7,26 +7,11 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.common.channel.Doc;
 
-public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId {
+public enum ClusterVersionBChannelId implements io.openems.edge.common.channel.ChannelId {
 	// EnumReadChannels
 	STATE_MACHINE(Doc.of(State.values()) //
 			.text("Current State of State-Machine")), //
 //	CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
-	SYSTEM_RUNNING_STATE(Doc.of(Enums.RunningState.values())), //
-
-	// EnumWriteChannels
-	START_STOP(Doc.of(Enums.StartStop.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_1_USAGE(Doc.of(Enums.RackUsage.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_2_USAGE(Doc.of(Enums.RackUsage.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_3_USAGE(Doc.of(Enums.RackUsage.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_4_USAGE(Doc.of(Enums.RackUsage.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_5_USAGE(Doc.of(Enums.RackUsage.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
 
 	// IntegerWriteChannels
 	RESET(Doc.of(OpenemsType.INTEGER) //
@@ -38,28 +23,12 @@ public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId
 	EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.SECONDS) //
 			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_1_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_2_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_3_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_4_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_5_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
-			.accessMode(AccessMode.READ_WRITE)), //
 	SYSTEM_INSULATION_LEVEL_1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.OHM) //
 			.accessMode(AccessMode.READ_WRITE)), //
 	SYSTEM_INSULATION_LEVEL_2(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.OHM) //
 			.accessMode(AccessMode.READ_WRITE)), //
-
-	// IntegerReadChannels
-	SYSTEM_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.MILLIAMPERE)), //
-	SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.OHM)), //
 
 	// StateChannels
 	MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER(Doc.of(Level.FAULT) //
@@ -72,16 +41,7 @@ public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId
 			.text("System insulation alarm level 1")),
 	MASTER_ALARM_LEVEL_2_INSULATION(Doc.of(Level.FAULT) //
 			.text("System insulation alarm level 2")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(Doc.of(Level.OK) //
-			.text("Communication to sub master 1 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(Doc.of(Level.OK) //
-			.text("Communication to sub master 2 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(Doc.of(Level.OK) //
-			.text("Communication to sub master 3 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4(Doc.of(Level.OK) //
-			.text("Communication to sub master 4 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5(Doc.of(Level.OK) //
-			.text("Communication to sub master 5 fault")),
+
 	RACK_1_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
 			.text("Rack 1 Level 2 Alarm")),
 	RACK_1_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
@@ -145,12 +105,11 @@ public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId
 	RACK_5_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
 			.text("Rack 1 Cycle over current")),
 	RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-			.text("Rack 1 Voltage difference"))
-	;
+			.text("Rack 1 Voltage difference"));
 
 	private final Doc doc;
 
-	private ClusterChannelId(Doc doc) {
+	private ClusterVersionBChannelId(Doc doc) {
 		this.doc = doc;
 	}
 
