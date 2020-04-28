@@ -393,14 +393,8 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 		PowerModeEms writePowerModeEms = PowerModeEms.AUTO;
 
-		// Set to Off-grid Power Mode if Grid-mode is Off-grid or Undefined (Fault).
-		if (this.getGridMode().value().asEnum() == GridMode.UNDEFINED //
-				|| this.getGridMode().value().asEnum() == GridMode.OFF_GRID) {
-			writePowerModeEms = PowerModeEms.OFF_GRID;
-		}
-
-		// Charge if the value is Negative
-		else if (activePower < 0) {
+		// Charge if the value is Negative or Equals to zero
+		if (activePower <= 0) {
 			writePowerModeEms = PowerModeEms.CHARGE_BAT;
 		}
 
@@ -432,7 +426,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setPowerSet = this.channel(EssChannelId.EMS_POWER_SET);
 
 		// Set to new power mode only if the previous mode is different
-		if (activePower != powerSet.value().get()) {
+		if (activePower != powerSet.value().orElse(0)) {
 			setPowerSet.setNextWriteValue(Math.abs(activePower));
 		}
 
