@@ -34,7 +34,6 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -386,59 +385,55 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-
+		final PowerModeEms nextPowerMode;
 		if (this.config.readOnlyMode()) {
-			return;
-		}
+			// Read-Only-Mode: fall-back to internal self-consumption optimization
+			nextPowerMode = PowerModeEms.AUTO;
+			activePower = 0;
 
-		PowerModeEms writePowerModeEms = PowerModeEms.AUTO;
+		} else {
+			if (activePower <= 0) {
+				// ActivePower is negative or zero -> CHARGE
+				nextPowerMode = PowerModeEms.CHARGE_BAT;
 
-		// Charge if the value is Negative or Equals to zero
-		if (activePower <= 0) {
-			writePowerModeEms = PowerModeEms.CHARGE_BAT;
-		}
-
-		// Discharge if the value is Positive
-		else if (activePower > 0) {
-			/*
-			 * Check if PV is available.
-			 * 
-			 * Discharge mode changes according to availability of PV
-			 * 
-			 * TODO PV mode is not working, need an update from GoodWe for this.
-			 */
-			Integer productionPower = null;
-
-			for (AbstractGoodWeEtCharger charger : this.chargers) {
-				productionPower = TypeUtils.sum(productionPower, charger.getActualPower().getNextValue().get());
-			}
-
-			if (productionPower == null) {
-				// no PV connection
-				writePowerModeEms = PowerModeEms.SELL_POWER;
 			} else {
-				writePowerModeEms = PowerModeEms.DISCHARGE_BAT;
+				// ActivePower is positive -> DISCHARGE
+
+				/*
+				 * Check if PV is available. Discharge mode changes according to availability of
+				 * PV
+				 * 
+				 * TODO PV mode is not working, need an update from GoodWe for this.
+				 */
+				Integer productionPower = null;
+				for (AbstractGoodWeEtCharger charger : this.chargers) {
+					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().value().get());
+				}
+				if (productionPower == null) {
+					// No PV-Power -> required to put on SELL_POWER
+					nextPowerMode = PowerModeEms.SELL_POWER;
+				} else {
+					// PV-Power exists -> set DISCHARGE_BAT
+					nextPowerMode = PowerModeEms.DISCHARGE_BAT;
+				}
 			}
 		}
 
 		// Set the PowerMode and PowerSet
-		IntegerReadChannel powerSet = this.channel(EssChannelId.EMS_POWER_SET);
-		IntegerWriteChannel setPowerSet = this.channel(EssChannelId.EMS_POWER_SET);
-
-		// Set to new power mode only if the previous mode is different
-		if (activePower != powerSet.value().orElse(0)) {
-			setPowerSet.setNextWriteValue(Math.abs(activePower));
+		IntegerWriteChannel emsPowerSetChannel = this.channel(EssChannelId.EMS_POWER_SET);
+		Integer essPowerSet = emsPowerSetChannel.value().get();
+		if (essPowerSet == null || activePower != essPowerSet) {
+			// Set to new power mode only if the previous activePower is different or
+			// undefined
+			emsPowerSetChannel.setNextWriteValue(Math.abs(activePower));
 		}
 
-		EnumReadChannel powerMode = this.channel(EssChannelId.EMS_POWER_MODE);
-		PowerModeEms readPowermodeEms = powerMode.value().asEnum();
-		EnumWriteChannel setPowerMode = this.channel(EssChannelId.EMS_POWER_MODE);
-
-		// Set to new power mode only if the previous mode is different
-		if ((readPowermodeEms != writePowerModeEms)) {
-			setPowerMode.setNextWriteValue(writePowerModeEms);
+		EnumWriteChannel emsPowerModeChannel = this.channel(EssChannelId.EMS_POWER_MODE);
+		PowerModeEms emsPowerMode = emsPowerModeChannel.value().asEnum();
+		if (emsPowerMode != nextPowerMode) {
+			// Set to new power mode only if the previous mode is different
+			emsPowerModeChannel.setNextWriteValue(nextPowerMode);
 		}
-
 		// TODO : Add Reactive Power Register
 	}
 
