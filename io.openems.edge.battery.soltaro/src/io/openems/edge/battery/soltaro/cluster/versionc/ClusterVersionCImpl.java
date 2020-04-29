@@ -230,6 +230,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				new FC3ReadRegistersTask(0x3010, Priority.LOW, //
 						m(SoltaroCluster.ChannelId.RACK_2_POSITIVE_CONTACTOR, new UnsignedWordElement(0x3010)) //
 				), //
+
+				// TODO READ-ERRORS for RACK_3 - RACK_5
 				new FC16WriteRegistersTask(0x4010, //
 						m(SoltaroCluster.ChannelId.RACK_3_POSITIVE_CONTACTOR, new UnsignedWordElement(0x4010)) //
 				), //
@@ -542,30 +544,30 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 							)) //
 			); //
 
-			/*
-			 * Add tasks for cell voltages and temperatures according to the number of
-			 * slaves, one task per module is created Cell voltages
-			 */
-			Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
-				for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-					AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
-					for (int j = 0; j < type.getSensorsPerModule(); j++) {
-						int sensorIndex = i * type.getSensorsPerModule() + j;
-						io.openems.edge.common.channel.ChannelId channelId = CellChannelFactory.create(r, type,
-								sensorIndex);
-						// Register the Channel at this Component
-						this.addChannel(channelId);
-						// Add the Modbus Element and map it to the Channel
-						elements[j] = m(channelId, new UnsignedWordElement(r.offset + type.getOffset() + sensorIndex));
-					}
-					// Add a Modbus read task for this module
-					protocol.addTask(//
-							new FC3ReadRegistersTask(r.offset + type.getOffset() + i * type.getSensorsPerModule(),
-									Priority.LOW, elements));
-				}
-			};
-			addCellChannels.accept(CellChannelFactory.Type.VOLTAGE);
-			addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE);
+// TODO			/*
+//			 * Add tasks for cell voltages and temperatures according to the number of
+//			 * slaves, one task per module is created Cell voltages
+//			 */
+//			Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
+//				for (int i = 0; i < this.config.numberOfSlaves(); i++) {
+//					AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
+//					for (int j = 0; j < type.getSensorsPerModule(); j++) {
+//						int sensorIndex = i * type.getSensorsPerModule() + j;
+//						io.openems.edge.common.channel.ChannelId channelId = CellChannelFactory.create(r, type,
+//								sensorIndex);
+//						// Register the Channel at this Component
+//						this.addChannel(channelId);
+//						// Add the Modbus Element and map it to the Channel
+//						elements[j] = m(channelId, new UnsignedWordElement(r.offset + type.getOffset() + sensorIndex));
+//					}
+//					// Add a Modbus read task for this module
+//					protocol.addTask(//
+//							new FC3ReadRegistersTask(r.offset + type.getOffset() + i * type.getSensorsPerModule(),
+//									Priority.LOW, elements));
+//				}
+//			};
+//			addCellChannels.accept(CellChannelFactory.Type.VOLTAGE);
+//			addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE);
 
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
