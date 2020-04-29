@@ -23,13 +23,15 @@ public class Run extends BaseState implements StateObject {
 	private float offsetCurrent;
 	private ParameterSet parameterSet;
 
-	public Run(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String hardRestartRelayAdress, float offsetCurrent ) {
+	public Run(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1,
+			boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String hardRestartRelayAdress,
+			float offsetCurrent) {
 		super(manager, gridconPCSId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 		this.enableIPU1 = enableIPU1;
 		this.enableIPU2 = enableIPU2;
 		this.enableIPU3 = enableIPU3;
 		this.parameterSet = parameterSet;
-		this.offsetCurrent =  offsetCurrent;
+		this.offsetCurrent = offsetCurrent;
 	}
 
 	@Override
@@ -46,22 +48,23 @@ public class Run extends BaseState implements StateObject {
 		if (isNextStateError()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 		}
-		
+
 		if (isNextStateStopped()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
 		}
-		
+
 		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN;
 	}
 
 	@Override
 	public void act() {
 		log.info("run() -> Set all parameters to gridcon!");
-		
-		// sometimes link voltage can be too low unrecognized by gridcon, i.e. no error message
-		// in case of that, restart the system, but this should be detected by isError() function
-		
-		
+
+		// sometimes link voltage can be too low unrecognized by gridcon, i.e. no error
+		// message
+		// in case of that, restart the system, but this should be detected by isError()
+		// function
+
 		checkBatteries();
 		setRunParameters();
 		setStringWeighting();
@@ -81,110 +84,117 @@ public class Run extends BaseState implements StateObject {
 			if (!getBattery1().isRunning() && !getBattery1().isError()) {
 				getBattery1().start();
 			}
-			}
-			if (getBattery2() != null) {
+		}
+		if (getBattery2() != null) {
 			if (!getBattery2().isRunning() && !getBattery2().isError()) {
 				getBattery2().start();
 			}
-			}
-			if (getBattery3() != null) {
+		}
+		if (getBattery3() != null) {
 			if (!getBattery3().isRunning() && !getBattery3().isError()) {
 				getBattery3().start();
 			}
-			}
+		}
 	}
 
 	private void setOffsetCurrent() {
-		
+
 		System.out.println(" ----- Setting the offset current --------");
-		
-		//find out the battery rack with the highest cell voltage and put the offset to it
+
+		// find out the battery rack with the highest cell voltage and put the offset to
+		// it
 		if (hasBattery1HighestCellVoltage()) {
-			
+
 			System.out.println("Battery 1 has the highest cell voltage, set offset current to " + offsetCurrent);
-			
+
 			getGridconPCS().setIRefStringA(offsetCurrent);
 			getGridconPCS().setIRefStringB(0f);
 			getGridconPCS().setIRefStringC(0f);
 		}
 		if (hasBattery2HighestCellVoltage()) {
-			
+
 			System.out.println("Battery 2 has the highest cell voltage, set offset current to " + offsetCurrent);
-			
+
 			getGridconPCS().setIRefStringA(0f);
 			getGridconPCS().setIRefStringB(offsetCurrent);
 			getGridconPCS().setIRefStringC(0f);
 		}
 		if (hasBattery3HighestCellVoltage()) {
-			
+
 			System.out.println("Battery 3 has the highest cell voltage, set offset current to " + offsetCurrent);
-			
+
 			getGridconPCS().setIRefStringA(0f);
 			getGridconPCS().setIRefStringB(0f);
 			getGridconPCS().setIRefStringC(offsetCurrent);
 		}
-		
+
 		System.out.println(" ----- End of setting the offset current --------");
 	}
 
-	private boolean hasBattery1HighestCellVoltage() {		
+	private boolean hasBattery1HighestCellVoltage() {
 		if (getBattery1() == null) { // battery is not existing --> cannot have highest cell voltage
 			return false;
 		}
-		
-		if (getBattery2() == null && getBattery3() == null) { // only this battery exists --> must have highest cell voltage
+
+		if (getBattery2() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
+																// voltage
 			return true;
 		}
-		
+
 		if (getBattery2() == null) { // only battery one and three are existing
 			return getMaxCellVoltage(getBattery1()) >= getMaxCellVoltage(getBattery3());
 		}
-		
+
 		if (getBattery3() == null) { // only battery one and two are existing
 			return getMaxCellVoltage(getBattery1()) >= getMaxCellVoltage(getBattery2());
 		}
-		
-		return getMaxCellVoltage(getBattery1()) >= Math.max(getMaxCellVoltage(getBattery2()), getMaxCellVoltage(getBattery3())); 
+
+		return getMaxCellVoltage(getBattery1()) >= Math.max(getMaxCellVoltage(getBattery2()),
+				getMaxCellVoltage(getBattery3()));
 	}
-	
-	private boolean hasBattery2HighestCellVoltage() {		
+
+	private boolean hasBattery2HighestCellVoltage() {
 		if (getBattery2() == null) { // battery is not existing --> cannot have highest cell voltage
 			return false;
 		}
-		
-		if (getBattery1() == null && getBattery3() == null) { // only this battery exists --> must have highest cell voltage
+
+		if (getBattery1() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
+																// voltage
 			return true;
 		}
-		
+
 		if (getBattery1() == null) { // only battery two and three are existing
 			return getMaxCellVoltage(getBattery2()) >= getMaxCellVoltage(getBattery3());
 		}
-		
+
 		if (getBattery3() == null) { // only battery one and two are existing
 			return getMaxCellVoltage(getBattery2()) >= getMaxCellVoltage(getBattery1());
 		}
-		
-		return getMaxCellVoltage(getBattery2()) >= Math.max(getMaxCellVoltage(getBattery1()), getMaxCellVoltage(getBattery3())); 
+
+		return getMaxCellVoltage(getBattery2()) >= Math.max(getMaxCellVoltage(getBattery1()),
+				getMaxCellVoltage(getBattery3()));
 	}
-	
-	private boolean hasBattery3HighestCellVoltage() {		
+
+	private boolean hasBattery3HighestCellVoltage() {
 		if (getBattery3() == null) { // battery is not existing --> cannot have highest cell voltage
 			return false;
 		}
-		
-		if (getBattery1() == null && getBattery2() == null) { // only this battery exists --> must have highest cell voltage
+
+		if (getBattery1() == null && getBattery2() == null) { // only this battery exists --> must have highest cell
+																// voltage
 			return true;
 		}
-		
+
 		if (getBattery2() == null) { // only battery one and three are existing
 			return getMaxCellVoltage(getBattery3()) >= getMaxCellVoltage(getBattery1());
 		}
-		
+
 		if (getBattery1() == null) { // only battery two and three are existing
 			return getMaxCellVoltage(getBattery3()) >= getMaxCellVoltage(getBattery2());
 		}
-		
-		return getMaxCellVoltage(getBattery3()) >= Math.max(getMaxCellVoltage(getBattery1()), getMaxCellVoltage(getBattery2())); 
+
+		return getMaxCellVoltage(getBattery3()) >= Math.max(getMaxCellVoltage(getBattery1()),
+				getMaxCellVoltage(getBattery2()));
 	}
 
 	private int getMaxCellVoltage(Battery battery) {
@@ -199,7 +209,7 @@ public class Run extends BaseState implements StateObject {
 		// Enable DC DC
 		getGridconPCS().enableDCDC();
 		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
-		
+
 		getGridconPCS().setSyncApproval(true);
 		getGridconPCS().setBlackStartApproval(false);
 		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
@@ -208,7 +218,7 @@ public class Run extends BaseState implements StateObject {
 		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
 		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
 		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
-		
+
 		float maxPower = GridconPCSImpl.MAX_POWER_PER_INVERTER;
 		if (enableIPU1) {
 			getGridconPCS().setPMaxChargeIPU1(maxPower);
