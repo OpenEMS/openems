@@ -810,92 +810,81 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	 * Updates Channels on BEFORE_PROCESS_IMAGE event.
 	 */
 	private void updateChannels() {
-		final Integer soc;
-		final Integer maxCellVoltage;
-		final Integer minCellVoltage;
-		final Integer maxCellTemperature;
-		final Integer minCellTemperature;
-
-		if (this.racks.isEmpty()) {
-			soc = null;
-			maxCellVoltage = null;
-			minCellVoltage = null;
-			maxCellTemperature = null;
-			minCellTemperature = null;
-
-		} else {
-			soc = this.calculateAverageSoc();
-			maxCellVoltage = this.calculateMaxCellVoltage();
-			minCellVoltage = this.calculateMinCellVoltage();
-			maxCellTemperature = this.calculateMaxCellTemperature();
-			minCellTemperature = this.calculateMinCellTemperature();
-		}
-
-		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
-		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(maxCellVoltage);
-		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
-		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(maxCellTemperature);
-		this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(minCellTemperature);
+		this.channel(Battery.ChannelId.SOC).setNextValue(this.calculateRackAverage(RackChannel.SOC));
+		this.channel(Battery.ChannelId.SOH).setNextValue(this.calculateRackAverage(RackChannel.SOH));
+		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE)
+				.setNextValue(this.calculateRackMax(RackChannel.MAX_CELL_VOLTAGE));
+		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE)
+				.setNextValue(this.calculateRackMin(RackChannel.MIN_CELL_VOLTAGE));
+		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE)
+				.setNextValue(this.calculateRackMax(RackChannel.MAX_CELL_TEMPERATURE));
+		this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE)
+				.setNextValue(this.calculateRackMin(RackChannel.MIN_CELL_TEMPERATURE));
 	}
 
 	/**
-	 * Calculates the State-of-Charge as average of all active Racks.
+	 * Calculates the average of RackChannel over all active Racks.
 	 * 
-	 * @return the average State-of-Charge
+	 * @return the average value or null
 	 */
-	private int calculateAverageSoc() {
-		int cumulatedSoc = 0;
+	private Integer calculateRackAverage(RackChannel rackChannel) {
+		Integer cumulated = null;
 		for (Rack rack : this.racks) {
-			IntegerReadChannel socChannel = this.channel(rack, RackChannel.SOC);
-			cumulatedSoc += socChannel.getNextValue().orElse(0);
+			IntegerReadChannel channel = this.channel(rack, rackChannel);
+			Integer value = channel.getNextValue().get();
+			if (value == null) {
+				continue;
+			} else if (cumulated == null) {
+				cumulated = value;
+			} else {
+				cumulated += value;
+			}
 		}
-		return cumulatedSoc / this.racks.size();
+		if (cumulated != null) {
+			return cumulated / this.racks.size();
+		} else {
+			return null;
+		}
 	}
 
 	/**
-	 * Finds the max cell voltage of all Racks.
+	 * Finds the maximum of a RackChannel over all active Racks.
+	 * 
+	 * @return the maximum value or null
 	 */
-	private int calculateMaxCellVoltage() {
-		int result = Integer.MIN_VALUE;
+	private Integer calculateRackMax(RackChannel rackChannel) {
+		Integer result = null;
 		for (Rack rack : this.racks) {
-			IntegerReadChannel maxCellVoltageChannel = this.channel(rack, RackChannel.MAX_CELL_VOLTAGE);
-			result = Math.max(result, maxCellVoltageChannel.getNextValue().orElse(Integer.MIN_VALUE));
-		}
-		return result;
-	}
-
-	/**
-	 * Finds the min cell voltage of all Racks.
-	 */
-	private int calculateMinCellVoltage() {
-		int result = Integer.MAX_VALUE;
-		for (Rack rack : this.racks) {
-			IntegerReadChannel minCellVoltageChannel = this.channel(rack, RackChannel.MIN_CELL_VOLTAGE);
-			result = Math.min(result, minCellVoltageChannel.getNextValue().orElse(Integer.MAX_VALUE));
-		}
-		return result;
-	}
-
-	/**
-	 * Finds the max cell temperature of all Racks.
-	 */
-	protected int calculateMaxCellTemperature() {
-		int result = Integer.MIN_VALUE;
-		for (Rack rack : this.racks) {
-			IntegerReadChannel maxCellTemperatureChannel = this.channel(rack, RackChannel.MAX_CELL_TEMPERATURE);
-			result = Math.max(result, maxCellTemperatureChannel.getNextValue().orElse(Integer.MIN_VALUE));
+			IntegerReadChannel channel = this.channel(rack, rackChannel);
+			Integer value = channel.getNextValue().get();
+			if (value == null) {
+				continue;
+			} else if (result == null) {
+				result = value;
+			} else {
+				result = Math.max(result, value);
+			}
 		}
 		return result;
 	}
 
 	/**
-	 * Finds the min cell temperature of all Racks.
+	 * Finds the minimum of a RackChannel over all active Racks.
+	 * 
+	 * @return the minimum value or null
 	 */
-	private int calculateMinCellTemperature() {
-		int result = Integer.MAX_VALUE;
+	private Integer calculateRackMin(RackChannel rackChannel) {
+		Integer result = null;
 		for (Rack rack : this.racks) {
-			IntegerReadChannel minCellTemperatureChannel = this.channel(rack, RackChannel.MIN_CELL_TEMPERATURE);
-			result = Math.min(result, minCellTemperatureChannel.getNextValue().orElse(Integer.MAX_VALUE));
+			IntegerReadChannel channel = this.channel(rack, rackChannel);
+			Integer value = channel.getNextValue().get();
+			if (value == null) {
+				continue;
+			} else if (result == null) {
+				result = value;
+			} else {
+				result = Math.min(result, value);
+			}
 		}
 		return result;
 	}
