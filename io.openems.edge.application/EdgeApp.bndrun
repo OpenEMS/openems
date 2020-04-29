@@ -27,6 +27,8 @@
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
+	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
+	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -77,6 +79,7 @@
 	bnd.identity;id='io.openems.edge.ess.cluster',\
 	bnd.identity;id='io.openems.edge.ess.core',\
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
+	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
 	bnd.identity;id='io.openems.edge.ess.refu',\
@@ -135,6 +138,9 @@
 	io.openems.edge.battery.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.battery.bydcommercial;version='[1.0.0,1.0.1)',\
 	io.openems.edge.battery.soltaro;version='[1.0.0,1.0.1)',\
+	io.openems.edge.batteryinverter.api;version='[1.0.0,1.0.1)',\
+	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version='[1.0.0,1.0.1)',\
+	io.openems.edge.batteryinverter.sunspec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.mbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.modbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.onewire;version='[1.0.0,1.0.1)',\
@@ -186,6 +192,7 @@
 	io.openems.edge.ess.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.core;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.fenecon.commercial40;version='[1.0.0,1.0.1)',\
+	io.openems.edge.ess.generic;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.mr.gridcon;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.refu;version='[1.0.0,1.0.1)',\

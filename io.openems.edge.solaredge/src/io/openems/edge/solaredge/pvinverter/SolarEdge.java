@@ -1,5 +1,7 @@
 package io.openems.edge.solaredge.pvinverter;
 
+import java.util.Map;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,14 +16,19 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
+import io.openems.edge.pvinverter.sunspec.SunSpecPvChannelId;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -32,15 +39,43 @@ import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 				"type=PRODUCTION" //
 		})
-public class SolarEdge extends AbstractSunSpecPvInverter implements SymmetricMeter, OpenemsComponent, EventHandler {
+public class SolarEdge extends AbstractSunSpecPvInverter
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private final static int UNIT_ID = 1;
 	private final static int READ_FROM_MODBUS_BLOCK = 1;
 
-	private final Logger log = LoggerFactory.getLogger(SolarEdge.class);
+	private static final Map<ISunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<ISunSpecModel, Priority>builder()
+			.put(SunSpecModel.S_1, Priority.LOW) //
+			.put(SunSpecModel.S_101, Priority.LOW) //
+			.put(SunSpecModel.S_102, Priority.LOW) //
+			.put(SunSpecModel.S_103, Priority.LOW) //
+			.put(SunSpecModel.S_111, Priority.LOW) //
+			.put(SunSpecModel.S_112, Priority.LOW) //
+			.put(SunSpecModel.S_113, Priority.LOW) //
+			.put(SunSpecModel.S_120, Priority.LOW) //
+			.put(SunSpecModel.S_121, Priority.LOW) //
+			.put(SunSpecModel.S_122, Priority.LOW) //
+			.put(SunSpecModel.S_123, Priority.LOW) //
+			.put(SunSpecModel.S_124, Priority.LOW) //
+			.put(SunSpecModel.S_125, Priority.LOW) //
+			.put(SunSpecModel.S_127, Priority.LOW) //
+			.put(SunSpecModel.S_128, Priority.LOW) //
+			.put(SunSpecModel.S_145, Priority.LOW) //
+			.build();
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	public SolarEdge() {
+		super(//
+				ACTIVE_MODELS, //
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
+				SunSpecPvChannelId.values() //
+		);
+	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -63,8 +98,4 @@ public class SolarEdge extends AbstractSunSpecPvInverter implements SymmetricMet
 		super.handleEvent(event);
 	}
 
-	@Override
-	protected void addUnknownBlock(int startAddress, int sunSpecBlockId) {
-		this.logInfo(this.log, "SunSpec-Model [" + sunSpecBlockId + "] is not handled.");
-	}
 }
