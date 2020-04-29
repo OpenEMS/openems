@@ -121,8 +121,7 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
-	bnd.identity;id='io.openems.edge.controller.ess.setpower'
-
+	
 -runbundles: \
 	Java-WebSocket;version='[1.4.1,1.4.2)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -162,7 +161,6 @@
 	io.openems.edge.controller.ess.onefullcycle;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.predictivedelaycharge;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.ess.selltogridlimit;version='[1.0.0,1.0.1)',\
-	io.openems.edge.controller.ess.setpower;version=snapshot,\
 	io.openems.edge.controller.evcs;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.evcs.fixactivepower;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.highloadtimeslot;version='[1.0.0,1.0.1)',\
