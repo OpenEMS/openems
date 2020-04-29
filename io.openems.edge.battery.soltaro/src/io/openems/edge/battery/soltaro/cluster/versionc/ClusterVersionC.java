@@ -57,8 +57,8 @@ public interface ClusterVersionC extends //
 	/**
 	 * Gets the Channel for a Rack.
 	 * 
-	 * @param <T>        the expected typed Channel
-	 * @param rack       the {@link Rack}
+	 * @param <T>         the expected typed Channel
+	 * @param rack        the {@link Rack}
 	 * @param rackChannel the {@link RackChannel}
 	 * @return the typed Channel
 	 */
@@ -81,7 +81,7 @@ public interface ClusterVersionC extends //
 		 * StateChannels
 		 */
 		// Master BMS Alarm Registers
-		MASTER_EMS_COMMUNICATION_FAILURE(Doc.of(Level.FAULT) //
+		MASTER_EMS_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
 				.text("Master EMS Communication Failure")),
 		MASTER_PCS_CONTROL_FAILURE(Doc.of(Level.FAULT) //
 				.text("Master PCS Control Failure")),
