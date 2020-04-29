@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.github.rzymek</groupId>
 			<artifactId>opczip</artifactId>
-			<version>1.0.2</version>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -51,13 +51,13 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>3.14.7</version>
+			<version>3.14.8</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>3.14.6</version>
+			<version>3.14.8</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
@@ -81,7 +81,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>3.4.2</version>
+			<version>3.4.3</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
@@ -144,9 +144,11 @@
 			<version>2.1.20</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Web Management Console -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.4.0</version>
+			<version>4.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -166,7 +168,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.14</version>
+			<version>0.10.15</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>

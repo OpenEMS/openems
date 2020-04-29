@@ -7,10 +7,10 @@ Bundle-Version: 2.17
 Include-Resource: \
 	@converter-moshi-2.8.1.jar,\
 	@influxdb-java-2.17.jar,\
-	@logging-interceptor-3.14.7.jar,\
+	@logging-interceptor-3.14.8.jar,\
 	@moshi-1.9.2.jar,\
 	@msgpack-core-0.8.20.jar,\
-	@okhttp-3.14.6.jar,\
+	@okhttp-3.14.8.jar,\
 	@okio-1.17.2.jar,\
 	@retrofit-2.8.1.jar
  
@@ -18,6 +18,7 @@ Import-Package: \
 	android.os;resolution:=optional,\
 	android.util;resolution:=optional,\
 	android.net.http;resolution:=optional,\
+	android.net.ssl;resolution:=optional,\
 	android.security;resolution:=optional,\
 	com.android.org.conscrypt;resolution:=optional,\
 	org.conscrypt;resolution:=optional,\
