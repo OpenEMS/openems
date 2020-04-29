@@ -28,7 +28,6 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
-        private websocket: Websocket,
     ) {
         super(service, translate);
     }
@@ -36,6 +35,11 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
+        this.subscribeChartRefresh();
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
