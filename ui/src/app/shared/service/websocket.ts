@@ -66,6 +66,15 @@ export class Websocket {
           }
           this.isWebsocketConnected.next(true);
           if (this.status == 'online') {
+            //resubscribes if websocket is reestablished and current view is live or history
+            if (this.router.url.split("/")[this.router.url.split("/").length - 1] == "live" ||
+              this.router.url.split("/")[this.router.url.split("/").length - 1] == "history") {
+              this.service.getCurrentEdge().then(edge => {
+                if (edge != null) {
+                  edge.sendSubscribeChannels(this);
+                }
+              })
+            }
             this.service.notify({
               message: "Connection lost. Trying to reconnect.", // TODO translate
               type: 'warning'
