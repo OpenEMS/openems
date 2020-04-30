@@ -30,7 +30,6 @@ import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
-import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.StartStop;
@@ -341,8 +340,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
 		boolean b = true;
 		for (SingleRack r : this.racks.values()) {
-			b = b && cctrl == this.channel(Rack.getRack(r.getRackNumber()).positiveContactorChannelId).value()
-					.asEnum();
+			b = b && cctrl == this.channel(Rack.getRack(r.getRackNumber()).positiveContactorChannelId).value().asEnum();
 		}
 		return b;
 	}
@@ -491,34 +489,34 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				), //
 
 				new FC16WriteRegistersTask(0x2010, //
-						m(SoltaroCluster.ChannelId.RACK_1_POSITIVE_CONTACTOR, new UnsignedWordElement(0x2010)) //
+						m(ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC3ReadRegistersTask(0x2010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_1_POSITIVE_CONTACTOR, new UnsignedWordElement(0x2010)) //
+						m(ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR, new UnsignedWordElement(0x2010)) //
 				), //
 				new FC16WriteRegistersTask(0x3010, //
-						m(SoltaroCluster.ChannelId.RACK_2_POSITIVE_CONTACTOR, new UnsignedWordElement(0x3010)) //
+						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR, new UnsignedWordElement(0x3010)) //
 				), //
 				new FC3ReadRegistersTask(0x3010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_2_POSITIVE_CONTACTOR, new UnsignedWordElement(0x3010)) //
+						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR, new UnsignedWordElement(0x3010)) //
 				), //
 				new FC16WriteRegistersTask(0x4010, //
-						m(SoltaroCluster.ChannelId.RACK_3_POSITIVE_CONTACTOR, new UnsignedWordElement(0x4010)) //
+						m(ClusterVersionBChannelId.RACK_3_POSITIVE_CONTACTOR, new UnsignedWordElement(0x4010)) //
 				), //
 				new FC3ReadRegistersTask(0x4010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_3_POSITIVE_CONTACTOR, new UnsignedWordElement(0x4010)) //
+						m(ClusterVersionBChannelId.RACK_3_POSITIVE_CONTACTOR, new UnsignedWordElement(0x4010)) //
 				), //
 				new FC16WriteRegistersTask(0x5010, //
-						m(SoltaroCluster.ChannelId.RACK_4_POSITIVE_CONTACTOR, new UnsignedWordElement(0x5010)) //
+						m(ClusterVersionBChannelId.RACK_4_POSITIVE_CONTACTOR, new UnsignedWordElement(0x5010)) //
 				), //
 				new FC3ReadRegistersTask(0x5010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_4_POSITIVE_CONTACTOR, new UnsignedWordElement(0x5010)) //
+						m(ClusterVersionBChannelId.RACK_4_POSITIVE_CONTACTOR, new UnsignedWordElement(0x5010)) //
 				), //
 				new FC16WriteRegistersTask(0x6010, //
-						m(SoltaroCluster.ChannelId.RACK_5_POSITIVE_CONTACTOR, new UnsignedWordElement(0x6010)) //
+						m(ClusterVersionBChannelId.RACK_5_POSITIVE_CONTACTOR, new UnsignedWordElement(0x6010)) //
 				), //
 				new FC3ReadRegistersTask(0x6010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_5_POSITIVE_CONTACTOR, new UnsignedWordElement(0x6010)) //
+						m(ClusterVersionBChannelId.RACK_5_POSITIVE_CONTACTOR, new UnsignedWordElement(0x6010)) //
 				), //
 
 				// -------- state registers of master --------------------------------------

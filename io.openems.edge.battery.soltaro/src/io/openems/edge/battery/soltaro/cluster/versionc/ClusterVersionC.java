@@ -11,8 +11,8 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
-import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
+import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -38,14 +38,14 @@ public interface ClusterVersionC extends //
 	public boolean isSystemRunning();
 
 	/**
-	 * Gets the common {@link ContactorControl}. If all Racks share the same
-	 * {@link ContactorControl} state, that one is returned; otherwise
+	 * Gets the common {@link PreChargeControl}. If all Racks share the same
+	 * {@link PreChargeControl} state, that one is returned; otherwise
 	 * Optional.empty.
 	 * 
-	 * @return the ContactorControl state of all Reacks; or empty if they are
-	 *         different
+	 * @return the {@link PreChargeControl} state of all Reacks; or empty if they
+	 *         are different
 	 */
-	public Optional<ContactorControl> getCommonContactorControlState();
+	public Optional<PreChargeControl> getCommonPreChargeControl();
 
 	/**
 	 * Gets the active Racks.

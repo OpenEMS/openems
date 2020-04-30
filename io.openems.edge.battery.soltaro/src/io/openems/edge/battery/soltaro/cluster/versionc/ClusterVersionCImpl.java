@@ -3,7 +3,6 @@ package io.openems.edge.battery.soltaro.cluster.versionc;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -27,11 +26,10 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
-import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine;
+import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
-import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -216,40 +214,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x10C5)), //
 						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x10C6)), //
 						m(SoltaroCluster.ChannelId.RACK_4_USAGE, new UnsignedWordElement(0x10C7)), //
-						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x10C8)) //
-				), //
-				new FC16WriteRegistersTask(0x2010, //
-						m(SoltaroCluster.ChannelId.RACK_1_POSITIVE_CONTACTOR, new UnsignedWordElement(0x2010)) //
-				), //
-				new FC3ReadRegistersTask(0x2010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_1_POSITIVE_CONTACTOR, new UnsignedWordElement(0x2010)) //
-				), //
-				new FC16WriteRegistersTask(0x3010, //
-						m(SoltaroCluster.ChannelId.RACK_2_POSITIVE_CONTACTOR, new UnsignedWordElement(0x3010)) //
-				), //
-				new FC3ReadRegistersTask(0x3010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_2_POSITIVE_CONTACTOR, new UnsignedWordElement(0x3010)) //
-				), //
-
-				// TODO READ-ERRORS for RACK_3 - RACK_5
-				new FC16WriteRegistersTask(0x4010, //
-						m(SoltaroCluster.ChannelId.RACK_3_POSITIVE_CONTACTOR, new UnsignedWordElement(0x4010)) //
-				), //
-				new FC3ReadRegistersTask(0x4010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_3_POSITIVE_CONTACTOR, new UnsignedWordElement(0x4010)) //
-				), //
-				new FC16WriteRegistersTask(0x5010, //
-						m(SoltaroCluster.ChannelId.RACK_4_POSITIVE_CONTACTOR, new UnsignedWordElement(0x5010)) //
-				), //
-				new FC3ReadRegistersTask(0x5010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_4_POSITIVE_CONTACTOR, new UnsignedWordElement(0x5010)) //
-				), //
-				new FC16WriteRegistersTask(0x6010, //
-						m(SoltaroCluster.ChannelId.RACK_5_POSITIVE_CONTACTOR, new UnsignedWordElement(0x6010)) //
-				), //
-				new FC3ReadRegistersTask(0x6010, Priority.LOW, //
-						m(SoltaroCluster.ChannelId.RACK_5_POSITIVE_CONTACTOR, new UnsignedWordElement(0x6010)) //
-				), //
+						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x10C8))), //
 				/*
 				 * BMS System Running Status Registers
 				 */
@@ -906,30 +871,39 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	public boolean isSystemStopped() {
-		return this.getCommonContactorControlState().orElse(ContactorControl.UNDEFINED) == ContactorControl.CUT_OFF;
+		return this.getCommonPreChargeControl().orElse(PreChargeControl.UNDEFINED) == PreChargeControl.SWITCH_OFF;
 	}
 
 	@Override
 	public boolean isSystemRunning() {
-		return this.getCommonContactorControlState().orElse(ContactorControl.UNDEFINED) == ContactorControl.ON_GRID;
+		return this.getCommonPreChargeControl().orElse(PreChargeControl.UNDEFINED) == PreChargeControl.SWITCH_ON;
 	}
 
 	@Override
-	public Optional<ContactorControl> getCommonContactorControlState() {
-		ContactorControl result = null;
+	public Optional<PreChargeControl> getCommonPreChargeControl() {
+		StringBuilder b = new StringBuilder();
+
+		PreChargeControl result = null;
 		for (Rack rack : this.racks) {
-			EnumReadChannel channel = this.channel(rack.positiveContactorChannelId);
-			ContactorControl value = channel.value().asEnum();
+			EnumReadChannel channel = this.channel(rack, RackChannel.PRE_CHARGE_CONTROL);
+			PreChargeControl value = channel.value().asEnum();
+
+			b.append(rack.name() + ":" + value.toString() + " ");
+
 			if (result != value) {
 				if (result == null) {
 					// first match
 					result = value;
 				} else {
-					// no common ContactorControl
+					// no common PreChargeControl
 					return Optional.empty();
 				}
 			}
 		}
+
+		b.append("   Common:" + result);
+
+		this.logInfo(this.log, b.toString());
 		return Optional.ofNullable(result);
 	}
 

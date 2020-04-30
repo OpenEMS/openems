@@ -30,6 +30,17 @@ public enum ClusterVersionBChannelId implements io.openems.edge.common.channel.C
 			.unit(Unit.OHM) //
 			.accessMode(AccessMode.READ_WRITE)), //
 
+    RACK_1_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
+            .accessMode(AccessMode.READ_WRITE)), //
+    RACK_2_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
+            .accessMode(AccessMode.READ_WRITE)), //
+    RACK_3_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
+            .accessMode(AccessMode.READ_WRITE)), //
+    RACK_4_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
+            .accessMode(AccessMode.READ_WRITE)), //
+    RACK_5_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
+            .accessMode(AccessMode.READ_WRITE)), //
+	
 	// StateChannels
 	MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER(Doc.of(Level.FAULT) //
 			.text("Communication error with submaster")),

@@ -8,7 +8,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.RunningState;
 import io.openems.edge.battery.soltaro.cluster.enums.StartStop;
@@ -46,17 +45,6 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 		RACK_4_USAGE(Doc.of(RackUsage.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		RACK_5_USAGE(Doc.of(RackUsage.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
-
-		RACK_1_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_2_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_3_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_4_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_5_POSITIVE_CONTACTOR(Doc.of(ContactorControl.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		/*

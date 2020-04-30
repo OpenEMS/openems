@@ -1,7 +1,7 @@
 package io.openems.edge.battery.soltaro.cluster.versionc.statemachine;
 
-import io.openems.edge.battery.soltaro.cluster.enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.Context;
+import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 
 public class Running extends State.Handler {
 
@@ -11,9 +11,9 @@ public class Running extends State.Handler {
 			return State.UNDEFINED;
 		}
 
-		ContactorControl commonContactorControlState = context.component.getCommonContactorControlState()
-				.orElse(ContactorControl.UNDEFINED);
-		if (commonContactorControlState != ContactorControl.ON_GRID) {
+		PreChargeControl commonPreChargeControl = context.component.getCommonPreChargeControl()
+				.orElse(PreChargeControl.UNDEFINED);
+		if (commonPreChargeControl != PreChargeControl.RUNNING) {
 			return State.UNDEFINED;
 		}
 
