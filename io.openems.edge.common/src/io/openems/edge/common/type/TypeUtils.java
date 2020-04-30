@@ -392,6 +392,79 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely multiply Integers.
+	 * 
+	 * @param factors the factors of the multiplication
+	 * @return the result, possibly null if all factors are null
+	 */
+	public static Integer multiply(Integer... factors) {
+		Integer result = null;
+		for (Integer factor : factors) {
+			if (result == null) {
+				result = factor;
+			} else if (factor != null) {
+				result *= factor;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely divides Integers.
+	 * 
+	 * <ul>
+	 * <li>if dividend is null -> result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the dividend of the division
+	 * @param subtrahend the divisor of the division
+	 * @return the result, possibly null
+	 */
+	public static Integer divide(Integer dividend, int divisor) {
+		if (dividend == null) {
+			return null;
+		}
+		return dividend / divisor;
+	}
+
+	/**
+	 * Safely divides Longs.
+	 * 
+	 * <ul>
+	 * <li>if dividend is null -> result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the dividend of the division
+	 * @param subtrahend the divisor of the division
+	 * @return the result, possibly null
+	 */
+	public static Long divide(Long dividend, long divisor) {
+		if (dividend == null) {
+			return null;
+		}
+		return dividend / divisor;
+	}
+
+	/**
+	 * Safely finds the max value of all values.
+	 * 
+	 * @return the max value; or null if all values are null
+	 */
+	public static Integer max(Integer... values) {
+		Integer result = null;
+		for (Integer value : values) {
+			if (value != null) {
+				if (result == null) {
+					result = value;
+				} else {
+					result = Math.max(result, value);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Throws an descriptive exception if the object is null.
 	 * 
 	 * @param description text that is added to the exception
@@ -403,4 +476,5 @@ public class TypeUtils {
 			throw new OpenemsException(description + " value is null!");
 		}
 	}
+
 }
