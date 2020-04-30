@@ -28,7 +28,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
-import io.openems.edge.pvinverter.sunspec.SunSpecPvChannelId;
+import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,7 +40,7 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvChannelId;
 				"type=PRODUCTION" //
 		})
 public class KacoBlueplanet extends AbstractSunSpecPvInverter
-		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	// TODO reduce to really required Models
 	private static final Map<ISunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<ISunSpecModel, Priority>builder()
@@ -75,7 +75,7 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
-				SunSpecPvChannelId.values() //
+				SunSpecPvInverter.ChannelId.values() //
 		);
 	}
 

@@ -28,7 +28,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
-import io.openems.edge.pvinverter.sunspec.SunSpecPvChannelId;
+import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,7 +40,7 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvChannelId;
 				"type=PRODUCTION" //
 		})
 public class SolarEdge extends AbstractSunSpecPvInverter
-		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private final static int UNIT_ID = 1;
 	private final static int READ_FROM_MODBUS_BLOCK = 1;
@@ -73,7 +73,7 @@ public class SolarEdge extends AbstractSunSpecPvInverter
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
-				SunSpecPvChannelId.values() //
+				SunSpecPvInverter.ChannelId.values() //
 		);
 	}
 
