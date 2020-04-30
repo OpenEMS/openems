@@ -23,8 +23,8 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.State;
-import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine;
 import io.openems.edge.battery.soltaro.single.versionc.utils.CellChannelFactory;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -43,6 +43,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -53,8 +56,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
-public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
-		implements SingleRackVersionC, SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
+public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent implements SingleRackVersionC,
+		SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(SingleRackVersionCImpl.class);
 
@@ -64,7 +67,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine stateMachine = new StateMachine();
+	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
 
 	private Config config;
 
@@ -73,6 +76,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				SoltaroBattery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				SingleRackVersionC.ChannelId.values() //
 		);
 	}
@@ -133,7 +137,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		this._setReadyForWorking(false);
 
 		// Prepare Context
-		StateMachine.Context context = new StateMachine.Context(this, this.config);
+		Context context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -662,6 +666,11 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
+	}
+
+	@Override
+	public void _setStartStop(StartStop value) {
+		this.stateMachine.forceNextState(State.UNDEFINED);
 	}
 
 }

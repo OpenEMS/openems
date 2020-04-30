@@ -5,6 +5,11 @@ package io.openems.edge.common.startstop;
  * have a configuration property "startStop" of this type that overrides the
  * logic of the {@link StartStoppable#setStartStop(StartStop)} method:
  * 
+ * <pre>
+ * 	&#64;AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stopp?")
+ *	StartStopConfig startStop() default StartStopConfig.AUTO;
+ * </pre>
+ * 
  * <ul>
  * <li>if config is {@link StartStopConfig#START} -> always start
  * <li>if config is {@link StartStopConfig#STOP} -> always stop

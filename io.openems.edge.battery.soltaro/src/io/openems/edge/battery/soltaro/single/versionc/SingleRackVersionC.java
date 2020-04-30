@@ -19,8 +19,9 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStoppable;
 
-public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComponent {
+public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComponent, StartStoppable {
 
 	public default boolean hasFaults() {
 		Level level = this.getState().value().asEnum();

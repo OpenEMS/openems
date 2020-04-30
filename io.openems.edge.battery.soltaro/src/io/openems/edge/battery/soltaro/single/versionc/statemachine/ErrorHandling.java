@@ -5,9 +5,9 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
-import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
+import io.openems.edge.common.statemachine.StateHandler;
 
-public class ErrorHandling extends State.Handler {
+public class ErrorHandling extends StateHandler<State, Context> {
 
 	// private void handleErrorsWithReset() {
 	// // To reset , first sleep and then reset the system

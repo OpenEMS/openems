@@ -1,7 +1,9 @@
 package io.openems.edge.common.startstop;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -17,6 +19,11 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Implementing this Nature also requires the Component to have a configuration
  * property "startStop" of type {@link StartStopConfig} that overrides the logic
  * of the {@link StartStoppable#setStartStop(StartStop)} method:
+ * 
+ * <pre>
+ * 	&#64;AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stopp?")
+ *	StartStopConfig startStop() default StartStopConfig.AUTO;
+ * </pre>
  * 
  * <ul>
  * <li>if config is {@link StartStopConfig#START} -> always start
@@ -53,20 +60,19 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Start/Stop-Channel. Referrs to {@link ChannelId#START_STOP}. Values
-	 * are of type {@link StartStop}.
+	 * Gets the Channel for {@link ChannelId#START_STOP}.
 	 * 
-	 * @return the {@link EnumReadChannel}
+	 * @return the Channel
 	 */
-	public default EnumReadChannel getStartStopChannel() {
+	public default Channel<StartStop> getStartStopChannel() {
 		return this.channel(ChannelId.START_STOP);
 	}
 
 	/**
 	 * Gets the current {@link StartStop} state of the {@link StartStoppable}
-	 * Component.
+	 * Component. See {@link ChannelId#START_STOP}.
 	 * 
-	 * @return the current state
+	 * @return the Channel {@link Value}
 	 */
 	public default StartStop getStartStop() {
 		return this.getStartStopChannel().value().asEnum();
@@ -76,6 +82,18 @@ public interface StartStoppable extends OpenemsComponent {
 	 * Starts or stops the device or service represented by this OpenEMS Component.
 	 * 
 	 * @param value target {@link StartStop} state
+	 * @throws OpenemsNamedException on error
 	 */
-	public void setStartStop(StartStop value);
+	public default void setStartStop(StartStop value) throws OpenemsNamedException {
+		this.getStartStopChannel().setNextValue(value);
+		this._setStartStop(value);
+	}
+
+	/**
+	 * Internal method to handle the start/stop command..
+	 * 
+	 * @param value target {@link StartStop} state
+	 * @throws OpenemsNamedException on error
+	 */
+	public void _setStartStop(StartStop value) throws OpenemsNamedException;
 }

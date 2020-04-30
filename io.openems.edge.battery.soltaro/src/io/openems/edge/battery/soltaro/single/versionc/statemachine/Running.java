@@ -1,9 +1,9 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
-import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
+import io.openems.edge.common.statemachine.StateHandler;
 
-public class Running extends State.Handler {
+public class Running extends StateHandler<State, Context> {
 
 	@Override
 	public State getNextState(Context context) {
