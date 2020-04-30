@@ -5,6 +5,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.ess.power.api.Phase;
@@ -13,33 +14,6 @@ import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
 public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverter {
-
-	public static class BatteryInverterData {
-		public final Integer soc;
-		public final Integer soh;
-		public final Integer maxCellTemperature;
-		public final Integer dischargeMinVoltage;
-		public final Integer chargeMaxVoltage;
-		public final Integer dischargeMaxCurrent;
-		public final Integer chargeMaxCurrent;
-		public final Integer setActivePower;
-		public final Integer setReactivePower;
-
-		public BatteryInverterData(Integer soc, Integer soh, Integer maxCellTemperature, Integer dischargeMinVoltage,
-				Integer chargeMaxVoltage, Integer dischargeMaxCurrent, Integer chargeMaxCurrent, Integer setActivePower,
-				Integer setReactivePower) {
-			this.soc = soc;
-			this.soh = soh;
-			this.maxCellTemperature = maxCellTemperature;
-			this.dischargeMinVoltage = dischargeMinVoltage;
-			this.chargeMaxVoltage = chargeMaxVoltage;
-			this.dischargeMaxCurrent = dischargeMaxCurrent;
-			this.chargeMaxCurrent = chargeMaxCurrent;
-			this.setActivePower = setActivePower;
-			this.setReactivePower = setReactivePower;
-		}
-
-	}
 
 	public static class BatteryInverterConstraint {
 		public final String description;
@@ -80,12 +54,16 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	}
 
 	/**
-	 * Apply the {@link BatteryInverterData}.
+	 * Apply {@link Battery} and target Active and Reactive Power.
+	 * 
+	 * <p>
+	 * 
+	 * This is called on ManagedSymmetrcEss::applyPower()
 	 * 
 	 * @param data the {@link BatteryInverterData}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void apply(BatteryInverterData data) throws OpenemsNamedException;
+	public void apply(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException;
 
 	/**
 	 * Gets static Constraints for this Battery-Inverter. Override this method to

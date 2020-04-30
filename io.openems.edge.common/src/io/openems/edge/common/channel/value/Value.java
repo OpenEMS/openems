@@ -13,8 +13,24 @@ import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
- * This wraps a 'value' information for a Channel and provides convenience
- * methods for retrieving it.
+ * It is important to understand, that a Channel Value could be UNDEFINED (i.e.
+ * 'null') at any point in time - e.g. due to lost communication connection to a
+ * Device or Service, or because the system is just starting up and does not yet
+ * have any data. This class wraps a 'value' information for a Channel and
+ * provides convenience methods for retrieving it.
+ * 
+ * <p>
+ * 
+ * To get the actual value of a Channel using this object, typically one of the
+ * following methods will fit:
+ * <ul>
+ * <li>{@link #get()}: gets the value or null. Be aware of
+ * {@link NullPointerException}s!
+ * <li>{@link #getOrError()}: gets the value or throws an
+ * {@link InvalidValueException} if the value is null
+ * <li>{@link #orElse(Object)}: gets the value; or fallback alternative if the
+ * value is null
+ * </ul>
  * 
  * @param <T> the type of the value
  */

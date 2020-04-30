@@ -1,6 +1,3 @@
-@org.osgi.annotation.versioning.Version("1.0.0")
-@org.osgi.annotation.bundle.Export
-
 /**
  * This package holds helper classes to define a State-Machine inside an OpenEMS
  * Component.
@@ -18,4 +15,6 @@
  * <li>StateHandler holds the actual code of a State
  * </ul>
  */
+@org.osgi.annotation.versioning.Version("1.0.0")
+@org.osgi.annotation.bundle.Export
 package io.openems.edge.common.statemachine;
