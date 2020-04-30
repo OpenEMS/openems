@@ -107,7 +107,7 @@ public class DcdcControl {
 		if (batteryStringId != null && batteryStringId.length() > 0) {
 			Battery battery = componentManager.getComponent(batteryStringId);
 			if (battery != null) {
-				Optional<Boolean> batteryReady = battery.getReadyForWorking().value().asOptional();
+				Optional<Boolean> batteryReady = battery.getReadyForWorking().asOptional();
 				if (batteryReady.isPresent() && batteryReady.get()) {
 					return true;
 				}

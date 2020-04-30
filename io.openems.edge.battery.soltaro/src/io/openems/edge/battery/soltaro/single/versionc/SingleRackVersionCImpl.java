@@ -130,7 +130,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		this.channel(SingleRackVersionC.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
 		// Initialize 'Ready-For-Working' Channel
-		this.setReadyForWorking(false);
+		this._setReadyForWorking(false);
 
 		// Prepare Context
 		StateMachine.Context context = new StateMachine.Context(this, this.config);
@@ -149,9 +149,9 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() //
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 

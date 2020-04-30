@@ -276,7 +276,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			this.handleErrorsWithReset();
 			break;
 		}
-		this.getReadyForWorking().setNextValue(readyForWorking);
+		this._setReadyForWorking(readyForWorking);
 	}
 
 	private void handleErrorsWithReset() {
@@ -372,9 +372,9 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent();
 	}
 
 	private void sleepSystem() {
@@ -663,7 +663,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
 	}
-	
+
 	protected void recalculateMaxCellVoltage() {
 		int max = Integer.MIN_VALUE;
 
@@ -672,7 +672,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		}
 		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(max);
 	}
-	
+
 	protected void recalculateMinCellVoltage() {
 		int min = Integer.MAX_VALUE;
 
@@ -681,7 +681,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		}
 		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(min);
 	}
-	
+
 	protected void recalculateMaxCellTemperature() {
 		int max = Integer.MIN_VALUE;
 
@@ -690,7 +690,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		}
 		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(max);
 	}
-	
+
 	protected void recalculateMinCellTemperature() {
 		int min = Integer.MAX_VALUE;
 

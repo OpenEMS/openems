@@ -115,7 +115,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
-		this.getCapacity().setNextValue(config.capacity() * 1000);
+		this._setCapacity(config.capacity() * 1000);
 		initializeCallbacks();
 	}
 
@@ -289,7 +289,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			break;
 		}
 
-		this.getReadyForWorking().setNextValue(readyForWorking);
+		this._setReadyForWorking(readyForWorking);
 	}
 
 	private boolean isError() {
@@ -350,9 +350,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent();
 	}
 
 	private void startSystem() {

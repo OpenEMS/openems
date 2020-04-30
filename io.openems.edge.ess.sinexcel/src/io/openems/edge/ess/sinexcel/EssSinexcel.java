@@ -56,8 +56,8 @@ import io.openems.edge.ess.power.api.Relationship;
 		name = "Ess.Sinexcel", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE , //
-		EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE}) //
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE }) //
 public class EssSinexcel extends AbstractOpenemsModbusComponent
 		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent {
 
@@ -72,7 +72,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	public LocalDateTime timeForSystemInitialization = null;
 
 	protected int SLOW_CHARGE_VOLTAGE = 4370; // for new batteries - 3940
-	protected int FLOAT_CHARGE_VOLTAGE = 4370; // for new batteries - 3940 
+	protected int FLOAT_CHARGE_VOLTAGE = 4370; // for new batteries - 3940
 
 	private int a = 0;
 	private int counterOn = 0;
@@ -110,8 +110,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.inverterState = config.InverterState();
 
 		// initialize the connection to the battery
-		this.initializeBattery(config.battery_id());		
-		
+		this.initializeBattery(config.battery_id());
+
 		this.SLOW_CHARGE_VOLTAGE = config.toppingCharge();
 		this.FLOAT_CHARGE_VOLTAGE = config.toppingCharge();
 
@@ -152,17 +152,17 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.battery.getSoc().onChange((oldValue, newValue) -> {
-			this.getSoc().setNextValue(newValue.get());
+		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
+			this.getSoc().setNextValue(newValue.get()); // FIXME why?
 			this.channel(SinexcelChannelId.BAT_SOC).setNextValue(newValue.get());
 			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
-		this.battery.getVoltage().onChange((oldValue, newValue) -> {
+		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
-		
-		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
+
+		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
 		});
 	}
@@ -177,10 +177,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
-		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
+		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+		int disMinV = battery.getDischargeMinVoltage().orElse(0);
+		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
 
 		// Sinexcel range for Max charge/discharge current is 0A to 90A,
 		if (chaMaxA > 90) {
@@ -301,8 +301,9 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		setdataGridOnCmd.setNextWriteValue(1); // Start
 	}
 
-	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {		
-		//System.out.println("Upper voltage : " + this.channel(SinexcelChannelId.UPPER_VOLTAGE_LIMIT).value().asStringWithoutUnit());
+	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {
+		// System.out.println("Upper voltage : " +
+		// this.channel(SinexcelChannelId.UPPER_VOLTAGE_LIMIT).value().asStringWithoutUnit());
 		IntegerWriteChannel setSlowChargeVoltage = this.channel(SinexcelChannelId.SET_SLOW_CHARGE_VOLTAGE);
 		setSlowChargeVoltage.setNextWriteValue(this.SLOW_CHARGE_VOLTAGE);
 		IntegerWriteChannel setFloatChargeVoltage = this.channel(SinexcelChannelId.SET_FLOAT_CHARGE_VOLTAGE);
@@ -675,7 +676,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		if (!battery.getReadyForWorking().value().orElse(false)) {
+		if (!battery.getReadyForWorking().orElse(false)) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
@@ -744,7 +745,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			} catch (OpenemsNamedException e) {
 				this.logError(this.log, "EventHandler failed: " + e.getMessage());
 			}
-
 
 //			if(island = true) {
 //				islandingOn();

@@ -66,21 +66,21 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	private void updateChannels() {
-		this.getDischargeMinVoltage().setNextValue(this.disChargeMinVoltage);
-		this.getChargeMaxVoltage().setNextValue(this.chargeMaxVoltage);
-		this.getDischargeMaxCurrent().setNextValue(this.disChargeMaxCurrent);
-		this.getChargeMaxCurrent().setNextValue(this.chargeMaxCurrent);
-		this.getSoc().setNextValue(this.soc);
-		this.getSoh().setNextValue(this.soh);
-		this.getMinCellTemperature().setNextValue(this.temperature);
-		this.getMaxCellTemperature().setNextValue(this.temperature);
-		this.getCapacity().setNextValue(this.capacityKWh);
+		this._setDischargeMinVoltage(this.disChargeMinVoltage);
+		this._setChargeMaxVoltage(this.chargeMaxVoltage);
+		this._setDischargeMaxCurrent(this.disChargeMaxCurrent);
+		this._setChargeMaxCurrent(this.chargeMaxCurrent);
+		this._setSoc(this.soc);
+		this._setSoh(this.soh);
+		this._setMinCellTemperature(this.temperature);
+		this._setMaxCellTemperature(this.temperature);
+		this._setCapacity(this.capacityKWh);
 
-		this.getVoltage().setNextValue(this.voltage);
-		this.getMinCellVoltage().setNextValue(this.minCellVoltage);
-		this.getMaxCellVoltage().setNextValue(this.minCellVoltage);
-		
-		this.getReadyForWorking().setNextValue(true);
+		this._setVoltage(this.voltage);
+		this._setMinCellVoltage(this.minCellVoltage);
+		this._setMaxCellVoltage(this.minCellVoltage);
+
+		this._setReadyForWorking(true);
 	}
 
 }

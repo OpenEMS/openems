@@ -53,7 +53,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Battery battery;
 
-	private Config config = null;
+//	private Config config = null;
 
 	public GenericManagedSymmetricEssImpl() {
 		super(//
@@ -78,7 +78,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "battery", config.battery_id())) {
 			return;
 		}
-		this.config = config;
+//		this.config = config;
 	}
 
 	@Deactivate

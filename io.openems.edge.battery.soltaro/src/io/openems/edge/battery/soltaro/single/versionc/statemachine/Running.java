@@ -18,7 +18,7 @@ public class Running extends State.Handler {
 		// TODO
 		// this.checkAllowedCurrent();
 
-		context.component.setReadyForWorking(true);
+		context.component._setReadyForWorking(true);
 
 		return State.RUNNING;
 	}

@@ -102,7 +102,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		this.channel(BatteryBoxC130.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
 		// Initialize 'Ready-For-Working' Channel
-		this.setReadyForWorking(false);
+		this._setReadyForWorking(false);
 
 		// Prepare Context
 		StateMachine.Context context = new StateMachine.Context(this, this.config);
@@ -121,7 +121,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
+		return "SoC:" + this.getSoc() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 

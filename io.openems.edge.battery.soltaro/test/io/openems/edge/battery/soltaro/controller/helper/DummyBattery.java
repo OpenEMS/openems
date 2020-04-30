@@ -46,43 +46,43 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 	}
 
 	public void setMinimalCellVoltage(int minimalCellVoltage) {
-		this.getMinCellVoltage().setNextValue(minimalCellVoltage);
-		this.getMinCellVoltage().nextProcessImage();
+		this._setMinCellVoltage(minimalCellVoltage);
+		this.getMinCellVoltageChannel().nextProcessImage();
 	}
 
 	public void setMinimalCellVoltageToUndefined() {
-		this.getMinCellVoltage().setNextValue(null);
-		this.getMinCellVoltage().nextProcessImage();
+		this._setMinCellVoltage(null);
+		this.getMinCellVoltageChannel().nextProcessImage();
 	}
 
 	public void setMaximalCellVoltage(int maximalCellVoltage) {
-		this.getMaxCellVoltage().setNextValue(maximalCellVoltage);
-		this.getMaxCellVoltage().nextProcessImage();
+		this._setMaxCellVoltage(maximalCellVoltage);
+		this.getMaxCellVoltageChannel().nextProcessImage();
 	}
 
 	public void setMaximalCellVoltageToUndefined() {
-		this.getMaxCellVoltage().setNextValue(null);
-		this.getMaxCellVoltage().nextProcessImage();
+		this._setMaxCellVoltage(null);
+		this.getMaxCellVoltageChannel().nextProcessImage();
 	}
 
 	public void setMinimalCellTemperature(int minimalCellTemperature) {
-		this.getMinCellTemperature().setNextValue(minimalCellTemperature);
-		this.getMinCellTemperature().nextProcessImage();
+		this._setMinCellTemperature(minimalCellTemperature);
+		this.getMinCellTemperatureChannel().nextProcessImage();
 	}
 
 	public void setMinimalCellTemperatureToUndefined() {
-		this.getMinCellTemperature().setNextValue(null);
-		this.getMinCellTemperature().nextProcessImage();
+		this._setMinCellTemperature(null);
+		this.getMinCellTemperatureChannel().nextProcessImage();
 	}
 
 	public void setMaximalCellTemperature(int maximalCellTemperature) {
-		this.getMaxCellTemperature().setNextValue(maximalCellTemperature);
-		this.getMaxCellTemperature().nextProcessImage();
+		this._setMaxCellTemperature(maximalCellTemperature);
+		this.getMaxCellTemperatureChannel().nextProcessImage();
 	}
 
 	public void setMaximalCellTemperatureToUndefined() {
-		this.getMaxCellTemperature().setNextValue(null);
-		this.getMaxCellTemperature().nextProcessImage();
+		this._setMaxCellTemperature(null);
+		this.getMaxCellTemperatureChannel().nextProcessImage();
 	}
 
 	public void setChargeIndication(ChargeIndication chargeIndication) {
@@ -96,12 +96,12 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 	}
 
 	public void setSoc(int soc) {
-		this.getSoc().setNextValue(soc);
-		this.getSoc().nextProcessImage();
+		this._setSoc(soc);
+		this.getSocChannel().nextProcessImage();
 	}
 
 	public void setSocToUndefined() {
-		this.getSoc().setNextValue(null);
-		this.getSoc().nextProcessImage();
+		this._setSoc(null);
+		this.getSocChannel().nextProcessImage();
 	}
 }
