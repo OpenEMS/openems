@@ -7,6 +7,8 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -114,65 +116,175 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Is the Battery-Inverter On-Grid?.
+	 * Gets the Channel for {@link ChannelId#GRID_MODE}.
 	 * 
-	 * @return the Channel value
+	 * @return the Channel
+	 */
+	public default Channel<GridMode> getGridModeChannel() {
+		return this.channel(ChannelId.GRID_MODE);
+	}
+
+	/**
+	 * Is the Battery-Inverter On-Grid? See {@link ChannelId#GRID_MODE}.
+	 * 
+	 * @return the Channel {@link Value}
 	 */
 	public default GridMode getGridMode() {
-		Channel<GridMode> gridModeChannel = this.channel(ChannelId.GRID_MODE);
-		return gridModeChannel.value().get();
+		return this.getGridModeChannel().value().get();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setGridMode(GridMode value) {
+		this.getGridModeChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 * 
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerChannel() {
+		return this.channel(ChannelId.ACTIVE_POWER);
 	}
 
 	/**
 	 * Gets the Active Power in [W]. Negative values for Charge; positive for
-	 * Discharge.
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
 	 * 
-	 * @return the Channel
+	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getActivePower() {
-		Channel<Integer> channel = this.channel(ChannelId.ACTIVE_POWER);
-		return channel.value();
+		return this.getActivePowerChannel().value();
 	}
 
 	/**
-	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0".
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActivePower(Integer value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
 	 * 
 	 * @return the Channel
 	 */
-	public default Value<Integer> getMaxApparentPower() {
-		Channel<Integer> channel = this.channel(ChannelId.MAX_APPARENT_POWER);
-		return channel.value();
+	public default IntegerReadChannel getReactivePowerChannel() {
+		return this.channel(ChannelId.REACTIVE_POWER);
 	}
 
 	/**
-	 * Gets the Reactive Power in [var]. Negative values for Charge; positive for
-	 * Discharge.
+	 * Gets the Reactive Power in [var]. See {@link ChannelId#REACTIVE_POWER}.
 	 * 
-	 * @return the Channel
+	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getReactivePower() {
-		Channel<Integer> channel = this.channel(ChannelId.REACTIVE_POWER);
-		return channel.value();
+		return this.getReactivePowerChannel().value();
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh].
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(Integer value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_APPARENT_POWER}.
 	 * 
 	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxApparentPowerChannel() {
+		return this.channel(ChannelId.MAX_APPARENT_POWER);
+	}
+
+	/**
+	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0". See
+	 * {@link ChannelId#MAX_APPARENT_POWER}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxApparentPower() {
+		return this.getMaxApparentPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxApparentPower(Integer value) {
+		this.getMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 * 
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveChargeEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
+	}
+
+	/**
+	 * Gets the Active Charge Energy in [Wh]. Range "&gt;= 0". See
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 * 
+	 * @return the Channel {@link Value}
 	 */
 	public default Value<Long> getActiveChargeEnergy() {
-		Channel<Long> channel = this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
-		return channel.value();
+		return this.getActiveChargeEnergyChannel().value();
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh].
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActiveChargeEnergy(Long value) {
+		this.getActiveChargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
 	 * 
 	 * @return the Channel
 	 */
+	public default LongReadChannel getActiveDischargeEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	}
+
+	/**
+	 * Gets the Active Discharge Energy in [Wh]. Range "&gt;= 0". See
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default Value<Long> getActiveDischargeEnergy() {
-		Channel<Long> channel = this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
-		return channel.value();
+		return this.getActiveDischargeEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActiveDischargeEnergy(Long value) {
+		this.getActiveDischargeEnergyChannel().setNextValue(value);
 	}
 
 }
