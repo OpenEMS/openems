@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { endOfDay } from 'date-fns';
+import { endOfDay, getTime, differenceInMinutes, differenceInSeconds, differenceInMilliseconds, startOfWeek } from 'date-fns';
 import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
 import { isUndefined } from 'util';
-import { DefaultTypes } from '../service/defaulttypes';
+import { DefaultTypes, } from '../service/defaulttypes';
 import { Service } from '../shared';
 import { PickDatePopoverComponent } from './popover/popover.component';
 
@@ -20,6 +20,8 @@ export class PickDateComponent {
 
     public disableArrow: boolean = null;
 
+    private changePeriodTimeout = null;
+
     constructor(
         public service: Service,
         public translate: TranslateService,
@@ -30,16 +32,28 @@ export class PickDateComponent {
         switch (this.service.periodString) {
             case 'day': {
                 if (isFuture(addDays(this.service.historyPeriod.from, 1))) {
+                    //waits until next day is reached to set next days period
+                    this.forwardToNextDayWhenReached()
                     this.disableArrow = true;
                 } else {
+                    //disables changing period to next day when next day is reached if current day is not selected
+                    if (this.changePeriodTimeout != null) {
+                        clearTimeout(this.changePeriodTimeout);
+                    }
                     this.disableArrow = false;
                 }
                 break;
             }
             case 'week': {
                 if (isFuture(addWeeks(this.service.historyPeriod.from, 1))) {
+                    //waits until next week is reached to set next weeks period
+                    this.forwardToNextWeekWhenReached()
                     this.disableArrow = true;
                 } else {
+                    //disables changing period to next week when next week is reached if current week is not selected
+                    if (this.changePeriodTimeout != null) {
+                        clearTimeout(this.changePeriodTimeout);
+                    }
                     this.disableArrow = false;
                 }
                 break;
@@ -89,9 +103,16 @@ export class PickDateComponent {
         switch (this.service.periodString) {
             case 'day': {
                 if (isFuture(addDays(this.service.historyPeriod.from, 2))) {
+                    //waits until next day is reached to set next days period
+                    console.log("yo")
+                    this.forwardToNextDayWhenReached()
                     this.disableArrow = true;
                 }
                 if (!isFuture(addDays(this.service.historyPeriod.from, 1))) {
+                    //disables changing period to next day when next day is reached if current day is not selected
+                    if (this.changePeriodTimeout != null) {
+                        clearTimeout(this.changePeriodTimeout);
+                    }
                     this.service.historyPeriod.from = addDays(this.service.historyPeriod.from, 1);
                     this.service.historyPeriod.to = endOfDay(this.service.historyPeriod.from);
                     this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
@@ -100,9 +121,15 @@ export class PickDateComponent {
             }
             case 'week': {
                 if (isFuture(addWeeks(this.service.historyPeriod.from, 2))) {
+                    //waits until next week is reached to set next weeks period
+                    this.forwardToNextWeekWhenReached()
                     this.disableArrow = true;
                 }
                 if (!isFuture(addWeeks(this.service.historyPeriod.from, 1))) {
+                    //disables changing period to next week when next week is reached if current week is not selected
+                    if (this.changePeriodTimeout != null) {
+                        clearTimeout(this.changePeriodTimeout);
+                    }
                     this.service.historyPeriod.from = addWeeks(this.service.historyPeriod.from, 1);
                     this.service.historyPeriod.to = endOfWeek(this.service.historyPeriod.from, { weekStartsOn: 1 });
                     this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
@@ -128,6 +155,10 @@ export class PickDateComponent {
     public goBackward() {
         switch (this.service.periodString) {
             case 'day': {
+                //disables changing period to next day when next day is reached if current day is not selected
+                if (this.changePeriodTimeout != null) {
+                    clearTimeout(this.changePeriodTimeout);
+                }
                 this.disableArrow = false;
                 this.service.historyPeriod.from = subDays(this.service.historyPeriod.from, 1);
                 this.service.historyPeriod.to = endOfDay(this.service.historyPeriod.from);
@@ -135,6 +166,10 @@ export class PickDateComponent {
                 break;
             }
             case 'week': {
+                //disables changing period to next week when next week is reached if current week is not selected
+                if (this.changePeriodTimeout != null) {
+                    clearTimeout(this.changePeriodTimeout);
+                }
                 this.disableArrow = false;
                 this.service.historyPeriod.from = subWeeks(this.service.historyPeriod.from, 1);
                 this.service.historyPeriod.to = endOfWeek(this.service.historyPeriod.from, { weekStartsOn: 1 });
@@ -149,6 +184,49 @@ export class PickDateComponent {
                 this.service.historyPeriod.to = subDays(this.service.historyPeriod.to, dateDistance);
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.service.historyPeriod.from, this.service.historyPeriod.to));
                 break;
+            }
+        }
+    }
+
+    /**
+     * changes history period date and text when next day is reached
+     */
+    forwardToNextDayWhenReached() {
+        this.changePeriodTimeout = setTimeout(() => {
+            this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
+            this.service.historyPeriod.getText(this.translate);
+        }, this.millisecondsUntilnextPeriod());
+    }
+
+    /**
+     * changes history period date and text when next week is reached
+     */
+    forwardToNextWeekWhenReached() {
+        this.changePeriodTimeout = setTimeout(() => {
+            console.log("period1", this.service.historyPeriod)
+            // this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfWeek(new Date(), { weekStartsOn: 1 })));
+            this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfWeek(new Date(), { weekStartsOn: 1 })));
+            console.log("period2", this.service.historyPeriod)
+            this.service.historyPeriod.getText(this.translate);
+        }, this.millisecondsUntilnextPeriod());
+    }
+
+    /**
+     * calculates the milliseconds until next period (Day|Week) will occour
+     * is used to change date period
+     */
+    millisecondsUntilnextPeriod(): number {
+        // + 1000 to reach the next day
+        switch (this.service.periodString) {
+            case 'day': {
+                let currentDayTime = new Date();
+                let endOfDayTime = endOfDay(currentDayTime);
+                return differenceInMilliseconds(endOfDayTime, currentDayTime) + 1000;
+            }
+            case 'week': {
+                let currentDayTime = new Date();
+                let endOfWeekTime = endOfWeek(currentDayTime, { weekStartsOn: 1 })
+                return differenceInMilliseconds(endOfWeekTime, currentDayTime) + 1000;
             }
         }
     }
