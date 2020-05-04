@@ -1,19 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { delay, retryWhen } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { environment as env } from '../../../environments';
-import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { AuthenticateWithSessionIdFailedNotification } from '../jsonrpc/notification/authenticatedWithSessionIdFailedNotification';
 import { AuthenticateWithSessionIdNotification } from '../jsonrpc/notification/authenticatedWithSessionIdNotification';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { DefaultTypes } from './defaulttypes';
+import { delay, retryWhen } from 'rxjs/operators';
 import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 import { EdgeRpcNotification } from '../jsonrpc/notification/edgeRpcNotification';
-import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
-import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
-import { DefaultTypes } from './defaulttypes';
+import { environment as env } from '../../../environments';
+import { Injectable } from '@angular/core';
+import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
+import { Router } from '@angular/router';
 import { Service } from './service';
+import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
+import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
+import { TranslateService } from '@ngx-translate/core';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { WsData } from './wsdata';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class Websocket {
   constructor(
     private router: Router,
     private service: Service,
+    private translate: TranslateService
   ) {
     service.websocket = this;
 
@@ -75,10 +77,6 @@ export class Websocket {
                 }
               })
             }
-            this.service.notify({
-              message: "Connection lost. Trying to reconnect.", // TODO translate
-              type: 'warning'
-            });
             // TODO show spinners everywhere
             this.status = 'connecting';
           } else {
@@ -92,6 +90,10 @@ export class Websocket {
           if (env.debugMode) {
             console.info("Websocket connection closed");
           }
+          this.service.notify({
+            message: this.translate.instant('General.connectionLost'), // TODO translate
+            type: 'warning'
+          });
           this.isWebsocketConnected.next(false);
         }
       }
