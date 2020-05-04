@@ -19,8 +19,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter.BatteryInverterConstraint;
+import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -35,11 +35,11 @@ import io.openems.edge.ess.power.api.Power;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		} //
 )
 public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
+		implements GenericManagedSymmetricEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
 	@Reference
 	private Power power;
@@ -52,6 +52,8 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Battery battery;
+
+	private final ChannelHandler channelHandler = new ChannelHandler(this);
 
 //	private Config config = null;
 
@@ -78,11 +80,14 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "battery", config.battery_id())) {
 			return;
 		}
+
+		this.channelHandler.activate(this.battery, this.batteryInverter);
 //		this.config = config;
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.channelHandler.deactivate();
 		super.deactivate();
 	}
 
@@ -92,8 +97,8 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			// TODO: fill channels
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			// TODO
 			break;
 		}
 	}
@@ -113,9 +118,14 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 		return this.power;
 	}
 
+	/**
+	 * Forwards the power request to the {@link SymmetricBatteryInverter}.
+	 * 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		// TODO Auto-generated method stub
+		this.batteryInverter.apply(battery, activePower, reactivePower);
 	}
 
 	/**
@@ -157,4 +167,5 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 		}
 		return result;
 	}
+
 }

@@ -1,8 +1,9 @@
 package io.openems.edge.ess.generic.symmetric;
 
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-public interface GenericManagedSymmetricEss {
+public interface GenericManagedSymmetricEss extends ManagedSymmetricEss {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

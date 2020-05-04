@@ -19,6 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -28,6 +29,7 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201_CurrentState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201_RequestedState;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64202.S64202_EnLimit;
 import io.openems.edge.batteryinverter.sunspec.AbstractSunSpecBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
@@ -289,53 +291,53 @@ public class KacoBlueplanetGridsave extends AbstractSunSpecBatteryInverter
 	 */
 	private void setBatteryLimits(Battery battery) throws OpenemsException {
 		// Discharge Min Voltage
-//		IntegerWriteChannel disMinVChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.DIS_MIN_V_0);
-//		if (Objects.equal(battery.getDischargeMinVoltage() .dischargeMinVoltage, 0)) {
-//			disMinVChannel.setNextValue(null); // according to setup manual DIS_MIN_V must not be zero
-//		} else {
-//			disMinVChannel.setNextValue(data.dischargeMinVoltage);
-//		}
-//
-//		// Charge Max Voltage
-//		IntegerWriteChannel chaMaxVChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.CHA_MAX_V_0);
-//		if (Objects.equal(data.chargeMaxVoltage, 0)) {
-//			chaMaxVChannel.setNextValue(null); // according to setup manual CHA_MAX_V must not be zero
-//		} else {
-//			chaMaxVChannel.setNextValue(data.chargeMaxVoltage);
-//		}
-//
-//		// Discharge Max Current
-//		IntegerWriteChannel disMaxAChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.DIS_MAX_A_0);
-//		disMaxAChannel.setNextValue(data.dischargeMaxCurrent);
-//
-//		// Charge Max Current
-//		IntegerWriteChannel chaMaxAChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.CHA_MAX_A_0);
-//		chaMaxAChannel.setNextValue(data.chargeMaxCurrent);
-//
-//		// Activate Battery values
-//		EnumWriteChannel enLimitChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.EN_LIMIT_0);
-//		enLimitChannel.setNextValue(S64202_EnLimit.ACTIVATE);
+		IntegerWriteChannel disMinVChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.DIS_MIN_V_0);
+		Integer dischargeMinVoltage = battery.getDischargeMinVoltage().get();
+		if (Objects.equal(dischargeMinVoltage, 0)) {
+			dischargeMinVoltage = null; // according to setup manual DIS_MIN_V must not be zero
+		}
+		disMinVChannel.setNextValue(dischargeMinVoltage);
+
+		// Charge Max Voltage
+		IntegerWriteChannel chaMaxVChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.CHA_MAX_V_0);
+		Integer chargeMaxVoltage = battery.getChargeMaxVoltage().get();
+		if (Objects.equal(chargeMaxVoltage, 0)) {
+			chargeMaxVoltage = null; // according to setup manual CHA_MAX_V must not be zero
+		}
+		chaMaxVChannel.setNextValue(chargeMaxVoltage);
+
+		// Discharge Max Current
+		IntegerWriteChannel disMaxAChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.DIS_MAX_A_0);
+		disMaxAChannel.setNextValue(battery.getDischargeMaxCurrent().get());
+
+		// Charge Max Current
+		IntegerWriteChannel chaMaxAChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.CHA_MAX_A_0);
+		chaMaxAChannel.setNextValue(battery.getChargeMaxCurrent().get());
+
+		// Activate Battery values
+		EnumWriteChannel enLimitChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.EN_LIMIT_0);
+		enLimitChannel.setNextValue(S64202_EnLimit.ACTIVATE);
 	}
 
 	/**
 	 * Sets the information that is shown on the Display, like State-of-Charge,
 	 * State-of-Health and Max-Cell-Temperature.
 	 * 
-	 * @param data the linked {@link Battery}
+	 * @param battery the linked {@link Battery}
 	 * @throws OpenemsException on error
 	 */
 	private void setDisplayInformation(Battery battery) throws OpenemsException {
 		// State-of-Charge
-//		IntegerWriteChannel batSocChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOC_0);
-//		batSocChannel.setNextValue(data.soc);
-//
-//		// State-of-Health
-//		IntegerWriteChannel batSohChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOH_0);
-//		batSohChannel.setNextValue(data.soh);
-//
-//		// Max-Cell-Temperature
-//		IntegerWriteChannel batTempChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_TEMP_0);
-//		batTempChannel.setNextValue(data.maxCellTemperature);
+		IntegerWriteChannel batSocChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOC_0);
+		batSocChannel.setNextValue(battery.getSoc().get());
+
+		// State-of-Health
+		IntegerWriteChannel batSohChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_SOH_0);
+		batSohChannel.setNextValue(battery.getSoh().get());
+
+		// Max-Cell-Temperature
+		IntegerWriteChannel batTempChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64203.BAT_TEMP_0);
+		batTempChannel.setNextValue(battery.getMaxCellTemperature().get());
 	}
 
 	/**
