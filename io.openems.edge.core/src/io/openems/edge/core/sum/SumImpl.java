@@ -324,6 +324,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				/* handling corner-case */ productionAcActiveEnergyNegative.calculate());
 		this.energyValuesHandler.setValue(Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY,
 				Optional.ofNullable(enterTheSystem).orElse(0L) - Optional.ofNullable(leaveTheSystem).orElse(0L));
+
+		// Further calculated Channels
+		this.getEssDischargePowerChannel()
+				.setNextValue(TypeUtils.subtract(essActivePowerSum, productionDcActualPowerSum));
 	}
 
 	/**

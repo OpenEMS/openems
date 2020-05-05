@@ -127,6 +127,15 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 			this.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
 				component.channels().forEach(channel -> {
+					switch (channel.channelDoc().getAccessMode()) {
+					case WRITE_ONLY:
+						// ignore Write-Only-Channels
+						return;
+					case READ_ONLY:
+					case READ_WRITE:
+						break;
+					}
+
 					Optional<?> valueOpt = channel.value().asOptional();
 					if (!valueOpt.isPresent()) {
 						// ignore not available channels

@@ -10,6 +10,7 @@ export const TRANSLATION = {
         changeFailed: 'Změna se nezdařila',
         chargeDischarge: 'Debetní/vybíjení',
         chargePower: 'Nabíjecí výkon',
+        connectionLost: 'Spojení ztraceno. Pokouší se znovu připojit.',
         consumption: 'Spotřeba',
         cumulative: 'Kumulativní Hodnoty',
         currentValue: 'Aktuální hodnota',

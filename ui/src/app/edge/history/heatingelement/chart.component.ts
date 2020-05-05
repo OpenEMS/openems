@@ -32,7 +32,12 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.setLabel();
+    this.setLabel()
+    this.subscribeChartRefresh()
+  }
+
+  ngOnDestroy() {
+    this.unsubscribeChartRefresh()
   }
 
   protected updateChart() {
@@ -51,7 +56,6 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
         // convert datasets
         let datasets = [];
         let level = this.component.id + '/Level';
-        let kwh = this.component.id + '/TotalEnergy';
 
         if (level in result.data) {
           let levelData = result.data[level].map(value => {
@@ -64,37 +68,12 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
           datasets.push({
             label: 'Level',
             data: levelData,
-            yAxisID: 'yAxis2',
-            position: 'right',
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
             borderColor: 'rgba(200,0,0,1)',
           })
         }
-
-        if (kwh in result.data) {
-          let kwhData = result.data[kwh].map(value => {
-            if (value == null) {
-              return null
-            } else if (value == 0) {
-              return 0;
-            } else {
-              return value / 1000;
-            }
-          })
-          datasets.push({
-            label: 'kWh',
-            data: kwhData,
-            yAxisID: 'yAxis1',
-            position: 'left',
-          });
-          this.colors.push({
-            backgroundColor: 'rgba(0,0,0,0.05)',
-            borderColor: 'rgba(0,0,0,1)'
-          })
-        }
-
         this.datasets = datasets;
         this.loading = false;
       }).catch(reason => {
@@ -112,41 +91,22 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       let levels = new ChannelAddress(this.component.id, 'Level')
-      let totalEnergy = new ChannelAddress(this.component.id, 'TotalEnergy')
-      let channeladdresses = [levels, totalEnergy];
+      let channeladdresses = [levels];
       resolve(channeladdresses);
     });
   }
 
   protected setLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes.push({
-      id: 'yAxis2',
-      position: 'right',
-      scaleLabel: {
-        display: true,
-        labelString: 'Level'
-      },
-      gridLines: {
-        display: false
-      },
-      ticks: {
-        beginAtZero: true,
-        max: 3,
-        stepSize: 1
-      }
-    })
     options.scales.yAxes[0].id = 'yAxis1'
-    options.scales.yAxes[0].scaleLabel.labelString = 'kWh';
+    options.scales.yAxes[0].scaleLabel.labelString = 'Level';
     options.scales.yAxes[0].ticks.beginAtZero = true;
+    options.scales.yAxes[0].ticks.max = 3;
+    options.scales.yAxes[0].ticks.stepSize = 1;
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == 'Level') {
-        return label + ": " + formatNumber(value, 'de', '1.0-0'); // TODO get locale dynamically
-      } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-1') + ' kWh'; // TODO get locale dynamically
-      }
+      return label + ": " + formatNumber(value, 'de', '1.0-1') + ' kWh'; // TODO get locale dynamically
     }
     this.options = options;
   }

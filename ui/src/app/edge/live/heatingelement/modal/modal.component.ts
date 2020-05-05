@@ -1,11 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { Websocket, Service, EdgeConfig, Edge, ChannelAddress } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { HeatingelementPopoverComponent } from './popover/popover.page';
+import { Component, OnInit, Input } from '@angular/core';
+import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { ModalController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
@@ -28,18 +27,14 @@ export class HeatingElementModalComponent implements OnInit {
 
     constructor(
         protected service: Service,
-        public websocket: Websocket,
-        public router: Router,
         protected translate: TranslateService,
-        public modalCtrl: ModalController,
         public formBuilder: FormBuilder,
-        public popoverController: PopoverController,
+        public modalCtrl: ModalController,
+        public router: Router,
+        public websocket: Websocket,
     ) { }
 
     ngOnInit() {
-        this.edge.subscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.component.id, [
-            new ChannelAddress(this.component.id, 'TotalEnergy'),
-        ]);
         this.formGroup = this.formBuilder.group({
             minTime: new FormControl(this.component.properties.minTime),
             minKwh: new FormControl(this.component.properties.minKwh),
@@ -144,21 +139,6 @@ export class HeatingElementModalComponent implements OnInit {
                 console.warn(reason);
             });
             this.formGroup.markAsPristine()
-        }
-    }
-
-    async presentPopover(ev: any) {
-        const popover = await this.popoverController.create({
-            component: HeatingelementPopoverComponent,
-            event: ev,
-            translucent: true,
-        });
-        return await popover.present();
-    }
-
-    ngOnDestroy() {
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, HeatingElementModalComponent.SELECTOR + this.component.id);
         }
     }
 }

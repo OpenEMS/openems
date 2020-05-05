@@ -4,16 +4,15 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/share
 import { ChannelthresholdModalComponent } from './modal/modal.component';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { ModalController } from '@ionic/angular';
-import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ChanneltresholdWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
+export class ChanneltresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() private componentId: string;
@@ -29,7 +28,9 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
         public service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
-    ) { }
+    ) {
+        super(service);
+    }
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(response => {
@@ -39,44 +40,29 @@ export class ChanneltresholdWidgetComponent implements OnInit, OnChanges {
                 this.component = config.getComponent(this.componentId);
             })
         });
+        this.subscribeWidgetRefresh()
+    }
 
+    ngOnDestroy() {
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {
         this.updateValues();
     };
 
-
-    updateValues() {
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to);
+    protected updateValues() {
+        // Gather result & timestamps to calculate effective active time in % 
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
+            let result = (response as QueryHistoricTimeseriesDataResponse).result;
+            this.service.getConfig().then(config => {
+                let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+                this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
+            })
+        });
     };
 
-    // Gather result & timestamps to calculate effective active time in % 
-    queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
-        return new Promise((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
-                    this.getChannelAddresses(config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
-                        edge.sendRequest(this.service.websocket, request).then(response => {
-                            let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
-                            let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-                            this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
-
-                            if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
-                                resolve(response as QueryHistoricTimeseriesDataResponse);
-                            } else {
-                                reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
-                            }
-                        }).catch(reason => reject(reason));
-                    }).catch(reason => reject(reason));
-                })
-            });
-        });
-    }
-
-    getChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
             let channeladdresses = [outputChannel];
