@@ -43,9 +43,9 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 	SET_WORK_STATE(Doc.of(SetWorkState.values()) //
 			.accessMode(AccessMode.WRITE_ONLY)), //
 	SETUP_MODE(Doc.of(SetupMode.values()) //
-			.accessMode(AccessMode.WRITE_ONLY)), //
+			.accessMode(AccessMode.READ_WRITE)), //
 	PCS_MODE(Doc.of(PcsMode.values()) //
-			.accessMode(AccessMode.WRITE_ONLY)), //
+			.accessMode(AccessMode.READ_WRITE)), //
 
 	// IntegerWriteChannels
 	SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
