@@ -14,6 +14,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -24,8 +26,13 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.generic.symmetric.statemachine.Context;
+import io.openems.edge.ess.generic.symmetric.statemachine.State;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Power;
 
@@ -38,8 +45,8 @@ import io.openems.edge.ess.power.api.Power;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		} //
 )
-public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
-		implements GenericManagedSymmetricEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
+public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent implements GenericManagedSymmetricEss,
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, StartStoppable {
 
 	@Reference
 	private Power power;
@@ -53,13 +60,24 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Battery battery;
 
+	private final Logger log = LoggerFactory.getLogger(GenericManagedSymmetricEssImpl.class);
+
+	/**
+	 * Manages the {@link State}s of the StateMachine.
+	 */
+	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+
+	/**
+	 * Helper wrapping class to handle everything related to Channels.
+	 */
 	private final ChannelHandler channelHandler = new ChannelHandler(this);
 
-//	private Config config = null;
+	private Config config = null;
 
 	public GenericManagedSymmetricEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				GenericManagedSymmetricEss.ChannelId.values() //
@@ -82,7 +100,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 		}
 
 		this.channelHandler.activate(this.battery, this.batteryInverter);
-//		this.config = config;
+		this.config = config;
 	}
 
 	@Deactivate
@@ -97,9 +115,36 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
+
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			// TODO
+			this.handleStateMachine();
 			break;
+		}
+	}
+
+	/**
+	 * Handles the State-Machine.
+	 */
+	private void handleStateMachine() {
+		// Store the current State
+		this.channel(GenericManagedSymmetricEss.ChannelId.STATE_MACHINE)
+				.setNextValue(this.stateMachine.getCurrentState());
+
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
+
+		// Prepare Context
+		Context context = new Context(this, this.battery, this.batteryInverter, this.config);
+
+		// Call the StateMachine
+		try {
+			this.stateMachine.run(context);
+
+			this.channel(GenericManagedSymmetricEss.ChannelId.RUN_FAILED).setNextValue(false);
+
+		} catch (OpenemsNamedException e) {
+			this.channel(GenericManagedSymmetricEss.ChannelId.RUN_FAILED).setNextValue(true);
+			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
 
@@ -109,8 +154,8 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|Allowed:" //
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";" //
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString();
-// TODO				+ "|" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString();
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
+				+ "|" + this.channel(GenericManagedSymmetricEss.ChannelId.STATE_MACHINE).value().asOptionString();
 	}
 
 	@Override
@@ -168,4 +213,31 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent
 		return result;
 	}
 
+	private StartStop startStopTarget = StartStop.UNDEFINED;
+
+	@Override
+	public void setStartStop(StartStop value) {
+		this.startStopTarget = value;
+		this.stateMachine.forceNextState(State.UNDEFINED);
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.config.startStop()) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget;
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
+	}
 }

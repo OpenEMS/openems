@@ -15,8 +15,8 @@ import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.enums.Sleep;
 import io.openems.edge.battery.soltaro.single.versionc.enums.SystemReset;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
@@ -24,45 +24,98 @@ import io.openems.edge.common.startstop.StartStoppable;
 
 public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComponent, StartStoppable {
 
-	public default boolean hasFaults() {
-		Level level = this.getState().value().asEnum();
-		return level.isAtLeast(Level.FAULT);
-	}
-
-	public default EnumWriteChannel getPreChargeControlChannel() {
+	/**
+	 * Gets the Channel for {@link ChannelId#PRE_CHARGE_CONTROL}.
+	 * 
+	 * @return the Channel
+	 */
+	public default WriteChannel<PreChargeControl> getPreChargeControlChannel() {
 		return this.channel(ChannelId.PRE_CHARGE_CONTROL);
 	}
 
+	/**
+	 * Gets the PreChargeControl, see {@link ChannelId#PRE_CHARGE_CONTROL}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default PreChargeControl getPreChargeControl() {
 		return this.getPreChargeControlChannel().value().asEnum();
 	}
 
-	public default void setPreChargeControl(PreChargeControl preChargeControl) throws OpenemsNamedException {
-		this.getPreChargeControlChannel().setNextWriteValue(preChargeControl);
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRE_CHARGE_CONTROL} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setPreChargeControl(PreChargeControl value) {
+		this.getPreChargeControlChannel().setNextValue(value);
 	}
 
+	/**
+	 * Writes the value to the {@link ChannelId#PRE_CHARGE_CONTROL} Register.
+	 * 
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setPreChargeControl(PreChargeControl value) throws OpenemsNamedException {
+		this.getPreChargeControlChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * 
+	 * @return the Channel
+	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
 		return this.channel(ChannelId.MAX_START_ATTEMPTS);
 	}
 
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default Value<Boolean> getMaxStartAttempts() {
 		return this.getMaxStartAttemptsChannel().value();
 	}
 
-	public default void setMaxStartAttempts(boolean isMaxStartAttempts) throws OpenemsNamedException {
-		this.getMaxStartAttemptsChannel().setNextValue(isMaxStartAttempts);
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStartAttempts(Boolean value) {
+		this.getMaxStartAttemptsChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel
+	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
 		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
 	}
 
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
 	public default Value<Boolean> getMaxStopAttempts() {
 		return this.getMaxStopAttemptsChannel().value();
 	}
 
-	public default void setMaxStopAttempts(boolean isMaxStopAttempts) throws OpenemsNamedException {
-		this.getMaxStopAttemptsChannel().setNextValue(isMaxStopAttempts);
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStopAttempts(Boolean value) {
+		this.getMaxStopAttemptsChannel().setNextValue(value);
 	}
 
 	/**

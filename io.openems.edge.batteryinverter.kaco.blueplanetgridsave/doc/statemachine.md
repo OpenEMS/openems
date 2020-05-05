@@ -22,8 +22,6 @@ Stopped -->|otherwise| Undefined
 Undefined -->|hasFault| ErrorHandling
 ErrorHandling -->|not timeout| ErrorHandling
 ErrorHandling -->|eventually| Undefined
-
-Undefined -->|never| GoConfiguration_not_implemented
 ```
 
 View using Mermaid, e.g. https://mermaid-js.github.io/mermaid-live-editor

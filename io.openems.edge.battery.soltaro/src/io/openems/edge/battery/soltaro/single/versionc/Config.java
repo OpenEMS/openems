@@ -20,7 +20,7 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stopp?")
+	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
 	StartStopConfig startStop() default StartStopConfig.AUTO;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")

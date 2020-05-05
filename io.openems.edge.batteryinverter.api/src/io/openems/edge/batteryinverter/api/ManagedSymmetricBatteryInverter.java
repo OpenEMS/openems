@@ -8,12 +8,13 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
-public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverter {
+public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverter, StartStoppable {
 
 	public static class BatteryInverterConstraint {
 		public final String description;

@@ -1,11 +1,11 @@
-package io.openems.edge.battery.soltaro.single.versionc.statemachine;
+package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
-import io.openems.edge.battery.soltaro.single.versionc.utils.Constants;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201_RequestedState;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoStopped extends StateHandler<State, Context> {
@@ -21,25 +21,39 @@ public class GoStopped extends StateHandler<State, Context> {
 
 	@Override
 	public State getNextState(Context context) throws OpenemsNamedException {
-		PreChargeControl preChargeControl = context.component.getPreChargeControl();
-
-		if (preChargeControl == PreChargeControl.SWITCH_OFF) {
+		switch (context.component.getCurrentState()) {
+		case OFF:
+			// All Good
 			return State.STOPPED;
+
+		case GRID_CONNECTED:
+		case THROTTLED:
+		case FAULT:
+		case GRID_PRE_CONNECTED:
+		case MPPT:
+		case NO_ERROR_PENDING:
+		case PRECHARGE:
+		case SHUTTING_DOWN:
+		case SLEEPING:
+		case STANDBY:
+		case STARTING:
+		case UNDEFINED:
+			// Not yet running...
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > Constants.RETRY_COMMAND_SECONDS;
+				.getSeconds() > KacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
 		if (isMaxStartTimePassed) {
 			// First try - or waited long enough for next try
 
-			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
+			if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
 				context.component._setMaxStopAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch off
-				context.component.setPreChargeControl(PreChargeControl.SWITCH_OFF);
+				context.component.setRequestedState(S64201_RequestedState.OFF);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_STOPPED;

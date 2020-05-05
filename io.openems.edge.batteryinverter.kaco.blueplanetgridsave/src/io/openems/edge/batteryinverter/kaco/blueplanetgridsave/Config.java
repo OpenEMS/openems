@@ -3,10 +3,12 @@ package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.common.startstop.StartStopConfig;
+
 @ObjectClassDefinition(//
 		name = "Battery-Inverter KACO blueplanet gridsave", //
 		description = "Implements the KACO blueplanet battery inverter.")
-@interface Config {
+public @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "batteryInverter0";
@@ -16,6 +18,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
+	StartStopConfig startStop() default StartStopConfig.AUTO;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";

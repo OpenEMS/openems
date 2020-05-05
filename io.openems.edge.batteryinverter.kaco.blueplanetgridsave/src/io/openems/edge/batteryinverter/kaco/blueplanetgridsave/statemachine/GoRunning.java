@@ -1,11 +1,11 @@
-package io.openems.edge.battery.soltaro.single.versionc.statemachine;
+package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
 import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
-import io.openems.edge.battery.soltaro.single.versionc.utils.Constants;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201_RequestedState;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoRunning extends StateHandler<State, Context> {
@@ -22,25 +22,42 @@ public class GoRunning extends StateHandler<State, Context> {
 
 	@Override
 	public State getNextState(Context context) throws OpenemsNamedException {
-		PreChargeControl preChargeControl = context.component.getPreChargeControl();
+		switch (context.component.getCurrentState()) {
+		case GRID_CONNECTED:
+			// All Good
 
-		if (preChargeControl == PreChargeControl.RUNNING) {
+		case THROTTLED:
+			// if inverter is throttled, full power is not available, but the device
+			// is still working
 			return State.RUNNING;
+
+		case FAULT:
+		case GRID_PRE_CONNECTED:
+		case MPPT:
+		case NO_ERROR_PENDING:
+		case OFF:
+		case PRECHARGE:
+		case SHUTTING_DOWN:
+		case SLEEPING:
+		case STANDBY:
+		case STARTING:
+		case UNDEFINED:
+			// Not yet running...
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > Constants.RETRY_COMMAND_SECONDS;
+				.getSeconds() > KacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
 		if (isMaxStartTimePassed) {
 			// First try - or waited long enough for next try
 
-			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
+			if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
 				context.component._setMaxStartAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch on
-				context.component.setPreChargeControl(PreChargeControl.SWITCH_ON);
+				context.component.setRequestedState(S64201_RequestedState.GRID_CONNECTED);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_RUNNING;

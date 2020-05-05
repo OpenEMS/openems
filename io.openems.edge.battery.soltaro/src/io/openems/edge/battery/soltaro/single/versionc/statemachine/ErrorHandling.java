@@ -65,8 +65,8 @@ public class ErrorHandling extends StateHandler<State, Context> {
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		context.component.setMaxStartAttempts(false);
-		context.component.setMaxStopAttempts(false);
+		context.component._setMaxStartAttempts(false);
+		context.component._setMaxStopAttempts(false);
 	}
 
 	@Override
