@@ -133,8 +133,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 		// Store the current State
 		this.channel(SingleRackVersionC.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
-		// Initialize 'Ready-For-Working' Channel
-		this._setReadyForWorking(false);
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
 		Context context = new Context(this, this.config);
@@ -668,9 +668,32 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 		);
 	}
 
+	private StartStop startStopTarget = StartStop.UNDEFINED;
+
 	@Override
-	public void _setStartStop(StartStop value) {
+	public void setStartStop(StartStop value) {
+		this.startStopTarget = value;
 		this.stateMachine.forceNextState(State.UNDEFINED);
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.config.startStop()) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget;
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
 	}
 
 }

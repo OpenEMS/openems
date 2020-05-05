@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -47,6 +48,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -57,7 +60,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class SingleRack extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
@@ -95,6 +98,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				SingleRack.ChannelId.values() //
 		);
 		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(SingleRack.CHARGE_MAX_A);
@@ -130,14 +134,17 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 			switch (cc) {
 			case CONNECTION_INITIATING:
-				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
+				// TODO start stop is not implemented;
+				this._setStartStop(StartStop.UNDEFINED);
 				break;
 			case CUT_OFF:
-				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
+				// TODO start stop is not implemented;
+				this._setStartStop(StartStop.UNDEFINED);
 				isStopping = false;
 				break;
 			case ON_GRID:
-				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(true);
+				// TODO start stop is not implemented; mark as started if 'readyForWorking'
+				this._setStartStop(StartStop.START);
 				break;
 			default:
 				break;
@@ -289,7 +296,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			break;
 		}
 
-		this._setReadyForWorking(readyForWorking);
+		// TODO start stop is not implemented; mark as started if 'readyForWorking'
+		this._setStartStop(readyForWorking ? StartStop.START : StartStop.UNDEFINED);
 	}
 
 	private boolean isError() {
@@ -1505,5 +1513,11 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode));
+	}
+
+	@Override
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		// TODO start stop is not implemented
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
 	}
 }

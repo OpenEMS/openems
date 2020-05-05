@@ -41,6 +41,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -676,7 +677,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		if (!battery.getReadyForWorking().orElse(false)) {
+		if (battery.getStartStop() != StartStop.START) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //

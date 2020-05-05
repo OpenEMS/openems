@@ -2,6 +2,7 @@ package io.openems.edge.battery.bydcommercial.statemachine;
 
 import io.openems.edge.battery.bydcommercial.PreChargeControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.Context;
+import io.openems.edge.common.startstop.StartStop;
 
 public class Running extends State.Handler {
 
@@ -15,7 +16,8 @@ public class Running extends State.Handler {
 			return State.UNDEFINED;
 		}
 
-		context.component._setReadyForWorking(true);
+		// Mark as started
+		context.component._setStartStop(StartStop.START);
 
 		return State.RUNNING;
 	}

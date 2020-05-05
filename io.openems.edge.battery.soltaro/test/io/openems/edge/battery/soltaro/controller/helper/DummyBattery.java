@@ -1,12 +1,16 @@
 package io.openems.edge.battery.soltaro.controller.helper;
 
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 
-public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBattery {
+public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBattery, StartStoppable {
 
 	public static int DEFAULT_SOC = 50;
 	public static int DEFAULT_MIN_CELL_VOLTAGE = 3280;
@@ -21,6 +25,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				SoltaroBattery.ChannelId.values() //
 		);
 
@@ -103,5 +108,11 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 	public void setSocToUndefined() {
 		this._setSoc(null);
 		this.getSocChannel().nextProcessImage();
+	}
+
+	@Override
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		// TODO start stop is not implemented
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
 	}
 }

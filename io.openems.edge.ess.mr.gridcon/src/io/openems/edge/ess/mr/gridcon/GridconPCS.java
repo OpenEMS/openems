@@ -52,6 +52,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -538,10 +539,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return false;
 		}
 
-		// FIXME why nextValue?
-		Optional<Boolean> readyOpt = battery.getReadyForWorkingChannel().getNextValue().asOptional();
-
-		return (readyOpt.isPresent() && readyOpt.get());
+		return battery.getStartStop() == StartStop.START;
 	}
 
 	@Override
@@ -592,9 +590,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	public boolean isAtLeastOneBatteryReady() {
 		for (Battery battery : getBatteries()) {
-			Optional<Boolean> val = battery.getReadyForWorking().asOptional();
-
-			if (val.isPresent() && val.get()) {
+			if (battery.getStartStop() == StartStop.START) {
 				return true;
 			}
 		}

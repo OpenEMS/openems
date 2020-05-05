@@ -9,10 +9,14 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -21,7 +25,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 )
-public class BatteryDummy extends AbstractOpenemsComponent implements Battery, OpenemsComponent, EventHandler {
+public class BatteryDummy extends AbstractOpenemsComponent
+		implements Battery, OpenemsComponent, EventHandler, StartStoppable {
 
 	private int disChargeMinVoltage;
 	private int chargeMaxVoltage;
@@ -80,7 +85,13 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		this._setMinCellVoltage(this.minCellVoltage);
 		this._setMaxCellVoltage(this.minCellVoltage);
 
-		this._setReadyForWorking(true);
+		this._setStartStop(StartStop.START);
+	}
+
+	@Override
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		// TODO start stop is not implemented
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
 	}
 
 }

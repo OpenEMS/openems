@@ -45,6 +45,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -296,7 +297,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	private void checkIfPowerIsAllowed() {
 
 		// If the battery system is not ready no power can be applied!
-		this.isPowerAllowed = battery.getReadyForWorking().orElse(false);
+		this.isPowerAllowed = battery.getStartStop() == StartStop.START;
 
 		// Read important Channels from battery
 		int optV = battery.getVoltage().orElse(0);

@@ -79,21 +79,20 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#START_STOP}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setStartStop(StartStop value) {
+		this.getStartStopChannel().setNextValue(value);
+	}
+
+	/**
 	 * Starts or stops the device or service represented by this OpenEMS Component.
 	 * 
 	 * @param value target {@link StartStop} state
 	 * @throws OpenemsNamedException on error
 	 */
-	public default void setStartStop(StartStop value) throws OpenemsNamedException {
-		this.getStartStopChannel().setNextValue(value);
-		this._setStartStop(value);
-	}
-
-	/**
-	 * Internal method to handle the start/stop command..
-	 * 
-	 * @param value target {@link StartStop} state
-	 * @throws OpenemsNamedException on error
-	 */
-	public void _setStartStop(StartStop value) throws OpenemsNamedException;
+	public void setStartStop(StartStop value) throws OpenemsNamedException;
 }

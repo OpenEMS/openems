@@ -5,28 +5,33 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.common.startstop.StartStoppable;
 
+/**
+ * Represents a Battery.
+ * 
+ * <p>
+ * To indicate, that the Battery is ready for charging/discharging, the
+ * following Channels need to be set:
+ * 
+ * <ul>
+ * <li>StartStoppable.ChannelId.START_STOP must be set to 'START'
+ * <li>No 'Fault'-StateChannels are set (i.e. 'OpenemsComponent.ChannelId.STATE'
+ * is < 3)
+ * <li>CHARGE_MAX_VOLTAGE, CHARGE_MAX_CURRENT, DISCHARGE_MIN_VOLTAGE and
+ * DISCHARGE_MAX_CURRENT are != null
+ * </ul>
+ */
 @ProviderType
-public interface Battery extends OpenemsComponent {
+public interface Battery extends StartStoppable, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		/**
-		 * Indicates that the battery has started and is ready for charging/discharging.
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Type: Boolean
-		 * </ul>
-		 */
-		READY_FOR_WORKING(Doc.of(OpenemsType.BOOLEAN)),
-
 		/**
 		 * State of Charge.
 		 * 
@@ -466,35 +471,6 @@ public interface Battery extends OpenemsComponent {
 	 */
 	public default void _setMaxCellTemperature(Integer value) {
 		this.getMaxCellTemperatureChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#READY_FOR_WORKING}.
-	 * 
-	 * @return the Channel
-	 */
-	public default BooleanReadChannel getReadyForWorkingChannel() {
-		return this.channel(ChannelId.READY_FOR_WORKING);
-	}
-
-	/**
-	 * Gets the Indicator if Battery is ready to charge/discharge, see
-	 * {@link ChannelId#READY_FOR_WORKING}.
-	 * 
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getReadyForWorking() {
-		return this.getReadyForWorkingChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#READY_FOR_WORKING}
-	 * Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setReadyForWorking(Boolean value) {
-		this.getReadyForWorkingChannel().setNextValue(value);
 	}
 
 	/**

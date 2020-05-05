@@ -19,6 +19,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
 public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComponent, StartStoppable {
@@ -63,6 +64,13 @@ public interface SingleRackVersionC extends SoltaroBattery, Battery, OpenemsComp
 	public default void setMaxStopAttempts(boolean isMaxStopAttempts) throws OpenemsNamedException {
 		this.getMaxStopAttemptsChannel().setNextValue(isMaxStopAttempts);
 	}
+
+	/**
+	 * Gets the target Start/Stop mode from config or StartStop-Channel.
+	 * 
+	 * @return {@link StartStop}
+	 */
+	public StartStop getStartStopTarget();
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumWriteChannels

@@ -1,6 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class Running extends StateHandler<State, Context> {
@@ -15,10 +16,8 @@ public class Running extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		// TODO
-		// this.checkAllowedCurrent();
-
-		context.component._setReadyForWorking(true);
+		// Mark as started
+		context.component._setStartStop(StartStop.START);
 
 		return State.RUNNING;
 	}

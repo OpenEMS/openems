@@ -47,6 +47,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
@@ -258,7 +259,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void doGridConnectedHandling() {
 		// If the battery system is not ready yet set power to zero to avoid damaging or
 		// improper system states
-		if (!battery.getReadyForWorking().orElse(false)) {
+		if (battery.getStartStop() != StartStop.START) {
 			this.isActivePowerAllowed = false;
 		} else {
 			this.isActivePowerAllowed = true;
