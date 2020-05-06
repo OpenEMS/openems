@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro.controller;
+package io.openems.edge.controller.battery.batteryprotection;
 
 import static org.junit.Assert.fail;
 
@@ -6,9 +6,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.openems.edge.controller.battery.batteryprotection.helper.Creator;
 //import io.openems.common.types.ChannelAddress;
-import io.openems.edge.battery.soltaro.controller.helper.Creator;
-import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
+import io.openems.edge.controller.battery.batteryprotection.helper.DummyComponentManager;
 //import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -28,7 +28,7 @@ public class TestController {
 	public final void test() {
 		// TODO More tests and szenarios needed
 		// Initialize Controller
-		BatteryHandlingController controller = new BatteryHandlingController();
+		BatteryProtectionController controller = new BatteryProtectionController();
 		// Add referenced services
 		DummyComponentManager componentManager = new DummyComponentManager();
 		controller.componentManager = componentManager;

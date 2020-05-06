@@ -1,11 +1,11 @@
-package io.openems.edge.battery.soltaro.controller.helper;
+package io.openems.edge.controller.battery.batteryprotection.helper;
 
 import java.lang.annotation.Annotation;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.controller.Config;
-import io.openems.edge.battery.soltaro.controller.State;
-import io.openems.edge.battery.soltaro.controller.state.BaseState;
+import io.openems.edge.controller.battery.batteryprotection.Config;
+import io.openems.edge.controller.battery.batteryprotection.State;
+import io.openems.edge.controller.battery.batteryprotection.state.BaseState;
 
 public class Creator {
 

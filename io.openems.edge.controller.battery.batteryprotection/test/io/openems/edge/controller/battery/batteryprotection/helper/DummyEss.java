@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro.controller.helper;
+package io.openems.edge.controller.battery.batteryprotection.helper;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;

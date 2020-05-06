@@ -1,4 +1,4 @@
-package io.openems.edge.battery.soltaro.controller.state;
+package io.openems.edge.controller.battery.batteryprotection.state;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,10 +9,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.controller.helper.Creator;
-import io.openems.edge.battery.soltaro.controller.helper.DummyBattery;
-import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
-import io.openems.edge.battery.soltaro.controller.helper.DummyEss;
+import io.openems.edge.controller.battery.batteryprotection.helper.Creator;
+import io.openems.edge.controller.battery.batteryprotection.helper.DummyBattery;
+import io.openems.edge.controller.battery.batteryprotection.helper.DummyComponentManager;
+import io.openems.edge.controller.battery.batteryprotection.helper.DummyEss;
 
 public class TestBaseState {
 

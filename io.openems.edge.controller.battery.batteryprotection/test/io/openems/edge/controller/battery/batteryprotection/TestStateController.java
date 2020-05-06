@@ -1,14 +1,14 @@
-package io.openems.edge.battery.soltaro.controller;
+package io.openems.edge.controller.battery.batteryprotection;
 
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.controller.helper.Creator;
-import io.openems.edge.battery.soltaro.controller.helper.DummyComponentManager;
-import io.openems.edge.battery.soltaro.controller.state.StateController;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.controller.battery.batteryprotection.helper.Creator;
+import io.openems.edge.controller.battery.batteryprotection.helper.DummyComponentManager;
+import io.openems.edge.controller.battery.batteryprotection.state.StateController;
 
 public class TestStateController {
 
