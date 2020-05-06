@@ -14,8 +14,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-//import io.openems.edge.battery.soltaro.controller.state.StateController;
-//import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.controller.battery.batteryprotection.state.StateController;
+import io.openems.edge.ess.api.SymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -25,81 +25,81 @@ import io.openems.edge.controller.api.Controller;
 )
 public class BatteryProtectionController extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-//	@Reference
-//	protected ComponentManager componentManager;
-//
-//	private IState stateObject = null;
-//	private Config config;
+	@Reference
+	protected ComponentManager componentManager;
+
+	private IState stateObject = null;
+	private Config config;
 
 	public BatteryProtectionController() {
 		super(//
 				OpenemsComponent.ChannelId.values() //
-//				, Controller.ChannelId.values() //
-//				, io.openems.edge.battery.soltaro.controller.ChannelId.values() //
+				, Controller.ChannelId.values() //
+				, io.openems.edge.controller.battery.batteryprotection.ChannelId.values() //
 		);
 	}
 
-//	@Activate
-//	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-//		super.activate(context, config.id(), config.alias(), config.enabled());
-//
-//		this.checkConfiguration(config);
-//		this.config = config;
-//		StateController.init(componentManager, config);
-//		this.stateObject = StateController.getStateObject(State.UNDEFINED);
-//	}
-//
-//	@Deactivate
-//	protected void deactivate() {
-//		super.deactivate();
-//	}
-//
+	@Activate
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+
+		this.checkConfiguration(config);
+		this.config = config;
+		StateController.init(componentManager, config);
+		this.stateObject = StateController.getStateObject(State.UNDEFINED);
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
 	@Override
 	public void run() throws OpenemsNamedException {
-//		State nextState = this.stateObject.getNextState();
-//		this.stateObject = StateController.getStateObject(nextState);
-//		this.stateObject.act();
-//		this.writeChannelValues();
+		State nextState = this.stateObject.getNextState();
+		this.stateObject = StateController.getStateObject(nextState);
+		this.stateObject.act();
+		this.writeChannelValues();
 	}
-//
-//	private void writeChannelValues() throws OpenemsNamedException {
-//		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.STATE_MACHINE)
-//				.setNextValue(this.stateObject.getState());
-//
-//		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-//
-//		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MIN_CELL_VOLTAGE)
-//				.setNextValue(ess.getMinCellVoltage().value());
-//		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MAX_CELL_VOLTAGE)
-//				.setNextValue(ess.getMaxCellVoltage().value());
-//		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MIN_CELL_TEMPERATURE)
-//				.setNextValue(ess.getMinCellTemperature().value());
-//		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MAX_CELL_TEMPERATURE)
-//				.setNextValue(ess.getMaxCellTemperature().value());
-//		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_POWER)
-//				.setNextValue(ess.getActivePower().value());
-//		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_SOC) //
-//				.setNextValue(ess.getSoc().value());
-//	}
-//
-//	@Override
-//	public String debugLog() {
-//		State currentState = stateObject.getState();
-//		State nextState = stateObject.getNextState();
-//		if (currentState == nextState) {
-//			return "State:" + currentState.getName();
-//		} else {
-//			return "Changing State from [" + currentState.getName() + "] to [" + nextState.getName() + "]";
-//		}
-//	}
-//
-//	protected void checkConfiguration(Config config) throws OpenemsException {
-//		if (config.chargePowerPercent() <= 0 || config.chargePowerPercent() > 100) {
-//			throw new OpenemsException("ForceCharge power percentage must be > 0 and < 100");
-//		}
-//		if (config.criticalLowCellVoltage() >= config.warningLowCellVoltage()) {
-//			throw new OpenemsException("Critical low cell voltage must be lower than warning low cell voltage");
-//		}
-//		// TODO finish checks
-//	}
+
+	private void writeChannelValues() throws OpenemsNamedException {
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.STATE_MACHINE)
+				.setNextValue(this.stateObject.getState());
+
+		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MIN_CELL_VOLTAGE)
+				.setNextValue(ess.getMinCellVoltage().value());
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MAX_CELL_VOLTAGE)
+				.setNextValue(ess.getMaxCellVoltage().value());
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MIN_CELL_TEMPERATURE)
+				.setNextValue(ess.getMinCellTemperature().value());
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.MAX_CELL_TEMPERATURE)
+				.setNextValue(ess.getMaxCellTemperature().value());
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.ESS_POWER)
+				.setNextValue(ess.getActivePower().value());
+		this.channel(io.openems.edge.controller.battery.batteryprotection.ChannelId.ESS_SOC) //
+				.setNextValue(ess.getSoc().value());
+	}
+
+	@Override
+	public String debugLog() {
+		State currentState = stateObject.getState();
+		State nextState = stateObject.getNextState();
+		if (currentState == nextState) {
+			return "State:" + currentState.getName();
+		} else {
+			return "Changing State from [" + currentState.getName() + "] to [" + nextState.getName() + "]";
+		}
+	}
+
+	protected void checkConfiguration(Config config) throws OpenemsException {
+		if (config.chargePowerPercent() <= 0 || config.chargePowerPercent() > 100) {
+			throw new OpenemsException("ForceCharge power percentage must be > 0 and < 100");
+		}
+		if (config.criticalLowCellVoltage() >= config.warningLowCellVoltage()) {
+			throw new OpenemsException("Critical low cell voltage must be lower than warning low cell voltage");
+		}
+		// TODO finish checks
+	}
 }
