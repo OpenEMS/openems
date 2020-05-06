@@ -168,9 +168,11 @@ public class ControllerHeatingElement extends AbstractOpenemsComponent implement
 		// Get the input channel addresses
 		IntegerReadChannel gridActivePowerChannel = this.sum.channel(Sum.ChannelId.GRID_ACTIVE_POWER);
 		int gridActivePower = gridActivePowerChannel.value().getOrError();
-		IntegerReadChannel essActivePowerChannel = this.sum.channel(Sum.ChannelId.ESS_ACTIVE_POWER);
-		int essActivePower = essActivePowerChannel.value().orElse(0 /* if there is no storage */);
-		int essDischargePower = essActivePower > 0 ? essActivePower : 0;
+		IntegerReadChannel essDischargePowerChannel = this.sum.getEssDischargePowerChannel();
+		int essDischargePower = essDischargePowerChannel.value().orElse(0 /* if there is no storage */);
+		if (essDischargePower < 0) { // we are only interested in discharging, not charging
+			essDischargePower = 0;
+		}
 
 		long excessPower;
 		if (gridActivePower > 0) {
