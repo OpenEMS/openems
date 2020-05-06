@@ -7,6 +7,9 @@ import io.openems.edge.ess.mr.gridcon.IState;
 
 public class WaitForGridAvailable extends BaseState {
 
+	//TODO in diesem state darf ich max. 30 sekunden verbleiben
+	// danach muss ich den mr runterfahren...=> outputHardresetrelay für mr setzen
+	
 	private float targetFrequencyOffgrid;
 
 	public WaitForGridAvailable(ComponentManager manager, DecisionTableCondition condition, String gridconPCSId,

@@ -22,6 +22,11 @@ import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
 public class Error extends BaseState implements StateObject {
 
+	
+	//TODO hard restart zeit für jeden durchlauf mit einem faktor z.b. 2 multiplizieren -->
+	// 1 Versuch nach 1 minute, 2. versuch nach 2 min., 3 vers. nach 4 min...usw..
+	//
+	
 	private static final long WAITING_TIME_ERRORS = 20;
 	private static final long WAITING_TIME_HARD_RESTART = 45;
 	private static final float MAX_ALLOWED_DELTA_LINK_VOLTAGE = 20;
