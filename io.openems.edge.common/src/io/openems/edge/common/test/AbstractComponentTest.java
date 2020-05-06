@@ -408,10 +408,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
-	 * Deprecated: Test-Cases are now executed directly on adding via
+	 * TODO: remove: Test-Cases are now executed directly on adding via
 	 * {@link #next(TestCase)}.
 	 */
-	@Deprecated
 	public void run() {
 
 	}

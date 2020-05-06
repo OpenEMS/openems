@@ -10,6 +10,7 @@ export const TRANSLATION = {
         ChangeFailed: 'Wijziging mislukt',
         ChargeDischarge: 'Debet/ontlaad',
         ChargePower: 'Laad vermogen',
+        connectionLost: 'Verbinding verbroken. Probeer opnieuw verbinding te maken.',
         Consumption: 'Verbruik',
         Cumulative: 'Cumulatieve Waarden',
         currentValue: 'Huidige waarde',
