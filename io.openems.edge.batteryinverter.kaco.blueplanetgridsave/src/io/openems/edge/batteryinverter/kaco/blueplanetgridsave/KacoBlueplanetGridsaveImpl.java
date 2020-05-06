@@ -54,7 +54,7 @@ import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Battery-Inverter.KACO.BlueplanetGridsave", //
+		name = "Battery-Inverter.Kaco.BlueplanetGridsave", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -65,10 +65,10 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
-	protected Cycle cycle;
+	private Cycle cycle;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetGridsaveImpl.class);
 
@@ -265,7 +265,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 
 	@Override
 	public S64201_CurrentState getCurrentState() {
-		Optional<EnumReadChannel> channel = this.getSunSpecChannel(KacoSunSpecModel.S64201.REQUESTED_STATE);
+		Optional<EnumReadChannel> channel = this.getSunSpecChannel(KacoSunSpecModel.S64201.CURRENT_STATE);
 		if (channel.isPresent()) {
 			return channel.get().value().asEnum();
 		} else {

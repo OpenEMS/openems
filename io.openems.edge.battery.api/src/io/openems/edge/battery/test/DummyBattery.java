@@ -1,6 +1,5 @@
 package io.openems.edge.battery.test;
 
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Channel;
@@ -31,8 +30,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
+		this._setStartStop(value);
 	}
 
 }

@@ -193,7 +193,7 @@ public class Value<T> {
 	}
 
 	/**
-	 * Internal helper to find out if this Value referrs to an EnumValue.
+	 * Internal helper to find out if this Value refers to an EnumValue.
 	 * 
 	 * @return the corresponding {@link EnumDoc}; or null if this Value is not an
 	 *         enum

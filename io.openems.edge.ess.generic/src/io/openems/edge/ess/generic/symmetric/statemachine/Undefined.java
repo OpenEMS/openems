@@ -24,8 +24,7 @@ public class Undefined extends StateHandler<State, Context> {
 
 		case STOP:
 			// force STOP
-//			TODO return State.STOP_BATTERY_INVERTER;
-			return State.UNDEFINED;
+			return State.STOP_BATTERY_INVERTER;
 		}
 
 		assert false;
