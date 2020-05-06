@@ -70,13 +70,21 @@ public class SetPower extends AbstractOpenemsComponent implements Controller, Op
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// get input value
-		ChannelAddress inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
-		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
-		int requiredPower = inputChannel.value().getOrError();
-		
-		if (this.config.invert()) {
-			requiredPower = -1 * requiredPower;
+
+		int requiredPower = 0;
+		for (String channelAdress : config.inputChannelAddress()) {
+			String signum = channelAdress.substring(0, 1);
+			channelAdress = channelAdress.substring(1, channelAdress.length());
+			
+			ChannelAddress inputChannelAddress = ChannelAddress.fromString(channelAdress);
+			IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
+			int value = inputChannel.value().getOrError();
+			
+			if ("+".equals(signum)) {
+				requiredPower = requiredPower + value;
+			} else if ("-".equals(signum)) {
+				requiredPower = requiredPower - value;
+			}
 		}
 
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());

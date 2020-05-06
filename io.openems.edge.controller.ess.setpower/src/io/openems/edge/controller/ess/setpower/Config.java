@@ -20,11 +20,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
 
-	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is within a configured threshold, the output channel is switched ON.")
-	String inputChannelAddress();
-
-	@AttributeDefinition(name = "Invert Charge behaviour", description = "If this option is activated the behaviour is inverted, i.e according to grid meter instead charge has to discharge")
-	boolean invert() default false;
+	@AttributeDefinition(name = "Input Channels", description = "Address of the input channel, put prefix in front. If the value of this channel is within a configured threshold, the output channel is switched ON.")
+	String[] inputChannelAddress() default { "+meter2/ActivePower" };
 
 	String webconsole_configurationFactory_nameHint() default "Controller Set Power [{id}]";
 

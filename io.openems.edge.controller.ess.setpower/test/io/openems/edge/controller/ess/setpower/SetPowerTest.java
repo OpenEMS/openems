@@ -17,11 +17,11 @@ public class SetPowerTest {
 	@SuppressWarnings("all")
 	private static class MyConfig extends AbstractComponentConfig implements Config {
 
-		private final String inputChannelAddress;
+		private final String[] inputChannelAddress;
 		private final String ess_id;
 		private final Boolean invert;
 
-		public MyConfig(String id, String inputChannelAddress, String ess_id, Boolean invert) {
+		public MyConfig(String id, String[] inputChannelAddress, String ess_id, Boolean invert) {
 			super(Config.class, id);
 			this.inputChannelAddress = inputChannelAddress;
 			this.ess_id = ess_id;
@@ -29,7 +29,7 @@ public class SetPowerTest {
 		}
 
 		@Override
-		public String inputChannelAddress() {
+		public String[] inputChannelAddress() {
 			return this.inputChannelAddress;
 		}
 
@@ -37,12 +37,6 @@ public class SetPowerTest {
 		public String ess_id() {
 			return this.ess_id;
 		}
-
-		@Override
-		public boolean invert() {
-			return this.invert;
-		}
-
 	}
 
 	@Test
@@ -55,11 +49,16 @@ public class SetPowerTest {
 		controller.componentManager = componentManager;
 
 		// Prepare Channels
-		ChannelAddress input0 = new ChannelAddress("meter0", "ActivePower");
+		
+		String dev = "meter0";
+		String channel = "ActivePower";
+		String adressParameter = "+" + dev + "/" + channel;
+		
+		ChannelAddress input0 = new ChannelAddress(dev, channel);
 		ChannelAddress output0 = new ChannelAddress("ess0", "ActivePower");
 
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", input0.toString(), "ess0", false);
+		MyConfig config = new MyConfig("ctrl0", new String[] {adressParameter }, "ess0", false);
 		controller.activate(null, config);
 		controller.activate(null, config);
 		ManagedSymmetricEss essComponent = new DummyManagedSymmetricEss("ess0");
