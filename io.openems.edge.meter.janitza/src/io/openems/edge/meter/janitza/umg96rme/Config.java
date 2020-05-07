@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Meter Janitza UMG 96RM-E", //
 		description = "Implements the Janitza UMG 96RM-E power analyser.")
 @interface Config {

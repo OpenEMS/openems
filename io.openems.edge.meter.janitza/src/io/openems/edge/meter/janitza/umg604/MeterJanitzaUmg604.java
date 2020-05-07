@@ -32,6 +32,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 /**
  * Implements the Janitza UMG 604 power analyzer.
  * 
+ * <p>
  * https://www.janitza.de/umg-604-pro.html
  */
 @Designate(ocd = Config.class, factory = true)
@@ -154,7 +155,7 @@ public class MeterJanitzaUmg604 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
