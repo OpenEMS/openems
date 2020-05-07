@@ -16,8 +16,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
  */
 public class PhaseDef {
 
-	private static final double MILLISECONDS_PER_HOUR = 60 /* minutes */ * 60 /* seconds */ * 1000 /* milliseconds */;
-
 	private final ControllerHeatingElementImpl parent;
 	private final Phase phase;
 
@@ -100,16 +98,5 @@ public class PhaseDef {
 		} else {
 			return this.duration;
 		}
-	}
-
-	/**
-	 * Gets the total energy in watthours, calculated from total switch-on time
-	 * since last reset on midnight multiplied with the switched power per phase.
-	 * 
-	 * @return the total energy in [Wh]
-	 */
-	public int getTotalEnergy() {
-		return (int) Math
-				.round((this.getTotalDuration().toMillis() / MILLISECONDS_PER_HOUR) * parent.getPowerPerPhase());
 	}
 }
