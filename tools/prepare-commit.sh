@@ -106,6 +106,7 @@ echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\\" >> "$bndru
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 for D in io.openems.edge.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
@@ -130,6 +131,7 @@ echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
