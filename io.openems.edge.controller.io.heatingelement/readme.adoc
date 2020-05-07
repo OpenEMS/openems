@@ -69,28 +69,6 @@ Channel _Level3Time_::
               |-|
 ----
 
-Channel _Phase1Energy_::
-`= Phase1Time (16) x 1000 W = *16000 Wh* = 16 kWh`
-
-Channel _Phase2Energy_::
-`= Phase2Time (9) x 1000 W = *9000 Wh* = 9 kWh` 
-
-Channel _Phase3Energy_::
-`= Phase3Time (3) x 1000 W = *3000 Wh* = 3 kWh` 
-
-NOTE: Sum of Phase1Energy, Phase2Energy and Phase3Energy is `16 \+ 9 \+ 3 = 28 kWh`
-
-Channel _Level1Energy_::
-`= Phase1Energy - Phase2Energy = *7000 Wh* = 7 kWh`
-
-Channel _Level2Energy_::
-`= (Phase2Energy - Phase3Energy) x 2 = 6000 Wh x 2 = *12000 Wh* = 12 kWh`
-
-Channel _Level3Energy_::
-`= Phase3Energy x 3 = 3000 Wh x 3 = *9000 Wh* = 9 kWh`
-
-NOTE: Sum of Level1Energy, Level2Energy and Level3Energy is `7 \+ 12 \+ 9 = 28 kWh`
-
 Channel _TotalTime_:: `*28000 Wh* = 28 kWh`
 
 Channel _TotalPhaseTime_:: 

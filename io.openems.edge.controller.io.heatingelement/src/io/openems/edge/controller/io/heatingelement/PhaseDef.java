@@ -18,7 +18,7 @@ public class PhaseDef {
 
 	private static final double MILLISECONDS_PER_HOUR = 60 /* minutes */ * 60 /* seconds */ * 1000 /* milliseconds */;
 
-	private final ControllerHeatingElement parent;
+	private final ControllerHeatingElementImpl parent;
 	private final Phase phase;
 
 	/**
@@ -37,7 +37,7 @@ public class PhaseDef {
 	 */
 	private LocalTime lastSwitchOn = null;
 
-	public PhaseDef(ControllerHeatingElement parent, Phase phase) {
+	public PhaseDef(ControllerHeatingElementImpl parent, Phase phase) {
 		this.parent = parent;
 		this.phase = phase;
 	}
