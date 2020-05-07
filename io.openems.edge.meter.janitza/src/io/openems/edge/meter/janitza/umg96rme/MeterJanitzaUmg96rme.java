@@ -32,6 +32,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 /**
  * Implements the Janitza UMG 96RM-E power analyzer.
  * 
+ * <p>
  * https://www.janitza.com/umg-96rm-e.html
  */
 @Designate(ocd = Config.class, factory = true)
@@ -149,7 +150,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {		
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
