@@ -1,4 +1,4 @@
-= JANITZA Meters UMG96RME | UMG604
+= Janitza Meters UMG 96RM-E | UMG 604
 
 Implemented Natures::
 - SymmetricMeter

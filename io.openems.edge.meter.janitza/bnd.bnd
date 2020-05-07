@@ -1,5 +1,5 @@
-Bundle-Name: OpenEMS Edge Meter Janitza
-Bundle-Vendor: OpenEMS Association e.V.
+Bundle-Name: OpenEMS Edge Meter Janitza; Janitza umg604 and janitza umg96rme
+Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
