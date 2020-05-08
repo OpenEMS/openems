@@ -17,14 +17,16 @@ public class ForceCharge extends BaseState implements IState {
 	private int chargePowerPercent;
 	private int chargingTime;
 	private int reachableMinCellVoltage;
+	private int warningSoC;
 	private LocalDateTime startTime = null;
 
 	public ForceCharge(ManagedSymmetricEss ess, Battery bms, int chargePowerPercent, int chargingTime,
-			int reachableMinCellVoltage) {
+			int reachableMinCellVoltage, int warningSoC) {
 		super(ess, bms);
 		this.chargePowerPercent = chargePowerPercent;
 		this.chargingTime = chargingTime;
 		this.reachableMinCellVoltage = reachableMinCellVoltage;
+		this.warningSoC = warningSoC;
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class ForceCharge extends BaseState implements IState {
 			this.startTime = LocalDateTime.now();
 		}
 
-		if (isMinCellVoltageReached() || isChargingTimeOver()) {
+		if (isMinCellVoltageReached() || isWarningSoCReached() || isChargingTimeOver()) {
 			this.resetStartTime();
 			return State.CHECK;
 		}
@@ -54,8 +56,12 @@ public class ForceCharge extends BaseState implements IState {
 		return State.FORCE_CHARGE;
 	}
 
+	private boolean isWarningSoCReached() {
+		return getBmsSoC() >= warningSoC;
+	}
+
 	private boolean isMinCellVoltageReached() {
-		return getBmsMinCellVoltage() > reachableMinCellVoltage;
+		return getBmsMinCellVoltage() >= reachableMinCellVoltage;
 	}
 
 	private boolean isChargingTimeOver() {

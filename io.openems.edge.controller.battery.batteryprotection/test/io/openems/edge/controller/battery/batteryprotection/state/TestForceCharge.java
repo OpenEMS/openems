@@ -39,8 +39,9 @@ public class TestForceCharge {
 		componentManager.initBms();
 		bms = componentManager.getComponent(Creator.BMS_ID);
 		bms.setMinimalCellVoltage(config.criticalLowCellVoltage() - 1);
+		bms.setSoc(config.criticalSoC() - 1);
 		sut = new ForceCharge(ess, bms, config.chargePowerPercent(), config.chargingTime(),
-				config.forceChargeReachableMinCellVoltage());
+				config.forceChargeReachableMinCellVoltage(), config.warningSoC());
 	}
 
 	@Test
@@ -76,6 +77,17 @@ public class TestForceCharge {
 		assertEquals(State.FORCE_CHARGE, next);
 
 		bms.setMinimalCellVoltage(config.forceChargeReachableMinCellVoltage() + 1);
+
+		next = sut.getNextState();
+		assertEquals(State.CHECK, next);
+	}
+	
+	@Test
+	public final void testGetNextStateCheckAfterReachingWarningSoC() {
+		State next = sut.getNextState();
+		assertEquals(State.FORCE_CHARGE, next);
+		
+		bms.setSoc(config.warningSoC() + 1);
 
 		next = sut.getNextState();
 		assertEquals(State.CHECK, next);

@@ -12,13 +12,15 @@ public class Limit extends BaseState implements IState {
 
 	private final Logger log = LoggerFactory.getLogger(Limit.class);
 
-	int warningLowCellVoltage;
-	int criticalLowCellVoltage;
-	int criticalHighCellVoltage;
-	int warningSoC;
-	int lowTemperature;
-	int highTemperature;
-	long unusedTime;
+	private int warningLowCellVoltage;
+	private int criticalLowCellVoltage;
+	private int criticalHighCellVoltage;
+	private int warningSoC;	
+	private int criticalSoC;
+	private int lowTemperature;
+	private int highTemperature;
+	private long unusedTime;
+
 
 	public Limit(//
 			ManagedSymmetricEss ess, //
@@ -27,6 +29,7 @@ public class Limit extends BaseState implements IState {
 			int criticalLowCellVoltage, //
 			int criticalHighCellVoltage, //
 			int warningSoC, //
+			int criticalSoC, //
 			int lowTemperature, //
 			int highTemperature, //
 			long unusedTime) {
@@ -35,6 +38,7 @@ public class Limit extends BaseState implements IState {
 		this.criticalLowCellVoltage = criticalLowCellVoltage;
 		this.criticalHighCellVoltage = criticalHighCellVoltage;
 		this.warningSoC = warningSoC;
+		this.criticalSoC = criticalSoC;
 		this.lowTemperature = lowTemperature;
 		this.highTemperature = highTemperature;
 		this.unusedTime = unusedTime;
@@ -50,7 +54,7 @@ public class Limit extends BaseState implements IState {
 
 		// According to the state machine the next states can be:
 		// NORMAL: ess is under normal operation conditions
-		// FORCE_CHARGE: minimal cell voltage has been fallen under critical value
+		// FORCE_CHARGE: minimal cell voltage or SoC has been fallen under critical value
 		// UNDEFINED: at least one value is not available
 		// FULL_CHARGE: system has done nothing within the configured time
 
@@ -58,7 +62,7 @@ public class Limit extends BaseState implements IState {
 			return State.UNDEFINED;
 		}
 
-		if (getBmsMinCellVoltage() < criticalLowCellVoltage) {
+		if (getBmsMinCellVoltage() < criticalLowCellVoltage || getBmsSoC() < criticalSoC) {
 			return State.FORCE_CHARGE;
 		}
 

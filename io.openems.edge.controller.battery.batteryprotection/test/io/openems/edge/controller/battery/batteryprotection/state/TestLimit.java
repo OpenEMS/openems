@@ -41,7 +41,7 @@ public class TestLimit {
 		componentManager.initBms();
 		bms = componentManager.getComponent(Creator.BMS_ID);
 		sut = new Limit(ess, bms, config.warningLowCellVoltage(), config.criticalLowCellVoltage(),
-				config.criticalHighCellVoltage(), config.warningSoC(), config.lowTemperature(),
+				config.criticalHighCellVoltage(), config.warningSoC(), config.criticalSoC(), config.lowTemperature(),
 				config.highTemperature(), config.unusedTime());
 	}
 
@@ -51,8 +51,14 @@ public class TestLimit {
 	}
 
 	@Test
-	public final void testGetNextStateForceCharge() {
+	public final void testGetNextStateForceChargeCriticalCellVoltage() {
 		bms.setMinimalCellVoltage(config.criticalLowCellVoltage() - 1);
+		assertEquals(State.FORCE_CHARGE, sut.getNextState());
+	}
+	
+	@Test
+	public final void testGetNextStateForceChargeCriticalSoC() {
+		bms.setSoc(config.criticalSoC() - 1);
 		assertEquals(State.FORCE_CHARGE, sut.getNextState());
 	}
 
