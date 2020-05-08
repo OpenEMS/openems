@@ -1,5 +1,6 @@
 package io.openems.edge.wago;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -113,7 +114,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		 */
 		this.configFuture = configExecutor.schedule(() -> {
 			try {
-				Document doc = Wago.downloadEaConfigXml(this.ipAddress, config.username(), config.password());
+				Document doc = Wago.downloadConfigXml(this.ipAddress, config.username(), config.password());
 				this.modules.addAll(this.parseXml(doc));
 				this.createProtocolFromModules(this.modules);
 			} catch (SAXException | IOException | ParserConfigurationException e) {
@@ -123,7 +124,8 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	/**
-	 * Downloads the ea-config.xml file from WAGO fieldbus coupler
+	 * Downloads the config xml file from WAGO fieldbus coupler. Tries old
+	 * ('ea-config.xml') and new ('io_config.xml') filenames.
 	 * 
 	 * @param ip       the IP address
 	 * @param username the login username
@@ -133,14 +135,23 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	 * @throws IOException                  on error
 	 * @throws ParserConfigurationException on error
 	 */
-	private static Document downloadEaConfigXml(InetAddress ip, String username, String password)
+	private static Document downloadConfigXml(InetAddress ip, String username, String password)
 			throws SAXException, IOException, ParserConfigurationException {
-		URL url = new URL("http://" + ip.getHostAddress() + "/etc/ea-config.xml");
-		String authStr = username + ":" + password;
+		try {
+			return downloadConfigXml(ip, "ea-config.xml", username, password);
+		} catch (FileNotFoundException e) {
+			return downloadConfigXml(ip, "io_config.xml", username, password);
+		}
+	}
+
+	private static Document downloadConfigXml(InetAddress ip, String filename, String username, String password)
+			throws SAXException, IOException, ParserConfigurationException {
+		URL url = new URL(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
+		String authStr = String.format("%s:%s", username, password);
 		byte[] bytesEncoded = Base64.getEncoder().encode(authStr.getBytes());
 		String authEncoded = new String(bytesEncoded);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestProperty("Authorization", "Basic " + authEncoded);
+		connection.setRequestProperty("Authorization", String.format("Basic %s", authEncoded));
 		connection.setRequestProperty("Content-Type", "text/xml");
 		connection.setRequestMethod("GET");
 		connection.connect();
@@ -153,7 +164,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	/**
-	 * Parses the ea-config.xml file
+	 * Parses the config xml file
 	 * 
 	 * @param doc the XML document
 	 * @return a list of FieldbusModules
