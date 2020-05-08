@@ -79,7 +79,11 @@ public class TestForceCharge {
 		bms.setMinimalCellVoltage(config.forceChargeReachableMinCellVoltage() + 1);
 
 		next = sut.getNextState();
-		assertEquals(State.CHECK, next);
+		assertEquals(State.FORCE_CHARGE, next);
+		
+		bms.setSoc(config.warningSoC() + 1);
+
+		bms.setSoc(config.warningSoC() + 1);
 	}
 	
 	@Test
@@ -88,6 +92,11 @@ public class TestForceCharge {
 		assertEquals(State.FORCE_CHARGE, next);
 		
 		bms.setSoc(config.warningSoC() + 1);
+
+		next = sut.getNextState();
+		assertEquals(State.FORCE_CHARGE, next);
+	
+		bms.setMinimalCellVoltage(config.forceChargeReachableMinCellVoltage() + 1);
 
 		next = sut.getNextState();
 		assertEquals(State.CHECK, next);

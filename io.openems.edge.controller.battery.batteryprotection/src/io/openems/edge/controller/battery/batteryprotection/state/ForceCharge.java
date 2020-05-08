@@ -48,7 +48,7 @@ public class ForceCharge extends BaseState implements IState {
 			this.startTime = LocalDateTime.now();
 		}
 
-		if (isMinCellVoltageReached() || isWarningSoCReached() || isChargingTimeOver()) {
+		if ( (isMinCellVoltageReached() && isWarningSoCReached()) || isChargingTimeOver()) {
 			this.resetStartTime();
 			return State.CHECK;
 		}
