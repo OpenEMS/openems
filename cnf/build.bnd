@@ -20,13 +20,6 @@
 		revision=org.osgi.enroute:test-bundles:7.0.0; \
 		readOnly=true; \
 		name="Testing Bundles"
--plugin.5.Debug: \
-	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
-		releaseUrls=https://repo.maven.apache.org/maven2/; \
-		revision=org.osgi.enroute:debug-bundles:7.0.0; \
-		readOnly=true; \
-		name="Debug Bundles"
 -plugin.6.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
 		releaseUrls=https://repo.maven.apache.org/maven2/; \
