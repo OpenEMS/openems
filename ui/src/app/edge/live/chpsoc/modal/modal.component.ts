@@ -10,7 +10,7 @@ type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
 @Component({
     selector: ChpsocModalComponent.SELECTOR,
-    templateUrl: './modal.page.html'
+    templateUrl: './modal.component.html'
 })
 export class ChpsocModalComponent implements OnInit {
 
