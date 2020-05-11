@@ -67,6 +67,18 @@
                     </ion-segment>
                 </ion-card-content>
                 <form [formGroup]="formGroup">
+                    <ng-container *ngIf="component.properties['mode'] == 'MANUAL_ON'">
+                        <ion-item lines="none">
+                            <div style="font-size: 14px">Level:</div>
+                            <ion-select formControlName="defaultLevel" [value]="component.properties['defaultLevel']"
+                                (ionChange)="updateDefaultLevel($event)" [okText]="translate.instant('General.ok')"
+                                [cancelText]="translate.instant('General.cancel')">
+                                <ion-select-option value="LEVEL_1">Level 1</ion-select-option>
+                                <ion-select-option value="LEVEL_2">Level 2</ion-select-option>
+                                <ion-select-option value="LEVEL_3">Level 3</ion-select-option>
+                            </ion-select>
+                        </ion-item>
+                    </ng-container>
                     <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
                         <ion-card-content [class.underline]="
                         formGroup.value.workMode !='NONE'">
