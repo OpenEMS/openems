@@ -36,6 +36,8 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
+	private boolean invertPowerValues = false;
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -56,6 +58,7 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
+		this.invertPowerValues = config.invert();
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
@@ -117,66 +120,50 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(300013 - OFFSET, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1,
 								new SignedDoublewordElement(300013 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2,
 								new SignedDoublewordElement(300015 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3,
 								new SignedDoublewordElement(300017 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
 								new SignedDoublewordElement(300019 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2,
 								new SignedDoublewordElement(300021 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
 								new SignedDoublewordElement(300023 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER_L1,
 								new SignedDoublewordElement(300025 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER_L2,
 								new SignedDoublewordElement(300027 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER_L3,
 								new SignedDoublewordElement(300029 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
 								new SignedDoublewordElement(300031 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2,
 								new SignedDoublewordElement(300033 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
 								new SignedDoublewordElement(300035 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						new DummyRegisterElement(300037 - OFFSET, 300040 - OFFSET), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(300041 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER,
 								new SignedDoublewordElement(300043 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues)),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
 								new SignedDoublewordElement(300045 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
-//				new FC4ReadInputRegistersTask(300052 - OFFSET, Priority.LOW, //
-//						m(MeterCarloGavazziEm300.ChannelId.FREQUENCY, new SignedWordElement(300052 - OFFSET),
-//								ElementToChannelConverter.SCALE_FACTOR_2),
-//						m(MeterCarloGavazziEm300.ChannelId.ACTIVE_ENERGY_POSITIVE,
-//								new UnsignedDoublewordElement(300053 - OFFSET),
-//								ElementToChannelConverter.SCALE_FACTOR_1),
-//						m(MeterCarloGavazziEm300.ChannelId.REACTIVE_ENERGY_POSITIVE,
-//								new UnsignedDoublewordElement(300055 - OFFSET),
-//								ElementToChannelConverter.SCALE_FACTOR_1)),
-//				new FC4ReadInputRegistersTask(300079 - OFFSET, Priority.LOW, //
-//						m(MeterCarloGavazziEm300.ChannelId.ACTIVE_ENERGY_NEGATIVE,
-//								new UnsignedDoublewordElement(300079 - OFFSET),
-//								ElementToChannelConverter.SCALE_FACTOR_1),
-//						m(MeterCarloGavazziEm300.ChannelId.REACTIVE_ENERGY_NEGATIVE,
-//								new UnsignedDoublewordElement(300081 - OFFSET),
-//								ElementToChannelConverter.SCALE_FACTOR_1)));
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.invertPowerValues))));
 	}
 
 	@Override
