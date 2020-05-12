@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Meter Carlo Gavazzi EM300", //
 		description = "Implements the Carlo Gavazzi EM300-series meter.")
 @interface Config {
