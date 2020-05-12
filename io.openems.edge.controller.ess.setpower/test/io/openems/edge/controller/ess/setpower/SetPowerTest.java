@@ -28,15 +28,27 @@ public class SetPowerTest {
 			this.invert = invert;
 		}
 
-		@Override
-		public String[] inputChannelAddress() {
-			return this.inputChannelAddress;
-		}
+//		@Override
+//		public String[] inputChannelAddress() {
+//			return this.inputChannelAddress;
+//		}
 
 		@Override
 		public String ess_id() {
 			return this.ess_id;
 		}
+
+@Override
+public String grid_meter_id() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public String pv_meter_id() {
+	// TODO Auto-generated method stub
+	return null;
+}
 	}
 
 	@Test
