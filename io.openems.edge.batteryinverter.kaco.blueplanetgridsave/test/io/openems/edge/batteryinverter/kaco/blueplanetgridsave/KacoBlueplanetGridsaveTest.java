@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
@@ -14,6 +13,7 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -40,9 +40,13 @@ public class KacoBlueplanetGridsaveTest {
 		}
 
 		@Override
-		protected void executeLogic() throws OpenemsNamedException {
-			((KacoBlueplanetGridsaveImpl) this.getSut()).apply(this.battery, 0, 0);
+		protected void handleEvent(String topic) throws Exception {
+			if (topic.equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE)) {
+				((KacoBlueplanetGridsaveImpl) this.getSut()).apply(this.battery, 0, 0);
+			}
+			super.handleEvent(topic);
 		}
+
 	}
 
 	@Test

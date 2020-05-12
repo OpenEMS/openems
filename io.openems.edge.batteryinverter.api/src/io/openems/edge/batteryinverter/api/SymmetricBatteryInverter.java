@@ -15,6 +15,9 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.sum.GridMode;
 
+/**
+ * Represents a Symmetric Battery-Inverter.
+ */
 @ProviderType
 public interface SymmetricBatteryInverter extends OpenemsComponent {
 
@@ -25,7 +28,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * Grid-Mode.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer/Enum
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
@@ -35,7 +38,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
@@ -49,7 +52,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * Reactive Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
@@ -64,7 +67,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * defined by the inverter limitations.
 		 * 
 		 * <ul>
-		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: zero or positive value
@@ -73,27 +76,33 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
 		/**
-		 * Active Charge Energy.
+		 * Active Production Energy.
+		 * 
+		 * <p>
+		 * The discharge energy.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
-		 * Active Discharge Energy.
+		 * Active Consumption Energy.
+		 * 
+		 * <p>
+		 * The charge energy.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),;
 
 		private final Doc doc;
 
@@ -230,61 +239,61 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 * Gets the Channel for {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 * 
 	 * @return the Channel
 	 */
-	public default LongReadChannel getActiveChargeEnergyChannel() {
-		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
+	public default LongReadChannel getActiveProductionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh]. Range "&gt;= 0". See
-	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 * Gets the Active Production Energy in [Wh], i.e. the discharge energy. Range
+	 * "&gt;= 0". See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Long> getActiveChargeEnergy() {
-		return this.getActiveChargeEnergyChannel().value();
+	public default Value<Long> getActiveProductionEnergy() {
+		return this.getActiveProductionEnergyChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY} Channel.
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setActiveChargeEnergy(Long value) {
-		this.getActiveChargeEnergyChannel().setNextValue(value);
+	public default void _setActiveProductionEnergy(Long value) {
+		this.getActiveProductionEnergyChannel().setNextValue(value);
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
+	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
 	 * 
 	 * @return the Channel
 	 */
-	public default LongReadChannel getActiveDischargeEnergyChannel() {
-		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	public default LongReadChannel getActiveConsumptionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh]. Range "&gt;= 0". See
-	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
+	 * Gets the Active Consumption Energy in [Wh], i.e. the charge energy. Range
+	 * "&gt;= 0". See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Long> getActiveDischargeEnergy() {
-		return this.getActiveDischargeEnergyChannel().value();
+	public default Value<Long> getActiveConsumptionEnergy() {
+		return this.getActiveConsumptionEnergyChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY} Channel.
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setActiveDischargeEnergy(Long value) {
-		this.getActiveDischargeEnergyChannel().setNextValue(value);
+	public default void _setActiveConsumptionEnergy(Long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
 	}
 
 }

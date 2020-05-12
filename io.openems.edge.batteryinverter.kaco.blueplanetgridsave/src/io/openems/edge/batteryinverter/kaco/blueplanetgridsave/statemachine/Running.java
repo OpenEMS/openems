@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel;
@@ -80,14 +79,14 @@ public class Running extends StateHandler<State, Context> {
 	 * Triggers the Watchdog after half of the WATCHDOG_CYCLES passed.
 	 * 
 	 * @param context the {@link Context}
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
-	private void triggerWatchdog(Context context) throws OpenemsException {
+	private void triggerWatchdog(Context context) throws OpenemsNamedException {
 		int watchdogSeconds = context.cycle.getCycleTime() / 1000 * KacoBlueplanetGridsave.WATCHDOG_CYCLES;
 		if (Duration.between(this.lastTriggerWatchdog, Instant.now()).getSeconds() > watchdogSeconds / 2) {
-			IntegerReadChannel watchdogChannel = context.component
+			IntegerWriteChannel watchdogChannel = context.component
 					.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
-			watchdogChannel.setNextValue(watchdogSeconds);
+			watchdogChannel.setNextWriteValue(watchdogSeconds);
 			this.lastTriggerWatchdog = Instant.now();
 		}
 	}

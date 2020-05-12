@@ -20,7 +20,7 @@ public class ControllerTest extends AbstractComponentTest<ControllerTest, Contro
 	}
 
 	@Override
-	protected void executeLogic() throws OpenemsNamedException {
+	protected void executeController() throws OpenemsNamedException {
 		this.getSut().run();
 	}
 

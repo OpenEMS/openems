@@ -2,27 +2,32 @@ package io.openems.edge.common.statemachine;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
-public abstract class StateHandler<O, C> {
+/**
+ * Defines a Handler for a State of a {@link StateMachine}.
+ *
+ * @param <STATE>   the actual {@link State} type
+ * @param <CONTEXT> the context type
+ */
+public abstract class StateHandler<STATE extends State<STATE, CONTEXT>, CONTEXT> {
+
 	/**
 	 * Holds the main logic of StateMachine State.
 	 * 
 	 * @param context the {@link Context}.
 	 * @return the next State
 	 */
-	protected abstract O getNextState(C context) throws OpenemsNamedException;
+	protected abstract STATE getNextState(CONTEXT context) throws OpenemsNamedException;
 
 	/**
 	 * Gets called before the StateMachine changes from another State to this State.
-	 * 
-	 * @return
 	 */
-	protected void onEntry(C context) throws OpenemsNamedException {
+	protected void onEntry(CONTEXT context) throws OpenemsNamedException {
 	}
 
 	/**
 	 * Gets called after the StateMachine changes from this State to another State.
 	 */
-	protected void onExit(C context) throws OpenemsNamedException {
+	protected void onExit(CONTEXT context) throws OpenemsNamedException {
 	}
 
 }

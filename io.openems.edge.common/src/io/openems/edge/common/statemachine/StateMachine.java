@@ -8,23 +8,24 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 /**
  * Manages the States of the StateMachine.
  * 
- * @param <S> the {@link State} type, e.g. typically an enum
- * @param <C> the context type, i.e. a class wrapping a State-Machine context
+ * @param <STATE>   the {@link State} type, e.g. typically an enum
+ * @param <CONTEXT> the context type, i.e. a class wrapping a State-Machine
+ *                  context
  */
-public class StateMachine<S extends State<S, C>, C> {
+public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 
 	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
 
-	private final S initialState;
+	private final STATE initialState;
 
-	private S state;
+	private STATE state;
 
 	/**
 	 * Initialize the State-Machine and set an initial State.
 	 * 
 	 * @param initialState the initial State
 	 */
-	public StateMachine(S initialState) {
+	public StateMachine(STATE initialState) {
 		this.initialState = initialState;
 		this.state = initialState;
 	}
@@ -34,7 +35,7 @@ public class StateMachine<S extends State<S, C>, C> {
 	 * 
 	 * @return the State
 	 */
-	public S getCurrentState() {
+	public STATE getCurrentState() {
 		return this.state;
 	}
 
@@ -46,25 +47,25 @@ public class StateMachine<S extends State<S, C>, C> {
 	 * 
 	 * @param state the next State
 	 */
-	public void forceNextState(S state) {
+	public void forceNextState(STATE state) {
 		this.forceNextState = state;
 	}
 
-	private S forceNextState = null;
+	private STATE forceNextState = null;
 
 	/**
 	 * Execute the StateMachine.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	public void run(C context) throws OpenemsNamedException {
+	public void run(CONTEXT context) throws OpenemsNamedException {
 		// Keep last State
-		S lastState = this.state;
+		STATE lastState = this.state;
 
 		OpenemsNamedException exception = null;
 
 		// Evaluate the next State
-		S nextState;
+		STATE nextState;
 		if (this.forceNextState != null) {
 			// Apply Force-Next-State
 			nextState = this.forceNextState;

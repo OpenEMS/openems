@@ -9,31 +9,22 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
+/**
+ * Represents a Symmetric Battery-Inverter that can be controlled.
+ * 
+ * <p>
+ * To indicate, that the Battery-Inverter is ready for charging/discharging, the
+ * following Channels need to be set:
+ * 
+ * <ul>
+ * <li>StartStoppable.ChannelId.START_STOP must be set to 'START'
+ * <li>No 'Fault'-StateChannels are set (i.e. 'OpenemsComponent.ChannelId.STATE'
+ * is < 3)
+ * </ul>
+ */
 @ProviderType
 public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverter, StartStoppable {
-
-	public static class BatteryInverterConstraint {
-		public final String description;
-		public final Phase phase;
-		public final Pwr pwr;
-		public final Relationship relationship;
-		public final double value;
-
-		public static BatteryInverterConstraint[] NO_CONSTRAINTS = new BatteryInverterConstraint[] {};
-
-		public BatteryInverterConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
-				double value) {
-			this.description = description;
-			this.phase = phase;
-			this.pwr = pwr;
-			this.relationship = relationship;
-			this.value = value;
-		}
-	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -61,7 +52,9 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	 * 
 	 * This is called on ManagedSymmetrcEss::applyPower()
 	 * 
-	 * @param data the {@link BatteryInverterData}
+	 * @param battery          the {@link Battery}
+	 * @param setActivePower   the active power setpoint
+	 * @param setReactivePower the reactive power setpoint
 	 * @throws OpenemsNamedException on error
 	 */
 	public void apply(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException;

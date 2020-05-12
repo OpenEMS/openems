@@ -398,7 +398,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		testCase.applyInputs(this.components);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS);
-		this.executeLogic();
+		this.executeController();
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE);
@@ -420,8 +420,10 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * {@link EventHandler#handleEvent(Event)} method.
 	 * 
 	 * @param topic the {@link Event} topic
+	 * @throws Exception on error
+	 * 
 	 */
-	protected void handleEvent(String topic) {
+	protected void handleEvent(String topic) throws Exception {
 		if (this.sut instanceof EventHandler) {
 			Event event = new Event(topic, new HashMap<String, Object>());
 			((EventHandler) this.sut).handleEvent(event);
@@ -429,11 +431,12 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
-	 * Executes the tested component logic. This method is executed after the inputs
-	 * are applied. After finishing the expected outputs are validated.
+	 * Executes the Controller logic if SUT is a Controller. This method is executed
+	 * after TOPIC_CYCLE_BEFORE_CONTROLLERS and before
+	 * TOPIC_CYCLE_AFTER_CONTROLLERS.
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	protected abstract void executeLogic() throws OpenemsNamedException;
-
+	protected void executeController() throws OpenemsNamedException {
+	}
 }

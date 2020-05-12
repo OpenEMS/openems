@@ -1,6 +1,5 @@
 package io.openems.edge.common.test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -12,11 +11,6 @@ public class ComponentTest extends AbstractComponentTest<ComponentTest, OpenemsC
 
 	public ComponentTest(OpenemsComponent sut) {
 		super(sut);
-	}
-
-	@Override
-	protected void executeLogic() throws OpenemsNamedException {
-		// nothing to do here
 	}
 
 	@Override

@@ -23,6 +23,7 @@ public class StartBattery extends StateHandler<State, Context> {
 	@Override
 	public State getNextState(Context context) throws OpenemsNamedException {
 		if (context.battery.getStartStop() == StartStop.START) {
+			// TODO should we check here the other parameters defined in Battery Nature.
 			return State.START_BATTERY_INVERTER;
 		}
 
