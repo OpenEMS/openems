@@ -7,7 +7,7 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
-public class Fieldbus501DO2Ch extends FieldbusModule {
+public class Fieldbus5xxDO extends FieldbusModule {
 
 	private static final String ID_TEMPLATE = "DIGITAL_OUTPUT_M";
 
@@ -15,39 +15,29 @@ public class Fieldbus501DO2Ch extends FieldbusModule {
 	private final AbstractModbusElement<?>[] outputElements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus501DO2Ch(Wago parent, int moduleCount, int inputOffset, int outputOffset) {
+	public Fieldbus5xxDO(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
 		String id = ID_TEMPLATE + moduleCount;
 
-		BooleanWriteChannel channel1;
-		{
+		this.readChannels = new BooleanReadChannel[channelsCount];
+		this.inputElements = new AbstractModbusElement<?>[channelsCount];
+		this.outputElements = new AbstractModbusElement<?>[channelsCount];
+
+		for (int i = 0; i < channelsCount; i++) {
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
-			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C1", doc);
-			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
-		}
-		BooleanWriteChannel channel2;
-		{
-			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
-					.accessMode(AccessMode.READ_WRITE);
-			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C2", doc);
-			channel2 = (BooleanWriteChannel) parent.addChannel(channelId);
-		}
-		this.readChannels = new BooleanReadChannel[] { channel1, channel2 };
+			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C" + (i + 1), doc);
+			BooleanWriteChannel channel = (BooleanWriteChannel) parent.addChannel(channelId);
 
-		this.inputElements = new AbstractModbusElement<?>[] { //
-				parent.createModbusElement(channel1.channelId(), outputOffset), //
-				parent.createModbusElement(channel2.channelId(), outputOffset + 1), //
-		};
+			this.readChannels[i] = channel;
 
-		this.outputElements = new AbstractModbusElement<?>[] { //
-				parent.createModbusElement(channel1.channelId(), outputOffset), //
-				parent.createModbusElement(channel2.channelId(), outputOffset + 1), //
-		};
+			this.inputElements[i] = parent.createModbusElement(channel.channelId(), outputOffset + i);
+			this.outputElements[i] = parent.createModbusElement(channel.channelId(), outputOffset + i);
+		}
 	}
 
 	@Override
 	public String getName() {
-		return "WAGO I/O 750-501 2-channel digital output module";
+		return "WAGO I/O 750-5xx digital output module";
 	}
 
 	@Override
@@ -62,12 +52,12 @@ public class Fieldbus501DO2Ch extends FieldbusModule {
 
 	@Override
 	public int getOutputCoils() {
-		return 2;
+		return this.outputElements.length;
 	}
 
 	@Override
 	public int getInputCoils() {
-		return 0;
+		return this.inputElements.length;
 	}
 
 	@Override

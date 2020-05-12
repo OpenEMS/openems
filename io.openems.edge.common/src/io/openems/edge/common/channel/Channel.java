@@ -143,8 +143,11 @@ public interface Channel<T> {
 
 	/**
 	 * Gets the currently active value, wrapped in a @{link Value}.
+	 * 
+	 * @throws IllegalArgumentException if value cannot be access, e.g. because the
+	 *                                  Channel is Write-Only.
 	 */
-	Value<T> value();
+	Value<T> value() throws IllegalArgumentException;
 
 	/**
 	 * Gets the past values for this Channel.
