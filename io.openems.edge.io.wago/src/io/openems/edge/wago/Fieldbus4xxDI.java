@@ -4,7 +4,7 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 
-public class Fieldbus400DI extends FieldbusModule {
+public class Fieldbus4xxDI extends FieldbusModule {
 
 	private static final String ID_TEMPLATE = "DIGITAL_INPUT_M";
 
@@ -12,7 +12,7 @@ public class Fieldbus400DI extends FieldbusModule {
 	private final AbstractModbusElement<?>[] outputElements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus400DI(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
+	public Fieldbus4xxDI(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
 		String id = ID_TEMPLATE + moduleCount;
 
 		this.readChannels = new BooleanReadChannel[channelsCount];
