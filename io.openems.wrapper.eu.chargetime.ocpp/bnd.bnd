@@ -14,6 +14,10 @@ Bundle-Version: 1.0.0.${tstamp}
 
 Import-Package: \
 	com.sun.activation.registries;resolution:=optional,\
+	org.java_websocket.drafts,\
+	org.java_websocket.protocols,\
+	org.java_websocket.server,\
+	org.slf4j,\
 
 -dsannotations: *
 
