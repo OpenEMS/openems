@@ -19,6 +19,9 @@ import { EnergyModalComponent } from './energy/modal/modal.component';
 import { GridChartComponent } from './grid/chart.component';
 import { GridComponent } from './grid/widget.component';
 import { GridModalComponent } from './grid/modal/modal.component';
+import { HeatingelementChartComponent } from './heatingelement/chart.component';
+import { HeatingelementModalComponent } from './heatingelement/modal/modal.component';
+import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
 import { HistoryComponent } from './history.component';
 import { NgModule } from '@angular/core';
 import { ProductionChargerChartComponent } from './production/chargerchart.component';
@@ -46,6 +49,9 @@ import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
+import { ChpSocWidgetComponent } from './chpsoc/widget.component';
+import { ChpSocModalComponent } from './chpsoc/modal/modal.component';
+import { ChpSocChartComponent } from './chpsoc/chart.component';
 
 @NgModule({
   imports: [
@@ -55,9 +61,11 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChannelthresholdModalComponent,
+    ChpSocModalComponent,
     ConsumptionModalComponent,
     EnergyModalComponent,
     GridModalComponent,
+    HeatingelementModalComponent,
     ProductionModalComponent,
     SelfconsumptionModalComponent,
     SinglethresholdModalComponent,
@@ -75,6 +83,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     ChannelthresholdSingleChartComponent,
     ChannelthresholdTotalChartComponent,
     ChanneltresholdWidgetComponent,
+    ChpSocChartComponent,
+    ChpSocModalComponent,
+    ChpSocWidgetComponent,
     ConsumptionComponent,
     ConsumptionEvcsChartComponent,
     ConsumptionModalComponent,
@@ -86,6 +97,9 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     GridChartComponent,
     GridComponent,
     GridModalComponent,
+    HeatingelementChartComponent,
+    HeatingelementModalComponent,
+    HeatingelementWidgetComponent,
     HistoryComponent,
     ProductionChargerChartComponent,
     ProductionComponent,

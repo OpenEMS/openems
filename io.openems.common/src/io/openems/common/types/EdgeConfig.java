@@ -280,6 +280,10 @@ public class EdgeConfig {
 			return this.properties;
 		}
 
+		public Optional<JsonElement> getProperty(String propertyId) {
+			return Optional.ofNullable(this.properties.get(propertyId));
+		}
+
 		public Map<String, Channel> getChannels() {
 			return this.channels;
 		}
@@ -539,7 +543,9 @@ public class EdgeConfig {
 
 			private static JsonObject getSchema(AttributeDefinition ad) {
 				JsonObject schema = new JsonObject();
-				if (ad.getOptionLabels() != null && ad.getOptionValues() != null) {
+				if (//
+				(ad.getOptionLabels() != null && ad.getOptionLabels().length > 0) //
+						&& ad.getOptionValues() != null && ad.getOptionValues().length > 0) {
 					// use given options for schema
 					JsonArray options = new JsonArray();
 					for (int i = 0; i < ad.getOptionLabels().length; i++) {
@@ -797,6 +803,10 @@ public class EdgeConfig {
 
 	public void removeComponent(String id) {
 		this.components.remove(id);
+	}
+
+	public Optional<Component> getComponent(String componentId) {
+		return Optional.ofNullable(this.components.get(componentId));
 	}
 
 	/**

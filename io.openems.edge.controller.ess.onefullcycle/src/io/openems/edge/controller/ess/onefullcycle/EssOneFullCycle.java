@@ -10,6 +10,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -38,8 +40,6 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	private final Clock clock;
 	private final TemporalAmount hysteresis = Duration.ofMinutes(30);
 
-	private int power;
-	private String essId;
 	private State state = State.UNDEFINED;
 	private CycleOrder cycleOrder = CycleOrder.UNDEFINED;
 
@@ -48,8 +48,16 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	 */
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
+	/**
+	 * Keeps the currently applied power to have it available in {@link #debugLog()}
+	 * method.
+	 */
+	private Integer currentPower;
+
 	@Reference
 	protected ComponentManager componentManager;
+
+	private Config config;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
@@ -87,8 +95,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.power = Math.abs(config.power());
-		this.essId = config.ess_id();
+		this.config = config;
 	}
 
 	@Deactivate
@@ -96,12 +103,17 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 		super.deactivate();
 	}
 
+	@Modified
+	void modified(Config config) throws OpenemsNamedException {
+		this.config = config;
+	}
+
 	@Override
 	public void run() throws OpenemsNamedException {
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 
-		ManagedSymmetricEss ess = this.componentManager.getComponent(essId);
+		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		if (this.state == State.FINISHED) {
 			return;
@@ -153,6 +165,9 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 
 	private void applyPower(ManagedSymmetricEss ess, int maxChargePower, int maxDischargePower)
 			throws OpenemsNamedException {
+		final WriteChannel<Integer> channel;
+		final Integer power;
+
 		switch (this.state) {
 		case FIRST_CHARGE: {
 			/*
@@ -170,10 +185,9 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 				}
 
 			}
-			int power = Math.max(maxChargePower, this.power * -1);
-			this.logInfo(this.log, "FIRST_CHARGE with [" + power + " W]");
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(power);
-			return;
+			power = Math.max(maxChargePower, this.config.power() * -1);
+			channel = ess.getSetActivePowerLessOrEquals();
+			break;
 		}
 		case FIRST_DISCHARGE: {
 			/*
@@ -190,10 +204,9 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 				}
 
 			}
-			int power = Math.min(maxDischargePower, this.power);
-			this.logInfo(this.log, "FIRST_DISCHARGE with [" + power + " W]");
-			ess.getSetActivePowerGreaterOrEquals().setNextWriteValue(power);
-			return;
+			power = Math.min(maxDischargePower, this.config.power());
+			channel = ess.getSetActivePowerGreaterOrEquals();
+			break;
 		}
 		case SECOND_CHARGE: {
 			/*
@@ -202,10 +215,9 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 			if (maxChargePower == 0) {
 				this.changeState(State.FINISHED);
 			}
-			int power = Math.max(maxChargePower, this.power * -1);
-			this.logInfo(this.log, "SECOND_CHARGE with [" + power + " W]");
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(power);
-			return;
+			power = Math.max(maxChargePower, this.config.power() * -1);
+			channel = ess.getSetActivePowerLessOrEquals();
+			break;
 		}
 		case SECOND_DISCHARGE: {
 			/*
@@ -214,17 +226,23 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 			if (maxDischargePower == 0) {
 				this.changeState(State.FINISHED);
 			}
-			int power = Math.min(maxDischargePower, this.power);
-			this.logInfo(this.log, "SECOND_DISCHARGE with [" + power + " W]");
-			ess.getSetActivePowerGreaterOrEquals().setNextWriteValue(power);
-			return;
+			power = Math.min(maxDischargePower, this.config.power());
+			channel = ess.getSetActivePowerGreaterOrEquals();
+			break;
 		}
 		case FINISHED:
 		default:
 			/*
 			 * Nothing to do
 			 */
-			return;
+			channel = null;
+			power = 0;
+			break;
+		}
+
+		this.currentPower = power;
+		if (channel != null) {
+			channel.setNextWriteValue(power);
 		}
 	}
 
@@ -251,5 +269,10 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 			this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
 			return false;
 		}
+	}
+
+	@Override
+	public String debugLog() {
+		return "State:" + this.state + ((this.currentPower != null) ? "|L:" + this.currentPower + " W" : "");
 	}
 }

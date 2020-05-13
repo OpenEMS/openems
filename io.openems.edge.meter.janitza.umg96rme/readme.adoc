@@ -1,7 +1,0 @@
-= Janitza UMG 96RM-E Meter
-
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.janitza.umg96rme[Source Code icon:github[]]

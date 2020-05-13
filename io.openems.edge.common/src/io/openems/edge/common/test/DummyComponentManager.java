@@ -25,8 +25,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 public class DummyComponentManager implements ComponentManager {
 
 	private final List<OpenemsComponent> components = new ArrayList<>();
+	private final Clock clock;
 
 	public DummyComponentManager() {
+		this(Clock.systemDefaultZone());
+	}
+
+	public DummyComponentManager(Clock clock) {
+		this.clock = clock;
 	}
 
 	@Override
@@ -94,7 +100,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	@Override
 	public Clock getClock() {
-		return Clock.systemDefaultZone();
+		return this.clock;
 	}
 
 }

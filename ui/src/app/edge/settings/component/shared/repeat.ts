@@ -6,6 +6,8 @@ import { FieldArrayType } from '@ngx-formly/core';
     templateUrl: './repeat.html'
 })
 export class RepeatTypeComponent extends FieldArrayType {
+  // TODO: add explicit constructor
+
 
     public add(i?: number, initialModel?: any): void {
         i = Number(i) + 1;

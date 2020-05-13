@@ -42,6 +42,14 @@
         <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
         </singlethresholdWidget>
       </ion-col>
+      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.HeatingElement'">
+        <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
+        </heatingelementWidget>
+      </ion-col>
+      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.CHP.SoC'">
+        <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
+        </chpsocWidget>
+      </ion-col>
     </ng-container>
   </ion-row>
 </ion-grid>

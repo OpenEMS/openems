@@ -15,4 +15,9 @@ public class EmptyRequest extends JsonrpcRequest {
 		return new JsonObject();
 	}
 
+	@Override
+	public String toString() {
+		return "EmptyRequest []";
+	}
+
 }

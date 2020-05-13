@@ -156,7 +156,7 @@ public enum OpenemsError {
 		private final Object[] params;
 
 		public OpenemsNamedException(OpenemsError error, Object... params) {
-			super(String.format(error.getMessage(params)));
+			super(error.getMessage(params));
 			this.error = error;
 			this.params = params;
 		}

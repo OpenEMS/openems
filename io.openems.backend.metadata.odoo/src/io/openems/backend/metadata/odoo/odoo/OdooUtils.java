@@ -11,18 +11,25 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingFormatArgumentException;
+import java.util.UUID;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 
 public class OdooUtils {
 
@@ -56,8 +63,7 @@ public class OdooUtils {
 	 * 
 	 * @param url     the URL
 	 * @param request the JSON-RPC Request
-	 * @return the JSON-RPC Response (note: Odoo always sends success responses,
-	 *         even on error...)
+	 * @return the JSON-RPC Response and HTTP connection headers
 	 * @throws OpenemsNamedException on error
 	 */
 	public static JsonrpcResponseSuccessAndHeaders sendJsonrpcRequest(String url, JsonrpcRequest request)
@@ -75,7 +81,7 @@ public class OdooUtils {
 
 			// send JSON-RPC request
 			try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
-				out.write(request.toString());
+				out.write(request.toJsonObject().toString());
 				out.flush();
 			}
 
@@ -87,16 +93,59 @@ public class OdooUtils {
 					sb.append(line);
 				}
 			}
+			JsonObject json = JsonUtils.parseToJsonObject(sb.toString());
 
-			JsonrpcResponse response = JsonrpcResponse.from(sb.toString());
-			if (response instanceof JsonrpcResponseSuccess) {
-				return new JsonrpcResponseSuccessAndHeaders((JsonrpcResponseSuccess) response, connection.getHeaderFields());
-			} else {
-				throw OpenemsError.GENERIC.exception(response);
+			// Handle Success or Error
+			if (json.has("result")) {
+				UUID id = UUID.fromString(JsonUtils.getAsString(json, "id"));
+				JsonObject result = JsonUtils.getAsJsonObject(json, "result");
+				JsonrpcResponseSuccess response = new GenericJsonrpcResponseSuccess(id, result);
+				return new JsonrpcResponseSuccessAndHeaders(response, connection.getHeaderFields());
+
+			} else if (json.has("error")) {
+				JsonObject error = JsonUtils.getAsJsonObject(json, "error");
+				// "code":200",
+				int code = JsonUtils.getAsInt(error, "code");
+				// "message":"Odoo Server Error",
+				String message = JsonUtils.getAsString(error, "message");
+				JsonObject data = JsonUtils.getAsJsonObject(error, "data");
+				// "name":"odoo.exceptions.AccessDenied",
+				String dataName = JsonUtils.getAsString(data, "name");
+				// "debug":"Traceback (most recent call last):\n...",
+				String dataDebug = JsonUtils.getAsString(data, "debug");
+				// "message":"Access denied",
+				String dataMessage = JsonUtils.getAsString(data, "message");
+				// "arguments":["Access denied"],
+				JsonArray dataArguments = JsonUtils.getAsJsonArray(data, "arguments");
+				// "exception_type":"access_denied"
+				String dataExceptionType = JsonUtils.getAsString(data, "exception_type");
+				switch (dataName) {
+				case "odoo.exceptions.AccessDenied":
+					throw new OpenemsException(
+							"Access Denied for Request [" + request.toString() + "] to URL [" + url + "]");
+				case "odoo.http.SessionExpiredException":
+					throw new OpenemsException("Session Expired for Request to URL [" + url + "]");
+				default:
+					String exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
+							+ dataMessage + ";" //
+							+ " Code [" + code + "]" //
+							+ " Code [" + code + "]" //
+							+ " Message [" + message + "]" //
+							+ " Name [" + dataName + "]" //
+							+ " ExceptionType [" + dataExceptionType + "]" //
+							+ " Arguments [" + dataArguments + "]" //
+							+ " Debug [" + dataDebug + "]";
+					try {
+						throw new OpenemsException(exception);
+					} catch (MissingFormatArgumentException e) {
+						System.out.println("Unable to throw Exception: " + exception + "; " + e.getMessage());
+						e.printStackTrace();
+					}
+				}
 			}
+			throw new OpenemsException("Unable to parse JsonrpcResponse from " + StringUtils.toShortString(json, 100));
 
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw OpenemsError.GENERIC.exception(e.getMessage());
 		} finally {
 			if (connection != null) {

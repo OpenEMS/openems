@@ -14,7 +14,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 	public static int DEFAULT_MIN_CELL_TEMPERATURE = 25;
 	public static int DEFAULT_MAX_CELL_TEMPERATURE = 33;
 
-	private static final ChargeIndication DEFAULT_CHARGE_INDICATION = ChargeIndication.STANDING;
+	private static final ChargeIndication DEFAULT_CHARGE_INDICATION = ChargeIndication.STANDBY;
 
 	protected DummyBattery(//
 	) { //

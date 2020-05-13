@@ -30,17 +30,15 @@ export class FixDigitalOutputModalComponent {
     let oldMode = this.component.properties.isOn;
     let newMode = event.detail.value;
 
-    if (oldMode != newMode) {
-      this.edge.updateComponentConfig(this.websocket, this.component.id, [
-        { name: 'isOn', value: newMode }
-      ]).then(() => {
-        this.component.properties.isOn = newMode;
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-      }).catch(reason => {
-        this.component.properties.isOn = oldMode;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-        console.warn(reason);
-      });
-    }
+    this.edge.updateComponentConfig(this.websocket, this.component.id, [
+      { name: 'isOn', value: newMode }
+    ]).then(() => {
+      this.component.properties.isOn = newMode;
+      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+    }).catch(reason => {
+      this.component.properties.isOn = oldMode;
+      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+      console.warn(reason);
+    });
   }
 }

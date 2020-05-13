@@ -31,6 +31,11 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route);
+        this.subscribeChartRefresh()
+    }
+
+    ngOnDestroy() {
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
@@ -104,27 +109,6 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 });
                 this.colors.push(this.phase3Color);
             }
-            if (peakshavingPower in result.data) {
-                let data = result.data[peakshavingPower].map(value => {
-                    if (value == null) {
-                        return null
-                    } else if (value == 0) {
-                        return 0;
-                    } else {
-                        return value / 1000; // convert to kW
-                    }
-                });
-                datasets.push({
-                    label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
-                    data: data,
-                    hidden: false,
-                    borderDash: [3, 3]
-                });
-                this.colors.push({
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    borderColor: 'rgba(200,0,0,1)',
-                })
-            }
             if (rechargePower in result.data) {
                 let data = result.data[rechargePower].map(value => {
                     if (value == null) {
@@ -146,6 +130,77 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     borderColor: 'rgba(0,223,0,1)',
                 })
             }
+            if (peakshavingPower in result.data) {
+                let data = result.data[peakshavingPower].map(value => {
+                    if (value == null) {
+                        return null
+                    } else if (value == 0) {
+                        return 0;
+                    } else {
+                        return value / 1000; // convert to kW
+                    }
+                });
+                datasets.push({
+                    label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
+                    data: data,
+                    hidden: false,
+                    borderDash: [3, 3]
+                });
+                this.colors.push({
+                    backgroundColor: 'rgba(0,0,0,0)',
+                    borderColor: 'rgba(200,0,0,1)',
+                })
+            }
+            if ('_sum/EssActivePower' in result.data) {
+                /*
+                 * Storage Charge
+                 */
+                let effectivePower;
+                if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
+                    effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                        return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                    });
+                } else {
+                    effectivePower = result.data['_sum/EssActivePower'];
+                }
+                let chargeData = effectivePower.map(value => {
+                    if (value == null) {
+                        return null
+                    } else if (value < 0) {
+                        return value / -1000; // convert to kW;
+                    } else {
+                        return 0;
+                    }
+                });
+                datasets.push({
+                    label: this.translate.instant('General.chargePower'),
+                    data: chargeData,
+                });
+                this.colors.push({
+                    backgroundColor: 'rgba(0,223,0,0.05)',
+                    borderColor: 'rgba(0,223,0,1)',
+                })
+                /*
+                 * Storage Discharge
+                 */
+                let dischargeData = effectivePower.map(value => {
+                    if (value == null) {
+                        return null
+                    } else if (value > 0) {
+                        return value / 1000; // convert to kW
+                    } else {
+                        return 0;
+                    }
+                });
+                datasets.push({
+                    label: this.translate.instant('General.dischargePower'),
+                    data: dischargeData,
+                });
+                this.colors.push({
+                    backgroundColor: 'rgba(200,0,0,0.05)',
+                    borderColor: 'rgba(200,0,0,1)',
+                })
+            }
             this.datasets = datasets;
             this.loading = false;
         }).catch(reason => {
@@ -163,6 +218,8 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL1'),
                 new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL2'),
                 new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL3'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'),
+                new ChannelAddress('_sum', 'EssActivePower')
             ];
             resolve(result);
         })
