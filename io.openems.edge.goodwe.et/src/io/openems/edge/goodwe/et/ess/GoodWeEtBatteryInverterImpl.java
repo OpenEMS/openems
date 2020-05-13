@@ -486,7 +486,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		if (soc == null || soc >= 99) {
 			this.getAllowedCharge().setNextValue(0);
 		} else {
-			this.getAllowedCharge().setNextValue(maxApparentPower * -1);
+			this.getAllowedCharge().setNextValue(TypeUtils.multiply(maxApparentPower, -1) );
 		}
 		if (soc == null || soc <= 0) {
 			this.getAllowedDischarge().setNextValue(0);
