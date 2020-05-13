@@ -122,12 +122,11 @@ public class MyJsonServer {
 	 * @param evcss
 	 */
 	private void sendInitialRequests(UUID sessionIndex, List<AbstractOcppEvcsComponent> evcss) {
-		ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest();
 		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
-
 			// Setting the Evcss of this session id to available
-			changeAvailabilityRequest.setConnectorId(ocppEvcs.getConnectorId().value().orElse(0));
-			changeAvailabilityRequest.setType(AvailabilityType.Operative);
+			ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest(
+					ocppEvcs.getConnectorId().value().orElse(0), // TODO "0" seems to be a bad idea here 
+					AvailabilityType.Operative);
 			this.sendDefault(sessionIndex, changeAvailabilityRequest);
 
 			// Sending all required requests defined for each EVCS
