@@ -26,10 +26,10 @@ import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
-import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
-import io.openems.edge.evcs.ocpp.core.OcppInformations;
-import io.openems.edge.evcs.ocpp.core.OcppProfileType;
-import io.openems.edge.evcs.ocpp.core.OcppStandardRequests;
+import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.OcppInformations;
+import io.openems.edge.evcs.ocpp.common.OcppProfileType;
+import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)

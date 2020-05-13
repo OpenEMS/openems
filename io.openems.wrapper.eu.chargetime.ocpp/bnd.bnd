@@ -8,8 +8,12 @@ Bundle-Version: 1.0.0.${tstamp}
 	Java-WebSocket
 	
 -includeresource.ocpp: \
-	@lib/common-0.5-SNAPSHOT.jar; lib:=true, \
-	@lib/v1_6-0.5-SNAPSHOT.jar; lib:=true
+	@lib/common-0.5-SNAPSHOT.jar; lib:=true,\
+	@lib/v1_6-0.5-SNAPSHOT.jar; lib:=true,\
+	@lib/OCPP-J-0.5-SNAPSHOT.jar; lib:=true,\
+
+Import-Package: \
+	com.sun.activation.registries;resolution:=optional,\
 
 -dsannotations: *
 
@@ -26,6 +30,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	eu.chargetime.ocpp.model.smartcharging,\
 	eu.chargetime.ocpp.profile,\
 	eu.chargetime.ocpp.utilities,\
+	eu.chargetime.ocpp.wss,\
 
 -metatypeannotations: *
 

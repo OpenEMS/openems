@@ -1,20 +1,21 @@
-package io.openems.edge.evcs.ocpp.core;
+package io.openems.edge.evcs.ocpp.common;
 
-import java.util.Calendar;
+import java.time.ZonedDateTime;
 
 /**
  * Charging Property.
  * 
  * <p>
- * This class provides the charge power and the total energy of the meter of a certain time stamp. 
+ * This class provides the charge power and the total energy of the meter of a
+ * certain time stamp.
  */
 public class ChargingProperty {
 
 	private int chargePower;
 	private double totalMeterEnergy;
-	private Calendar timestamp;
-	
-	public ChargingProperty(int chargePower, double totalMeterEnergy, Calendar timestamp) {
+	private ZonedDateTime timestamp;
+
+	public ChargingProperty(int chargePower, double totalMeterEnergy, ZonedDateTime timestamp) {
 		this.chargePower = chargePower;
 		this.totalMeterEnergy = totalMeterEnergy;
 		this.timestamp = timestamp;
@@ -36,11 +37,11 @@ public class ChargingProperty {
 		this.totalMeterEnergy = totalMeterEnergy;
 	}
 
-	public Calendar getTimestamp() {
+	public ZonedDateTime getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Calendar timestamp) {
+	public void setTimestamp(ZonedDateTime timestamp) {
 		this.timestamp = timestamp;
 	}
 }

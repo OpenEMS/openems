@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.ocpp.core;
+package io.openems.edge.evcs.ocpp.common;
 
 public enum OcppProfileType {
 

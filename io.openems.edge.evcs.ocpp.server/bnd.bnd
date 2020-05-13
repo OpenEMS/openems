@@ -5,12 +5,11 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.guava,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.evcs.api,\
-	io.openems.edge.evcs.ocpp.core,\
-	slf4j.api
+	io.openems.edge.evcs.ocpp.common,\
+	io.openems.wrapper.eu.chargetime.ocpp,\
 
 -testpath: \
 	${testpath}

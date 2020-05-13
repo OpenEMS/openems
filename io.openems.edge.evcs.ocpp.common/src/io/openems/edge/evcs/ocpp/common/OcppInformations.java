@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.ocpp.core;
+package io.openems.edge.evcs.ocpp.common;
 
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;

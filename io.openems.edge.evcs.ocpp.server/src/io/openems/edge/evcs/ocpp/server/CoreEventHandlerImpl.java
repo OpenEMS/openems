@@ -1,8 +1,8 @@
 package io.openems.edge.evcs.ocpp.server;
 
-import java.util.Calendar;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -35,9 +35,9 @@ import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.ocpp.core.AbstractOcppEvcsComponent;
-import io.openems.edge.evcs.ocpp.core.ChargingProperty;
-import io.openems.edge.evcs.ocpp.core.OcppInformations;
+import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.ChargingProperty;
+import io.openems.edge.evcs.ocpp.common.OcppInformations;
 
 public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
@@ -306,7 +306,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		BootNotificationConfirmation response = new BootNotificationConfirmation();
 		response.setInterval(100);
 		response.setStatus(RegistrationStatus.Accepted);
-		response.setCurrentTime(Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin")));
+		response.setCurrentTime(ZonedDateTime.now());
 		server.logInfoInDebug(this.log, "Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
@@ -381,7 +381,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	 * @param currentEnergy Current measured Energy.
 	 * @param timestamp     Time when the current Energy was measured.
 	 */
-	private void setPowerDependingOnEnergy(AbstractOcppEvcsComponent evcs, Double currentEnergy, Calendar timestamp) {
+	private void setPowerDependingOnEnergy(AbstractOcppEvcsComponent evcs, Double currentEnergy,
+			ZonedDateTime timestamp) {
 
 		ChargingProperty lastChargingProperty = evcs.getLastChargingProperty();
 		int power = 0;
@@ -396,15 +397,14 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	/**
 	 * Calculates the power depending on the last and current measured Energy.
 	 * 
-	 * @param meterValueOld    Last measured meter values.
-	 * @param currentEnergy    Current measured Energy.
-	 * @param currentTimestamp Time when the current Energy was measured.
+	 * @param meterValueOld Last measured meter values.
+	 * @param currentEnergy Current measured Energy.
+	 * @param timestamp     Time when the current Energy was measured.
 	 * @return current power
 	 */
-	private int calculateChargePower(ChargingProperty lastMeterValue, double currentEnergy, Calendar currentTimestamp) {
+	private int calculateChargePower(ChargingProperty lastMeterValue, double currentEnergy, ZonedDateTime timestamp) {
 
-		double diffseconds = Math
-				.round((currentTimestamp.getTimeInMillis() - lastMeterValue.getTimestamp().getTimeInMillis()) / 1000.0);
+		double diffseconds = Duration.between(timestamp, lastMeterValue.getTimestamp()).getSeconds();
 
 		double lastEnergy = lastMeterValue.getTotalMeterEnergy();
 

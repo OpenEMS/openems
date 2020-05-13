@@ -1,5 +1,5 @@
 
-REM @echo off
+@echo off
 REM
 REM Updates the jar files from upstream at https://github.com/ChargeTimeEU/Java-OCA-OCPP.git
 REM
@@ -36,4 +36,5 @@ echo #
 
 copy ocpp-common\build\libs\*.jar ..\lib
 copy ocpp-v1_6\build\libs\*.jar ..\lib
-copy ocpp-v2_0\build\libs\*.jar ..\lib
+REM copy ocpp-v2_0\build\libs\*.jar ..\lib
+copy OCPP-J\build\libs ..\lib

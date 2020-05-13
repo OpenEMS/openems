@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.ocpp.core;
+package io.openems.edge.evcs.ocpp.common;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
