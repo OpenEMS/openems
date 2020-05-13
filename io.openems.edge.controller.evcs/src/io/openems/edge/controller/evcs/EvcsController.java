@@ -124,7 +124,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.channel(ChannelId.ENABLED_CHARGING).setNextValue(config.enabledCharging());
 		this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
 		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
-		
+
+		// TODO it is very, very likely, that this will cause an Exception on first run.
+		// If really required, use static @Reference
 		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().orElse(22800));
 	}
