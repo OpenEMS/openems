@@ -68,6 +68,8 @@ public class SetPower extends AbstractOpenemsComponent implements Controller, Op
 	@Override
 	public void run() throws OpenemsNamedException {
 
+		
+		
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.grid_meter_id());
 		SymmetricMeter pvMeter = this.componentManager.getComponent(this.config.pv_meter_id());
@@ -91,10 +93,10 @@ public class SetPower extends AbstractOpenemsComponent implements Controller, Op
 		 */
 		int calculatedPower = this.calculateRequiredPower(ess, gridMeter, pvMeter);
 
-		/*
-		 * set result
-		 */
-		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
+		System.out.println("Calculated Power: " + calculatedPower);
+		
+		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
+		//ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
 		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 		
 	}
@@ -107,8 +109,14 @@ public class SetPower extends AbstractOpenemsComponent implements Controller, Op
 	 * @return the required power
 	 */
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter gridMeter, SymmetricMeter pvMeter) {
-		return gridMeter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */
-				- pvMeter.getActivePower().value().orElse(0); /* the configured target setpoint */
+		int availableChargePower = pvMeter.getActivePower().value().orElse(0);
+		int consumptionToCompensate = Math.max(gridMeter.getActivePower().value().orElse(0), 0);
+		int chargePower = availableChargePower - consumptionToCompensate;
+		
+		System.out.println("Available Charge from PV:" + availableChargePower);
+		System.out.println("Consumption to compensate:" + consumptionToCompensate);
+		System.out.println("Charge power:" + chargePower);
+		
+		return (-1) * chargePower;
 	}
 }
