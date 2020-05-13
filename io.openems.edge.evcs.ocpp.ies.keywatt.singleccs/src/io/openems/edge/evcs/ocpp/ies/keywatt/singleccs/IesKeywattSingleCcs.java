@@ -102,6 +102,8 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 	@Override
 	public OcppServerImpl getConfiguredOcppServer() {
+		// TODO: this should be a static @Reference - similar to how we do it with Modbus-Bridge.
+		// TODO: OcppServer needs to be an interface
 		try {
 			return this.componentManager.getComponent(this.config.ocppServerId());
 		} catch (OpenemsNamedException e) {

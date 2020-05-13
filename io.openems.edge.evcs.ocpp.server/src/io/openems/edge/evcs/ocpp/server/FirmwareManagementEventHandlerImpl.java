@@ -14,16 +14,16 @@ import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationRequest;
 public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagementEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(FirmwareManagementEventHandlerImpl.class);
-	private OcppServerImpl server;
+	private final OcppServerImpl parent;
 
 	public FirmwareManagementEventHandlerImpl(OcppServerImpl parent) {
-		this.server = parent;
+		this.parent = parent;
 	}
 
 	@Override
 	public DiagnosticsStatusNotificationConfirmation handleDiagnosticsStatusNotificationRequest(UUID sessionIndex,
 			DiagnosticsStatusNotificationRequest request) {
-		this.server.logInfo(log, "Handle DiagnosticsStatusNotificationRequest");
+		this.parent.logInfo(log, "Handle DiagnosticsStatusNotificationRequest");
 
 		return new DiagnosticsStatusNotificationConfirmation();
 	}
@@ -31,7 +31,7 @@ public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagem
 	@Override
 	public FirmwareStatusNotificationConfirmation handleFirmwareStatusNotificationRequest(UUID sessionIndex,
 			FirmwareStatusNotificationRequest request) {
-		this.server.logInfo(log, "Handle FirmwareStatusNotificationRequest");
+		this.parent.logInfo(log, "Handle FirmwareStatusNotificationRequest");
 
 		return new FirmwareStatusNotificationConfirmation();
 	}
