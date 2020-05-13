@@ -121,12 +121,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 			@Override
 			public Request setChargePowerLimit(int chargePower) {
-				ChangeConfigurationRequest request = new ChangeConfigurationRequest();
-
-				request.setKey("PowerLimit");
-				request.setValue(String.valueOf(chargePower));
-				
-				return request;
+				return new ChangeConfigurationRequest("PowerLimit", String.valueOf(chargePower));
 			}
 		};
 	}

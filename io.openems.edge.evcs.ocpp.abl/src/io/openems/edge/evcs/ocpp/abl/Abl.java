@@ -25,6 +25,8 @@ import eu.chargetime.ocpp.UnsupportedFeatureException;
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
+import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
+import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -62,8 +64,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	 */
 	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<OcppInformations>( //
 			Arrays.asList( //
-					OcppInformations.values()
-			) //
+					OcppInformations.values()) //
 	);
 
 	private Config config;
@@ -112,8 +113,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		if (sessionId.isEmpty()) {
 			return this.config.maxHwPower();
 		}
-		DataTransferRequest request = new DataTransferRequest();
-		request.setVendorId("ABL");
+		DataTransferRequest request = new DataTransferRequest("ABL");
 		request.setMessageId("GetLimit");
 		request.setData(this.config.limitId());
 
@@ -165,16 +165,15 @@ public class Abl extends AbstractOcppEvcsComponent
 			@Override
 			public Request setChargePowerLimit(int chargePower) {
 
-				DataTransferRequest request = new DataTransferRequest();
+				DataTransferRequest request = new DataTransferRequest("ABL");
 
 				int phases = evcs.getPhases().getNextValue().orElse(3);
-				
+
 				long target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
 
 				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(22080) / phases / 230;
 				target = target > maxCurrent ? maxCurrent : target;
 
-				request.setVendorId("ABL");
 				request.setMessageId("SetLimit");
 				request.setData("logicalid=" + config.limitId() + ";value=" + String.valueOf(target));
 				return request;
@@ -186,14 +185,12 @@ public class Abl extends AbstractOcppEvcsComponent
 	public List<Request> getRequiredRequestsAfterConnection() {
 		List<Request> requests = new ArrayList<Request>();
 
-		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest();
-		setMeterValueSampleInterval.setKey("MeterValueSampleInterval");
-		setMeterValueSampleInterval.setValue("10");
+		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest(
+				"MeterValueSampleInterval", "10");
 		requests.add(setMeterValueSampleInterval);
 
-		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest();
-		setMeterValueSampledData.setKey("MeterValuesSampledData");
-		setMeterValueSampledData.setValue("Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,");
+		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
+				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,");
 		requests.add(setMeterValueSampledData);
 
 		return requests;
@@ -202,17 +199,15 @@ public class Abl extends AbstractOcppEvcsComponent
 	@Override
 	public List<Request> getRequiredRequestsDuringConnection() {
 		List<Request> requests = new ArrayList<Request>();
-		/*
-		TriggerMessageRequest request = new TriggerMessageRequest();
+
+		TriggerMessageRequest request = new TriggerMessageRequest(TriggerMessageRequestType.MeterValues);
 		request.setConnectorId(this.getConfiguredConnectorId());
-		request.setRequestedMessage(TriggerMessageRequestType.MeterValues);
 		requests.add(request);
-		
-		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest();
-		setMeterValueSampledData.setKey("MeterValuesSampledData");
-		setMeterValueSampledData.setValue("Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
+
+		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
+				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
 		requests.add(setMeterValueSampledData);
-		 */
+
 		return requests;
 	}
 }

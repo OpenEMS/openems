@@ -54,13 +54,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		server.logInfoInDebug(this.log, "Handle AuthorizeRequest: " + request);
 
-		AuthorizeConfirmation response = new AuthorizeConfirmation();
-		IdTagInfo tag = new IdTagInfo();
-
+		IdTagInfo tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.setParentIdTag(request.getIdTag());
-		tag.setStatus(AuthorizationStatus.Accepted);
-		response.setIdTagInfo(tag);
-
+		AuthorizeConfirmation response = new AuthorizeConfirmation(tag);
 		return response;
 	}
 
@@ -71,8 +67,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		server.logInfoInDebug(this.log, "Handle StartTransactionRequest: " + request);
 
 		StartTransactionConfirmation response = new StartTransactionConfirmation();
-		IdTagInfo tag = new IdTagInfo();
-		tag.setStatus(AuthorizationStatus.Accepted);
+		IdTagInfo tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.validate();
 		response.setIdTagInfo(tag);
 		return response;
@@ -82,8 +77,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public DataTransferConfirmation handleDataTransferRequest(UUID sessionIndex, DataTransferRequest request) {
 
 		server.logInfoInDebug(this.log, "Handle DataTransferRequest: " + request);
-		DataTransferConfirmation response = new DataTransferConfirmation();
-		response.setStatus(DataTransferStatus.Accepted);
+		DataTransferConfirmation response = new DataTransferConfirmation(DataTransferStatus.Accepted);
 
 		return response;
 	}
@@ -278,9 +272,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		server.logInfoInDebug(this.log, "Handle StopTransactionRequest: " + request);
 
-		IdTagInfo tag = new IdTagInfo();
+		IdTagInfo tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.setParentIdTag(request.getIdTag());
-		tag.setStatus(AuthorizationStatus.Accepted);
 		tag.validate();
 
 		StopTransactionConfirmation response = new StopTransactionConfirmation();
@@ -303,10 +296,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			}
 		}
 
-		BootNotificationConfirmation response = new BootNotificationConfirmation();
-		response.setInterval(100);
-		response.setStatus(RegistrationStatus.Accepted);
-		response.setCurrentTime(ZonedDateTime.now());
+		BootNotificationConfirmation response = new BootNotificationConfirmation(ZonedDateTime.now(), 100,
+				RegistrationStatus.Accepted);
 		server.logInfoInDebug(this.log, "Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
