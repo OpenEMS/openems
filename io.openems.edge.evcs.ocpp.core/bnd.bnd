@@ -5,16 +5,11 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.google.gson,\
-	com.google.guava,\
-	com.sun.jna,\
-	com.sun.net.httpserver:http,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.evcs.api,\
 	io.openems.edge.meter.api,\
-	io.openems.wrapper.websocket,\
-	slf4j.api
+	io.openems.wrapper.eu.chargetime.ocpp,\
 
 -testpath: \
 	${testpath}
