@@ -66,14 +66,17 @@ export class ConsumptionComponent {
       componentProps: {
         edge: this.edge,
         evcsComponents: this.evcsComponents,
+        consumptionMeterComponents: this.consumptionMeterComponents,
         currentTotalChargingPower: this.currentTotalChargingPower,
-        sumOfChannel: this.sumOfChannel
+        currentTotalConsumptionMeterPower: this.currentTotalConsumptionMeterPower,
+        sumOfChannel: this.sumOfChannel,
+        getTotalOtherPower: this.getTotalOtherPower,
       }
     });
     return await modal.present();
   }
 
-  public getTotalOtherPower() {
+  public getTotalOtherPower(): number {
     return this.currentTotalChargingPower() + this.currentTotalConsumptionMeterPower();
   }
 

@@ -55,8 +55,11 @@
                     <tr *ngIf="evcsComponents.length != 0 || consumptionMeterComponents.length != 0">
                         <td style="width: 65%" translate>General.otherConsumption</td>
                         <ng-container *ngIf="sum.activePower - getTotalOtherPower() as otherPower">
-                            <td style="width: 35%" class="align_right">
+                            <td style="width: 35%" class="align_right" *ngIf="otherPower > 0">
                                 {{ otherPower | unitvalue:'kW' }}
+                            </td>
+                            <td style="width: 35%" class="align_right" *ngIf="otherPower <= 0">
+                                {{ 0 | unitvalue:'kW' }}
                             </td>
                         </ng-container>
                     </tr>
