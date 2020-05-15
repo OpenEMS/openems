@@ -20,14 +20,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
 	
-	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of grid meter.")
-	String grid_meter_id();
+	@AttributeDefinition(name = "Input Channels", description = "Address of the input channel, put prefix in front. If the value of this channel is within a configured threshold, the output channel is switched ON.")
+	String[] inputChannelAddress() default { "+meter2/ActivePower" };
 	
-	@AttributeDefinition(name = "PV-Meter-ID", description = "ID of pv meter.")
-	String pv_meter_id();
-
-//	@AttributeDefinition(name = "Input Channels", description = "Address of the input channel, put prefix in front. If the value of this channel is within a configured threshold, the output channel is switched ON.")
-//	String[] inputChannelAddress() default { "+meter2/ActivePower" };
+	@AttributeDefinition(name = "Use PID", description = "Use PID.")
+	boolean use_pid() default true;	
 
 	String webconsole_configurationFactory_nameHint() default "Controller Set Power [{id}]";
 

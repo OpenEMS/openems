@@ -9,14 +9,14 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -66,57 +66,36 @@ public class SetPower extends AbstractOpenemsComponent implements Controller, Op
 	}
 
 	@Override
-	public void run() throws OpenemsNamedException {
-
-		
+	public void run() throws OpenemsNamedException {	
 		
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.grid_meter_id());
-		SymmetricMeter pvMeter = this.componentManager.getComponent(this.config.pv_meter_id());
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
-		if (gridMode.isUndefined()) {
-			System.out.println("Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
-			return;
-		}
 
-		/*
-		 * Calculates required charge/discharge power
-		 */
-		int calculatedPower = this.calculateRequiredPower(ess, gridMeter, pvMeter);
+        int requiredPower = 0;
+        for (String channelAdress : config.inputChannelAddress()) {
+            String signum = channelAdress.substring(0, 1);
+            channelAdress = channelAdress.substring(1, channelAdress.length());
+            
+            ChannelAddress inputChannelAddress = ChannelAddress.fromString(channelAdress);
+            IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
+            int value = inputChannel.value().getOrError();
+            
+            if ("+".equals(signum)) {
+                requiredPower = requiredPower + value;
+                System.out.print("+ ");
+                
+            } else if ("-".equals(signum)) {
+                requiredPower = requiredPower - value;
+                System.out.print("- ");
+            }
+            System.out.println(channelAdress + ": " + value);
+        }
+        
+        System.out.println("Required power: "+ requiredPower);
 
-		System.out.println("Calculated Power: " + calculatedPower);
-		
-		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
-		//ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
-		ess.getSetReactivePowerEquals().setNextWriteValue(0);
-		
-	}
-	
-	/**
-	 * Calculates required charge/discharge power.
-	 * 
-	 * @param ess   the Ess
-	 * @param gridMeter the Meter
-	 * @return the required power
-	 */
-	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter gridMeter, SymmetricMeter pvMeter) {
-		int availableChargePower = pvMeter.getActivePower().value().orElse(0);
-		int consumptionToCompensate = Math.max(gridMeter.getActivePower().value().orElse(0), 0);
-		int chargePower = availableChargePower - consumptionToCompensate;
-		
-		System.out.println("Available Charge from PV:" + availableChargePower);
-		System.out.println("Consumption to compensate:" + consumptionToCompensate);
-		System.out.println("Charge power:" + chargePower);
-		
-		return (-1) * chargePower;
+		if (config.use_pid()) {
+			ess.getSetActivePowerEqualsWithPid().setNextWriteValue(requiredPower);
+		} else {
+			ess.getSetActivePowerEquals().setNextWriteValue(requiredPower);
+		}
 	}
 }
