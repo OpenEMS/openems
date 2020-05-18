@@ -1,6 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { ChpsocModalComponent } from './modal/modal.page';
+import { ChpsocModalComponent } from './modal/modal.component';
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
