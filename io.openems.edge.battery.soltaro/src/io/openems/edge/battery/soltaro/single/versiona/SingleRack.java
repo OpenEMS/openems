@@ -39,10 +39,13 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -57,7 +60,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class SingleRack extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements Battery, SoltaroBattery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
@@ -139,7 +142,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			case ON_GRID:
 				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(true);
 				break;
-			default:
+			case UNDEFINED:
+				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
 				break;
 			}
 		});
@@ -171,6 +175,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			break;
 		case CONFIGURE:
 			log.error("Not possible with version A of the Soltaro batteries!");
+		case OVER_CONTROLLED:
+			break;
 		}
 	}
 
@@ -285,15 +291,11 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			}
 			break;
 		case ERROR_HANDLING:
-			// Cannot handle errors
-			break;
+			// Currently this state cannot be handled
+			break;		
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
-	}
-
-	private boolean isError() {
-		return isAlarmLevel2Error();
 	}
 
 	private boolean isAlarmLevel2Error() {
@@ -352,7 +354,11 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
 				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value()
+				+ "|Running: " + this.isSystemRunning()
+				+ "|U: " + this.getVoltage().value()
+				+ "|I: " + this.getCurrent().value()
+				;
 	}
 
 	private void startSystem() {
@@ -405,7 +411,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		// EnumReadChannels
 		CLUSTER_RUN_STATE(Doc.of(ClusterRunState.values())), //
-//		CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
+		CLUSTER_1_CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
 
 		// EnumWriteChannels
 		BMS_CONTACTOR_CONTROL(Doc.of(ContactorControl.values()) //
@@ -1126,12 +1132,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(0x2047, //
 						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)) //
 				), //
-				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
+						m(SingleRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x2104)), //
 						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
@@ -1167,7 +1173,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 								.bit(14, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
 								.bit(15, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
 						), //
-						m(new BitsWordElement(0x214, this) //
+						m(new BitsWordElement(0x2141, this) //
 								.bit(0, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
 								.bit(1, SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, SingleRack.ChannelId.ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
@@ -1505,5 +1511,56 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode));
+	}
+
+	@Override
+	public void start() {
+		startSystem();
+	}
+
+	@Override
+	public void stop() {
+		stopSystem();
+	}
+
+	@Override
+	public boolean isRunning() {
+		return isSystemRunning();
+	}
+
+	@Override
+	public boolean isStopped() {
+		return isSystemStopped();
+	}
+
+	@Override
+	public boolean isError() {
+		return isAlarmLevel2Error();
+	}
+
+	@Override
+	public boolean isUndefined() {
+		for (Channel<?> c : channels()) {
+			if (isApiChannel(c)) {
+				if (c instanceof AbstractReadChannel<?,?> && !(c instanceof WriteChannel<?>) ) {
+					if (!c.value().isDefined()) {
+						System.out.println("Channel " + c + " is not defined!");
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+private boolean isApiChannel(Channel<?> c) {
+		
+		for (io.openems.edge.common.channel.ChannelId id : Battery.ChannelId.values()) {
+			if (id.equals(c.channelId())) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

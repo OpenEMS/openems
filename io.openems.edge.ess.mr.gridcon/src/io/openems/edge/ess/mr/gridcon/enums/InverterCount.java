@@ -1,6 +1,6 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.GridconPCSImpl;
 
 public enum InverterCount {
 	ONE(1), //
@@ -12,7 +12,7 @@ public enum InverterCount {
 
 	private InverterCount(int count) {
 		this.count = count;
-		this.maxApparentPower = count * GridconPCS.MAX_POWER_PER_INVERTER;
+		this.maxApparentPower = count * GridconPCSImpl.MAX_POWER_PER_INVERTER;
 	}
 
 	public int getCount() {
