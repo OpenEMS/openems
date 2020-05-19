@@ -3,12 +3,16 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
+-includeresource.jsonlogic: \
+	@json-logic-java-1.0.0.jar; lib:=true
+
 -buildpath: \
 	${buildpath},\
+	io.github.meiskalt7:json-logic-java;version=1.0,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.wrapper.json-logic-java,\
+	io.openems.edge.ess.api,\
 
 -testpath: \
 	${testpath}

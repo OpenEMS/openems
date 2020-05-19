@@ -9,17 +9,24 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class JsonLogicControllerTest {
 
 	private final static ChannelAddress ESS_SOC = new ChannelAddress(OpenemsConstants.SUM_ID,
 			Sum.ChannelId.ESS_SOC.id());
 
+	private final static String ESS_ID = "ess0";
+
+	private final static ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
+			"SetActivePowerEquals");
+
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new JsonLogicController()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummySum()) //
+				.addComponent(new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create() //
 						.setRule("{" + //
 								"   \"if\":[" + //
@@ -31,19 +38,53 @@ public class JsonLogicControllerTest {
 								"            50" + //
 								"         ]" + //
 								"      }," + //
-								"      {" + //
-								"         \"ignoreMe\": true," + //
-								"         \"setActivePowerEquals\": 5000" + //
-								"      }," + //
-								"      {" + //
-								"         \"ignoreMe\": true," + //
-								"         \"setActivePowerEquals\": -5000" + //
-								"      }" + //
+								"      [" + //
+								"        [" + //
+								"          \"" + ESS_SET_ACTIVE_POWER_EQUALS + "\"," + //
+								"          1000" + //
+								"        ]" + //
+								"      ]," + //
+								"      [" + //
+								"        [" + //
+								"          \"" + ESS_SET_ACTIVE_POWER_EQUALS + "\"," + //
+								"          -2000" + //
+								"        ]" + //
+								"      ]" + //
 								"   ]" + //
 								"}") //
 						.build())
 				.next(new TestCase() //
-						.input(ESS_SOC, 40));
+						.input(ESS_SOC, 40) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 1000)) //
+				.next(new TestCase() //
+						.input(ESS_SOC, 60) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, -2000) //
+				);
+		
+		System.out.println("{" + //
+				"   \"if\":[" + //
+				"      {" + //
+				"         \"<\": [" + //
+				"            {" + //
+				"               \"var\": \"" + ESS_SOC + "\"" + //
+				"            }," + //
+				"            50" + //
+				"         ]" + //
+				"      }," + //
+				"      [" + //
+				"        [" + //
+				"          \"" + ESS_SET_ACTIVE_POWER_EQUALS + "\"," + //
+				"          1000" + //
+				"        ]" + //
+				"      ]," + //
+				"      [" + //
+				"        [" + //
+				"          \"" + ESS_SET_ACTIVE_POWER_EQUALS + "\"," + //
+				"          -2000" + //
+				"        ]" + //
+				"      ]" + //
+				"   ]" + //
+				"}");
 	}
 
 }

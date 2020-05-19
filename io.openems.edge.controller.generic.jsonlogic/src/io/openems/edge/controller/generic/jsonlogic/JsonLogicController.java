@@ -24,6 +24,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -31,7 +32,7 @@ import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.io.openems.edge.controller.generic.jsonlogic", //
+		name = "Controller.Generic.JsonLogic", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -123,13 +124,22 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 		}
 
 		// Apply JsonLogic rule
-		Object result;
+		List<?> result;
 		try {
-			result = this.jsonLogic.apply(this.config.rule(), data);
+			result = (List<?>) this.jsonLogic.apply(this.config.rule(), data);
 		} catch (JsonLogicException e) {
 			throw new OpenemsException("JsonLogicException: " + e.getMessage());
+		} catch (ClassCastException e) {
+			throw new OpenemsException("Result is not a JsonArray: " + e.getMessage());
 		}
 
-		System.out.println(result);
+		// Get Set-Channel requests
+		for (Object entry : result) {
+			List<?> request = (List<?>) entry;
+			ChannelAddress channelAddress = ChannelAddress.fromString((String) request.get(0));
+			WriteChannel<?> channel = this.componentManager.getChannel(channelAddress);
+			Object value = request.get(1);
+			channel.setNextWriteValueFromObject(value);
+		}
 	}
 }
