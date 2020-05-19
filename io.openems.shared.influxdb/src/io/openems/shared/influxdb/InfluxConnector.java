@@ -33,12 +33,16 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
+import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
 
 	public final static String MEASUREMENT = "data";
 
 	private final static Logger log = LoggerFactory.getLogger(InfluxConnector.class);
+	private final static int CONNECT_TIMEOUT = 60; // [s]
+	private final static int READ_TIMEOUT = 60; // [s]
+	private final static int WRITE_TIMEOUT = 60; // [s]
 
 	private final String ip;
 	private final int port;
@@ -89,8 +93,12 @@ public class InfluxConnector {
 	 */
 	private InfluxDB getConnection() {
 		if (this._influxDB == null) {
+			OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder() //
+					.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS) //
+					.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS) //
+					.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
 			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
-					this.password);
+					this.password, okHttpClientBuilder);
 			try {
 				influxDB.query(new Query("CREATE DATABASE " + this.database, ""));
 			} catch (InfluxDBException e) {
