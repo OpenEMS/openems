@@ -9,21 +9,25 @@ It is based on the JsonLogic specification (http://jsonlogic.com[jsonlogic.com])
 {
    "if":[
       {
-         "<": [
+         "<":[
             {
-               "var": "_sum/EssSoc"
+               "var":"_sum/EssSoc"
             },
             50
          ]
       },
-      {
-         "ignoreMe": true,
-         "setActivePowerEquals": 5000
-      },
-      {
-         "ignoreMe": true,
-         "setActivePowerEquals": -5000
-      }
+      [
+         [
+            "ess0/SetActivePowerEquals",
+            5000
+         ]
+      ],
+      [
+         [
+            "ess0/SetActivePowerEquals",
+            -2000
+         ]
+      ]
    ]
 }
 ----
@@ -41,10 +45,10 @@ This example would result in:
 
 [source,json]
 ----
-{
-   "ignoreMe": true,
-   "setActivePowerEquals": 5000
-}
+[
+    "ess0/SetActivePowerEquals",
+    5000
+]
 ----
 
 Try yourself: http://jsonlogic.com/play.html[http://jsonlogic.com/play.html]

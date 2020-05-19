@@ -41,7 +41,7 @@ public class JsonLogicControllerTest {
 								"      [" + //
 								"        [" + //
 								"          \"" + ESS_SET_ACTIVE_POWER_EQUALS + "\"," + //
-								"          1000" + //
+								"          5000" + //
 								"        ]" + //
 								"      ]," + //
 								"      [" + //
@@ -55,36 +55,11 @@ public class JsonLogicControllerTest {
 						.build())
 				.next(new TestCase() //
 						.input(ESS_SOC, 40) //
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 1000)) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 5000)) //
 				.next(new TestCase() //
 						.input(ESS_SOC, 60) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, -2000) //
 				);
-		
-		System.out.println("{" + //
-				"   \"if\":[" + //
-				"      {" + //
-				"         \"<\": [" + //
-				"            {" + //
-				"               \"var\": \"" + ESS_SOC + "\"" + //
-				"            }," + //
-				"            50" + //
-				"         ]" + //
-				"      }," + //
-				"      [" + //
-				"        [" + //
-				"          \"" + ESS_SET_ACTIVE_POWER_EQUALS + "\"," + //
-				"          1000" + //
-				"        ]" + //
-				"      ]," + //
-				"      [" + //
-				"        [" + //
-				"          \"" + ESS_SET_ACTIVE_POWER_EQUALS + "\"," + //
-				"          -2000" + //
-				"        ]" + //
-				"      ]" + //
-				"   ]" + //
-				"}");
 	}
 
 }
