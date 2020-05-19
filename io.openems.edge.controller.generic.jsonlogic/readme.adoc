@@ -51,6 +51,10 @@ This example would result in:
 ]
 ----
 
+i.e. the Controller will require a set-point of 5000 W discharge on ess0.
+
+It is also possible to write to multiple channels, by adding more arrays to the result.
+
 Try yourself: http://jsonlogic.com/play.html[http://jsonlogic.com/play.html]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.generic.jsonlogic[Source Code icon:github[]]
