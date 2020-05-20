@@ -17,7 +17,6 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import com.ed.data.InverterData;
 
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -30,8 +29,8 @@ import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class CenturioEssCharger extends AbstractOpenemsComponent
-		implements EssDcCharger, OpenemsComponent, EventHandler {
+public class BpChargerImpl extends AbstractOpenemsComponent
+		implements BpCharger, EssDcCharger, OpenemsComponent, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -39,25 +38,11 @@ public class CenturioEssCharger extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BpCore core;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	public CenturioEssCharger() {
+	public BpChargerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
-				ChannelId.values() //
+				BpCharger.ChannelId.values() //
 		);
 	}
 

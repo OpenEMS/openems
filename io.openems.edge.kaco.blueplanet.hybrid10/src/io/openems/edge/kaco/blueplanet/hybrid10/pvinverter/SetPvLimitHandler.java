@@ -18,13 +18,13 @@ import io.openems.edge.kaco.blueplanet.hybrid10.BpConstants;
 public class SetPvLimitHandler implements CheckedRunnable {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
-	private final BpPvInverter parent;
+	private final BpPvInverterImpl parent;
 	private final ChannelId channelId;
 
 	private Float lastEPLimit = null;
 	private LocalDateTime lastWMaxLimPctTime = LocalDateTime.MIN;
 
-	public SetPvLimitHandler(BpPvInverter parent, ChannelId channelId) {
+	public SetPvLimitHandler(BpPvInverterImpl parent, ChannelId channelId) {
 		this.parent = parent;
 		this.channelId = channelId;
 	}

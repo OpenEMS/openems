@@ -79,6 +79,18 @@ export class Service implements ErrorHandler {
   }
 
   /**
+   * Returns the configured language for docs.fenecon.de
+   */
+
+  public getDocsLang(): string {
+    if (this.translate.currentLang == "German") {
+      return "de";
+    } else {
+      return "en";
+    }
+  }
+
+  /**
    * Gets the token from the cookie
    */
   public getToken(): string {

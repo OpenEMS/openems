@@ -1,13 +1,11 @@
-package io.openems.edge.kaco.blueplanet.hybrid10.vectis;
+package io.openems.edge.kaco.blueplanet.hybrid10.ess.charger;
 
 import io.openems.edge.common.channel.Doc;
 
-public interface Vectis {
+public interface BpCharger {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		VECTIS_STATUS(Doc.of(VectisStatus.values())) //
 		;
-
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -19,4 +17,5 @@ public interface Vectis {
 			return this.doc;
 		}
 	}
+
 }
