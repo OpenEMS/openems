@@ -1,0 +1,20 @@
+Bundle-Name: okio
+Bundle-Description: A modern I/O API for Java
+Bundle-DocURL: https://github.com/square/okio
+Bundle-License: https://opensource.org/licenses/Apache-2
+Bundle-Version: 2.6.0
+
+Include-Resource: \
+	@okio-2.6.0.jar
+
+Import-Package: \
+    kotlin;resolution:=optional,\
+
+-exportcontents: \
+	okio
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

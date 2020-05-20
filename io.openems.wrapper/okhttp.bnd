@@ -1,0 +1,20 @@
+Bundle-Name: okhttp
+Bundle-Description: OkHttp: Square's meticulous HTTP client for Java and Kotlin. 
+Bundle-DocURL: https://square.github.io/okhttp/
+Bundle-License: https://opensource.org/licenses/Apache-2
+Bundle-Version: 4.7.1
+
+Include-Resource: \
+	@okhttp-4.7.1.jar
+
+Import-Package: \
+	kotlin;resolution:=optional,\
+ 
+-exportcontents: \
+	okhttp3
+ 
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

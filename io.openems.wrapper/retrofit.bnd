@@ -1,0 +1,22 @@
+Bundle-Name: retrofit
+Bundle-Description: A type-safe HTTP client for Android and Java
+Bundle-DocURL: https://github.com/square/retrofit
+Bundle-License: https://opensource.org/licenses/Apache-2
+Bundle-Version: 2.8.2
+
+Include-Resource: \
+	@retrofit-2.8.2.jar
+
+Import-Package: \
+    android.os;resolution:=optional,\
+
+-exportcontents: \
+	retrofit2,\
+	retrofit2.http,\
+	retrofit2.internal,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

@@ -1,0 +1,24 @@
+Bundle-Name: msgpack-core
+Bundle-Description:  Core library of the MessagePack for Java
+Bundle-DocURL:  http://msgpack.org
+Bundle-License: https://opensource.org/licenses/Apache-2
+Bundle-Version: 0.8.20
+
+Include-Resource: \
+	@msgpack-core-0.8.20.jar
+
+Import-Package: \
+    android.os;resolution:=optional,\
+
+-exportcontents: \
+	org.msgpack,\
+	org.msgpack.core,\
+	org.msgpack.core.buffer,\
+	org.msgpack.value,\
+	org.msgpack.value.impl,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

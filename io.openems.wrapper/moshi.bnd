@@ -1,0 +1,21 @@
+Bundle-Name: moshi
+Bundle-Description: A modern JSON library for Kotlin and Java.
+Bundle-DocURL: https://github.com/square/moshi
+Bundle-License: https://opensource.org/licenses/Apache-2
+Bundle-Version: 1.9.2
+
+Include-Resource: \
+	@moshi-1.9.2.jar
+ 
+Import-Package: \
+    android.net.http;resolution:=optional,\
+ 
+-exportcontents: \
+ 	com.squareup.moshi,\
+ 	com.squareup.moshi.internal,\
+ 
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false
