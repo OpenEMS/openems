@@ -41,7 +41,7 @@ sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_
 
 echo "# Update $about_component"
 sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1releases\/tag\/$new_version\2/" $about_component
-sed --in-place "s/\(.*About.Build.*: \).*\(<\/a>\)/\1$new_version ($release_date)\2/" $about_component
+sed --in-place "s/\(.*About.build.*: \).*\(<\/a>\)/\1$new_version ($release_date)\2/" $about_component
 
 echo "# Finished"
 
