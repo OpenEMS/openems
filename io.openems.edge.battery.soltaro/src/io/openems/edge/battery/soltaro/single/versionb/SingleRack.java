@@ -66,8 +66,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //				
 		})
 public class SingleRack extends AbstractOpenemsModbusComponent
 		implements SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
@@ -379,98 +378,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	private void writeValuesInApiChannels() {
-
-		@SuppressWarnings("unchecked")
-		Optional<Integer> clusterVoltageOpt = (Optional<Integer>) this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE)
-				.value().asOptional();
-		if (clusterVoltageOpt.isPresent()) {
-			int voltageVolt = (int) (clusterVoltageOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltageVolt);
-		}
-
-		@SuppressWarnings("unchecked")
-		Optional<Integer> minCellVoltageOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).value().asOptional();
-		if (minCellVoltageOpt.isPresent()) {
-			int voltage_millivolt = minCellVoltageOpt.get();
-			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltage_millivolt);
-		}
-		
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxCellVoltageOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE).value().asOptional();
-		if (maxCellVoltageOpt.isPresent()) {
-			int voltage_millivolt = maxCellVoltageOpt.get();
-			this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(voltage_millivolt);
-		}
-		
-		@SuppressWarnings("unchecked")
-		Optional<Integer> minCellTempOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE).value().asOptional();
-		if (minCellTempOpt.isPresent()) {
-			int temp_celsius= minCellTempOpt.get() / 10;
-			this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(temp_celsius);
-		}
-		
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxCellTempOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE).value().asOptional();
-		if (maxCellTempOpt.isPresent()) {
-			int temp_celsius= maxCellTempOpt.get() / 10;
-			this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(temp_celsius);
-		}
-
-		// write battery ranges to according channels in battery api
-		// MAX_VOLTAGE x2082
-		@SuppressWarnings("unchecked")
-		Optional<Integer> overVoltAlarmOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).value().asOptional();
-		if (overVoltAlarmOpt.isPresent()) {
-			int maxChargeVoltage = (int) (overVoltAlarmOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(maxChargeVoltage);
-		}
-
-		// DISCHARGE_MIN_VOLTAGE 0x2088
-		@SuppressWarnings("unchecked")
-		Optional<Integer> underVoltAlarmOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).value().asOptional();
-		if (underVoltAlarmOpt.isPresent()) {
-			int minDischargeVoltage = (int) (underVoltAlarmOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(minDischargeVoltage);
-		}
-
-		// CHARGE_MAX_CURRENT 0x2160
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxChargeCurrentOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).value().asOptional();
-		if (maxChargeCurrentOpt.isPresent()) {
-			int maxCurrent = (int) (maxChargeCurrentOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(maxCurrent);
-		}
-
-		// DISCHARGE_MAX_CURRENT 0x2161
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxDischargeCurrentOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).value().asOptional();
-		if (maxDischargeCurrentOpt.isPresent()) {
-			int maxCurrent = (int) (maxDischargeCurrentOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(maxCurrent);
-		}
-
-	}
-
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
 			return;
 		}
 		switch (event.getTopic()) {
-
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.writeValuesInApiChannels();
-			break;
-
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.handleBatteryState();
 			break;
@@ -491,7 +404,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		case CONFIGURE:
 			configureSlaves();
 			break;
-
 		}
 	}
 
@@ -968,31 +880,50 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				), //
 
 				// Voltage ranges
-				new FC3ReadRegistersTask(0x2082, Priority.LOW, //
-						m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, new UnsignedWordElement(0x2082),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						new DummyRegisterElement(0x2083, 0x2087),
-						m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
-								new UnsignedWordElement(0x2088), ElementToChannelConverter.SCALE_FACTOR_2) //
+				new FC3ReadRegistersTask(0x2082, Priority.LOW, //						
+						m(new UnsignedWordElement(0x2082)) //
+							.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, ElementToChannelConverter.SCALE_FACTOR_2) //
+							.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+							.build(), //
+						new DummyRegisterElement(0x2083, 0x2087),						
+						m(new UnsignedWordElement(0x2088)) //
+							.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM, ElementToChannelConverter.SCALE_FACTOR_2) //
+							.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+							.build() //
 				),
 
 				// Summary state
 				new FC3ReadRegistersTask(0x2100, Priority.LOW,
-						m(SingleRackChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(new UnsignedWordElement(0x2100)) //
+								.m(SingleRackChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) //
+								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
+
 						m(SingleRackChannelId.CLUSTER_1_CURRENT, new SignedWordElement(0x2101),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),
 						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)),
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
-						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, new UnsignedWordElement(0x2106)), //
-						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
-						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, new UnsignedWordElement(0x2108)), //
+						m(new UnsignedWordElement(0x2106)) //
+							.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+							.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+							.build(), //
+						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //						
+						m(new UnsignedWordElement(0x2108)) //
+							.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+							.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+							.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
-						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, new UnsignedWordElement(0x210A)), //
+						m(new UnsignedWordElement(0x210A)) //
+							.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+							.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+							.build(), //	
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
-						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, new UnsignedWordElement(0x210C)), //
+						m(new UnsignedWordElement(0x210C)) //
+							.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+							.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+							.build(), //	
 						m(SingleRackChannelId.MAX_CELL_RESISTANCE_ID, new UnsignedWordElement(0x210D)), //
 						m(SingleRackChannelId.MAX_CELL_RESISTANCE, new UnsignedWordElement(0x210E),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
@@ -1074,10 +1005,14 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x2154, 0x215A), //
 						m(SingleRackChannelId.OTHER_ALARM_EQUIPMENT_FAILURE, new UnsignedWordElement(0x215B)), //
 						new DummyRegisterElement(0x215C, 0x215F), //
-						m(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160),
-								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if correct!
-						m(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161),
-								ElementToChannelConverter.SCALE_FACTOR_2) // TODO Check if correct!
+						m(new UnsignedWordElement(0x2160)) //
+							.m(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
+							.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+							.build(), //						
+						m(new UnsignedWordElement(0x2161)) //
+						.m(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build() //
 				), //
 
 				// Cluster info
