@@ -393,8 +393,32 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		Optional<Integer> minCellVoltageOpt = (Optional<Integer>) this
 				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).value().asOptional();
 		if (minCellVoltageOpt.isPresent()) {
-			int voltageMillivolt = minCellVoltageOpt.get();
-			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltageMillivolt);
+			int voltage_millivolt = minCellVoltageOpt.get();
+			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltage_millivolt);
+		}
+		
+		@SuppressWarnings("unchecked")
+		Optional<Integer> maxCellVoltageOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE).value().asOptional();
+		if (maxCellVoltageOpt.isPresent()) {
+			int voltage_millivolt = maxCellVoltageOpt.get();
+			this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(voltage_millivolt);
+		}
+		
+		@SuppressWarnings("unchecked")
+		Optional<Integer> minCellTempOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE).value().asOptional();
+		if (minCellTempOpt.isPresent()) {
+			int temp_celsius= minCellTempOpt.get() / 10;
+			this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(temp_celsius);
+		}
+		
+		@SuppressWarnings("unchecked")
+		Optional<Integer> maxCellTempOpt = (Optional<Integer>) this
+				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE).value().asOptional();
+		if (maxCellTempOpt.isPresent()) {
+			int temp_celsius= maxCellTempOpt.get() / 10;
+			this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(temp_celsius);
 		}
 
 		// write battery ranges to according channels in battery api
