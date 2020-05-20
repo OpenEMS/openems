@@ -43,6 +43,7 @@
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
+	bnd.identity;id='io.openems.edge.controller.battery.batteryprotection',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
@@ -122,7 +123,7 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
-	bnd.identity;version='latest';id='io.openems.edge.controller.battery.batteryprotection'
+
 -runbundles: \
 	Java-WebSocket;version='[1.5.1,1.5.2)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -151,6 +152,7 @@
 	io.openems.edge.controller.asymmetric.fixreactivepower;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.asymmetric.peakshaving;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.asymmetric.phaserectification;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.battery.batteryprotection;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.channelthreshold;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.chp.soc;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.debug.detailedlog;version='[1.0.0,1.0.1)',\
@@ -262,5 +264,4 @@
 	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.3,2.0.4)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	rrd4j;version='[3.6.0,3.6.1)',\
-	io.openems.edge.controller.battery.batteryprotection;version='[1.0.0,1.0.1)'
+	rrd4j;version='[3.6.0,3.6.1)'
