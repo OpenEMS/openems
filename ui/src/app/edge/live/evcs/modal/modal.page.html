@@ -6,7 +6,7 @@
             </ion-title>
             <ion-buttons slot="end">
                 <ion-button target="_blank"
-                    href="https://openems.github.io/openems.io/openems/latest/edge/controller.html#_evcs">
+                    href="https://docs.fenecon.de/{{service.getDocsLang()}}/_/latest/fems/fems-app/evcs.html">
                     <ion-icon name="help-circle-outline"></ion-icon>
                 </ion-button>
                 <ion-button (click)="modalCtrl.dismiss()">
@@ -15,6 +15,7 @@
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
+
     <ion-content>
         <ng-container *ngIf="currentData[componentId + '/State'] != 3">
             <ion-card-content class="underline">
