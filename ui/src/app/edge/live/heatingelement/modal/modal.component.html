@@ -2,6 +2,10 @@
     <ion-toolbar class="ion-justify-content-center" color="primary">
         <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
+            <ion-button target="_blank"
+                href="https://openems.github.io/openems.io/openems/latest/edge/controller.html#_io_heating_element">
+                <ion-icon name="help-circle-outline"></ion-icon>
+            </ion-button>
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
             </ion-button>
@@ -67,6 +71,18 @@
                     </ion-segment>
                 </ion-card-content>
                 <form [formGroup]="formGroup">
+                    <ng-container *ngIf="component.properties['mode'] == 'MANUAL_ON'">
+                        <ion-item lines="none">
+                            <div style="font-size: 14px">Level:</div>
+                            <ion-select formControlName="defaultLevel" [value]="component.properties['defaultLevel']"
+                                (ionChange)="updateDefaultLevel($event)" [okText]="translate.instant('General.ok')"
+                                [cancelText]="translate.instant('General.cancel')">
+                                <ion-select-option value="LEVEL_1">Level 1</ion-select-option>
+                                <ion-select-option value="LEVEL_2">Level 2</ion-select-option>
+                                <ion-select-option value="LEVEL_3">Level 3</ion-select-option>
+                            </ion-select>
+                        </ion-item>
+                    </ng-container>
                     <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
                         <ion-card-content [class.underline]="
                         formGroup.value.workMode !='NONE'">
@@ -118,81 +134,36 @@
                                 </ion-grid>
                             </ion-card-content>
                             <ion-card-content>
-                                <ion-grid>
-                                    <ion-row class="ion-justify-content-center">
-                                        <ion-segment (ionChange)="updateWorkMode($event)"
-                                            [value]="formGroup.value.workMode" class="small">
-                                            <ion-segment-button value="TIME">
-                                                <ion-icon color="primary" name="sunny-outline">
-                                                </ion-icon>
-                                                <ion-label translate>
-                                                    Edge.Index.Widgets.Heatingelement.time
-                                                </ion-label>
-                                            </ion-segment-button>
-                                            <ion-segment-button value="KWH">
-                                                <ion-icon color="primary" name="battery-charging-outline">
-                                                </ion-icon>
-                                                <ion-label>
-                                                    KWH
-                                                </ion-label>
-                                            </ion-segment-button>
-                                        </ion-segment>
-                                    </ion-row>
-                                </ion-grid>
-                                <ng-container *ngIf="formGroup.value.workMode == 'TIME'">
-                                    <table class="full_width">
-                                        <tr>
-                                            <ion-range (ionChange)="updateMinTime($event)" style="width: 100%"
-                                                color="dark" pin="true" min="1" max="10" style="padding-top: 8px;"
-                                                [value]="component.properties.minTime" debounce="500">
-                                                <ion-label slot="start">
-                                                    {{ 1 | unitvalue:'H'}}
-                                                </ion-label>
-                                                <ion-label slot="end">
-                                                    {{ 10 | unitvalue:'H'}}
-                                                </ion-label>
-                                            </ion-range>
-                                        </tr>
-                                    </table>
-                                    <table class="full_width"
-                                        *ngIf="currentData.channel[component.id + '/ForceStartAtSecondOfDay'] as forceStartAtSecondOfDay">
-                                        <tr>
-                                            <td style="width: 65%" translate>
-                                                Edge.Index.Widgets.Heatingelement.timeCountdown
-                                            </td>
-                                            <td style="width: 35%" class="align_right">
-                                                {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </ng-container>
-                                <ng-container *ngIf="formGroup.value.workMode == 'KWH'">
-                                    <table class="full_width">
-                                        <tr>
-                                            <ion-range (ionChange)="updateMinKwh($event)" style="width: 100%" min="1"
-                                                max="60" color="dark" pin="true" style="padding-top: 8px;"
-                                                debounce="500" [value]="component.properties.minKwh">
-                                                <ion-label slot="start">
-                                                    {{ 1000 | unitvalue:'kWh'}}
-                                                </ion-label>
-                                                <ion-label slot="end">
-                                                    {{ 60000 | unitvalue:'kWh'}}
-                                                </ion-label>
-                                            </ion-range>
-                                        </tr>
-                                    </table>
-                                    <table class="full_width"
-                                        *ngIf="currentData.channel[component.id + '/ForceStartAtSecondOfDay'] as forceStartAtSecondOfDay">
-                                        <tr>
-                                            <td style="width: 65%" translate>
-                                                Edge.Index.Widgets.Heatingelement.timeCountdown
-                                            </td>
-                                            <td style="width: 35%" class="align_right">
-                                                {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </ng-container>
+                                <table class="full_width">
+                                    <tr>
+                                        <td style="width: 100%;">
+                                            Mindeslaufzeit
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <ion-range (ionChange)="updateMinTime($event)" style="width: 100%" color="dark"
+                                            pin="true" min="1" max="10" style="padding-top: 8px;"
+                                            [value]="component.properties.minTime" debounce="500">
+                                            <ion-label slot="start">
+                                                {{ 1 | unitvalue:'H'}}
+                                            </ion-label>
+                                            <ion-label slot="end">
+                                                {{ 10 | unitvalue:'H'}}
+                                            </ion-label>
+                                        </ion-range>
+                                    </tr>
+                                </table>
+                                <table class="full_width"
+                                    *ngIf="currentData.channel[component.id + '/ForceStartAtSecondOfDay'] as forceStartAtSecondOfDay">
+                                    <tr>
+                                        <td style="width: 65%" translate>
+                                            Edge.Index.Widgets.Heatingelement.timeCountdown
+                                        </td>
+                                        <td style="width: 35%" class="align_right">
+                                            {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                        </td>
+                                    </tr>
+                                </table>
                             </ion-card-content>
                         </ng-container>
                     </ng-container>
