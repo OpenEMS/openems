@@ -72,20 +72,41 @@
     </ion-card-content>
   </ng-container>
 
-  <ng-container *ngIf="evcsComponents.length != 0 && (edge.currentData | async)['channel'] as currentData">
-    <ng-container *ngFor="let component of evcsComponents">
-      <ion-card-content class="underline">
-        <table class="full_width">
-          <tr>
-            <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}</td>
-            <td style="width: 65%" *ngIf="component.id != component.alias">{{component.alias}}
-            </td>
-            <td class="align_right" style="width: 35%">
-              {{ currentData[component.id + '/ChargePower'] | unitvalue:'W' }}
-            </td>
-          </tr>
-        </table>
-      </ion-card-content>
+  <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+    <ng-container *ngIf="evcsComponents.length > 0">
+      <ng-container *ngFor="let component of evcsComponents">
+        <ion-card-content class="underline">
+          <table class="full_width">
+            <tr>
+              <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}</td>
+              <td style="width: 65%" *ngIf="component.id != component.alias">{{component.alias}}
+              </td>
+              <td class="align_right" style="width: 35%">
+                {{ currentData[component.id + '/ChargePower'] | unitvalue:'W' }}
+              </td>
+            </tr>
+          </table>
+        </ion-card-content>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="consumptionMeterComponents.length > 0">
+      <ng-container *ngFor="let component of consumptionMeterComponents">
+        <ion-card-content class="underline">
+          <table class="full_width">
+            <tr>
+              <td style="width:65%" *ngIf="component.id == component.alias">{{component.id}}
+              </td>
+              <td style="width: 65%" *ngIf="component.id != component.alias">
+                {{component.alias}}
+              </td>
+              <td style="width:35%" class="align_right">
+                {{ currentData[component.id + '/ActivePower'] | unitvalue:'W' }}
+              </td>
+            </tr>
+          </table>
+        </ion-card-content>
+      </ng-container>
     </ng-container>
   </ng-container>
 
@@ -93,12 +114,15 @@
     <ng-container *ngIf="edge.currentData | async as currentData">
       <ng-container *ngIf="currentData.summary.consumption as sum">
         <ion-card-content>
-          <table class="full_width" *ngIf="evcsComponents.length != 0">
+          <table class="full_width" *ngIf="evcsComponents.length != 0  || consumptionMeterComponents.length != 0">
             <tr>
               <td style="width: 65%" translate>General.otherConsumption</td>
-              <ng-container *ngIf="sum.activePower - currentTotalChargingPower() as otherPower">
-                <td style="width: 35%" class="align_right">
-                  {{ otherPower | unitvalue:'W'}}
+              <ng-container *ngIf="sum.activePower - getTotalOtherPower() as otherPower">
+                <td style="width: 35%" class="align_right" *ngIf="otherPower > 0">
+                  {{ otherPower | unitvalue:'W' }}
+                </td>
+                <td style="width: 35%" class="align_right" *ngIf="otherPower <= 0">
+                  {{ 0 | unitvalue:'W' }}
                 </td>
               </ng-container>
             </tr>

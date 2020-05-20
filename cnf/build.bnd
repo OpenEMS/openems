@@ -51,10 +51,6 @@
 # Always use contracts
 -contract: *
 
-# Set Git revision information in the manifests of built bundles
-Git-Descriptor:           ${system-allow-fail;git describe --dirty --always}
-Git-SHA:                  ${system-allow-fail;git rev-list -1 HEAD}
-
 # JUnit
 junit: \
 	org.apache.servicemix.bundles.junit;version=4.12
