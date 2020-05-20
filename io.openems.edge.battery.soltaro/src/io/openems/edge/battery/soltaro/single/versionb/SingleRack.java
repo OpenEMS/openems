@@ -33,7 +33,6 @@ import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
-import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactorControl;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -66,12 +65,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //				
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
 public class SingleRack extends AbstractOpenemsModbusComponent
 		implements SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
-
-	// , // JsonApi // TODO
 
 	protected static final int SYSTEM_ON = 1;
 	protected static final int SYSTEM_OFF = 0;
@@ -79,7 +76,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
 	private static final String KEY_VOLTAGE = "_VOLTAGE";
 	private static final Integer SYSTEM_RESET = 0x1;
-	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
+	private static final String NUMBER_FORMAT = "%03d";
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -87,8 +84,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
 	private String modbusBridgeId;
 	private State state = State.UNDEFINED;
-	// if configuring is needed this is used to go through the necessary steps
-	private ConfiguringProcess nextConfiguringProcess = ConfiguringProcess.NONE;
 	private Config config;
 	private Map<String, Channel<?>> channelMap;
 	// If an error has occurred, this indicates the time when next action could be
@@ -96,11 +91,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	private LocalDateTime errorDelayIsOver = null;
 	private int unsuccessfulStarts = 0;
 	private LocalDateTime startAttemptTime = null;
-
-	private LocalDateTime timeAfterAutoId = null;
-	private LocalDateTime configuringFinished = null;
-	private int delayAutoIdSeconds = 5;
-	private int delayAfterConfiguringFinished = 5;
 
 	private ResetState resetState = ResetState.NONE;
 	private boolean resetDone;
@@ -202,7 +192,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				this.setStateMachineState(State.UNDEFINED);
 			} else {
 				this.setStateMachineState(State.RUNNING);
-				this.checkAllowedCurrent();
 				readyForWorking = true;
 			}
 			break;
@@ -254,30 +243,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
-	}
-
-	private void checkAllowedCurrent() {
-		if (isPoleTemperatureTooHot()) {
-			this.limitMaxCurrent();
-		}
-
-	}
-
-	private void limitMaxCurrent() {
-		// TODO limit current
-	}
-
-	private boolean isPoleTemperatureTooHot() {
-		@SuppressWarnings("unchecked")
-		Optional<Boolean> poleTempTooHighOpt = (Optional<Boolean>) this
-				.channel(SingleRackChannelId.ALARM_LEVEL_1_POLE_TEMPERATURE_TOO_HIGH).value().asOptional();
-
-		if (!poleTempTooHighOpt.isPresent()) {
-			return false;
-		} else {
-			boolean poleTempTooHot = poleTempTooHighOpt.get();
-			return poleTempTooHot;
-		}
 	}
 
 	private void handleErrorsWithReset() {
@@ -401,217 +366,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		case ON:
 			startSystem();
 			break;
-		case CONFIGURE:
-			configureSlaves();
-			break;
 		}
-	}
-
-	private void configureSlaves() {
-		if (nextConfiguringProcess == ConfiguringProcess.NONE) {
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_STARTED;
-		}
-
-		switch (nextConfiguringProcess) {
-		case CONFIGURING_STARTED:
-			System.out.println(" ===> CONFIGURING STARTED: setNumberOfModules() <===");
-			setNumberOfModules();
-			break;
-		case SET_ID_AUTO_CONFIGURING:
-			System.out.println(" ===> SET_ID_AUTO_CONFIGURING: setIdAutoConfiguring() <===");
-			setIdAutoConfiguring();
-			break;
-		case CHECK_ID_AUTO_CONFIGURING:
-			if (timeAfterAutoId != null) {
-				if (timeAfterAutoId.plusSeconds(delayAutoIdSeconds).isAfter(LocalDateTime.now())) {
-					break;
-				} else {
-					timeAfterAutoId = null;
-				}
-			}
-			System.out.println(" ===> CHECK_ID_AUTO_CONFIGURING: checkIdAutoConfiguring() <===");
-			checkIdAutoConfiguring();
-			break;
-		case SET_TEMPERATURE_ID_AUTO_CONFIGURING:
-			System.out.println(" ===> SET_TEMPERATURE_ID_AUTO_CONFIGURING: setTemperatureIdAutoConfiguring() <===");
-			setTemperatureIdAutoConfiguring();
-			break;
-		case CHECK_TEMPERATURE_ID_AUTO_CONFIGURING:
-			if (timeAfterAutoId != null) {
-				if (timeAfterAutoId.plusSeconds(delayAutoIdSeconds).isAfter(LocalDateTime.now())) {
-					break;
-				} else {
-					timeAfterAutoId = null;
-				}
-			}
-			System.out.println(" ===> CHECK_TEMPERATURE_ID_AUTO_CONFIGURING: checkTemperatureIdAutoConfiguring() <===");
-			checkTemperatureIdAutoConfiguring();
-			break;
-		case SET_VOLTAGE_RANGES:
-			System.out.println(" ===> SET_VOLTAGE_RANGES: setVoltageRanges() <===");
-			setVoltageRanges();
-
-			break;
-		case CONFIGURING_FINISHED:
-			System.out.println("====>>> Configuring successful! <<<====");
-
-			if (configuringFinished == null) {
-				nextConfiguringProcess = ConfiguringProcess.RESTART_AFTER_SETTING;
-			} else {
-				if (configuringFinished.plusSeconds(delayAfterConfiguringFinished).isAfter(LocalDateTime.now())) {
-					System.out.println(">>> Delay time after configuring!");
-				} else {
-					System.out.println("Delay time after configuring is over, reset system");
-					IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
-					try {
-						resetChannel.setNextWriteValue(SYSTEM_RESET);
-						configuringFinished = null;
-					} catch (OpenemsNamedException e) {
-						System.out.println("Error while trying to reset the system!");
-					}
-				}
-			}
-			break;
-		case RESTART_AFTER_SETTING:
-			// A manual restart is needed
-			System.out.println("====>>>  Please restart system manually!");
-			break;
-		case NONE:
-			break;
-		}
-	}
-
-	private void setVoltageRanges() {
-
-		try {
-			IntegerWriteChannel level1OverVoltageChannel = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM);
-			level1OverVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_1_TOTAL_OVER_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level1OverVoltageChannelRecover = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER);
-			level1OverVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_1_TOTAL_OVER_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level1LowVoltageChannel = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM);
-			level1LowVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_1_TOTAL_LOW_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level1LowVoltageChannelRecover = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER);
-			level1LowVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_1_TOTAL_LOW_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2OverVoltageChannel = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_PROTECTION);
-			level2OverVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_2_TOTAL_OVER_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2OverVoltageChannelRecover = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER);
-			level2OverVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_2_TOTAL_OVER_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2LowVoltageChannel = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_PROTECTION);
-			level2LowVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_2_TOTAL_LOW_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2LowVoltageChannelRecover = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER);
-			level2LowVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_2_TOTAL_LOW_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_FINISHED;
-			configuringFinished = LocalDateTime.now();
-
-		} catch (OpenemsNamedException e) {
-			log.error("Setting voltage ranges not successful!");
-		}
-
-	}
-
-	private void checkTemperatureIdAutoConfiguring() {
-		IntegerReadChannel autoSetTemperatureSlavesIdChannel = this
-				.channel(SingleRackChannelId.AUTO_SET_SLAVES_TEMPERATURE_ID);
-		Optional<Integer> autoSetTemperatureSlavesIdOpt = autoSetTemperatureSlavesIdChannel.value().asOptional();
-		if (!autoSetTemperatureSlavesIdOpt.isPresent()) {
-			return;
-		}
-		int autoSetTemperatureSlaves = autoSetTemperatureSlavesIdOpt.get();
-		if (autoSetTemperatureSlaves == Enums.AutoSetFunction.FAILURE.getValue()) {
-			log.error("Auto set temperature slaves id failed! Start configuring process again!");
-			// Auto set failed, try again
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_STARTED;
-		} else if (autoSetTemperatureSlaves == Enums.AutoSetFunction.SUCCES.getValue()) {
-			log.info("Auto set temperature slaves id succeeded!");
-			nextConfiguringProcess = ConfiguringProcess.SET_VOLTAGE_RANGES;
-		}
-	}
-
-	private void setTemperatureIdAutoConfiguring() {
-
-		IntegerWriteChannel autoSetSlavesTemperatureIdChannel = this
-				.channel(SingleRackChannelId.AUTO_SET_SLAVES_TEMPERATURE_ID);
-		try {
-			autoSetSlavesTemperatureIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
-			timeAfterAutoId = LocalDateTime.now();
-			nextConfiguringProcess = ConfiguringProcess.CHECK_TEMPERATURE_ID_AUTO_CONFIGURING;
-		} catch (OpenemsNamedException e) {
-			log.error("Setting temperature id auto set not successful"); // Set was not successful, it will be tried
-																			// until it succeeded
-		}
-	}
-
-	private void checkIdAutoConfiguring() {
-		IntegerReadChannel autoSetSlavesIdChannel = this.channel(SingleRackChannelId.AUTO_SET_SLAVES_ID);
-		Optional<Integer> autoSetSlavesIdOpt = autoSetSlavesIdChannel.value().asOptional();
-		if (!autoSetSlavesIdOpt.isPresent()) {
-			return;
-		}
-		int autoSetSlaves = autoSetSlavesIdOpt.get();
-		if (autoSetSlaves == Enums.AutoSetFunction.FAILURE.getValue()) {
-			log.error("Auto set slaves id failed! Start configuring process again!");
-			// Auto set failed, try again
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_STARTED;
-		} else if (autoSetSlaves == Enums.AutoSetFunction.SUCCES.getValue()) {
-			log.info("Auto set slaves id succeeded!");
-			nextConfiguringProcess = ConfiguringProcess.SET_TEMPERATURE_ID_AUTO_CONFIGURING;
-		}
-	}
-
-	private void setIdAutoConfiguring() {
-		// Set number of modules
-		IntegerWriteChannel autoSetSlavesIdChannel = this.channel(SingleRackChannelId.AUTO_SET_SLAVES_ID);
-		try {
-			autoSetSlavesIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
-			timeAfterAutoId = LocalDateTime.now();
-			nextConfiguringProcess = ConfiguringProcess.CHECK_ID_AUTO_CONFIGURING;
-		} catch (OpenemsNamedException e) {
-			// Set was not successful, it will be tried until it succeeded
-			log.error("Setting slave numbers not successful");
-		}
-	}
-
-	private void setNumberOfModules() {
-		// Set number of modules
-		IntegerWriteChannel numberOfSlavesChannel = this
-				.channel(SingleRackChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE);
-		try {
-			numberOfSlavesChannel.setNextWriteValue(this.config.numberOfSlaves());
-			nextConfiguringProcess = ConfiguringProcess.SET_ID_AUTO_CONFIGURING;
-		} catch (OpenemsNamedException e) {
-			// Set was not successful, it will be tried until it succeeded
-			log.error("Setting slave numbers not successful");
-		}
-	}
-
-	private enum ConfiguringProcess {
-		NONE, CONFIGURING_STARTED, SET_ID_AUTO_CONFIGURING, CHECK_ID_AUTO_CONFIGURING,
-		SET_TEMPERATURE_ID_AUTO_CONFIGURING, CHECK_TEMPERATURE_ID_AUTO_CONFIGURING, SET_VOLTAGE_RANGES,
-		CONFIGURING_FINISHED, RESTART_AFTER_SETTING
 	}
 
 	private boolean isSystemRunning() {
@@ -880,24 +635,25 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				), //
 
 				// Voltage ranges
-				new FC3ReadRegistersTask(0x2082, Priority.LOW, //						
+				new FC3ReadRegistersTask(0x2082, Priority.LOW, //
 						m(new UnsignedWordElement(0x2082)) //
-							.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, ElementToChannelConverter.SCALE_FACTOR_2) //
-							.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-							.build(), //
-						new DummyRegisterElement(0x2083, 0x2087),						
-						m(new UnsignedWordElement(0x2088)) //
-							.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM, ElementToChannelConverter.SCALE_FACTOR_2) //
-							.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-							.build() //
+								.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM,
+										ElementToChannelConverter.SCALE_FACTOR_2) //
+								.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
+						new DummyRegisterElement(0x2083, 0x2087), m(new UnsignedWordElement(0x2088)) //
+								.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
+										ElementToChannelConverter.SCALE_FACTOR_2) //
+								.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build() //
 				),
 
 				// Summary state
-				new FC3ReadRegistersTask(0x2100, Priority.LOW,
-						m(new UnsignedWordElement(0x2100)) //
-								.m(SingleRackChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-								.build(), //
+				new FC3ReadRegistersTask(0x2100, Priority.LOW, m(new UnsignedWordElement(0x2100)) //
+						.m(SingleRackChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build(), //
 
 						m(SingleRackChannelId.CLUSTER_1_CURRENT, new SignedWordElement(0x2101),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -906,24 +662,30 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)),
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
 						m(new UnsignedWordElement(0x2106)) //
-							.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
-							.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
-							.build(), //
-						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //						
+								.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE,
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.build(), //
+						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
 						m(new UnsignedWordElement(0x2108)) //
-							.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
-							.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
-							.build(), //
+								.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE,
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
 						m(new UnsignedWordElement(0x210A)) //
-							.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
-							.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-							.build(), //	
+								.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE,
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
 						m(new UnsignedWordElement(0x210C)) //
-							.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
-							.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-							.build(), //	
+								.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE,
+										ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
 						m(SingleRackChannelId.MAX_CELL_RESISTANCE_ID, new UnsignedWordElement(0x210D)), //
 						m(SingleRackChannelId.MAX_CELL_RESISTANCE, new UnsignedWordElement(0x210E),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
@@ -1006,13 +768,16 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRackChannelId.OTHER_ALARM_EQUIPMENT_FAILURE, new UnsignedWordElement(0x215B)), //
 						new DummyRegisterElement(0x215C, 0x215F), //
 						m(new UnsignedWordElement(0x2160)) //
-							.m(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
-							.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-							.build(), //						
+								.m(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT,
+										ElementToChannelConverter.SCALE_FACTOR_2) //
+								.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build(), //
 						m(new UnsignedWordElement(0x2161)) //
-						.m(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
-						.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-						.build() //
+								.m(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT,
+										ElementToChannelConverter.SCALE_FACTOR_2) //
+								.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT,
+										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.build() //
 				), //
 
 				// Cluster info

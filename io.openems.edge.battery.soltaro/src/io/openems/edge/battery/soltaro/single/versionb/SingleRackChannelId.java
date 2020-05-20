@@ -312,7 +312,7 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	INSULATION_SENSOR_FUNCTION(Doc.of(OpenemsType.INTEGER)), //
 	TRANSPARENT_MASTER(Doc.of(OpenemsType.INTEGER)), //
 	SET_EMS_ADDRESS(Doc.of(OpenemsType.INTEGER)), //
-	SLEEP(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //), //
+	SLEEP(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), // ), //
 	VOLTAGE_LOW_PROTECTION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIVOLT)), //
 	WORK_PARAMETER_CURRENT_FIX_COEFFICIENT(Doc.of(OpenemsType.INTEGER)), //
@@ -560,8 +560,8 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 			.text("Enable/Disable protect soc high")), //
 	PROTECT_FLAG_REGISTER_2_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable/Disable protect soc low")), //
-	
-	//Faults and warnings
+
+	// Faults and warnings
 	ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(Doc.of(Level.FAULT) //
 			.text("Cell Discharge Temperature Low Alarm Level 2")), //
 	ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(Doc.of(Level.FAULT) //

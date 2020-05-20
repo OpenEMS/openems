@@ -162,9 +162,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		case ON:
 			this.startSystem();
 			break;
-		case CONFIGURE:
-			this.logWarn(this.log, "Cluster cannot be configured currently!");
-			break;
 		}
 	}
 
@@ -663,7 +660,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
 	}
-	
+
 	protected void recalculateMaxCellVoltage() {
 		int max = Integer.MIN_VALUE;
 
@@ -672,7 +669,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		}
 		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(max);
 	}
-	
+
 	protected void recalculateMinCellVoltage() {
 		int min = Integer.MAX_VALUE;
 
@@ -681,7 +678,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		}
 		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(min);
 	}
-	
+
 	protected void recalculateMaxCellTemperature() {
 		int max = Integer.MIN_VALUE;
 
@@ -690,7 +687,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		}
 		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(max);
 	}
-	
+
 	protected void recalculateMinCellTemperature() {
 		int min = Integer.MAX_VALUE;
 
