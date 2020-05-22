@@ -42,6 +42,8 @@ public interface KacoBlueplanetGridsave
 				.text("The maximum number of start attempts failed")), //
 		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
 				.text("The maximum number of stop attempts failed")), //
+		INVALID_CURRENT_STATE(Doc.of(Level.FAULT) //
+				.text("The 'CurrentState' is invalid")), //
 		;
 
 		private final Doc doc;

@@ -1,5 +1,7 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -213,12 +215,14 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 		return result;
 	}
 
-	private StartStop startStopTarget = StartStop.UNDEFINED;
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {
-		this.startStopTarget = value;
-		this.stateMachine.forceNextState(State.UNDEFINED);
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
 	}
 
 	@Override
@@ -226,7 +230,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 		switch (this.config.startStop()) {
 		case AUTO:
 			// read StartStop-Channel
-			return this.startStopTarget;
+			return this.startStopTarget.get();
 
 		case START:
 			// force START
@@ -240,4 +244,5 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 		assert false;
 		return StartStop.UNDEFINED; // can never happen
 	}
+
 }

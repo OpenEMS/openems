@@ -1,11 +1,7 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
-import java.time.Duration;
-import java.time.Instant;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -48,9 +44,6 @@ public class Running extends StateHandler<State, Context> {
 		// Apply Active and Reactive Power Set-Points
 		this.applyPower(context);
 
-		// Trigger Watchdog
-		this.triggerWatchdog(context);
-
 		return State.RUNNING;
 	}
 
@@ -71,24 +64,6 @@ public class Running extends StateHandler<State, Context> {
 		// Active Power Set-Point is set in % of maximum active power
 		int wSetPct = context.setActivePower * 100 / maxApparentPower;
 		wSetPctChannel.setNextWriteValue(wSetPct);
-	}
-
-	private Instant lastTriggerWatchdog = Instant.MIN;
-
-	/**
-	 * Triggers the Watchdog after half of the WATCHDOG_CYCLES passed.
-	 * 
-	 * @param context the {@link Context}
-	 * @throws OpenemsNamedException on error
-	 */
-	private void triggerWatchdog(Context context) throws OpenemsNamedException {
-		int watchdogSeconds = context.cycle.getCycleTime() / 1000 * KacoBlueplanetGridsave.WATCHDOG_CYCLES;
-		if (Duration.between(this.lastTriggerWatchdog, Instant.now()).getSeconds() > watchdogSeconds / 2) {
-			IntegerWriteChannel watchdogChannel = context.component
-					.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
-			watchdogChannel.setNextWriteValue(watchdogSeconds);
-			this.lastTriggerWatchdog = Instant.now();
-		}
 	}
 
 }

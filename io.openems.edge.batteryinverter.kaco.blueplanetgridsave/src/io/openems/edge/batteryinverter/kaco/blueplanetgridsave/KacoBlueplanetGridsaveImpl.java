@@ -1,7 +1,10 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -41,6 +44,7 @@ import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
@@ -81,17 +85,12 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	private Config config;
 
 	/**
-	 * Was SunSpec initialization completed? This takes some time at startup.
-	 */
-	private boolean isSunSpecInitializationFinished = false;
-
-	/**
 	 * Active SunSpec models for KACO blueplanet gridsave. Commented models are
 	 * available but not used currently.
 	 */
 	private static final Map<ISunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<ISunSpecModel, Priority>builder()
 			.put(SunSpecModel.S_1, Priority.LOW) //
-			// .put(SunSpecModel.S_103, Priority.LOW) //
+			.put(SunSpecModel.S_103, Priority.LOW) //
 			// .put(SunSpecModel.S_113, Priority.LOW) //
 			// .put(SunSpecModel.S_120, Priority.LOW) //
 			.put(SunSpecModel.S_121, Priority.LOW) //
@@ -149,7 +148,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Stop early if initialization is not finished
-		if (!this.isSunSpecInitializationFinished) {
+		if (!this.isSunSpecInitializationCompleted()) {
 			return;
 		}
 
@@ -159,8 +158,14 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 
+		// Trigger the Watchdog
+		this.triggerWatchdog();
+
+		// Set State-Channels
+		this.setStateChannels();
+
 		// Prepare Context
-		Context context = new Context(this, battery, this.cycle, this.config, setActivePower, setReactivePower);
+		Context context = new Context(this, battery, this.config, setActivePower, setReactivePower);
 
 		// Call the StateMachine
 		try {
@@ -250,17 +255,69 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		batTempChannel.setNextWriteValue(battery.getMaxCellTemperature().get());
 	}
 
+	private Instant lastTriggerWatchdog = Instant.MIN;
+
+	/**
+	 * Triggers the Watchdog after half of the WATCHDOG_CYCLES passed.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	private void triggerWatchdog() throws OpenemsNamedException {
+		int watchdogSeconds = this.cycle.getCycleTime() / 1000 * KacoBlueplanetGridsave.WATCHDOG_CYCLES;
+		if (Duration.between(this.lastTriggerWatchdog, Instant.now()).getSeconds() > watchdogSeconds / 2) {
+			IntegerWriteChannel watchdogChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WATCHDOG);
+			watchdogChannel.setNextWriteValue(watchdogSeconds);
+			this.lastTriggerWatchdog = Instant.now();
+		}
+	}
+
+	/**
+	 * Sets the State-Channels, e.g. Warnings and Faults.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	private void setStateChannels() throws OpenemsNamedException {
+		/*
+		 * INVALID_CURRENT_STATE
+		 */
+		StateChannel invalidCurrentStateChannel = this.channel(KacoBlueplanetGridsave.ChannelId.INVALID_CURRENT_STATE);
+		switch (this.getCurrentState()) {
+		case FAULT:
+		case UNDEFINED:
+		case NO_ERROR_PENDING:
+			invalidCurrentStateChannel.setNextValue(true);
+			break;
+		case GRID_CONNECTED:
+		case GRID_PRE_CONNECTED:
+		case MPPT:
+		case OFF:
+		case PRECHARGE:
+		case SHUTTING_DOWN:
+		case SLEEPING:
+		case STANDBY:
+		case STARTING:
+		case THROTTLED:
+			invalidCurrentStateChannel.setNextValue(false);
+			break;
+		}
+	}
+
 	/**
 	 * Mark SunSpec initialization completed; this takes some time at startup.
 	 */
 	@Override
 	protected void onSunSpecInitializationCompleted() {
-		this.logInfo(this.log, "SunSpec initialization finished.");
-		this.isSunSpecInitializationFinished = true;
-
 		this.addCopyListener(//
 				this.getSunSpecChannel(SunSpecModel.S121.W_MAX).get(), //
 				SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER //
+		);
+		this.addCopyListener(//
+				this.getSunSpecChannel(KacoSunSpecModel.S64201.W).get(), //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER //
+		);
+		this.addCopyListener(//
+				this.getSunSpecChannel(KacoSunSpecModel.S64201.V_AR).get(), //
+				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER //
 		);
 	}
 
@@ -302,12 +359,14 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		return this.channel(KacoBlueplanetGridsave.ChannelId.STATE_MACHINE).value().asOptionString();
 	}
 
-	private StartStop startStopTarget = StartStop.UNDEFINED;
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {
-		this.startStopTarget = value;
-		this.stateMachine.forceNextState(State.UNDEFINED);
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
 	}
 
 	@Override
@@ -315,7 +374,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		switch (this.config.startStop()) {
 		case AUTO:
 			// read StartStop-Channel
-			return this.startStopTarget;
+			return this.startStopTarget.get();
 
 		case START:
 			// force START

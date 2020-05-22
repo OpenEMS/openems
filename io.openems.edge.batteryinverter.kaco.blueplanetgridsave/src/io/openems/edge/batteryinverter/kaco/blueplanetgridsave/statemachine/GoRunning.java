@@ -22,6 +22,11 @@ public class GoRunning extends StateHandler<State, Context> {
 
 	@Override
 	public State getNextState(Context context) throws OpenemsNamedException {
+		// Has Faults -> abort
+		if (context.component.hasFaults()) {
+			return State.UNDEFINED;
+		}
+
 		switch (context.component.getCurrentState()) {
 		case GRID_CONNECTED:
 			// All Good

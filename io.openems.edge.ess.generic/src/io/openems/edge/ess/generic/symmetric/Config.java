@@ -20,7 +20,7 @@ public @interface Config {
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
-	StartStopConfig startStop() default StartStopConfig.AUTO;
+	StartStopConfig startStop() default StartStopConfig.START;
 
 	@AttributeDefinition(name = "Battery-Inverter-ID", description = "ID of Battery-Inverter.")
 	String batteryInverter_id() default "batteryInverter0";

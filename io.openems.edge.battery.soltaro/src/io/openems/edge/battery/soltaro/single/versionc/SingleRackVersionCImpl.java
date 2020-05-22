@@ -1,5 +1,6 @@
 package io.openems.edge.battery.soltaro.single.versionc;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -668,12 +669,14 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 		);
 	}
 
-	private StartStop startStopTarget = StartStop.UNDEFINED;
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {
-		this.startStopTarget = value;
-		this.stateMachine.forceNextState(State.UNDEFINED);
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
 	}
 
 	@Override
@@ -681,7 +684,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 		switch (this.config.startStop()) {
 		case AUTO:
 			// read StartStop-Channel
-			return this.startStopTarget;
+			return this.startStopTarget.get();
 
 		case START:
 			// force START
