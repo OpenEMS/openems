@@ -81,7 +81,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
 		this.config = config;
-		this.channel(SymmetricEss.ChannelId.CAPACITY).setNextValue(this.config.essCapacity());
+		this.channel(SymmetricEss.ChannelId.CAPACITY).setNextValue(this.config.capacity());
 	}
 
 	@Deactivate
