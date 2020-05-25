@@ -1,0 +1,8 @@
+= SMA Sunny Tripower PV inverter
+
+Implementation of the SMA Sunny Tripower PV inverters.
+
+Implemented Natures::
+- SymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.sma[Source Code icon:github[]]

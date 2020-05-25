@@ -115,6 +115,7 @@
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
+	bnd.identity;id='io.openems.edge.pvinverter.sma',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
@@ -232,6 +233,7 @@
 	io.openems.edge.pvinverter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version='[1.0.0,1.0.1)',\
+	io.openems.edge.pvinverter.sma;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.solarlog;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.sunspec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.scheduler.allalphabetically;version='[1.0.0,1.0.1)',\
