@@ -123,6 +123,22 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 			));
 		}
 
+		/*
+		 * Create Timedata.Rrd4j
+		 */
+		if (existingConfigs.stream().noneMatch(c -> //
+		// Check if either "Timedata.Rrd4j" or
+		// "Timedata.InfluxDB" exist
+		"Timedata.Rrd4j".equals(c.factoryPid) || "Timedata.InfluxDB".equals(c.factoryPid))) {
+			// if not -> create configuration for "Timedata.Rrd4j"
+			this.createConfiguration(defaultConfigurationFailed, "Timedata.Rrd4j", Arrays.asList(//
+					new Property("id", "rrd4j0"), //
+					new Property("alias", ""), //
+					new Property("enabled", true), //
+					new Property("noOfCycles", 60) //
+			));
+		}
+
 		return defaultConfigurationFailed.get();
 	}
 
