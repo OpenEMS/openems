@@ -185,7 +185,39 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE_NO, new UnsignedWordElement(3018)), //
 						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE, new UnsignedWordElement(3019),
 								new ElementToChannelOffsetConverter(-40))),
-
+				new FC3ReadRegistersTask(3020, Priority.LOW, //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_1, new UnsignedWordElement(3020)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_2, new UnsignedWordElement(3021)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_3, new UnsignedWordElement(3022)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_4, new UnsignedWordElement(3023)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_5, new UnsignedWordElement(3024)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_6, new UnsignedWordElement(3025)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_7, new UnsignedWordElement(3026)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_8, new UnsignedWordElement(3027)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_9, new UnsignedWordElement(3028)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_10, new UnsignedWordElement(3029)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_11, new UnsignedWordElement(3030)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_12, new UnsignedWordElement(3031)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_13, new UnsignedWordElement(3032)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_14, new UnsignedWordElement(3033)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_15, new UnsignedWordElement(3034)), //
+						m(EssChannelId.BATTERY_VOLTAGE_SECTION_16, new UnsignedWordElement(3035)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_1, new UnsignedWordElement(3036)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_2, new UnsignedWordElement(3037)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_3, new UnsignedWordElement(3038)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_4, new UnsignedWordElement(3039)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_5, new UnsignedWordElement(3040)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_6, new UnsignedWordElement(3041)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_7, new UnsignedWordElement(3042)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_8, new UnsignedWordElement(3043)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_9, new UnsignedWordElement(3044)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_10, new UnsignedWordElement(3045)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_11, new UnsignedWordElement(3046)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_12, new UnsignedWordElement(3047)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_13, new UnsignedWordElement(3048)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_14, new UnsignedWordElement(3049)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_15, new UnsignedWordElement(3050)), //
+						m(EssChannelId.BATTERY_TEMPERATURE_SECTION_16, new UnsignedWordElement(3051))), //
 				new FC3ReadRegistersTask(3200, Priority.LOW, //
 						m(EssChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
 						m(EssChannelId.BECU2_DISCHARGE_CURRENT, new UnsignedWordElement(3201)), //
