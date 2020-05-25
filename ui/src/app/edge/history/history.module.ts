@@ -52,6 +52,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { ChpSocModalComponent } from './chpsoc/modal/modal.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
+import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
 
 @NgModule({
   imports: [
@@ -88,6 +89,7 @@ import { ChpSocChartComponent } from './chpsoc/chart.component';
     ChpSocWidgetComponent,
     ConsumptionComponent,
     ConsumptionEvcsChartComponent,
+    ConsumptionMeterChartComponent,
     ConsumptionModalComponent,
     ConsumptionOtherChartComponent,
     ConsumptionSingleChartComponent,
