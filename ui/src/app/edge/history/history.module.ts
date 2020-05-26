@@ -53,6 +53,10 @@ import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { ChpSocModalComponent } from './chpsoc/modal/modal.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
+import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.component';
+import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
+import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlechart.component';
+import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
 
 @NgModule({
   imports: [
@@ -65,6 +69,7 @@ import { ConsumptionMeterChartComponent } from './consumption/meterchart.compone
     ChpSocModalComponent,
     ConsumptionModalComponent,
     EnergyModalComponent,
+    FixDigitalOutputModalComponent,
     GridModalComponent,
     HeatingelementModalComponent,
     ProductionModalComponent,
@@ -96,6 +101,10 @@ import { ConsumptionMeterChartComponent } from './consumption/meterchart.compone
     ConsumptionTotalChartComponent,
     EnergyComponent,
     EnergyModalComponent,
+    FixDigitalOutputModalComponent,
+    FixDigitalOutputSingleChartComponent,
+    FixDigitalOutputTotalChartComponent,
+    FixDigitalOutputWidgetComponent,
     GridChartComponent,
     GridComponent,
     GridModalComponent,
