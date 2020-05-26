@@ -23,7 +23,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-Id", description = "ID of the Grid-Meter.")
 	String meter_id() default "meter0";
 
-	@AttributeDefinition(name = "Charger-IDs", description = "IDs of Charger.")
+	@AttributeDefinition(name = "Charger-IDs", description = "IDs of Chargers.")
 	String[] charger_ids() default "charger0";
 
 	@AttributeDefinition(name = "Number of buffer hours", description = "The number of buffer hours to make sure the battery still "

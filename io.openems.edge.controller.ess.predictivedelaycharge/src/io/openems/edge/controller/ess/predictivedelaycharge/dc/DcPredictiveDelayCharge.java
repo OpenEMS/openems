@@ -9,8 +9,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
@@ -34,8 +32,6 @@ import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge implements Controller, OpenemsComponent {
 
 	private Config config;
-	
-	private final Logger log = LoggerFactory.getLogger(DcPredictiveDelayCharge.class);
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -78,12 +74,7 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 			Integer productionPower = 0;
 			for (String chargerId : this.config.charger_ids()) {
 				EssDcCharger charger;
-				try {
-					charger = this.componentManager.getComponent(chargerId);
-				} catch (OpenemsNamedException e) {
-					this.logError(this.log, e.getMessage());
-					continue;
-				}
+				charger = this.componentManager.getComponent(chargerId);
 				productionPower += charger.getActualPower().value().orElse(0);
 			}
 			calculatedPower = productionPower - calculatedPower;
@@ -96,5 +87,5 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 			}
 		}
 	}
-	
+
 }
