@@ -1,5 +1,7 @@
 package io.openems.edge.controller.generic.jsonlogic;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
@@ -19,7 +21,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setRule(String rule) {
+		public Builder setRule(String rule) throws OpenemsNamedException {
+			JsonUtils.prettyPrint(JsonUtils.parse(rule));
 			this.rule = rule;
 			return this;
 		}
