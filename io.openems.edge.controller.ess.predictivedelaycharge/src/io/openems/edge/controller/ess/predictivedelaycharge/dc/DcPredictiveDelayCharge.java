@@ -71,10 +71,9 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 
 		// checking if power per second is calculated
 		if (calculatedPower != null) {
-			Integer productionPower = 0;
+			int productionPower = 0;
 			for (String chargerId : this.config.charger_ids()) {
-				EssDcCharger charger;
-				charger = this.componentManager.getComponent(chargerId);
+				EssDcCharger charger = this.componentManager.getComponent(chargerId);
 				productionPower += charger.getActualPower().value().orElse(0);
 			}
 			calculatedPower = productionPower - calculatedPower;
