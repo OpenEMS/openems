@@ -40,9 +40,9 @@ public class InfluxConnector {
 	public final static String MEASUREMENT = "data";
 
 	private final static Logger log = LoggerFactory.getLogger(InfluxConnector.class);
-	private final static int CONNECT_TIMEOUT = 60; // [s]
-	private final static int READ_TIMEOUT = 60; // [s]
-	private final static int WRITE_TIMEOUT = 60; // [s]
+	private final static int CONNECT_TIMEOUT = 10; // [s]
+	private final static int READ_TIMEOUT = 10; // [s]
+	private final static int WRITE_TIMEOUT = 10; // [s]
 
 	private final String ip;
 	private final int port;
@@ -120,6 +120,39 @@ public class InfluxConnector {
 		}
 	}
 
+	private static class RandomLimit {
+		private final static double MAX_LIMIT = 0.95;
+		private final static double MIN_LIMIT = 0;
+		private final static double STEP = 0.01;
+
+		private double limit = 0;
+
+		protected synchronized void increase() {
+			this.limit += STEP;
+			if (this.limit > MAX_LIMIT) {
+				this.limit = MAX_LIMIT;
+			}
+		}
+
+		protected synchronized void decrease() {
+			this.limit -= STEP;
+			if (this.limit <= MIN_LIMIT) {
+				this.limit = MIN_LIMIT;
+			}
+		}
+
+		protected double getLimit() {
+			return limit;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%.3f", this.limit);
+		}
+	}
+
+	private final RandomLimit queryLimit = new RandomLimit();
+
 	/**
 	 * copied from backend.timedata.influx.provider
 	 * 
@@ -128,6 +161,10 @@ public class InfluxConnector {
 	 * @throws OpenemsException
 	 */
 	public QueryResult executeQuery(String query) throws OpenemsException {
+		if (Math.random() < this.queryLimit.getLimit()) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked [" + this.queryLimit + "]");
+		}
+
 		InfluxDB influxDB = this.getConnection();
 
 		// Parse result
@@ -135,11 +172,14 @@ public class InfluxConnector {
 		try {
 			queryResult = influxDB.query(new Query(query, this.database), TimeUnit.MILLISECONDS);
 		} catch (RuntimeException e) {
+			this.queryLimit.increase();
 			throw new OpenemsException("InfluxDB query runtime error. Query: " + query + ", Error: " + e.getMessage());
 		}
 		if (queryResult.hasError()) {
+			this.queryLimit.increase();
 			throw new OpenemsException("InfluxDB query error. Query: " + query + ", Error: " + queryResult.getError());
 		}
+		this.queryLimit.decrease();
 		return queryResult;
 	}
 
