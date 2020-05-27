@@ -114,7 +114,7 @@ export abstract class AbstractHistoryChart {
      * Initializes empty chart on error
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
+        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.tryAgain')
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
