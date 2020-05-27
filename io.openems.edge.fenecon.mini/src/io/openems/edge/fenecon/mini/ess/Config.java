@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.ess.api.SinglePhase;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "FENECON Mini ESS", //
 		description = "The energy storage system implementation of a FENECON Mini.")
 @interface Config {

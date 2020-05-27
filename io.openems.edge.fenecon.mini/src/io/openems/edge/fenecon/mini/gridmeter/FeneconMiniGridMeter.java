@@ -30,7 +30,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Mini.GridMeter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -107,8 +107,7 @@ public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent impleme
 		return "L:" + this.getActivePower().value().asString();
 	}
 
-	private final static ElementToChannelConverter SIGNED_POWER_CONVERTER_AND_INVERT = new ElementToChannelConverter( //
-			// element -> channel
+	private static final ElementToChannelConverter SIGNED_POWER_CONVERTER_AND_INVERT = new ElementToChannelConverter(//
 			value -> {
 				if (value == null) {
 					return null;
@@ -119,6 +118,5 @@ public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent impleme
 				}
 				return intValue * -1; // invert
 			}, //
-				// channel -> element
 			value -> value);
 }
