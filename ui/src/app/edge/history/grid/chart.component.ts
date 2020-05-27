@@ -141,7 +141,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart();
+            this.initializeChart(reason);
             return;
         });
     }

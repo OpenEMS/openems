@@ -80,7 +80,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             this.loading = false;
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart();
+            this.initializeChart(reason);
             return;
         });
     }
