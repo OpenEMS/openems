@@ -74,7 +74,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
 
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart();
+            this.initializeChart(reason);
             return;
         });
     }
