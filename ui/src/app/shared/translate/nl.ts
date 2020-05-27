@@ -225,6 +225,7 @@ export const TRANSLATION = {
             lastYear: 'Vorig jaar',
             month: 'Maand',
             noData: 'geen gegevens beschikbaar',
+            tryAgain: 'Probeer het later nog eens...',
             otherPeriod: 'Andere periode',
             period: 'Periode',
             selectedDay: '{{value}}',

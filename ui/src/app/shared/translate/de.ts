@@ -228,6 +228,7 @@ export const TRANSLATION = {
             lastYear: 'Letztes Jahr',
             month: 'Monat',
             noData: 'keine Daten verfügbar',
+            tryAgain: 'versuchen Sie es später noch einmal...',
             otherPeriod: 'Anderer Zeitraum',
             period: 'Zeitraum',
             selectedDay: '{{value}}',
