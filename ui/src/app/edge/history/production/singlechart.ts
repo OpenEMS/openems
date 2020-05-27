@@ -106,17 +106,17 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
 
                 }).catch(reason => {
                     console.error(reason); // TODO error message
-                    this.initializeChart();
+                    this.initializeChart(reason);
                     return;
                 });
             }).catch(reason => {
                 console.error(reason); // TODO error message
-                this.initializeChart();
+                this.initializeChart(reason);
                 return;
             });
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart();
+            this.initializeChart(reason);
             return;
         });
     }

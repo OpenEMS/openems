@@ -109,7 +109,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
 
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart();
+            this.initializeChart(reason);
             return;
         });
     }

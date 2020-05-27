@@ -227,6 +227,7 @@ export const TRANSLATION = {
             lastYear: 'Poslední rok',
             month: 'Měsíc',
             noData: 'data nejsou k dispozici',
+            tryAgain: 'Zkuste to později znovu...',
             otherPeriod: 'Další období',
             period: 'Období',
             selectedDay: '{{value}}',

@@ -90,12 +90,12 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                 this.loading = false;
             }).catch(reason => {
                 console.error(reason); // TODO error message
-                this.initializeChart();
+                this.initializeChart(reason);
                 return;
             });
         }).catch(reason => {
             console.error(reason); // TODO error message
-            this.initializeChart();
+            this.initializeChart(reason);
             return;
         });
     }
