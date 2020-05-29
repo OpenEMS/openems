@@ -103,7 +103,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 			// .put(SunSpecModel.S_135, Priority.LOW) //
 			// .put(SunSpecModel.S_136, Priority.LOW) //
 			// .put(SunSpecModel.S_160, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64201, Priority.LOW) //
+			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
 			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
