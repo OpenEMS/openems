@@ -4,13 +4,10 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.cluster.enums.Rack;
-import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
-import io.openems.edge.battery.soltaro.cluster.enums.StartStop;
-import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.Context;
-import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
+import io.openems.edge.common.statemachine.StateHandler;
 
-public class ErrorHandling extends State.Handler {
+public class ErrorHandling extends StateHandler<State, Context> {
 
 	private Instant entryAt = Instant.MIN;
 
@@ -19,17 +16,13 @@ public class ErrorHandling extends State.Handler {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		context.component.setStartStop(StartStop.STOP);
-		for (Rack rack : Rack.values()) {
-			EnumWriteChannel rackUsageChannel = context.component.channel(rack.usageChannelId);
-			rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
-		}
+		context.component.setClusterStartStop(ClusterStartStop.STOP);
 	}
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		context.component.setMaxStartAttempts(false);
-		context.component.setMaxStopAttempts(false);
+		context.component._setMaxStartAttempts(false);
+		context.component._setMaxStopAttempts(false);
 	}
 
 	@Override

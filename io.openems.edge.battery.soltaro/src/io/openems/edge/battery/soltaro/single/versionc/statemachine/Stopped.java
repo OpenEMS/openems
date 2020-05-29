@@ -10,7 +10,7 @@ public class Stopped extends StateHandler<State, Context> {
 		// Mark as stopped
 		context.component._setStartStop(StartStop.STOP);
 
-		return State.UNDEFINED;
+		return State.STOPPED;
 	}
 
 }

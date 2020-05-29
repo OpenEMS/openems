@@ -3,6 +3,7 @@ package io.openems.edge.battery.soltaro.cluster.versionc;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -24,10 +25,10 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
-import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
-import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine;
+import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
+import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.State;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
@@ -50,6 +51,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -73,7 +77,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine stateMachine = new StateMachine();
+	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
 
 	private Config config;
 	private Set<Rack> racks = new HashSet<>();
@@ -85,6 +89,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				SoltaroBattery.ChannelId.values(), //
 				SoltaroBatteryVersionC.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				ClusterVersionC.ChannelId.values() //
 		);
 	}
@@ -158,29 +163,29 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		// Store the current State
 		this.channel(ClusterVersionC.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
-		// Initialize 'Ready-For-Working' Channel
-		this.setReadyForWorking(false);
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		StateMachine.Context context = new StateMachine.Context(this, this.config);
+		Context context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
 
-			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(false);
+			this.channel(ClusterVersionC.ChannelId.RUN_FAILED).setNextValue(false);
 
 		} catch (OpenemsNamedException e) {
-			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(true);
+			this.channel(ClusterVersionC.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() //
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
@@ -201,7 +206,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(SoltaroBatteryVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x1026)) //
 				), //
 				new FC16WriteRegistersTask(0x10C3, //
-						m(SoltaroCluster.ChannelId.START_STOP, new UnsignedWordElement(0x10C3)), //
+						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x10C3)), //
 						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x10C4)), //
 						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x10C5)), //
 						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x10C6)), //
@@ -209,7 +214,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x10C8)) //
 				), //
 				new FC3ReadRegistersTask(0x10C3, Priority.LOW,
-						m(SoltaroCluster.ChannelId.START_STOP, new UnsignedWordElement(0x10C3)), //
+						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x10C3)), //
 						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x10C4)), //
 						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x10C5)), //
 						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x10C6)), //
@@ -870,16 +875,6 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Override
-	public boolean isSystemStopped() {
-		return this.getCommonPreChargeControl().orElse(PreChargeControl.UNDEFINED) == PreChargeControl.SWITCH_OFF;
-	}
-
-	@Override
-	public boolean isSystemRunning() {
-		return this.getCommonPreChargeControl().orElse(PreChargeControl.UNDEFINED) == PreChargeControl.SWITCH_ON;
-	}
-
-	@Override
 	public Optional<PreChargeControl> getCommonPreChargeControl() {
 		StringBuilder b = new StringBuilder();
 
@@ -910,6 +905,36 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	@Override
 	public Set<Rack> getRacks() {
 		return racks;
+	}
+
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+
+	@Override
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.config.startStop()) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget.get();
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
 	}
 
 }

@@ -16,26 +16,72 @@ import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 
 public interface ClusterVersionC extends //
 		SoltaroBatteryVersionC, SoltaroCluster, Battery, //
-		OpenemsComponent, EventHandler, ModbusSlave {
+		StartStoppable, OpenemsComponent, EventHandler, ModbusSlave {
 
 	/**
-	 * Is the system stopped?
+	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
 	 * 
-	 * @return true if stopped
+	 * @return the Channel
 	 */
-	public boolean isSystemStopped();
+	public default StateChannel getMaxStartAttemptsChannel() {
+		return this.channel(ChannelId.MAX_START_ATTEMPTS);
+	}
 
 	/**
-	 * Is the system running?
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
 	 * 
-	 * @return true if running
+	 * @return the Channel {@link Value}
 	 */
-	public boolean isSystemRunning();
+	public default Value<Boolean> getMaxStartAttempts() {
+		return this.getMaxStartAttemptsChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStartAttempts(Boolean value) {
+		this.getMaxStartAttemptsChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getMaxStopAttemptsChannel() {
+		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
+	}
+
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getMaxStopAttempts() {
+		return this.getMaxStopAttemptsChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxStopAttempts(Boolean value) {
+		this.getMaxStopAttemptsChannel().setNextValue(value);
+	}
 
 	/**
 	 * Gets the common {@link PreChargeControl}. If all Racks share the same
@@ -52,7 +98,14 @@ public interface ClusterVersionC extends //
 	 * 
 	 * @return a set of Racks
 	 */
-	Set<Rack> getRacks();
+	public Set<Rack> getRacks();
+
+	/**
+	 * Gets the target Start/Stop mode from config or StartStop-Channel.
+	 * 
+	 * @return {@link StartStop}
+	 */
+	public StartStop getStartStopTarget();
 
 	/**
 	 * Gets the Channel for a Rack.
@@ -151,7 +204,16 @@ public interface ClusterVersionC extends //
 		RACK_5_OVER_CURRENT(Doc.of(Level.FAULT) //
 				.text("Rack 5 Too big circulating Current among clusters (>4A)")),
 		RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-				.text("Rack 5 Too big boltage difference among clusters (>50V)")),;
+				.text("Rack 5 Too big boltage difference among clusters (>50V)")),
+
+		// OpenEMS Faults
+		RUN_FAILED(Doc.of(Level.FAULT) //
+				.text("Running the Logic failed")), //
+		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+				.text("The maximum number of start attempts failed")), //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+				.text("The maximum number of stop attempts failed")), //
+		;
 
 		private final Doc doc;
 

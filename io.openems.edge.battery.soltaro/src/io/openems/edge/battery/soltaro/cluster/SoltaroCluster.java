@@ -10,31 +10,59 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.RunningState;
-import io.openems.edge.battery.soltaro.cluster.enums.StartStop;
+import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 
 public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
-	public default EnumWriteChannel getStartStopChannel() {
-		return this.channel(ChannelId.START_STOP);
+	/**
+	 * Gets the Channel for {@link ChannelId#CLUSTER_START_STOP}.
+	 * 
+	 * @return the Channel
+	 */
+	public default WriteChannel<ClusterStartStop> getClusterStartStopChannel() {
+		return this.channel(ChannelId.CLUSTER_START_STOP);
 	}
 
-	public default StartStop getStartStop() {
-		return this.getStartStopChannel().value().asEnum();
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#CLUSTER_START_STOP}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default ClusterStartStop getClusterStartStop() {
+		return this.getClusterStartStopChannel().value().asEnum();
 	}
 
-	public default void setStartStop(StartStop value) throws OpenemsNamedException {
-		this.getStartStopChannel().setNextWriteValue(value);
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CLUSTER_START_STOP} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setClusterStartStop(ClusterStartStop value) {
+		this.getClusterStartStopChannel().setNextValue(value);
+	}
+
+	/**
+	 * Writes the value to the {@link ChannelId#CLUSTER_START_STOP} Register.
+	 * 
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setClusterStartStop(ClusterStartStop value) throws OpenemsNamedException {
+		this.getClusterStartStopChannel().setNextWriteValue(value);
 	}
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/*
 		 * EnumWriteChannels
 		 */
-		START_STOP(Doc.of(StartStop.values()) //
+		CLUSTER_START_STOP(Doc.of(ClusterStartStop.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		RACK_1_USAGE(Doc.of(RackUsage.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //

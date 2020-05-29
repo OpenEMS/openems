@@ -26,7 +26,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.State;
-import io.openems.edge.battery.soltaro.single.versionc.utils.CellChannelFactory;
+import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
