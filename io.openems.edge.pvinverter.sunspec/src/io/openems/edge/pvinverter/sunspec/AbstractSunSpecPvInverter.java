@@ -1,5 +1,6 @@
 package io.openems.edge.pvinverter.sunspec;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -14,34 +15,27 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
+import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecComponent
-		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
-
-	private static final SunSpecModelType[] MODEL_TYPES = { //
-			SunSpecModelType.COMMON, SunSpecModelType.INVERTER //
-	};
+		implements SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecPvInverter.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this);
 
-	public AbstractSunSpecPvInverter() {
-		super(//
-				MODEL_TYPES, //
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				ManagedSymmetricPvInverter.ChannelId.values(), //
-				PvChannelId.values() //
-		);
+	public AbstractSunSpecPvInverter(Map<ISunSpecModel, Priority> activeModels,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
 	/**
@@ -86,9 +80,9 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 			try {
 				this.setPvLimitHandler.run();
 
-				this.channel(PvChannelId.PV_LIMIT_FAILED).setNextValue(false);
+				this.channel(SunSpecPvInverter.ChannelId.PV_LIMIT_FAILED).setNextValue(false);
 			} catch (OpenemsNamedException e) {
-				this.channel(PvChannelId.PV_LIMIT_FAILED).setNextValue(true);
+				this.channel(SunSpecPvInverter.ChannelId.PV_LIMIT_FAILED).setNextValue(true);
 			}
 			break;
 		}

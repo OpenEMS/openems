@@ -5,10 +5,10 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
-import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.Context;
-import io.openems.edge.battery.soltaro.versionc.utils.Constants;
+import io.openems.edge.battery.soltaro.single.versionc.utils.Constants;
+import io.openems.edge.common.statemachine.StateHandler;
 
-public class GoStopped extends State.Handler {
+public class GoStopped extends StateHandler<State, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
@@ -34,7 +34,7 @@ public class GoStopped extends State.Handler {
 
 			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component.setMaxStopAttempts(true);
+				context.component._setMaxStopAttempts(true);
 				return State.UNDEFINED;
 
 			} else {

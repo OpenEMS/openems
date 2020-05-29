@@ -34,7 +34,6 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -48,7 +47,6 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.goodwe.et.GoodWeEtConstants;
 import io.openems.edge.goodwe.et.charger.AbstractGoodWeEtCharger;
 
 @Designate(ocd = Config.class, factory = true)
@@ -97,7 +95,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				EssChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(GoodWeEtConstants.MAX_APPARENT_POWER);
 	}
 
 	public String getModbusBridgeId() {
@@ -107,6 +104,9 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
+
+				new FC3ReadRegistersTask(35001, Priority.ONCE, //
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001))), //
 
 				new FC3ReadRegistersTask(35111, Priority.LOW, //
 						m(EssChannelId.V_PV3, new UnsignedWordElement(35111),
@@ -205,11 +205,10 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 				// Ess Active charge energy
 				new FC3ReadRegistersTask(35206, Priority.LOW, //
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(35206),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
-
-				// Ess Active Discharge energy
-				new FC3ReadRegistersTask(35209, Priority.LOW, //
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(35206), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						new DummyRegisterElement(35208), //
+						// Ess Active Discharge energy
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(35209),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 
@@ -255,13 +254,10 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 						m(EssChannelId.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002))), //
 
 				new FC16WriteRegistersTask(47500, //
-						m(EssChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500))), //
-
-				new FC16WriteRegistersTask(47509, //
+						m(EssChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
+						new DummyRegisterElement(47501, 47508), //
 						m(EssChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(47509)), //
-						m(EssChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510))), //
-
-				new FC16WriteRegistersTask(47511, //
+						m(EssChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510)), //
 						m(EssChannelId.EMS_POWER_MODE, new UnsignedWordElement(47511)), //
 						m(EssChannelId.EMS_POWER_SET, new UnsignedWordElement(47512))), //
 
@@ -271,9 +267,8 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 						m(EssChannelId.CLEAR_ALL_ECONOMIC_MODE, new UnsignedWordElement(47533))), //
 
 				new FC3ReadRegistersTask(47500, Priority.LOW,
-						m(EssChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500))), //
-
-				new FC3ReadRegistersTask(47509, Priority.LOW,
+						m(EssChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500)), //
+						new DummyRegisterElement(47501, 47508), //
 						m(EssChannelId.FEED_POWER_ENABLE, new UnsignedWordElement(47509)), //
 						m(EssChannelId.FEED_POWER_PARA, new UnsignedWordElement(47510))), //
 
@@ -334,13 +329,11 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 								.bit(1, EssChannelId.STATE_80) //
 								.bit(2, EssChannelId.STATE_81))), //
 
-				new FC3ReadRegistersTask(47902, Priority.HIGH, //
+				new FC3ReadRegistersTask(47902, Priority.LOW, //
 						m(EssChannelId.WBMS_BAT_CHARGE_VMAX, new UnsignedWordElement(47902)), //
 						m(EssChannelId.WBMS_BAT_CHARGE_IMAX, new UnsignedWordElement(47903)), //
 						m(EssChannelId.WBMS_BAT_DISCHARGE_VMIN, new UnsignedWordElement(47904)), //
-						m(EssChannelId.WBMS_BAT_DISCHARGE_IMAX, new UnsignedWordElement(47905))), //
-
-				new FC3ReadRegistersTask(47906, Priority.LOW, //
+						m(EssChannelId.WBMS_BAT_DISCHARGE_IMAX, new UnsignedWordElement(47905)), //
 						m(EssChannelId.WBMS_BAT_VOLTAGE, new UnsignedWordElement(47906)), //
 						m(EssChannelId.WBMS_BAT_CURRENT, new UnsignedWordElement(47907)), //
 						m(EssChannelId.WBMS_BAT_SOC, new UnsignedWordElement(47908)), //
@@ -386,65 +379,56 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+		final PowerModeEms nextPowerMode;
 
 		if (this.config.readOnlyMode()) {
-			return;
-		}
+			// Read-Only-Mode: fall-back to internal self-consumption optimization
+			nextPowerMode = PowerModeEms.AUTO;
+			activePower = 0;
+		} else {
+			if (activePower <= 0) {
+				// ActivePower is negative or zero -> CHARGE
+				nextPowerMode = PowerModeEms.CHARGE_BAT;
 
-		PowerModeEms writePowerModeEms = PowerModeEms.AUTO;
-
-		// Set to Off-grid Power Mode if Grid-mode is Off-grid or Undefined (Fault).
-		if (this.getGridMode().value().asEnum() == GridMode.UNDEFINED //
-				|| this.getGridMode().value().asEnum() == GridMode.OFF_GRID) {
-			writePowerModeEms = PowerModeEms.OFF_GRID;
-		}
-
-		// Charge if the value is Negative
-		else if (activePower < 0) {
-			writePowerModeEms = PowerModeEms.CHARGE_BAT;
-		}
-
-		// Discharge if the value is Positive
-		else if (activePower > 0) {
-			/*
-			 * Check if PV is available.
-			 * 
-			 * Discharge mode changes according to availability of PV
-			 * 
-			 * TODO PV mode is not working, need an update from GoodWe for this.
-			 */
-			Integer productionPower = null;
-
-			for (AbstractGoodWeEtCharger charger : this.chargers) {
-				productionPower = TypeUtils.sum(productionPower, charger.getActualPower().getNextValue().get());
-			}
-
-			if (productionPower == null) {
-				// no PV connection
-				writePowerModeEms = PowerModeEms.SELL_POWER;
 			} else {
-				writePowerModeEms = PowerModeEms.DISCHARGE_BAT;
+				// ActivePower is positive -> DISCHARGE
+
+				/*
+				 * Check if PV is available. Discharge mode changes according to availability of
+				 * PV
+				 * 
+				 * TODO PV mode is not working, need an update from GoodWe for this.
+				 */
+				Integer productionPower = null;
+				for (AbstractGoodWeEtCharger charger : this.chargers) {
+					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().value().get());
+				}
+				if (productionPower == null) {
+					// No PV-Power -> required to put on SELL_POWER
+					nextPowerMode = PowerModeEms.SELL_POWER;
+				} else {
+					// PV-Power exists -> set DISCHARGE_BAT
+					nextPowerMode = PowerModeEms.DISCHARGE_BAT;
+				}
 			}
 		}
 
 		// Set the PowerMode and PowerSet
-		IntegerReadChannel powerSet = this.channel(EssChannelId.EMS_POWER_SET);
-		IntegerWriteChannel setPowerSet = this.channel(EssChannelId.EMS_POWER_SET);
+		IntegerWriteChannel emsPowerSetChannel = this.channel(EssChannelId.EMS_POWER_SET);
 
-		// Set to new power mode only if the previous mode is different
-		if (activePower != powerSet.value().get()) {
-			setPowerSet.setNextWriteValue(Math.abs(activePower));
+		Integer essPowerSet = emsPowerSetChannel.value().get();
+		if (essPowerSet == null || activePower != essPowerSet) {
+			// Set to new power mode only if the previous activePower is different or
+			// undefined
+			emsPowerSetChannel.setNextWriteValue(Math.abs(activePower));
 		}
 
-		EnumReadChannel powerMode = this.channel(EssChannelId.EMS_POWER_MODE);
-		PowerModeEms readPowermodeEms = powerMode.value().asEnum();
-		EnumWriteChannel setPowerMode = this.channel(EssChannelId.EMS_POWER_MODE);
-
-		// Set to new power mode only if the previous mode is different
-		if ((readPowermodeEms != writePowerModeEms)) {
-			setPowerMode.setNextWriteValue(writePowerModeEms);
+		EnumWriteChannel emsPowerModeChannel = this.channel(EssChannelId.EMS_POWER_MODE);
+		PowerModeEms emsPowerMode = emsPowerModeChannel.value().asEnum();
+		if (emsPowerMode != nextPowerMode) {
+			// Set to new power mode only if the previous mode is different
+			emsPowerModeChannel.setNextWriteValue(nextPowerMode);
 		}
-
 		// TODO : Add Reactive Power Register
 	}
 
@@ -475,9 +459,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-
 			this.updatechannels();
-
 			break;
 		}
 	}
@@ -499,16 +481,17 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		 */
 
 		Integer soc = this.getSoc().value().get();
+		Integer maxApparentPower = this.getMaxApparentPower().value().get();
 
 		if (soc == null || soc >= 99) {
 			this.getAllowedCharge().setNextValue(0);
 		} else {
-			this.getAllowedCharge().setNextValue(GoodWeEtConstants.MAX_APPARENT_POWER * -1);
+			this.getAllowedCharge().setNextValue(TypeUtils.multiply(maxApparentPower, -1) );
 		}
 		if (soc == null || soc <= 0) {
 			this.getAllowedDischarge().setNextValue(0);
 		} else {
-			this.getAllowedDischarge().setNextValue(GoodWeEtConstants.MAX_APPARENT_POWER);
+			this.getAllowedDischarge().setNextValue(maxApparentPower);
 		}
 	}
 
@@ -533,5 +516,4 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		}
 		return Power.NO_CONSTRAINTS;
 	}
-
 }

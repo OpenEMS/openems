@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -41,6 +42,9 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -59,7 +63,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE , //
 		EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE}) //
 public class EssSinexcel extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent {
+		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssSinexcel.class);
 
@@ -152,17 +156,17 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.battery.getSoc().onChange((oldValue, newValue) -> {
+		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
 			this.getSoc().setNextValue(newValue.get());
 			this.channel(SinexcelChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
+			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get()); // FIXME Why?
 		});
 
-		this.battery.getVoltage().onChange((oldValue, newValue) -> {
+		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
 		
-		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
+		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
 		});
 	}
@@ -177,10 +181,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
-		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
+		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+		int disMinV = battery.getDischargeMinVoltage().orElse(0);
+		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
 
 		// Sinexcel range for Max charge/discharge current is 0A to 90A,
 		if (chaMaxA > 90) {
@@ -675,7 +679,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		if (!battery.getReadyForWorking().value().orElse(false)) {
+		if (battery.getStartStop() != StartStop.START) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
@@ -806,5 +810,14 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	public IntegerWriteChannel getVoltage() {
 		return this.channel(SinexcelChannelId.BAT_VOLTAGE);
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 }

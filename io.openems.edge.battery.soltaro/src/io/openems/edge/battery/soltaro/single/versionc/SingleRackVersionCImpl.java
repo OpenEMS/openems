@@ -1,5 +1,6 @@
 package io.openems.edge.battery.soltaro.single.versionc;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -23,10 +24,9 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.State;
-import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine;
-import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
-import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
+import io.openems.edge.battery.soltaro.single.versionc.utils.CellChannelFactory;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -44,6 +44,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -54,8 +57,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
-public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
-		implements SingleRackVersionC, SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
+public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent implements SingleRackVersionC,
+		SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(SingleRackVersionCImpl.class);
 
@@ -65,7 +68,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine stateMachine = new StateMachine();
+	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
 
 	private Config config;
 
@@ -74,7 +77,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				SoltaroBattery.ChannelId.values(), //
-				SoltaroBatteryVersionC.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				SingleRackVersionC.ChannelId.values() //
 		);
 	}
@@ -95,7 +98,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
 
 		// Set Watchdog Timeout
-		IntegerWriteChannel c = this.channel(SoltaroBatteryVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT);
+		IntegerWriteChannel c = this.channel(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT);
 		c.setNextWriteValue(config.watchdog());
 
 		// Set State-Of-Charge Low Alarrm
@@ -131,29 +134,29 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 		// Store the current State
 		this.channel(SingleRackVersionC.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
-		// Initialize 'Ready-For-Working' Channel
-		this.setReadyForWorking(false);
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		StateMachine.Context context = new StateMachine.Context(this, this.config);
+		Context context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
 
-			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(false);
+			this.channel(SingleRackVersionC.ChannelId.RUN_FAILED).setNextValue(false);
 
 		} catch (OpenemsNamedException e) {
-			this.channel(SoltaroBatteryVersionC.ChannelId.RUN_FAILED).setNextValue(true);
+			this.channel(SingleRackVersionC.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value() //
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
@@ -196,15 +199,15 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionC.ChannelId.SLEEP, new UnsignedWordElement(0x201D)) //
 				), //
 				new FC16WriteRegistersTask(0x200B, //
-						m(SoltaroBatteryVersionC.ChannelId.EMS_ADDRESS, new UnsignedWordElement(0x200B)), //
-						m(SoltaroBatteryVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x200C)) //
+						m(SingleRackVersionC.ChannelId.EMS_ADDRESS, new UnsignedWordElement(0x200B)), //
+						m(SingleRackVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x200C)) //
 				), //
 				new FC6WriteRegisterTask(0x20C1, //
 						m(SingleRackVersionC.ChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE,
 								new UnsignedWordElement(0x20C1)) //
 				), //
 				new FC6WriteRegisterTask(0x20F4,
-						m(SoltaroBatteryVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
+						m(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
 				), //
 				new FC6WriteRegisterTask(0x20CC, //
 						m(SingleRackVersionC.ChannelId.SYSTEM_TOTAL_CAPACITY, new UnsignedWordElement(0x20CC)) //
@@ -217,8 +220,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				), //
 
 				new FC3ReadRegistersTask(0x200B, Priority.LOW, //
-						m(SoltaroBatteryVersionC.ChannelId.EMS_ADDRESS, new UnsignedWordElement(0x200B)), //
-						m(SoltaroBatteryVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x200C)), //
+						m(SingleRackVersionC.ChannelId.EMS_ADDRESS, new UnsignedWordElement(0x200B)), //
+						m(SingleRackVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x200C)), //
 						new DummyRegisterElement(0x200D, 0x200F),
 						m(SingleRackVersionC.ChannelId.PRE_CHARGE_CONTROL, new UnsignedWordElement(0x2010)), //
 						new DummyRegisterElement(0x2011, 0x2013),
@@ -237,7 +240,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				), //
 				new FC3ReadRegistersTask(0x20F3, Priority.LOW, //
 						m(SingleRackVersionC.ChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)), //
-						m(SoltaroBatteryVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
+						m(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
 				), //
 					// Single Cluster Running Status Registers
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
@@ -313,70 +316,70 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						// Level 2 Alarm: BMS Self-protect, main contactor shut down
 						m(new BitsWordElement(0x2140, this) //
-								.bit(0, SoltaroBatteryVersionC.ChannelId.LEVEL2_CELL_VOLTAGE_HIGH) //
-								.bit(1, SoltaroBatteryVersionC.ChannelId.LEVEL2_TOTAL_VOLTAGE_HIGH) //
-								.bit(2, SoltaroBatteryVersionC.ChannelId.LEVEL2_CHARGE_CURRENT_HIGH) //
-								.bit(3, SoltaroBatteryVersionC.ChannelId.LEVEL2_CELL_VOLTAGE_LOW) //
-								.bit(4, SoltaroBatteryVersionC.ChannelId.LEVEL2_TOTAL_VOLTAGE_LOW) //
-								.bit(5, SoltaroBatteryVersionC.ChannelId.LEVEL2_DISCHARGE_CURRENT_HIGH) //
-								.bit(6, SoltaroBatteryVersionC.ChannelId.LEVEL2_CHARGE_TEMP_HIGH) //
-								.bit(7, SoltaroBatteryVersionC.ChannelId.LEVEL2_CHARGE_TEMP_LOW) //
-								.bit(8, SoltaroBatteryVersionC.ChannelId.LEVEL2_SOC_LOW) //
-								.bit(9, SoltaroBatteryVersionC.ChannelId.LEVEL2_TEMP_DIFF_TOO_BIG) //
-								.bit(10, SoltaroBatteryVersionC.ChannelId.LEVEL2_POWER_POLE_TEMP_HIGH) //
-								.bit(11, SoltaroBatteryVersionC.ChannelId.LEVEL2_CELL_VOLTAGE_DIFF_TOO_BIG) //
-								.bit(12, SoltaroBatteryVersionC.ChannelId.LEVEL2_INSULATION_VALUE) //
-								.bit(13, SoltaroBatteryVersionC.ChannelId.LEVEL2_TOTAL_VOLTAGE_DIFF_TOO_BIG) //
-								.bit(14, SoltaroBatteryVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_HIGH) //
-								.bit(15, SoltaroBatteryVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW) //
+								.bit(0, SingleRackVersionC.ChannelId.LEVEL2_CELL_VOLTAGE_HIGH) //
+								.bit(1, SingleRackVersionC.ChannelId.LEVEL2_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, SingleRackVersionC.ChannelId.LEVEL2_CHARGE_CURRENT_HIGH) //
+								.bit(3, SingleRackVersionC.ChannelId.LEVEL2_CELL_VOLTAGE_LOW) //
+								.bit(4, SingleRackVersionC.ChannelId.LEVEL2_TOTAL_VOLTAGE_LOW) //
+								.bit(5, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_CURRENT_HIGH) //
+								.bit(6, SingleRackVersionC.ChannelId.LEVEL2_CHARGE_TEMP_HIGH) //
+								.bit(7, SingleRackVersionC.ChannelId.LEVEL2_CHARGE_TEMP_LOW) //
+								// 8 -> Reserved
+								// 9 -> Reserved
+								.bit(10, SingleRackVersionC.ChannelId.LEVEL2_POWER_POLE_TEMP_HIGH) //
+								// 11 -> Reserved
+								.bit(12, SingleRackVersionC.ChannelId.LEVEL2_INSULATION_VALUE) //
+								// 13 -> Reserved
+								.bit(14, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_HIGH) //
+								.bit(15, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW) //
 						), //
 							// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
 						m(new BitsWordElement(0x2141, this) //
-								.bit(0, SoltaroBatteryVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
-								.bit(1, SoltaroBatteryVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_HIGH) //
-								.bit(2, SoltaroBatteryVersionC.ChannelId.LEVEL1_CHARGE_CURRENT_HIGH) //
-								.bit(3, SoltaroBatteryVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_LOW) //
-								.bit(4, SoltaroBatteryVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_LOW) //
-								.bit(5, SoltaroBatteryVersionC.ChannelId.LEVEL1_DISCHARGE_CURRENT_HIGH) //
-								.bit(6, SoltaroBatteryVersionC.ChannelId.LEVEL1_CHARGE_TEMP_HIGH) //
-								.bit(7, SoltaroBatteryVersionC.ChannelId.LEVEL1_CHARGE_TEMP_LOW) //
-								.bit(8, SoltaroBatteryVersionC.ChannelId.LEVEL1_SOC_LOW) //
-								.bit(9, SoltaroBatteryVersionC.ChannelId.LEVEL1_TEMP_DIFF_TOO_BIG) //
-								.bit(10, SoltaroBatteryVersionC.ChannelId.LEVEL1_POWER_POLE_TEMP_HIGH) //
-								.bit(11, SoltaroBatteryVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG) //
-								.bit(12, SoltaroBatteryVersionC.ChannelId.LEVEL1_INSULATION_VALUE) //
-								.bit(13, SoltaroBatteryVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_DIFF_TOO_BIG) //
-								.bit(14, SoltaroBatteryVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_HIGH) //
-								.bit(15, SoltaroBatteryVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_LOW) //
+								.bit(0, SingleRackVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
+								.bit(1, SingleRackVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, SingleRackVersionC.ChannelId.LEVEL1_CHARGE_CURRENT_HIGH) //
+								.bit(3, SingleRackVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_LOW) //
+								.bit(4, SingleRackVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_LOW) //
+								.bit(5, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_CURRENT_HIGH) //
+								.bit(6, SingleRackVersionC.ChannelId.LEVEL1_CHARGE_TEMP_HIGH) //
+								.bit(7, SingleRackVersionC.ChannelId.LEVEL1_CHARGE_TEMP_LOW) //
+								// 8 -> Reserved
+								// 9 -> Reserved
+								.bit(10, SingleRackVersionC.ChannelId.LEVEL1_POWER_POLE_TEMP_HIGH) //
+								// 11 -> Reserved
+								.bit(12, SingleRackVersionC.ChannelId.LEVEL1_INSULATION_VALUE) //
+								// 13 -> Reserved
+								.bit(14, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_HIGH) //
+								.bit(15, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_LOW) //
 						), //
 							// Pre-Alarm: Temperature Alarm will active current limication
 						m(new BitsWordElement(0x2142, this) //
-								.bit(0, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
-								.bit(1, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
-								.bit(2, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_CHARGE_CURRENT_HIGH) //
-								.bit(3, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
-								.bit(4, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_LOW) //
-								.bit(5, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_DISCHARGE_CURRENT_HIGH) //
-								.bit(6, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
-								.bit(7, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_LOW) //
-								.bit(8, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_SOC_LOW) //
-								.bit(9, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_TEMP_DIFF_TOO_BIG) //
-								.bit(10, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH) //
-								.bit(11, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG) //
-								.bit(12, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_INSULATION_FAIL) //
-								.bit(13, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG) //
-								.bit(14, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_DISCHARGE_TEMP_HIGH) //
-								.bit(15, SoltaroBatteryVersionC.ChannelId.PRE_ALARM_DISCHARGE_TEMP_LOW) //
+								.bit(0, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
+								.bit(1, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, SingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_CURRENT_HIGH) //
+								.bit(3, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
+								.bit(4, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_LOW) //
+								.bit(5, SingleRackVersionC.ChannelId.PRE_ALARM_DISCHARGE_CURRENT_HIGH) //
+								.bit(6, SingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
+								.bit(7, SingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_LOW) //
+								.bit(8, SingleRackVersionC.ChannelId.PRE_ALARM_SOC_LOW) //
+								.bit(9, SingleRackVersionC.ChannelId.PRE_ALARM_TEMP_DIFF_TOO_BIG) //
+								.bit(10, SingleRackVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH) //
+								.bit(11, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG) //
+								.bit(12, SingleRackVersionC.ChannelId.PRE_ALARM_INSULATION_FAIL) //
+								.bit(13, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG) //
+								.bit(14, SingleRackVersionC.ChannelId.PRE_ALARM_DISCHARGE_TEMP_HIGH) //
+								.bit(15, SingleRackVersionC.ChannelId.PRE_ALARM_DISCHARGE_TEMP_LOW) //
 						) //
 				), //
 
 				// Other Alarm Info
 				new FC3ReadRegistersTask(0x21A5, Priority.LOW, //
 						m(new BitsWordElement(0x21A5, this) //
-								.bit(0, SoltaroBatteryVersionC.ChannelId.ALARM_COMMUNICATION_TO_MASTER_BMS) //
-								.bit(1, SoltaroBatteryVersionC.ChannelId.ALARM_COMMUNICATION_TO_SLAVE_BMS) //
-								.bit(2, SoltaroBatteryVersionC.ChannelId.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS) //
-								.bit(3, SoltaroBatteryVersionC.ChannelId.ALARM_SLAVE_BMS_HARDWARE) //
+								.bit(0, SingleRackVersionC.ChannelId.ALARM_COMMUNICATION_TO_MASTER_BMS) //
+								.bit(1, SingleRackVersionC.ChannelId.ALARM_COMMUNICATION_TO_SLAVE_BMS) //
+								.bit(2, SingleRackVersionC.ChannelId.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS) //
+								.bit(3, SingleRackVersionC.ChannelId.ALARM_SLAVE_BMS_HARDWARE) //
 						)), //
 
 				// Slave BMS Fault Message Registers
@@ -664,6 +667,36 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
+	}
+
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+
+	@Override
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.config.startStop()) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget.get();
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
 	}
 
 }

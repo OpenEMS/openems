@@ -78,7 +78,7 @@ public class DiscovergyApiClient {
 		String endpoint = String.format("/last_reading?meterId=%s&fields=%s", //
 				meterId, //
 				Arrays.stream(fields) //
-						.map(field -> field.getName()) //
+						.map(field -> field.n()) //
 						.collect(Collectors.joining(",")));
 		return JsonUtils.getAsJsonObject(//
 				this.sendGetRequest(endpoint));
@@ -113,7 +113,7 @@ public class DiscovergyApiClient {
 			}
 			if (status < 300) {
 				// Parse response to JSON
-				return JsonUtils.parseToJsonObject(body);
+				return JsonUtils.parse(body);
 			} else {
 				throw new OpenemsException(
 						"Error while reading from Discovergy API. Response code: " + status + ". " + body);

@@ -1,5 +1,6 @@
 package io.openems.edge.meter.sunspec;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -11,31 +12,24 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
+import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecComponent
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
 
-	private static final SunSpecModelType[] MODEL_TYPES = { //
-			SunSpecModelType.COMMON, SunSpecModelType.METER //
-	};
-
 	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecMeter.class);
 
-	public AbstractSunSpecMeter() {
-		super(//
-				MODEL_TYPES, //
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				MeterChannelId.values() //
-		);
+	public AbstractSunSpecMeter(Map<ISunSpecModel, Priority> activeModels,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
 	/**

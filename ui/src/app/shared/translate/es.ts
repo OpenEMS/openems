@@ -10,6 +10,7 @@ export const TRANSLATION = {
         ChangeFailed: 'Cambio fallido',
         ChargeDischarge: 'Débito/Descarga',
         ChargePower: 'Carga',
+        connectionLost: 'Conexión perdida. Intentando reconectar.',
         Consumption: 'Consumo',
         Cumulative: 'Valores Acumulativos',
         currentValue: 'Valor actual',
