@@ -553,6 +553,9 @@ public enum RackChannel {
 	 * @return the ChannelId
 	 */
 	protected ChannelId toChannelId(Rack rack) {
+		if (!this.doc.getText().isEmpty()) {
+			this.doc.text(rack.getChannelDocTextPrefix() + this.doc.getText());
+		}
 		return new ChannelIdImpl(this.generateChannelId(rack), this.doc);
 	}
 

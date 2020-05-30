@@ -63,4 +63,13 @@ public enum Rack {
 		return "RACK_" + this.id + "_";
 	}
 
+	/**
+	 * Gets the Channel-Doc Text Prefix for this Rack in the form "Rack <ID> ".
+	 * 
+	 * @return the prefix
+	 */
+	public String getChannelDocTextPrefix() {
+		return "Rack " + this.id + " ";
+	}
+
 }
