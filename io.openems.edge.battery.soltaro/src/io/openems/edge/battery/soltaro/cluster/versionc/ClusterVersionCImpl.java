@@ -186,7 +186,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
 				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.stateMachine.getCurrentState();
+				+ "|State:" + this.stateMachine.getCurrentState().asCamelCase();
 	}
 
 	@Override
