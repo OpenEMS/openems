@@ -417,7 +417,7 @@ public enum RackChannel {
 			.text("Total Voltage High Pre-Alarm")), //
 	PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
 			.text("Charge Current High Pre-Alarm")), //
-	PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(Level.INFO) //
+	PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Cell Voltage Low Pre-Alarm")), //
 	PRE_ALARM_TOTAL_VOLTAGE_LOW(Doc.of(Level.INFO) //
 			.text("Total Voltage Low Pre-Alarm")), //
@@ -427,7 +427,7 @@ public enum RackChannel {
 			.text("Charge Temperature High Pre-Alarm")), //
 	PRE_ALARM_CHARGE_TEMP_LOW(Doc.of(Level.INFO) //
 			.text("Charge Temperature Low Pre-Alarm")), //
-	PRE_ALARM_SOC_LOW(Doc.of(Level.INFO) //
+	PRE_ALARM_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("State-Of-Charge Low Pre-Alarm")), //
 	PRE_ALARM_TEMP_DIFF_TOO_BIG(Doc.of(Level.INFO) //
 			.text("Temperature Difference Too Big Pre-Alarm")), //
@@ -468,7 +468,7 @@ public enum RackChannel {
 			.text("Discharge Current High Alarm Level 1")), //
 	LEVEL1_TOTAL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 			.text("Total Voltage Low Alarm Level 1")), //
-	LEVEL1_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
+	LEVEL1_CELL_VOLTAGE_LOW(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Cell Voltage Low Alarm Level 1")), //
 	LEVEL1_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 			.text("Charge Current High Alarm Level 1")), //
