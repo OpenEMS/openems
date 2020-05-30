@@ -876,14 +876,10 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	public Optional<PreChargeControl> getCommonPreChargeControl() {
-		StringBuilder b = new StringBuilder();
-
 		PreChargeControl result = null;
 		for (Rack rack : this.racks) {
 			EnumReadChannel channel = this.channel(rack, RackChannel.PRE_CHARGE_CONTROL);
 			PreChargeControl value = channel.value().asEnum();
-
-			b.append(rack.name() + ":" + value.toString() + " ");
 
 			if (result != value) {
 				if (result == null) {
@@ -895,10 +891,6 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				}
 			}
 		}
-
-		b.append("   Common:" + result);
-
-		this.logInfo(this.log, b.toString());
 		return Optional.ofNullable(result);
 	}
 
