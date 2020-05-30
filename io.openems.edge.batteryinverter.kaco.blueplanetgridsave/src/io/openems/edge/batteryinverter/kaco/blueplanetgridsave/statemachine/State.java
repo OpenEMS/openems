@@ -1,7 +1,5 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
-import com.google.common.base.CaseFormat;
-
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -32,7 +30,7 @@ public enum State implements io.openems.edge.common.statemachine.State<State, Co
 
 	@Override
 	public String getName() {
-		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name());
+		return this.name();
 	}
 
 	@Override
