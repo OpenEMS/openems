@@ -57,8 +57,8 @@ import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
-		name = "Bms.Soltaro.Cluster.VersionC", //
+@Component(//
+		name = "Battery.Soltaro.Cluster.VersionC", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
@@ -131,8 +131,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		c.setNextWriteValue(config.watchdog());
 
 		// Initialize Battery Limits
-		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */ );
-		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */ );
+		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */);
+		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */);
 		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
 				.setNextValue(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT / 1000);
 		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
@@ -356,37 +356,42 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 			protocol.addTasks(//
 					// Single Cluster Control Registers (running without Master BMS)
 					new FC6WriteRegisterTask(r.offset + 0x0010, //
-							m(rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)) //
+							m(this.rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)) //
 					), //
 					new FC16WriteRegistersTask(r.offset + 0x000B, //
-							m(rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
-							m(rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)) //
+							m(this.rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
+							m(this.rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)) //
 					), //
-					new FC6WriteRegisterTask(r.offset + 0x00F4, m(rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
-							new UnsignedWordElement(r.offset + 0x00F4)) //
+					new FC6WriteRegisterTask(r.offset + 0x00F4, //
+							m(this.rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
+									new UnsignedWordElement(r.offset + 0x00F4)) //
 					), //
 					new FC3ReadRegistersTask(r.offset + 0x000B, Priority.LOW, //
-							m(rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
-							m(rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)), //
+							m(this.rack(r, RackChannel.EMS_ADDRESS), new UnsignedWordElement(r.offset + 0x000B)), //
+							m(this.rack(r, RackChannel.EMS_BAUDRATE), new UnsignedWordElement(r.offset + 0x000C)), //
 							new DummyRegisterElement(r.offset + 0x000D, r.offset + 0x000F),
-							m(rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)), //
+							m(this.rack(r, RackChannel.PRE_CHARGE_CONTROL), new UnsignedWordElement(r.offset + 0x0010)), //
 							new DummyRegisterElement(r.offset + 0x0011, r.offset + 0x0014),
-							m(rack(r, RackChannel.SET_SUB_MASTER_ADDRESS), new UnsignedWordElement(r.offset + 0x0015)) //
+							m(this.rack(r, RackChannel.SET_SUB_MASTER_ADDRESS),
+									new UnsignedWordElement(r.offset + 0x0015)) //
 					), //
 					new FC3ReadRegistersTask(r.offset + 0x00F4, Priority.LOW, //
-							m(rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
+							m(this.rack(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
 									new UnsignedWordElement(r.offset + 0x00F4)) //
 					),
 
 					// Single Cluster Control Registers (General)
 					new FC6WriteRegisterTask(r.offset + 0x00CC, //
-							m(rack(r, RackChannel.SYSTEM_TOTAL_CAPACITY), new UnsignedWordElement(r.offset + 0x00CC)) //
+							m(this.rack(r, RackChannel.SYSTEM_TOTAL_CAPACITY),
+									new UnsignedWordElement(r.offset + 0x00CC)) //
 					), //
 					new FC6WriteRegisterTask(r.offset + 0x0015, //
-							m(rack(r, RackChannel.SET_SUB_MASTER_ADDRESS), new UnsignedWordElement(r.offset + 0x0015)) //
+							m(this.rack(r, RackChannel.SET_SUB_MASTER_ADDRESS),
+									new UnsignedWordElement(r.offset + 0x0015)) //
 					), //
 					new FC6WriteRegisterTask(r.offset + 0x00F3, //
-							m(rack(r, RackChannel.VOLTAGE_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x00F3)) //
+							m(this.rack(r, RackChannel.VOLTAGE_LOW_PROTECTION),
+									new UnsignedWordElement(r.offset + 0x00F3)) //
 					), //
 					new FC3ReadRegistersTask(r.offset + 0x00CC, Priority.LOW, //
 							m(this.rack(r, RackChannel.SYSTEM_TOTAL_CAPACITY),
@@ -395,215 +400,225 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 					// Single Cluster Status Registers
 					new FC3ReadRegistersTask(r.offset + 0x100, Priority.HIGH, //
-							m(rack(r, RackChannel.VOLTAGE), new UnsignedWordElement(r.offset + 0x100),
+							m(this.rack(r, RackChannel.VOLTAGE), new UnsignedWordElement(r.offset + 0x100),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, RackChannel.CURRENT), new UnsignedWordElement(r.offset + 0x101),
+							m(this.rack(r, RackChannel.CURRENT), new UnsignedWordElement(r.offset + 0x101),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, RackChannel.CHARGE_INDICATION), new UnsignedWordElement(r.offset + 0x102)),
-							m(rack(r, RackChannel.SOC), new UnsignedWordElement(r.offset + 0x103)),
-							m(rack(r, RackChannel.SOH), new UnsignedWordElement(r.offset + 0x104)),
-							m(rack(r, RackChannel.MAX_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x105)),
-							m(rack(r, RackChannel.MAX_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x106)),
-							m(rack(r, RackChannel.MIN_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x107)),
-							m(rack(r, RackChannel.MIN_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x108)),
-							m(rack(r, RackChannel.MAX_CELL_TEMPERATURE_ID), new UnsignedWordElement(r.offset + 0x109)),
-							m(rack(r, RackChannel.MAX_CELL_TEMPERATURE), new UnsignedWordElement(r.offset + 0x10A)),
-							m(rack(r, RackChannel.MIN_CELL_TEMPERATURE_ID), new UnsignedWordElement(r.offset + 0x10B)),
-							m(rack(r, RackChannel.MIN_CELL_TEMPERATURE), new UnsignedWordElement(r.offset + 0x10C)),
-							m(rack(r, RackChannel.AVERAGE_VOLTAGE), new UnsignedWordElement(r.offset + 0x10D)),
-							m(rack(r, RackChannel.SYSTEM_INSULATION), new UnsignedWordElement(r.offset + 0x10E)),
-							m(rack(r, RackChannel.SYSTEM_MAX_CHARGE_CURRENT), new UnsignedWordElement(r.offset + 0x10F),
+							m(this.rack(r, RackChannel.CHARGE_INDICATION), new UnsignedWordElement(r.offset + 0x102)),
+							m(this.rack(r, RackChannel.SOC), new UnsignedWordElement(r.offset + 0x103)),
+							m(this.rack(r, RackChannel.SOH), new UnsignedWordElement(r.offset + 0x104)),
+							m(this.rack(r, RackChannel.MAX_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x105)),
+							m(this.rack(r, RackChannel.MAX_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x106)),
+							m(this.rack(r, RackChannel.MIN_CELL_VOLTAGE_ID), new UnsignedWordElement(r.offset + 0x107)),
+							m(this.rack(r, RackChannel.MIN_CELL_VOLTAGE), new UnsignedWordElement(r.offset + 0x108)),
+							m(this.rack(r, RackChannel.MAX_CELL_TEMPERATURE_ID),
+									new UnsignedWordElement(r.offset + 0x109)),
+							m(this.rack(r, RackChannel.MAX_CELL_TEMPERATURE),
+									new UnsignedWordElement(r.offset + 0x10A)),
+							m(this.rack(r, RackChannel.MIN_CELL_TEMPERATURE_ID),
+									new UnsignedWordElement(r.offset + 0x10B)),
+							m(this.rack(r, RackChannel.MIN_CELL_TEMPERATURE),
+									new UnsignedWordElement(r.offset + 0x10C)),
+							m(this.rack(r, RackChannel.AVERAGE_VOLTAGE), new UnsignedWordElement(r.offset + 0x10D)),
+							m(this.rack(r, RackChannel.SYSTEM_INSULATION), new UnsignedWordElement(r.offset + 0x10E)),
+							m(this.rack(r, RackChannel.SYSTEM_MAX_CHARGE_CURRENT),
+									new UnsignedWordElement(r.offset + 0x10F),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, RackChannel.SYSTEM_MAX_DISCHARGE_CURRENT),
+							m(this.rack(r, RackChannel.SYSTEM_MAX_DISCHARGE_CURRENT),
 									new UnsignedWordElement(r.offset + 0x110),
 									ElementToChannelConverter.SCALE_FACTOR_2),
-							m(rack(r, RackChannel.POSITIVE_INSULATION), new UnsignedWordElement(r.offset + 0x111)),
-							m(rack(r, RackChannel.NEGATIVE_INSULATION), new UnsignedWordElement(r.offset + 0x112)),
-							m(rack(r, RackChannel.CLUSTER_RUN_STATE), new UnsignedWordElement(r.offset + 0x113)),
-							m(rack(r, RackChannel.AVG_TEMPERATURE), new UnsignedWordElement(r.offset + 0x114))),
+							m(this.rack(r, RackChannel.POSITIVE_INSULATION), new UnsignedWordElement(r.offset + 0x111)),
+							m(this.rack(r, RackChannel.NEGATIVE_INSULATION), new UnsignedWordElement(r.offset + 0x112)),
+							m(this.rack(r, RackChannel.CLUSTER_RUN_STATE), new UnsignedWordElement(r.offset + 0x113)),
+							m(this.rack(r, RackChannel.AVG_TEMPERATURE), new UnsignedWordElement(r.offset + 0x114))),
 					new FC3ReadRegistersTask(r.offset + 0x18b, Priority.LOW,
-							m(rack(r, RackChannel.PROJECT_ID), new UnsignedWordElement(r.offset + 0x18b)),
-							m(rack(r, RackChannel.VERSION_MAJOR), new UnsignedWordElement(r.offset + 0x18c)),
-							m(rack(r, RackChannel.VERSION_SUB), new UnsignedWordElement(r.offset + 0x18d)),
-							m(rack(r, RackChannel.VERSION_MODIFY), new UnsignedWordElement(r.offset + 0x18e))),
+							m(this.rack(r, RackChannel.PROJECT_ID), new UnsignedWordElement(r.offset + 0x18b)),
+							m(this.rack(r, RackChannel.VERSION_MAJOR), new UnsignedWordElement(r.offset + 0x18c)),
+							m(this.rack(r, RackChannel.VERSION_SUB), new UnsignedWordElement(r.offset + 0x18d)),
+							m(this.rack(r, RackChannel.VERSION_MODIFY), new UnsignedWordElement(r.offset + 0x18e))),
 
 					// System Warning/Shut Down Status Registers
 					new FC3ReadRegistersTask(r.offset + 0x140, Priority.LOW,
 							// Level 2 Alarm: BMS Self-protect, main contactor shut down
 							m(new BitsWordElement(r.offset + 0x140, this) //
-									.bit(0, rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_HIGH)) //
-									.bit(1, rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_HIGH)) //
-									.bit(2, rack(r, RackChannel.LEVEL2_CHARGE_CURRENT_HIGH)) //
-									.bit(3, rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_LOW)) //
-									.bit(4, rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_LOW)) //
-									.bit(5, rack(r, RackChannel.LEVEL2_DISCHARGE_CURRENT_HIGH)) //
-									.bit(6, rack(r, RackChannel.LEVEL2_CHARGE_TEMP_HIGH)) //
-									.bit(7, rack(r, RackChannel.LEVEL2_CHARGE_TEMP_LOW)) //
+									.bit(0, this.rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_HIGH)) //
+									.bit(1, this.rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, this.rack(r, RackChannel.LEVEL2_CHARGE_CURRENT_HIGH)) //
+									.bit(3, this.rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_LOW)) //
+									.bit(4, this.rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, this.rack(r, RackChannel.LEVEL2_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, this.rack(r, RackChannel.LEVEL2_CHARGE_TEMP_HIGH)) //
+									.bit(7, this.rack(r, RackChannel.LEVEL2_CHARGE_TEMP_LOW)) //
 									// 8 -> Reserved
 									// 9 -> Reserved
-									.bit(10, rack(r, RackChannel.LEVEL2_POWER_POLE_TEMP_HIGH)) //
+									.bit(10, this.rack(r, RackChannel.LEVEL2_POWER_POLE_TEMP_HIGH)) //
 									// 11 -> Reserved
-									.bit(12, rack(r, RackChannel.LEVEL2_INSULATION_VALUE)) //
+									.bit(12, this.rack(r, RackChannel.LEVEL2_INSULATION_VALUE)) //
 									// 13 -> Reserved
-									.bit(14, rack(r, RackChannel.LEVEL2_DISCHARGE_TEMP_HIGH)) //
-									.bit(15, rack(r, RackChannel.LEVEL2_DISCHARGE_TEMP_LOW)) //
+									.bit(14, this.rack(r, RackChannel.LEVEL2_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, this.rack(r, RackChannel.LEVEL2_DISCHARGE_TEMP_LOW)) //
 							),
 							// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
 							m(new BitsWordElement(r.offset + 0x141, this) //
-									.bit(0, rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_HIGH)) //
-									.bit(1, rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_HIGH)) //
-									.bit(2, rack(r, RackChannel.LEVEL1_CHARGE_CURRENT_HIGH)) //
-									.bit(3, rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_LOW)) //
-									.bit(4, rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_LOW)) //
-									.bit(5, rack(r, RackChannel.LEVEL1_DISCHARGE_CURRENT_HIGH)) //
-									.bit(6, rack(r, RackChannel.LEVEL1_CHARGE_TEMP_HIGH)) //
-									.bit(7, rack(r, RackChannel.LEVEL1_CHARGE_TEMP_LOW)) //
-									.bit(8, rack(r, RackChannel.LEVEL1_SOC_LOW)) //
-									.bit(9, rack(r, RackChannel.LEVEL1_TEMP_DIFF_TOO_BIG)) //
-									.bit(10, rack(r, RackChannel.LEVEL1_POWER_POLE_TEMP_HIGH)) //
-									.bit(11, rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(12, rack(r, RackChannel.LEVEL1_INSULATION_VALUE)) //
-									.bit(13, rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(14, rack(r, RackChannel.LEVEL1_DISCHARGE_TEMP_HIGH)) //
-									.bit(15, rack(r, RackChannel.LEVEL1_DISCHARGE_TEMP_LOW)) //
+									.bit(0, this.rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_HIGH)) //
+									.bit(1, this.rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, this.rack(r, RackChannel.LEVEL1_CHARGE_CURRENT_HIGH)) //
+									.bit(3, this.rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_LOW)) //
+									.bit(4, this.rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, this.rack(r, RackChannel.LEVEL1_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, this.rack(r, RackChannel.LEVEL1_CHARGE_TEMP_HIGH)) //
+									.bit(7, this.rack(r, RackChannel.LEVEL1_CHARGE_TEMP_LOW)) //
+									.bit(8, this.rack(r, RackChannel.LEVEL1_SOC_LOW)) //
+									.bit(9, this.rack(r, RackChannel.LEVEL1_TEMP_DIFF_TOO_BIG)) //
+									.bit(10, this.rack(r, RackChannel.LEVEL1_POWER_POLE_TEMP_HIGH)) //
+									.bit(11, this.rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(12, this.rack(r, RackChannel.LEVEL1_INSULATION_VALUE)) //
+									.bit(13, this.rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(14, this.rack(r, RackChannel.LEVEL1_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, this.rack(r, RackChannel.LEVEL1_DISCHARGE_TEMP_LOW)) //
 							),
 							// Pre-Alarm: Temperature Alarm will active current limication
 							m(new BitsWordElement(r.offset + 0x142, this) //
-									.bit(0, rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_HIGH)) //
-									.bit(1, rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_HIGH)) //
-									.bit(2, rack(r, RackChannel.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
-									.bit(3, rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_LOW)) //
-									.bit(4, rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
-									.bit(5, rack(r, RackChannel.PRE_ALARM_DISCHARGE_CURRENT_HIGH)) //
-									.bit(6, rack(r, RackChannel.PRE_ALARM_CHARGE_TEMP_HIGH)) //
-									.bit(7, rack(r, RackChannel.PRE_ALARM_CHARGE_TEMP_LOW)) //
-									.bit(8, rack(r, RackChannel.PRE_ALARM_SOC_LOW)) //
-									.bit(9, rack(r, RackChannel.PRE_ALARM_TEMP_DIFF_TOO_BIG)) //
-									.bit(10, rack(r, RackChannel.PRE_ALARM_POWER_POLE_HIGH))//
-									.bit(11, rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(12, rack(r, RackChannel.PRE_ALARM_INSULATION_FAIL)) //
-									.bit(13, rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
-									.bit(14, rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_HIGH)) //
-									.bit(15, rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_LOW)) //
+									.bit(0, this.rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_HIGH)) //
+									.bit(1, this.rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, this.rack(r, RackChannel.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
+									.bit(3, this.rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_LOW)) //
+									.bit(4, this.rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, this.rack(r, RackChannel.PRE_ALARM_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, this.rack(r, RackChannel.PRE_ALARM_CHARGE_TEMP_HIGH)) //
+									.bit(7, this.rack(r, RackChannel.PRE_ALARM_CHARGE_TEMP_LOW)) //
+									.bit(8, this.rack(r, RackChannel.PRE_ALARM_SOC_LOW)) //
+									.bit(9, this.rack(r, RackChannel.PRE_ALARM_TEMP_DIFF_TOO_BIG)) //
+									.bit(10, this.rack(r, RackChannel.PRE_ALARM_POWER_POLE_HIGH))//
+									.bit(11, this.rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(12, this.rack(r, RackChannel.PRE_ALARM_INSULATION_FAIL)) //
+									.bit(13, this.rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(14, this.rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, this.rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_LOW)) //
 							) //
 					),
 					// Other Alarm Info
 					new FC3ReadRegistersTask(r.offset + 0x1A5, Priority.LOW, //
 							m(new BitsWordElement(r.offset + 0x1A5, this) //
-									.bit(0, rack(r, RackChannel.ALARM_COMMUNICATION_TO_MASTER_BMS)) //
-									.bit(1, rack(r, RackChannel.ALARM_COMMUNICATION_TO_SLAVE_BMS)) //
-									.bit(2, rack(r, RackChannel.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS)) //
-									.bit(3, rack(r, RackChannel.ALARM_SLAVE_BMS_HARDWARE)) //
+									.bit(0, this.rack(r, RackChannel.ALARM_COMMUNICATION_TO_MASTER_BMS)) //
+									.bit(1, this.rack(r, RackChannel.ALARM_COMMUNICATION_TO_SLAVE_BMS)) //
+									.bit(2, this.rack(r, RackChannel.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS)) //
+									.bit(3, this.rack(r, RackChannel.ALARM_SLAVE_BMS_HARDWARE)) //
 							)),
 					// Slave BMS Fault Message Registers
 					new FC3ReadRegistersTask(r.offset + 0x185, Priority.LOW, //
 							m(new BitsWordElement(r.offset + 0x185, this) //
-									.bit(0, rack(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSOR_CABLES)) //
-									.bit(1, rack(r, RackChannel.SLAVE_BMS_POWER_CABLE)) //
-									.bit(2, rack(r, RackChannel.SLAVE_BMS_LTC6803)) //
-									.bit(3, rack(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSORS)) //
-									.bit(4, rack(r, RackChannel.SLAVE_BMS_TEMP_SENSOR_CABLES)) //
-									.bit(5, rack(r, RackChannel.SLAVE_BMS_TEMP_SENSORS)) //
-									.bit(6, rack(r, RackChannel.SLAVE_BMS_POWER_POLE_TEMP_SENSOR)) //
-									.bit(7, rack(r, RackChannel.SLAVE_BMS_TEMP_BOARD_COM)) //
-									.bit(8, rack(r, RackChannel.SLAVE_BMS_BALANCE_MODULE)) //
-									.bit(9, rack(r, RackChannel.SLAVE_BMS_TEMP_SENSORS2)) //
-									.bit(10, rack(r, RackChannel.SLAVE_BMS_INTERNAL_COM)) //
-									.bit(11, rack(r, RackChannel.SLAVE_BMS_EEPROM)) //
-									.bit(12, rack(r, RackChannel.SLAVE_BMS_INIT)) //
+									.bit(0, this.rack(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSOR_CABLES)) //
+									.bit(1, this.rack(r, RackChannel.SLAVE_BMS_POWER_CABLE)) //
+									.bit(2, this.rack(r, RackChannel.SLAVE_BMS_LTC6803)) //
+									.bit(3, this.rack(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSORS)) //
+									.bit(4, this.rack(r, RackChannel.SLAVE_BMS_TEMP_SENSOR_CABLES)) //
+									.bit(5, this.rack(r, RackChannel.SLAVE_BMS_TEMP_SENSORS)) //
+									.bit(6, this.rack(r, RackChannel.SLAVE_BMS_POWER_POLE_TEMP_SENSOR)) //
+									.bit(7, this.rack(r, RackChannel.SLAVE_BMS_TEMP_BOARD_COM)) //
+									.bit(8, this.rack(r, RackChannel.SLAVE_BMS_BALANCE_MODULE)) //
+									.bit(9, this.rack(r, RackChannel.SLAVE_BMS_TEMP_SENSORS2)) //
+									.bit(10, this.rack(r, RackChannel.SLAVE_BMS_INTERNAL_COM)) //
+									.bit(11, this.rack(r, RackChannel.SLAVE_BMS_EEPROM)) //
+									.bit(12, this.rack(r, RackChannel.SLAVE_BMS_INIT)) //
 							)) //
 			); //
 
-// TODO			/*
-//			 * Add tasks for cell voltages and temperatures according to the number of
-//			 * slaves, one task per module is created Cell voltages
-//			 */
-//			Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
-//				for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-//					AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
-//					for (int j = 0; j < type.getSensorsPerModule(); j++) {
-//						int sensorIndex = i * type.getSensorsPerModule() + j;
-//						io.openems.edge.common.channel.ChannelId channelId = CellChannelFactory.create(r, type,
-//								sensorIndex);
-//						// Register the Channel at this Component
-//						this.addChannel(channelId);
-//						// Add the Modbus Element and map it to the Channel
-//						elements[j] = m(channelId, new UnsignedWordElement(r.offset + type.getOffset() + sensorIndex));
-//					}
-//					// Add a Modbus read task for this module
-//					protocol.addTask(//
-//							new FC3ReadRegistersTask(r.offset + type.getOffset() + i * type.getSensorsPerModule(),
-//									Priority.LOW, elements));
-//				}
-//			};
-//			addCellChannels.accept(CellChannelFactory.Type.VOLTAGE);
-//			addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE);
+			// TODO /*
+			// * Add tasks for cell voltages and temperatures according to the number of
+			// * slaves, one task per module is created Cell voltages
+			// */
+			// Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
+			// for (int i = 0; i < this.config.numberOfSlaves(); i++) {
+			// AbstractModbusElement<?>[] elements = new
+			// AbstractModbusElement<?>[type.getSensorsPerModule()];
+			// for (int j = 0; j < type.getSensorsPerModule(); j++) {
+			// int sensorIndex = i * type.getSensorsPerModule() + j;
+			// io.openems.edge.common.channel.ChannelId channelId =
+			// CellChannelFactory.create(r, type,
+			// sensorIndex);
+			// // Register the Channel at this Component
+			// this.addChannel(channelId);
+			// // Add the Modbus Element and map it to the Channel
+			// elements[j] = m(channelId, new UnsignedWordElement(r.offset +
+			// type.getOffset() + sensorIndex));
+			// }
+			// // Add a Modbus read task for this module
+			// protocol.addTask(//
+			// new FC3ReadRegistersTask(r.offset + type.getOffset() + i *
+			// type.getSensorsPerModule(),
+			// Priority.LOW, elements));
+			// }
+			// };
+			// addCellChannels.accept(CellChannelFactory.Type.VOLTAGE);
+			// addCellChannels.accept(CellChannelFactory.Type.TEMPERATURE);
 
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
 				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
-						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x080)), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x081)), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x082), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x083), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_ALARM),
 								new UnsignedWordElement(r.offset + 0x084), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x085), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x086)), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x087)), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x088), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x089), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM),
 								new UnsignedWordElement(r.offset + 0x08A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x08B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_ALARM),
 								new UnsignedWordElement(r.offset + 0x08C)), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x08D)), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_TEMPERATURE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_UNDER_TEMPERATURE_ALARM),
 								new UnsignedWordElement(r.offset + 0x08E)), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_UNDER_TEMPERATURE_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_UNDER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x08F)), //
-						m(rack(r, RackChannel.PRE_ALARM_SOC_LOW_ALARM), new UnsignedWordElement(r.offset + 0x090)), //
-						m(rack(r, RackChannel.PRE_ALARM_SOC_LOW_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_SOC_LOW_ALARM), new UnsignedWordElement(r.offset + 0x090)), //
+						m(this.rack(r, RackChannel.PRE_ALARM_SOC_LOW_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x091)), //
 						new DummyRegisterElement(r.offset + 0x092, r.offset + 0x093),
-						m(rack(r, RackChannel.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM),
 								new UnsignedWordElement(r.offset + 0x094)), //
-						m(rack(r, RackChannel.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_CONNECTOR_TEMPERATURE_HIGH_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x095)), //
-						m(rack(r, RackChannel.PRE_ALARM_INSULATION_ALARM), new UnsignedWordElement(r.offset + 0x096)), //
-						m(rack(r, RackChannel.PRE_ALARM_INSULATION_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_INSULATION_ALARM),
+								new UnsignedWordElement(r.offset + 0x096)), //
+						m(this.rack(r, RackChannel.PRE_ALARM_INSULATION_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x097)), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM),
 								new UnsignedWordElement(r.offset + 0x098)), //
-						m(rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x099)), //
-						m(rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM),
 								new UnsignedWordElement(r.offset + 0x09A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x09B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM),
 								new UnsignedWordElement(r.offset + 0x09C)), //
-						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x09D)), //
-						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM),
 								new UnsignedWordElement(r.offset + 0x09E)), //
-						m(rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_LOW_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x09F)), //
-						m(rack(r, RackChannel.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM),
+						m(this.rack(r, RackChannel.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM),
 								new UnsignedWordElement(r.offset + 0x0A0)), //
-						m(rack(r, RackChannel.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM_RECOVER),
+						m(this.rack(r, RackChannel.PRE_ALARM_TEMPERATURE_DIFFERENCE_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x0A1)) //
 				};
 				protocol.addTask(new FC16WriteRegistersTask(r.offset + 0x080, elements));
@@ -613,68 +628,70 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 			// WARN_LEVEL1 (Level1 warning registers RW)
 			{
 				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
-						m(rack(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x040)), //
-						m(rack(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x041)), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x042), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x043), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x044), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x045), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x046)), //
-						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x047)), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x048), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x049), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x04A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x04B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x04C)), //
-						m(rack(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x04D)), //
-						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_TEMPERATURE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_UNDER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x04E)), //
-						m(rack(r, RackChannel.LEVEL1_CELL_UNDER_TEMPERATURE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_UNDER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x04F)), //
-						m(rack(r, RackChannel.LEVEL1_SOC_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x050)), //
-						m(rack(r, RackChannel.LEVEL1_SOC_LOW_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_SOC_LOW_PROTECTION),
+								new UnsignedWordElement(r.offset + 0x050)), //
+						m(this.rack(r, RackChannel.LEVEL1_SOC_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x051)), //
 						new DummyRegisterElement(r.offset + 0x052, r.offset + 0x053), //
-						m(rack(r, RackChannel.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x054)), //
-						m(rack(r, RackChannel.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x055)), //
-						m(rack(r, RackChannel.LEVEL1_INSULATION_PROTECTION), new UnsignedWordElement(r.offset + 0x056)), //
-						m(rack(r, RackChannel.LEVEL1_INSULATION_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_INSULATION_PROTECTION),
+								new UnsignedWordElement(r.offset + 0x056)), //
+						m(this.rack(r, RackChannel.LEVEL1_INSULATION_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x057)), //
-						m(rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x058)), //
-						m(rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x059)), //
-						m(rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x05A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x05B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x05C)), //
-						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x05D)), //
-						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x05E)), //
-						m(rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x05F)), //
-						m(rack(r, RackChannel.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x060)), //
-						m(rack(r, RackChannel.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL1_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x061)) //
 				};
 				protocol.addTask(new FC16WriteRegistersTask(r.offset + 0x040, elements));
@@ -684,71 +701,73 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 			// WARN_LEVEL2 (Level2 Protection registers RW)
 			{
 				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
-						m(rack(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x400)), //
-						m(rack(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x401)), //
 						m(new UnsignedWordElement(r.offset + 0x402)) //
-								.m(rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION),
+								.m(this.rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION),
 										ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
 								.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
 								.build(), //
-						m(rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x403), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x404), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x405), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x406)), //
-						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x407)), //
-						m(rack(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x408), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x409), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x40A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
 								new UnsignedWordElement(r.offset + 0x40B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x40C)), //
-						m(rack(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x40D)), //
-						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_TEMPERATURE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_UNDER_TEMPERATURE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x40E)), //
-						m(rack(r, RackChannel.LEVEL2_CELL_UNDER_TEMPERATURE_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_UNDER_TEMPERATURE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x40F)), //
-						m(rack(r, RackChannel.LEVEL2_SOC_LOW_PROTECTION), new UnsignedWordElement(r.offset + 0x410)), //
-						m(rack(r, RackChannel.LEVEL2_SOC_LOW_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_SOC_LOW_PROTECTION),
+								new UnsignedWordElement(r.offset + 0x410)), //
+						m(this.rack(r, RackChannel.LEVEL2_SOC_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x411)), //
 						new DummyRegisterElement(r.offset + 0x412, r.offset + 0x413), //
-						m(rack(r, RackChannel.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x414)), //
-						m(rack(r, RackChannel.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_CONNECTOR_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x415)), //
-						m(rack(r, RackChannel.LEVEL2_INSULATION_PROTECTION), new UnsignedWordElement(r.offset + 0x416)), //
-						m(rack(r, RackChannel.LEVEL2_INSULATION_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_INSULATION_PROTECTION),
+								new UnsignedWordElement(r.offset + 0x416)), //
+						m(this.rack(r, RackChannel.LEVEL2_INSULATION_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x417)), //
-						m(rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x418)), //
-						m(rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x419)), //
-						m(rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x41A), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x41B), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x41C)), //
-						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x41D)), //
-						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x41E)), //
-						m(rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_LOW_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x41F)), //
-						m(rack(r, RackChannel.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION),
+						m(this.rack(r, RackChannel.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x420)), //
-						m(rack(r, RackChannel.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
+						m(this.rack(r, RackChannel.LEVEL2_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x421)) //
 				};
 				protocol.addTask(new FC16WriteRegistersTask(r.offset + 0x400, elements));
@@ -863,7 +882,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
@@ -896,7 +915,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	public Set<Rack> getRacks() {
-		return racks;
+		return this.racks;
 	}
 
 	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);

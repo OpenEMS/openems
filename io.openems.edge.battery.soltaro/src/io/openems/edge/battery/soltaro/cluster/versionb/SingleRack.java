@@ -555,11 +555,11 @@ public class SingleRack {
 	}
 
 	public int getRackNumber() {
-		return rackNumber;
+		return this.rackNumber;
 	}
 
 	public int getAddressOffset() {
-		return addressOffset;
+		return this.addressOffset;
 	}
 
 	private ChannelId createChannelId(String key, Doc doc) {
