@@ -411,7 +411,7 @@ public enum RackChannel {
 	ALARM_SLAVE_BMS_HARDWARE(Doc.of(Level.WARNING) //
 			.text("Slave BMS Hardware Failure")), //
 	// Pre-Alarm
-	PRE_ALARM_CELL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
+	PRE_ALARM_CELL_VOLTAGE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Cell Voltage High Pre-Alarm")), //
 	PRE_ALARM_TOTAL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
 			.text("Total Voltage High Pre-Alarm")), //
@@ -474,7 +474,7 @@ public enum RackChannel {
 			.text("Charge Current High Alarm Level 1")), //
 	LEVEL1_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 			.text("Total Voltage High Alarm Level 1")), //
-	LEVEL1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
+	LEVEL1_CELL_VOLTAGE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Cell Voltage High Alarm Level 1")), //
 	// Alarm Level 2
 	LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
@@ -499,7 +499,7 @@ public enum RackChannel {
 			.text("Charge Current High Alarm Level 2")), //
 	LEVEL2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
 			.text("Total Voltage High Alarm Level 2")), //
-	LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+	LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
 			.text("Cell Voltage High Alarm Level 2")), //
 	// Slave BMS Fault Message Registers
 	SLAVE_BMS_VOLTAGE_SENSOR_CABLES(Doc.of(Level.WARNING) //
@@ -553,9 +553,6 @@ public enum RackChannel {
 	 * @return the ChannelId
 	 */
 	protected ChannelId toChannelId(Rack rack) {
-		if (!this.doc.getText().isEmpty()) {
-			this.doc.text(rack.getChannelDocTextPrefix() + this.doc.getText());
-		}
 		return new ChannelIdImpl(this.generateChannelId(rack), this.doc);
 	}
 
