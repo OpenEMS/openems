@@ -474,18 +474,18 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 
 		public static enum S64201_CurrentState implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
-			OFF(1, "Device is not operating"), //
-			SLEEPING(2, "Device is sleeping / auto-shudown"), //
-			STARTING(3, "Device is starting up"), //
-			MPPT(4, "Device is auto tracking maximum power point"), //
-			THROTTLED(5, "Device is operating at reduced power output"), //
-			SHUTTING_DOWN(6, "Device is shutting down"), //
-			FAULT(7, "One or more faults exist"), //
-			STANDBY(8, "Device is in standby mode"), //
-			PRECHARGE(9, "DC-Link is precharged"), //
-			GRID_PRE_CONNECTED(10, "Device is prepared for grid connection"), //
-			GRID_CONNECTED(11, "Device is connected to the grid"), //
-			NO_ERROR_PENDING(12, "Device is waiting until the user clears the error which is not peding any more"); //
+			OFF(1, "Not operating"), //
+			SLEEPING(2, "Sleeping/auto-shudown"), //
+			STARTING(3, "Starting up"), //
+			MPPT(4, "MPP tracking"), //
+			THROTTLED(5, "Reduced power output"), //
+			SHUTTING_DOWN(6, "Shutting down"), //
+			FAULT(7, "Fault"), //
+			STANDBY(8, "Standby"), //
+			PRECHARGE(9, "DC precharge"), //
+			GRID_PRE_CONNECTED(10, "Preparing grid connection"), //
+			GRID_CONNECTED(11, "Grid connected"), //
+			NO_ERROR_PENDING(12, "Wait for error acknowledge"); //
 
 			private final int value;
 			private final String name;

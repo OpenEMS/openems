@@ -30,8 +30,9 @@ import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.State;
-import io.openems.edge.battery.soltaro.cluster.versionb.Enums.ContactorControl;
-import io.openems.edge.battery.soltaro.cluster.versionb.Enums.RackUsage;
+import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
+import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
+import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -63,8 +64,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class Cluster extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class ClusterVersionB extends AbstractOpenemsModbusComponent
+		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
 	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
@@ -79,7 +80,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	// Helper that holds general information about single racks, independent if they
 	// are used or not
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
-	private final Logger log = LoggerFactory.getLogger(Cluster.class);
+	private final Logger log = LoggerFactory.getLogger(ClusterVersionB.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -101,12 +102,13 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private ResetState resetState = ResetState.NONE;
 	private boolean resetDone;
 
-	public Cluster() {
+	public ClusterVersionB() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				ClusterChannelId.values() //
+				SoltaroCluster.ChannelId.values(), //
+				ClusterVersionBChannelId.values() //
 		);
 	}
 
@@ -130,8 +132,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
 
-		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(Cluster.CHARGE_MAX_A);
-		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(Cluster.DISCHARGE_MAX_A);
+		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(ClusterVersionB.CHARGE_MAX_A);
+		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(ClusterVersionB.DISCHARGE_MAX_A);
 		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
 				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
 		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
@@ -308,16 +310,16 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 	private boolean isError() {
 		// still TODO define what is exactly an error
-		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
+		if (this.readValueFromStateChannel(ClusterVersionBChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
 			return true;
 		}
-		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
+		if (this.readValueFromStateChannel(ClusterVersionBChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
 			return true;
 		}
-		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
+		if (this.readValueFromStateChannel(ClusterVersionBChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
 			return true;
 		}
-		if (this.readValueFromStateChannel(ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
+		if (this.readValueFromStateChannel(ClusterVersionBChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
 			return true;
 		}
 
@@ -398,7 +400,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private void resetSystem() {
 		// Write reset to all racks and the master
 
-		IntegerWriteChannel resetMasterChannel = (IntegerWriteChannel) this.channel(ClusterChannelId.RESET);
+		IntegerWriteChannel resetMasterChannel = (IntegerWriteChannel) this.channel(ClusterVersionBChannelId.RESET);
 		try {
 			resetMasterChannel.setNextWriteValue(0x1);
 		} catch (OpenemsNamedException e) {
@@ -416,9 +418,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	}
 
 	private void startSystem() {
-		EnumWriteChannel startStopChannel = this.channel(ClusterChannelId.START_STOP);
 		try {
-			startStopChannel.setNextWriteValue(StartStop.START);
+			this.setClusterStartStop(ClusterStartStop.START);
 			// Only set the racks that are used, but set the others to unused
 			for (int i : RACK_INFO.keySet()) {
 				EnumWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(i).usageChannelId);
@@ -434,9 +435,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	}
 
 	private void stopSystem() {
-		EnumWriteChannel startStopChannel = this.channel(ClusterChannelId.START_STOP);
 		try {
-			startStopChannel.setNextWriteValue(StartStop.STOP);
+			this.setClusterStartStop(ClusterStartStop.STOP);
 			// write to all racks unused!!
 			for (RackInfo r : RACK_INFO.values()) {
 				EnumWriteChannel rackUsageChannel = this.channel(r.usageChannelId);
@@ -457,7 +457,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 	public void setStateMachineState(State state) {
 		this.state = state;
-		this.channel(ClusterChannelId.STATE_MACHINE).setNextValue(this.state);
+		this.channel(ClusterVersionBChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
 	@Override
@@ -465,103 +465,103 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		ModbusProtocol protocol = new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
 				new FC16WriteRegistersTask(0x1004, //
-						m(ClusterChannelId.RESET, new UnsignedWordElement(0x1004)) //
+						m(ClusterVersionBChannelId.RESET, new UnsignedWordElement(0x1004)) //
 				), //
 
 				new FC16WriteRegistersTask(0x1017, //
-						m(ClusterChannelId.START_STOP, new UnsignedWordElement(0x1017)), //
-						m(ClusterChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
-						m(ClusterChannelId.RACK_2_USAGE, new UnsignedWordElement(0x1019)), //
-						m(ClusterChannelId.RACK_3_USAGE, new UnsignedWordElement(0x101A)), //
-						m(ClusterChannelId.RACK_4_USAGE, new UnsignedWordElement(0x101B)), //
-						m(ClusterChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C)) //
+						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x1017)), //
+						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
+						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x1019)), //
+						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x101A)), //
+						m(SoltaroCluster.ChannelId.RACK_4_USAGE, new UnsignedWordElement(0x101B)), //
+						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C)) //
 				), //
 				new FC3ReadRegistersTask(0x1017, Priority.HIGH,
-						m(ClusterChannelId.START_STOP, new UnsignedWordElement(0x1017)), //
-						m(ClusterChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
-						m(ClusterChannelId.RACK_2_USAGE, new UnsignedWordElement(0x1019)), //
-						m(ClusterChannelId.RACK_3_USAGE, new UnsignedWordElement(0x101A)), //
-						m(ClusterChannelId.RACK_4_USAGE, new UnsignedWordElement(0x101B)), //
-						m(ClusterChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C)) //
+						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x1017)), //
+						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
+						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x1019)), //
+						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x101A)), //
+						m(SoltaroCluster.ChannelId.RACK_4_USAGE, new UnsignedWordElement(0x101B)), //
+						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C)) //
 				), //
 
 				new FC16WriteRegistersTask(0x101F,
-						m(ClusterChannelId.SYSTEM_INSULATION_LEVEL_1, new UnsignedWordElement(0x101F)), //
-						m(ClusterChannelId.SYSTEM_INSULATION_LEVEL_2, new UnsignedWordElement(0x1020)), //
+						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_1, new UnsignedWordElement(0x101F)), //
+						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_2, new UnsignedWordElement(0x1020)), //
 						new DummyRegisterElement(0x1021), //
-						m(ClusterChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1022)), //
-						m(ClusterChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023)) //
+						m(ClusterVersionBChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1022)), //
+						m(ClusterVersionBChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023)) //
 				), //
 
 				new FC3ReadRegistersTask(0x101F, Priority.LOW,
-						m(ClusterChannelId.SYSTEM_INSULATION_LEVEL_1, new UnsignedWordElement(0x101F)), //
-						m(ClusterChannelId.SYSTEM_INSULATION_LEVEL_2, new UnsignedWordElement(0x1020)), //
+						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_1, new UnsignedWordElement(0x101F)), //
+						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_2, new UnsignedWordElement(0x1020)), //
 						new DummyRegisterElement(0x1021), //
-						m(ClusterChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1022)), //
-						m(ClusterChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023)) //
+						m(ClusterVersionBChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1022)), //
+						m(ClusterVersionBChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023)) //
 				), //
 
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1),
-						m(ClusterChannelId.RACK_1_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1))) //
 				), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1), Priority.HIGH,
-						m(ClusterChannelId.RACK_1_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1))) //
 				), //
 
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2),
-						m(ClusterChannelId.RACK_2_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2))) //
 				), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2), Priority.HIGH,
-						m(ClusterChannelId.RACK_2_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2))) //
 				), //
 
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3),
-						m(ClusterChannelId.RACK_2_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3))) //
 				), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3), Priority.HIGH,
-						m(ClusterChannelId.RACK_3_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_3_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3))) //
 				), //
 
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4),
-						m(ClusterChannelId.RACK_4_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_4_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4))) //
 				), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4), Priority.HIGH,
-						m(ClusterChannelId.RACK_4_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_4_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4))) //
 				), //
 
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5),
-						m(ClusterChannelId.RACK_5_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_5_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5))) //
 				), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5), Priority.HIGH,
-						m(ClusterChannelId.RACK_5_POSITIVE_CONTACTOR,
+						m(ClusterVersionBChannelId.RACK_5_POSITIVE_CONTACTOR,
 								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5))) //
 				), //
 
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
 						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
-						m(ClusterChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
+						m(SoltaroCluster.ChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 								.onUpdateCallback(val -> {
 									recalculateSoc();
 								}), //
-						m(ClusterChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
+						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
-						m(ClusterChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
+						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x104E),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -571,58 +571,58 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
 						m(new BitsWordElement(0x1081, this) //
-								.bit(4, ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION) //
-								.bit(3, ClusterChannelId.MASTER_ALARM_LEVEL_1_INSULATION) //
-								.bit(2, ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL) //
-								.bit(1, ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE) //
-								.bit(0, ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER) //
+								.bit(4, ClusterVersionBChannelId.MASTER_ALARM_LEVEL_2_INSULATION) //
+								.bit(3, ClusterVersionBChannelId.MASTER_ALARM_LEVEL_1_INSULATION) //
+								.bit(2, ClusterVersionBChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL) //
+								.bit(1, ClusterVersionBChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE) //
+								.bit(0, ClusterVersionBChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER) //
 						), //
 						m(new BitsWordElement(0x1082, this) //
-								.bit(4, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5) //
-								.bit(3, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4) //
-								.bit(2, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3) //
-								.bit(1, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2) //
-								.bit(0, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1) //
+								.bit(4, SoltaroCluster.ChannelId.SUB_MASTER_5_COMMUNICATION_FAILURE) //
+								.bit(3, SoltaroCluster.ChannelId.SUB_MASTER_4_COMMUNICATION_FAILURE) //
+								.bit(2, SoltaroCluster.ChannelId.SUB_MASTER_3_COMMUNICATION_FAILURE) //
+								.bit(1, SoltaroCluster.ChannelId.SUB_MASTER_2_COMMUNICATION_FAILURE) //
+								.bit(0, SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE) //
 						), //
 						m(new BitsWordElement(0x1083, this) //
-								.bit(5, ClusterChannelId.RACK_1_LEVEL_2_ALARM) //
-								.bit(4, ClusterChannelId.RACK_1_PCS_CONTROL_FAULT) //
-								.bit(3, ClusterChannelId.RACK_1_COMMUNICATION_WITH_MASTER_ERROR) //
-								.bit(2, ClusterChannelId.RACK_1_DEVICE_ERROR) //
-								.bit(1, ClusterChannelId.RACK_1_CYCLE_OVER_CURRENT) //
-								.bit(0, ClusterChannelId.RACK_1_VOLTAGE_DIFFERENCE) //
+								.bit(5, ClusterVersionBChannelId.RACK_1_LEVEL_2_ALARM) //
+								.bit(4, ClusterVersionBChannelId.RACK_1_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterVersionBChannelId.RACK_1_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterVersionBChannelId.RACK_1_DEVICE_ERROR) //
+								.bit(1, ClusterVersionBChannelId.RACK_1_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterVersionBChannelId.RACK_1_VOLTAGE_DIFFERENCE) //
 						), //
 						m(new BitsWordElement(0x1084, this) //
-								.bit(5, ClusterChannelId.RACK_2_LEVEL_2_ALARM) //
-								.bit(4, ClusterChannelId.RACK_2_PCS_CONTROL_FAULT) //
-								.bit(3, ClusterChannelId.RACK_2_COMMUNICATION_WITH_MASTER_ERROR) //
-								.bit(2, ClusterChannelId.RACK_2_DEVICE_ERROR) //
-								.bit(1, ClusterChannelId.RACK_2_CYCLE_OVER_CURRENT) //
-								.bit(0, ClusterChannelId.RACK_2_VOLTAGE_DIFFERENCE) //
+								.bit(5, ClusterVersionBChannelId.RACK_2_LEVEL_2_ALARM) //
+								.bit(4, ClusterVersionBChannelId.RACK_2_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterVersionBChannelId.RACK_2_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterVersionBChannelId.RACK_2_DEVICE_ERROR) //
+								.bit(1, ClusterVersionBChannelId.RACK_2_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterVersionBChannelId.RACK_2_VOLTAGE_DIFFERENCE) //
 						), //
 						m(new BitsWordElement(0x1085, this) //
-								.bit(5, ClusterChannelId.RACK_3_LEVEL_2_ALARM) //
-								.bit(4, ClusterChannelId.RACK_3_PCS_CONTROL_FAULT) //
-								.bit(3, ClusterChannelId.RACK_3_COMMUNICATION_WITH_MASTER_ERROR) //
-								.bit(2, ClusterChannelId.RACK_3_DEVICE_ERROR) //
-								.bit(1, ClusterChannelId.RACK_3_CYCLE_OVER_CURRENT) //
-								.bit(0, ClusterChannelId.RACK_3_VOLTAGE_DIFFERENCE) //
+								.bit(5, ClusterVersionBChannelId.RACK_3_LEVEL_2_ALARM) //
+								.bit(4, ClusterVersionBChannelId.RACK_3_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterVersionBChannelId.RACK_3_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterVersionBChannelId.RACK_3_DEVICE_ERROR) //
+								.bit(1, ClusterVersionBChannelId.RACK_3_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterVersionBChannelId.RACK_3_VOLTAGE_DIFFERENCE) //
 						), //
 						m(new BitsWordElement(0x1086, this) //
-								.bit(5, ClusterChannelId.RACK_4_LEVEL_2_ALARM) //
-								.bit(4, ClusterChannelId.RACK_4_PCS_CONTROL_FAULT) //
-								.bit(3, ClusterChannelId.RACK_4_COMMUNICATION_WITH_MASTER_ERROR) //
-								.bit(2, ClusterChannelId.RACK_4_DEVICE_ERROR) //
-								.bit(1, ClusterChannelId.RACK_4_CYCLE_OVER_CURRENT) //
-								.bit(0, ClusterChannelId.RACK_4_VOLTAGE_DIFFERENCE) //
+								.bit(5, ClusterVersionBChannelId.RACK_4_LEVEL_2_ALARM) //
+								.bit(4, ClusterVersionBChannelId.RACK_4_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterVersionBChannelId.RACK_4_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterVersionBChannelId.RACK_4_DEVICE_ERROR) //
+								.bit(1, ClusterVersionBChannelId.RACK_4_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterVersionBChannelId.RACK_4_VOLTAGE_DIFFERENCE) //
 						), //
 						m(new BitsWordElement(0x1087, this) //
-								.bit(5, ClusterChannelId.RACK_5_LEVEL_2_ALARM) //
-								.bit(4, ClusterChannelId.RACK_5_PCS_CONTROL_FAULT) //
-								.bit(3, ClusterChannelId.RACK_5_COMMUNICATION_WITH_MASTER_ERROR) //
-								.bit(2, ClusterChannelId.RACK_5_DEVICE_ERROR) //
-								.bit(1, ClusterChannelId.RACK_5_CYCLE_OVER_CURRENT) //
-								.bit(0, ClusterChannelId.RACK_5_VOLTAGE_DIFFERENCE) //
+								.bit(5, ClusterVersionBChannelId.RACK_5_LEVEL_2_ALARM) //
+								.bit(4, ClusterVersionBChannelId.RACK_5_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterVersionBChannelId.RACK_5_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterVersionBChannelId.RACK_5_DEVICE_ERROR) //
+								.bit(1, ClusterVersionBChannelId.RACK_5_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterVersionBChannelId.RACK_5_VOLTAGE_DIFFERENCE) //
 						) //
 				) //
 
@@ -716,25 +716,25 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private static Map<Integer, RackInfo> createRackInfo() {
 		Map<Integer, RackInfo> map = new HashMap<Integer, RackInfo>();
 		map.put(1,
-				new RackInfo(ADDRESS_OFFSET_RACK_1, ClusterChannelId.RACK_1_USAGE,
-						ClusterChannelId.RACK_1_POSITIVE_CONTACTOR,
-						ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1));
+				new RackInfo(ADDRESS_OFFSET_RACK_1, SoltaroCluster.ChannelId.RACK_1_USAGE,
+						ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR,
+						SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE));
 		map.put(2,
-				new RackInfo(ADDRESS_OFFSET_RACK_2, ClusterChannelId.RACK_2_USAGE,
-						ClusterChannelId.RACK_2_POSITIVE_CONTACTOR,
-						ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2));
+				new RackInfo(ADDRESS_OFFSET_RACK_2, SoltaroCluster.ChannelId.RACK_2_USAGE,
+						ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR,
+						SoltaroCluster.ChannelId.SUB_MASTER_2_COMMUNICATION_FAILURE));
 		map.put(3,
-				new RackInfo(ADDRESS_OFFSET_RACK_3, ClusterChannelId.RACK_3_USAGE,
-						ClusterChannelId.RACK_3_POSITIVE_CONTACTOR,
-						ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3));
+				new RackInfo(ADDRESS_OFFSET_RACK_3, SoltaroCluster.ChannelId.RACK_3_USAGE,
+						ClusterVersionBChannelId.RACK_3_POSITIVE_CONTACTOR,
+						SoltaroCluster.ChannelId.SUB_MASTER_3_COMMUNICATION_FAILURE));
 		map.put(4,
-				new RackInfo(ADDRESS_OFFSET_RACK_4, ClusterChannelId.RACK_4_USAGE,
-						ClusterChannelId.RACK_4_POSITIVE_CONTACTOR,
-						ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4));
+				new RackInfo(ADDRESS_OFFSET_RACK_4, SoltaroCluster.ChannelId.RACK_4_USAGE,
+						ClusterVersionBChannelId.RACK_4_POSITIVE_CONTACTOR,
+						SoltaroCluster.ChannelId.SUB_MASTER_4_COMMUNICATION_FAILURE));
 		map.put(5,
-				new RackInfo(ADDRESS_OFFSET_RACK_5, ClusterChannelId.RACK_5_USAGE,
-						ClusterChannelId.RACK_5_POSITIVE_CONTACTOR,
-						ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5));
+				new RackInfo(ADDRESS_OFFSET_RACK_5, SoltaroCluster.ChannelId.RACK_5_USAGE,
+						ClusterVersionBChannelId.RACK_5_POSITIVE_CONTACTOR,
+						SoltaroCluster.ChannelId.SUB_MASTER_5_COMMUNICATION_FAILURE));
 
 		return map;
 	}
@@ -742,15 +742,15 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	// Helper class to get infos about connected racks
 	private static class RackInfo {
 		int addressOffset;
-		ClusterChannelId usageChannelId;
-		ClusterChannelId positiveContactorChannelId;
-		ClusterChannelId subMasterCommunicationAlarmChannelId;
+		SoltaroCluster.ChannelId usageChannelId;
+		ClusterVersionBChannelId positiveContactorChannelId;
+		SoltaroCluster.ChannelId subMasterCommunicationAlarmChannelId;
 
 		RackInfo( //
 				int addressOffset, //
-				ClusterChannelId usageChannelId, //
-				ClusterChannelId positiveContactorChannelId, //
-				ClusterChannelId subMasterCommunicationAlarmChannelId //
+				SoltaroCluster.ChannelId usageChannelId, //
+				ClusterVersionBChannelId positiveContactorChannelId, //
+				SoltaroCluster.ChannelId subMasterCommunicationAlarmChannelId //
 		) {
 			this.addressOffset = addressOffset;
 			this.usageChannelId = usageChannelId;

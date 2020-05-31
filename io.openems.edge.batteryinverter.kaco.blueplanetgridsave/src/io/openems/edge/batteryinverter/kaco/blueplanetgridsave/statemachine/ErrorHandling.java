@@ -19,17 +19,19 @@ public class ErrorHandling extends StateHandler<State, Context> {
 	@Override
 	public State getNextState(Context context) throws OpenemsNamedException {
 		switch (context.component.getCurrentState()) {
-		case FAULT:
+		case STANDBY:
 		case GRID_CONNECTED:
 		case GRID_PRE_CONNECTED:
-		case MPPT:
-		case OFF:
+		case THROTTLED:
 		case PRECHARGE:
+		case MPPT:
+		case STARTING:
+		case OFF:
 		case SHUTTING_DOWN:
 		case SLEEPING:
-		case STANDBY:
-		case STARTING:
-		case THROTTLED:
+			// no more error pending
+			return State.UNDEFINED;
+		case FAULT:
 		case UNDEFINED:
 			// TODO
 			break;
