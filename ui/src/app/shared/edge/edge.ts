@@ -141,7 +141,7 @@ export class Edge {
    * 
    * @param websocket the Websocket
    */
-  private sendSubscribeChannels(websocket: Websocket): void {
+  public sendSubscribeChannels(websocket: Websocket): void {
     // make sure to send not faster than every 100 ms
     if (this.subscribeChannelsTimeout == null) {
       this.subscribeChannelsTimeout = setTimeout(() => {

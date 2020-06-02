@@ -13,14 +13,13 @@ class MyConfig extends AbstractComponentConfig implements Config {
 	private final Mode mode;
 	private final WorkMode workMode;
 	private final int minTime;
-	private final int minKwh;
 	private final String endTime;
 	private final Level defaultLevel;
 	private final int minimumSwitchingTime;
 
 	public MyConfig(String id, String inputChannelAddress, String outputChannelPhaseL1, String outputChannelPhaseL2,
 			String outputChannelPhaseL3, String endtime, int powerOfPhase, Mode mode, Level defaultLevel,
-			WorkMode workMode, int minTime, int minKwh, int minimumSwitchingTime) {
+			WorkMode workMode, int minTime, int minimumSwitchingTime) {
 		super(Config.class, id);
 		this.inputChannelAddress = inputChannelAddress;
 		this.outputChannelPhaseL1 = outputChannelPhaseL1;
@@ -30,7 +29,6 @@ class MyConfig extends AbstractComponentConfig implements Config {
 		this.mode = mode;
 		this.workMode = workMode;
 		this.minTime = minTime;
-		this.minKwh = minKwh;
 		this.endTime = endtime;
 		this.defaultLevel = defaultLevel;
 		this.minimumSwitchingTime = minimumSwitchingTime;
@@ -69,11 +67,6 @@ class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int minTime() {
 		return this.minTime;
-	}
-
-	@Override
-	public int minKwh() {
-		return this.minKwh;
 	}
 
 	@Override

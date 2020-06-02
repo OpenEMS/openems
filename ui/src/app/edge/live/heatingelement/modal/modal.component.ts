@@ -95,16 +95,6 @@ export class HeatingElementModalComponent implements OnInit {
         this.formGroup.controls['minTime'].markAsDirty();
     }
 
-    updateMinKwh(event: CustomEvent) {
-        this.formGroup.controls['minKwh'].setValue(event.detail.value);
-        this.formGroup.controls['minKwh'].markAsDirty()
-    }
-
-    updateWorkMode(event: CustomEvent) {
-        this.formGroup.controls['workMode'].setValue(event.detail.value);
-        this.formGroup.controls['workMode'].markAsDirty()
-    }
-
     updateDefaultLevel(event: CustomEvent) {
         this.formGroup.controls['defaultLevel'].setValue(event.detail.value);
         this.formGroup.controls['defaultLevel'].markAsDirty()
