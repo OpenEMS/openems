@@ -138,7 +138,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 * calculate State of charge
 		 */
 		// TODO timedelta
-		float watthours = (float) activePower * 1 / 3600;
+		float watthours = (float) activePower * 60 / 3600;
 		// float watthours = (float) activePower * this.datasource.getTimeDelta() /
 		// 3600;
 		float socChange = watthours / this.capacity;
