@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -41,6 +42,8 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -59,7 +62,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE , //
 		EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE}) //
 public class EssSinexcel extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent {
+		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssSinexcel.class);
 
@@ -806,5 +809,14 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	public IntegerWriteChannel getVoltage() {
 		return this.channel(SinexcelChannelId.BAT_VOLTAGE);
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 }

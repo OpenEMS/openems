@@ -6,6 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -78,6 +79,24 @@ public interface Sum extends OpenemsComponent {
 		 * </ul>
 		 */
 		ESS_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text(OpenemsConstants.POWER_DOC_TEXT)),
+		/**
+		 * Ess: Discharge Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * <li>For AC coupled energy storage systems this is the same as
+		 * {@link ChannelId#ESS_ACTIVE_POWER}; for DC coupled or hybrid ESS this is the
+		 * {@link ChannelId#ESS_ACTIVE_POWER} minus
+		 * {@link ChannelId#PRODUCTION_DC_ACTUAL_POWER}, i.e. the power that is actually
+		 * charged to or discharged from the battery.
+		 * </ul>
+		 */
+		ESS_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
 		/**
@@ -557,6 +576,10 @@ public interface Sum extends OpenemsComponent {
 
 	public default Channel<Integer> getEssActivePowerL3() {
 		return this.channel(ChannelId.ESS_ACTIVE_POWER_L3);
+	}
+
+	public default IntegerReadChannel getEssDischargePowerChannel() {
+		return this.channel(ChannelId.ESS_DISCHARGE_POWER);
 	}
 
 	public default Channel<Integer> getEssMaxApparentPower() {
