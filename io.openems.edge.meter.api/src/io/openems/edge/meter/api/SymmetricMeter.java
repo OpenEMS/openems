@@ -255,7 +255,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Voltage in [V], see {@link ChannelId#VOLTAGE}.
+	 * Gets the Voltage in [mV], see {@link ChannelId#VOLTAGE}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
