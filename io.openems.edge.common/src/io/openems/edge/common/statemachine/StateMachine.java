@@ -23,6 +23,10 @@ public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 	/**
 	 * Initialize the State-Machine and set an initial State.
 	 * 
+	 * <p>
+	 * TODO Note that for the initialState the {@link StateHandler#onEntry(Object)
+	 * method is not called in the beginning.
+	 * 
 	 * @param initialState the initial State
 	 */
 	public StateMachine(STATE initialState) {

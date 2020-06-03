@@ -16,9 +16,10 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 
 public interface KacoBlueplanetGridsave
-		extends ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent {
+		extends ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
 
 	public static final int WATCHDOG_CYCLES = 10;
 

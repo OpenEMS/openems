@@ -66,6 +66,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		}) //
+// TODO: drop this Component in favour of KACO blueplanet Battery-Inverter implemention + Generic ESS.
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
