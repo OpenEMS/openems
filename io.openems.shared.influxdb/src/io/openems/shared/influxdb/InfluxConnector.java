@@ -162,7 +162,8 @@ public class InfluxConnector {
 	 */
 	public QueryResult executeQuery(String query) throws OpenemsException {
 		if (Math.random() < this.queryLimit.getLimit()) {
-			throw new OpenemsException("InfluxDB read is temporarily blocked [" + this.queryLimit + "]");
+			throw new OpenemsException(
+					"InfluxDB read is temporarily blocked [" + this.queryLimit + "]. Query: " + query);
 		}
 
 		InfluxDB influxDB = this.getConnection();
