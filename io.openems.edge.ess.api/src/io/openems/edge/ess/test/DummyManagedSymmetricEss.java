@@ -3,6 +3,7 @@ package io.openems.edge.ess.test;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -33,6 +34,18 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 
 	public DummyManagedSymmetricEss(String id) {
 		this(id, new DummyPower(MAX_APPARENT_POWER));
+	}
+
+	public DummyManagedSymmetricEss setMaxApparentPower(Integer value) {
+		this._setMaxApparentPower(value);
+		this.getMaxApparentPowerChannel().nextProcessImage();
+		return this;
+	}
+
+	public DummyManagedSymmetricEss setGridMode(GridMode gridMode) {
+		this._setGridMode(gridMode);
+		this.getGridModeChannel().nextProcessImage();
+		return this;
 	}
 
 	@Override

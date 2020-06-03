@@ -7,6 +7,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -175,8 +176,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
-		),
-		;
+		);
 
 		private final Doc doc;
 
@@ -227,6 +227,36 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#MAX_APPARENT_POWER}.
+	 * 
+	 * @return the Channel
+	 */
+	public default Channel<GridMode> getGridModeChannel() {
+		return this.channel(ChannelId.GRID_MODE);
+	}
+
+// TODO replace existing getGridMode() method
+//	/**
+//	 * Gets the Grid-Mode, see
+//	 * {@link ChannelId#GRID_MODE}.
+//	 * 
+//	 * @return the Channel {@link Value}
+//	 */
+//	public default GridMode getGridMode() {
+//		return this.getGridModeChannel().value();
+//	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setGridMode(GridMode value) {
+		this.getGridModeChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Active Power in [W]. Negative values for Charge; positive for
 	 * Discharge.
 	 * 
@@ -243,6 +273,36 @@ public interface SymmetricEss extends OpenemsComponent {
 	 */
 	default Channel<Integer> getMaxApparentPower() {
 		return this.channel(ChannelId.MAX_APPARENT_POWER);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_APPARENT_POWER}.
+	 * 
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxApparentPowerChannel() {
+		return this.channel(ChannelId.MAX_APPARENT_POWER);
+	}
+
+// TODO replace existing getMaxApparentPower() method
+//	/**
+//	 * Gets the Max Apparent Power in [VA], see
+//	 * {@link ChannelId#MAX_APPARENT_POWER}.
+//	 * 
+//	 * @return the Channel {@link Value}
+//	 */
+//	public default Value<Integer> getMaxApparentPower() {
+//		return this.getMaxApparentPowerChannel().value();
+//	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxApparentPower(Integer value) {
+		this.getMaxApparentPowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -272,7 +332,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	default Channel<Long> getActiveDischargeEnergy() {
 		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
-	
+
 	/**
 	 * Gets the minimum cell voltage in [mV].
 	 * 
@@ -281,7 +341,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	default Channel<Integer> getMinCellVoltage() {
 		return this.channel(ChannelId.MIN_CELL_VOLTAGE);
 	}
-	
+
 	/**
 	 * Gets the maximum cell voltage in [mV].
 	 * 
@@ -290,7 +350,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	default Channel<Integer> getMaxCellVoltage() {
 		return this.channel(ChannelId.MAX_CELL_VOLTAGE);
 	}
-	
+
 	/**
 	 * Gets the minimum cell temperature in [°C].
 	 * 
@@ -299,7 +359,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	default Channel<Integer> getMinCellTemperature() {
 		return this.channel(ChannelId.MIN_CELL_TEMPERATURE);
 	}
-	
+
 	/**
 	 * Gets the maximum cell temperature in [°C].
 	 * 
