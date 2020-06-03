@@ -64,6 +64,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Reference
 	protected Sum sum;
 
+	@Reference
+	private ManagedEvcs evcs;
+	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CHARGE_MODE(Doc.of(ChargeMode.values()) //
 				.initialValue(ChargeMode.FORCE_CHARGE) //
@@ -125,10 +128,10 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(config.defaultChargeMinPower());
 		this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(config.forceChargeMinPower());
 
-		// TODO it is very, very likely, that this will cause an Exception on first run.
-		// If really required, use static @Reference
-		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
-		evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().orElse(22800));
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "evcs", config.evcs_id())) {
+			return;
+		}
+		this.evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().orElse(22800));
 	}
 
 	@Override
@@ -143,7 +146,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedEvcs evcs = this.componentManager.getComponent(config.evcs_id());
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
 		int maxHW = evcs.getMaximumHardwarePower().getNextValue().orElse(22800);
 		if (maxHW != 0) {

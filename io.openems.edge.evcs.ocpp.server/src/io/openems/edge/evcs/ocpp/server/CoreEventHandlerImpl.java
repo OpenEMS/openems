@@ -68,7 +68,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle StartTransactionRequest: " + request);
 
-		StartTransactionConfirmation response = new StartTransactionConfirmation();
+		StartTransactionConfirmation response = new StartTransactionConfirmation(
+				new IdTagInfo(AuthorizationStatus.Accepted), 1); // TODO: Logic for transaction id's
 		IdTagInfo tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.validate();
 		response.setIdTagInfo(tag);
@@ -89,7 +90,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle HeartbeatRequest: " + request);
 
-		return new HeartbeatConfirmation();
+		return new HeartbeatConfirmation(ZonedDateTime.now());
 	}
 
 	@Override
