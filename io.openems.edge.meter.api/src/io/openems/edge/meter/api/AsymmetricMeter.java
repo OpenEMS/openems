@@ -283,7 +283,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Voltage in [mV], see {@link ChannelId#VOLTAGE_L1}.
+	 * Gets the Voltage on L1 in [mV], see {@link ChannelId#VOLTAGE_L1}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
@@ -311,7 +311,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Voltage in [mV], see {@link ChannelId#VOLTAGE_L2}.
+	 * Gets the Voltage on L2 in [mV], see {@link ChannelId#VOLTAGE_L2}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
@@ -339,7 +339,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Voltage in [mV], see {@link ChannelId#VOLTAGE_L3}.
+	 * Gets the Voltage on L3 in [mV], see {@link ChannelId#VOLTAGE_L3}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
@@ -367,7 +367,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Current in [mA], see {@link ChannelId#CURRENT_L1}.
+	 * Gets the Current on L1 in [mA], see {@link ChannelId#CURRENT_L1}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
@@ -395,7 +395,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Current in [mA], see {@link ChannelId#CURRENT_L2}.
+	 * Gets the Current on L2 in [mA], see {@link ChannelId#CURRENT_L2}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
@@ -423,7 +423,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Current in [mA], see {@link ChannelId#CURRENT_L3}.
+	 * Gets the Current on L3 in [mA], see {@link ChannelId#CURRENT_L3}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
