@@ -465,6 +465,41 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the average value of all values.
+	 * 
+	 * @return the average value; or null if all values are null
+	 */
+	public static Float average(Integer... values) {
+		int count = 0;
+		float sum = 0.f;
+		for (Integer value : values) {
+			if (value != null) {
+				count++;
+				sum += value;
+			}
+		}
+		if (count == 0) {
+			return null;
+		}
+		return sum / count;
+	}
+
+	/**
+	 * Safely finds the average value of all values and rounds the result to an
+	 * Integer using {@link Math#round(float)}.
+	 * 
+	 * @return the rounded average value; or null if all values are null
+	 */
+	public static Integer averageRounded(Integer... values) {
+		Float result = average(values);
+		if (result == null) {
+			return null;
+		} else {
+			return Math.round(result);
+		}
+	}
+
+	/**
 	 * Throws an descriptive exception if the object is null.
 	 * 
 	 * @param description text that is added to the exception
