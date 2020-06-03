@@ -116,8 +116,8 @@ public class VirtualAdd extends AbstractOpenemsComponent
 			meterReactivePower.addValue(meter.getReactivePower());
 			meterActiveConsumptionEnergy.addValue(getActiveConsumptionEnergy());
 			meterActiveProductionEnergy.addValue(meter.getActiveProductionEnergy());
-			meterVoltage.addValue(meter.getVoltage());
-			meterCurrent.addValue(meter.getCurrent());
+			meterVoltage.addValue(meter.getVoltageChannel());
+			meterCurrent.addValue(meter.getCurrentChannel());
 		}
 
 		this.getFrequency().setNextValue(meterFrequency.calculate());
@@ -127,8 +127,8 @@ public class VirtualAdd extends AbstractOpenemsComponent
 		this.getReactivePower().setNextValue(meterReactivePower.calculate());
 		this.getActiveConsumptionEnergy().setNextValue(meterActiveConsumptionEnergy.calculate());
 		this.getActiveProductionEnergy().setNextValue(meterActiveProductionEnergy.calculate());
-		this.getVoltage().setNextValue(meterVoltage.calculate());
-		this.getCurrent().setNextValue(meterCurrent.calculate());
+		this.getVoltageChannel().setNextValue(meterVoltage.calculate());
+		this._setCurrent(meterCurrent.calculate());
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class VirtualAdd extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {		
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode) //

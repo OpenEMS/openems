@@ -139,7 +139,78 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 			));
 		}
 
+		this.migrateConfigurationsOnVersionUpgrade(existingConfigs, defaultConfigurationFailed);
+
 		return defaultConfigurationFailed.get();
+	}
+
+	/**
+	 * Apply upgrades to newer versions of OpenEMS Edge.
+	 * 
+	 * @param configurationFailed the result of the configuration, updated on error
+	 */
+	private void migrateConfigurationsOnVersionUpgrade(List<Config> existingConfigs,
+			AtomicBoolean configurationFailed) {
+		this.migrateConfigurationOnVersion_2020_11_5(existingConfigs, configurationFailed);
+	}
+
+	/**
+	 * Migrate to OpenEMS version 2020.11.5.
+	 */
+	private void migrateConfigurationOnVersion_2020_11_5(List<Config> existingConfigs,
+			AtomicBoolean configurationFailed) {
+		/*
+		 * Upgrade to generic SOCOMEC implementation.
+		 */
+		// Threephase
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
+		"Meter.SOCOMEC.DirisA10".equals(c.factoryPid) || //
+				"Meter.SOCOMEC.DirisA14".equals(c.factoryPid) || //
+				"Meter.SOCOMEC.DirisB30".equals(c.factoryPid) || //
+				"Meter.SOCOMEC.DirisE24".equals(c.factoryPid) //
+		)).forEach(c -> {
+			String alias = (String) c.properties.get("alias");
+			boolean enabled = (boolean) c.properties.get("enabled");
+			String modbusId = (String) c.properties.get("modbus.id");
+			int modbusUnitId = (int) c.properties.get("modbusUnitId");
+			boolean invert = (boolean) c.properties.get("invert");
+			String type = (String) c.properties.get("type");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "Meter.Socomec.Threephase", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId), //
+					new Property("invert", invert), //
+					new Property("type", type) //
+			));
+		});
+		// Singlephase
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() && //
+				"Meter.SOCOMEC.CountisE24".equals(c.factoryPid)//
+		).forEach(c -> {
+			String alias = (String) c.properties.get("alias");
+			boolean enabled = (boolean) c.properties.get("enabled");
+			String modbusId = (String) c.properties.get("modbus.id");
+			int modbusUnitId = (int) c.properties.get("modbusUnitId");
+			boolean invert = (boolean) c.properties.get("invert");
+			String type = (String) c.properties.get("type");
+
+			this.deleteConfiguration(configurationFailed, c.componentId.get());
+
+			this.createConfiguration(configurationFailed, "Meter.Socomec.Singlephase", Arrays.asList(//
+					new Property("id", c.componentId.get()), //
+					new Property("alias", alias), //
+					new Property("enabled", enabled), //
+					new Property("modbus.id", modbusId), //
+					new Property("modbusUnitId", modbusUnitId), //
+					new Property("invert", invert), //
+					new Property("type", type) //
+			));
+		});
 	}
 
 	@Override
@@ -258,17 +329,19 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 				componentId = null;
 			}
 			String pid = config.getPid();
-			return new Config(config.getFactoryPid(), componentId, pid);
+			return new Config(config.getFactoryPid(), componentId, pid, properties);
 		}
 
 		protected final String factoryPid;
 		protected final Optional<String> componentId;
 		protected final String pid;
+		protected final Dictionary<String, Object> properties;
 
-		private Config(String factoryPid, String componentId, String pid) {
+		private Config(String factoryPid, String componentId, String pid, Dictionary<String, Object> properties) {
 			this.factoryPid = factoryPid;
 			this.componentId = Optional.ofNullable(componentId);
 			this.pid = pid;
+			this.properties = properties;
 		}
 	}
 
