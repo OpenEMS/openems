@@ -9,6 +9,8 @@ import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -200,10 +202,10 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.channel(10, ChannelId.ACTIVE_PRODUCTION_ENERGY, ModbusType.FLOAT32) //
 				.channel(12, ChannelId.ACTIVE_CONSUMPTION_ENERGY, ModbusType.FLOAT32) //
 				.channel(14, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
-				.channel(16, ChannelId.CURRENT, ModbusType.FLOAT32) //				
+				.channel(16, ChannelId.CURRENT, ModbusType.FLOAT32) //
 				.build();
 	}
-	
+
 	/**
 	 * Gets the Active Power in [W]. Negative values for Consumption; positive for
 	 * Production
@@ -244,13 +246,30 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Voltage in [mV].
+	 * Gets the Channel for {@link ChannelId#VOLTAGE}.
 	 * 
 	 * @return the Channel
 	 */
-
-	default Channel<Integer> getVoltage() {
+	public default IntegerReadChannel getVoltageChannel() {
 		return this.channel(ChannelId.VOLTAGE);
+	}
+
+	/**
+	 * Gets the Voltage in [V], see {@link ChannelId#VOLTAGE}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltage() {
+		return this.getVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltage(Integer value) {
+		this.getVoltageChannel().setNextValue(value);
 	}
 
 	/**
@@ -280,13 +299,31 @@ public interface SymmetricMeter extends OpenemsComponent {
 	default Channel<Integer> getMaxActivePower() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
-	
+
 	/**
-	 * Gets the Current in [mA].
+	 * Gets the Channel for {@link ChannelId#CURRENT}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getCurrent(){
+	public default IntegerReadChannel getCurrentChannel() {
 		return this.channel(ChannelId.CURRENT);
+	}
+
+	/**
+	 * Gets the Current in [mA], see {@link ChannelId#CURRENT}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrent() {
+		return this.getCurrentChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrent(Integer value) {
+		this.getCurrentChannel().setNextValue(value);
 	}
 }

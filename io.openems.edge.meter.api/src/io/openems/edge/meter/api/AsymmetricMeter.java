@@ -7,6 +7,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -273,30 +274,171 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Channel for Voltage on L1 in [mV].
+	 * Gets the Channel for {@link ChannelId#VOLTAGE_L1}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getVoltageL1() {
+	public default IntegerReadChannel getVoltageL1Channel() {
 		return this.channel(ChannelId.VOLTAGE_L1);
 	}
 
 	/**
-	 * Gets the Channel for Voltage on L2 in [mV].
+	 * Gets the Voltage in [mV], see {@link ChannelId#VOLTAGE_L1}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltageL1() {
+		return this.getVoltageL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L1}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltageL1(Integer value) {
+		this.getVoltageL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#VOLTAGE_L2}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getVoltageL2() {
+	public default IntegerReadChannel getVoltageL2Channel() {
 		return this.channel(ChannelId.VOLTAGE_L2);
 	}
 
 	/**
-	 * Gets the Channel for Voltage on L3 in [mV].
+	 * Gets the Voltage in [mV], see {@link ChannelId#VOLTAGE_L2}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltageL2() {
+		return this.getVoltageL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L2}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltageL2(Integer value) {
+		this.getVoltageL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#VOLTAGE_L3}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getVoltageL3() {
+	public default IntegerReadChannel getVoltageL3Channel() {
 		return this.channel(ChannelId.VOLTAGE_L3);
+	}
+
+	/**
+	 * Gets the Voltage in [mV], see {@link ChannelId#VOLTAGE_L3}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltageL3() {
+		return this.getVoltageL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L3}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltageL3(Integer value) {
+		this.getVoltageL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CURRENT_L1}.
+	 * 
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentL1Channel() {
+		return this.channel(ChannelId.CURRENT_L1);
+	}
+
+	/**
+	 * Gets the Current in [mA], see {@link ChannelId#CURRENT_L1}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrentL1() {
+		return this.getCurrentL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L1}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrentL1(Integer value) {
+		this.getCurrentL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CURRENT_L2}.
+	 * 
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentL2Channel() {
+		return this.channel(ChannelId.CURRENT_L2);
+	}
+
+	/**
+	 * Gets the Current in [mA], see {@link ChannelId#CURRENT_L2}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrentL2() {
+		return this.getCurrentL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L2}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrentL2(Integer value) {
+		this.getCurrentL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CURRENT_L3}.
+	 * 
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentL3Channel() {
+		return this.channel(ChannelId.CURRENT_L3);
+	}
+
+	/**
+	 * Gets the Current in [mA], see {@link ChannelId#CURRENT_L3}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrentL3() {
+		return this.getCurrentL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L3}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrentL3(Integer value) {
+		this.getCurrentL3Channel().setNextValue(value);
 	}
 
 	/**
