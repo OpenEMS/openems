@@ -6,12 +6,15 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class SlowCharge1 extends StateHandler<State, Context> {
+/**
+ * Charge the battery with maximum power for 10 minutes.
+ */
+public class FastCharge extends StateHandler<State, Context> {
 
 	/**
-	 * Switch to next {@link State#FAST_CHARGE} after MAX_STATE_DURATION_MINUTES.
+	 * Switch to next {@link State#SLOW_CHARGE_2} after MAX_STATE_DURATION_MINUTES.
 	 */
-	private static final int MAX_STATE_DURATION_MINUTES = 30;
+	private static final int MAX_STATE_DURATION_MINUTES = 10;
 
 	private Instant enteredStateAt = null;
 
@@ -22,13 +25,17 @@ public class SlowCharge1 extends StateHandler<State, Context> {
 
 	@Override
 	public State getNextState(Context context) throws IllegalArgumentException, OpenemsNamedException {
-		SlowChargeUtils.calculateAndApplyPower(context);
+		int maxApparentPower = context.ess.getMaxApparentPower().value().getOrError();
+		int setPower = maxApparentPower * -1; // Charge
+
+		// Apply power constraint
+		context.ess.getSetActivePowerEqualsWithPid().setNextWriteValue(setPower);
 
 		// Evaluate next state
 		if (Duration.between(this.enteredStateAt, Instant.now(context.clock))
 				.toMinutes() > MAX_STATE_DURATION_MINUTES) {
 			// time passed
-			return State.FAST_CHARGE;
+			return State.SLOW_CHARGE_2;
 		} else {
 			// stay in this State
 			return State.SLOW_CHARGE_1;

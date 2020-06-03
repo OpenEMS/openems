@@ -7,9 +7,9 @@ public enum State implements io.openems.edge.common.statemachine.State<State, Co
 	UNDEFINED(-1, new Undefined()), //
 	DISCHARGE(1, new Discharge()), //
 	SLOW_CHARGE_1(2, new SlowCharge1()), //
-//	FAST_CHARGE(3, new FastCharge()), //
-//	SLOW_CHARGE2(4, new SlowCharge2()), //
-//	FINISHED(5, new Finished()) //
+	FAST_CHARGE(3, new FastCharge()), //
+	SLOW_CHARGE_2(4, new SlowCharge2()), //
+	FINISHED(5, new Finished()) //
 	;
 
 	private final int value;

@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.standby.statemachine;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -114,8 +113,7 @@ public class Discharge extends StateHandler<State, Context> {
 				if (this.highDischargePowerSince == null) {
 					this.highDischargePowerSince = now;
 				}
-				if (Duration.between(this.highDischargePowerSince, now)
-						.get(ChronoUnit.MINUTES) > MAX_HIGH_POWER_MINUTES) {
+				if (Duration.between(this.highDischargePowerSince, now).toMinutes() > MAX_HIGH_POWER_MINUTES) {
 					this.isDischargePowerLimited = true;
 				}
 			}
@@ -179,15 +177,15 @@ public class Discharge extends StateHandler<State, Context> {
 				return State.SLOW_CHARGE_1;
 			}
 
-			int production = context.sum.getProductionActivePower().value().getOrError();
-			int consumption = context.sum.getConsumptionActivePower().value().getOrError();
+			int production = context.sum.getProductionActivePower().value().orElse(0);
+			int consumption = context.sum.getConsumptionActivePower().value().orElse(0);
 			if (production > consumption) {
 				Instant now = Instant.now(context.clock);
 				if (this.productionHigherThanConsumptionSince == null) {
 					this.productionHigherThanConsumptionSince = now;
 				}
 				if (Duration.between(this.productionHigherThanConsumptionSince, now)
-						.get(ChronoUnit.MINUTES) > MAX_PRODUCTION_HIGHER_THAN_CONSUMPTION_MINUTES) {
+						.toMinutes() > MAX_PRODUCTION_HIGHER_THAN_CONSUMPTION_MINUTES) {
 					// time passed
 					return State.SLOW_CHARGE_1;
 				}
