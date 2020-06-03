@@ -142,8 +142,8 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 			reactivePower.addValue(pvInverter.getReactivePower());
 			activeProductionEnergy.addValue(pvInverter.getActiveProductionEnergy());
 			activeConsumptionEnergy.addValue(pvInverter.getActiveConsumptionEnergy());
-			voltage.addValue(pvInverter.getVoltage());
-			current.addValue(pvInverter.getCurrent());
+			voltage.addValue(pvInverter.getVoltageChannel());
+			current.addValue(pvInverter.getCurrentChannel());
 			// SymmetricPvInverter
 			maxApparentPower.addValue(pvInverter.getMaxApparentPower());
 			activePowerLimit.addValue(pvInverter.getActivePowerLimit());
@@ -157,8 +157,8 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 		this.getReactivePower().setNextValue(reactivePower.calculate());
 		this.getActiveProductionEnergy().setNextValue(activeProductionEnergy.calculate());
 		this.getActiveConsumptionEnergy().setNextValue(activeConsumptionEnergy.calculate());
-		this.getVoltage().setNextValue(voltage.calculate());
-		this.getCurrent().setNextValue(current.calculate());
+		this.getVoltageChannel().setNextValue(voltage.calculate());
+		this._setCurrent(current.calculate());
 		// SymmetricPvInverter
 		this.getMaxApparentPower().setNextValue(maxApparentPower.calculate());
 		this.getActivePowerLimit().setNextValue(activePowerLimit.calculate());

@@ -319,7 +319,7 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 			Channel<Integer> currL2 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L2);
 			Channel<Integer> currL3 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L3);
 
-			this.getCurrent().setNextValue(currL1.getNextValue().orElse(0) + currL2.getNextValue().orElse(0)
+			this._setCurrent(currL1.getNextValue().orElse(0) + currL2.getNextValue().orElse(0)
 					+ currL3.getNextValue().orElse(0));
 
 			break;
