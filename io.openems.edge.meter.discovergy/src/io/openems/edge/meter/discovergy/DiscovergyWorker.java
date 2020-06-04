@@ -151,10 +151,10 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 				break;
 			}
 
-			this.parent.getVoltage().setNextValue(TypeUtils.max(rawVoltage1, rawVoltage2, rawVoltage3));
-			this.parent.getVoltageL1().setNextValue(rawVoltage1);
-			this.parent.getVoltageL2().setNextValue(rawVoltage2);
-			this.parent.getVoltageL3().setNextValue(rawVoltage3);
+			this.parent._setVoltage(TypeUtils.averageRounded(rawVoltage1, rawVoltage2, rawVoltage3));
+			this.parent._setVoltageL1(rawVoltage1);
+			this.parent._setVoltageL2(rawVoltage2);
+			this.parent._setVoltageL3(rawVoltage3);
 		}
 	}
 
