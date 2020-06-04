@@ -110,35 +110,30 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 			}
 			// Found Socomec meter
 			this.readELementOnce(new StringWordElement(0xC38A, 8)).thenAccept(name -> {
-				switch (name) {
+				name = name.toLowerCase();
 				// NOTE: if you add a meter name here, make sure to also add it in
 				// SocomecMeterSinglephaseImpl.
-				case "Countis E24":
+				if (name.startsWith("countis e24")) {
 					this.logInfo(this.log, "Identified Socomec Countis E24 meter");
 					this.protocolCountisE24();
-					break;
 
-				case "Diris A-10":
+				} else if (name.startsWith("diris a-10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
 					this.protocolDirisA10();
-					break;
 
-				case "Diris A14":
+				} else if (name.startsWith("diris a14")) {
 					this.logInfo(this.log, "Identified Socomec Diris A14 meter");
 					this.protocolDirisA14();
-					break;
 
-				case "DIRIS B30":
+				} else if (name.startsWith("diris b30")) {
 					this.logInfo(this.log, "Identified Socomec Diris B30 meter");
 					this.protocolDirisB30();
-					break;
 
-				case "Countis E14":
+				} else if (name.startsWith("countis e14")) {
 					this.logError(this.log, "Identified Socomec " + name + " meter. This is not a threephase meter!");
 					this.channel(SocomecMeterThreephase.ChannelId.NOT_A_THREEPHASE_METER).setNextValue(true);
-					break;
 
-				default:
+				} else {
 					this.logError(this.log, "Unable to identify Socomec " + name + " meter!");
 					this.channel(SocomecMeter.ChannelId.UNKNOWN_SOCOMEC_METER).setNextValue(true);
 				}

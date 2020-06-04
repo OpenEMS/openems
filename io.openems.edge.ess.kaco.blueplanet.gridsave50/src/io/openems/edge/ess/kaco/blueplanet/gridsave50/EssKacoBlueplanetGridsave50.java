@@ -47,6 +47,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
@@ -65,6 +66,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		}) //
+// TODO: drop this Component in favour of KACO blueplanet Battery-Inverter implemention + Generic ESS.
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -258,7 +260,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void doGridConnectedHandling() {
 		// If the battery system is not ready yet set power to zero to avoid damaging or
 		// improper system states
-		if (!battery.getReadyForWorking().value().orElse(false)) {
+		if (battery.getStartStop() != StartStop.START) {
 			this.isActivePowerAllowed = false;
 		} else {
 			this.isActivePowerAllowed = true;
@@ -278,13 +280,13 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		}
 
 		// Read some Channels from Battery
-		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
-		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
-		int batSoC = battery.getSoc().value().orElse(0);
-		int batSoH = battery.getSoh().value().orElse(0);
-		int batTemp = battery.getMaxCellTemperature().value().orElse(0);
+		int disMinV = battery.getDischargeMinVoltage().orElse(0);
+		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
+		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+		int batSoC = battery.getSoc().orElse(0);
+		int batSoH = battery.getSoh().orElse(0);
+		int batTemp = battery.getMaxCellTemperature().orElse(0);
 
 		// Update Power Constraints
 		// TODO: The actual AC allowed charge and discharge should come from the KACO
@@ -317,7 +319,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.getBatterySohChannel().setNextWriteValue(batSoH);
 			this.getBatteryTempChannel().setNextWriteValue(batTemp);
 
-			this.getCapacity().setNextValue(battery.getCapacity().value().get());
+			this.getCapacity().setNextValue(battery.getCapacity().get());
 		} catch (OpenemsNamedException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
@@ -402,7 +404,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		IntegerReadChannel lastCurrentValueChannel = this.channel(ChannelId.DC_CURRENT);
 		this.lastCurrentValue = lastCurrentValueChannel.value().orElse(0) / 1000.0;
 
-		this.lastVoltageValue = this.battery.getVoltage().value().orElse(0);
+		this.lastVoltageValue = this.battery.getVoltage().orElse(0);
 	}
 
 	private void startGridMode() {
@@ -447,34 +449,33 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	 * from interfaces
 	 */
 	private void doChannelMapping() {
-		this.battery.getSoc().onChange((oldValue, newValue) -> {
+		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
 			this.getSoc().setNextValue(newValue.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
+			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get()); // FIXME why?
 		});
 
-		this.battery.getSoh().onChange((oldValue, newValue) -> {
+		this.battery.getSohChannel().onChange((oldValue, newValue) -> {
 			this.channel(ChannelId.BAT_SOH).setNextValue(newValue.get());
 		});
 
-		this.battery.getMaxCellTemperature().onChange((oldValue, newValue) -> {
+		this.battery.getMaxCellTemperatureChannel().onChange((oldValue, newValue) -> {
 			this.channel(ChannelId.BAT_TEMP).setNextValue(newValue.get());
 		});
-		
-		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
+
+		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
 		});
-		
-		this.battery.getMaxCellVoltage().onChange((oldValue, newValue) -> {
+
+		this.battery.getMaxCellVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(SymmetricEss.ChannelId.MAX_CELL_VOLTAGE).setNextValue(newValue.get());
 		});
-		
-		this.battery.getMinCellTemperature().onChange((oldValue, newValue) -> {
+
+		this.battery.getMinCellTemperatureChannel().onChange((oldValue, newValue) -> {
 			this.channel(SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(newValue.get());
 		});
-		
-		
-		this.battery.getMaxCellTemperature().onChange((oldValue, newValue) -> {
+
+		this.battery.getMaxCellTemperatureChannel().onChange((oldValue, newValue) -> {
 			this.channel(SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(newValue.get());
 		});
 	}

@@ -1,0 +1,5 @@
+= Generic Energy Storage System
+
+Represents an Energy Storage System consisting of a Battery-Inverter and a Battery.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.generic[Source Code icon:github[]]

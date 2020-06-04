@@ -1,5 +1,7 @@
 package io.openems.edge.pvinverter.kaco.blueplanet;
 
+import java.util.Map;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,15 +16,19 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
+import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -34,15 +40,44 @@ import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 				"type=PRODUCTION" //
 		})
 public class KacoBlueplanet extends AbstractSunSpecPvInverter
-		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+
+	// TODO reduce to really required Models
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_111, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_112, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_125, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_127, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_128, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_145, Priority.LOW) //
+			.build();
 
 	private final static int UNIT_ID = 1;
 	private final static int READ_FROM_MODBUS_BLOCK = 1;
 
-	private final Logger log = LoggerFactory.getLogger(KacoBlueplanet.class);
-
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	// TODO use @Reference in Constructor
+	public KacoBlueplanet() {
+		super(//
+				ACTIVE_MODELS, //
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
+				SunSpecPvInverter.ChannelId.values() //
+		);
+	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -63,10 +98,5 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
-	}
-
-	@Override
-	protected void addUnknownBlock(int startAddress, int sunSpecBlockId) {
-		this.logInfo(this.log, "SunSpec-Model [" + sunSpecBlockId + "] is not handled.");
 	}
 }
