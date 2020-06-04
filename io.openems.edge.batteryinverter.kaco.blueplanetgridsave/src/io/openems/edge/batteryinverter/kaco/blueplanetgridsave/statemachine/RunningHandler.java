@@ -8,10 +8,10 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class Running extends StateHandler<State, Context> {
+public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State getNextState(Context context) throws OpenemsNamedException {
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		if (context.component.hasFaults()) {
 			return State.UNDEFINED;
 		}

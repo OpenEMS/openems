@@ -3,7 +3,7 @@ package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class GoConfiguration extends StateHandler<State, Context> {
+public class GoConfigurationHandler extends StateHandler<State, Context> {
 
 //	private void configureSlaves() {
 //	if (nextConfiguringProcess == ConfiguringProcess.NONE) {
@@ -223,7 +223,7 @@ public class GoConfiguration extends StateHandler<State, Context> {
 //}
 
 	@Override
-	public State getNextState(Context context) throws OpenemsNamedException {
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		System.out.println("Stuck in GO_CONFIGURATION");
 		return State.GO_CONFIGURATION;
 	}

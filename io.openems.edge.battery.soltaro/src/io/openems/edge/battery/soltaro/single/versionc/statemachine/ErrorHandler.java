@@ -7,7 +7,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class ErrorHandling extends StateHandler<State, Context> {
+public class ErrorHandler extends StateHandler<State, Context> {
 
 	// private void handleErrorsWithReset() {
 	// // To reset , first sleep and then reset the system
@@ -70,7 +70,7 @@ public class ErrorHandling extends StateHandler<State, Context> {
 	}
 
 	@Override
-	public State getNextState(Context context) {
+	public State runAndGetNextState(Context context) {
 		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getState().listStates());
 
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > 120) {
@@ -78,7 +78,7 @@ public class ErrorHandling extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		return State.ERROR_HANDLING;
+		return State.ERROR;
 	}
 
 }

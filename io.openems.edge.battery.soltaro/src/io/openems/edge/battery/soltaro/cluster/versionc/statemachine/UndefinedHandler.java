@@ -2,10 +2,10 @@ package io.openems.edge.battery.soltaro.cluster.versionc.statemachine;
 
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class Undefined extends StateHandler<State, Context> {
+public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State getNextState(Context context) {
+	public State runAndGetNextState(Context context) {
 		switch (context.component.getStartStopTarget()) {
 		case UNDEFINED:
 			// Stuck in UNDEFINED State
@@ -15,7 +15,7 @@ public class Undefined extends StateHandler<State, Context> {
 			// force START
 			if (context.component.hasFaults()) {
 				// Has Faults -> error handling
-				return State.ERROR_HANDLING;
+				return State.ERROR;
 			} else {
 				// No Faults -> start
 				return State.GO_RUNNING;

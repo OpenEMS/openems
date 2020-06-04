@@ -1,23 +1,22 @@
-package io.openems.edge.battery.soltaro.cluster.versionc.statemachine;
+package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class Running extends StateHandler<State, Context> {
+public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State getNextState(Context context) {
+	public State runAndGetNextState(Context context) {
 		if (context.component.hasFaults()) {
 			return State.UNDEFINED;
 		}
 
-		PreChargeControl commonPreChargeControl = context.component.getCommonPreChargeControl()
-				.orElse(PreChargeControl.UNDEFINED);
-		if (commonPreChargeControl != PreChargeControl.RUNNING) {
+		if (context.component.getPreChargeControl() != PreChargeControl.RUNNING) {
 			return State.UNDEFINED;
 		}
 
+		// Mark as started
 		context.component._setStartStop(StartStop.START);
 
 		return State.RUNNING;

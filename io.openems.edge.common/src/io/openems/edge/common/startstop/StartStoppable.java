@@ -79,6 +79,38 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
+	 * Is this device or service started?
+	 * 
+	 * <ul>
+	 * <li>true - if (and only if) {@link ChannelId#START_STOP} is
+	 * {@link StartStop#START}
+	 * <li>false - if {@link ChannelId#START_STOP} is {@link StartStop#STOP} or
+	 * {@link StartStop#UNDEFINED}
+	 * </ul>
+	 * 
+	 * @return true if started
+	 */
+	public default boolean isStarted() {
+		return this.getStartStop() == StartStop.START;
+	}
+
+	/**
+	 * Is this device or service stopped?
+	 * 
+	 * <ul>
+	 * <li>true - if (and only if) {@link ChannelId#START_STOP} is
+	 * {@link StartStop#STOP}
+	 * <li>false - if {@link ChannelId#START_STOP} is {@link StartStop#START} or
+	 * {@link StartStop#UNDEFINED}
+	 * </ul>
+	 * 
+	 * @return true if stopped
+	 */
+	public default boolean isStopped() {
+		return this.getStartStop() == StartStop.STOP;
+	}
+
+	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#START_STOP}
 	 * Channel.
 	 * 
@@ -95,4 +127,28 @@ public interface StartStoppable extends OpenemsComponent {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void setStartStop(StartStop value) throws OpenemsNamedException;
+
+	/**
+	 * Starts the device or service represented by this OpenEMS Component.
+	 * 
+	 * <p>
+	 * This calls {@link #setStartStop(StartStop)} with {@link StartStop#START}.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void start() throws OpenemsNamedException {
+		this._setStartStop(StartStop.START);
+	}
+
+	/**
+	 * Stops the device or service represented by this OpenEMS Component.
+	 * 
+	 * <p>
+	 * This calls {@link #setStartStop(StartStop)} with {@link StartStop#STOP}.
+	 * 
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void stop() throws OpenemsNamedException {
+		this._setStartStop(StartStop.STOP);
+	}
 }

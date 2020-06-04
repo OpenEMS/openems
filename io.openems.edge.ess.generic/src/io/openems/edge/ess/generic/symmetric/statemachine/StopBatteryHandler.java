@@ -4,11 +4,10 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEss;
 
-public class StartBatteryInverter extends StateHandler<State, Context> {
+public class StopBatteryHandler extends StateHandler<State, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
@@ -17,13 +16,13 @@ public class StartBatteryInverter extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		context.component._setMaxBatteryInverterStartAttempts(false);
+		context.component._setMaxBatteryStopAttemptsFault(false);
 	}
 
 	@Override
-	public State getNextState(Context context) throws OpenemsNamedException {
-		if (context.batteryInverter.getStartStop() == StartStop.START) {
-			return State.STARTED;
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		if (context.battery.isStopped()) {
+			return State.STOPPED;
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
@@ -33,22 +32,22 @@ public class StartBatteryInverter extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > GenericManagedSymmetricEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxBatteryInverterStartAttempts(true);
+				context.component._setMaxBatteryStopAttemptsFault(true);
 				return State.UNDEFINED;
 
 			} else {
-				// Trying to start Battery
-				context.batteryInverter.setStartStop(StartStop.START);
+				// Trying to stop Battery
+				context.battery.stop();
 
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
-				return State.START_BATTERY_INVERTER;
+				return State.STOP_BATTERY;
 
 			}
 
 		} else {
 			// Still waiting...
-			return State.START_BATTERY_INVERTER;
+			return State.STOP_BATTERY;
 		}
 	}
 

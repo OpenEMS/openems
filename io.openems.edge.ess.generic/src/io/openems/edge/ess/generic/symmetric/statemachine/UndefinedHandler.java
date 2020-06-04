@@ -3,10 +3,10 @@ package io.openems.edge.ess.generic.symmetric.statemachine;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 
-public class Undefined extends StateHandler<State, Context> {
+public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State getNextState(Context context) {
+	public State runAndGetNextState(Context context) {
 		switch (context.component.getStartStopTarget()) {
 		case UNDEFINED:
 			// Stuck in UNDEFINED State
@@ -19,7 +19,7 @@ public class Undefined extends StateHandler<State, Context> {
 				// TODO should the Modbus-Device also be on error, when then Modbus-Bridge is on error?
 				
 				// Has Faults -> error handling
-				return State.ERROR_HANDLING;
+				return State.ERROR;
 			} else {
 				// No Faults -> start
 				return State.START_BATTERY;

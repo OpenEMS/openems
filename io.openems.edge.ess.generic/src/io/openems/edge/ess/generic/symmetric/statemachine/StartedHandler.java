@@ -3,19 +3,19 @@ package io.openems.edge.ess.generic.symmetric.statemachine;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class Started extends StateHandler<State, Context> {
+public class StartedHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State getNextState(Context context) {
+	public State runAndGetNextState(Context context) {
 		if (context.component.hasFaults()) {
 			return State.UNDEFINED;
 		}
 
-		if (context.battery.getStartStop() != StartStop.START) {
+		if (!context.battery.isStarted()) {
 			return State.UNDEFINED;
 		}
 
-		if (context.batteryInverter.getStartStop() != StartStop.START) {
+		if (!context.batteryInverter.isStarted()) {
 			return State.UNDEFINED;
 		}
 

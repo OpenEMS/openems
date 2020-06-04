@@ -8,7 +8,7 @@ import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class GoStopped extends StateHandler<State, Context> {
+public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
@@ -20,7 +20,7 @@ public class GoStopped extends StateHandler<State, Context> {
 	}
 
 	@Override
-	public State getNextState(Context context) throws OpenemsNamedException {
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		PreChargeControl preChargeControl = context.component.getPreChargeControl();
 
 		if (preChargeControl == PreChargeControl.SWITCH_OFF) {

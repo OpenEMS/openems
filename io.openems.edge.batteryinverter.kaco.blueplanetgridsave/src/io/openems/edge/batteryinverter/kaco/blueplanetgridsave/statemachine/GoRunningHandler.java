@@ -5,33 +5,42 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201_RequestedState;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.common.statemachine.StateHandler;
 
-public class GoStopped extends StateHandler<State, Context> {
+public class GoRunningHandler extends StateHandler<State, Context> {
 
 	private Instant lastAttempt = Instant.MIN;
 	private int attemptCounter = 0;
 
 	@Override
-	protected void onEntry(Context context) {
+	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
+		context.component._setMaxStartAttempts(false);
 	}
 
 	@Override
-	public State getNextState(Context context) throws OpenemsNamedException {
-		switch (context.component.getCurrentState()) {
-		case OFF:
-			// All Good
-			return State.STOPPED;
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		// Has Faults -> abort
+		if (context.component.hasFaults()) {
+			return State.UNDEFINED;
+		}
 
+		switch (context.component.getCurrentState()) {
 		case GRID_CONNECTED:
+			// All Good
+
 		case THROTTLED:
+			// if inverter is throttled, full power is not available, but the device
+			// is still working
+			return State.RUNNING;
+
 		case FAULT:
 		case GRID_PRE_CONNECTED:
 		case MPPT:
 		case NO_ERROR_PENDING:
+		case OFF:
 		case PRECHARGE:
 		case SHUTTING_DOWN:
 		case SLEEPING:
@@ -48,21 +57,21 @@ public class GoStopped extends StateHandler<State, Context> {
 
 			if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
-				context.component._setMaxStopAttempts(true);
+				context.component._setMaxStartAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
-				// Trying to switch off
-				context.component.setRequestedState(S64201_RequestedState.OFF);
+				// Trying to switch on
+				context.component.setRequestedState(S64201RequestedState.GRID_CONNECTED);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
-				return State.GO_STOPPED;
+				return State.GO_RUNNING;
 
 			}
 
 		} else {
 			// Still waiting...
-			return State.GO_STOPPED;
+			return State.GO_RUNNING;
 		}
 	}
 
