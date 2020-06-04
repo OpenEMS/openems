@@ -172,6 +172,11 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	}
 
 	@Override
+	public void removeOnSetNextValueCallback(Consumer<?> callback) {
+		this.onSetNextValueCallbacks.remove(callback);
+	}
+
+	@Override
 	public void onChange(BiConsumer<Value<T>, Value<T>> callback) {
 		this.onChangeCallbacks.add(callback);
 	}
