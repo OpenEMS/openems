@@ -19,7 +19,8 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 
 	public static class DummyConfiguration implements Configuration {
 
-		Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		private final Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		private int changeCount = 0;
 
 		@Override
 		public String getPid() {
@@ -39,15 +40,12 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 				Object value = properties.get(key);
 				this.properties.put(key, value);
 			}
+			this.changeCount++;
 		}
 
-		@Override
 		public void update() throws IOException {
-		}
-
-		@Override
-		public void delete() throws IOException {
-		}
+			this.changeCount++;
+		};
 
 		@Override
 		public String getFactoryPid() {
@@ -65,7 +63,7 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 
 		@Override
 		public long getChangeCount() {
-			return 0;
+			return this.changeCount;
 		}
 
 		@Override
@@ -89,6 +87,11 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 
 		@Override
 		public void removeAttributes(ConfigurationAttribute... attrs) throws IOException {
+		}
+
+		@Override
+		public void delete() throws IOException {
+			this.changeCount++;
 		}
 	}
 
