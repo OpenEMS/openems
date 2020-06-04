@@ -115,28 +115,28 @@ public class SocomecMeterSinglephaseImpl extends AbstractOpenemsModbusComponent 
 			}
 			// Found Socomec meter
 			this.readELementOnce(new StringWordElement(0xC38A, 8)).thenAccept(name -> {
-				switch (name) {
+				name = name.toLowerCase();
 				// NOTE: if you add a meter name here, make sure to also add it in
 				// SocomecMeterThreephaseImpl.
-				case "Countis E14":
+				if (name.startsWith("countis e14")) {
 					this.logInfo(this.log, "Identified Socomec Countis E14 meter");
 					this.protocolCountisE14();
-					break;
 
-				case "Countis E24":
-				case "Diris A-10":
-				case "Diris A14":
-				case "DIRIS B30":
+				} else if (//
+				name.startsWith("countis e24") || //
+				name.startsWith("diris a-10") || //
+				name.startsWith("diris a14") || //
+				name.startsWith("diris b30")) {
 					this.logError(this.log, "Identified Socomec " + name + " meter. This is not a singlephase meter!");
 					this.channel(SocomecMeterSinglephase.ChannelId.NOT_A_SINGLEPHASE_METER).setNextValue(true);
-					break;
 
-				default:
+				} else {
 					this.logError(this.log, "Unable to identify Socomec " + name + " meter!");
 					this.channel(SocomecMeter.ChannelId.UNKNOWN_SOCOMEC_METER).setNextValue(true);
 				}
 			});
 		});
+
 	}
 
 	/**
