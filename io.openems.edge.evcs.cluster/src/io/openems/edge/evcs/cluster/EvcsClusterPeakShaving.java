@@ -66,6 +66,9 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	@Reference
 	protected Sum sum;
 
+	@Reference
+	private SymmetricEss ess;
+
 	public EvcsClusterPeakShaving() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -101,6 +104,9 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 		// update filter for 'evcss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
+			return;
+		}
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 	}
@@ -167,26 +173,13 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	public int getMaximumPowerToDistribute() {
 		int allowedChargePower = 0;
 		int maxEssDischarge = 0;
-		try {
-			SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
-			if (ess instanceof ManagedSymmetricEss) {
-				ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
-				Power power = ((ManagedSymmetricEss) ess).getPower();
-				maxEssDischarge = power.getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-				int maxEssDischargeL1 = power.getMaxPower(e, Phase.L1, Pwr.ACTIVE);
-				int maxEssDischargeL2 = power.getMaxPower(e, Phase.L2, Pwr.ACTIVE);
-				int maxEssDischargeL3 = power.getMaxPower(e, Phase.L3, Pwr.ACTIVE);
-
-				int maxPowerOnOnePhase = Math.min(Math.min(maxEssDischargeL1, maxEssDischargeL2), maxEssDischargeL3);
-				maxEssDischarge = maxPowerOnOnePhase * 3;
-				maxEssDischarge = Math.abs(maxEssDischarge);
-			} else {
-				maxEssDischarge = ess.getMaxApparentPower().value().orElse(0);
-			}
-		} catch (OpenemsNamedException e) {
-			this.logWarn(log, "The component" + this.config.ess_id()
-					+ " is not configured. The maximum power for all EVCS will be calculated without Ess power.");
+		if (this.ess instanceof ManagedSymmetricEss) {
+			ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
+			Power power = ((ManagedSymmetricEss) ess).getPower();
+			maxEssDischarge = Math.abs(power.getMaxPower(e, Phase.ALL, Pwr.ACTIVE));
+		} else {
+			maxEssDischarge = ess.getMaxApparentPower().value().orElse(0);
 		}
 
 		int gridPower = getGridPower();
