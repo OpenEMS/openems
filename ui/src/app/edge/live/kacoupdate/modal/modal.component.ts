@@ -40,12 +40,12 @@ export class KacoUpdateModalComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.alerts.load();
     }
 
     updateSoftware() {
         this.btnDisabled = true;
         this.isUpdating = true;
-
         let request = new UpdateSoftwareRequest();
         this.edge.sendRequest(this.websocket, request).then(response => {
 

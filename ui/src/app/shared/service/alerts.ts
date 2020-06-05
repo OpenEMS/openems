@@ -124,4 +124,8 @@ export class Alerts {
         await alert.present();
     }
 
+    load() {
+        return true;
+    }
+
 }
