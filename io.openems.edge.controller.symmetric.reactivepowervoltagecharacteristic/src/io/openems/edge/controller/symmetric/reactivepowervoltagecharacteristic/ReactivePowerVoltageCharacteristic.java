@@ -133,7 +133,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsException {
-		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		float voltageRatio = this.meter.getVoltage().orElse(0) / this.nominalVoltage;
 		float valueOfLine = Utils.getValueOfLine(this.qCharacteristic, voltageRatio);
 		if (valueOfLine == 0) {
 			return;

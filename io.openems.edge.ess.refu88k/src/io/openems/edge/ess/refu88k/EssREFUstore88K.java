@@ -45,6 +45,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -152,13 +153,15 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.battery.getSoc().onChange((oldValue, newValue) -> {
-			this.getSoc().setNextValue(newValue.get());
+		// FIXME no good coding style; use direct mapping in ModbusProtocol-definition
+		// instead
+		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
+			this.getSoc().setNextValue(newValue.get()); // FIXME why?
 			this.channel(REFUStore88KChannelId.BAT_SOC).setNextValue(newValue.get());
 			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
-		this.battery.getVoltage().onChange((oldValue, newValue) -> {
+		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(REFUStore88KChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
 	}
@@ -294,12 +297,12 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	private void checkIfPowerIsAllowed() {
 
 		// If the battery system is not ready no power can be applied!
-		this.isPowerAllowed = battery.getReadyForWorking().value().orElse(false);
+		this.isPowerAllowed = battery.getStartStop() == StartStop.START;
 
 		// Read important Channels from battery
-		int optV = battery.getVoltage().value().orElse(0);
-		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
+		int optV = battery.getVoltage().orElse(0);
+		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
 
 		// Calculate absolute Value allowedCharge and allowed Discharge from battery
 		double absAllowedCharge = Math.abs((chaMaxA * optV) / (EFFICIENCY_FACTOR));
@@ -546,8 +549,8 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 			// Calculate Reactive Power as a percentage of WMAX
 			varSetPct = ((1000 * reactivePower) / MAX_APPARENT_POWER);
 
-			maxBatteryChargeValue = battery.getChargeMaxCurrent().value().orElse(0);
-			maxBatteryDischargeValue = battery.getDischargeMaxCurrent().value().orElse(0);
+			maxBatteryChargeValue = battery.getChargeMaxCurrent().orElse(0);
+			maxBatteryDischargeValue = battery.getDischargeMaxCurrent().orElse(0);
 		}
 
 		IntegerWriteChannel maxBatAChaChannel = this.channel(REFUStore88KChannelId.MAX_BAT_A_CHA);

@@ -55,7 +55,7 @@ public class OffgridHandler {
 		SymmetricMeter gridMeter = this.parent.parent.componentManager.getComponent(this.parent.parent.config.meter());
 
 		Optional<Integer> gridFreqOpt = gridMeter.getFrequency().value().asOptional();
-		Optional<Integer> gridVoltOpt = gridMeter.getVoltage().value().asOptional();
+		Optional<Integer> gridVoltOpt = gridMeter.getVoltage().asOptional();
 
 		this.log.info("OffgridHandler.run() GridFreq: " + gridFreqOpt + ", GridVolt: " + gridVoltOpt);
 
