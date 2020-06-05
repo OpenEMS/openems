@@ -12,13 +12,13 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
-public interface ManagedEvcs extends Evcs{
+public interface ManagedEvcs extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
 		 * Sets the charge power limit of the EVCS in [W].
-		 * 		 * 
+		 * 
 		 * <p>
 		 * Actual charge power depends on
 		 * <ul>
@@ -33,7 +33,8 @@ public interface ManagedEvcs extends Evcs{
 		 * Function
 		 * <ul>
 		 * <li>Write Value should be sent to the EVCS and cleared afterwards
-		 * <li>Read value should contain the currently valid loading target that was sent
+		 * <li>Read value should contain the currently valid loading target that was
+		 * sent
 		 * </ul>
 		 * 
 		 * <ul>
@@ -117,25 +118,6 @@ public interface ManagedEvcs extends Evcs{
 	}
 
 	/**
-	 * Returns the modbus table for this nature.
-	 * 
-	 * @param accessMode accessMode
-	 * @return nature table
-	 */
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		// TODO add remaining channels
-		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //
-				.uint16Reserved(0) //
-				.uint16Reserved(1) //
-				.channel(2, ChannelId.SET_CHARGE_POWER_LIMIT, ModbusType.UINT16) //
-				.channel(3, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16) //
-				.uint16Reserved(19) //
-				.uint16Reserved(20) //
-				.uint16Reserved(21) //
-				.build();
-	}
-
-	/**
 	 * Sets the charge power limit of the EVCS in [W].
 	 * 
 	 * @return the IntegerWriteChannel
@@ -179,5 +161,19 @@ public interface ManagedEvcs extends Evcs{
 	 */
 	public default IntegerWriteChannel setEnergyLimit() {
 		return this.channel(ChannelId.SET_ENERGY_LIMIT);
+	}
+
+	/**
+	 * Returns the modbus table for this nature.
+	 * 
+	 * @param accessMode accessMode
+	 * @return nature table
+	 */
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //
+				.channel(0, ChannelId.SET_CHARGE_POWER_LIMIT, ModbusType.UINT16) //
+				.channel(1, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16) //
+				.channel(17, ChannelId.SET_ENERGY_LIMIT, ModbusType.UINT16) //
+				.build();
 	}
 }

@@ -114,7 +114,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (config.forceChargeMinPower() < 0) {
 			throw new OpenemsException("Force-Charge Min-Power [" + config.forceChargeMinPower() + "] must be >= 0");
 		}
-
+		
 		if (config.defaultChargeMinPower() < 0) {
 			throw new OpenemsException(
 					"Default-Charge Min-Power [" + config.defaultChargeMinPower() + "] must be >= 0");
@@ -166,9 +166,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		boolean isClustered = evcs.isClustered().getNextValue().orElse(false);
 		if (isClustered) {
 
-			Status status = evcs.status().getNextValue().asEnum();
+			Status status = evcs.getStatus().getNextValue().asEnum();
 			if (status == null) {
-				evcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
+				evcs.getStatus().setNextValue(Status.NOT_READY_FOR_CHARGING);
 				status = Status.NOT_READY_FOR_CHARGING;
 			}
 			switch (status) {

@@ -95,12 +95,12 @@ public class WriteHandler implements Runnable {
 
 			if (valueOpt.isPresent()) {
 
-				int maxPower = this.parent.getMaximumHardwarePower().getNextValue().orElse(0);
+				int maxPower = this.parent.getMaximumHardwarePower().getNextValue().orElse(22080);
 				Integer power = valueOpt.get();
 
 				Integer target = power > maxPower ? maxPower : power;
 				Request request = requests.setChargePowerLimit(target);
-				
+
 				/*
 				 * Only if the target has changed or a time has passed.
 				 */
@@ -132,7 +132,7 @@ public class WriteHandler implements Runnable {
 			}
 		} else {
 			this.parent.logInfo(this.log, "Maximum energy limit reached");
-			this.parent.status().setNextValue(Status.ENERGY_LIMIT_REACHED);
+			this.parent.getStatus().setNextValue(Status.ENERGY_LIMIT_REACHED);
 		}
 	}
 

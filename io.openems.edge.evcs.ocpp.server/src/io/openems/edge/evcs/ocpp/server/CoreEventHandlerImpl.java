@@ -99,7 +99,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			return new MeterValuesConfirmation();
 		}
 
-		evcs.status().setNextValue(Status.CHARGING);
+		evcs.getStatus().setNextValue(Status.CHARGING);
 
 		/*
 		 * Set the channels depending on the meter values
@@ -261,7 +261,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			break;
 		}
 		if (evcsStatus != null) {
-			evcs.status().setNextValue(evcsStatus);
+			evcs.getStatus().setNextValue(evcsStatus);
 		}
 		return new StatusNotificationConfirmation();
 	}
@@ -289,9 +289,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		List<AbstractOcppEvcsComponent> evcss = getEvcssBySessionIndex(sessionIndex);
 		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
 			ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
-			Status state = ocppEvcs.status().value().asEnum();
+			Status state = ocppEvcs.getStatus().value().asEnum();
 			if (state == null || state.equals(Status.UNDEFINED) || state.equals(Status.CHARGING_FINISHED)) {
-				ocppEvcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
+				ocppEvcs.getStatus().setNextValue(Status.NOT_READY_FOR_CHARGING);
 			}
 		}
 
@@ -304,6 +304,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	/**
 	 * Get the EVCSs that are in this session.
+	 * 
 	 * <p>
 	 * One charging station has one session but can have more connectors. Every
 	 * connector is one EVCS in our System because each can be managed and monitored
@@ -319,6 +320,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	/**
 	 * Get the EVCS that are in this session and with the given connector id.
+	 * 
 	 * <p>
 	 * One charging station has one session but can have more connectors. Every
 	 * connector is one EVCS in our System because each can be managed and monitored

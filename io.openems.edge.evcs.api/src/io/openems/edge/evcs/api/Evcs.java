@@ -17,11 +17,10 @@ public interface Evcs extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
-		 * The Status of the EVCS charging station.
-		 *
+		 * Status.
+		 * 
 		 * <p>
-		 * Undefined, Starting, Not ready for Charging, Ready for Charging, Charging,
-		 * Error, Authorization rejected.
+		 * The Status of the EVCS charging station.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -53,7 +52,7 @@ public interface Evcs extends OpenemsComponent {
 		 * Type of charging.
 		 * 
 		 * <ul>
-		 * <li>Interface: EVCS
+		 * <li>Interface: Evcs
 		 * <li>Readable
 		 * <li>Type: ChargingType
 		 * </ul>
@@ -68,7 +67,7 @@ public interface Evcs extends OpenemsComponent {
 		 * charging.
 		 * 
 		 * <ul>
-		 * <li>Interface: EVCS
+		 * <li>Interface: Evcs
 		 * <li>Readable
 		 * <li>Type: Integer
 		 * </ul>
@@ -178,7 +177,7 @@ public interface Evcs extends OpenemsComponent {
 	 * 
 	 * @return the EnumReadChannel
 	 */
-	public default EnumReadChannel status() {
+	public default EnumReadChannel getStatus() {
 		return this.channel(ChannelId.STATUS);
 	}
 
@@ -265,9 +264,16 @@ public interface Evcs extends OpenemsComponent {
 	 * @return nature table
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		// TODO add remaining channels
-		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //
+		return ModbusSlaveNatureTable.of(Evcs.class, accessMode, 100) //
 				.channel(0, ChannelId.STATUS, ModbusType.UINT16) //
+				.channel(1, ChannelId.CHARGE_POWER, ModbusType.UINT16) //
+				.channel(2, ChannelId.CHARGING_TYPE, ModbusType.UINT16) //
+				.channel(3, ChannelId.PHASES, ModbusType.UINT16) //
+				.channel(4, ChannelId.MAXIMUM_HARDWARE_POWER, ModbusType.UINT16) //
+				.channel(5, ChannelId.MINIMUM_HARDWARE_POWER, ModbusType.UINT16) //
+				.channel(6, ChannelId.MAXIMUM_POWER, ModbusType.UINT16) //
+				.channel(7, ChannelId.ENERGY_SESSION, ModbusType.UINT16) //
+				.channel(8, ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, ModbusType.UINT16) //
 				.build();
 	}
 }

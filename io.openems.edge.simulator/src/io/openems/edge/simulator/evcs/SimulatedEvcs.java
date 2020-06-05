@@ -80,7 +80,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		this.getMaximumHardwarePower().setNextValue(22800);
 		this.getMinimumHardwarePower().setNextValue(6000);
 		this.getPhases().setNextValue(3);
-		this.status().setNextValue(Status.CHARGING);
+		this.getStatus().setNextValue(Status.CHARGING);
 
 	}
 

@@ -19,7 +19,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
-	boolean debugMode() default AbstractEvcsCluster.DEFAULT_DEBUG_MODE;
+	boolean debugMode() default false;
 
 	@AttributeDefinition(name = "Evcs-IDs", description = "IDs of EVCS devices ordered by the priority. "
 			+ "(Only Managed Evcss will be considered because their charging power can be adjusted)")

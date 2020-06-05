@@ -171,6 +171,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 	@Override
 	public int getMaximumPowerToDistribute() {
+
 		int allowedChargePower = 0;
 		int maxEssDischarge = 0;
 
@@ -239,7 +240,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	}
 
 	@Override
-	public boolean debugMode() {
+	public boolean isDebugMode() {
 		return this.config.debugMode();
 	}
 }

@@ -90,7 +90,7 @@ public class ReadHandler implements Consumer<String> {
 
 						// Charging is Finished if 'Plug' is connected, State was charging or already
 						// finished and the EVCS is still ready for charging.
-						Status evcsStatus = parent.status().value().asEnum();
+						Status evcsStatus = parent.getStatus().value().asEnum();
 						switch (evcsStatus) {
 						case CHARGING_REJECTED:
 						case ENERGY_LIMIT_REACHED:
@@ -147,13 +147,6 @@ public class ReadHandler implements Consumer<String> {
 					setBoolean(KebaChannelId.INPUT, jsonMessage, "Input");
 					setInt(KebaChannelId.MAX_CURR, jsonMessage, "Curr HW");
 					setInt(KebaChannelId.CURR_USER, jsonMessage, "Curr user");
-
-					Optional<Integer> currUserMa = JsonUtils.getAsOptionalInt(jsonMessage, "Curr user"); // in [mA]
-					if (currUserMa.isPresent()) {
-						int chargingTarget = (currUserMa.get() / 1000) * 230
-								* this.parent.getPhases().value().orElse(3);
-						this.parent.setChargePowerLimit().setNextValue(chargingTarget);
-					}
 
 				} else if (id.equals("3")) {
 					/*

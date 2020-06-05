@@ -62,7 +62,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 			} else {
 				this.getChargingstationCommunicationFailed().setNextValue(false);
 			}
-			if (this.status().getNextValue().asEnum().equals(Status.CHARGING_FINISHED)) {
+			if (this.getStatus().getNextValue().asEnum().equals(Status.CHARGING_FINISHED)) {
 				this.resetMeasuredChannelValues();
 			}
 			writeHandler.run();
@@ -146,21 +146,21 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public abstract OcppServer getConfiguredOcppServer();
 
 	/**
-	 * Required requests that should be sent after a connection was established
+	 * Required requests that should be sent after a connection was established.
 	 * 
 	 * @return List of requests
 	 */
 	public abstract List<Request> getRequiredRequestsAfterConnection();
 
 	/**
-	 * Required requests that should be sent permanently during a session
+	 * Required requests that should be sent permanently during a session.
 	 * 
 	 * @return List of requests
 	 */
 	public abstract List<Request> getRequiredRequestsDuringConnection();
 
 	/**
-	 * Default requests that every OCPP EVCS should have
+	 * Default requests that every OCPP EVCS should have.
 	 * 
 	 * @return OcppRequests
 	 */
@@ -235,8 +235,8 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public String debugLog() {
 		if (this instanceof ManagedEvcs) {
 			return "Limit:" + ((ManagedEvcs) this).setChargePowerLimit().value().orElse(null) + "|"
-					+ this.status().value().asEnum().getName();
+					+ this.getStatus().value().asEnum().getName();
 		}
-		return "Power:" + this.getChargePower().value().orElse(0) + "|" + this.status().value().asEnum().getName();
+		return "Power:" + this.getChargePower().value().orElse(0) + "|" + this.getStatus().value().asEnum().getName();
 	}
 }

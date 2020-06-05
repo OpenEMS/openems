@@ -51,7 +51,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private final ReadHandler readHandler = new ReadHandler(this);
 	private final WriteHandler writeHandler = new WriteHandler(this);
 	private Boolean lastConnectionLostState = false;
-	protected boolean debugMode = false; 
+	protected boolean debugMode = false;
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
@@ -164,7 +164,8 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|" + this.status().value().asEnum().getName();
+		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|"
+				+ this.getStatus().value().asEnum().getName();
 	}
 
 	public ReadWorker getReadWorker() {
@@ -190,8 +191,11 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 
-		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode),
-				ManagedEvcs.getModbusSlaveNatureTable(accessMode), this.getModbusSlaveNatureTable(accessMode));
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Evcs.getModbusSlaveNatureTable(accessMode), //
+				ManagedEvcs.getModbusSlaveNatureTable(accessMode), //
+				this.getModbusSlaveNatureTable(accessMode));
 	}
 
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {

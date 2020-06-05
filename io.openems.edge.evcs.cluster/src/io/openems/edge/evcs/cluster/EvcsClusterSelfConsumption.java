@@ -85,7 +85,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		
+
 		// update filter for 'evcs' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
@@ -170,7 +170,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	}
 
 	@Override
-	public boolean debugMode() {
+	public boolean isDebugMode() {
 		return this.config.debugMode();
 	}
 }

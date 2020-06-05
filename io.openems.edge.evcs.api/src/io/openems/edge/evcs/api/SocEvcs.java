@@ -4,6 +4,9 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 public interface SocEvcs extends Evcs {
 
@@ -39,5 +42,29 @@ public interface SocEvcs extends Evcs {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Current SoC.
+	 * 
+	 * <p>
+	 * The current state of charge of the car
+	 * 
+	 * @return the IntegerReadChannel
+	 */
+	public default IntegerReadChannel getSoc() {
+		return this.channel(ChannelId.SOC);
+	}
+
+	/**
+	 * Returns the modbus table for this nature.
+	 * 
+	 * @param accessMode accessMode
+	 * @return nature table
+	 */
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(SocEvcs.class, accessMode, 50) //
+				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
+				.build();
 	}
 }

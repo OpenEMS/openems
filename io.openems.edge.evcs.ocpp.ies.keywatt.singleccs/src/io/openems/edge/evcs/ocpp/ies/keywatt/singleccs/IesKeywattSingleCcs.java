@@ -33,7 +33,7 @@ import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Evcs.Ocpp.IesKeywattSingle", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -57,7 +57,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	protected ComponentManager componentManager;
 
 	public IesKeywattSingleCcs() {
-		super( //
+		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //

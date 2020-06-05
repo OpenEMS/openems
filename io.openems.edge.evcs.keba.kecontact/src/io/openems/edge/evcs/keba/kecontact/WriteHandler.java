@@ -129,6 +129,7 @@ public class WriteHandler implements Runnable {
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 					this.lastCurrent = current;
+					this.parent.setChargePowerLimit().setNextValue(power);
 				}
 			}
 		}

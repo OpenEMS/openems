@@ -35,7 +35,7 @@ import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppServer;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Evcs.Ocpp.Server", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -109,7 +109,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Searching the OcppEvcs Components for the given identifier.
+	 * Searching the OcppEvcs components for the given identifier.
 	 * 
 	 * @param identifier   given identifier
 	 * @param sessionIndex given session
@@ -128,7 +128,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 					// TODO this does not seem to belong to a 'get' method:
 					ocppEvcs.getChargingSessionId().setNextValue(sessionIndex.toString());
 					ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
-					ocppEvcs.status().setNextValue(Status.NOT_READY_FOR_CHARGING);
+					ocppEvcs.getStatus().setNextValue(Status.NOT_READY_FOR_CHARGING);
 					result.add(ocppEvcs);
 				}
 			}
@@ -155,7 +155,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Get all active Sessions
+	 * Get all active sessions.
 	 * 
 	 * @return List of EvcsSessions
 	 */
