@@ -171,6 +171,7 @@ public interface SunSpecPoint {
 		 * @return the {@link OpenemsType}
 		 */
 		public final OpenemsType getMatchingOpenemsType() {
+			// TODO: map to floating point OpenemsType when appropriate
 			switch (this.type) {
 			case UINT16:
 			case ACC16:
@@ -187,7 +188,7 @@ public interface SunSpecPoint {
 			case INT32:
 			case PAD: // ignore
 			case EUI48:
-			case FLOAT32: // avoid floating point numbers
+			case FLOAT32: // avoid floating point numbers; FLOAT32 might not fit in INTEGER
 				return OpenemsType.INTEGER;
 			case UINT64:
 			case ACC64:
@@ -214,8 +215,9 @@ public interface SunSpecPoint {
 	public static enum PointType {
 		INT16(1), UINT16(1), COUNT(1), ACC16(1), INT32(2), UINT32(2), FLOAT32(2), ACC32(2), INT64(4), UINT64(4),
 		FLOAT64(4), ACC64(4), ENUM16(1), ENUM32(2), BITFIELD16(1), BITFIELD32(2), SUNSSF(1), STRING2(2), STRING4(4),
-		STRING5(5), STRING6(6), STRING7(7), STRING8(8), STRING12(12), STRING16(16), STRING20(20), STRING25(25), PAD(1),
-		IPADDR(1), IPV6ADDR(16), EUI48(6);
+		STRING5(5), STRING6(6), STRING7(7), STRING8(8), STRING12(12), STRING16(16), STRING20(20), STRING25(25),
+		/* use PAD for reserved points */
+		PAD(1), IPADDR(1), IPV6ADDR(16), EUI48(6);
 
 		public final int length;
 
@@ -264,7 +266,7 @@ public interface SunSpecPoint {
 			case FLOAT64:
 				return false; // TODO not implemented
 			case PAD:
-				// This value is never needed
+				// This point is never needed/reserved
 				return false;
 			case STRING12:
 			case STRING16:

@@ -65,7 +65,7 @@ public class TestCheck {
 		State next = sut.getNextState();
 		assertEquals(State.CHECK, next);
 
-		bms.setSoc(bms.getSoc().value().get() + config.deltaSoC() + 1);
+		bms.setSoc(bms.getSoc().get() + config.deltaSoC() + 1); // FIXME this will throw a NullPointerException!
 		next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
 	}

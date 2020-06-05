@@ -56,9 +56,10 @@ public interface ModbusElement<T> {
 	 * Sets a value that should be written to the Modbus device.
 	 * 
 	 * @param valueOpt the Optional value
-	 * @throws OpenemsException on error
+	 * @throws OpenemsException         on error
+	 * @throws IllegalArgumentException on error
 	 */
-	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException;
+	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException, IllegalArgumentException;
 
 	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was

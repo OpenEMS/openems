@@ -1,5 +1,7 @@
 package io.openems.common.types;
 
+import com.google.common.base.CaseFormat;
+
 public interface OptionsEnum {
 
 	/**
@@ -22,6 +24,18 @@ public interface OptionsEnum {
 	 * @return the UNDEFINED enum
 	 */
 	OptionsEnum getUndefined();
+
+	/**
+	 * Gets the name in CamelCase format.
+	 * 
+	 * <p>
+	 * If {@link #getName()} returns 'MY_VALUE' this method returns 'MyValue'.
+	 * 
+	 * @return the Name in CamelCase format
+	 */
+	public default String asCamelCase() {
+		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.getName());
+	}
 
 	/**
 	 * Gets whether the current enum represents the 'UNDEFINED' value.

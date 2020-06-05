@@ -1,13 +1,10 @@
 package io.openems.edge.ess.mr.gridcon.writeutils;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.Config;
@@ -104,15 +101,19 @@ public class DcdcControl {
 			throws OpenemsNamedException {
 		// If the battery is connected and switched on and ready for working it can be
 		// considered for weighting
-		if (batteryStringId != null && batteryStringId.length() > 0) {
-			Battery battery = componentManager.getComponent(batteryStringId);
-			if (battery != null) {
-				Optional<Boolean> batteryReady = battery.getReadyForWorking().value().asOptional();
-				if (batteryReady.isPresent() && batteryReady.get()) {
-					return true;
-				}
-			}
-		}
+
+		// TODO MR implementation is obsolete; commented this block after removing
+		// battery READY_FOR_WORKING Channel
+
+//		if (batteryStringId != null && batteryStringId.length() > 0) {
+//			Battery battery = componentManager.getComponent(batteryStringId);
+//			if (battery != null) {
+//				Optional<Boolean> batteryReady = battery.getReadyForWorking().asOptional();
+//				if (batteryReady.isPresent() && batteryReady.get()) {
+//					return true;
+//				}
+//			}
+//		}
 		return false;
 	}
 
