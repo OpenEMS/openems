@@ -52,6 +52,9 @@ public class Abl extends AbstractOcppEvcsComponent
 
 	private final Logger log = LoggerFactory.getLogger(Abl.class);
 
+	// Default value for the hardware limit
+	private static final Integer DEFAULT_HARDWARE_LIMIT = 22080;
+	
 	// Profiles that a ABL is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
 			OcppProfileType.CORE //
@@ -171,7 +174,7 @@ public class Abl extends AbstractOcppEvcsComponent
 
 				long target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
 
-				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(22080) / phases / 230;
+				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
 				target = target > maxCurrent ? maxCurrent : target;
 
 				request.setMessageId("SetLimit");

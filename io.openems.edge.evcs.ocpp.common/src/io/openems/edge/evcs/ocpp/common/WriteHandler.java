@@ -26,6 +26,9 @@ public class WriteHandler implements Runnable {
 
 	private final AbstractOcppEvcsComponent parent;
 
+	// Default value for the hardware limit
+	private static final Integer DEFAULT_HARDWARE_LIMIT = 22080;
+	
 	// Minimum pause between two consecutive writes
 	private static final int WRITE_INTERVAL_SECONDS = 30;
 
@@ -95,7 +98,7 @@ public class WriteHandler implements Runnable {
 
 			if (valueOpt.isPresent()) {
 
-				int maxPower = this.parent.getMaximumHardwarePower().getNextValue().orElse(22080);
+				int maxPower = this.parent.getMaximumHardwarePower().getNextValue().orElse(DEFAULT_HARDWARE_LIMIT);
 				Integer power = valueOpt.get();
 
 				Integer target = power > maxPower ? maxPower : power;

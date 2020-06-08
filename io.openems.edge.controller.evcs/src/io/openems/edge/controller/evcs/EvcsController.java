@@ -66,7 +66,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Reference
 	private ManagedEvcs evcs;
-	
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CHARGE_MODE(Doc.of(ChargeMode.values()) //
 				.initialValue(ChargeMode.FORCE_CHARGE) //
@@ -114,7 +114,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (config.forceChargeMinPower() < 0) {
 			throw new OpenemsException("Force-Charge Min-Power [" + config.forceChargeMinPower() + "] must be >= 0");
 		}
-		
+
 		if (config.defaultChargeMinPower() < 0) {
 			throw new OpenemsException(
 					"Default-Charge Min-Power [" + config.defaultChargeMinPower() + "] must be >= 0");
@@ -254,9 +254,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 					} else {
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
 						evcs.getMaximumPower().setNextValue(nextChargePower);
-						if (this.config.debugMode()) {
-							this.logInfo(this.log, "Set a lower charging target of " + nextChargePower + " W");
-						}
+
+						this.logInfoInDebugmode(this.log, "Set a lower charging target of " + nextChargePower + " W");
 					}
 				} else {
 					int currMax = evcs.getMaximumPower().value().orElse(0);
@@ -271,10 +270,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		} else {
 			evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
 		}
-
-		if (this.config.debugMode()) {
-			this.logInfo(this.log, "Next charge power: " + nextChargePower + " W");
-		}
+		this.logInfoInDebugmode(this.log, "Next charge power: " + nextChargePower + " W");
 	}
 
 	/**
@@ -331,14 +327,16 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		return result;
 	}
 
-	@Override
-	protected void logDebug(Logger log, String message) {
-		super.logDebug(log, message);
-	}
-
-	@Override
-	protected void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
+	/**
+	 * Logs are displayed if the debug mode is configured
+	 * 
+	 * @param log    Logger
+	 * @param string Text to display
+	 */
+	protected void logInfoInDebugmode(Logger log, String string) {
+		if (this.config.debugMode()) {
+			this.logInfo(log, string);
+		}
 	}
 
 	@Override

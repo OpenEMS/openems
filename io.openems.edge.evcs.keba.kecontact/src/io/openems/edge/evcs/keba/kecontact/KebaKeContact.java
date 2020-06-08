@@ -51,7 +51,8 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private final ReadHandler readHandler = new ReadHandler(this);
 	private final WriteHandler writeHandler = new WriteHandler(this);
 	private Boolean lastConnectionLostState = false;
-	protected boolean debugMode = false;
+
+	protected Config config;
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
@@ -65,7 +66,6 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				KebaChannelId.values() //
-
 		);
 	}
 
@@ -78,7 +78,8 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
 
 		this.ip = Inet4Address.getByName(config.ip());
-		this.debugMode = config.debugMode();
+
+		this.config = config;
 
 		/*
 		 * subscribe on replies to report queries
@@ -158,14 +159,21 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	@Override
-	protected void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
-	}
-
-	@Override
 	public String debugLog() {
 		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|"
 				+ this.getStatus().value().asEnum().getName();
+	}
+
+	/**
+	 * Logs are displayed if the debug mode is configured
+	 * 
+	 * @param log    Logger
+	 * @param string Text to display
+	 */
+	protected void logInfoInDebugmode(Logger log, String string) {
+		if (this.config.debugMode()) {
+			this.logInfo(log, string);
+		}
 	}
 
 	public ReadWorker getReadWorker() {

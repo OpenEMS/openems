@@ -140,7 +140,8 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 						 * Sets the minimum power depending on the guaranteed and the maximum Power.
 						 */
 						if (requestedPower > 0) {
-							int evcsMaxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
+							int evcsMaxPower = evcs.getMaximumPower().value()
+									.orElse(evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT));
 							int minGurarantee = this.getMinimumChargePowerGuarantee();
 							int guarantee = evcsMaxPower > minGurarantee ? minGurarantee : evcsMaxPower;
 
@@ -174,7 +175,8 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				}
 
 				// It should not be charged more than possible for the current EV
-				int maxPower = evcs.getMaximumPower().value().orElse(DEFAULT_HARDWARE_LIMIT);
+				int maxPower = evcs.getMaximumPower().value()
+						.orElse(evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT));
 				nextChargePower = nextChargePower > maxPower ? maxPower : nextChargePower;
 
 				// Checks if there is enough power left and sets the charge power

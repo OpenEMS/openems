@@ -70,9 +70,8 @@ public class WriteHandler implements Runnable {
 			display = display.replace(" ", "$"); // $ == blank
 			if (!display.equals(this.lastDisplay) || this.nextDisplayWrite.isBefore(LocalDateTime.now())) {
 
-				if (this.parent.debugMode) {
-					this.parent.logInfo(this.log, "Setting KEBA KeContact display text to [" + display + "]");
-				}
+				this.parent.logInfoInDebugmode(this.log, "Setting KEBA KeContact display text to [" + display + "]");
+
 				boolean sentSuccessfully = parent.send("display 0 0 0 0 " + display);
 				if (sentSuccessfully) {
 					this.nextDisplayWrite = LocalDateTime.now().plusSeconds(WRITE_DISPLAY_INTERVAL_SECONDS);
@@ -113,10 +112,8 @@ public class WriteHandler implements Runnable {
 
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 
-				if (this.parent.debugMode) {
-					this.parent.logInfo(this.log, "Setting KEBA " + this.parent.alias() + " current to [" + current
-							+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
-				}
+				this.parent.logInfoInDebugmode(log, "Setting KEBA " + this.parent.alias() + " current to [" + current
+						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
 
 				try {
 					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
@@ -170,10 +167,8 @@ public class WriteHandler implements Runnable {
 			if (!energyTarget.equals(this.lastEnergySession)
 					|| this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
 
-				if (this.parent.debugMode) {
-					this.parent.logInfo(this.log, "Setting KEBA " + this.parent.alias()
-							+ " Energy Limit in this Session to [" + energyTarget / 10 + " Wh]");
-				}
+				this.parent.logInfoInDebugmode(this.log, "Setting KEBA " + this.parent.alias()
+						+ " Energy Limit in this Session to [" + energyTarget / 10 + " Wh]");
 
 				boolean sentSuccessfully = parent.send("setenergy " + energyTarget);
 				if (sentSuccessfully) {

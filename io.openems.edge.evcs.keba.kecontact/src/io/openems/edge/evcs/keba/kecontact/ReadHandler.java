@@ -48,6 +48,8 @@ public class ReadHandler implements Consumer<String> {
 				log.error("Error while parsing KEBA message: " + e.getMessage());
 				return;
 			}
+			this.parent.logInfoInDebugmode(log, message);
+
 			JsonObject jsonMessage = jsonMessageElement.getAsJsonObject();
 			// JsonUtils.prettyPrint(jMessage);
 			Optional<String> idOpt = JsonUtils.getAsOptionalString(jsonMessage, "ID");
@@ -187,29 +189,28 @@ public class ReadHandler implements Consumer<String> {
 						}
 						this.parent.getPhases().setNextValue(phases);
 
-						if (this.parent.debugMode) {
-							this.parent.logInfo(this.log, "Used phases: " + this.parent.getPhases().value().orElse(3));
-						}
-						this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
-								.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * phases);
-						this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
-								.setNextValue(230 /* Spannung */ * 32 /* max Strom */ * phases);
-					} else {
-
-						// set Min & Max Power to Default values that allows the User a power setting
-						// between those values
-						Channel<Integer> min = this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
-						Channel<Integer> max = this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER);
-						if (min.value().get() == null || max.value().get() == null) {
-							Channel<Integer> maxHW = this.parent.channel(KebaChannelId.MAX_CURR);
-							this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
-									.setNextValue(230 /* Spannung */ * 6 /* min Strom */ * 3);
-							this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(
-									230 /* Spannung */ * (maxHW.value().orElse(32000) / 1000) /* max Strom */ * 3);
-						}
+						this.parent.logInfoInDebugmode(log,
+								"Used phases: " + this.parent.getPhases().value().orElse(3));
 					}
 
-					// Set CHARGE_POWER
+					/*
+					 * Set MAXIMUM_HARDWARE_POWER of Evcs
+					 */
+					Channel<Integer> maxHW = this.parent.channel(KebaChannelId.MAX_CURR);
+					int phases = this.parent.getPhases().value().orElse(3);
+
+					this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(
+							230 /* Spannung */ * (maxHW.value().orElse(32000) / 1000) /* max Strom */ * phases);
+					/*
+					 * Set default MINIMUM_HARDWARE_POWER of Evcs
+					 */
+					int minHwCurrent = this.parent.config.minHwCurrent() / 1000;
+					this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
+							.setNextValue(230 /* Spannung */ * minHwCurrent /* min Strom */ * phases);
+
+					/*
+					 * Set CHARGE_POWER of Evcs
+					 */
 					Optional<Integer> powerMw = JsonUtils.getAsOptionalInt(jsonMessage, "P"); // in [mW]
 					Integer power = null;
 					if (powerMw.isPresent()) {
@@ -217,7 +218,9 @@ public class ReadHandler implements Consumer<String> {
 					}
 					this.parent.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power);
 
-					// Set ENERGY_SESSION
+					/*
+					 * Set ENERGY_SESSION of Evcs
+					 */
 					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
 							.setNextValue((JsonUtils.getAsOptionalInt(jsonMessage, "E pres").orElse(0)) * 0.1);
 				}
