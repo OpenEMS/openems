@@ -107,14 +107,14 @@ public class CycleWorker extends AbstractWorker {
 								controller.run();
 
 								// announce running was ok
-								controller.getRunFailed().setNextValue(false);
+								controller._setRunFailed(false);
 
 							} catch (OpenemsNamedException e) {
 								this.parent.logWarn(this.log,
 										"Error in Controller [" + controller.id() + "]: " + e.getMessage());
 
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 
 							} catch (Exception e) {
 								this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
@@ -124,7 +124,7 @@ public class CycleWorker extends AbstractWorker {
 									e.printStackTrace();
 								}
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 							}
 						}
 
