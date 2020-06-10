@@ -138,11 +138,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						Object correctValue = val;
 						switch (measurand) {
 						case CORE_METER_VALUES_CURRENT_EXPORT:
-						case CORE_METER_VALUES_CURRENT_OFFERED:
-							correctValue = (int) Math.round(Double.valueOf(val) * 1000);
-							break;
-
 						case CORE_METER_VALUES_CURRENT_IMPORT:
+						case CORE_METER_VALUES_CURRENT_OFFERED:
 							correctValue = (int) Math.round(Double.valueOf(val) * 1000);
 							break;
 
@@ -196,11 +193,11 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 							break;
 
 						case CORE_METER_VALUES_VOLTAGE:
+						case CORE_METER_VALUES_SOC:
 							correctValue = (int) Math.round(Double.valueOf(val));
 							break;
 
 						case CORE_METER_VALUES_RPM:
-						case CORE_METER_VALUES_SOC:
 						case CORE_METER_VALUES_TEMPERATURE:
 						case CORE_METER_VALUES_POWER_FACTOR:
 						case CORE_METER_VALUES_FREQUENCY:

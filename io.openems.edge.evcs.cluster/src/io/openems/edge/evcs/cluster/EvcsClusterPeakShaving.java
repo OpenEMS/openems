@@ -1,20 +1,5 @@
 package io.openems.edge.evcs.cluster;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.sum.Sum;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +22,18 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
+
 @Designate(ocd = ConfigPeakShaving.class, factory = true)
 @Component(//
 		name = "Evcs.Cluster.PeakShaving", //
@@ -44,9 +41,12 @@ import org.slf4j.LoggerFactory;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		})
 public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements OpenemsComponent, Evcs, EventHandler {
+
+	private static final int DEFAULT_PHASES = 3;
 
 	private final Logger log = LoggerFactory.getLogger(EvcsClusterPeakShaving.class);
 
@@ -67,7 +67,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	protected Sum sum;
 
 	@Reference
-	private SymmetricEss ess;
+	private ManagedSymmetricEss ess;
 
 	public EvcsClusterPeakShaving() {
 		super(//
@@ -174,33 +174,28 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 		int allowedChargePower = 0;
 		int maxEssDischarge = 0;
+		long maxAvailableStoragePower = 0;
 
-		if (this.ess instanceof ManagedSymmetricEss) {
-			ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
-			Power power = ((ManagedSymmetricEss) ess).getPower();
-			maxEssDischarge = Math.abs(power.getMaxPower(e, Phase.ALL, Pwr.ACTIVE));
-		} else {
-			maxEssDischarge = ess.getMaxApparentPower().value().orElse(0);
-		}
-
-		int gridPower = getGridPower();
-		long essDischargePower = this.sum.getEssActivePower().value().orElse(0);
+		maxEssDischarge = this.ess.getAllowedDischarge().value().orElse(0);
+		// TODO: Should I use power component here
 
 		// TODO: Calculate the available ESS charge power, depending on a specific ESS
 		// component (e.g. If there is a ESS cluster)
+		long essDischargePower = this.sum.getEssActivePower().value().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
+		
+		maxAvailableStoragePower = maxEssDischarge - (essDischargePower - essActivePowerDC);
+
+		int gridPower = getGridPower();
 		int evcsCharge = this.getChargePower().value().orElse(0);
 
-		long maxAvailableStoragePower = maxEssDischarge - (essDischargePower - essActivePowerDC);
+		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower
+				+ (this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES) - gridPower);
 
-		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower + (this.config.hardwarePowerLimit() * 3)
-				- gridPower);
-
-		this.logInfoInDebugmode(log,
-				"Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
-						+ "]  +  Max. available storage power [" + maxAvailableStoragePower
-						+ "]  +  ( Configured Hardware Limit * 3 [" + this.config.hardwarePowerLimit() * 3
-						+ "]  -  Maxium of all three phases * 3 [" + gridPower + "]");
+		this.logInfoInDebugmode(log, "Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
+				+ "]  +  Max. available storage power [" + maxAvailableStoragePower
+				+ "]  +  ( Configured Hardware Limit * 3 [" + this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES
+				+ "]  -  Maxium of all three phases * 3 [" + gridPower + "]");
 
 		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
 		return allowedChargePower;

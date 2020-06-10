@@ -122,7 +122,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 		for (OpenemsComponent openemsComponent : components) {
 			if (openemsComponent instanceof AbstractOcppEvcsComponent) {
 				AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) openemsComponent;
-				String ocppId = ocppEvcs.getOcppId().value().orElse("");
+				String ocppId = ocppEvcs.getOcppId().value().orElse(""); // TODO: Channel unnötig
 
 				if (identifier.equals("/" + ocppId)) {
 					// TODO this does not seem to belong to a 'get' method:

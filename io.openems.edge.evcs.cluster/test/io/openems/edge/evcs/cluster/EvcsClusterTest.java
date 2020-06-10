@@ -59,7 +59,7 @@ public class EvcsClusterTest {
 		}
 
 		@Override
-		public int hardwarePowerLimit() {
+		public int hardwarePowerLimitPerPhase() {
 			return this.hardwarePowerLimit;
 		}
 

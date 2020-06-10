@@ -4,7 +4,6 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.SocEvcs;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 public enum OcppInformations {
 
@@ -16,7 +15,7 @@ public enum OcppInformations {
 	/**
 	 * Instantaneous current flow to EV in mA.
 	 */
-	CORE_METER_VALUES_CURRENT_IMPORT("Current.IMPORT", SymmetricMeter.ChannelId.CURRENT),
+	CORE_METER_VALUES_CURRENT_IMPORT("Current.Import", MeasuringEvcs.ChannelId.CURRENT_TO_EV),
 
 	/**
 	 * Maximum current offered to EV in mA.
@@ -29,7 +28,7 @@ public enum OcppInformations {
 	 * the grid).
 	 */
 	CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_REGISTER("Energy.Active.Export.Register",
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY),
+			MeasuringEvcs.ChannelId.ENERGY_ACTIVE_TO_GRID),
 
 	/**
 	 * Numerical value read from the "active electrical energy" (Wh) register of the
@@ -37,7 +36,7 @@ public enum OcppInformations {
 	 * (from the grid supply).
 	 */
 	CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER("Energy.Active.Import.Register",
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY),
+			MeasuringEvcs.ChannelId.ENERGY_ACTIVE_TO_EV),
 
 	/**
 	 * Numerical value read from the "reactive electrical energy" (VARh) register of
@@ -96,7 +95,7 @@ public enum OcppInformations {
 	 * UnitOfMeasure for frequency, the UnitOfMeasure for any SampledValue with
 	 * measurand: Frequency is Hertz.
 	 */
-	CORE_METER_VALUES_FREQUENCY("Frequency", SymmetricMeter.ChannelId.FREQUENCY),
+	CORE_METER_VALUES_FREQUENCY("Frequency", MeasuringEvcs.ChannelId.FREQUENCY),
 
 	/**
 	 * Instantaneous active power exported by EV. (W)
@@ -147,7 +146,7 @@ public enum OcppInformations {
 	/**
 	 * Instantaneous AC RMS supply voltage.
 	 */
-	CORE_METER_VALUES_VOLTAGE("Voltage", SymmetricMeter.ChannelId.VOLTAGE);
+	CORE_METER_VALUES_VOLTAGE("Voltage", MeasuringEvcs.ChannelId.VOLTAGE);
 
 	String ocppValue;
 	private final ChannelId channelId;
