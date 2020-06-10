@@ -4,6 +4,7 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.LongReadChannel;
@@ -19,7 +20,8 @@ public interface BridgeModbus extends OpenemsComponent {
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
 		CYCLE_TIME_IS_TOO_SHORT(Doc.of(Level.WARNING) //
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
-		EXECUTION_DURATION(Doc.of(OpenemsType.LONG));
+		EXECUTION_DURATION(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.MILLISECONDS));
 
 		private final Doc doc;
 
@@ -101,7 +103,8 @@ public interface BridgeModbus extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Execution Duration in [ms], see {@link ChannelId#EXECUTION_DURATION}.
+	 * Gets the Execution Duration in [ms], see
+	 * {@link ChannelId#EXECUTION_DURATION}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
