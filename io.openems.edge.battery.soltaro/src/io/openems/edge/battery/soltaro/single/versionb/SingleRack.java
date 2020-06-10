@@ -56,6 +56,7 @@ import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -383,47 +384,47 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void writeValuesInApiChannels() {
-
-		@SuppressWarnings("unchecked")
-		Optional<Integer> clusterVoltageOpt = (Optional<Integer>) this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE)
-				.value().asOptional();
-		if (clusterVoltageOpt.isPresent()) {
-			int voltageVolt = (int) (clusterVoltageOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltageVolt);
+		{
+			IntegerReadChannel clusterVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE);
+			Value<Integer> clusterVoltage = clusterVoltageChannel.value();
+			if (clusterVoltage.isDefined()) {
+				int voltageVolt = (int) (clusterVoltage.get() * 0.001);
+				this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltageVolt);
+			}
 		}
-
-		@SuppressWarnings("unchecked")
-		Optional<Integer> minCellVoltageOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).value().asOptional();
-		if (minCellVoltageOpt.isPresent()) {
-			int voltageMillivolt = minCellVoltageOpt.get();
-			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltageMillivolt);
+		{
+			IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
+			Value<Integer> minCellVoltage = minCellVoltageChannel.value();
+			if (minCellVoltage.isDefined()) {
+				int voltageMillivolt = minCellVoltage.get();
+				this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltageMillivolt);
+			}
 		}
-		
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxCellVoltageOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE).value().asOptional();
-		if (minCellVoltageOpt.isPresent()) {
-			int voltageMillivolt = maxCellVoltageOpt.get();
-			this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(voltageMillivolt);
+		{
+			IntegerReadChannel maxCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE);
+			Value<Integer> maxCellVoltage = maxCellVoltageChannel.value();
+			if (maxCellVoltage.isDefined()) {
+				int voltageMillivolt = maxCellVoltage.get();
+				this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(voltageMillivolt);
+			}
 		}
-		
-		@SuppressWarnings("unchecked")
-		Optional<Integer> minCelltemperatureOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE).value().asOptional();
-		if (minCelltemperatureOpt.isPresent()) {
-			int temperature = minCelltemperatureOpt.get() / 10;
-			this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(temperature);
+		{
+			IntegerReadChannel minCelltemperatureChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE);
+			Value<Integer> minCelltemperature = minCelltemperatureChannel.value();
+			if (minCelltemperature.isDefined()) {
+				int temperature = minCelltemperature.get() / 10;
+				this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(temperature);
+			}
 		}
-		
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxCelltemperatureOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE).value().asOptional();
-		if (minCelltemperatureOpt.isPresent()) {
-			int temperature = maxCelltemperatureOpt.get() / 10;
-			this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(temperature);
+		{
+			IntegerReadChannel maxCelltemperatureChannel = this
+					.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE);
+			Value<Integer> maxCelltemperature = maxCelltemperatureChannel.value();
+			if (maxCelltemperature.isDefined()) {
+				int temperature = maxCelltemperature.get() / 10;
+				this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(temperature);
+			}
 		}
-		
 
 		// write battery ranges to according channels in battery api
 		// MAX_VOLTAGE x2082
