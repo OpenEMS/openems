@@ -41,9 +41,9 @@ export enum advertisableWidgetNautre {
     'io.openems.edge.evcs.api.Evcs',
 }
 
-export enum advertisableWidgetProducttype {
-    'MiniES 3-3'
-}
+// export enum advertisableWidgetProducttype {
+//     'MiniES 3-3'
+// }
 
 export class AdvertWidgets {
 
@@ -51,11 +51,11 @@ export class AdvertWidgets {
 
         let list: AdvertWidget[] = [];
 
-        for (let producttype of Object.values(advertisableWidgetProducttype).filter(v => typeof v === 'string')) {
-            if (producttype == 'MiniES 3-3' && edge.producttype == 'MiniES 3-3') {
-                list.push({ name: producttype });
-            }
-        }
+        // for (let producttype of Object.values(advertisableWidgetProducttype).filter(v => typeof v === 'string')) {
+        //     if (producttype == 'MiniES 3-3' && edge.producttype == 'MiniES 3-3') {
+        //         list.push({ name: producttype });
+        //     }
+        // }
 
         for (let nature of Object.values(advertisableWidgetNautre).filter(v => typeof v === 'string')) {
             if (nature == 'io.openems.edge.evcs.api.Evcs' && config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {

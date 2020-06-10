@@ -88,7 +88,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
       })
     }).catch(reason => {
       console.error(reason); // TODO error message
-      this.initializeChart();
+      this.initializeChart(reason);
       return;
     });
   }
