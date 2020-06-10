@@ -59,16 +59,16 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 		PDKAdapterUSB adapter = new PDKAdapterUSB();
 		try {
 			if (adapter.selectPort(this.port)) {
-				this.parent.setUnableToSelectPort(false);
+				this.parent._setUnableToSelectPortFault(false);
 				this._adapter = adapter;
 				return this._adapter;
 
 			} else {
-				this.parent.setUnableToSelectPort(true);
+				this.parent._setUnableToSelectPortFault(true);
 				throw new OpenemsException("Unable to select port [" + this.port + "]");
 			}
 		} catch (IllegalArgumentException | OneWireException e) {
-			this.parent.setUnableToSelectPort(true);
+			this.parent._setUnableToSelectPortFault(true);
 			throw new OpenemsException("Unable to select port [" + this.port + "]: " + e.getMessage());
 		}
 	}
