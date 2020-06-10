@@ -4,6 +4,8 @@ import { environment } from '../../../../environments';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
 import { ModbusApiUtil } from './modbusapi/modbusapi';
+import { PopoverController } from '@ionic/angular';
+import { ProfilePopoverComponent } from './popover/popover.component';
 
 @Component({
   selector: ProfileComponent.SELECTOR,
@@ -23,8 +25,10 @@ export class ProfileComponent {
 
   constructor(
     private service: Service,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public popoverController: PopoverController,
   ) { }
+
   ngOnInit() {
     this.service.setCurrentComponent("Anlagenprofil" /* TODO translate */, this.route).then(edge => {
       this.edge = edge;
@@ -34,6 +38,19 @@ export class ProfileComponent {
       let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum"]
       this.components = config.listActiveComponents(categorizedComponentIds);
     })
+  }
+
+  async presentPopover(component: EdgeConfig.Component) {
+    const popover = await this.popoverController.create({
+      component: ProfilePopoverComponent,
+      // event: ev,
+      translucent: true,
+      componentProps: {
+        component: component,
+        edge: this.edge,
+      }
+    });
+    return await popover.present();
   }
 
   public getModbusProtocol(componentId: string) {
