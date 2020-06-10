@@ -16,7 +16,8 @@ export class CurrentData {
       system: {
         totalPower: null,
         autarchy: null,
-        selfConsumption: null
+        selfConsumption: null,
+        state: null
       }, storage: {
         soc: null,
         activePowerL1: null,
@@ -207,6 +208,13 @@ export class CurrentData {
       if (result.consumption.powerRatio < 0) {
         result.consumption.powerRatio = 0;
       }
+    }
+
+    {
+      /*
+       * State
+       */
+      result.system.state = c['_sum/State'];
     }
 
     {
