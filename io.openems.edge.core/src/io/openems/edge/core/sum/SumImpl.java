@@ -135,23 +135,23 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					// ignore this Ess
 					continue;
 				}
-				essSoc.addValue(ess.getSoc());
-				essActivePower.addValue(ess.getActivePower());
-				essMaxApparentPower.addValue(ess.getMaxApparentPower());
-				essGridMode.addValue(ess.getGridMode());
-				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergy());
-				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
-				essCapacity.addValue(ess.getCapacity());
+				essSoc.addValue(ess.getSocChannel());
+				essActivePower.addValue(ess.getActivePowerChannel());
+				essMaxApparentPower.addValue(ess.getMaxApparentPowerChannel());
+				essGridMode.addValue(ess.getGridModeChannel());
+				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
+				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
+				essCapacity.addValue(ess.getCapacityChannel());
 
 				if (ess instanceof AsymmetricEss) {
 					AsymmetricEss e = (AsymmetricEss) ess;
-					essActivePowerL1.addValue(e.getActivePowerL1());
-					essActivePowerL2.addValue(e.getActivePowerL2());
-					essActivePowerL3.addValue(e.getActivePowerL3());
+					essActivePowerL1.addValue(e.getActivePowerL1Channel());
+					essActivePowerL2.addValue(e.getActivePowerL2Channel());
+					essActivePowerL3.addValue(e.getActivePowerL3Channel());
 				} else {
-					essActivePowerL1.addValue(ess.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-					essActivePowerL2.addValue(ess.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-					essActivePowerL3.addValue(ess.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
+					essActivePowerL1.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
+					essActivePowerL2.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
+					essActivePowerL3.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 				}
 
 			} else if (component instanceof SymmetricMeter) {

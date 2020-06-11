@@ -1,13 +1,14 @@
 #!/bin/bash
 
-CHANNEL_ID="MAX_CELL_VOLTAGE"
-METHOD="MaxCellVoltage"
-JAVADOC="Maximum Cell Voltage in [mV]"
-#JAVADOC="Run-Failed State"
+CHANNEL_ID="APPLY_POWER_FAILED"
+METHOD="ApplyPowerFailed"
+#JAVADOC="Sets an Active Power Equals setpoint in [W]. Negative values for Charge; positive for Discharge"
+JAVADOC="Apply Power Failed State"
 
-CHANNEL_CLASS="IntegerReadChannel"
-#CHANNEL_CLASS="StateChannel"
+#CHANNEL_CLASS="IntegerReadChannel"
+CHANNEL_CLASS="StateChannel"
 #CHANNEL_CLASS="LongReadChannel"
+#CHANNEL_CLASS="IntegerWriteChannel"
 
 case "$CHANNEL_CLASS" in
 	StateChannel)
@@ -21,6 +22,10 @@ case "$CHANNEL_CLASS" in
 	LongReadChannel)
 		CHANNEL_RETURN_TYPE="Value<Long>"
 		CHANNEL_PARAM_TYPE="Long"
+		;;
+	IntegerWriteChannel)
+		CHANNEL_RETURN_TYPE="Value<Integer>"
+		CHANNEL_PARAM_TYPE="Integer"
 		;;
 	*)
 		echo "Unknown Class ${CHANNEL_CLASS}"

@@ -156,7 +156,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		// FIXME no good coding style; use direct mapping in ModbusProtocol-definition
 		// instead
 		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
-			this.getSoc().setNextValue(newValue.get()); // FIXME why?
+			this._setSoc(newValue.get()); // FIXME why?
 			this.channel(REFUStore88KChannelId.BAT_SOC).setNextValue(newValue.get());
 			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
@@ -310,15 +310,15 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 
 		// Determine allowedCharge and allowedDischarge from Inverter
 		if (absAllowedCharge > MAX_APPARENT_POWER) {
-			this.getAllowedCharge().setNextValue(MAX_APPARENT_POWER * -1);
+			this._setAllowedChargePower(MAX_APPARENT_POWER * -1);
 		} else {
-			this.getAllowedCharge().setNextValue(absAllowedCharge * -1);
+			this._setAllowedChargePower((int) (absAllowedCharge * -1));
 		}
 
 		if (absAllowedDischarge > MAX_APPARENT_POWER) {
-			this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
+			this._setAllowedDischargePower(MAX_APPARENT_POWER);
 		} else {
-			this.getAllowedDischarge().setNextValue(absAllowedDischarge);
+			this._setAllowedDischargePower((int) absAllowedDischarge);
 		}
 	}
 
@@ -451,8 +451,8 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		}
 
 		// Read the current values of Active and Reactive power!
-		int currentActivePower = Math.abs(getActivePower().value().orElse(0));
-		int currentReactivePower = Math.abs(getReactivePower().value().orElse(0));
+		int currentActivePower = Math.abs(this.getActivePower().orElse(0));
+		int currentReactivePower = Math.abs(this.getReactivePower().orElse(0));
 
 		/*
 		 * The self consumption of the inverter in status THROTTLED or MPPT is 40W.
@@ -515,14 +515,6 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 
 	public Channel<Integer> getAcCurrent() {
 		return this.channel(REFUStore88KChannelId.A);
-	}
-
-	public Channel<Integer> getActivePower() {
-		return this.channel(REFUStore88KChannelId.W);
-	}
-
-	public Channel<Integer> getReactivePower() {
-		return this.channel(REFUStore88KChannelId.VA_R);
 	}
 
 	public Channel<Integer> getApparentPower() {
@@ -865,8 +857,8 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		return "State:" + this.channel(REFUStore88KChannelId.ST).value().asOptionString() //
 				+ " | Active Power:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
 				+ " | Reactive Power:" + this.channel(SymmetricEss.ChannelId.REACTIVE_POWER).value().asString() //
-				+ " | Allowed Charge:" + this.getAllowedCharge().value() //
-				+ " | Allowed Discharge:" + this.getAllowedDischarge().value() //
+				+ " | Allowed Charge:" + this.getAllowedChargePower() //
+				+ " | Allowed Discharge:" + this.getAllowedDischargePower() //
 				+ " | Allowed ChargeCurrent:" + this.battery.getChargeMaxCurrent() //
 				+ " | Allowed DischargeCurrent:" + this.battery.getDischargeMaxCurrent() //
 				+ " | DC Voltage:" + this.channel(REFUStore88KChannelId.DCV).value().asString() //

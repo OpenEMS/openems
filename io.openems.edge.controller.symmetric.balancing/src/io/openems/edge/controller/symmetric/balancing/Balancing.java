@@ -77,7 +77,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 */
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) {
 		return meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */
+				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */
 				- config.targetGridSetpoint(); /* the configured target setpoint */
 	}
 
@@ -89,7 +89,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -109,7 +109,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		/*
 		 * set result
 		 */
-		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
-		ess.getSetReactivePowerEquals().setNextWriteValue(0);
+		ess.setActivePowerEqualsWithPid(calculatedPower);
+		ess.setReactivePowerEquals(0);
 	}
 }

@@ -7,6 +7,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -175,8 +178,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
-		),
-		;
+		);
 
 		private final Doc doc;
 
@@ -200,112 +202,344 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the State of Charge in [%], range 0..100 %.
-	 * 
+	 * Gets the Channel for {@link ChannelId#SOC}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getSoc() {
+	public default IntegerReadChannel getSocChannel() {
 		return this.channel(ChannelId.SOC);
 	}
 
 	/**
-	 * Gets the (usable) capacity of the Battery in [Wh].
-	 * 
+	 * Gets the State of Charge in [%], range 0..100 %. See {@link ChannelId#SOC}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSoc() {
+		return this.getSocChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSoc(Integer value) {
+		this.getSocChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CAPACITY}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getCapacity() {
+	public default IntegerReadChannel getCapacityChannel() {
 		return this.channel(ChannelId.CAPACITY);
 	}
 
 	/**
-	 * Is the Ess On-Grid?.
+	 * Gets the Capacity in [Wh]. See {@link ChannelId#CAPACITY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCapacity() {
+		return this.getCapacityChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CAPACITY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCapacity(Integer value) {
+		this.getCapacityChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_MODE}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getGridMode() {
+	public default Channel<GridMode> getGridModeChannel() {
 		return this.channel(ChannelId.GRID_MODE);
 	}
 
 	/**
-	 * Gets the Active Power in [W]. Negative values for Charge; positive for
-	 * Discharge.
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#GRID_MODE}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default GridMode getGridMode() {
+		return this.getGridModeChannel().value().get();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setGridMode(GridMode value) {
+		this.getGridModeChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getActivePower() {
+	public default IntegerReadChannel getActivePowerChannel() {
 		return this.channel(ChannelId.ACTIVE_POWER);
 	}
 
 	/**
-	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0".
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
 	 * 
-	 * @return the Channel
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getMaxApparentPower() {
-		return this.channel(ChannelId.MAX_APPARENT_POWER);
+	public default Value<Integer> getActivePower() {
+		return this.getActivePowerChannel().value();
 	}
 
 	/**
-	 * Gets the Reactive Power in [var]. Negative values for Charge; positive for
-	 * Discharge.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActivePower(Integer value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getReactivePower() {
+	public default IntegerReadChannel getReactivePowerChannel() {
 		return this.channel(ChannelId.REACTIVE_POWER);
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh].
+	 * Gets the Reactive Power in [var]. See {@link ChannelId#REACTIVE_POWER}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getReactivePower() {
+		return this.getReactivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(Integer value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_APPARENT_POWER}.
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Long> getActiveChargeEnergy() {
+	public default IntegerReadChannel getMaxApparentPowerChannel() {
+		return this.channel(ChannelId.MAX_APPARENT_POWER);
+	}
+
+	/**
+	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0". See
+	 * {@link ChannelId#MAX_APPARENT_POWER}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxApparentPower() {
+		return this.getMaxApparentPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxApparentPower(Integer value) {
+		this.getMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveChargeEnergyChannel() {
 		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh].
-	 * 
+	 * Gets the Active Charge Energy in [Wh]. See
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveChargeEnergy() {
+		return this.getActiveChargeEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveChargeEnergy(Long value) {
+		this.getActiveChargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Long> getActiveDischargeEnergy() {
+	public default LongReadChannel getActiveDischargeEnergyChannel() {
 		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
-	
+
 	/**
-	 * Gets the minimum cell voltage in [mV].
-	 * 
+	 * Gets the Active Discharge Energy in [Wh]. See
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveDischargeEnergy() {
+		return this.getActiveDischargeEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveDischargeEnergy(Long value) {
+		this.getActiveDischargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MIN_CELL_VOLTAGE}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getMinCellVoltage() {
+	public default IntegerReadChannel getMinCellVoltageChannel() {
 		return this.channel(ChannelId.MIN_CELL_VOLTAGE);
 	}
-	
+
 	/**
-	 * Gets the maximum cell voltage in [mV].
-	 * 
+	 * Gets the Minimum Cell Voltage in [mV]. See
+	 * {@link ChannelId#MIN_CELL_VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMinCellVoltage() {
+		return this.getMinCellVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_CELL_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinCellVoltage(Integer value) {
+		this.getMinCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_CELL_VOLTAGE}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getMaxCellVoltage() {
+	public default IntegerReadChannel getMaxCellVoltageChannel() {
 		return this.channel(ChannelId.MAX_CELL_VOLTAGE);
 	}
-	
+
 	/**
-	 * Gets the minimum cell temperature in [°C].
-	 * 
+	 * Gets the Maximum Cell Voltage in [mV]. See
+	 * {@link ChannelId#MAX_CELL_VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxCellVoltage() {
+		return this.getMaxCellVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_CELL_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxCellVoltage(Integer value) {
+		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MIN_CELL_TEMPERATURE}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getMinCellTemperature() {
+	public default IntegerReadChannel getMinCellTemperatureChannel() {
 		return this.channel(ChannelId.MIN_CELL_TEMPERATURE);
 	}
-	
+
 	/**
-	 * Gets the maximum cell temperature in [°C].
-	 * 
+	 * Gets the Minimal Cell Temperature in [degC]. See
+	 * {@link ChannelId#MIN_CELL_TEMPERATURE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMinCellTemperature() {
+		return this.getMinCellTemperatureChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MIN_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinCellTemperature(Integer value) {
+		this.getMinCellTemperatureChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_CELL_TEMPERATURE}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getMaxCellTemperature() {
+	public default IntegerReadChannel getMaxCellTemperatureChannel() {
 		return this.channel(ChannelId.MAX_CELL_TEMPERATURE);
+	}
+
+	/**
+	 * Gets the Maximum Cell Temperature in [degC]. See
+	 * {@link ChannelId#MAX_CELL_TEMPERATURE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxCellTemperature() {
+		return this.getMaxCellTemperatureChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxCellTemperature(Integer value) {
+		this.getMaxCellTemperatureChannel().setNextValue(value);
 	}
 }

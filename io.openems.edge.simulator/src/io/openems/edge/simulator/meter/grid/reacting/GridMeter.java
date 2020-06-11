@@ -106,7 +106,7 @@ public class GridMeter extends AbstractOpenemsComponent
 
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
 			try {
-				powerSum += ess.getActivePower().getNextValue().get();
+				powerSum += ess.getActivePowerChannel().getNextValue().get();
 			} catch (NullPointerException e) {
 				// ignore
 			}

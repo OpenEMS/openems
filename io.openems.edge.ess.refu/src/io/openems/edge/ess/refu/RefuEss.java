@@ -93,8 +93,8 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
-		int allowedCharge = this.getAllowedCharge().value().orElse(0);
-		int allowedDischarge = this.getAllowedDischarge().value().orElse(0);
+		int allowedCharge = this.getAllowedChargePower().orElse(0);
+		int allowedDischarge = this.getAllowedDischargePower().orElse(0);
 
 		/*
 		 * Specific handling for REFU to never be at -5000 < power < 5000 if battery is
@@ -433,10 +433,10 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	@Override
 	public String debugLog() {
 //		String state = this.getState().listStates(Level.WARNING);
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|Allowed:" + this.getAllowedCharge().value().asStringWithoutUnit() + ";"
-				+ this.getAllowedDischarge().value().asString(); //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString(); //
 //				+ (state.isEmpty() ? "" : ";" + this.getState().listStates());
 	}
 

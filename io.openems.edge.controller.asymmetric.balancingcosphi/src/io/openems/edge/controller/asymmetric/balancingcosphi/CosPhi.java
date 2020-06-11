@@ -14,6 +14,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -96,11 +97,11 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 	}
 
 	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, Channel<Integer> meterActivePower,
-			Channel<Integer> meterReactivePower, Channel<Integer> essActivePower, Channel<Integer> essReactivePower)
+			Channel<Integer> meterReactivePower, Value<Integer> essActivePower, Value<Integer> essReactivePower)
 			throws OpenemsException {
 		// Calculate the startpoint of the cosPhi line in relation to the ess zero power
-		long pNull = meterActivePower.value().orElse(0) + essActivePower.value().orElse(0);
-		long qNull = meterReactivePower.value().orElse(0) + essReactivePower.value().orElse(0);
+		long pNull = meterActivePower.value().orElse(0) + essActivePower.orElse(0);
+		long qNull = meterReactivePower.value().orElse(0) + essReactivePower.orElse(0);
 		double m = Math.tan(Math.acos(Math.abs(cosPhi)));
 		if (this.direction == CosPhiDirection.INDUCTIVE) {
 			m *= -1;

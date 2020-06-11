@@ -18,7 +18,7 @@ public class CalculateGridMode {
 	 * 
 	 * @param channel
 	 */
-	public void addValue(Channel<Integer> channel) {
+	public void addValue(Channel<GridMode> channel) {
 		GridMode gridMode = channel.getNextValue().asEnum();
 		this.values.add(gridMode);
 	}

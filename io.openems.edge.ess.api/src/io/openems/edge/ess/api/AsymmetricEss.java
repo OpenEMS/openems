@@ -7,8 +7,8 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -124,63 +124,177 @@ public interface AsymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the Active Power on L1 in [W]. Negative values for Charge; positive for
-	 * Discharge
-	 * 
-	 * @return
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
 	 */
-	default Channel<Integer> getActivePowerL1() {
+	public default IntegerReadChannel getActivePowerL1Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_L1);
 	}
 
 	/**
-	 * Gets the Active Power on L2 in [W]. Negative values for Charge; positive for
-	 * Discharge
-	 * 
-	 * @return
+	 * Gets the Active Power on L1 in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getActivePowerL2() {
+	public default Value<Integer> getActivePowerL1() {
+		return this.getActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL1(Integer value) {
+		this.getActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerL2Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_L2);
 	}
 
 	/**
-	 * Gets the Active Power on L3 in [W]. Negative values for Charge; positive for
-	 * Discharge
-	 * 
-	 * @return
+	 * Gets the Active Power on L2 in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getActivePowerL3() {
+	public default Value<Integer> getActivePowerL2() {
+		return this.getActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL2(Integer value) {
+		this.getActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerL3Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_L3);
 	}
 
 	/**
-	 * Gets the Reactive Power on L1 in [var]. Negative values for Charge; positive
-	 * for Discharge
-	 * 
-	 * @return
+	 * Gets the Active Power on L3 in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getReactivePowerL1() {
+	public default Value<Integer> getActivePowerL3() {
+		return this.getActivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL3(Integer value) {
+		this.getActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerL1Channel() {
 		return this.channel(ChannelId.REACTIVE_POWER_L1);
 	}
 
 	/**
-	 * Gets the Reactive Power on L2 in [var]. Negative values for Charge; positive
-	 * for Discharge
-	 * 
-	 * @return
+	 * Gets the Reactive Power on L1 in [var]. See
+	 * {@link ChannelId#REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getReactivePowerL2() {
+	public default Value<Integer> getReactivePowerL1() {
+		return this.getReactivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL1(Integer value) {
+		this.getReactivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerL2Channel() {
 		return this.channel(ChannelId.REACTIVE_POWER_L2);
 	}
 
 	/**
-	 * Gets the Reactive Power on L3 in [var]. Negative values for Charge; positive
-	 * for Discharge
-	 * 
-	 * @return
+	 * Gets the Reactive Power on L2 in [var]. See
+	 * {@link ChannelId#REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getReactivePowerL3() {
+	public default Value<Integer> getReactivePowerL2() {
+		return this.getReactivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL2(Integer value) {
+		this.getReactivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerL3Channel() {
 		return this.channel(ChannelId.REACTIVE_POWER_L3);
+	}
+
+	/**
+	 * Gets the Reactive Power on L3 in [var]. See
+	 * {@link ChannelId#REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getReactivePowerL3() {
+		return this.getReactivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL3(Integer value) {
+		this.getReactivePowerL3Channel().setNextValue(value);
 	}
 
 	/**
@@ -192,24 +306,24 @@ public interface AsymmetricEss extends SymmetricEss {
 	public static void initializePowerSumChannels(AsymmetricEss ess) {
 		// Active Power
 		final Consumer<Value<Integer>> activePowerSum = ignore -> {
-			ess.getActivePower().setNextValue(TypeUtils.sum(//
-					ess.getActivePowerL1().value().get(), //
-					ess.getActivePowerL2().value().get(), //
-					ess.getActivePowerL3().value().get()));
+			ess._setActivePower(TypeUtils.sum(//
+					ess.getActivePowerL1Channel().getNextValue().get(), //
+					ess.getActivePowerL2Channel().getNextValue().get(), //
+					ess.getActivePowerL3Channel().getNextValue().get()));
 		};
-		ess.getActivePowerL1().onSetNextValue(activePowerSum);
-		ess.getActivePowerL2().onSetNextValue(activePowerSum);
-		ess.getActivePowerL3().onSetNextValue(activePowerSum);
+		ess.getActivePowerL1Channel().onSetNextValue(activePowerSum);
+		ess.getActivePowerL2Channel().onSetNextValue(activePowerSum);
+		ess.getActivePowerL3Channel().onSetNextValue(activePowerSum);
 
 		// Reactive Power
 		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
-			ess.getReactivePower().setNextValue(TypeUtils.sum(//
-					ess.getReactivePowerL1().value().get(), //
-					ess.getReactivePowerL2().value().get(), //
-					ess.getReactivePowerL3().value().get()));
+			ess._setReactivePower(TypeUtils.sum(//
+					ess.getReactivePowerL1Channel().getNextValue().get(), //
+					ess.getReactivePowerL2Channel().getNextValue().get(), //
+					ess.getReactivePowerL3Channel().getNextValue().get()));
 		};
-		ess.getReactivePowerL1().onSetNextValue(reactivePowerSum);
-		ess.getReactivePowerL2().onSetNextValue(reactivePowerSum);
-		ess.getReactivePowerL3().onSetNextValue(reactivePowerSum);
+		ess.getReactivePowerL1Channel().onSetNextValue(reactivePowerSum);
+		ess.getReactivePowerL2Channel().onSetNextValue(reactivePowerSum);
+		ess.getReactivePowerL3Channel().onSetNextValue(reactivePowerSum);
 	}
 }
