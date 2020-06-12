@@ -206,7 +206,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				break;
 
 			case STORAGE:
-				int storageSoc = this.sum.getEssSoc().value().orElse(0);
+				int storageSoc = this.sum.getEssSoc().orElse(0);
 				if (storageSoc > 97) {
 					nextChargePower = this.calculateChargePowerFromExcessPower(evcs);
 				} else {
@@ -274,9 +274,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	private int calculateChargePowerFromExcessPower(ManagedEvcs evcs) throws OpenemsNamedException {
 		int nextChargePower;
 
-		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
-		int essDischarge = this.sum.getEssActivePower().value().orElse(0);
-		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
+		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
+		int essDischarge = this.sum.getEssActivePower().orElse(0);
+		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
 
 		int excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
@@ -307,9 +307,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		} else {
 			maxEssCharge = ess.getMaxApparentPower().orElse(0);
 		}
-		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
-		int essActivePower = this.sum.getEssActivePower().value().orElse(0);
-		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
+		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
+		int essActivePower = this.sum.getEssActivePower().orElse(0);
+		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
 		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower - essActivePowerDC));
 		result = result > 0 ? result : 0;

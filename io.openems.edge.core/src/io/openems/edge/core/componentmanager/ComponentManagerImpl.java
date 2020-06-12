@@ -46,7 +46,6 @@ import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
@@ -149,14 +148,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	@Override
 	public List<OpenemsComponent> getAllComponents() {
 		return Collections.unmodifiableList(this.allComponents);
-	}
-
-	protected StateChannel configNotActivatedChannel() {
-		return this.channel(ComponentManager.ChannelId.CONFIG_NOT_ACTIVATED);
-	}
-
-	protected StateChannel defaultConfigurationFailed() {
-		return this.channel(ComponentManager.ChannelId.DEFAULT_CONFIGURATION_FAILED);
 	}
 
 	@Override

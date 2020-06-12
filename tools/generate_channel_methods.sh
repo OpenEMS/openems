@@ -1,9 +1,9 @@
 #!/bin/bash
 
-CHANNEL_ID="ACTIVE_POWER_LIMIT"
-METHOD="ActivePowerLimit"
-JAVADOC="Active Power Limit in [W]"
-#JAVADOC="Apply Power Failed State"
+CHANNEL_ID="ESS_MAX_APPARENT_POWER"
+METHOD="EssMaxApparentPower"
+#JAVADOC="Disk is Full Warning State"
+JAVADOC="Sum of all Energy Storage Systems Maximum Apparent Power in [Wh]"
 
 CHANNEL_CLASS="IntegerReadChannel"
 #CHANNEL_CLASS="StateChannel"
@@ -13,7 +13,7 @@ CHANNEL_CLASS="IntegerReadChannel"
 case "$CHANNEL_CLASS" in
 	StateChannel)
 		CHANNEL_RETURN_TYPE="Value<Boolean>"
-		CHANNEL_PARAM_TYPE1="Boolean"
+		CHANNEL_PARAM_TYPE1="boolean"
 		CHANNEL_PARAM_TYPE2="boolean"
 		;;
 	IntegerReadChannel)
