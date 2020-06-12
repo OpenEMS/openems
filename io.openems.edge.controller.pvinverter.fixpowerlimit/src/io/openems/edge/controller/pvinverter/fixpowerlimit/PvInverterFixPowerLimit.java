@@ -70,7 +70,7 @@ public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements
 		ManagedSymmetricPvInverter pvInverter;
 		try {
 			pvInverter = this.componentManager.getComponent(this.pvInverterId);
-			pvInverter.getActivePowerLimit().setNextWriteValue(null);
+			pvInverter.setActivePowerLimit(null);
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
 		}
@@ -81,7 +81,7 @@ public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricPvInverter pvInverter = this.componentManager.getComponent(this.pvInverterId);
-		pvInverter.getActivePowerLimit().setNextWriteValue(this.powerLimit);
+		pvInverter.setActivePowerLimit(this.powerLimit);
 	}
 
 }

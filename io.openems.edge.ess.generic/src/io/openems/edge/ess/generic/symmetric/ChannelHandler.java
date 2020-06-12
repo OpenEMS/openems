@@ -63,10 +63,10 @@ public class ChannelHandler {
 
 			if (dischargeMinVoltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()
 					&& chargeMaxVoltage.isDefined()) {
-				this.parent.getAllowedCharge().setNextValue(//
-						chargeMaxCurrent.get() * chargeMaxVoltage.get() * -1 * EFFICIENCY_FACTOR);
-				this.parent.getAllowedDischarge().setNextValue(//
-						dischargeMaxCurrent.get() * dischargeMinVoltage.get() * EFFICIENCY_FACTOR);
+				this.parent._setAllowedChargePower(//
+						(int) (chargeMaxCurrent.get() * chargeMaxVoltage.get() * -1 * EFFICIENCY_FACTOR));
+				this.parent._setAllowedDischargePower(//
+						(int) (dischargeMaxCurrent.get() * dischargeMinVoltage.get() * EFFICIENCY_FACTOR));
 			}
 		};
 

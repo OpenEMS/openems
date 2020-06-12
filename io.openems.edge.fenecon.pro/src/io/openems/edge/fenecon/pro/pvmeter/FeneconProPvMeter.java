@@ -76,14 +76,14 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 		// Active Energy
 		final Consumer<Value<Long>> activeEnergySum = ignore -> {
-			this.getActiveProductionEnergy().setNextValue(TypeUtils.sum(//
-					this.getActiveProductionEnergyL1().value().get(), //
-					this.getActiveProductionEnergyL2().value().get(), //
-					this.getActiveProductionEnergyL3().value().get()));
+			this._setActiveProductionEnergy(TypeUtils.sum(//
+					this.getActiveProductionEnergyL1Channel().value().get(), //
+					this.getActiveProductionEnergyL2Channel().value().get(), //
+					this.getActiveProductionEnergyL3Channel().value().get()));
 		};
-		this.getActiveProductionEnergyL1().onSetNextValue(activeEnergySum);
-		this.getActiveProductionEnergyL2().onSetNextValue(activeEnergySum);
-		this.getActiveProductionEnergyL3().onSetNextValue(activeEnergySum);
+		this.getActiveProductionEnergyL1Channel().onSetNextValue(activeEnergySum);
+		this.getActiveProductionEnergyL2Channel().onSetNextValue(activeEnergySum);
+		this.getActiveProductionEnergyL3Channel().onSetNextValue(activeEnergySum);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -167,18 +167,18 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
-	public Channel<Long> getActiveProductionEnergyL1() {
+	public Channel<Long> getActiveProductionEnergyL1Channel() {
 		return this.channel(ChannelId.ACTIVE_ENERGY_L1);
 	}
 
-	public Channel<Long> getActiveProductionEnergyL2() {
+	public Channel<Long> getActiveProductionEnergyL2Channel() {
 		return this.channel(ChannelId.ACTIVE_ENERGY_L2);
 	}
 
-	public Channel<Long> getActiveProductionEnergyL3() {
+	public Channel<Long> getActiveProductionEnergyL3Channel() {
 		return this.channel(ChannelId.ACTIVE_ENERGY_L3);
 	}
 }

@@ -11,9 +11,10 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -94,10 +95,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 								int maxPower = power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
 								pidFilter.setLimits(minPower, maxPower);
 
-								int currentActivePower = ess.getActivePower().value().orElse(0);
+								int currentActivePower = ess.getActivePower().orElse(0);
 								int pidOutput = pidFilter.applyPidFilter(currentActivePower, value);
 
-								ess.getSetActivePowerEquals().setNextWriteValue(pidOutput);
+								ess.setActivePowerEquals(pidOutput);
 							}
 						});
 					}
@@ -251,93 +252,251 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public Power getPower();
 
 	/**
-	 * Gets the Allowed Charge Power in [W], range "&lt;= 0".
-	 * 
+	 * Gets the Channel for {@link ChannelId#ALLOWED_CHARGE_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getAllowedCharge() {
+	public default IntegerReadChannel getAllowedChargePowerChannel() {
 		return this.channel(ChannelId.ALLOWED_CHARGE_POWER);
 	}
 
 	/**
-	 * Gets the Allowed Discharge Power in [W], range "&gt;= 0".
-	 * 
+	 * Gets the Allowed Charge Power in [W], range "&lt;= 0". See
+	 * {@link ChannelId#ALLOWED_CHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getAllowedChargePower() {
+		return this.getAllowedChargePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_CHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedChargePower(Integer value) {
+		this.getAllowedChargePowerChannel().setNextValue(value);
+	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_CHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedChargePower(int value) {
+		this.getAllowedChargePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ALLOWED_DISCHARGE_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getAllowedDischarge() {
+	public default IntegerReadChannel getAllowedDischargePowerChannel() {
 		return this.channel(ChannelId.ALLOWED_DISCHARGE_POWER);
 	}
 
 	/**
-	 * Gets the Set Active Power Equals in [W].
-	 * 
+	 * Gets the Allowed Discharge Power in [W], range "&lt;= 0". See
+	 * {@link ChannelId#ALLOWED_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getAllowedDischargePower() {
+		return this.getAllowedDischargePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_DISCHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedDischargePower(Integer value) {
+		this.getAllowedDischargePowerChannel().setNextValue(value);
+	}
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_DISCHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedDischargePower(int value) {
+		this.getAllowedDischargePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_EQUALS}.
+	 *
 	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetActivePowerEquals() {
+	public default IntegerWriteChannel getSetActivePowerEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS);
 	}
 
 	/**
-	 * Applies the PID filter and then sets a fixed Active Power in [W].
+	 * Sets an Active Power Equals setpoint in [W]. Negative values for Charge;
+	 * positive for Discharge. See {@link ChannelId#SET_ACTIVE_POWER_EQUALS}.
 	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_EQUALS_WITH_PID}.
+	 *
 	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetActivePowerEqualsWithPid() {
+	public default IntegerWriteChannel getSetActivePowerEqualsWithPidChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID);
 	}
 
 	/**
-	 * Gets the Set Reactive Power Equals in [var].
+	 * Sets an Active Power Equals setpoint in [W] with applied PID filter. Negative
+	 * values for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_EQUALS_WITH_PID}.
 	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerEqualsWithPid(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerEqualsWithPidChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_EQUALS}.
+	 *
 	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetReactivePowerEquals() {
+	public default IntegerWriteChannel getSetReactivePowerEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power Less Or Equals in [W].
+	 * Sets a Reactive Power Equals setpoint in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_EQUALS}.
 	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setReactivePowerEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_LESS_OR_EQUALS}.
+	 *
 	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetActivePowerLessOrEquals() {
+	public default IntegerWriteChannel getSetActivePowerLessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power Greater Or Equals in [W].
+	 * Sets an Active Power Less Or Equals setpoint in [W]. Negative values for
+	 * Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_LESS_OR_EQUALS}.
 	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerLessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerLessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_GREATER_OR_EQUALS}.
+	 *
 	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetActivePowerGreaterOrEquals() {
+	public default IntegerWriteChannel getSetActivePowerGreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power Less Or Equals in [var].
+	 * Sets an Active Power Greater Or Equals setpoint in [W]. Negative values for
+	 * Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_GREATER_OR_EQUALS}.
 	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerGreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerGreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_LESS_OR_EQUALS}.
+	 *
 	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetReactivePowerLessOrEquals() {
+	public default IntegerWriteChannel getSetReactivePowerLessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power Greater Or Equals in [var].
+	 * Sets a Reactive Power Less Or Equals setpoint in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_LESS_OR_EQUALS}.
 	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setReactivePowerLessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerLessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_GREATER_OR_EQUALS}.
+	 *
 	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetReactivePowerGreaterOrEquals() {
+	public default IntegerWriteChannel getSetReactivePowerGreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Apply Power Failed StateChannel.
+	 * Sets a Reactive Power Greater Or Equals setpoint in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_GREATER_OR_EQUALS}.
 	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setReactivePowerGreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerGreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#APPLY_POWER_FAILED}.
+	 *
 	 * @return the Channel
 	 */
-	default StateChannel getApplyPowerFailed() {
+	public default StateChannel getApplyPowerFailedChannel() {
 		return this.channel(ChannelId.APPLY_POWER_FAILED);
+	}
+
+	/**
+	 * Gets the Apply Power Failed State. See {@link ChannelId#APPLY_POWER_FAILED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getApplyPowerFailed() {
+		return this.getApplyPowerFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#APPLY_POWER_FAILED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setApplyPowerFailed(boolean value) {
+		this.getApplyPowerFailedChannel().setNextValue(value);
 	}
 
 	/**

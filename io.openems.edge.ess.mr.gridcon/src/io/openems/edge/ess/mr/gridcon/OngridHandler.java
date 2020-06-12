@@ -29,7 +29,8 @@ public class OngridHandler {
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		// Verify that we are still On-Grid -> otherwise switch to "Going Off-Grid"
-		GridMode gridMode = this.parent.parent.getGridMode().getNextValue().asEnum();
+		// TODO: why is NextValue used?
+		GridMode gridMode = this.parent.parent.getGridModeChannel().getNextValue().asEnum();
 		switch (gridMode) {
 		case ON_GRID:
 		case UNDEFINED:

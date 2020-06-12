@@ -82,7 +82,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -95,8 +95,8 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
+		int gridPower = meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
+				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 
 		int calculatedPower;
 		if (gridPower >= this.config.peakShavingPower()) {
@@ -121,7 +121,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * set result
 		 */
-		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
-		ess.getSetReactivePowerEquals().setNextWriteValue(0);
+		ess.setActivePowerEqualsWithPid(calculatedPower);
+		ess.setReactivePowerEquals(0);
 	}
 }

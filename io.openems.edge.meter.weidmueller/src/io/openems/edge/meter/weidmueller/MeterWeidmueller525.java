@@ -29,7 +29,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Weidmueller.525", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent implements SymmetricMeter, OpenemsComponent, ModbusSlave {
+public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent
+		implements SymmetricMeter, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -136,11 +137,11 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
-	
+
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {		
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode) //

@@ -33,8 +33,8 @@ public class DummyEss extends AbstractOpenemsComponent implements ManagedSymmetr
 
 	public void setCurrentActivePower(int power) {
 		currentActivePower = power;
-		this.getActivePower().setNextValue(power);
-		this.getActivePower().nextProcessImage();
+		this._setActivePower(power);
+		this.getActivePowerChannel().nextProcessImage();
 	}
 
 	@Override
