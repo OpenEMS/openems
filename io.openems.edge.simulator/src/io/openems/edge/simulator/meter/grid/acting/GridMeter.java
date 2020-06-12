@@ -129,14 +129,14 @@ public class GridMeter extends AbstractOpenemsComponent
 			}
 		}
 
-		this.getActivePower().setNextValue(activePower);
-		this.getActivePowerL1().setNextValue(activePower / 3);
-		this.getActivePowerL2().setNextValue(activePower / 3);
-		this.getActivePowerL3().setNextValue(activePower / 3);
+		this._setActivePower(activePower);
+		this._setActivePowerL1(activePower / 3);
+		this._setActivePowerL2(activePower / 3);
+		this._setActivePowerL3(activePower / 3);
 	}
 
 	@Override
 	public String debugLog() {
-		return this.getActivePower().value().asString();
+		return this.getActivePower().asString();
 	}
 }

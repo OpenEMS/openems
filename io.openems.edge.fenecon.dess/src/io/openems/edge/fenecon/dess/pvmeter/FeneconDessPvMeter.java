@@ -108,7 +108,7 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActivePower().value().asString();
+		return "P:" + this.getActivePower().asString();
 	}
 
 	private static final ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter(//

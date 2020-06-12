@@ -89,7 +89,7 @@ public class EssSellToGridLimit extends AbstractOpenemsComponent implements Cont
 		}
 
 		// Calculating the actual grid power
-		int gridPower = meter.getActivePower().value().orElse(0); /* current buy-from/sell-to grid */
+		int gridPower = meter.getActivePower().orElse(0); /* current buy-from/sell-to grid */
 
 		// Setting the Actual Grid-Power channel
 		IntegerReadChannel actualGridPower = this.channel(ChannelId.GRID_POWER);

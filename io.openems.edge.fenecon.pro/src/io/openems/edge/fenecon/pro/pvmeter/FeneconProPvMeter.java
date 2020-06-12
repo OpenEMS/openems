@@ -76,7 +76,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 		// Active Energy
 		final Consumer<Value<Long>> activeEnergySum = ignore -> {
-			this.getActiveProductionEnergy().setNextValue(TypeUtils.sum(//
+			this._setActiveProductionEnergy(TypeUtils.sum(//
 					this.getActiveProductionEnergyL1().value().get(), //
 					this.getActiveProductionEnergyL2().value().get(), //
 					this.getActiveProductionEnergyL3().value().get()));
@@ -167,7 +167,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	public Channel<Long> getActiveProductionEnergyL1() {

@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -214,68 +213,245 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Active Power for L1 in [W]. Negative values for Consumption;
-	 * positive for Production
-	 * 
-	 * @return
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
 	 */
-	default Channel<Integer> getActivePowerL1() {
+	public default IntegerReadChannel getActivePowerL1Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_L1);
 	}
 
 	/**
-	 * Gets the Active Power for L2 in [W]. Negative values for Consumption;
-	 * positive for Production
-	 * 
-	 * @return
+	 * Gets the Active Power on L1 in [W]. Negative values for Consumption (power
+	 * that is 'leaving the system', e.g. feed-to-grid); positive for Production
+	 * (power that is 'entering the system'). See {@link ChannelId#ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getActivePowerL2() {
+	public default Value<Integer> getActivePowerL1() {
+		return this.getActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL1(Integer value) {
+		this.getActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL1(int value) {
+		this.getActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerL2Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_L2);
 	}
 
 	/**
-	 * Gets the Active Power for L3 in [W]. Negative values for Consumption;
-	 * positive for Production
-	 * 
-	 * @return
+	 * Gets the Active Power on L2 in [W]. Negative values for Consumption (power
+	 * that is 'leaving the system', e.g. feed-to-grid); positive for Production
+	 * (power that is 'entering the system'). See {@link ChannelId#ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getActivePowerL3() {
+	public default Value<Integer> getActivePowerL2() {
+		return this.getActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL2(Integer value) {
+		this.getActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL2(int value) {
+		this.getActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerL3Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_L3);
 	}
 
 	/**
-	 * Gets the Reactive Power for L1 in [var]. Negative values for Consumption;
-	 * positive for Production.
-	 * 
-	 * @return
+	 * Gets the Active Power on L3 in [W]. Negative values for Consumption (power
+	 * that is 'leaving the system', e.g. feed-to-grid); positive for Production
+	 * (power that is 'entering the system'). See {@link ChannelId#ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getReactivePowerL1() {
+	public default Value<Integer> getActivePowerL3() {
+		return this.getActivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL3(Integer value) {
+		this.getActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL3(int value) {
+		this.getActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerL1Channel() {
 		return this.channel(ChannelId.REACTIVE_POWER_L1);
 	}
 
 	/**
-	 * Gets the Reactive Power for L2 in [var]. Negative values for Consumption;
-	 * positive for Production.
-	 * 
-	 * @return
+	 * Gets the Reactive Power on L1 in [var]. See
+	 * {@link ChannelId#REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getReactivePowerL2() {
+	public default Value<Integer> getReactivePowerL1() {
+		return this.getReactivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL1(Integer value) {
+		this.getReactivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL1(int value) {
+		this.getReactivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerL2Channel() {
 		return this.channel(ChannelId.REACTIVE_POWER_L2);
 	}
 
 	/**
-	 * Gets the Reactive Power for L3 in [var]. Negative values for Consumption;
-	 * positive for Production.
-	 * 
-	 * @return
+	 * Gets the Reactive Power on L2 in [var]. See
+	 * {@link ChannelId#REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	default Channel<Integer> getReactivePowerL3() {
+	public default Value<Integer> getReactivePowerL2() {
+		return this.getReactivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL2(Integer value) {
+		this.getReactivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL2(int value) {
+		this.getReactivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerL3Channel() {
 		return this.channel(ChannelId.REACTIVE_POWER_L3);
 	}
 
 	/**
+	 * Gets the Reactive Power on L3 in [var]. See
+	 * {@link ChannelId#REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getReactivePowerL3() {
+		return this.getReactivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL3(Integer value) {
+		this.getReactivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL3(int value) {
+		this.getReactivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#VOLTAGE_L1}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getVoltageL1Channel() {
@@ -283,8 +459,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Voltage on L1 in [mV], see {@link ChannelId#VOLTAGE_L1}.
-	 * 
+	 * Gets the Voltage on L1 in [mV]. See {@link ChannelId#VOLTAGE_L1}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getVoltageL1() {
@@ -294,7 +470,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L1}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setVoltageL1(Integer value) {
@@ -304,7 +480,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L1}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setVoltageL1(int value) {
@@ -313,7 +489,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#VOLTAGE_L2}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getVoltageL2Channel() {
@@ -321,8 +497,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Voltage on L2 in [mV], see {@link ChannelId#VOLTAGE_L2}.
-	 * 
+	 * Gets the Voltage on L2 in [mV]. See {@link ChannelId#VOLTAGE_L2}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getVoltageL2() {
@@ -332,7 +508,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L2}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setVoltageL2(Integer value) {
@@ -342,7 +518,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L2}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setVoltageL2(int value) {
@@ -351,7 +527,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#VOLTAGE_L3}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getVoltageL3Channel() {
@@ -359,8 +535,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Voltage on L3 in [mV], see {@link ChannelId#VOLTAGE_L3}.
-	 * 
+	 * Gets the Voltage on L3 in [mV]. See {@link ChannelId#VOLTAGE_L3}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getVoltageL3() {
@@ -370,7 +546,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L3}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setVoltageL3(Integer value) {
@@ -380,7 +556,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L3}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setVoltageL3(int value) {
@@ -389,7 +565,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CURRENT_L1}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getCurrentL1Channel() {
@@ -397,8 +573,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Current on L1 in [mA], see {@link ChannelId#CURRENT_L1}.
-	 * 
+	 * Gets the Current on L1 in [mA]. See {@link ChannelId#CURRENT_L1}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getCurrentL1() {
@@ -408,7 +584,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L1}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCurrentL1(Integer value) {
@@ -418,7 +594,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L1}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCurrentL1(int value) {
@@ -427,7 +603,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CURRENT_L2}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getCurrentL2Channel() {
@@ -435,8 +611,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Current on L2 in [mA], see {@link ChannelId#CURRENT_L2}.
-	 * 
+	 * Gets the Current on L2 in [mA]. See {@link ChannelId#CURRENT_L2}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getCurrentL2() {
@@ -446,7 +622,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L2}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCurrentL2(Integer value) {
@@ -456,7 +632,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L2}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCurrentL2(int value) {
@@ -465,7 +641,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CURRENT_L3}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getCurrentL3Channel() {
@@ -473,8 +649,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Current on L3 in [mA], see {@link ChannelId#CURRENT_L3}.
-	 * 
+	 * Gets the Current on L3 in [mA]. See {@link ChannelId#CURRENT_L3}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getCurrentL3() {
@@ -484,7 +660,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L3}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCurrentL3(Integer value) {
@@ -494,7 +670,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L3}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCurrentL3(int value) {
@@ -510,24 +686,24 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	public static void initializePowerSumChannels(AsymmetricMeter meter) {
 		// Active Power
 		final Consumer<Value<Integer>> activePowerSum = ignore -> {
-			meter.getActivePower().setNextValue(TypeUtils.sum(//
-					meter.getActivePowerL1().value().get(), //
-					meter.getActivePowerL2().value().get(), //
-					meter.getActivePowerL3().value().get()));
+			meter._setActivePower(TypeUtils.sum(//
+					meter.getActivePowerL1Channel().getNextValue().get(), //
+					meter.getActivePowerL2Channel().getNextValue().get(), //
+					meter.getActivePowerL3Channel().getNextValue().get())); //
 		};
-		meter.getActivePowerL1().onSetNextValue(activePowerSum);
-		meter.getActivePowerL2().onSetNextValue(activePowerSum);
-		meter.getActivePowerL3().onSetNextValue(activePowerSum);
+		meter.getActivePowerL1Channel().onSetNextValue(activePowerSum);
+		meter.getActivePowerL2Channel().onSetNextValue(activePowerSum);
+		meter.getActivePowerL3Channel().onSetNextValue(activePowerSum);
 
 		// Reactive Power
 		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
-			meter.getReactivePower().setNextValue(TypeUtils.sum(//
-					meter.getReactivePowerL1().value().get(), //
-					meter.getReactivePowerL2().value().get(), //
-					meter.getReactivePowerL3().value().get()));
+			meter._setReactivePower(TypeUtils.sum(//
+					meter.getReactivePowerL1Channel().getNextValue().get(), //
+					meter.getReactivePowerL1Channel().getNextValue().get(), //
+					meter.getReactivePowerL1Channel().getNextValue().get())); //
 		};
-		meter.getReactivePowerL1().onSetNextValue(reactivePowerSum);
-		meter.getReactivePowerL2().onSetNextValue(reactivePowerSum);
-		meter.getReactivePowerL3().onSetNextValue(reactivePowerSum);
+		meter.getReactivePowerL1Channel().onSetNextValue(reactivePowerSum);
+		meter.getReactivePowerL2Channel().onSetNextValue(reactivePowerSum);
+		meter.getReactivePowerL3Channel().onSetNextValue(reactivePowerSum);
 	}
 }

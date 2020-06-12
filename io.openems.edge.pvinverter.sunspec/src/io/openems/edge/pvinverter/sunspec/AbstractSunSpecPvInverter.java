@@ -95,7 +95,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override
@@ -108,23 +108,23 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.FREQUENCY, //
 				ElementToChannelConverter.SCALE_FACTOR_3, //
-				DefaultSunSpecModel.S111.HZ, DefaultSunSpecModel.S112.HZ, DefaultSunSpecModel.S113.HZ, DefaultSunSpecModel.S101.HZ,
-				DefaultSunSpecModel.S102.HZ, DefaultSunSpecModel.S103.HZ);
+				DefaultSunSpecModel.S111.HZ, DefaultSunSpecModel.S112.HZ, DefaultSunSpecModel.S113.HZ,
+				DefaultSunSpecModel.S101.HZ, DefaultSunSpecModel.S102.HZ, DefaultSunSpecModel.S103.HZ);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.ACTIVE_POWER, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S111.W, DefaultSunSpecModel.S112.W, DefaultSunSpecModel.S113.W, DefaultSunSpecModel.S101.W, DefaultSunSpecModel.S102.W,
-				DefaultSunSpecModel.S103.W);
+				DefaultSunSpecModel.S111.W, DefaultSunSpecModel.S112.W, DefaultSunSpecModel.S113.W,
+				DefaultSunSpecModel.S101.W, DefaultSunSpecModel.S102.W, DefaultSunSpecModel.S103.W);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.REACTIVE_POWER, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S111.V_AR, DefaultSunSpecModel.S112.V_AR, DefaultSunSpecModel.S113.V_AR, DefaultSunSpecModel.S101.V_AR,
-				DefaultSunSpecModel.S102.V_AR, DefaultSunSpecModel.S103.V_AR);
+				DefaultSunSpecModel.S111.V_AR, DefaultSunSpecModel.S112.V_AR, DefaultSunSpecModel.S113.V_AR,
+				DefaultSunSpecModel.S101.V_AR, DefaultSunSpecModel.S102.V_AR, DefaultSunSpecModel.S103.V_AR);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S111.WH, DefaultSunSpecModel.S112.WH, DefaultSunSpecModel.S113.WH, DefaultSunSpecModel.S101.WH,
-				DefaultSunSpecModel.S102.WH, DefaultSunSpecModel.S103.WH);
+				DefaultSunSpecModel.S111.WH, DefaultSunSpecModel.S112.WH, DefaultSunSpecModel.S113.WH,
+				DefaultSunSpecModel.S101.WH, DefaultSunSpecModel.S102.WH, DefaultSunSpecModel.S103.WH);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.VOLTAGE, //
 				ElementToChannelConverter.SCALE_FACTOR_3, //
@@ -133,12 +133,13 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 				DefaultSunSpecModel.S113.PH_VPH_A, DefaultSunSpecModel.S113.PH_VPH_B, DefaultSunSpecModel.S113.PH_VPH_C,
 				DefaultSunSpecModel.S101.PH_VPH_A, DefaultSunSpecModel.S101.PH_VPH_B, DefaultSunSpecModel.S101.PH_VPH_C,
 				DefaultSunSpecModel.S102.PH_VPH_A, DefaultSunSpecModel.S102.PH_VPH_B, DefaultSunSpecModel.S102.PH_VPH_C,
-				DefaultSunSpecModel.S103.PH_VPH_A, DefaultSunSpecModel.S103.PH_VPH_B, DefaultSunSpecModel.S103.PH_VPH_C);
+				DefaultSunSpecModel.S103.PH_VPH_A, DefaultSunSpecModel.S103.PH_VPH_B,
+				DefaultSunSpecModel.S103.PH_VPH_C);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.CURRENT, //
 				ElementToChannelConverter.SCALE_FACTOR_3, //
-				DefaultSunSpecModel.S111.A, DefaultSunSpecModel.S112.A, DefaultSunSpecModel.S113.A, DefaultSunSpecModel.S101.A, DefaultSunSpecModel.S102.A,
-				DefaultSunSpecModel.S103.A);
+				DefaultSunSpecModel.S111.A, DefaultSunSpecModel.S112.A, DefaultSunSpecModel.S113.A,
+				DefaultSunSpecModel.S101.A, DefaultSunSpecModel.S102.A, DefaultSunSpecModel.S103.A);
 		this.mapFirstPointToChannel(//
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //

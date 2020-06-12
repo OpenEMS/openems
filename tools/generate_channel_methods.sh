@@ -1,12 +1,12 @@
 #!/bin/bash
 
-CHANNEL_ID="APPLY_POWER_FAILED"
-METHOD="ApplyPowerFailed"
-#JAVADOC="Sets an Active Power Equals setpoint in [W]. Negative values for Charge; positive for Discharge"
-JAVADOC="Apply Power Failed State"
+CHANNEL_ID="ACTIVE_POWER_LIMIT"
+METHOD="ActivePowerLimit"
+JAVADOC="Active Power Limit in [W]"
+#JAVADOC="Apply Power Failed State"
 
-#CHANNEL_CLASS="IntegerReadChannel"
-CHANNEL_CLASS="StateChannel"
+CHANNEL_CLASS="IntegerReadChannel"
+#CHANNEL_CLASS="StateChannel"
 #CHANNEL_CLASS="LongReadChannel"
 #CHANNEL_CLASS="IntegerWriteChannel"
 

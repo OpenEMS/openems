@@ -120,7 +120,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	 * @throws InvalidValueException
 	 */
 	private int calculateRequiredPower(int offset) {
-		return this.meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
+		return this.meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
 				+ this.ess.getActivePower().orElse(0) /* current charge/discharge Ess */
 				- offset; /* the offset given by the schedule */
 	}
