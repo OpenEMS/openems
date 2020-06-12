@@ -84,8 +84,8 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 				ManagedAsymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(RefuEss.MAX_APPARENT_POWER);
+		this._setGridMode(GridMode.ON_GRID);
+		this._setMaxApparentPower(RefuEss.MAX_APPARENT_POWER);
 		this.errorHandler = new ErrorHandler(this);
 	}
 

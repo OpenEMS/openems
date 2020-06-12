@@ -156,9 +156,8 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		// FIXME no good coding style; use direct mapping in ModbusProtocol-definition
 		// instead
 		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
-			this._setSoc(newValue.get()); // FIXME why?
+			this._setSoc(newValue.get());
 			this.channel(REFUStore88KChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
 		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
@@ -176,7 +175,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		// by default: block Power
 		this.isPowerAllowed = false;
 
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(MAX_APPARENT_POWER);
+		this._setMaxApparentPower(MAX_APPARENT_POWER);
 
 		EnumReadChannel operatingStateChannel = this.channel(REFUStore88KChannelId.ST);
 		OperatingState operatingState = operatingStateChannel.value().asEnum();
@@ -384,7 +383,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	 * 
 	 */
 	private void doGridConnectedHandling() {
-		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
+		this._setGridMode(GridMode.ON_GRID);
 		if (this.getOperatingState().value().asEnum() == OperatingState.STARTED) {
 			if (isPowerRequired && isPowerAllowed) {
 				EnumWriteChannel pcsSetOperation = this.channel(REFUStore88KChannelId.PCS_SET_OPERATION);

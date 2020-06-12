@@ -66,7 +66,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				ManagedSinglePhaseEss.ChannelId.values(), //
 				SiChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(SunnyIsland6Ess.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(SunnyIsland6Ess.MAX_APPARENT_POWER);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

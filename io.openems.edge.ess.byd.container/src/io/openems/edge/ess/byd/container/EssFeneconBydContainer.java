@@ -68,8 +68,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(EssFeneconBydContainer.MAX_APPARENT_POWER);
-		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
+		this._setMaxApparentPower(EssFeneconBydContainer.MAX_APPARENT_POWER);
+		this._setGridMode(GridMode.ON_GRID);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

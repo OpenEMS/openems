@@ -96,9 +96,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 								correctedSocValue = (int) averageSoc.getAsDouble();
 							}
 						}
-						IntegerReadChannel correctedSocChannel = channel.getComponent()
-								.channel(SymmetricEss.ChannelId.SOC);
-						correctedSocChannel.setNextValue(correctedSocValue);
+						SymmetricEss parent = (SymmetricEss) channel.getComponent();
+						parent._setSoc(correctedSocValue);
 					});
 				})),
 		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
@@ -106,13 +105,13 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 					// on each update set Grid-Mode channel
 					((Channel<Integer>) channel).onChange((oldValue, newValue) -> {
 						BsmuWorkState state = newValue.asEnum();
-						Channel<Integer> gridMode = channel.getComponent().channel(SymmetricEss.ChannelId.GRID_MODE);
+						SymmetricEss parent = (SymmetricEss) channel.getComponent();
 						switch (state) {
 						case ON_GRID:
-							gridMode.setNextValue(GridMode.ON_GRID);
+							parent._setGridMode(GridMode.ON_GRID);
 							break;
 						case OFF_GRID:
-							gridMode.setNextValue(GridMode.OFF_GRID);
+							parent._setGridMode(GridMode.OFF_GRID);
 							break;
 						case FAULT:
 						case UNDEFINED:
@@ -123,7 +122,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						case INIT:
 						case LOW_CONSUMPTION:
 						case PRE_CHARGE:
-							gridMode.setNextValue(GridMode.UNDEFINED);
+							parent._setGridMode(GridMode.UNDEFINED);
 							break;
 						}
 					});

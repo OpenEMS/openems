@@ -6,7 +6,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -18,19 +17,19 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 				// on each update set Grid-Mode channel
 				channel.onChange((oldValue, newValue) -> {
 					SystemState systemState = newValue.asEnum();
-					EnumReadChannel gridMode = channel.getComponent().channel(SymmetricEss.ChannelId.GRID_MODE);
+					SymmetricEss parent = (SymmetricEss) channel.getComponent();
 					switch (systemState) {
 					case STANDBY:
 					case START:
 					case FAULT:
-						gridMode.setNextValue(GridMode.ON_GRID);
+						parent._setGridMode(GridMode.ON_GRID);
 						break;
 					case START_OFF_GRID:
 					case OFF_GRID_PV:
-						gridMode.setNextValue(GridMode.OFF_GRID);
+						parent._setGridMode(GridMode.OFF_GRID);
 						break;
 					case UNDEFINED:
-						gridMode.setNextValue(GridMode.UNDEFINED);
+						parent._setGridMode(GridMode.UNDEFINED);
 						break;
 					}
 				});
@@ -120,8 +119,8 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 			.onInit(channel -> { //
 				// on each update -> update MaxApparentPower to 3 x Single Phase Apparent Power
 				((Channel<Integer>) channel).onChange((oldValue, newValue) -> {
-					channel.getComponent().channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
-							.setNextValue(newValue.orElse(0) * 3);
+					SymmetricEss parent = (SymmetricEss) channel.getComponent();
+					parent._setMaxApparentPower(newValue.orElse(0) * 3);
 				});
 			})), //
 

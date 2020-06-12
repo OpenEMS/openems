@@ -66,7 +66,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		final Channel<Integer> dc0Power = this.channel(ChannelId.PV_DCDC0_INPUT_POWER);
 		final Channel<Integer> dc1Power = this.channel(ChannelId.PV_DCDC1_INPUT_POWER);
 		final Consumer<Value<Integer>> actualPowerSum = ignore -> {
-			this.getActualPower().setNextValue(TypeUtils.sum(dc0Power.value().get(), dc1Power.value().get()));
+			this._setActualPower(TypeUtils.sum(dc0Power.value().get(), dc1Power.value().get()));
 		};
 		dc0Power.onSetNextValue(actualPowerSum);
 		dc1Power.onSetNextValue(actualPowerSum);
@@ -78,7 +78,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		final Channel<Long> dc0Energy = this.channel(ChannelId.PV_DCDC0_OUTPUT_DISCHARGE_ENERGY);
 		final Channel<Long> dc1Energy = this.channel(ChannelId.PV_DCDC1_OUTPUT_DISCHARGE_ENERGY);
 		final Consumer<Value<Long>> actualEnergySum = ignore -> {
-			this.getActualEnergy().setNextValue(TypeUtils.sum(dc0Energy.value().get(), dc1Energy.value().get()));
+			this._setActualEnergy(TypeUtils.sum(dc0Energy.value().get(), dc1Energy.value().get()));
 		};
 		dc0Energy.onSetNextValue(actualEnergySum);
 		dc1Energy.onSetNextValue(actualEnergySum);

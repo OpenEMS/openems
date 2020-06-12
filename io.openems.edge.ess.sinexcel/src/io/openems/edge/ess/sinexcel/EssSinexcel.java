@@ -135,7 +135,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				SinexcelChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(EssSinexcel.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(EssSinexcel.MAX_APPARENT_POWER);
 		this.stateMachine = new StateMachine(this);
 	}
 
@@ -158,7 +158,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
 			this._setSoc(newValue.get());
 			this.channel(SinexcelChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get()); // FIXME Why?
 		});
 
 		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
@@ -166,7 +165,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		});
 
 		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
-			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
+			this._setMinCellVoltage(newValue.get());
 		});
 	}
 

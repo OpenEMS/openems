@@ -106,7 +106,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
+		this._setGridMode(GridMode.ON_GRID);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -452,7 +452,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
 			this._setSoc(newValue.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get()); // FIXME why?
 		});
 
 		this.battery.getSohChannel().onChange((oldValue, newValue) -> {
@@ -464,19 +463,19 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		});
 
 		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
-			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
+			this._setMinCellVoltage(newValue.get());
 		});
 
 		this.battery.getMaxCellVoltageChannel().onChange((oldValue, newValue) -> {
-			this.channel(SymmetricEss.ChannelId.MAX_CELL_VOLTAGE).setNextValue(newValue.get());
+			this._setMaxCellVoltage(newValue.get());
 		});
 
 		this.battery.getMinCellTemperatureChannel().onChange((oldValue, newValue) -> {
-			this.channel(SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(newValue.get());
+			this._setMinCellTemperature(newValue.get());
 		});
 
 		this.battery.getMaxCellTemperatureChannel().onChange((oldValue, newValue) -> {
-			this.channel(SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(newValue.get());
+			this._setMaxCellTemperature(newValue.get());
 		});
 	}
 

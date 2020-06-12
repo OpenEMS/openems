@@ -1,12 +1,12 @@
 #!/bin/bash
 
-CHANNEL_ID="ESS_MAX_APPARENT_POWER"
-METHOD="EssMaxApparentPower"
-#JAVADOC="Disk is Full Warning State"
-JAVADOC="Sum of all Energy Storage Systems Maximum Apparent Power in [Wh]"
+CHANNEL_ID="COMMUNICATION_FAILED"
+METHOD="CommunicationFailed"
+JAVADOC="Communication Failed Fault State"
+#JAVADOC="Temparature in [deci degC]"
 
-CHANNEL_CLASS="IntegerReadChannel"
-#CHANNEL_CLASS="StateChannel"
+#CHANNEL_CLASS="IntegerReadChannel"
+CHANNEL_CLASS="StateChannel"
 #CHANNEL_CLASS="LongReadChannel"
 #CHANNEL_CLASS="IntegerWriteChannel"
 

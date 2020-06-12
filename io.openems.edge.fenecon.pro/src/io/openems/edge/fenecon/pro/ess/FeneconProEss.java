@@ -77,7 +77,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 				ManagedSymmetricEss.ChannelId.values(), //
 				ProChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(FeneconProEss.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(FeneconProEss.MAX_APPARENT_POWER);
 		this._setCapacity(12_000);
 		AsymmetricEss.initializePowerSumChannels(this);
 	}
