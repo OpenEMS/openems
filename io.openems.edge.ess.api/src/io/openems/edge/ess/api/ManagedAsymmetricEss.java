@@ -8,7 +8,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Phase;
@@ -802,4 +804,237 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		this.getSetReactivePowerL3GreaterOrEqualsChannel().setNextWriteValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetActivePowerL1Channel() {
+		return this.channel(ChannelId.DEBUG_SET_ACTIVE_POWER_L1);
+	}
+
+	/**
+	 * Gets the last Active Power setpoint on L1 in [W]. See
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetActivePowerL1() {
+		return this.getDebugSetActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL1(Integer value) {
+		this.getDebugSetActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL1(int value) {
+		this.getDebugSetActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetActivePowerL2Channel() {
+		return this.channel(ChannelId.DEBUG_SET_ACTIVE_POWER_L2);
+	}
+
+	/**
+	 * Gets the last Active Power setpoint on L2 in [W]. See
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetActivePowerL2() {
+		return this.getDebugSetActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL2(Integer value) {
+		this.getDebugSetActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL2(int value) {
+		this.getDebugSetActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetActivePowerL3Channel() {
+		return this.channel(ChannelId.DEBUG_SET_ACTIVE_POWER_L3);
+	}
+
+	/**
+	 * Gets the last Active Power setpoint on L3 in [W]. See
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetActivePowerL3() {
+		return this.getDebugSetActivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL3(Integer value) {
+		this.getDebugSetActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL3(int value) {
+		this.getDebugSetActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetReactivePowerL1Channel() {
+		return this.channel(ChannelId.DEBUG_SET_REACTIVE_POWER_L1);
+	}
+
+	/**
+	 * Gets the last Reactive Power setpoint on L1 in [var]. See
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetReactivePowerL1() {
+		return this.getDebugSetReactivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL1(Integer value) {
+		this.getDebugSetReactivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL1(int value) {
+		this.getDebugSetReactivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetReactivePowerL2Channel() {
+		return this.channel(ChannelId.DEBUG_SET_REACTIVE_POWER_L2);
+	}
+
+	/**
+	 * Gets the last Reactive Power setpoint on L2 in [var]. See
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetReactivePowerL2() {
+		return this.getDebugSetReactivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL2(Integer value) {
+		this.getDebugSetReactivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL2(int value) {
+		this.getDebugSetReactivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetReactivePowerL3Channel() {
+		return this.channel(ChannelId.DEBUG_SET_REACTIVE_POWER_L3);
+	}
+
+	/**
+	 * Gets the last Reactive Power setpoint on L3 in [var]. See
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetReactivePowerL3() {
+		return this.getDebugSetReactivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL3(Integer value) {
+		this.getDebugSetReactivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL3(int value) {
+		this.getDebugSetReactivePowerL3Channel().setNextValue(value);
+	}
 }

@@ -924,10 +924,9 @@ public class Solver {
 					invL3 = new PowerTuple();
 				}
 				// set debug channels on Ess
-				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER)
-						.setNextValue(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
-				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER)
-						.setNextValue(invL1.getReactivePower() + invL2.getReactivePower() + invL3.getReactivePower());
+				ess._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
+				ess._setDebugSetReactivePower(
+						invL1.getReactivePower() + invL2.getReactivePower() + invL3.getReactivePower());
 				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L1)
 						.setNextValue(invL1.getActivePower());
 				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L1)

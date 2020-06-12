@@ -279,7 +279,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public default void _setAllowedChargePower(Integer value) {
 		this.getAllowedChargePowerChannel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#ALLOWED_CHARGE_POWER} Channel.
@@ -318,6 +318,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public default void _setAllowedDischargePower(Integer value) {
 		this.getAllowedDischargePowerChannel().setNextValue(value);
 	}
+
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#ALLOWED_DISCHARGE_POWER} Channel.
@@ -469,6 +470,84 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	public default void setReactivePowerGreaterOrEquals(Integer value) throws OpenemsNamedException {
 		this.getSetReactivePowerGreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetActivePowerChannel() {
+		return this.channel(ChannelId.DEBUG_SET_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the last Active Power setpoint in [W]. See
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetActivePower() {
+		return this.getDebugSetActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePower(Integer value) {
+		this.getDebugSetActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePower(int value) {
+		this.getDebugSetActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetReactivePowerChannel() {
+		return this.channel(ChannelId.DEBUG_SET_REACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the last Reactive Power setpoint in [var]. See
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetReactivePower() {
+		return this.getDebugSetReactivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePower(Integer value) {
+		this.getDebugSetReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePower(int value) {
+		this.getDebugSetReactivePowerChannel().setNextValue(value);
 	}
 
 	/**

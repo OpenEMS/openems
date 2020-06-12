@@ -288,7 +288,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @return the Channel {@link Value}
 	 */
 	public default GridMode getGridMode() {
-		return this.getGridModeChannel().value().get();
+		return this.getGridModeChannel().value().asEnum();
 	}
 
 	/**
