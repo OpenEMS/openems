@@ -249,6 +249,15 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSoc(int value) {
+		this.getSocChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#SOH}.
 	 *
 	 * @return the Channel
@@ -276,6 +285,15 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SOH} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSoh(int value) {
+		this.getSohChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#CAPACITY}.
 	 *
 	 * @return the Channel
@@ -299,6 +317,15 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setCapacity(Integer value) {
+		this.getCapacityChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CAPACITY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCapacity(int value) {
 		this.getCapacityChannel().setNextValue(value);
 	}
 
@@ -332,6 +359,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DISCHARGE_MIN_VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDischargeMinVoltage(int value) {
+		this.getDischargeMinVoltageChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#DISCHARGE_MAX_CURRENT}.
 	 *
 	 * @return the Channel
@@ -357,6 +394,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setDischargeMaxCurrent(Integer value) {
+		this.getDischargeMaxCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DISCHARGE_MAX_CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDischargeMaxCurrent(int value) {
 		this.getDischargeMaxCurrentChannel().setNextValue(value);
 	}
 
@@ -389,6 +436,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CHARGE_MAX_VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargeMaxVoltage(int value) {
+		this.getChargeMaxVoltageChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#CHARGE_MAX_CURRENT}.
 	 *
 	 * @return the Channel
@@ -413,6 +470,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setChargeMaxCurrent(Integer value) {
+		this.getChargeMaxCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CHARGE_MAX_CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargeMaxCurrent(int value) {
 		this.getChargeMaxCurrentChannel().setNextValue(value);
 	}
 
@@ -446,6 +513,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MIN_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinCellTemperature(int value) {
+		this.getMinCellTemperatureChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#MAX_CELL_TEMPERATURE}.
 	 *
 	 * @return the Channel
@@ -471,6 +548,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setMaxCellTemperature(Integer value) {
+		this.getMaxCellTemperatureChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxCellTemperature(int value) {
 		this.getMaxCellTemperatureChannel().setNextValue(value);
 	}
 
@@ -502,6 +589,15 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(int value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#CURRENT}.
 	 *
 	 * @return the Channel
@@ -525,6 +621,15 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setCurrent(Integer value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(int value) {
 		this.getCurrentChannel().setNextValue(value);
 	}
 
@@ -558,6 +663,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_CELL_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinCellVoltage(int value) {
+		this.getMinCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#MAX_CELL_VOLTAGE}.
 	 *
 	 * @return the Channel
@@ -583,6 +698,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setMaxCellVoltage(Integer value) {
+		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_CELL_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxCellVoltage(int value) {
 		this.getMaxCellVoltageChannel().setNextValue(value);
 	}
 }

@@ -63,8 +63,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 				ChannelId.values() //
 		);
 
-		this.getMaxApparentPower().setNextValue(MAX_APPARENT_POWER);
-		this.getCapacity().setNextValue(CAPACITY);
+		this._setMaxApparentPower(MAX_APPARENT_POWER);
+		this._setCapacity(CAPACITY);
 
 		// automatically calculate Active/ReactivePower from L1/L2/L3
 		AsymmetricEss.initializePowerSumChannels(this);
@@ -173,8 +173,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString(); //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString(); //
 	}
 
 	private static final ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter(//

@@ -302,6 +302,16 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L1}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltageL1(int value) {
+		this.getVoltageL1Channel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#VOLTAGE_L2}.
 	 * 
 	 * @return the Channel
@@ -326,6 +336,16 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 * @param value the next value
 	 */
 	public default void _setVoltageL2(Integer value) {
+		this.getVoltageL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L2}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltageL2(int value) {
 		this.getVoltageL2Channel().setNextValue(value);
 	}
 
@@ -358,6 +378,16 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_L3}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltageL3(int value) {
+		this.getVoltageL3Channel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#CURRENT_L1}.
 	 * 
 	 * @return the Channel
@@ -382,6 +412,16 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 * @param value the next value
 	 */
 	public default void _setCurrentL1(Integer value) {
+		this.getCurrentL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L1}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrentL1(int value) {
 		this.getCurrentL1Channel().setNextValue(value);
 	}
 
@@ -414,6 +454,16 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L2}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrentL2(int value) {
+		this.getCurrentL2Channel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#CURRENT_L3}.
 	 * 
 	 * @return the Channel
@@ -438,6 +488,16 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 * @param value the next value
 	 */
 	public default void _setCurrentL3(Integer value) {
+		this.getCurrentL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT_L3}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrentL3(int value) {
 		this.getCurrentL3Channel().setNextValue(value);
 	}
 

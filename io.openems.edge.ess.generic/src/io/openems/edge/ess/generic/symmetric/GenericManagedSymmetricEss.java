@@ -80,7 +80,7 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setMaxBatteryStartAttemptsFault(Boolean value) {
+	public default void _setMaxBatteryStartAttemptsFault(boolean value) {
 		this.getMaxBatteryStartAttemptsFaultChannel().setNextValue(value);
 	}
 
@@ -109,12 +109,13 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setMaxBatteryStopAttemptsFault(Boolean value) {
+	public default void _setMaxBatteryStopAttemptsFault(boolean value) {
 		this.getMaxBatteryStopAttemptsFaultChannel().setNextValue(value);
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
+	 * Gets the Channel for
+	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
 	 * 
 	 * @return the Channel
 	 */
@@ -138,12 +139,13 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setMaxBatteryInverterStartAttemptsFault(Boolean value) {
+	public default void _setMaxBatteryInverterStartAttemptsFault(boolean value) {
 		this.getMaxBatteryInverterStartAttemptsFaultChannel().setNextValue(value);
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
+	 * Gets the Channel for
+	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
 	 * 
 	 * @return the Channel
 	 */
@@ -167,7 +169,7 @@ public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartSt
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setMaxBatteryInverterStopAttemptsFault(Boolean value) {
+	public default void _setMaxBatteryInverterStopAttemptsFault(boolean value) {
 		this.getMaxBatteryInverterStopAttemptsFaultChannel().setNextValue(value);
 	}
 

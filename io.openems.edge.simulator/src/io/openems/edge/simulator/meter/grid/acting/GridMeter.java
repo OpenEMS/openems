@@ -2,7 +2,6 @@ package io.openems.edge.simulator.meter.grid.acting;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -23,6 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -123,8 +123,8 @@ public class GridMeter extends AbstractOpenemsComponent
 		 */
 		int activePower = simulatedActivePower;
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
-			Optional<Integer> essPowerOpt = ess.getActivePower().value().asOptional();
-			if (essPowerOpt.isPresent()) {
+			Value<Integer> essPowerOpt = ess.getActivePower();
+			if (essPowerOpt.isDefined()) {
 				activePower -= essPowerOpt.get();
 			}
 		}

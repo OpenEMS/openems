@@ -151,6 +151,16 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setActivePowerL1(Integer value) {
 		this.getActivePowerL1Channel().setNextValue(value);
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL1(int value) {
+		this.getActivePowerL1Channel().setNextValue(value);
+	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_L2}.
@@ -178,6 +188,16 @@ public interface AsymmetricEss extends SymmetricEss {
 	 * @param value the next value
 	 */
 	public default void _setActivePowerL2(Integer value) {
+		this.getActivePowerL2Channel().setNextValue(value);
+	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL2(int value) {
 		this.getActivePowerL2Channel().setNextValue(value);
 	}
 
@@ -209,6 +229,16 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setActivePowerL3(Integer value) {
 		this.getActivePowerL3Channel().setNextValue(value);
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerL3(int value) {
+		this.getActivePowerL3Channel().setNextValue(value);
+	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L1}.
@@ -236,6 +266,16 @@ public interface AsymmetricEss extends SymmetricEss {
 	 * @param value the next value
 	 */
 	public default void _setReactivePowerL1(Integer value) {
+		this.getReactivePowerL1Channel().setNextValue(value);
+	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L1}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL1(int value) {
 		this.getReactivePowerL1Channel().setNextValue(value);
 	}
 
@@ -267,6 +307,16 @@ public interface AsymmetricEss extends SymmetricEss {
 	public default void _setReactivePowerL2(Integer value) {
 		this.getReactivePowerL2Channel().setNextValue(value);
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L2}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL2(int value) {
+		this.getReactivePowerL2Channel().setNextValue(value);
+	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L3}.
@@ -294,6 +344,16 @@ public interface AsymmetricEss extends SymmetricEss {
 	 * @param value the next value
 	 */
 	public default void _setReactivePowerL3(Integer value) {
+		this.getReactivePowerL3Channel().setNextValue(value);
+	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER_L3}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePowerL3(int value) {
 		this.getReactivePowerL3Channel().setNextValue(value);
 	}
 

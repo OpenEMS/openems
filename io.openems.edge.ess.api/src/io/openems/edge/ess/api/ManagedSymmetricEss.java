@@ -279,6 +279,16 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public default void _setAllowedChargePower(Integer value) {
 		this.getAllowedChargePowerChannel().setNextValue(value);
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_CHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedChargePower(int value) {
+		this.getAllowedChargePowerChannel().setNextValue(value);
+	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#ALLOWED_DISCHARGE_POWER}.
@@ -306,6 +316,15 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @param value the next value
 	 */
 	public default void _setAllowedDischargePower(Integer value) {
+		this.getAllowedDischargePowerChannel().setNextValue(value);
+	}
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_DISCHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedDischargePower(int value) {
 		this.getAllowedDischargePowerChannel().setNextValue(value);
 	}
 

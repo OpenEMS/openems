@@ -175,7 +175,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 		(allowedChargeChannel.value().orElse(0) < this.config.allowedChargePowerLimit()
 				|| allowedDischargeChannel.value().orElse(Integer.MAX_VALUE) < SURPLUS_ALLOWED_DISCHARGE_LIMIT)
 				// Is State-of-charge lower than limit?
-				&& ess.getSoc().value().orElse(100) < this.config.socLimit()) {
+				&& ess.getSoc().orElse(100) < this.config.socLimit()) {
 			return false;
 		}
 

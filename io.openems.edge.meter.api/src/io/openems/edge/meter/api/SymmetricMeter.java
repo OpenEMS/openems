@@ -273,6 +273,15 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setVoltage(int value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Consumption Active Energy in [Wh]. This relates to negative
 	 * ACTIVE_POWER.
 	 * 
@@ -324,6 +333,15 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setCurrent(Integer value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCurrent(int value) {
 		this.getCurrentChannel().setNextValue(value);
 	}
 }

@@ -665,7 +665,7 @@ public class Solver {
 			Round round = Round.TOWARDS_ZERO;
 			String essId = inv.getEssId();
 			ManagedSymmetricEss ess = this.data.getEss(essId);
-			int soc = ess.getSoc().value().orElse(0);
+			int soc = ess.getSoc().orElse(0);
 			int precision = ess.getPowerPrecision();
 			PowerTuple powerTuple = new PowerTuple();
 			for (Pwr pwr : Pwr.values()) {
@@ -948,13 +948,13 @@ public class Solver {
 							invL3.getActivePower(), invL3.getReactivePower());
 
 					// announce applying power was ok
-					ess.getApplyPowerFailed().setNextValue(false);
+					ess._setApplyPowerFailed(false);
 
 				} catch (OpenemsNamedException e) {
 					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
 
 					// announce running failed
-					ess.getApplyPowerFailed().setNextValue(true);
+					ess._setApplyPowerFailed(true);
 				}
 
 			} else if (inv != null) {
@@ -967,13 +967,13 @@ public class Solver {
 					ess.applyPower(inv.getActivePower(), inv.getReactivePower());
 
 					// announce applying power was ok
-					ess.getApplyPowerFailed().setNextValue(false);
+					ess._setApplyPowerFailed(false);
 
 				} catch (OpenemsNamedException e) {
 					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
 
 					// announce running failed
-					ess.getApplyPowerFailed().setNextValue(true);
+					ess._setApplyPowerFailed(true);
 				}
 
 			} else {

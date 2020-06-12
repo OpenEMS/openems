@@ -182,6 +182,16 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActivePower(int value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
 	 * 
 	 * @return the Channel
@@ -206,6 +216,16 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setReactivePower(Integer value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(int value) {
 		this.getReactivePowerChannel().setNextValue(value);
 	}
 
@@ -239,6 +259,16 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxApparentPower(int value) {
+		this.getMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 * 
 	 * @return the Channel
@@ -268,6 +298,16 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActiveProductionEnergy(long value) {
+		this.getActiveProductionEnergyChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
 	 * 
 	 * @return the Channel
@@ -293,6 +333,16 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setActiveConsumptionEnergy(Long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActiveConsumptionEnergy(long value) {
 		this.getActiveConsumptionEnergyChannel().setNextValue(value);
 	}
 

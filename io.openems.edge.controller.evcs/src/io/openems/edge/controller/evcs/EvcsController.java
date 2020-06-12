@@ -305,7 +305,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			maxEssCharge = power.getMinPower(e, Phase.ALL, Pwr.ACTIVE);
 			maxEssCharge = Math.abs(maxEssCharge);
 		} else {
-			maxEssCharge = ess.getMaxApparentPower().value().orElse(0);
+			maxEssCharge = ess.getMaxApparentPower().orElse(0);
 		}
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
 		int essActivePower = this.sum.getEssActivePower().value().orElse(0);

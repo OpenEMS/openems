@@ -13,19 +13,23 @@ CHANNEL_CLASS="StateChannel"
 case "$CHANNEL_CLASS" in
 	StateChannel)
 		CHANNEL_RETURN_TYPE="Value<Boolean>"
-		CHANNEL_PARAM_TYPE="boolean"
+		CHANNEL_PARAM_TYPE1="Boolean"
+		CHANNEL_PARAM_TYPE2="boolean"
 		;;
 	IntegerReadChannel)
 		CHANNEL_RETURN_TYPE="Value<Integer>"
-		CHANNEL_PARAM_TYPE="Integer"
+		CHANNEL_PARAM_TYPE1="Integer"
+		CHANNEL_PARAM_TYPE2="int"
 		;;
 	LongReadChannel)
 		CHANNEL_RETURN_TYPE="Value<Long>"
-		CHANNEL_PARAM_TYPE="Long"
+		CHANNEL_PARAM_TYPE1="Long"
+		CHANNEL_PARAM_TYPE2="long"
 		;;
 	IntegerWriteChannel)
 		CHANNEL_RETURN_TYPE="Value<Integer>"
-		CHANNEL_PARAM_TYPE="Integer"
+		CHANNEL_PARAM_TYPE1="Integer"
+		CHANNEL_PARAM_TYPE2="int"
 		;;
 	*)
 		echo "Unknown Class ${CHANNEL_CLASS}"
@@ -58,7 +62,18 @@ public default ${CHANNEL_RETURN_TYPE} get${METHOD}() {
  * 
  * @param value the next value
  */
-public default void _set${METHOD}(${CHANNEL_PARAM_TYPE} value) {
+public default void _set${METHOD}(${CHANNEL_PARAM_TYPE1} value) {
+	this.get${METHOD}Channel().setNextValue(value);
+}
+
+
+/**
+ * Internal method to set the 'nextValue' on
+ * {@link ChannelId#${CHANNEL_ID}} Channel.
+ * 
+ * @param value the next value
+ */
+public default void _set${METHOD}(${CHANNEL_PARAM_TYPE2} value) {
 	this.get${METHOD}Channel().setNextValue(value);
 }
 EOT

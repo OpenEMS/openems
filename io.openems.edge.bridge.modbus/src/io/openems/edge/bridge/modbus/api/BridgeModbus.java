@@ -118,7 +118,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setExecutionDuration(Long value) {
+	public default void _setExecutionDuration(long value) {
 		this.getExecutionDurationChannel().setNextValue(value);
 	}
 

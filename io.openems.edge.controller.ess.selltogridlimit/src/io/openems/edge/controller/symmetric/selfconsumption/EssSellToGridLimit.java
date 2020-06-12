@@ -80,7 +80,7 @@ public class EssSellToGridLimit extends AbstractOpenemsComponent implements Cont
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}

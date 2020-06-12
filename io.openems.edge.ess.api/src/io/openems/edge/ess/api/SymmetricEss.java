@@ -229,6 +229,15 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSoc(int value) {
+		this.getSocChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#CAPACITY}.
 	 *
 	 * @return the Channel
@@ -252,6 +261,15 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setCapacity(Integer value) {
+		this.getCapacityChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CAPACITY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCapacity(int value) {
 		this.getCapacityChannel().setNextValue(value);
 	}
 
@@ -313,6 +331,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActivePower(int value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
 	 * 
 	 * @return the Channel
@@ -337,6 +365,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setReactivePower(Integer value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(int value) {
 		this.getReactivePowerChannel().setNextValue(value);
 	}
 
@@ -370,6 +408,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setMaxApparentPower(int value) {
+		this.getMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel
@@ -395,6 +443,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setActiveChargeEnergy(Long value) {
+		this.getActiveChargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveChargeEnergy(long value) {
 		this.getActiveChargeEnergyChannel().setNextValue(value);
 	}
 
@@ -428,6 +486,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveDischargeEnergy(long value) {
+		this.getActiveDischargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#MIN_CELL_VOLTAGE}.
 	 *
 	 * @return the Channel
@@ -453,6 +521,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setMinCellVoltage(Integer value) {
+		this.getMinCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_CELL_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinCellVoltage(int value) {
 		this.getMinCellVoltageChannel().setNextValue(value);
 	}
 
@@ -486,6 +564,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_CELL_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxCellVoltage(int value) {
+		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#MIN_CELL_TEMPERATURE}.
 	 *
 	 * @return the Channel
@@ -515,6 +603,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MIN_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinCellTemperature(int value) {
+		this.getMinCellTemperatureChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#MAX_CELL_TEMPERATURE}.
 	 *
 	 * @return the Channel
@@ -540,6 +638,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setMaxCellTemperature(Integer value) {
+		this.getMaxCellTemperatureChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxCellTemperature(int value) {
 		this.getMaxCellTemperatureChannel().setNextValue(value);
 	}
 }

@@ -121,7 +121,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	 */
 	private int calculateRequiredPower(int offset) {
 		return this.meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ this.ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */
+				+ this.ess.getActivePower().orElse(0) /* current charge/discharge Ess */
 				- offset; /* the offset given by the schedule */
 	}
 
@@ -140,7 +140,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = this.ess.getGridMode().value().asEnum();
+		GridMode gridMode = this.ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [" + gridMode + "]");
 		}
@@ -153,7 +153,8 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		int calculatedPower = this.calculateRequiredPower(gridConnSetPoint);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+				calculatedPower);
 
 		/*
 		 * set result
