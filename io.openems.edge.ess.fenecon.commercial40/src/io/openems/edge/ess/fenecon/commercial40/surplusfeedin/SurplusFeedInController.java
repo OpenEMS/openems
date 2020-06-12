@@ -128,8 +128,8 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 				this.setState(StateMachine.GOING_DEACTIVATED);
 				this.startedGoingDeactivated = LocalDateTime.now();
 			}
-			int pvPower = charger.getActualPower().value().orElse(0);
-			int power = charger.getActualPower().value().orElse(0) + this.getIncreasePower(pvPower);
+			int pvPower = charger.getActualPower().orElse(0);
+			int power = charger.getActualPower().orElse(0) + this.getIncreasePower(pvPower);
 			this.setSurplusFeedInPower(ess, charger, power, true);
 			break;
 		}
@@ -138,7 +138,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 			long goingDeactivatedSinceMinutes = Duration.between(this.startedGoingDeactivated, LocalDateTime.now())
 					.toMinutes();
 			// slowly reduce the surplus-feed-in-power from 100 to 0 %
-			int pvPower = charger.getActualPower().value().orElse(0);
+			int pvPower = charger.getActualPower().orElse(0);
 			double factor = DoubleUtils.normalize(goingDeactivatedSinceMinutes, 0, GOING_DEACTIVATED_MINUTES, 0, 1,
 					true);
 			int power = Math.max((int) ((pvPower + this.getIncreasePower(pvPower)) * factor),

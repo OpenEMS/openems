@@ -402,7 +402,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 				 */
 				Integer productionPower = null;
 				for (AbstractGoodWeEtCharger charger : this.chargers) {
-					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().value().get());
+					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
 				}
 				if (productionPower == null) {
 					// No PV-Power -> required to put on SELL_POWER
@@ -473,7 +473,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		final Channel<Integer> batteryPower = this.channel(EssChannelId.P_BATTERY1);
 		Integer activePower = batteryPower.getNextValue().get();
 		for (AbstractGoodWeEtCharger charger : this.chargers) {
-			activePower = TypeUtils.sum(activePower, charger.getActualPower().getNextValue().get());
+			activePower = TypeUtils.sum(activePower, charger.getActualPowerChannel().getNextValue().get());
 		}
 		this._setActivePower(activePower);
 

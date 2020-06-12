@@ -388,6 +388,6 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActualPower().value().asString();
+		return "P:" + this.getActualPower().asString();
 	}
 }

@@ -232,9 +232,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				 * Ess DC-Charger
 				 */
 				EssDcCharger charger = (EssDcCharger) component;
-				productionDcActualPower.addValue(charger.getActualPower());
-				productionMaxDcActualPower.addValue(charger.getMaxActualPower());
-				productionDcActiveEnergy.addValue(charger.getActualEnergy());
+				productionDcActualPower.addValue(charger.getActualPowerChannel());
+				productionMaxDcActualPower.addValue(charger.getMaxActualPowerChannel());
+				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
 			}
 		}
 

@@ -205,7 +205,7 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Component State-Channel.
+	 * Gets the Component State {@link Level}.
 	 * 
 	 * @return the StateCollectorChannel
 	 */
