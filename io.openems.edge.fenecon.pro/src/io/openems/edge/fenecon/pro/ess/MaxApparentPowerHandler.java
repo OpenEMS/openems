@@ -1,20 +1,17 @@
 package io.openems.edge.fenecon.pro.ess;
 
-import java.time.Duration;
-import java.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MaxApparentPowerHandler {
 
-	private final static int MAX_DELTA = 200; // [W]
-	private final static int ADJUST_DURATION = 10; // [s]
+	private final static int MAX_DELTA = 400; // [W]
+	private final static int ADJUST_CYCLES = 10;
+	private int exceededCounter = 0;
+	private int withinCounter = 0;
 
 	private final FeneconProEss parent;
 	private final Logger log = LoggerFactory.getLogger(MaxApparentPowerHandler.class);
-
-	private Instant lastAdjust = Instant.now();
 
 	public MaxApparentPowerHandler(FeneconProEss parent) {
 		this.parent = parent;
@@ -31,24 +28,34 @@ public class MaxApparentPowerHandler {
 			return;
 		}
 
-		if (Duration.between(this.lastAdjust, Instant.now()).getSeconds() > ADJUST_DURATION) {
-			if (Math.abs(setPower - power) > MAX_DELTA) {
-				/*
-				 * Exceeded MaxDelta -> reduce MaxApparentPower
-				 */
-
-				this.adjustMaxApparentPower("Exceeded MaxDelta -> Reducing MaxApparentPower", setPower, power,
-						oldMaxApparentPower, oldMaxApparentPower - MAX_DELTA);
-			}
+		/*
+		 * Evaluate if power and setPower are within delta.
+		 */
+		if (/* Discharge */ (setPower > 0 && setPower - MAX_DELTA > power) //
+				|| /* Charge */ (setPower < 0 && setPower + MAX_DELTA < power)) {
+			// Exceeded MaxDelta
+			exceededCounter++;
+			withinCounter = 0;
 		} else {
-			if (Math.abs(setPower - power) < MAX_DELTA) {
-				/*
-				 * Within MaxDelta -> increase MaxApparentPower
-				 */
+			// Within MaxDelta
+			exceededCounter = 0;
+			withinCounter++;
+		}
 
-				this.adjustMaxApparentPower("Within MaxDelta -> Increasing MaxApparentPower", setPower, power,
-						oldMaxApparentPower, oldMaxApparentPower + MAX_DELTA);
-			}
+		/*
+		 * Adjust MaxApparentPower accordingly and reset counter.
+		 */
+		if (exceededCounter > ADJUST_CYCLES) {
+			this.adjustMaxApparentPower("Exceeded MaxDelta -> Reducing MaxApparentPower", setPower, power,
+					oldMaxApparentPower, oldMaxApparentPower - MAX_DELTA);
+
+			this.exceededCounter = 0; // reset
+
+		} else if (withinCounter > ADJUST_CYCLES) {
+			this.adjustMaxApparentPower("Within MaxDelta -> Increasing MaxApparentPower", setPower, power,
+					oldMaxApparentPower, oldMaxApparentPower + MAX_DELTA);
+
+			this.withinCounter = 0; // reset
 		}
 	}
 
@@ -69,6 +76,5 @@ public class MaxApparentPowerHandler {
 							+ "New [" + newMaxApparentPower + "]");
 			this.parent._setMaxApparentPower(newMaxApparentPower);
 		}
-		this.lastAdjust = Instant.now();
 	}
 }
