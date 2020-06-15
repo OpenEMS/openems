@@ -383,85 +383,30 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	private void writeValuesInApiChannels() {		
-		{
-			IntegerReadChannel clusterVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE);
-			Value<Integer> clusterVoltage = clusterVoltageChannel.value();
-			if (clusterVoltage.isDefined()) {
-				int voltageVolt = (int) (clusterVoltage.get() * 0.001);
-				this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltageVolt);
-			}
-		}
-		{
-			IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
-			Value<Integer> minCellVoltage = minCellVoltageChannel.value();
-			if (minCellVoltage.isDefined()) {
-				int voltageMillivolt = minCellVoltage.get();
-				this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltageMillivolt);
-			}
-		}
-		{
-			IntegerReadChannel maxCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE);
-			Value<Integer> maxCellVoltage = maxCellVoltageChannel.value();
-			if (maxCellVoltage.isDefined()) {
-				int voltageMillivolt = maxCellVoltage.get();
-				this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(voltageMillivolt);
-			}
-		}
-		{
-			IntegerReadChannel minCelltemperatureChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE);
-			Value<Integer> minCelltemperature = minCelltemperatureChannel.value();
-			if (minCelltemperature.isDefined()) {
-				int temperature = minCelltemperature.get() / 10;
-				this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(temperature);
-			}
-		}
-		{
-			IntegerReadChannel maxCelltemperatureChannel = this
-					.channel(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE);
-			Value<Integer> maxCelltemperature = maxCelltemperatureChannel.value();
-			if (maxCelltemperature.isDefined()) {
-				int temperature = maxCelltemperature.get() / 10;
-				this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(temperature);
-			}
-		}
+	private void writeValuesInApiChannels() {
+		//Battery operating data
+		writeApiValue(SingleRackChannelId.CLUSTER_1_VOLTAGE, 0.001, Battery.ChannelId.VOLTAGE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_CURRENT, 0.001, Battery.ChannelId.CURRENT);
 		
-		// Write battery ranges to according channels in battery api
-		{
-			// MAX_VOLTAGE x2082
-			IntegerReadChannel overVoltAlarmChannel = this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM);
-			Value<Integer> overVoltAlarm = overVoltAlarmChannel.value();
-			if (overVoltAlarm.isDefined()) {
-				int maxChargeVoltage = (int) (overVoltAlarm.get() * 0.001);
-				this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(maxChargeVoltage);
-			}
-		}
-		{
-			// DISCHARGE_MIN_VOLTAGE 0x2088
-			IntegerReadChannel underVoltAlarmChannel = this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM);
-			Value<Integer> underVoltAlarm = underVoltAlarmChannel.value();
-			if (underVoltAlarm.isDefined()) {
-				int minDischargeVoltage = (int) (underVoltAlarm.get() * 0.001);
-				this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(minDischargeVoltage);
-			}
-		}
-		{
-			// CHARGE_MAX_CURRENT 0x2160
-			IntegerReadChannel maxChargeCurrentChannel = this.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT);
-			Value<Integer> maxChargeCurrentValue = maxChargeCurrentChannel.value();
-			if (maxChargeCurrentValue.isDefined()) {
-				int maxChargeCurrent = (int) (maxChargeCurrentValue.get() * 0.001);
-				this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(maxChargeCurrent);
-			}
-		}
-		{
-			// DISCHARGE_MAX_CURRENT 0x2161
-			IntegerReadChannel maxDischargeCurrentChannel = this.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
-			Value<Integer> maxDischargeCurrentValue = maxDischargeCurrentChannel.value();
-			if (maxDischargeCurrentValue.isDefined()) {
-				int maxDischargeCurrent = (int) (maxDischargeCurrentValue.get() * 0.001);
-				this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(maxDischargeCurrent);
-			}	
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, 1, Battery.ChannelId.MIN_CELL_VOLTAGE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, 1, Battery.ChannelId.MAX_CELL_VOLTAGE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, 0.1, Battery.ChannelId.MIN_CELL_TEMPERATURE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, 0.1, Battery.ChannelId.MAX_CELL_TEMPERATURE);
+		
+		//Battery ranges
+		writeApiValue(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, 0.001, Battery.ChannelId.CHARGE_MAX_VOLTAGE); // MAX_VOLTAGE x2082
+		writeApiValue(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM, 0.001, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE); // DISCHARGE_MIN_VOLTAGE 0x2088
+		writeApiValue(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, 0.001, Battery.ChannelId.CHARGE_MAX_CURRENT); // CHARGE_MAX_CURRENT 0x2160
+		writeApiValue(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, 0.001, Battery.ChannelId.DISCHARGE_MAX_CURRENT); // DISCHARGE_MAX_CURRENT 0x2161
+	}
+	
+	// Helper function that writes a value from source channel to a target channel
+	private void writeApiValue(SingleRackChannelId sourceChannelId, double factor, io.openems.edge.battery.api.Battery.ChannelId targetApiChannelId) {
+		IntegerReadChannel sourceChannel = this.channel(sourceChannelId);
+		Value<Integer> value = sourceChannel.value();
+		if (value.isDefined()) {
+			int number = (int) (value.get() * factor);
+			this.channel(targetApiChannelId).setNextValue(number);
 		}
 	}
 
