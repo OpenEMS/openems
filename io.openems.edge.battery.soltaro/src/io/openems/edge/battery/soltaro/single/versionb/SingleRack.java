@@ -383,7 +383,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	private void writeValuesInApiChannels() {
+	private void writeValuesInApiChannels() {		
 		{
 			IntegerReadChannel clusterVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE);
 			Value<Integer> clusterVoltage = clusterVoltageChannel.value();
@@ -425,44 +425,44 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(temperature);
 			}
 		}
-
-		// write battery ranges to according channels in battery api
-		// MAX_VOLTAGE x2082
-		@SuppressWarnings("unchecked")
-		Optional<Integer> overVoltAlarmOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).value().asOptional();
-		if (overVoltAlarmOpt.isPresent()) {
-			int maxChargeVoltage = (int) (overVoltAlarmOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(maxChargeVoltage);
+		
+		// Write battery ranges to according channels in battery api
+		{
+			// MAX_VOLTAGE x2082
+			IntegerReadChannel overVoltAlarmChannel = this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM);
+			Value<Integer> overVoltAlarm = overVoltAlarmChannel.value();
+			if (overVoltAlarm.isDefined()) {
+				int maxChargeVoltage = (int) (overVoltAlarm.get() * 0.001);
+				this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(maxChargeVoltage);
+			}
 		}
-
-		// DISCHARGE_MIN_VOLTAGE 0x2088
-		@SuppressWarnings("unchecked")
-		Optional<Integer> underVoltAlarmOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).value().asOptional();
-		if (underVoltAlarmOpt.isPresent()) {
-			int minDischargeVoltage = (int) (underVoltAlarmOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(minDischargeVoltage);
+		{
+			// DISCHARGE_MIN_VOLTAGE 0x2088
+			IntegerReadChannel underVoltAlarmChannel = this.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM);
+			Value<Integer> underVoltAlarm = underVoltAlarmChannel.value();
+			if (underVoltAlarm.isDefined()) {
+				int minDischargeVoltage = (int) (underVoltAlarm.get() * 0.001);
+				this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(minDischargeVoltage);
+			}
 		}
-
-		// CHARGE_MAX_CURRENT 0x2160
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxChargeCurrentOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).value().asOptional();
-		if (maxChargeCurrentOpt.isPresent()) {
-			int maxCurrent = (int) (maxChargeCurrentOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(maxCurrent);
+		{
+			// CHARGE_MAX_CURRENT 0x2160
+			IntegerReadChannel maxChargeCurrentChannel = this.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT);
+			Value<Integer> maxChargeCurrentValue = maxChargeCurrentChannel.value();
+			if (maxChargeCurrentValue.isDefined()) {
+				int maxChargeCurrent = (int) (maxChargeCurrentValue.get() * 0.001);
+				this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(maxChargeCurrent);
+			}
 		}
-
-		// DISCHARGE_MAX_CURRENT 0x2161
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxDischargeCurrentOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).value().asOptional();
-		if (maxDischargeCurrentOpt.isPresent()) {
-			int maxCurrent = (int) (maxDischargeCurrentOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(maxCurrent);
+		{
+			// DISCHARGE_MAX_CURRENT 0x2161
+			IntegerReadChannel maxDischargeCurrentChannel = this.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT);
+			Value<Integer> maxDischargeCurrentValue = maxDischargeCurrentChannel.value();
+			if (maxDischargeCurrentValue.isDefined()) {
+				int maxDischargeCurrent = (int) (maxDischargeCurrentValue.get() * 0.001);
+				this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(maxDischargeCurrent);
+			}	
 		}
-
 	}
 
 	@Override
