@@ -2,6 +2,7 @@ export const TRANSLATION = {
     General: {
         active: 'Aktiv',
         actualPower: 'E-Auto Beladung',
+        apply: 'Übernehmen',
         autarchy: 'Autarkie',
         automatic: 'Automatisch',
         cancel: 'abbrechen',
@@ -13,6 +14,7 @@ export const TRANSLATION = {
         connectionLost: 'Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.',
         consumption: 'Verbrauch',
         cumulative: 'Kumulierte Werte',
+        currentName: 'Aktueller Name',
         currentValue: 'Aktueller Wert',
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
@@ -43,7 +45,9 @@ export const TRANSLATION = {
         phases: 'Phasen',
         power: 'Leistung',
         production: 'Erzeugung',
+        rename: 'Umbenennen',
         reportValue: 'Fehlerhafte Daten melden',
+        reset: 'Zurücksetzen',
         search: 'Suchen',
         selfConsumption: 'Eigenverbrauch',
         soc: 'Ladezustand',
@@ -266,9 +270,11 @@ export const TRANSLATION = {
                 liveLog: 'Live Systemprotokoll',
                 log: 'Log',
                 manualControl: 'Manuelle Steuerung',
+                renameComponents: 'Komponenten umbenennen',
                 scheduler: 'Anwendungsplaner',
                 simulator: 'Simulator',
-                systemExecute: 'System-Befehl ausführen'
+                systemExecute: 'System-Befehl ausführen',
+                systemProfile: 'Anlagenprofil',
             },
             More: {
                 manualCommand: 'Manueller Befehl',

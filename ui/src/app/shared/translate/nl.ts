@@ -2,6 +2,7 @@ export const TRANSLATION = {
     General: {
         Active: 'Actief',
         ActualPower: 'e-car Laad vermogen',
+        apply: 'Apply',
         Autarchy: 'Autarkie',
         Automatic: 'Automatisch',
         cancel: 'annuleren',
@@ -13,6 +14,7 @@ export const TRANSLATION = {
         connectionLost: 'Verbinding verbroken. Probeer opnieuw verbinding te maken.',
         Consumption: 'Verbruik',
         Cumulative: 'Cumulatieve Waarden',
+        currentName: 'Huidige Naam',
         currentValue: 'Huidige waarde',
         DateFormat: 'dd-MM-yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         DischargePower: 'Ontlaad vermogen',
@@ -42,7 +44,9 @@ export const TRANSLATION = {
         Phases: 'Fases',
         Power: 'Vermogen',
         Production: 'Opwekking',
+        rename: 'Hernoemen',
         reportValue: 'Rapporteer beschadigde gegevens',
+        reset: 'Opnieuw Instellen',
         SelfConsumption: 'Eigen consumptie',
         Soc: 'Laadstatus',
         State: 'Staat',
@@ -263,9 +267,11 @@ export const TRANSLATION = {
                 liveLog: 'Live System log',
                 log: 'Log',
                 manualControl: 'Handmatige bediening',
+                renameComponents: 'Componenten hernoem',
                 scheduler: 'Toepassingsschema',
                 simulator: 'Simulator',
                 systemExecute: 'Voer systeemopdracht uit',
+                systemProfile: 'Systeemprofiel',
             },
             More: {
                 manualCommand: 'Handmatig commando',

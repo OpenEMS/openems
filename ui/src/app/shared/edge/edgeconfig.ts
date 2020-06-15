@@ -402,6 +402,18 @@ export class EdgeConfig {
         return result;
     }
 
+    public getComponentsIconByFactory(factory: EdgeConfig.Factory): string {
+        let result = null;
+        this.listAvailableFactories().forEach(availableFactories => {
+            availableFactories.factories.forEach(availableFactory => {
+                if (factory == availableFactory) {
+                    result = availableFactories.category.icon;
+                }
+            })
+        })
+        return result;
+    }
+
     /**
      * Lists all active Components, grouped by category.
      */

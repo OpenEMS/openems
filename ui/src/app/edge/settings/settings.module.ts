@@ -1,3 +1,4 @@
+import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ChannelsComponent } from './channels/channels.component';
 import { ComponentInstallComponent } from './component/install/install.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
@@ -6,7 +7,6 @@ import { IndexComponent as ComponentUpdateIndexComponent } from './component/upd
 import { NetworkComponent } from './network/network.component';
 import { NgModule } from '@angular/core';
 import { ProfileComponent } from './profile/profile.component';
-import { ProfilePopoverComponent } from './profile/popover/popover.component';
 import { SettingsComponent } from './settings.component';
 import { SharedModule } from './../../shared/shared.module';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
@@ -16,6 +16,7 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     SharedModule
   ],
   declarations: [
+    AliasUpdateComponent,
     ChannelsComponent,
     ComponentInstallComponent,
     ComponentInstallIndexComponent,
@@ -23,12 +24,9 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     ComponentUpdateIndexComponent,
     NetworkComponent,
     ProfileComponent,
-    ProfilePopoverComponent,
     SettingsComponent,
     SystemExecuteComponent,
   ],
-  entryComponents: [
-    ProfilePopoverComponent,
-  ]
+  entryComponents: []
 })
 export class SettingsModule { }

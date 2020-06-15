@@ -2,6 +2,7 @@ export const TRANSLATION = {
     General: {
         active: 'Active',
         actualPower: 'e-car Charge power',
+        apply: 'Apply',
         autarchy: 'Autarchy',
         automatic: 'Automatically',
         cancel: 'cancel',
@@ -13,6 +14,7 @@ export const TRANSLATION = {
         connectionLost: 'Connection lost. Trying to reconnect.',
         consumption: 'Consumption',
         cumulative: 'Cumulative Values',
+        currentName: 'current name',
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
         dischargePower: 'Discharge power',
@@ -42,7 +44,9 @@ export const TRANSLATION = {
         phases: 'Phases',
         power: 'Power',
         production: 'Production',
+        rename: 'Rename',
         reportValue: 'Report corrupted data',
+        reset: 'Reset',
         search: 'Search',
         selfConsumption: 'Self Consumption',
         soc: 'State of charge',
@@ -265,9 +269,11 @@ export const TRANSLATION = {
                 liveLog: 'Live system log',
                 log: 'Log',
                 manualControl: 'Manual control',
+                renameComponents: 'Rename components',
                 scheduler: 'Applicationplanner',
                 simulator: 'Simulator',
                 systemExecute: 'Execute system command',
+                systemProfile: 'System Profile',
             },
             More: {
                 manualCommand: 'Manual command',
