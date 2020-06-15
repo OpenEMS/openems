@@ -49,7 +49,8 @@
                                 </ng-container>
                                 <ng-container *ngIf="item['showProperties']">
                                     <ng-container *ngFor="let address of subscribedInfoChannels">
-                                        <ng-container *ngIf="address.componentId == item.id">
+                                        <ng-container
+                                            *ngIf="address.componentId == item.id && address.channelId != 'State'">
                                             <ng-container *ngIf="currentData.channel[address.toString()] == 1">
                                                 <ion-label color="danger"
                                                     *ngIf="item.channels[address.channelId]['text'].length != 0">

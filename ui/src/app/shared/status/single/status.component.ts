@@ -36,7 +36,7 @@ export class StatusSingleComponent {
     ngOnInit() {
         this.service.getConfig().then(config => {
             this.config = config;
-            let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum"]
+            let categorizedComponentIds: string[] = []
             this.components = config.listActiveComponents(categorizedComponentIds);
             this.components.forEach(categorizedComponent => {
                 categorizedComponent.components.forEach(component => {
