@@ -23,6 +23,10 @@ public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 	/**
 	 * Initialize the State-Machine and set an initial State.
 	 * 
+	 * <p>
+	 * TODO Note that for the initialState the {@link StateHandler#onEntry(Object)
+	 * method is not called in the beginning.
+	 * 
 	 * @param initialState the initial State
 	 */
 	public StateMachine(STATE initialState) {
@@ -74,7 +78,7 @@ public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 		} else {
 			try {
 				// Call the State Handler and receive next State.
-				nextState = this.state.getHandler().getNextState(context);
+				nextState = this.state.getHandler().runAndGetNextState(context);
 			} catch (OpenemsNamedException e) {
 				exception = e;
 				nextState = this.initialState; // set to initial state on error

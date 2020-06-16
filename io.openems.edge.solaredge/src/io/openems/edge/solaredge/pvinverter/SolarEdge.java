@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -45,23 +45,23 @@ public class SolarEdge extends AbstractSunSpecPvInverter
 	private final static int UNIT_ID = 1;
 	private final static int READ_FROM_MODBUS_BLOCK = 1;
 
-	private static final Map<ISunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<ISunSpecModel, Priority>builder()
-			.put(SunSpecModel.S_1, Priority.LOW) //
-			.put(SunSpecModel.S_101, Priority.LOW) //
-			.put(SunSpecModel.S_102, Priority.LOW) //
-			.put(SunSpecModel.S_103, Priority.LOW) //
-			.put(SunSpecModel.S_111, Priority.LOW) //
-			.put(SunSpecModel.S_112, Priority.LOW) //
-			.put(SunSpecModel.S_113, Priority.LOW) //
-			.put(SunSpecModel.S_120, Priority.LOW) //
-			.put(SunSpecModel.S_121, Priority.LOW) //
-			.put(SunSpecModel.S_122, Priority.LOW) //
-			.put(SunSpecModel.S_123, Priority.LOW) //
-			.put(SunSpecModel.S_124, Priority.LOW) //
-			.put(SunSpecModel.S_125, Priority.LOW) //
-			.put(SunSpecModel.S_127, Priority.LOW) //
-			.put(SunSpecModel.S_128, Priority.LOW) //
-			.put(SunSpecModel.S_145, Priority.LOW) //
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_111, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_112, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_125, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_127, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_128, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_145, Priority.LOW) //
 			.build();
 
 	@Reference

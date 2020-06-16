@@ -39,18 +39,18 @@ public interface SinglePhaseEss extends AsymmetricEss {
 	public static void initializeCopyPhaseChannel(AsymmetricEss ess, SinglePhase phase) {
 		switch (phase) {
 		case L1:
-			ess.getActivePowerL1().onSetNextValue(value -> {
-				ess.getActivePower().setNextValue(value);
+			ess.getActivePowerL1Channel().onSetNextValue(value -> {
+				ess._setActivePower(value.get());
 			});
 			break;
 		case L2:
-			ess.getActivePowerL2().onSetNextValue(value -> {
-				ess.getActivePower().setNextValue(value);
+			ess.getActivePowerL2Channel().onSetNextValue(value -> {
+				ess._setActivePower(value.get());
 			});
 			break;
 		case L3:
-			ess.getActivePowerL3().onSetNextValue(value -> {
-				ess.getActivePower().setNextValue(value);
+			ess.getActivePowerL3Channel().onSetNextValue(value -> {
+				ess._setActivePower(value.get());
 			});
 			break;
 		}

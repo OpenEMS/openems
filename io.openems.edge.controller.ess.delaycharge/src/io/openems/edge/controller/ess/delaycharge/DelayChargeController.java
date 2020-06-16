@@ -83,11 +83,11 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 	public void run() throws OpenemsNamedException {
 		// Get required variables
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		int capacity = ess.getCapacity().value().getOrError();
+		int capacity = ess.getCapacity().getOrError();
 		int targetSecondOfDay = this.config.targetHour() * 3600;
 
 		// calculate remaining capacity in Ws
-		int remainingCapacity = capacity * (100 - ess.getSoc().value().getOrError()) * 36;
+		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
 
 		// No remaining capacity -> no restrictions
 		if (remainingCapacity < 0) {
@@ -106,16 +106,16 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 
 		// calculate charge power limit
 		int limit = remainingCapacity / remainingTime * -1;
-		
+
 		// reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
-		limit = Math.min(limit, ess.getMaxApparentPower().value().orElse(0));
-		
+		limit = Math.min(limit, ess.getMaxApparentPower().orElse(0));
+
 		// set ActiveLimit channel
 		setChannels(State.ACTIVE_LIMIT, limit * -1);
 
 		// Set limitation for ChargePower
-		ess.getSetActivePowerGreaterOrEquals().setNextWriteValue(limit);
+		ess.setActivePowerGreaterOrEquals(limit);
 	}
 
 	private int currentSecondOfDay() {

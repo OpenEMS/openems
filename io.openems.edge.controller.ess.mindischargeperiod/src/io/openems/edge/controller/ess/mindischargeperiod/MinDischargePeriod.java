@@ -93,7 +93,7 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -106,7 +106,7 @@ public class MinDischargePeriod extends AbstractOpenemsComponent implements Cont
 		}
 
 		if (!this.stopwatch.isRunning()) {
-			int essActivePower = ess.getActivePower().value().orElse(0);
+			int essActivePower = ess.getActivePower().orElse(0);
 			if (essActivePower >= this.config.activateDischargePower()) {
 				this.stopwatch.start();
 				this.logInfo(this.log,

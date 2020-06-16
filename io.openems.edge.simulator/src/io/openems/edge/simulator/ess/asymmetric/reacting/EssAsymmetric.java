@@ -46,15 +46,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	 */
 	private float soc = 0;
 
-	/**
-	 * Total configured capacity in Wh.
-	 */
-	private int capacity = 0;
-
-	/**
-	 * Configured max Apparent Power in VA.
-	 */
-	private int maxApparentPower = 0;
+	private Config config;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -87,15 +79,14 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 			return;
 		}
 
-		this.getSoc().setNextValue(config.initialSoc());
+		this.config = config;
+		this._setSoc(config.initialSoc());
 		this.soc = config.initialSoc();
-		this.capacity = config.capacity();
-		this.maxApparentPower = config.maxApparentPower();
-		this.getCapacity().setNextValue(config.capacity());
-		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
-		this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
-		this.getAllowedDischarge().setNextValue(this.maxApparentPower);
-		this.getGridMode().setNextValue(config.gridMode());
+		this._setCapacity(config.capacity());
+		this._setMaxApparentPower(config.maxApparentPower());
+		this._setAllowedChargePower(config.maxApparentPower() * -1);
+		this._setAllowedDischargePower(config.maxApparentPower());
+		this._setGridMode(config.gridMode());
 	}
 
 	@Deactivate
@@ -129,9 +120,9 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
@@ -147,39 +138,39 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		 * calculate State of charge
 		 */
 		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
-		float socChange = watthours / this.capacity;
+		float socChange = watthours / this.config.capacity();
 		this.soc -= socChange;
 		if (this.soc > 100) {
 			this.soc = 100;
 		} else if (this.soc < 0) {
 			this.soc = 0;
 		}
-		this.getSoc().setNextValue(this.soc);
+		this._setSoc(Math.round(this.soc));
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
-		this.getActivePowerL1().setNextValue(activePowerL1);
-		this.getActivePowerL2().setNextValue(activePowerL2);
-		this.getActivePowerL3().setNextValue(activePowerL3);
-		this.getActivePower().setNextValue(activePower);
+		this._setActivePowerL1(activePowerL1);
+		this._setActivePowerL2(activePowerL2);
+		this._setActivePowerL3(activePowerL3);
+		this._setActivePower(activePower);
 
 		int reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
-		this.getReactivePowerL1().setNextValue(reactivePowerL1);
-		this.getReactivePowerL2().setNextValue(reactivePowerL2);
-		this.getReactivePowerL3().setNextValue(reactivePowerL3);
-		this.getReactivePower().setNextValue(reactivePower);
+		this._setReactivePowerL1(reactivePowerL1);
+		this._setReactivePowerL2(reactivePowerL2);
+		this._setReactivePowerL3(reactivePowerL3);
+		this._setReactivePower(reactivePower);
 		/*
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
 		if (this.soc == 100) {
-			this.getAllowedCharge().setNextValue(0);
+			this._setAllowedChargePower(0);
 		} else {
-			this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
+			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
 		}
 		if (this.soc == 0) {
-			this.getAllowedDischarge().setNextValue(0);
+			this._setAllowedDischargePower(0);
 		} else {
-			this.getAllowedDischarge().setNextValue(this.maxApparentPower);
+			this._setAllowedDischargePower(this.config.maxApparentPower());
 		}
 	}
 

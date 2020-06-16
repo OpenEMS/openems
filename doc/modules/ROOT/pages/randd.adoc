@@ -51,11 +51,11 @@ NOTE: Mehr Informationen: https://blogpv.net/
 
 === Multi-Energie Management und Aggregations-Plattform
 
-image::MEMAP.png[MEMAP]
+image::BMWi_Fz_2017_Office_Farbe_de.png[MEMAP]
 
 Das Kernziel des MEMAP-Projekts ist die Entwicklung und Erprobung einer offenen Aggregationsplattform. Die Plattform soll mehrere Gebäude bzw. deren lokale EMS zusammenschließen, um Synergieeffekte der verschiedenen Bedarfs- und Produktionsprofile auszunutzen. Benutzer sollen mit Hilfe von intuitiven Benutzeroberflächen in diesen Prozess eingebunden werden. Ein Simulationsframework zum Testen der Plattform soll erweitert werden, um den komplexen Planungsprozess zu unterstützen. Das MEMAP Projekt setzt dabei auf den Einsatz des etablierten Building Information Model (BIM) Standards.
 
-Am MEMAP Projekt sind neben der FENECON die Firmen https://holsten.io/[Holsten Systems GmbH icon:external-link[]], https://www.sauter-cumulus.de/[Sauter-Cumulus GmbH  icon:external-link[]] , https://www.ibdm.de/[IBDM GmbH icon:external-link[]] sowie die Forschungseinrichtungen https://www.fortiss.org/[fortiss GmbH icon:external-link[]], https://www.mse.tum.de/en/tumenergy-research-projects/[TUM MSE Energy Efficient and Smart Cities icon:external-link[]] und das https://zentrum-digitalisierung.bayern/[Zentrum Digitalisierung.Bayern icon:external-link[]] beteiligt.
+Am https://memap-projekt.de[MEMAP Projekt icon:external-link[]] sind neben der FENECON die Firmen https://holsten.io/[Holsten Systems GmbH icon:external-link[]], https://www.sauter-cumulus.de/[Sauter-Cumulus GmbH  icon:external-link[]] , https://www.ibdm.de/[IBDM GmbH icon:external-link[]] sowie die Forschungseinrichtungen  https://www.mse.tum.de/en/tumenergy-research-projects/[TUM MSE Energy Efficient and Smart Cities icon:external-link[]] und das https://zentrum-digitalisierung.bayern/[Zentrum Digitalisierung.Bayern icon:external-link[]] beteiligt.
 
 FENECON bringt Erfahrungen im Bereich Projektentwicklung und –realisierung sowie Virtuelle Kraftwerke ein. FENECON beteiligt sich bei der Erarbeitung der Anforderung, Entwicklung und Bewertung von Geschäftsmodellen, der Systemanalyse und der Entwicklung der Softwareplattform.
 

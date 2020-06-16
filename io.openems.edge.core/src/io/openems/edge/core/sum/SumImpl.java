@@ -135,23 +135,23 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					// ignore this Ess
 					continue;
 				}
-				essSoc.addValue(ess.getSoc());
-				essActivePower.addValue(ess.getActivePower());
-				essMaxApparentPower.addValue(ess.getMaxApparentPower());
-				essGridMode.addValue(ess.getGridMode());
-				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergy());
-				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
-				essCapacity.addValue(ess.getCapacity());
+				essSoc.addValue(ess.getSocChannel());
+				essActivePower.addValue(ess.getActivePowerChannel());
+				essMaxApparentPower.addValue(ess.getMaxApparentPowerChannel());
+				essGridMode.addValue(ess.getGridModeChannel());
+				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
+				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
+				essCapacity.addValue(ess.getCapacityChannel());
 
 				if (ess instanceof AsymmetricEss) {
 					AsymmetricEss e = (AsymmetricEss) ess;
-					essActivePowerL1.addValue(e.getActivePowerL1());
-					essActivePowerL2.addValue(e.getActivePowerL2());
-					essActivePowerL3.addValue(e.getActivePowerL3());
+					essActivePowerL1.addValue(e.getActivePowerL1Channel());
+					essActivePowerL2.addValue(e.getActivePowerL2Channel());
+					essActivePowerL3.addValue(e.getActivePowerL3Channel());
 				} else {
-					essActivePowerL1.addValue(ess.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-					essActivePowerL2.addValue(ess.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-					essActivePowerL3.addValue(ess.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
+					essActivePowerL1.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
+					essActivePowerL2.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
+					essActivePowerL3.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 				}
 
 			} else if (component instanceof SymmetricMeter) {
@@ -183,21 +183,21 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					/*
 					 * Grid-Meter
 					 */
-					gridActivePower.addValue(meter.getActivePower());
-					gridMinActivePower.addValue(meter.getMinActivePower());
-					gridMaxActivePower.addValue(meter.getMaxActivePower());
-					gridBuyActiveEnergy.addValue(meter.getActiveProductionEnergy());
-					gridSellActiveEnergy.addValue(meter.getActiveConsumptionEnergy());
+					gridActivePower.addValue(meter.getActivePowerChannel());
+					gridMinActivePower.addValue(meter.getMinActivePowerChannel());
+					gridMaxActivePower.addValue(meter.getMaxActivePowerChannel());
+					gridBuyActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
+					gridSellActiveEnergy.addValue(meter.getActiveConsumptionEnergyChannel());
 
 					if (meter instanceof AsymmetricMeter) {
 						AsymmetricMeter m = (AsymmetricMeter) meter;
-						gridActivePowerL1.addValue(m.getActivePowerL1());
-						gridActivePowerL2.addValue(m.getActivePowerL2());
-						gridActivePowerL3.addValue(m.getActivePowerL3());
+						gridActivePowerL1.addValue(m.getActivePowerL1Channel());
+						gridActivePowerL2.addValue(m.getActivePowerL2Channel());
+						gridActivePowerL3.addValue(m.getActivePowerL3Channel());
 					} else {
-						gridActivePowerL1.addValue(meter.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-						gridActivePowerL2.addValue(meter.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-						gridActivePowerL3.addValue(meter.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
+						gridActivePowerL1.addValue(meter.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
+						gridActivePowerL2.addValue(meter.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
+						gridActivePowerL3.addValue(meter.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 					}
 					break;
 
@@ -205,20 +205,23 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					/*
 					 * Production-Meter
 					 */
-					productionAcActivePower.addValue(meter.getActivePower());
-					productionMaxAcActivePower.addValue(meter.getMaxActivePower());
-					productionAcActiveEnergy.addValue(meter.getActiveProductionEnergy());
-					productionAcActiveEnergyNegative.addValue(meter.getActiveConsumptionEnergy());
+					productionAcActivePower.addValue(meter.getActivePowerChannel());
+					productionMaxAcActivePower.addValue(meter.getMaxActivePowerChannel());
+					productionAcActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
+					productionAcActiveEnergyNegative.addValue(meter.getActiveConsumptionEnergyChannel());
 
 					if (meter instanceof AsymmetricMeter) {
 						AsymmetricMeter m = (AsymmetricMeter) meter;
-						productionAcActivePowerL1.addValue(m.getActivePowerL1());
-						productionAcActivePowerL2.addValue(m.getActivePowerL2());
-						productionAcActivePowerL3.addValue(m.getActivePowerL3());
+						productionAcActivePowerL1.addValue(m.getActivePowerL1Channel());
+						productionAcActivePowerL2.addValue(m.getActivePowerL2Channel());
+						productionAcActivePowerL3.addValue(m.getActivePowerL3Channel());
 					} else {
-						productionAcActivePowerL1.addValue(meter.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-						productionAcActivePowerL2.addValue(meter.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
-						productionAcActivePowerL3.addValue(meter.getActivePower(), CalculateIntegerSum.DIVIDE_BY_THREE);
+						productionAcActivePowerL1.addValue(meter.getActivePowerChannel(),
+								CalculateIntegerSum.DIVIDE_BY_THREE);
+						productionAcActivePowerL2.addValue(meter.getActivePowerChannel(),
+								CalculateIntegerSum.DIVIDE_BY_THREE);
+						productionAcActivePowerL3.addValue(meter.getActivePowerChannel(),
+								CalculateIntegerSum.DIVIDE_BY_THREE);
 					}
 					break;
 
@@ -229,9 +232,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				 * Ess DC-Charger
 				 */
 				EssDcCharger charger = (EssDcCharger) component;
-				productionDcActualPower.addValue(charger.getActualPower());
-				productionMaxDcActualPower.addValue(charger.getMaxActualPower());
-				productionDcActiveEnergy.addValue(charger.getActualEnergy());
+				productionDcActualPower.addValue(charger.getActualPowerChannel());
+				productionMaxDcActualPower.addValue(charger.getMaxActualPowerChannel());
+				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
 			}
 		}
 
@@ -239,18 +242,18 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		 * Set values
 		 */
 		// Ess
-		this.getEssSoc().setNextValue(essSoc.calculate());
+		this.getEssSocChannel().setNextValue(essSoc.calculate());
 		Integer essActivePowerSum = essActivePower.calculate();
-		this.getEssActivePower().setNextValue(essActivePowerSum);
+		this._setEssActivePower(essActivePowerSum);
 		Integer essActivePowerL1Sum = essActivePowerL1.calculate();
-		this.getEssActivePowerL1().setNextValue(essActivePowerL1Sum);
+		this._setEssActivePowerL1(essActivePowerL1Sum);
 		Integer essActivePowerL2Sum = essActivePowerL2.calculate();
-		this.getEssActivePowerL2().setNextValue(essActivePowerL2Sum);
+		this._setEssActivePowerL2(essActivePowerL2Sum);
 		Integer essActivePowerL3Sum = essActivePowerL3.calculate();
-		this.getEssActivePowerL3().setNextValue(essActivePowerL3Sum);
+		this._setEssActivePowerL3(essActivePowerL3Sum);
 		Integer essMaxApparentPowerSum = essMaxApparentPower.calculate();
-		this.getEssMaxApparentPower().setNextValue(essMaxApparentPowerSum);
-		this.getGridMode().setNextValue(essGridMode.calculate());
+		this._setEssMaxApparentPower(essMaxApparentPowerSum);
+		this._setGridMode(essGridMode.calculate());
 
 		Long essActiveChargeEnergySum = essActiveChargeEnergy.calculate();
 		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, essActiveChargeEnergySum);
@@ -258,20 +261,20 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, essActiveDischargeEnergySum);
 
 		Integer essCapacitySum = essCapacity.calculate();
-		this.getEssCapacity().setNextValue(essCapacitySum);
+		this._setEssCapacity(essCapacitySum);
 
 		// Grid
 		Integer gridActivePowerSum = gridActivePower.calculate();
-		this.getGridActivePower().setNextValue(gridActivePowerSum);
+		this._setGridActivePower(gridActivePowerSum);
 		Integer gridActivePowerL1Sum = gridActivePowerL1.calculate();
-		this.getGridActivePowerL1().setNextValue(gridActivePowerL1Sum);
+		this._setGridActivePowerL1(gridActivePowerL1Sum);
 		Integer gridActivePowerL2Sum = gridActivePowerL2.calculate();
-		this.getGridActivePowerL2().setNextValue(gridActivePowerL2Sum);
+		this._setGridActivePowerL2(gridActivePowerL2Sum);
 		Integer gridActivePowerL3Sum = gridActivePowerL3.calculate();
-		this.getGridActivePowerL3().setNextValue(gridActivePowerL3Sum);
-		this.getGridMinActivePower().setNextValue(gridMinActivePower.calculate());
+		this._setGridActivePowerL3(gridActivePowerL3Sum);
+		this._setGridMinActivePower(gridMinActivePower.calculate());
 		Integer gridMaxActivePowerSum = gridMaxActivePower.calculate();
-		this.getGridMaxActivePower().setNextValue(gridMaxActivePowerSum);
+		this._setGridMaxActivePower(gridMaxActivePowerSum);
 
 		Long gridBuyActiveEnergySum = gridBuyActiveEnergy.calculate();
 		this.energyValuesHandler.setValue(Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, gridBuyActiveEnergySum);
@@ -280,24 +283,22 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 		// Production
 		Integer productionAcActivePowerSum = productionAcActivePower.calculate();
-		this.getProductionAcActivePower().setNextValue(productionAcActivePowerSum);
+		this._setProductionAcActivePower(productionAcActivePowerSum);
 		Integer productionAcActivePowerL1Sum = productionAcActivePowerL1.calculate();
-		this.getProductionAcActivePowerL1().setNextValue(productionAcActivePowerL1Sum);
+		this._setProductionAcActivePowerL1(productionAcActivePowerL1Sum);
 		Integer productionAcActivePowerL2Sum = productionAcActivePowerL2.calculate();
-		this.getProductionAcActivePowerL2().setNextValue(productionAcActivePowerL2Sum);
+		this._setProductionAcActivePowerL2(productionAcActivePowerL2Sum);
 		Integer productionAcActivePowerL3Sum = productionAcActivePowerL3.calculate();
-		this.getProductionAcActivePowerL3().setNextValue(productionAcActivePowerL3Sum);
+		this._setProductionAcActivePowerL3(productionAcActivePowerL3Sum);
 		Integer productionDcActualPowerSum = productionDcActualPower.calculate();
-		this.getProductionDcActualPower().setNextValue(productionDcActualPowerSum);
-		this.getProductionActivePower()
-				.setNextValue(TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum));
+		this._setProductionDcActualPower(productionDcActualPowerSum);
+		this._setProductionActivePower(TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum));
 
 		Integer productionMaxAcActivePowerSum = productionMaxAcActivePower.calculate();
-		this.getProductionMaxAcActivePower().setNextValue(productionMaxAcActivePowerSum);
+		this._setProductionMaxAcActivePower(productionMaxAcActivePowerSum);
 		Integer productionMaxDcActualPowerSum = productionMaxDcActualPower.calculate();
-		this.getProductionMaxDcActualPower().setNextValue(productionMaxDcActualPowerSum);
-		this.getProductionMaxActivePower()
-				.setNextValue(TypeUtils.sum(productionMaxAcActivePowerSum, productionMaxDcActualPowerSum));
+		this._setProductionMaxDcActualPower(productionMaxDcActualPowerSum);
+		this._setProductionMaxActivePower(TypeUtils.sum(productionMaxAcActivePowerSum, productionMaxDcActualPowerSum));
 
 		Long productionAcActiveEnergySum = productionAcActiveEnergy.calculate();
 		this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY, productionAcActiveEnergySum);
@@ -307,15 +308,15 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY, productionActiveEnergySum);
 
 		// Consumption
-		this.getConsumptionActivePower().setNextValue(TypeUtils.sum(//
+		this._setConsumptionActivePower(TypeUtils.sum(//
 				essActivePowerSum, gridActivePowerSum, productionAcActivePowerSum));
-		this.getConsumptionActivePowerL1().setNextValue(TypeUtils.sum(//
+		this._setConsumptionActivePowerL1(TypeUtils.sum(//
 				essActivePowerL1Sum, gridActivePowerL1Sum, productionAcActivePowerL1Sum));
-		this.getConsumptionActivePowerL2().setNextValue(TypeUtils.sum(//
+		this._setConsumptionActivePowerL2(TypeUtils.sum(//
 				essActivePowerL2Sum, gridActivePowerL2Sum, productionAcActivePowerL2Sum));
-		this.getConsumptionActivePowerL3().setNextValue(TypeUtils.sum(//
+		this._setConsumptionActivePowerL3(TypeUtils.sum(//
 				essActivePowerL3Sum, gridActivePowerL3Sum, productionAcActivePowerL3Sum));
-		this.getConsumptionMaxActivePower().setNextValue(TypeUtils.sum(//
+		this._setConsumptionMaxActivePower(TypeUtils.sum(//
 				essMaxApparentPowerSum, gridMaxActivePowerSum, productionMaxAcActivePowerSum));
 
 		Long enterTheSystem = TypeUtils.sum(essActiveDischargeEnergySum, gridBuyActiveEnergySum,
@@ -340,23 +341,23 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				// ignore myself
 				continue;
 			}
-			Level level = component.getState().value().asEnum();
+			Level level = component.getState();
 			if (level.getValue() > highestLevel.getValue()) {
 				highestLevel = level;
 			}
 		}
-		this.getState().setNextValue(highestLevel);
+		this.getStateChannel().setNextValue(highestLevel);
 	}
 
 	@Override
 	public String debugLog() {
 		StringBuilder result = new StringBuilder();
 		// State
-		Level state = this.getState().value().asEnum();
+		Level state = this.getState();
 		result.append("State:" + state.getName() + " ");
 		// Ess
-		Value<Integer> essSoc = this.getEssSoc().value();
-		Value<Integer> essActivePower = this.getEssActivePower().value();
+		Value<Integer> essSoc = this.getEssSoc();
+		Value<Integer> essActivePower = this.getEssActivePower();
 		if (essSoc.isDefined() || essActivePower.isDefined()) {
 			result.append("Ess ");
 			if (essSoc.isDefined() && essActivePower.isDefined()) {
@@ -369,16 +370,16 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 			result.append(" ");
 		}
 		// Grid
-		Value<Integer> gridActivePower = this.getGridActivePower().value();
+		Value<Integer> gridActivePower = this.getGridActivePower();
 		if (gridActivePower.isDefined()) {
 			result.append("Grid:" + gridActivePower.asString() + " ");
 		}
 		// Production
-		Value<Integer> production = this.getProductionActivePower().value();
+		Value<Integer> production = this.getProductionActivePower();
 		if (production.isDefined()) {
 			result.append("Production");
-			Value<Integer> productionAc = this.getProductionAcActivePower().value();
-			Value<Integer> productionDc = this.getProductionDcActualPower().value();
+			Value<Integer> productionAc = this.getProductionAcActivePower();
+			Value<Integer> productionDc = this.getProductionDcActualPower();
 			if (productionAc.isDefined() && productionDc.isDefined()) {
 				result.append(" Total:" + production.asString() //
 						+ ",AC:" + productionAc.asString() //
@@ -390,7 +391,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 			result.append(" ");
 		}
 		// Consumption
-		Value<Integer> consumptionActivePower = this.getConsumptionActivePower().value();
+		Value<Integer> consumptionActivePower = this.getConsumptionActivePower();
 		if (consumptionActivePower.isDefined()) {
 			result.append("Consumption:" + consumptionActivePower.asString() + " ");
 		}

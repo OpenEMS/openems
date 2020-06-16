@@ -29,24 +29,24 @@ public class OffgridHandler {
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		System.out.println("OffgridHandler.run");
 		// Are we still Off-Grid?
-		
+
 		BooleanReadChannel inputNAProtection1 = parent.parent.componentManager
 				.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection1()));
 		BooleanReadChannel inputNAProtection2 = parent.parent.componentManager
 				.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection2()));
-		
+
 		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
 		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-		
+
 		if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
-			
+
 			if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
-				return StateMachine.State.ONGRID;				
+				return StateMachine.State.ONGRID;
 			} else {
 				return StateMachine.State.GOING_ONGRID;
 			}
-			
-		} 
+
+		}
 
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
 		this.parent.parent.setOutputSyncDeviceBridge(true);
@@ -54,8 +54,8 @@ public class OffgridHandler {
 		// Measured by Grid-Meter, grid Values
 		SymmetricMeter gridMeter = this.parent.parent.componentManager.getComponent(this.parent.parent.config.meter());
 
-		Optional<Integer> gridFreqOpt = gridMeter.getFrequency().value().asOptional();
-		Optional<Integer> gridVoltOpt = gridMeter.getVoltage().value().asOptional();
+		Optional<Integer> gridFreqOpt = gridMeter.getFrequency().asOptional();
+		Optional<Integer> gridVoltOpt = gridMeter.getVoltage().asOptional();
 
 		this.log.info("OffgridHandler.run() GridFreq: " + gridFreqOpt + ", GridVolt: " + gridVoltOpt);
 
@@ -91,8 +91,7 @@ public class OffgridHandler {
 
 		} else {
 			/*
-			 * Going On-Grid
-			 * done in GoingOnGridHandler
+			 * Going On-Grid done in GoingOnGridHandler
 			 */
 
 		}

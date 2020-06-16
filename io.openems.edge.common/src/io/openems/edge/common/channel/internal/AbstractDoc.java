@@ -88,12 +88,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	 */
 	private String text = "";
 
-	/**
-	 * Descriptive text. Default: empty string
-	 * 
-	 * @param text the text
-	 * @return myself
-	 */
+	@Override
 	public AbstractDoc<T> text(String text) {
 		this.text = text;
 		return this.self();

@@ -17,7 +17,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class GoingOngridHandler {
 
 	private final Logger log = LoggerFactory.getLogger(GoingOngridHandler.class);
-	
+
 	private final StateMachine parent;
 
 	public GoingOngridHandler(StateMachine parent) {
@@ -29,31 +29,30 @@ public class GoingOngridHandler {
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		System.out.println("GoingOngridHandler.run");
-		
-		
+
 		// Are we still Off-Grid?
 		BooleanReadChannel inputNAProtection1 = parent.parent.componentManager
-						.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection1()));
-				BooleanReadChannel inputNAProtection2 = parent.parent.componentManager
-						.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection2()));
-				
-				Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-				Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-				
-				if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
-					
-					if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
-						return StateMachine.State.ONGRID;				
-					} 
-				} else {
-					return StateMachine.State.OFFGRID;
-				}
-				
-				this.doBlackStartGoingOnGrid();
-				
+				.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection1()));
+		BooleanReadChannel inputNAProtection2 = parent.parent.componentManager
+				.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection2()));
+
+		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+
+		if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
+
+			if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
+				return StateMachine.State.ONGRID;
+			}
+		} else {
+			return StateMachine.State.OFFGRID;
+		}
+
+		this.doBlackStartGoingOnGrid();
+
 		return StateMachine.State.GOING_ONGRID;
 	}
-	
+
 	/**
 	 * Handle BlackStart GoingOnGrid.
 	 * 
@@ -63,16 +62,17 @@ public class GoingOngridHandler {
 	 * @throws OpenemsNamedException
 	 */
 	private void doBlackStartGoingOnGrid() throws IllegalArgumentException, OpenemsNamedException {
-		
+
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
-				this.parent.parent.setOutputSyncDeviceBridge(true);
-		
+		this.parent.parent.setOutputSyncDeviceBridge(true);
+
 		SymmetricMeter gridMeter = this.parent.parent.componentManager.getComponent(this.parent.parent.config.meter());
 
-		Optional<Integer> gridFreqOpt = gridMeter.getFrequency().value().asOptional();
-		Optional<Integer> gridVoltOpt = gridMeter.getVoltage().value().asOptional();
+		Optional<Integer> gridFreqOpt = gridMeter.getFrequency().asOptional();
+		Optional<Integer> gridVoltOpt = gridMeter.getVoltage().asOptional();
 
-		this.log.info("GoingOngridHandler.doBlackStartGoingOnGrid() GridFreq: " + gridFreqOpt + ", GridVolt: " + gridVoltOpt);
+		this.log.info(
+				"GoingOngridHandler.doBlackStartGoingOnGrid() GridFreq: " + gridFreqOpt + ", GridVolt: " + gridVoltOpt);
 
 		if (!gridFreqOpt.isPresent() || !gridVoltOpt.isPresent()) {
 			// Cannot set anything without values
@@ -81,10 +81,10 @@ public class GoingOngridHandler {
 
 		int gridFreq = gridFreqOpt.get();
 		int gridVolt = gridVoltOpt.get();
-		
-		int invSetFreq = gridFreq + this.parent.parent.config.overFrequency(); 
-		int invSetVolt = gridVolt + this.parent.parent.config.overVoltage(); 
-		
+
+		int invSetFreq = gridFreq + this.parent.parent.config.overFrequency();
+		int invSetVolt = gridVolt + this.parent.parent.config.overVoltage();
+
 		float invSetFreqNormalized = invSetFreq / 50_000f;
 		float invSetVoltNormalized = invSetVolt / 231_000f;
 
@@ -111,5 +111,5 @@ public class GoingOngridHandler {
 				.writeToChannels(this.parent.parent);
 		this.parent.parent.setIpuControlSettings();
 	}
-	
+
 }

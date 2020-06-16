@@ -268,7 +268,7 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override
@@ -282,44 +282,41 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 			// write the result of the arithmetic operation into the corresponding channel
 
 			// Active Power
-			this.getActivePower().setNextValue(this.invertIfTrue(this.getActivePowerPos().getNextValue().orElse(0)
+			this._setActivePower(this.invertIfTrue(this.getActivePowerPos().getNextValue().orElse(0)
 					- this.getActivePowerNeg().getNextValue().orElse(0)));
 
 			// Active Power L1
-			this.getActivePowerL1().setNextValue(this.invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
+			this._setActivePowerL1(this.invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
 					- this.getActivePowerL1Neg().getNextValue().orElse(0)));
 
 			// Active Power L2
-			this.getActivePowerL2().setNextValue(this.invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
+			this._setActivePowerL2(this.invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
 					- this.getActivePowerL2Neg().getNextValue().orElse(0)));
 			// Active Power L3
-			this.getActivePowerL3().setNextValue(this.invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
+			this._setActivePowerL3(this.invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
 					- this.getActivePowerL3Neg().getNextValue().orElse(0)));
 
 			// Reactive Power
-			this.getReactivePower().setNextValue(this.invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
+			this._setReactivePower(this.invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
 					- this.getReactivePowerNeg().getNextValue().orElse(0)));
 
 			// Reactive Power L1
-			this.getReactivePowerL1()
-					.setNextValue(this.invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
-							- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
+			this._setReactivePowerL1(this.invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
 
 			// Reactive Power L2
-			this.getReactivePowerL2()
-					.setNextValue(this.invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
-							- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
+			this._setReactivePowerL2(this.invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
 			// Reactive Power L3
-			this.getReactivePowerL3()
-					.setNextValue(this.invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
-							- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
+			this._setReactivePowerL3(this.invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
 
 			// Current
-			Channel<Integer> currL1 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L1);
-			Channel<Integer> currL2 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L2);
-			Channel<Integer> currL3 = this.channel(AsymmetricMeter.ChannelId.CURRENT_L3);
+			Channel<Integer> currL1 = this.getCurrentL1Channel();
+			Channel<Integer> currL2 = this.getCurrentL2Channel();
+			Channel<Integer> currL3 = this.getCurrentL3Channel();
 
-			this.getCurrent().setNextValue(currL1.getNextValue().orElse(0) + currL2.getNextValue().orElse(0)
+			this._setCurrent(currL1.getNextValue().orElse(0) + currL2.getNextValue().orElse(0)
 					+ currL3.getNextValue().orElse(0));
 
 			break;

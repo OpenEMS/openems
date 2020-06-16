@@ -37,7 +37,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsSunSpecComponent.class);
 
 	// The active SunSpec-Models and their reading-priority
-	private final Map<ISunSpecModel, Priority> activeModels;
+	private final Map<SunSpecModel, Priority> activeModels;
 	private final ModbusProtocol modbusProtocol;
 
 	private int readFromCommonBlockNo = 1;
@@ -56,7 +56,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param furtherInitialChannelIds forwarded to
 	 *                                 {@link AbstractOpenemsModbusComponent}
 	 */
-	public AbstractOpenemsSunSpecComponent(Map<ISunSpecModel, Priority> activeModels,
+	public AbstractOpenemsSunSpecComponent(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
@@ -144,9 +144,9 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					} else {
 
 						// Should this Block be considered?
-						Entry<ISunSpecModel, Priority> activeEntry = this.getActiveModelForId(blockId);
+						Entry<SunSpecModel, Priority> activeEntry = this.getActiveModelForId(blockId);
 						if (activeEntry != null) {
-							ISunSpecModel sunSpecModel = activeEntry.getKey();
+							SunSpecModel sunSpecModel = activeEntry.getKey();
 							Priority priority = activeEntry.getValue();
 							this.addBlock(startAddress, sunSpecModel, priority);
 
@@ -176,8 +176,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param blockId the SunSpec Block-ID
 	 * @return the entry with Model and priority
 	 */
-	private Entry<ISunSpecModel, Priority> getActiveModelForId(int blockId) {
-		for (Entry<ISunSpecModel, Priority> entry : this.activeModels.entrySet()) {
+	private Entry<SunSpecModel, Priority> getActiveModelForId(int blockId) {
+		for (Entry<SunSpecModel, Priority> entry : this.activeModels.entrySet()) {
 			if (entry.getKey().getBlockId() == blockId) {
 				return entry;
 			}
@@ -189,10 +189,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * Overwrite to provide custom SunSpecModel.
 	 * 
 	 * @param blockId the Block-Id
-	 * @return the {@link ISunSpecModel}
+	 * @return the {@link SunSpecModel}
 	 * @throws IllegalArgumentException on error
 	 */
-	protected ISunSpecModel getSunSpecModel(int blockId) throws IllegalArgumentException {
+	protected SunSpecModel getSunSpecModel(int blockId) throws IllegalArgumentException {
 		return null;
 	}
 
@@ -225,7 +225,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param priority     the reading priority
 	 * @return future that gets completed when the Block elements are read
 	 */
-	private void addBlock(int startAddress, ISunSpecModel model, Priority priority) {
+	private void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
 		AbstractModbusElement<?>[] elements = new AbstractModbusElement[model.points().length];

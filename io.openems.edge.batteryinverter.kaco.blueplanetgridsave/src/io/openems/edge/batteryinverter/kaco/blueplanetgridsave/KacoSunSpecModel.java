@@ -3,13 +3,13 @@ package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModelType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointImpl;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointType;
 
-public enum KacoSunSpecModel implements ISunSpecModel {
+public enum KacoSunSpecModel implements SunSpecModel {
 	S_64201(//
 			"Bidirectional inverter control", //
 			"Bidirectional inverter control backend", //
@@ -73,7 +73,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_WRITE, //
 				Unit.NONE, //
 				null, //
-				S64201_RequestedState.values())), //
+				S64201RequestedState.values())), //
 		CURRENT_STATE(new PointImpl(//
 				"S64201_CURRENT_STATE", //
 				"CurrentState", //
@@ -84,7 +84,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_ONLY, //
 				Unit.NONE, //
 				null, //
-				S64201_CurrentState.values())),
+				S64201CurrentState.values())),
 		CONTROL_MODE(new PointImpl(//
 				"S64201_CONTROL_MODE", //
 				"ControlMode", //
@@ -95,7 +95,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_WRITE, //
 				Unit.NONE, //
 				null, //
-				S64201_ControlMode.values())),
+				S64201ControlMode.values())),
 		RESERVED_5(new ReservedPointImpl("S64201_RESERVED_5")), //
 		WATCHDOG(new PointImpl(//
 				"S64201_WATCHDOG", //
@@ -149,7 +149,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_ONLY, //
 				Unit.NONE, //
 				null, //
-				S64201_StVnd.values())),
+				S64201StVnd.values())),
 		ST_PU(new PointImpl(//
 				"S64201_ST_PU", //
 				"StPu", //
@@ -160,7 +160,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_ONLY, //
 				Unit.NONE, //
 				null, //
-				S64201_StPu.values())),
+				S64201StPu.values())),
 		ST_PCU(new PointImpl(//
 				"S64201_ST_PCU", //
 				"StPcu", //
@@ -171,7 +171,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_ONLY, //
 				Unit.NONE, //
 				null, //
-				S64201_StPcu.values())),
+				S64201StPcu.values())),
 		ERR_PCU(new PointImpl(//
 				"S64201_ERR_PCU", //
 				"ErrPcu", //
@@ -182,7 +182,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_ONLY, //
 				Unit.NONE, //
 				null, //
-				S64201_ErrPcu.values())),
+				S64201ErrPcu.values())),
 		WPARAM_RMP_TMS(new PointImpl(//
 				"S64201_WPARAM_RMP_TMS", //
 				"WparamRmpTms", //
@@ -229,7 +229,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_WRITE, //
 				Unit.NONE, //
 				null, //
-				S64201_WParamEna.values())), //
+				S64201WParamEna.values())), //
 		VAR_PARAM_RMP_TMS(new PointImpl(//
 				"S64201_VAR_PARAM_RMP_TMS", //
 				"VarParamRmpTms", //
@@ -276,7 +276,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_WRITE, //
 				Unit.NONE, //
 				null, //
-				S64201_VarParamEna.values())), //
+				S64201VarParamEna.values())), //
 		PH_VPH_A(new PointImpl(//
 				"S64201_PH_VPH_A", //
 				"Phase Voltage AN", //
@@ -441,7 +441,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				new OptionsEnum[0])), //
 		; //
 
-		public static enum S64201_RequestedState implements OptionsEnum {
+		public static enum S64201RequestedState implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			OFF(1, "Shutdown system and discharge the DC-Link / Clear non pending error"), //
 			STANDBY(8, "Charge DC-Link / Disconnect from grid"), //
@@ -451,19 +451,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64201_RequestedState(int value, String name) {
+			private S64201RequestedState(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -472,37 +472,37 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_CurrentState implements OptionsEnum {
+		public static enum S64201CurrentState implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
-			OFF(1, "Device is not operating"), //
-			SLEEPING(2, "Device is sleeping / auto-shudown"), //
-			STARTING(3, "Device is starting up"), //
-			MPPT(4, "Device is auto tracking maximum power point"), //
-			THROTTLED(5, "Device is operating at reduced power output"), //
-			SHUTTING_DOWN(6, "Device is shutting down"), //
-			FAULT(7, "One or more faults exist"), //
-			STANDBY(8, "Device is in standby mode"), //
-			PRECHARGE(9, "DC-Link is precharged"), //
-			GRID_PRE_CONNECTED(10, "Device is prepared for grid connection"), //
-			GRID_CONNECTED(11, "Device is connected to the grid"), //
-			NO_ERROR_PENDING(12, "Device is waiting until the user clears the error which is not peding any more"); //
+			OFF(1, "Not operating"), //
+			SLEEPING(2, "Sleeping/auto-shudown"), //
+			STARTING(3, "Starting up"), //
+			MPPT(4, "MPP tracking"), //
+			THROTTLED(5, "Reduced power output"), //
+			SHUTTING_DOWN(6, "Shutting down"), //
+			FAULT(7, "Fault"), //
+			STANDBY(8, "Standby"), //
+			PRECHARGE(9, "DC precharge"), //
+			GRID_PRE_CONNECTED(10, "Preparing grid connection"), //
+			GRID_CONNECTED(11, "Grid connected"), //
+			NO_ERROR_PENDING(12, "Wait for error acknowledge"); //
 
 			private final int value;
 			private final String name;
 
-			private S64201_CurrentState(int value, String name) {
+			private S64201CurrentState(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -511,7 +511,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_ControlMode implements OptionsEnum {
+		public static enum S64201ControlMode implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			SUNSPEC_CTRL_MODE_NONE(0, "Use reactive power control modes as configured in the device settings"), //
 			SUNSPEC_CTRL_MODE_QFIX(1, "Use reactive power setpoint VarSetPct"); //
@@ -519,19 +519,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64201_ControlMode(int value, String name) {
+			private S64201ControlMode(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -540,7 +540,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_StVnd implements OptionsEnum {
+		public static enum S64201StVnd implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			WAITING_FOR_FEED_IN(1, "Self-test: Grid parameters and generator voltage are being checked"), //
 			BATTERY_VOLTAGE_TOO_LOW(2, "Battery Voltage too low! Transition from or to 'Standby'"), //
@@ -668,19 +668,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64201_StVnd(int value, String name) {
+			private S64201StVnd(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -689,26 +689,26 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_StPu implements OptionsEnum {
+		public static enum S64201StPu implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"); //
 			// for internal use only
 
 			private final int value;
 			private final String name;
 
-			private S64201_StPu(int value, String name) {
+			private S64201StPu(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -717,7 +717,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_StPcu implements OptionsEnum {
+		public static enum S64201StPcu implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			BOOTING(1, "Boot up and waiting configuration"), //
 			STANDBY(2, "Idle state, ready for precharge"), //
@@ -733,19 +733,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64201_StPcu(int value, String name) {
+			private S64201StPcu(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -754,7 +754,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_ErrPcu implements OptionsEnum {
+		public static enum S64201ErrPcu implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			NO_ERROR(0, "No Error"), //
 			OVER_TEMP(1, "Over temperature"), //
@@ -774,19 +774,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64201_ErrPcu(int value, String name) {
+			private S64201ErrPcu(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -795,7 +795,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_WParamEna implements OptionsEnum {
+		public static enum S64201WParamEna implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			DISABLED(0, "Disabled"), //
 			ENABLED(2, "Enabled"); //
@@ -803,19 +803,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64201_WParamEna(int value, String name) {
+			private S64201WParamEna(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -824,7 +824,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			}
 		}
 
-		public static enum S64201_VarParamEna implements OptionsEnum {
+		public static enum S64201VarParamEna implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			DISABLED(0, "Disabled"), //
 			ENABLED(2, "Enabled"); //
@@ -832,19 +832,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64201_VarParamEna(int value, String name) {
+			private S64201VarParamEna(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -990,10 +990,10 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_WRITE, //
 				Unit.NONE, //
 				null, //
-				S64202_EnLimit.values())), //
+				S64202EnLimit.values())), //
 		; //
 
-		public static enum S64202_EnLimit implements OptionsEnum {
+		public static enum S64202EnLimit implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			NO_ACTIVATE(0, "No Activate"), //
 			ACTIVATE(1, "Activate"); //
@@ -1001,19 +1001,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64202_EnLimit(int value, String name) {
+			private S64202EnLimit(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -1068,7 +1068,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_WRITE, //
 				Unit.NONE, //
 				null, //
-				S64203_EmsErrCode.values())),
+				S64203EmsErrCode.values())),
 		SOC_SF(new PointImpl(//
 				"S64203_SOC_SF", //
 				"SoC_SF", //
@@ -1170,25 +1170,25 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				new OptionsEnum[0])), //
 		; //
 
-		public static enum S64203_EmsErrCode implements OptionsEnum {
+		public static enum S64203EmsErrCode implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"); //
 
 			private final int value;
 			private final String name;
 
-			private S64203_EmsErrCode(int value, String name) {
+			private S64203EmsErrCode(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override
@@ -1276,7 +1276,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				AccessMode.READ_WRITE, //
 				Unit.NONE, //
 				null, //
-				S64204_OffsetEna.values())), //
+				S64204OffsetEna.values())), //
 		V_OFF_PCT_SF(new PointImpl(//
 				"S64204_V_OFF_PCT_SF", //
 				"VOffPct_SF", //
@@ -1301,7 +1301,7 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 				new OptionsEnum[0])) //
 		; //
 
-		public static enum S64204_OffsetEna implements OptionsEnum {
+		public static enum S64204OffsetEna implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
 			DISABLED(0, "Disabled"), //
 			ENABLED(2, "Enabled"); //
@@ -1309,19 +1309,19 @@ public enum KacoSunSpecModel implements ISunSpecModel {
 			private final int value;
 			private final String name;
 
-			private S64204_OffsetEna(int value, String name) {
+			private S64204OffsetEna(int value, String name) {
 				this.value = value;
 				this.name = name;
 			}
 
 			@Override
 			public int getValue() {
-				return value;
+				return this.value;
 			}
 
 			@Override
 			public String getName() {
-				return name;
+				return this.name;
 			}
 
 			@Override

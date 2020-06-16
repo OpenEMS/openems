@@ -152,11 +152,11 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:" //
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";" //
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
+				+ this.getAllowedChargePower().asStringWithoutUnit() + ";" //
+				+ this.getAllowedDischargePower().asString() //
 				+ "|" + this.channel(GenericManagedSymmetricEss.ChannelId.STATE_MACHINE).value().asOptionString();
 	}
 
@@ -172,7 +172,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	 */
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.batteryInverter.apply(battery, activePower, reactivePower);
+		this.batteryInverter.run(battery, activePower, reactivePower);
 	}
 
 	/**

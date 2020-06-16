@@ -3,7 +3,7 @@ package io.openems.edge.fenecon.mini.gridmeter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "FENECON Mini Grid-Meter", //
 		description = "The grid-meter implementation of a FENECON Mini.")
 @interface Config {

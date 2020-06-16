@@ -11,7 +11,7 @@ public enum PcsMode implements OptionsEnum {
 	DEBUG(4, "Debug"), //
 	SMOOTH_PV(5, "Smooth PV"), //
 	REMOTE(6, "Remote");
-	
+
 	private final int value;
 	private final String name;
 
@@ -22,12 +22,12 @@ public enum PcsMode implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
