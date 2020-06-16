@@ -402,6 +402,9 @@ export class EdgeConfig {
         return result;
     }
 
+    /**
+     * Returns the corresponding icon for a given factory
+     */
     public getComponentsIconByFactory(factory: EdgeConfig.Factory): string {
         let result = null;
         this.listAvailableFactories().forEach(availableFactories => {
