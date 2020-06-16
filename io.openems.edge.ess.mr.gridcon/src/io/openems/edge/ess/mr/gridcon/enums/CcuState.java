@@ -5,7 +5,7 @@ import io.openems.common.types.OptionsEnum;
 /**
  * This enum describes the overall total state of a gridcon.
  */
-public enum CCUState implements OptionsEnum {
+public enum CcuState implements OptionsEnum {
 	INIT(1, "INIT"), // = 1, // Initialisierung / Booting in Progress
 	IDLE_CURRENTLY_NOT_WORKING(2, "IDLE"), // = 2, // System waiting for Instructions, MainContactor open, IGBT are not working
 	PRECHARGE_CURRENTLY_NOT_WORKING(3, "PRECHARGE"), // = 3, // IPU StateObject
@@ -24,7 +24,7 @@ public enum CCUState implements OptionsEnum {
 	private final int value;
 	private final String name;
 
-	private CCUState(int value, String name) {
+	private CcuState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

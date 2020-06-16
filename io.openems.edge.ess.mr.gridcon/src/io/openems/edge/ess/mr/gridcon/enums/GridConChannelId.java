@@ -16,7 +16,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
  * This enum holds every possible channel id for a gridcon.
  */
 public enum GridConChannelId implements ChannelId {
-	CCU_STATE(Doc.of(CCUState.values())), // = 1
+	CCU_STATE(Doc.of(CcuState.values())), // = 1
 	CCU_ERROR_COUNT(Doc.of(OpenemsType.INTEGER)), //
 	CCU_ERROR_CODE(Doc.of(OpenemsType.INTEGER)), //
 	CCU_VOLTAGE_U12(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)), //
@@ -26,17 +26,17 @@ public enum GridConChannelId implements ChannelId {
 	CCU_CURRENT_IL2(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	CCU_CURRENT_IL3(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	/**
-	 * active power
+	 * Active power.
 	 */
 	CCU_POWER_P(Doc.of(OpenemsType.FLOAT).unit(Unit.WATT)),
 	/**
-	 * reactive power
+	 * Reactive power.
 	 */
 	CCU_POWER_Q(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 	CCU_FREQUENCY(Doc.of(OpenemsType.FLOAT).unit(Unit.HERTZ)),
 
-	INVERTER_1_STATUS_STATE_MACHINE(Doc.of(StatusIPUStateMachine.values())),
-	INVERTER_1_STATUS_MCU(Doc.of(StatusIPUStatusMCU.values())),
+	INVERTER_1_STATUS_STATE_MACHINE(Doc.of(StatusIpuStateMachine.values())),
+	INVERTER_1_STATUS_MCU(Doc.of(StatusIpuStatusMcu.values())),
 	INVERTER_1_STATUS_FILTER_CURRENT(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	INVERTER_1_STATUS_DC_LINK_POSITIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
 	INVERTER_1_STATUS_DC_LINK_NEGATIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
@@ -53,8 +53,8 @@ public enum GridConChannelId implements ChannelId {
 	INVERTER_1_STATUS_RESERVE_2(Doc.of(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)),
 	INVERTER_1_STATUS_RESERVE_3(Doc.of(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)),
 
-	INVERTER_2_STATUS_STATE_MACHINE(Doc.of(StatusIPUStateMachine.values())),
-	INVERTER_2_STATUS_MCU(Doc.of(StatusIPUStatusMCU.values())),
+	INVERTER_2_STATUS_STATE_MACHINE(Doc.of(StatusIpuStateMachine.values())),
+	INVERTER_2_STATUS_MCU(Doc.of(StatusIpuStatusMcu.values())),
 	INVERTER_2_STATUS_FILTER_CURRENT(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	INVERTER_2_STATUS_DC_LINK_POSITIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
 	INVERTER_2_STATUS_DC_LINK_NEGATIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
@@ -71,8 +71,8 @@ public enum GridConChannelId implements ChannelId {
 	INVERTER_2_STATUS_RESERVE_2(Doc.of(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)),
 	INVERTER_2_STATUS_RESERVE_3(Doc.of(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)),
 
-	INVERTER_3_STATUS_STATE_MACHINE(Doc.of(StatusIPUStateMachine.values())),
-	INVERTER_3_STATUS_MCU(Doc.of(StatusIPUStatusMCU.values())),
+	INVERTER_3_STATUS_STATE_MACHINE(Doc.of(StatusIpuStateMachine.values())),
+	INVERTER_3_STATUS_MCU(Doc.of(StatusIpuStatusMcu.values())),
 	INVERTER_3_STATUS_FILTER_CURRENT(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	INVERTER_3_STATUS_DC_LINK_POSITIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
 	INVERTER_3_STATUS_DC_LINK_NEGATIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
@@ -89,8 +89,8 @@ public enum GridConChannelId implements ChannelId {
 	INVERTER_3_STATUS_RESERVE_2(Doc.of(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)),
 	INVERTER_3_STATUS_RESERVE_3(Doc.of(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)),
 
-	DCDC_STATUS_STATE_MACHINE(Doc.of(StatusIPUStateMachine.values())),
-	DCDC_STATUS_MCU(Doc.of(StatusIPUStatusMCU.values())), //
+	DCDC_STATUS_STATE_MACHINE(Doc.of(StatusIpuStateMachine.values())),
+	DCDC_STATUS_MCU(Doc.of(StatusIpuStatusMcu.values())), //
 	DCDC_STATUS_FILTER_CURRENT(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
 	DCDC_STATUS_DC_LINK_NEGATIVE_VOLTAGE(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
@@ -228,7 +228,7 @@ public enum GridConChannelId implements ChannelId {
 
 	COMMAND_CONTROL_PARAMETER_F0_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	/**
-	 * Describes the frequency
+	 * Describes the frequency.
 	 */
 	COMMAND_CONTROL_PARAMETER_F0(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -236,7 +236,7 @@ public enum GridConChannelId implements ChannelId {
 
 	COMMAND_CONTROL_PARAMETER_Q_REF_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	/**
-	 * Describes the reactive power
+	 * Describes the reactive power.
 	 */
 	COMMAND_CONTROL_PARAMETER_Q_REF(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -245,7 +245,7 @@ public enum GridConChannelId implements ChannelId {
 
 	COMMAND_CONTROL_PARAMETER_P_REF_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	/**
-	 * Describes the active power
+	 * Describes the active power.
 	 */
 	COMMAND_CONTROL_PARAMETER_P_REF(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -284,7 +284,7 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_F_P_DRROP_MAIN_LOWER_DEBUG))),
-	
+
 	CONTROL_PARAMETER_F_P_DRROP_MAIN_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
 	CONTROL_PARAMETER_F_P_DROOP_MAIN_UPPER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -302,7 +302,7 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN_LOWER_DEBUG))),
-	
+
 	CONTROL_PARAMETER_Q_U_DROOP_MAIN_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
 	CONTROL_PARAMETER_Q_U_DROOP_MAIN_UPPER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -314,7 +314,7 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND_LOWER_DEBUG))),
-	
+
 	CONTROL_PARAMETER_Q_U_DEAD_BAND_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
 	CONTROL_PARAMETER_Q_U_DEAD_BAND_UPPER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -336,7 +336,7 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER_DEBUG))),
-	
+
 	CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
@@ -351,11 +351,13 @@ public enum GridConChannelId implements ChannelId {
 	CONTROL_PARAMETER_P_U_DROOP_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	CONTROL_PARAMETER_P_U_DROOP_LOWER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
-			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_LOWER_DEBUG))),
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_LOWER_DEBUG))),
 	CONTROL_PARAMETER_P_U_DROOP_UPPER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	CONTROL_PARAMETER_P_U_DROOP_UPPER(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
-			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_UPPER_DEBUG))),
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.CONTROL_PARAMETER_P_U_DROOP_UPPER_DEBUG))),
 
 	CONTROL_PARAMETER_P_U_DEAD_BAND_LOWER_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	CONTROL_PARAMETER_P_U_DEAD_BAND_LOWER(new FloatDoc() //
@@ -545,13 +547,13 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_CONTROL_DC_VOLTAGE_SETPOINT(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)),
 	DCDC_CONTROL_WEIGHT_STRING_A_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	DCDC_CONTROL_WEIGHT_STRING_A(new FloatDoc().unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
-	.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A_DEBUG))), //
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A_DEBUG))), //
 	DCDC_CONTROL_WEIGHT_STRING_B_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	DCDC_CONTROL_WEIGHT_STRING_B(new FloatDoc().unit(Unit.NONE).accessMode(AccessMode.READ_WRITE) //
-	.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B_DEBUG))), //
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B_DEBUG))), //
 	DCDC_CONTROL_WEIGHT_STRING_C_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	DCDC_CONTROL_WEIGHT_STRING_C(new FloatDoc().unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
-	.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C_DEBUG))), ////
+			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C_DEBUG))), ////
 	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
 			.accessMode(AccessMode.READ_WRITE)), //

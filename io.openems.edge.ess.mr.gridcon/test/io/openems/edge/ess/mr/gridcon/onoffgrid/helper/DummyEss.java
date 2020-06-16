@@ -43,4 +43,10 @@ public class DummyEss extends EssGridcon  {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	protected void writeStateMachineToChannel() {
+		// TODO Auto-generated method stub
+		
+	}
 }

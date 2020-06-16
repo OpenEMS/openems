@@ -11,8 +11,9 @@ public class Undefined extends BaseState implements StateObject {
 
 	private final Logger log = LoggerFactory.getLogger(Undefined.class);
 
-	public Undefined(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, String hardRestartRelayAdress) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
+	public Undefined(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id,
+			String hardRestartRelayAdress) {
+		super(manager, gridconPcsId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
 	}
 
 	@Override
@@ -22,23 +23,24 @@ public class Undefined extends BaseState implements StateObject {
 
 	@Override
 	public IState getNextState() {
-		// According to the state machine the next state can be STOPPED, ERROR, RUN or UNDEFINED
+		// According to the state machine the next state can be STOPPED, ERROR, RUN or
+		// UNDEFINED
 		if (isNextStateUndefined()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
 		}
-		
+
 		if (isNextStateError()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 		}
-		
+
 		if (isNextStateRunning()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN;
 		}
-		
+
 		if (isNextStateStopped()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
 		}
-		
+
 		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.UNDEFINED;
 	}
 

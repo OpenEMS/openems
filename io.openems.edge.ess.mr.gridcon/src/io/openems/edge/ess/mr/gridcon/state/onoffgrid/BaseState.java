@@ -11,7 +11,7 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.WeightingHelper;
@@ -22,9 +22,9 @@ public abstract class BaseState implements StateObject {
 	private static final int VOLTAGE_GRID = 200_000;
 	public static final float ONOFF_GRID_VOLTAGE_FACTOR = 1;
 	public static final float ONOFF_GRID_FREQUENCY_FACTOR_ONLY_ONGRID = 1.054f;
-	
+
 	private ComponentManager manager;
-	private String gridconPCSId;
+	private String gridconPcsId;
 	private String battery1Id;
 	private String battery2Id;
 	private String battery3Id;
@@ -33,21 +33,23 @@ public abstract class BaseState implements StateObject {
 	private String inputNA2;
 	private boolean na2Inverted;
 	private String inputSyncBridge;
-	private boolean inputSyncInverted;
 	private String outputSyncBridge;
 	private String meterId;
 	private IState stateBefore;
-	protected DecisionTableCondition condition; //TODO besser wäre es die Methode IState getNextState(); so zu deklarieren
+	protected DecisionTableCondition condition; // TODO besser wäre es die Methode IState getNextState(); so zu deklarieren
 	private StateObject subStateObject;
-	//IState getNextState(DecisionTableCondition condition), das erfordert aber ein anderes Handling der states....
-	//was nur konsequent ist, da on grid states und off grid states aktuell nicht konsistent sind...
-	// Die aktuelle state machine für den ongrid state ist eigtl eine "unter statee machine der gesamt state machine und bildet nur den on grid betrieb ab
-	
-	
-	public BaseState(ComponentManager manager, DecisionTableCondition condition, String gridconPCSId, String b1Id, String b2Id, String b3Id,
-			String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge, String meterId, boolean na1Inverted, boolean na2Inverted, boolean inputSyncInverted) {
+	// IState getNextState(DecisionTableCondition condition), das erfordert aber ein
+	// anderes Handling der states....
+	// was nur konsequent ist, da on grid states und off grid states aktuell nicht
+	// konsistent sind...
+	// Die aktuelle state machine für den ongrid state ist eigtl eine "unter state
+	// machine der gesamt state machine und bildet nur den on grid betrieb ab
+
+	public BaseState(ComponentManager manager, DecisionTableCondition condition, String gridconPcsId, String b1Id,
+			String b2Id, String b3Id, String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge,
+			String meterId, boolean na1Inverted, boolean na2Inverted) {
 		this.manager = manager;
-		this.gridconPCSId = gridconPCSId;
+		this.gridconPcsId = gridconPcsId;
 		this.battery1Id = b1Id;
 		this.battery2Id = b2Id;
 		this.battery3Id = b3Id;
@@ -59,7 +61,6 @@ public abstract class BaseState implements StateObject {
 		this.condition = condition;
 		this.na1Inverted = na1Inverted;
 		this.na2Inverted = na2Inverted;
-		this.inputSyncInverted = inputSyncInverted;
 	}
 
 	protected boolean isNextStateUndefined() {
@@ -121,7 +122,7 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isNextStateError() {
-		if (getGridconPCS() != null && getGridconPCS().isError()) {
+		if (getGridconPcs() != null && getGridconPcs().isError()) {
 			return true;
 		}
 
@@ -141,11 +142,11 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isNextStateOnGridStopped() {
-		return isSystemOngrid() && getGridconPCS() != null && getGridconPCS().isStopped();
+		return isSystemOngrid() && getGridconPcs() != null && getGridconPcs().isStopped();
 	}
 
 	protected boolean isNextStateOnGridRunning() {
-		return isSystemOngrid() && (getGridconPCS() != null && getGridconPCS().isRunning());
+		return isSystemOngrid() && (getGridconPcs() != null && getGridconPcs().isRunning());
 	}
 
 	protected boolean isNextStateOffGrid() {
@@ -156,61 +157,63 @@ public abstract class BaseState implements StateObject {
 	}
 
 	protected boolean isNextStateGoingOnGrid() {
-		if (isSystemOffgrid() && isVoltageOnMeter() ) {
+		if (isSystemOffgrid() && isVoltageOnMeter()) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	private boolean isVoltageOnMeter() {
 		boolean ret = false;
 		try {
 			SymmetricMeter meter = manager.getComponent(meterId);
 			Channel<Integer> voltageChannel = meter.getVoltage();
-			int voltage = voltageChannel.value().orElse(0); //voltage is in mV
+			int voltage = voltageChannel.value().orElse(0); // voltage is in mV
 			ret = voltage > BaseState.VOLTAGE_GRID;
 		} catch (OpenemsNamedException e) {
 			ret = false;
 		}
 		return ret;
 	}
-	
+
 	protected float getVoltageOnMeter() {
 		float ret = Float.MIN_VALUE;
 		try {
 			SymmetricMeter meter = manager.getComponent(meterId);
 			Channel<Integer> voltageChannel = meter.getVoltage();
-			int voltage = voltageChannel.value().orElse(0); //voltage is in mV
+			int voltage = voltageChannel.value().orElse(0); // voltage is in mV
 			ret = voltage / 1000.0f;
 		} catch (OpenemsNamedException e) {
+			System.out.println(e);
 		}
 		return ret;
 	}
-	
+
 	protected float getFrequencyOnMeter() {
 		float ret = Float.MIN_VALUE;
 		try {
 			SymmetricMeter meter = manager.getComponent(meterId);
 			Channel<Integer> frequencyChannel = meter.getFrequency();
-			int frequency = frequencyChannel.value().orElse(0); //voltage is in mV
+			int frequency = frequencyChannel.value().orElse(0); // voltage is in mV
 			ret = frequency / 1000.0f;
 		} catch (OpenemsNamedException e) {
+			System.out.println(e);
 		}
 		return ret;
 	}
 
 	protected void setSyncBridge(boolean b) {
 		System.out.println("setSyncBridge : parameter --> " + b);
-			try {
-				System.out.println("Try to write " + b + " to the sync bridge channel");
-				System.out.println("output sync bridge address: " + outputSyncBridge);
-				BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager
-						.getChannel(ChannelAddress.fromString(outputSyncBridge));
-				outputSyncDeviceBridgeChannel.setNextWriteValue(b);
-			} catch (IllegalArgumentException | OpenemsNamedException e) {
-				System.out.println("Error writing channel");
-				System.out.println(e.getMessage());
-			}
+		try {
+			System.out.println("Try to write " + b + " to the sync bridge channel");
+			System.out.println("output sync bridge address: " + outputSyncBridge);
+			BooleanWriteChannel outputSyncDeviceBridgeChannel = this.manager
+					.getChannel(ChannelAddress.fromString(outputSyncBridge));
+			outputSyncDeviceBridgeChannel.setNextWriteValue(b);
+		} catch (IllegalArgumentException | OpenemsNamedException e) {
+			System.out.println("Error writing channel");
+			System.out.println(e.getMessage());
+		}
 	}
 
 	protected boolean isSystemOngrid() {
@@ -218,15 +221,15 @@ public abstract class BaseState implements StateObject {
 			try {
 				boolean na1Value = getBooleanReadChannel(inputNA1).value().get();
 				boolean na2Value = getBooleanReadChannel(inputNA2).value().get();
-				
+
 				if (na1Inverted) {
 					na1Value = !na1Value;
 				}
-				
+
 				if (na2Inverted) {
 					na2Value = !na2Value;
 				}
-				
+
 				return na1Value && na2Value;
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
 				return false;
@@ -240,15 +243,15 @@ public abstract class BaseState implements StateObject {
 			try {
 				boolean na1Value = getBooleanReadChannel(inputNA1).value().get();
 				boolean na2Value = getBooleanReadChannel(inputNA2).value().get();
-				
+
 				if (na1Inverted) {
 					na1Value = !na1Value;
 				}
-				
+
 				if (na2Inverted) {
 					na2Value = !na2Value;
 				}
-				
+
 				return !na1Value || !na2Value;
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
 				return false;
@@ -291,25 +294,25 @@ public abstract class BaseState implements StateObject {
 
 	protected void setStringControlMode() {
 		int weightingMode = WeightingHelper.getStringControlMode(getBattery1(), getBattery2(), getBattery3());
-		getGridconPCS().setStringControlMode(weightingMode);
+		getGridconPcs().setStringControlMode(weightingMode);
 	}
 
 	protected void setStringWeighting() {
-		float activePower = getGridconPCS().getActivePower();
+		float activePower = getGridconPcs().getActivePower();
 
 		Float[] weightings = WeightingHelper.getWeighting(activePower, getBattery1(), getBattery2(), getBattery3());
 
-		getGridconPCS().setWeightStringA(weightings[0]);
-		getGridconPCS().setWeightStringB(weightings[1]);
-		getGridconPCS().setWeightStringC(weightings[2]);
+		getGridconPcs().setWeightStringA(weightings[0]);
+		getGridconPcs().setWeightStringB(weightings[1]);
+		getGridconPcs().setWeightStringC(weightings[2]);
 
 	}
 
 	protected void setDateAndTime() {
 		int date = this.convertToInteger(this.generateDate(LocalDateTime.now()));
-		getGridconPCS().setSyncDate(date);
+		getGridconPcs().setSyncDate(date);
 		int time = this.convertToInteger(this.generateTime(LocalDateTime.now()));
-		getGridconPCS().setSyncTime(time);
+		getGridconPcs().setSyncTime(time);
 	}
 
 	private BitSet generateDate(LocalDateTime time) {
@@ -337,8 +340,8 @@ public abstract class BaseState implements StateObject {
 		return (int) l[0];
 	}
 
-	GridconPCS getGridconPCS() {
-		return getComponent(gridconPCSId);
+	GridconPcs getGridconPcs() {
+		return getComponent(gridconPcsId);
 	}
 
 	SoltaroBattery getBattery1() {
@@ -358,28 +361,27 @@ public abstract class BaseState implements StateObject {
 		try {
 			component = manager.getComponent(id);
 		} catch (OpenemsNamedException e) {
-
+			System.out.println(e);
 		}
 		return component;
 	}
-	
+
 	@Override
 	public IState getStateBefore() {
 		return stateBefore;
 	}
-	
+
 	@Override
-	public void setStateBefore(IState stateBefore) {		
+	public void setStateBefore(IState stateBefore) {
 		if (this.stateBefore == null || !this.stateBefore.equals(stateBefore)) {
-			this.stateBefore = stateBefore;		
+			this.stateBefore = stateBefore;
 		}
 	}
-	
+
 	@Override
-	public void setSubStateObject(StateObject subStateObject) {		
+	public void setSubStateObject(StateObject subStateObject) {
 		this.subStateObject = subStateObject;
 	}
-
 
 	@Override
 	public StateObject getSubStateObject() {

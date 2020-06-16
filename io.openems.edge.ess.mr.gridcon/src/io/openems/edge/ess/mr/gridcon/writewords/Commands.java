@@ -5,15 +5,15 @@ import java.util.BitSet;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class Commands {
-	
-private static Commands instance;
+
+	private static Commands instance;
 
 	public static int COMMANDS_ADRESS = 32560;
 
 	private Commands() {
-		
+
 	}
-	
+
 	public static Commands getCommands() {
 		if (instance == null) {
 			instance = new Commands();
@@ -51,34 +51,43 @@ private static Commands instance;
 	private Float parameterPref = 0f;
 	private Integer syncDate = 0;
 	private Integer syncTime = 0;
-	
+
 	public Boolean isEnableIpu1() {
 		return enableIpu1;
 	}
+
 	public void setEnableIpu1(Boolean enable) {
 		this.enableIpu1 = enable;
 	}
+
 	public Boolean isEnableIpu2() {
 		return enableIpu2;
 	}
+
 	public void setEnableIpu2(Boolean enable) {
 		this.enableIpu2 = enable;
 	}
+
 	public Boolean isEnableIpu3() {
 		return enableIpu3;
 	}
+
 	public void setEnableIpu3(Boolean enable) {
 		this.enableIpu3 = enable;
 	}
+
 	public Boolean isEnableIpu4() {
 		return enableIpu4;
 	}
+
 	public void setEnableIpu4(Boolean enable) {
 		this.enableIpu4 = enable;
 	}
+
 	public Boolean isBlackstartApproval() {
 		return blackstartApproval;
 	}
+
 	public Boolean getPlayBit() {
 		return playBit;
 	}
@@ -114,92 +123,121 @@ private static Commands instance;
 	public void setBlackstartApproval(Boolean blackstartApproval) {
 		this.blackstartApproval = blackstartApproval;
 	}
+
 	public Boolean isSyncApproval() {
 		return syncApproval;
 	}
+
 	public void setSyncApproval(Boolean syncApproval) {
 		this.syncApproval = syncApproval;
 	}
+
 	public Boolean isShortCircuitHandling() {
-		return shortCircuitHandling;		
-	}	
+		return shortCircuitHandling;
+	}
+
 	public Mode getModeSelection() {
 		return modeSelection;
 	}
+
 	public void setModeSelection(Mode modeSelection) {
 		this.modeSelection = modeSelection;
 	}
+
 	public Boolean isTriggerSia() {
 		return triggerSia;
-	}	
+	}
+
 	public Boolean isHarmonicCompensation() {
 		return harmonicCompensation;
 	}
+
 	public Boolean isParameterSet1() {
 		return parameterSet1;
 	}
+
 	public void setParameterSet1(Boolean parameterSet1) {
 		this.parameterSet1 = parameterSet1;
 	}
+
 	public Boolean isParameterSet2() {
 		return parameterSet2;
 	}
+
 	public void setParameterSet2(Boolean parameterSet2) {
 		this.parameterSet2 = parameterSet2;
 	}
+
 	public Boolean isParameterSet3() {
 		return parameterSet3;
 	}
+
 	public void setParameterSet3(Boolean parameterSet3) {
 		this.parameterSet3 = parameterSet3;
 	}
+
 	public Boolean isParameterSet4() {
 		return parameterSet4;
 	}
+
 	public void setParameterSet4(Boolean parameterSet4) {
 		this.parameterSet4 = parameterSet4;
 	}
+
 	public Integer getErrorCodeFeedback() {
 		return errorCodeFeedback;
 	}
+
 	public void setErrorCodeFeedback(Integer errorCodeFeedback) {
 		this.errorCodeFeedback = errorCodeFeedback;
 	}
+
 	public Float getParameterU0() {
 		return parameterU0;
 	}
+
 	public void setParameterU0(Float parameterU0) {
 		this.parameterU0 = parameterU0;
 	}
+
 	public Float getParameterF0() {
 		System.out.println("in Command.getParameterF0: " + parameterF0);
 		return parameterF0;
 	}
+
 	public void setParameterF0(Float parameterF0) {
 		System.out.println("in Command.setParameterF0: " + parameterF0);
 		this.parameterF0 = parameterF0;
 	}
+
 	public Float getParameterQref() {
 		return parameterQref;
 	}
+
 	public void setParameterQref(Float parameterQref) {
 		this.parameterQref = parameterQref;
 	}
+
 	public Float getParameterPref() {
 		return parameterPref;
 	}
+
 	public void setParameterPref(Float parameterPref) {
 		this.parameterPref = parameterPref;
 	}
+
 	public Integer getSyncDate() {
 		return syncDate;
 	}
+
 	public void setSyncDate(Integer syncDate) {
 		this.syncDate = syncDate;
 	}
+
 	public Integer getSyncTime() {
 		return syncTime;
 	}
+
 	public void setSyncTime(Integer syncTime) {
 		this.syncTime = syncTime;
 	}
@@ -239,10 +277,10 @@ private static Commands instance;
 		sb.append(HexFormatter.format(syncDate, true));
 		sb.append("  ");
 		sb.append(HexFormatter.format(syncTime, true));
-		
+
 		return sb.toString();
 	}
-	
+
 	private short getCmdWord1() {
 		BitSet set = new BitSet(16);
 		set.set(0, getStopBit1st()); //
@@ -259,8 +297,8 @@ private static Commands instance;
 		set.set(11, isParameterSet2());
 		set.set(12, isParameterSet3());
 		set.set(13, isParameterSet4());
-		
-		long val = 0;		
+
+		long val = 0;
 		long[] l = set.toLongArray();
 		if (l.length == 0) {
 			val = 0;
@@ -269,15 +307,15 @@ private static Commands instance;
 		}
 		return (short) val;
 	}
-		
+
 	private int getCmdWord2() {
 		BitSet set = new BitSet(16);
 		set.set(28 - 16, enableIpu4); //
 		set.set(29 - 16, enableIpu3); //
 		set.set(30 - 16, enableIpu2); //
 		set.set(31 - 16, enableIpu1); //
-		
-		long val = 0;		
+
+		long val = 0;
 		long[] l = set.toLongArray();
 		if (l.length == 0) {
 			val = 0;

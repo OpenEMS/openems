@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
-import io.openems.edge.ess.mr.gridcon.GridconPCSImpl;
+import io.openems.edge.ess.mr.gridcon.GridconPcs;
+import io.openems.edge.ess.mr.gridcon.GridconPcsImpl;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
@@ -17,19 +17,19 @@ import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 public class Run extends BaseState implements StateObject {
 
 	private final Logger log = LoggerFactory.getLogger(Run.class);
-	private boolean enableIPU1;
-	private boolean enableIPU2;
-	private boolean enableIPU3;
+	private boolean enableIpu1;
+	private boolean enableIpu2;
+	private boolean enableIpu3;
 	private float offsetCurrent;
 	private ParameterSet parameterSet;
 
-	public Run(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1,
-			boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String hardRestartRelayAdress,
+	public Run(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id, boolean enableIpu1,
+			boolean enableIpu2, boolean enableIpu3, ParameterSet parameterSet, String hardRestartRelayAdress,
 			float offsetCurrent) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
-		this.enableIPU1 = enableIPU1;
-		this.enableIPU2 = enableIPU2;
-		this.enableIPU3 = enableIPU3;
+		super(manager, gridconPcsId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
+		this.enableIpu1 = enableIpu1;
+		this.enableIpu2 = enableIpu2;
+		this.enableIpu3 = enableIpu3;
 		this.parameterSet = parameterSet;
 		this.offsetCurrent = offsetCurrent;
 	}
@@ -72,7 +72,7 @@ public class Run extends BaseState implements StateObject {
 		setStringControlMode();
 		setDateAndTime();
 		try {
-			getGridconPCS().doWriteTasks();
+			getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,25 +107,25 @@ public class Run extends BaseState implements StateObject {
 
 			System.out.println("Battery 1 has the highest cell voltage, set offset current to " + offsetCurrent);
 
-			getGridconPCS().setIRefStringA(offsetCurrent);
-			getGridconPCS().setIRefStringB(0f);
-			getGridconPCS().setIRefStringC(0f);
+			getGridconPcs().setIRefStringA(offsetCurrent);
+			getGridconPcs().setIRefStringB(0f);
+			getGridconPcs().setIRefStringC(0f);
 		}
 		if (hasBattery2HighestCellVoltage()) {
 
 			System.out.println("Battery 2 has the highest cell voltage, set offset current to " + offsetCurrent);
 
-			getGridconPCS().setIRefStringA(0f);
-			getGridconPCS().setIRefStringB(offsetCurrent);
-			getGridconPCS().setIRefStringC(0f);
+			getGridconPcs().setIRefStringA(0f);
+			getGridconPcs().setIRefStringB(offsetCurrent);
+			getGridconPcs().setIRefStringC(0f);
 		}
 		if (hasBattery3HighestCellVoltage()) {
 
 			System.out.println("Battery 3 has the highest cell voltage, set offset current to " + offsetCurrent);
 
-			getGridconPCS().setIRefStringA(0f);
-			getGridconPCS().setIRefStringB(0f);
-			getGridconPCS().setIRefStringC(offsetCurrent);
+			getGridconPcs().setIRefStringA(0f);
+			getGridconPcs().setIRefStringB(0f);
+			getGridconPcs().setIRefStringC(offsetCurrent);
 		}
 
 		System.out.println(" ----- End of setting the offset current --------");
@@ -136,8 +136,7 @@ public class Run extends BaseState implements StateObject {
 			return false;
 		}
 
-		if (getBattery2() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
-																// voltage
+		if (getBattery2() == null && getBattery3() == null) { // only this battery exists --> must have highest cell voltage
 			return true;
 		}
 
@@ -158,8 +157,7 @@ public class Run extends BaseState implements StateObject {
 			return false;
 		}
 
-		if (getBattery1() == null && getBattery3() == null) { // only this battery exists --> must have highest cell
-																// voltage
+		if (getBattery1() == null && getBattery3() == null) { // only this battery exists --> must have highest cell voltage
 			return true;
 		}
 
@@ -180,8 +178,7 @@ public class Run extends BaseState implements StateObject {
 			return false;
 		}
 
-		if (getBattery1() == null && getBattery2() == null) { // only this battery exists --> must have highest cell
-																// voltage
+		if (getBattery1() == null && getBattery2() == null) { // only this battery exists --> must have highest cell voltage
 			return true;
 		}
 
@@ -202,35 +199,35 @@ public class Run extends BaseState implements StateObject {
 	}
 
 	private void setRunParameters() {
-		getGridconPCS().setEnableIPU1(enableIPU1);
-		getGridconPCS().setEnableIPU2(enableIPU2);
-		getGridconPCS().setEnableIPU3(enableIPU3);
+		getGridconPcs().setEnableIpu1(enableIpu1);
+		getGridconPcs().setEnableIpu2(enableIpu2);
+		getGridconPcs().setEnableIpu3(enableIpu3);
 
 		// Enable DC DC
-		getGridconPCS().enableDCDC();
-		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
+		getGridconPcs().enableDcDc();
+		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
 
-		getGridconPCS().setSyncApproval(true);
-		getGridconPCS().setBlackStartApproval(false);
-		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPCS().setParameterSet(parameterSet);
-		getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
-		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
+		getGridconPcs().setSyncApproval(true);
+		getGridconPcs().setBlackStartApproval(false);
+		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
+		getGridconPcs().setParameterSet(parameterSet);
+		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
 
-		float maxPower = GridconPCSImpl.MAX_POWER_PER_INVERTER;
-		if (enableIPU1) {
-			getGridconPCS().setPMaxChargeIPU1(maxPower);
-			getGridconPCS().setPMaxDischargeIPU1(-maxPower);
+		float maxPower = GridconPcsImpl.MAX_POWER_PER_INVERTER;
+		if (enableIpu1) {
+			getGridconPcs().setPMaxChargeIpu1(maxPower);
+			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
 		}
-		if (enableIPU2) {
-			getGridconPCS().setPMaxChargeIPU2(maxPower);
-			getGridconPCS().setPMaxDischargeIPU2(-maxPower);
+		if (enableIpu2) {
+			getGridconPcs().setPMaxChargeIpu2(maxPower);
+			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
 		}
-		if (enableIPU3) {
-			getGridconPCS().setPMaxChargeIPU3(maxPower);
-			getGridconPCS().setPMaxDischargeIPU3(-maxPower);
+		if (enableIpu3) {
+			getGridconPcs().setPMaxChargeIpu3(maxPower);
+			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
 		}
 	}
 }

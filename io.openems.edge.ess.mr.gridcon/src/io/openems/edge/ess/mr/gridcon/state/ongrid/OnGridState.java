@@ -5,10 +5,10 @@ import io.openems.edge.ess.mr.gridcon.IState;
 
 public enum OnGridState implements IState {
 	UNDEFINED(-1, "BASE Undefined"), //
-	ONGRID(0, "BASE OnGrid"), //	
+	ONGRID(0, "BASE OnGrid"), //
 	ERROR(100, "BASE Error"), //
 	;
-	
+
 	private final int value;
 	private final String name;
 

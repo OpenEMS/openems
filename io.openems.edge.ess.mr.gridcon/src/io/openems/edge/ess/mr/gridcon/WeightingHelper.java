@@ -4,46 +4,45 @@ import io.openems.edge.battery.soltaro.SoltaroBattery;
 
 public class WeightingHelper {
 
-	public static Float[] getWeighting(float activePower, SoltaroBattery b1, SoltaroBattery b2,
-			SoltaroBattery b3) {
+	public static Float[] getWeighting(float activePower, SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
 
-		Float[] ret = {0f, 0f, 0f};
-		
+		Float[] ret = { 0f, 0f, 0f };
+
 		// Discharge
 		if (activePower > 0) {
 			ret[0] = getWeightingForDischarge(b1);
 			ret[1] = getWeightingForDischarge(b2);
 			ret[2] = getWeightingForDischarge(b3);
-		// Charge
+			// Charge
 		} else if (activePower < 0) {
 			ret[0] = getWeightingForCharge(b1);
 			ret[1] = getWeightingForCharge(b2);
 			ret[2] = getWeightingForCharge(b3);
-		// active power is zero
+			// active power is zero
 		} else {
-			ret = getWeightingForNoPower(b1, b2, b3);	
+			ret = getWeightingForNoPower(b1, b2, b3);
 		}
 
 		return ret;
 	}
-	
+
 	protected static Float[] getWeightingForNoPower(SoltaroBattery b1, SoltaroBattery b2, SoltaroBattery b3) {
-		
+
 		float weightA = 0;
-		if(isBatteryReady(b1)) {
+		if (isBatteryReady(b1)) {
 			weightA = 1;
-		} 
+		}
 		float weightB = 0;
-		if(isBatteryReady(b2)) {
+		if (isBatteryReady(b2)) {
 			weightB = 1;
 		}
-		
+
 		float weightC = 0;
-		if(isBatteryReady(b3)) {
+		if (isBatteryReady(b3)) {
 			weightC = 1;
-		}		
-		
-		return new Float[] {weightA, weightB, weightC};
+		}
+
+		return new Float[] { weightA, weightB, weightC };
 	}
 
 	static float getWeightingForCharge(SoltaroBattery b) {
@@ -55,7 +54,7 @@ public class WeightingHelper {
 		}
 		return weight;
 	}
-	
+
 	static float getWeightingForDischarge(SoltaroBattery b) {
 		float weight = 0;
 		if (b != null && isBatteryReady(b)) {
@@ -74,7 +73,7 @@ public class WeightingHelper {
 	}
 
 	public static int getStringControlMode(SoltaroBattery battery1, SoltaroBattery battery2, SoltaroBattery battery3) {
-		int weightingMode = 0; 
+		int weightingMode = 0;
 
 		boolean useBatteryStringA = (battery1 != null && battery1.isRunning());
 		if (useBatteryStringA) {
@@ -88,7 +87,7 @@ public class WeightingHelper {
 		if (useBatteryStringC) {
 			weightingMode = weightingMode + 64; // battC = 64 (2^6)
 		}
-		
+
 		return weightingMode;
 	}
 }

@@ -4,14 +4,14 @@ import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition;
 
 public class DummyDecisionTableCondition implements DecisionTableCondition {
 
-	NAProtection_1_On isNaProtection1On;
-	NAProtection_2_On isNaProtection2On;
+	NaProtection1On isNaProtection1On;
+	NaProtection2On isNaProtection2On;
 	GridconCommunicationFailed isGridconCommunicationFailed;
 	MeterCommunicationFailed isMeterCommunicationFailed;
 	VoltageInRange isVoltageInRange;
 	SyncBridgeOn isSyncBridgeOn;
 
-	public DummyDecisionTableCondition(NAProtection_1_On isNaProtection1On, NAProtection_2_On isNaProtection2On,
+	public DummyDecisionTableCondition(NaProtection1On isNaProtection1On, NaProtection2On isNaProtection2On,
 			GridconCommunicationFailed isGridconCommunicationFailed, MeterCommunicationFailed isMeterCommunicationFailed, VoltageInRange isVoltageInRange,
 			SyncBridgeOn isSyncBridgeOn) {
 		super();
@@ -24,12 +24,12 @@ public class DummyDecisionTableCondition implements DecisionTableCondition {
 	}
 
 	@Override
-	public NAProtection_1_On isNaProtection1On() {
+	public NaProtection1On isNaProtection1On() {
 		return isNaProtection1On;
 	}
 
 	@Override
-	public NAProtection_2_On isNaProtection2On() {
+	public NaProtection2On isNaProtection2On() {
 		return isNaProtection2On;
 	}
 
@@ -53,11 +53,11 @@ public class DummyDecisionTableCondition implements DecisionTableCondition {
 		return isSyncBridgeOn;
 	}
 
-	public void setNaProtection1On(NAProtection_1_On isNaProtection1On) {
+	public void setNaProtection1On(NaProtection1On isNaProtection1On) {
 		this.isNaProtection1On = isNaProtection1On;
 	}
 
-	public void setNaProtection2On(NAProtection_2_On isNaProtection2On) {
+	public void setNaProtection2On(NaProtection2On isNaProtection2On) {
 		this.isNaProtection2On = isNaProtection2On;
 	}
 

@@ -45,7 +45,7 @@ public class EssGridConOnOffGrid extends EssGridcon
 	private Config config;
 
 	public EssGridConOnOffGrid() {
-		super(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.values());
+		super(io.openems.edge.ess.mr.gridcon.onoffgrid.ChannelId.values());
 	}
 
 	@Activate
@@ -67,23 +67,27 @@ public class EssGridConOnOffGrid extends EssGridcon
 	}
 
 	protected void calculateGridMode() throws IllegalArgumentException, OpenemsNamedException {
-		//TODO
+		// TODO
 		GridMode gridMode = GridMode.UNDEFINED;
-		
+
 		if (this.stateObject != null) {
 			if (//
-				OnOffGridState.ON_GRID_MODE == this.stateObject.getState()//
+			OnOffGridState.ON_GRID_MODE == this.stateObject.getState()//
 			) {
 				gridMode = GridMode.ON_GRID;
 			} else if (OnOffGridState.OFF_GRID_MODE == this.stateObject.getState()) {
 				gridMode = GridMode.OFF_GRID;
 			}
 		}
-		
+
 		getGridMode().setNextValue(gridMode);
 	}
 
-	
+	@Override
+	protected void writeStateMachineToChannel() {
+		this.channel(io.openems.edge.ess.mr.gridcon.onoffgrid.ChannelId.STATE_MACHINE)
+				.setNextValue(this.stateObject.getState());
+	}
 
 	protected void checkConfiguration(Config config) throws OpenemsException {
 		// TODO checks
@@ -105,36 +109,37 @@ public class EssGridConOnOffGrid extends EssGridcon
 	}
 
 	@Override
-	protected void initializeStateController(String gridconPCS, String b1, String b2, String b3) {
-		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(componentManager, gridconPCS, config.meter_id(), config.inputNAProtection1(), config.inputNAProtection2(), config.inputSyncDeviceBridge(), config.isNAProtection1Inverted()
-				, config.isNAProtection2Inverted(), config.isInputSyncDeviceBridgeInverted());
+	protected void initializeStateController(String gridconPcs, String b1, String b2, String b3) {
+		DecisionTableCondition tableCondition = new DecisionTableConditionImpl(componentManager, gridconPcs,
+				config.meter_id(), config.inputNaProtection1(), config.inputNaProtection2(),
+				config.inputSyncDeviceBridge(), config.isNaProtection1Inverted(), config.isNaProtection2Inverted(),
+				config.isInputSyncDeviceBridgeInverted());
 		StateController.initDecisionTableCondition(tableCondition);
 		StateController.initOnOffGrid(//
-				componentManager  //
-				, gridconPCS//
-				, b1//
-				, b2//
-				, b3//
-				, config.enableIPU1()//
-				, config.enableIPU2()//
-				, config.enableIPU3()//
-				, config.parameterSet()//
-				, config.inputNAProtection1()
-				, config.isNAProtection1Inverted()
-				, config.inputNAProtection2()
-				, config.isNAProtection2Inverted()
-				, config.inputSyncDeviceBridge()
-				, config.isInputSyncDeviceBridgeInverted()
-				, config.outputSyncDeviceBridge()
-				, config.isOutputSyncDeviceBridgeInverted()
-				, config.outputHardReset()
-				, config.isOutputHardResetInverted()
-				, config.targetFrequencyOnGrid()
-				, config.targetFrequencyOffGrid()
-				, config.meter_id()
-				, config.deltaFrequency()
-				, config.deltaVoltage()
-				, config.offsetCurrent()
-				);
+				componentManager, //
+				gridconPcs, //
+				b1, //
+				b2, //
+				b3, //
+				config.enableIpu1(), //
+				config.enableIpu2(), //
+				config.enableIpu3(), //
+				config.parameterSet(), //
+				config.inputNaProtection1(), //
+				config.isNaProtection1Inverted(), //
+				config.inputNaProtection2(), //
+				config.isNaProtection2Inverted(), //
+				config.inputSyncDeviceBridge(), //
+				config.isInputSyncDeviceBridgeInverted(), //
+				config.outputSyncDeviceBridge(), //
+				config.isOutputSyncDeviceBridgeInverted(), //
+				config.outputHardReset(), //
+				config.isOutputHardResetInverted(), //
+				config.targetFrequencyOnGrid(), //
+				config.targetFrequencyOffGrid(), //
+				config.meter_id(), //
+				config.deltaFrequency(), //
+				config.deltaVoltage(), //
+				config.offsetCurrent());
 	}
 }

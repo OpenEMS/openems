@@ -2,7 +2,7 @@ package io.openems.edge.ess.mr.gridcon.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum StatusIPUStatusMCU implements OptionsEnum {
+public enum StatusIpuStatusMcu implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	FAN_MONITOR(1, "Fan monitor"), //
 	HARD_TRIP(2, "Hard trip"), //
@@ -25,7 +25,7 @@ public enum StatusIPUStatusMCU implements OptionsEnum {
 	private final int value;
 	private final String name;
 
-	private StatusIPUStatusMCU(int value, String name) {
+	private StatusIpuStatusMcu(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

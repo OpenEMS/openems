@@ -5,32 +5,32 @@ public class IpuParameter {
 	// 32624, 32656, 32688
 	private IpuParameter() {
 	}
-	
+
 	private static IpuParameter instanceIpu1Parameter;
 	private static IpuParameter instanceIpu2Parameter;
 	private static IpuParameter instanceIpu3Parameter;
-	
+
 	public static IpuParameter getIpu1Parameter() {
 		if (instanceIpu1Parameter == null) {
 			instanceIpu1Parameter = new IpuParameter();
 		}
 		return instanceIpu1Parameter;
 	}
-	
+
 	public static IpuParameter getIpu2Parameter() {
 		if (instanceIpu2Parameter == null) {
 			instanceIpu2Parameter = new IpuParameter();
 		}
 		return instanceIpu2Parameter;
 	}
-	
+
 	public static IpuParameter getIpu3Parameter() {
 		if (instanceIpu3Parameter == null) {
 			instanceIpu3Parameter = new IpuParameter();
 		}
 		return instanceIpu3Parameter;
 	}
-	
+
 	private float dcVoltageSetpoint = 0f;
 	private float dcCurrentSetpoint = 0f;
 	private float u0OffsetToCcu = 0f;
@@ -39,7 +39,7 @@ public class IpuParameter {
 	private float pRefOffsetToCcu = 0f;
 	private float pMaxDischarge = 0f;
 	private float pMaxCharge = 0f;
-	
+
 	public float getpMaxDischarge() {
 		return pMaxDischarge;
 	}
@@ -82,10 +82,10 @@ public class IpuParameter {
 
 	@Override
 	public String toString() {
-		return "IpuParameter [dcVoltageSetpoint=" + dcVoltageSetpoint + ", dcCurrentSetpoint="
-				+ dcCurrentSetpoint + ", u0OffsetToCcu=" + u0OffsetToCcu + ", f0OffsetToCcu=" + f0OffsetToCcu
-				+ ", qRefOffsetToCcu=" + qRefOffsetToCcu + ", pRefOffsetToCcu=" + pRefOffsetToCcu + ", pMaxDischarge="
-				+ pMaxDischarge + ", pMaxCharge=" + pMaxCharge + "]\n" + getHexRepresentation();
+		return "IpuParameter [dcVoltageSetpoint=" + dcVoltageSetpoint + ", dcCurrentSetpoint=" + dcCurrentSetpoint
+				+ ", u0OffsetToCcu=" + u0OffsetToCcu + ", f0OffsetToCcu=" + f0OffsetToCcu + ", qRefOffsetToCcu="
+				+ qRefOffsetToCcu + ", pRefOffsetToCcu=" + pRefOffsetToCcu + ", pMaxDischarge=" + pMaxDischarge
+				+ ", pMaxCharge=" + pMaxCharge + "]\n" + getHexRepresentation();
 	}
 
 	private String getHexRepresentation() {
@@ -105,7 +105,7 @@ public class IpuParameter {
 		sb.append(HexFormatter.format(pMaxDischarge, true));
 		sb.append("  ");
 		sb.append(HexFormatter.format(pMaxCharge, true));
-		
+
 		return sb.toString();
 	}
 }

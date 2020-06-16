@@ -9,7 +9,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 public class DecisionTableConditionImpl implements DecisionTableCondition {
@@ -17,76 +17,76 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	private ComponentManager manager;
 	private String gridconPcsId;
 	private String meterId;
-	private String inputNAProtection1;
-	private String inputNAProtection2;
+	private String inputNaProtection1;
+	private String inputNaProtection2;
 	private String inputSyncBridge;
-	private boolean isNA1Inverted;
-	private boolean isNA2Inverted;
+	private boolean nA1Inverted;
+	private boolean nA2Inverted;
 	private boolean isSyncBridgeInverted;
 
 	public DecisionTableConditionImpl(ComponentManager manager, String gridconPcsId, String meterId,
-			String inputNAProtection1, String inputNAProtection2, String inputSyncBridge, boolean isNA1Inverted,
-			boolean isNA2Inverted, boolean isSyncBridgeInverted) {
+			String inputNaProtection1, String inputNaProtection2, String inputSyncBridge, boolean isNa1Inverted,
+			boolean isNa2Inverted, boolean isSyncBridgeInverted) {
 		super();
 		this.manager = manager;
 		this.gridconPcsId = gridconPcsId;
 		this.meterId = meterId;
-		this.inputNAProtection1 = inputNAProtection1;
-		this.inputNAProtection2 = inputNAProtection2;
+		this.inputNaProtection1 = inputNaProtection1;
+		this.inputNaProtection2 = inputNaProtection2;
 		this.inputSyncBridge = inputSyncBridge;
-		this.isNA1Inverted = isNA1Inverted;
-		this.isNA2Inverted = isNA2Inverted;
+		this.nA1Inverted = isNa1Inverted;
+		this.nA2Inverted = isNa2Inverted;
 		this.isSyncBridgeInverted = isSyncBridgeInverted;
 	}
 
 	@Override
-	public NAProtection_1_On isNaProtection1On() {
+	public NaProtection1On isNaProtection1On() {
 		try {
-			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNAProtection1));
+			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNaProtection1));
 
 			boolean value = c.value().get();
 
-			if (isNA1Inverted) {
+			if (nA1Inverted) {
 				value = !value;
 			}
 
 			if (value) {
-				return NAProtection_1_On.TRUE;
+				return NaProtection1On.TRUE;
 			} else {
-				return NAProtection_1_On.FALSE;
+				return NaProtection1On.FALSE;
 			}
 		} catch (Exception e) {
-			return NAProtection_1_On.UNSET;
+			return NaProtection1On.UNSET;
 		}
 
 	}
 
 	@Override
-	public NAProtection_2_On isNaProtection2On() {
+	public NaProtection2On isNaProtection2On() {
 		try {
-			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNAProtection2));
+			BooleanReadChannel c = manager.getChannel(ChannelAddress.fromString(inputNaProtection2));
 			boolean value = c.value().get();
 
-			if (isNA2Inverted) {
+			if (nA2Inverted) {
 				value = !value;
 			}
 
 			if (value) {
-				return NAProtection_2_On.TRUE;
+				return NaProtection2On.TRUE;
 			} else {
-				return NAProtection_2_On.FALSE;
+				return NaProtection2On.FALSE;
 			}
 		} catch (Exception e) {
-			return NAProtection_2_On.UNSET;
+			return NaProtection2On.UNSET;
 		}
 	}
 
 	@Override
 	public GridconCommunicationFailed isGridconCommunicationFailed() {
-		GridconPCS gridconPCS;
+		GridconPcs gridconPcs;
 		try {
-			gridconPCS = manager.getComponent(gridconPcsId);
-			if (gridconPCS.isCommunicationBroken()) {
+			gridconPcs = manager.getComponent(gridconPcsId);
+			if (gridconPcs.isCommunicationBroken()) {
 				return GridconCommunicationFailed.TRUE;
 			} else {
 				return GridconCommunicationFailed.FALSE;

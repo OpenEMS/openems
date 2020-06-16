@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
@@ -16,16 +16,18 @@ public class Stopped extends BaseState implements StateObject {
 
 	private final Logger log = LoggerFactory.getLogger(Stopped.class);
 
-	private boolean enableIPU1;
-	private boolean enableIPU2;
-	private boolean enableIPU3;
+	private boolean enableIpu1;
+	private boolean enableIpu2;
+	private boolean enableIpu3;
 	private ParameterSet parameterSet;
-	
-	public Stopped(ComponentManager manager, String gridconPCSId, String b1Id, String b2Id, String b3Id, boolean enableIPU1, boolean enableIPU2, boolean enableIPU3, ParameterSet parameterSet, String hardRestartRelayAdress) {
-		super(manager, gridconPCSId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
-		this.enableIPU1 = enableIPU1;
-		this.enableIPU2 = enableIPU2;
-		this.enableIPU3 = enableIPU3;
+
+	public Stopped(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id,
+			boolean enableIpu1, boolean enableIpu2, boolean enableIpu3, ParameterSet parameterSet,
+			String hardRestartRelayAdress) {
+		super(manager, gridconPcsId, b1Id, b2Id, b3Id, hardRestartRelayAdress);
+		this.enableIpu1 = enableIpu1;
+		this.enableIpu2 = enableIpu2;
+		this.enableIpu3 = enableIpu3;
 		this.parameterSet = parameterSet;
 	}
 
@@ -43,10 +45,10 @@ public class Stopped extends BaseState implements StateObject {
 		if (isNextStateError()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.ERROR;
 		}
-		if (isBatteriesStarted() && getGridconPCS().isRunning()) {			
+		if (isBatteriesStarted() && getGridconPcs().isRunning()) {
 			return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.RUN;
 		}
-		
+
 		return io.openems.edge.ess.mr.gridcon.state.gridconstate.GridconState.STOPPED;
 	}
 
@@ -58,9 +60,9 @@ public class Stopped extends BaseState implements StateObject {
 		setStringWeighting();
 		setStringControlMode();
 		setDateAndTime();
-		
+
 		try {
-			getGridconPCS().doWriteTasks();
+			getGridconPcs().doWriteTasks();
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,126 +70,125 @@ public class Stopped extends BaseState implements StateObject {
 	}
 
 	private void startSystem() {
-		
+
 		if (!isBatteriesStarted()) {
 			System.out.println("Batteries are not started, start batteries and keep system stopped!");
 			startBatteries();
 			keepSystemStopped();
 			return;
 		}
-				
+
 		if (isBatteriesStarted()) {
-								
-			if (!getGridconPCS().isDcDcStarted()) {				
+
+			if (!getGridconPcs().isDcDcStarted()) {
 				startDcDc();
 				return;
 			}
-			enableIPUs();
+			enableIpus();
 		}
 	}
 
-	private void keepSystemStopped() {		
-			getGridconPCS().setEnableIPU1(false);
-			getGridconPCS().setEnableIPU2(false);
-			getGridconPCS().setEnableIPU3(false);
-			getGridconPCS().disableDCDC();
-			
-			getGridconPCS().setStop(true);
-			getGridconPCS().setPlay(false);
-			getGridconPCS().setAcknowledge(false);
-			
-			getGridconPCS().setSyncApproval(true);
-			getGridconPCS().setBlackStartApproval(false);
-			getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-			getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-			getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
-			getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-			getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
-			getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
-			
-			getGridconPCS().setParameterSet(parameterSet);				
-			float maxPower = GridconPCS.MAX_POWER_PER_INVERTER;
-			if (enableIPU1) {
-				getGridconPCS().setPMaxChargeIPU1(maxPower);
-				getGridconPCS().setPMaxDischargeIPU1(-maxPower);
-			}
-			if (enableIPU2) {
-				getGridconPCS().setPMaxChargeIPU2(maxPower);
-				getGridconPCS().setPMaxDischargeIPU2(-maxPower);
-			}
-			if (enableIPU3) {
-				getGridconPCS().setPMaxChargeIPU3(maxPower);
-				getGridconPCS().setPMaxDischargeIPU3(-maxPower);
-			}		
+	private void keepSystemStopped() {
+		getGridconPcs().setEnableIpu1(false);
+		getGridconPcs().setEnableIpu2(false);
+		getGridconPcs().setEnableIpu3(false);
+		getGridconPcs().disableDcDc();
+
+		getGridconPcs().setStop(true);
+		getGridconPcs().setPlay(false);
+		getGridconPcs().setAcknowledge(false);
+
+		getGridconPcs().setSyncApproval(true);
+		getGridconPcs().setBlackStartApproval(false);
+		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
+		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
+		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
+
+		getGridconPcs().setParameterSet(parameterSet);
+		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
+		if (enableIpu1) {
+			getGridconPcs().setPMaxChargeIpu1(maxPower);
+			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
+		}
+		if (enableIpu2) {
+			getGridconPcs().setPMaxChargeIpu2(maxPower);
+			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
+		}
+		if (enableIpu3) {
+			getGridconPcs().setPMaxChargeIpu3(maxPower);
+			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
+		}
 	}
 
-	
-	private void enableIPUs() {		
-		getGridconPCS().setEnableIPU1(enableIPU1);
-		getGridconPCS().setEnableIPU2(enableIPU2);
-		getGridconPCS().setEnableIPU3(enableIPU3);
-		getGridconPCS().enableDCDC();
-		getGridconPCS().setStop(false);
-		getGridconPCS().setPlay(false); 
-		getGridconPCS().setAcknowledge(false);
-		
-		getGridconPCS().setSyncApproval(true);
-		getGridconPCS().setBlackStartApproval(false);
-		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
-		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
-		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
-		
-		getGridconPCS().setParameterSet(parameterSet);				
-		float maxPower = GridconPCS.MAX_POWER_PER_INVERTER;
-		if (enableIPU1) {
-			getGridconPCS().setPMaxChargeIPU1(maxPower);
-			getGridconPCS().setPMaxDischargeIPU1(-maxPower);
+	private void enableIpus() {
+		getGridconPcs().setEnableIpu1(enableIpu1);
+		getGridconPcs().setEnableIpu2(enableIpu2);
+		getGridconPcs().setEnableIpu3(enableIpu3);
+		getGridconPcs().enableDcDc();
+		getGridconPcs().setStop(false);
+		getGridconPcs().setPlay(false);
+		getGridconPcs().setAcknowledge(false);
+
+		getGridconPcs().setSyncApproval(true);
+		getGridconPcs().setBlackStartApproval(false);
+		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
+		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
+		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
+
+		getGridconPcs().setParameterSet(parameterSet);
+		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
+		if (enableIpu1) {
+			getGridconPcs().setPMaxChargeIpu1(maxPower);
+			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
 		}
-		if (enableIPU2) {
-			getGridconPCS().setPMaxChargeIPU2(maxPower);
-			getGridconPCS().setPMaxDischargeIPU2(-maxPower);
+		if (enableIpu2) {
+			getGridconPcs().setPMaxChargeIpu2(maxPower);
+			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
 		}
-		if (enableIPU3) {
-			getGridconPCS().setPMaxChargeIPU3(maxPower);
-			getGridconPCS().setPMaxDischargeIPU3(-maxPower);
+		if (enableIpu3) {
+			getGridconPcs().setPMaxChargeIpu3(maxPower);
+			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
 		}
 	}
-	
+
 	private void startDcDc() {
-		getGridconPCS().setEnableIPU1(false);
-		getGridconPCS().setEnableIPU2(false);
-		getGridconPCS().setEnableIPU3(false);
-		getGridconPCS().enableDCDC();
-		getGridconPCS().setStop(false);
-		getGridconPCS().setPlay(true); 
-		getGridconPCS().setAcknowledge(false);
-		
-		getGridconPCS().setSyncApproval(true);
-		getGridconPCS().setBlackStartApproval(false);
-		getGridconPCS().setModeSelection(Mode.CURRENT_CONTROL);
-		getGridconPCS().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
-		getGridconPCS().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
-		getGridconPCS().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
-		getGridconPCS().setQLimit(GridconPCS.Q_LIMIT);
-		getGridconPCS().setDcLinkVoltage(GridconPCS.DC_LINK_VOLTAGE_SETPOINT);
-		
-		getGridconPCS().setParameterSet(parameterSet);				
-		float maxPower = GridconPCS.MAX_POWER_PER_INVERTER;
-		if (enableIPU1) {
-			getGridconPCS().setPMaxChargeIPU1(maxPower);
-			getGridconPCS().setPMaxDischargeIPU1(-maxPower);
+		getGridconPcs().setEnableIpu1(false);
+		getGridconPcs().setEnableIpu2(false);
+		getGridconPcs().setEnableIpu3(false);
+		getGridconPcs().enableDcDc();
+		getGridconPcs().setStop(false);
+		getGridconPcs().setPlay(true);
+		getGridconPcs().setAcknowledge(false);
+
+		getGridconPcs().setSyncApproval(true);
+		getGridconPcs().setBlackStartApproval(false);
+		getGridconPcs().setModeSelection(Mode.CURRENT_CONTROL);
+		getGridconPcs().setU0(BaseState.ONLY_ON_GRID_VOLTAGE_FACTOR);
+		getGridconPcs().setF0(BaseState.ONLY_ON_GRID_FREQUENCY_FACTOR);
+		getGridconPcs().setPControlMode(PControlMode.ACTIVE_POWER_CONTROL);
+		getGridconPcs().setQLimit(GridconPcs.Q_LIMIT);
+		getGridconPcs().setDcLinkVoltage(GridconPcs.DC_LINK_VOLTAGE_SETPOINT);
+
+		getGridconPcs().setParameterSet(parameterSet);
+		float maxPower = GridconPcs.MAX_POWER_PER_INVERTER;
+		if (enableIpu1) {
+			getGridconPcs().setPMaxChargeIpu1(maxPower);
+			getGridconPcs().setPMaxDischargeIpu1(-maxPower);
 		}
-		if (enableIPU2) {
-			getGridconPCS().setPMaxChargeIPU2(maxPower);
-			getGridconPCS().setPMaxDischargeIPU2(-maxPower);
+		if (enableIpu2) {
+			getGridconPcs().setPMaxChargeIpu2(maxPower);
+			getGridconPcs().setPMaxDischargeIpu2(-maxPower);
 		}
-		if (enableIPU3) {
-			getGridconPCS().setPMaxChargeIPU3(maxPower);
-			getGridconPCS().setPMaxDischargeIPU3(-maxPower);
-		}	
+		if (enableIpu3) {
+			getGridconPcs().setPMaxChargeIpu3(maxPower);
+			getGridconPcs().setPMaxDischargeIpu3(-maxPower);
+		}
 	}
 
 }

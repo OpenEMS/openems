@@ -4,7 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 public enum PControlMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	DISABLED(1, "Disabled"), // 
+	DISABLED(1, "Disabled"), //
 	ACTIVE_POWER_CONTROL(1, "Active Power Control Mode"), //
 	POWER_LIMITER(2, "Power Limiter Mode"); //
 

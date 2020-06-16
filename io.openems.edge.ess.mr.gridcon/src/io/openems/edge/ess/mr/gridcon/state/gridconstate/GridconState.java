@@ -9,7 +9,7 @@ public enum GridconState implements IState {
 	RUN(1, "Run"), //
 	ERROR(3, "Error"), //
 	;
-	
+
 	private final int value;
 	private final String name;
 

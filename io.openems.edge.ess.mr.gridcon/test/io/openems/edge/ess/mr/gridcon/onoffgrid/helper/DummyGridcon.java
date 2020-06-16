@@ -3,13 +3,13 @@ package io.openems.edge.ess.mr.gridcon.onoffgrid.helper;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
-public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS {
+public class DummyGridcon extends AbstractOpenemsComponent implements GridconPcs {
 
 	
 	boolean ipu1Enabled = false;
@@ -25,13 +25,13 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	float activePower = 0;
 	float reactivePower = 0;
 
+	private float u0;
+	private float f0;
 	private ParameterSet parameterSet;
 	private Mode mode;
 	private boolean syncApproval;
 	private boolean blackStartApproval;
-	private float u0;
 	private PControlMode pControlMode;
-	private float f0;
 	private float qLimit;
 	private Float weightA;
 	private Float weightB;
@@ -57,11 +57,11 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	public float getMaxApparentPower() {
 		float max = 0;
 		if (ipu1Enabled)
-			max = max + GridconPCS.MAX_POWER_PER_INVERTER;
+			max = max + GridconPcs.MAX_POWER_PER_INVERTER;
 		if (ipu2Enabled)
-			max = max + GridconPCS.MAX_POWER_PER_INVERTER;
+			max = max + GridconPcs.MAX_POWER_PER_INVERTER;
 		if (ipu3Enabled)
-			max = max + GridconPCS.MAX_POWER_PER_INVERTER;
+			max = max + GridconPcs.MAX_POWER_PER_INVERTER;
 		return max;
 	}
 
@@ -158,27 +158,27 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	}
 
 	@Override
-	public void setEnableIPU1(boolean enabled) {
+	public void setEnableIpu1(boolean enabled) {
 		ipu1Enabled = enabled;
 	}
 
 	@Override
-	public void setEnableIPU2(boolean enabled) {
+	public void setEnableIpu2(boolean enabled) {
 		ipu2Enabled = enabled;
 	}
 
 	@Override
-	public void setEnableIPU3(boolean enabled) {
+	public void setEnableIpu3(boolean enabled) {
 		ipu3Enabled = enabled;
 	}
 
 	@Override
-	public void enableDCDC() {
+	public void enableDcDc() {
 		dcDcEnabled = true;
 	}
 
 	@Override
-	public void disableDCDC() {
+	public void disableDcDc() {
 		dcDcEnabled = false;
 	}
 
@@ -223,37 +223,37 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	}
 
 	@Override
-	public void setPMaxChargeIPU1(float maxPower) {
+	public void setPMaxChargeIpu1(float maxPower) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void setPMaxDischargeIPU1(float maxPower) {
+	public void setPMaxDischargeIpu1(float maxPower) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void setPMaxChargeIPU2(float maxPower) {
+	public void setPMaxChargeIpu2(float maxPower) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void setPMaxDischargeIPU2(float maxPower) {
+	public void setPMaxDischargeIpu2(float maxPower) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void setPMaxChargeIPU3(float maxPower) {
+	public void setPMaxChargeIpu3(float maxPower) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void setPMaxDischargeIPU3(float maxPower) {
+	public void setPMaxDischargeIpu3(float maxPower) {
 		// TODO Auto-generated method stub
 
 	}
@@ -350,11 +350,11 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 	}
 
 	public float getSetFrequency() {
-		return GridconPCS.DEFAULT_GRID_FREQUENCY * f0;
+		return GridconPcs.DEFAULT_GRID_FREQUENCY * f0;
 	}
 
 	public float getSetVoltage() {
-		return GridconPCS.DEFAULT_GRID_VOLTAGE * u0;
+		return GridconPcs.DEFAULT_GRID_VOLTAGE * u0;
 	}
 
 	@Override
@@ -372,4 +372,61 @@ public class DummyGridcon extends AbstractOpenemsComponent implements GridconPCS
 		this.iRefC = current;
 	}
 
+	public ParameterSet getParameterSet() {
+		return parameterSet;
+	}
+
+	public Mode getMode() {
+		return mode;
+	}
+
+	public boolean isSyncApproval() {
+		return syncApproval;
+	}
+
+	public boolean isBlackStartApproval() {
+		return blackStartApproval;
+	}
+
+	public PControlMode getpControlMode() {
+		return pControlMode;
+	}
+
+	public float getqLimit() {
+		return qLimit;
+	}
+
+	public Float getWeightA() {
+		return weightA;
+	}
+
+	public Float getWeightB() {
+		return weightB;
+	}
+
+	public Float getWeightC() {
+		return weightC;
+	}
+
+	public int getStringControlMode() {
+		return stringControlMode;
+	}
+
+	public Float getiRefA() {
+		return iRefA;
+	}
+
+	public Float getiRefB() {
+		return iRefB;
+	}
+
+	public Float getiRefC() {
+		return iRefC;
+	}
+
+	@Override
+	public boolean isUndefined() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

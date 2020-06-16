@@ -3,21 +3,21 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 
 public class CcuParameters2 {
-	
+
 	public static final int CCU_PARAMETERS_2_ADRESS = 32784;
-	
-		private CcuParameters2() {
+
+	private CcuParameters2() {
+	}
+
+	private static CcuParameters2 instance;
+
+	public static CcuParameters2 getCcuParameters2() {
+		if (instance == null) {
+			instance = new CcuParameters2();
 		}
-		
-		private static CcuParameters2 instance;
-		
-		public static CcuParameters2 getCcuParameters2()  {
-			if (instance == null) {
-				instance = new CcuParameters2();
-			}
-			return instance;
-		}
-		
+		return instance;
+	}
+
 	private float pByFDroopMainLower = 0f;
 	private float pByFDroopMainUpper = 0f;
 	private float pByFDeadBandLower = 0f;
@@ -31,17 +31,19 @@ public class CcuParameters2 {
 	private PControlMode pControlMode = PControlMode.ACTIVE_POWER_CONTROL;
 	private float pControlLimTwo = 0f;
 	private float pControlLimOne = 0f;
-	
+
 	public PControlMode getpControlMode() {
 		return pControlMode;
 	}
- 	public void setpControlMode(PControlMode pControlMode) {
+
+	public void setpControlMode(PControlMode pControlMode) {
 		this.pControlMode = pControlMode;
 	}
 
 	public static CcuParameters2 getInstance() {
 		return instance;
 	}
+
 	public float getpByFDroopMainLower() {
 		return pByFDroopMainLower;
 	}
@@ -89,7 +91,7 @@ public class CcuParameters2 {
 	public float getpControlLimOne() {
 		return pControlLimOne;
 	}
-		
+
 	@Override
 	public String toString() {
 		return "CcuParameters2 [pByFDroopMainLower=" + pByFDroopMainLower + ", pByFDroopMainUpper=" + pByFDroopMainUpper
@@ -99,10 +101,11 @@ public class CcuParameters2 {
 				+ ", pByUMaxDischarge=" + pByUMaxDischarge + ", pControlMode=" + pControlMode + ", pControlLimTwo="
 				+ pControlLimTwo + ", pControlLimOne=" + pControlLimOne + "]" + "\n" + getHexRepresentation();
 	}
+
 	private String getHexRepresentation() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(CCU_PARAMETERS_2_ADRESS);
-		sb.append(": ");		
+		sb.append(": ");
 		sb.append(HexFormatter.format(pByFDroopMainLower, true));
 		sb.append("  ");
 		sb.append(HexFormatter.format(pByFDroopMainUpper, true));

@@ -2,12 +2,12 @@ package io.openems.edge.ess.mr.gridcon.helper;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
 
-public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
+public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	protected DummyEss(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
@@ -92,19 +92,19 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	}
 
 	@Override
-	public void setEnableIPU1(boolean enabled) {
+	public void setEnableIpu1(boolean enabled) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setEnableIPU2(boolean enabled) {
+	public void setEnableIpu2(boolean enabled) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setEnableIPU3(boolean enabled) {
+	public void setEnableIpu3(boolean enabled) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -158,37 +158,37 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	}
 
 	@Override
-	public void setPMaxChargeIPU1(float maxPower) {
+	public void setPMaxChargeIpu1(float maxPower) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setPMaxDischargeIPU1(float maxPower) {
+	public void setPMaxDischargeIpu1(float maxPower) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setPMaxChargeIPU2(float maxPower) {
+	public void setPMaxChargeIpu2(float maxPower) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setPMaxDischargeIPU2(float maxPower) {
+	public void setPMaxDischargeIpu2(float maxPower) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setPMaxChargeIPU3(float maxPower) {
+	public void setPMaxChargeIpu3(float maxPower) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setPMaxDischargeIPU3(float maxPower) {
+	public void setPMaxDischargeIpu3(float maxPower) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -224,7 +224,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	}
 
 	@Override
-	public void enableDCDC() {
+	public void enableDcDc() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -253,7 +253,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	}
 
 	@Override
-	public void disableDCDC() {
+	public void disableDcDc() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -315,5 +315,11 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPCS {
 	public void setIRefStringC(Float current) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public boolean isUndefined() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

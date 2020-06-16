@@ -6,12 +6,13 @@ import io.openems.edge.ess.mr.gridcon.IState;
 
 public class WaitForDevices extends BaseState {
 
-	public WaitForDevices(ComponentManager manager, DecisionTableCondition condition, String gridconPCSId, String b1Id,
-			String b2Id, String b3Id, String inputNA1, String inputNA2, String inputSyncBridge, String outputSyncBridge,
+	public WaitForDevices(ComponentManager manager, DecisionTableCondition condition, String gridconPcsId, String b1Id,
+			String b2Id, String b3Id, String inputNa1, String inputNa2, String inputSyncBridge, String outputSyncBridge,
 			String meterId, boolean na1Inverted, boolean na2Inverted, boolean inputSyncInverted) {
-		super(manager, condition, gridconPCSId, b1Id, b2Id, b3Id, inputNA1, inputNA2, inputSyncBridge, outputSyncBridge,
-				meterId, na1Inverted, na2Inverted, inputSyncInverted);
+		super(manager, condition, gridconPcsId, b1Id, b2Id, b3Id, inputNa1, inputNa2, inputSyncBridge, outputSyncBridge,
+				meterId, na1Inverted, na2Inverted);
 	}
+
 	@Override
 	public IState getState() {
 		return OnOffGridState.WAIT_FOR_DEVICES;
@@ -19,19 +20,19 @@ public class WaitForDevices extends BaseState {
 
 	@Override
 	public IState getNextState() {
-		
-		if (DecisionTableHelper.isWaitingForDevices(condition)) {			
+
+		if (DecisionTableHelper.isWaitingForDevices(condition)) {
 			return OnOffGridState.WAIT_FOR_DEVICES;
 		}
-		
-		if (DecisionTableHelper.isOnGridMode(condition)) {			
+
+		if (DecisionTableHelper.isOnGridMode(condition)) {
 			return OnOffGridState.ON_GRID_MODE;
 		}
-		
-		if (DecisionTableHelper.isUndefined(condition)) {			
+
+		if (DecisionTableHelper.isUndefined(condition)) {
 			return OnOffGridState.UNDEFINED;
-		}		
-		
+		}
+
 		return OnOffGridState.WAIT_FOR_DEVICES;
 	}
 

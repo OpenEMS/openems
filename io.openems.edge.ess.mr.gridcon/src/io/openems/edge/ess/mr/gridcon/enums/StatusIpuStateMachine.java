@@ -2,7 +2,7 @@ package io.openems.edge.ess.mr.gridcon.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum StatusIPUStateMachine implements OptionsEnum {
+public enum StatusIpuStateMachine implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	OFFLINE(0, "Offline"), //
 	INIT(1, "Init"), //
@@ -19,7 +19,7 @@ public enum StatusIPUStateMachine implements OptionsEnum {
 	private final int value;
 	private final String name;
 
-	private StatusIPUStateMachine(int value, String name) {
+	private StatusIpuStateMachine(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

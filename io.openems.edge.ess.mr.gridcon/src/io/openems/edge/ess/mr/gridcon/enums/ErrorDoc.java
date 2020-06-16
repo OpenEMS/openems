@@ -13,24 +13,15 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	private static Map<Integer, ErrorDoc> mapCodeToDoc = new HashMap<>();
-	
+
 	public enum Acknowledge {
-		AUTO_ACKNOWLEDGE,
-		NO_ACKNOWLEDGE,
-		RESTART,
-		UNDEFINED
+		AUTO_ACKNOWLEDGE, NO_ACKNOWLEDGE, RESTART, UNDEFINED
 	}
-	
+
 	public enum ReactionLevel {
-		CFG_ANYBUS,
-		CFG_DERATING,
-		DISABLED,
-		FORCED,
-		INFO,
-		SHUTDOWN,
-		WARNING,
+		CFG_ANYBUS, CFG_DERATING, DISABLED, FORCED, INFO, SHUTDOWN, WARNING,
 	}
-	
+
 	private boolean needsHardReset;
 	private Acknowledge acknowledge;
 	private ReactionLevel reactionLevel;
@@ -76,6 +67,5 @@ public class ErrorDoc extends StateChannelDoc {
 		ErrorDoc.mapCodeToDoc.put(code, this);
 		return this;
 	}
-	
-	
+
 }

@@ -883,10 +883,8 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.INFO) //
 			.needsHardReset(false) //
 			.code(0x08000C) //
-			.text("Float underflow for property")),
-	;
+			.text("Float underflow for property")),;
 
-	
 	private final Doc doc;
 
 	private ErrorCodeChannelId1(Doc doc) {

@@ -93,17 +93,17 @@ public class Creator {
 			}
 
 			@Override
-			public boolean enableIPU1() {				
+			public boolean enableIpu1() {				
 				return ENABLE_IPU_1;
 			}
 
 			@Override
-			public boolean enableIPU2() {
+			public boolean enableIpu2() {
 				return ENABLE_IPU_2;
 			}
 
 			@Override
-			public boolean enableIPU3() {
+			public boolean enableIpu3() {
 				return ENABLE_IPU_3;
 			}
 
@@ -113,22 +113,22 @@ public class Creator {
 			}
 
 			@Override
-			public String inputNAProtection1() {
+			public String inputNaProtection1() {
 				return INPUT_NA_PROTECTION_1;
 			}
 
 			@Override
-			public boolean isNAProtection1Inverted() {
+			public boolean isNaProtection1Inverted() {
 				return INPUT_NA_PROTECTION_1_INVERTED;
 			}
 
 			@Override
-			public String inputNAProtection2() {
+			public String inputNaProtection2() {
 				return INPUT_NA_PROTECTION_2;
 			}
 
 			@Override
-			public boolean isNAProtection2Inverted() {
+			public boolean isNaProtection2Inverted() {
 				return INPUT_NA_PROTECTION_2_INVERTED;
 			}
 

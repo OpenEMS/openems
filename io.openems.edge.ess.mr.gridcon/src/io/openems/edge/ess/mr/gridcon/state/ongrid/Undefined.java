@@ -12,12 +12,12 @@ public class Undefined extends BasteState {
 
 	@Override
 	public IState getNextState() {
-		return OnGridState.ONGRID; //Currently it is ot defined, so it is always ongrid
+		return OnGridState.ONGRID; // Currently it is ot defined, so it is always ongrid
 	}
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		// Nothing to do		
+		// Nothing to do
 	}
 
 }

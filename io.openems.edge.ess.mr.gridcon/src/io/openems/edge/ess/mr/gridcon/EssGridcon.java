@@ -37,7 +37,7 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		implements OpenemsComponent, ManagedSymmetricEss, SymmetricEss, ModbusSlave, EventHandler {
 
 	public static final int MAX_CURRENT_PER_STRING = 80;
-	
+
 	String gridconId;
 	String bmsAId;
 	String bmsBId;
@@ -49,7 +49,6 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	protected abstract ComponentManager getComponentManager();
 
 	private final Logger log = LoggerFactory.getLogger(EssGridcon.class);
-
 
 	public EssGridcon(io.openems.edge.common.channel.ChannelId[] otherChannelIds) {
 		super(//
@@ -65,9 +64,9 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	public void activate(ComponentContext context, String id, String alias, boolean enabled, String gridconId,
 			String bmsA, String bmsB, String bmsC, float offsetCurrent) throws OpenemsNamedException {
-		
+
 		super.activate(context, id, alias, enabled);
-		
+
 		this.gridconId = gridconId;
 		this.bmsAId = bmsA;
 		this.bmsBId = bmsB;
@@ -75,13 +74,12 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		this.offsetCurrent = offsetCurrent;
 
 		initializeStateController(gridconId, bmsA, bmsB, bmsC);
-		stateObject = getFirstStateObjectUndefined();		
+		stateObject = getFirstStateObjectUndefined();
 	}
 
 	protected abstract StateObject getFirstStateObjectUndefined();
 
-	protected abstract void initializeStateController(String gridconPCS, String b1, String b2,
-			String b3);
+	protected abstract void initializeStateController(String gridconPcs, String b1, String b2, String b3);
 
 	@Deactivate
 	protected void deactivate() {
@@ -107,24 +105,23 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 				IState nextState = this.stateObject.getNextState();
 				StateObject nextStateObject = StateController.getStateObject(nextState);
-				
-				//do not set the state undefined as state before
-				//state before is only necessary (at the moment) to decide what the next
+
+				// do not set the state undefined as state before
+				// state before is only necessary (at the moment) to decide what the next
 				// state is coming from undefined
 				if (!this.stateObject.getState().toString().toUpperCase().contains("UNDEFINED")) {
 					nextStateObject.setStateBefore(this.stateObject.getState());
 				}
-				
+
 				System.out.println("  ----- CURRENT STATE:" + this.stateObject.getState().getName());
 				System.out.println("  ----- NEXT STATE:" + nextStateObject.getState().getName());
 				System.out.println("Conditional: ");
 				StateController.printCondition();
-				
-				
+
 				this.stateObject = nextStateObject;
-				
+
 				this.stateObject.act();
-				this.writeChannelValues();
+				this.writeStateMachineToChannel();
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
 				logError(log, "Error: " + e.getMessage());
 			}
@@ -132,18 +129,20 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		}
 	}
 
+	protected abstract void writeStateMachineToChannel();
+
 	/**
-	 * calculates min/max cell voltage and temperature
+	 * calculates min/max cell voltage and temperature.
 	 */
 	private void calculateBatteryValues() {
 
 		float minCellVoltage = Float.MAX_VALUE;
 		float maxCellVoltage = Float.MIN_VALUE;
-		
+
 		float minCellTemperature = Float.MAX_VALUE;
 		float maxCellTemperature = Float.MIN_VALUE;
 
-		if (getBattery1() != null  && !getBattery1().isUndefined()) {
+		if (getBattery1() != null && !getBattery1().isUndefined()) {
 			minCellVoltage = Math.min(minCellVoltage, getBattery1().getMinCellVoltage().value().get());
 			maxCellVoltage = Math.max(maxCellVoltage, getBattery1().getMaxCellVoltage().value().get());
 			minCellTemperature = Math.min(minCellTemperature, getBattery1().getMinCellTemperature().value().get());
@@ -174,30 +173,23 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	}
 
-	private void writeChannelValues() throws OpenemsNamedException {
-		this.channel(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateObject.getState());
-	}
-
 	private void calculateMaxApparentPower() {
-		int maxPower = (int) getGridconPCS().getMaxApparentPower();
+		int maxPower = (int) getGridconPcs().getMaxApparentPower();
 		getMaxApparentPower().setNextValue(maxPower);
 	}
 
 	protected void calculateActiveAndReactivePower() {
-		float activePower = getGridconPCS().getActivePower();
+		float activePower = getGridconPcs().getActivePower();
 		getActivePower().setNextValue(activePower);
-		
-		float reactivePower = getGridconPCS().getReactivePower();
+
+		float reactivePower = getGridconPcs().getReactivePower();
 		getReactivePower().setNextValue(reactivePower);
 	}
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsException {
-//		if (getGridMode().value().get() != GridMode.ON_GRID.getValue() && !gridconPCS.isRunning()) {
-		if (!getGridconPCS().isRunning()) {
-
-			log.info("ccu state nicht run!!");
+		if (!getGridconPcs().isRunning()) {
+			log.warn("CCU State not running!!");
 
 			return new Constraint[] {
 					createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
@@ -208,21 +200,21 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		getGridconPCS().setPower(activePower, reactivePower);
+		getGridconPcs().setPower(activePower, reactivePower);
 	}
 
 	@Override
 	public int getPowerPrecision() {
-		return GridconPCS.POWER_PRECISION_WATT;
+		return GridconPcs.POWER_PRECISION_WATT;
 	}
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(GridconPCSImpl.class, accessMode, 300) //
+				ModbusSlaveNatureTable.of(GridconPcsImpl.class, accessMode, 300) //
 						.build());
 	}
 
@@ -232,24 +224,25 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 	protected void calculateAllowedPower() {
 		double allowedCharge = 0;
 		double allowedDischarge = 0;
-		
+
 		int offset = (int) Math.ceil(Math.abs(this.offsetCurrent));
-		
+
 		for (SoltaroBattery battery : getBatteries()) {
 			Integer maxChargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getChargeMaxCurrent().value().get());
 			maxChargeCurrent = maxChargeCurrent - offset; // Reduce the max power by the value for the offset current
-			maxChargeCurrent = Math.max(maxChargeCurrent, 0);  
+			maxChargeCurrent = Math.max(maxChargeCurrent, 0);
 			allowedCharge += battery.getVoltage().value().get() * maxChargeCurrent * -1;
-			
-			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING, battery.getDischargeMaxCurrent().value().get());
+
+			Integer maxDischargeCurrent = Math.min(MAX_CURRENT_PER_STRING,
+					battery.getDischargeMaxCurrent().value().get());
 			maxDischargeCurrent = maxDischargeCurrent - offset; // Reduce the max power by the value for the offset current
 			maxDischargeCurrent = Math.max(maxDischargeCurrent, 0);
 			allowedDischarge += battery.getVoltage().value().get() * maxDischargeCurrent;
 		}
-		
-		allowedCharge = (allowedCharge * (1 + getGridconPCS().getEfficiencyLossChargeFactor()));
-		allowedDischarge = (allowedDischarge * (1 - getGridconPCS().getEfficiencyLossDischargeFactor()));
-		
+
+		allowedCharge = (allowedCharge * (1 + getGridconPcs().getEfficiencyLossChargeFactor()));
+		allowedDischarge = (allowedDischarge * (1 - getGridconPcs().getEfficiencyLossDischargeFactor()));
+
 		getAllowedCharge().setNextValue(allowedCharge);
 		getAllowedDischarge().setNextValue(allowedDischarge);
 	}
@@ -279,26 +272,25 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		int soc = Math.round(sumCurrentCapacity * 100 / sumTotalCapacity);
 		getSoc().setNextValue(soc);
 	}
-	
+
 	protected void calculateCapacity() {
 		float sumTotalCapacity = 0;
-		
+
 		for (SoltaroBattery b : getBatteries()) {
 			Optional<Integer> totalCapacityOpt = b.getCapacity().value().asOptional();
 			float totalCapacity = totalCapacityOpt.orElse(0);
 			sumTotalCapacity += totalCapacity;
 		}
-		
+
 		getCapacity().setNextValue(sumTotalCapacity);
 	}
-	
 
 	@Override
 	public String debugLog() {
 		return "StateObject: " + stateObject.getState().getName() + "| Next StateObject: "
 				+ stateObject.getNextState().getName();
 	}
-	
+
 	/**
 	 * Gets all Batteries.
 	 * 
@@ -319,29 +311,29 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 		}
 		return batteries;
 	}
-	
-	GridconPCS getGridconPCS() {
+
+	GridconPcs getGridconPcs() {
 		return getComponent(gridconId);
 	}
-	
+
 	SoltaroBattery getBattery1() {
 		return getComponent(bmsAId);
 	}
-	
+
 	SoltaroBattery getBattery2() {
 		return getComponent(bmsBId);
 	}
-	
+
 	SoltaroBattery getBattery3() {
 		return getComponent(bmsCId);
 	}
-	
+
 	<T> T getComponent(String id) {
 		T component = null;
 		try {
 			component = getComponentManager().getComponent(id);
 		} catch (OpenemsNamedException e) {
-			
+			System.out.println(e);
 		}
 		return component;
 	}

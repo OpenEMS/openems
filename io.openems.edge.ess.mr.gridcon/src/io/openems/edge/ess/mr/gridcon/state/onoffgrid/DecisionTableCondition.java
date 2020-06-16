@@ -5,23 +5,25 @@ public interface DecisionTableCondition {
 	public static double LOWER_VOLTAGE = 207.0;
 	public static double UPPER_VOLTAGE = 253.0;
 
-	NAProtection_1_On isNaProtection1On() throws Exception;
-	NAProtection_2_On isNaProtection2On() throws Exception;
+	NaProtection1On isNaProtection1On() throws Exception;
+
+	NaProtection2On isNaProtection2On() throws Exception;
+
 	GridconCommunicationFailed isGridconCommunicationFailed() throws Exception;
+
 	MeterCommunicationFailed isMeterCommunicationFailed() throws Exception;
+
 	VoltageInRange isVoltageInRange() throws Exception;
+
 	SyncBridgeOn isSyncBridgeOn() throws Exception;
 
-	enum NAProtection_1_On {
+	enum NaProtection1On {
 
-		TRUE(true),
-		FALSE(false),
-		UNSET(null)
-		;
+		TRUE(true), FALSE(false), UNSET(null);
 
 		private Boolean value;
 
-		private NAProtection_1_On(Boolean value) {
+		private NaProtection1On(Boolean value) {
 			this.value = value;
 		}
 
@@ -30,13 +32,13 @@ public interface DecisionTableCondition {
 		}
 	}
 
-	enum NAProtection_2_On {
+	enum NaProtection2On {
 
 		TRUE(true), FALSE(false), UNSET(null);
 
 		private Boolean value;
 
-		private NAProtection_2_On(Boolean value) {
+		private NaProtection2On(Boolean value) {
 			this.value = value;
 		}
 
@@ -104,5 +106,4 @@ public interface DecisionTableCondition {
 			return value;
 		}
 	}
-
 }

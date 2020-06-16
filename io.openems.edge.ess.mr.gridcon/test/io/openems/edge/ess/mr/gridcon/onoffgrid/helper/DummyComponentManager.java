@@ -18,14 +18,14 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.mr.gridcon.EssGridcon;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
+import io.openems.edge.ess.mr.gridcon.GridconPcs;
 
 public class DummyComponentManager implements ComponentManager {
 
 	private SoltaroBattery bms1 = createBms();
 	private SoltaroBattery bms2 = createBms();
 	private SoltaroBattery bms3 = createBms();
-	private GridconPCS gridconPcs = createGridconPcs();
+	private GridconPcs gridconPcs = createGridconPcs();
 	private EssGridcon ess = createEss();
 	private DummyIo io0 = createIo();
 	private DummyMeter meter0 = createMeter();
@@ -65,7 +65,7 @@ public class DummyComponentManager implements ComponentManager {
 		return new DummyIo();
 	}
 
-	private GridconPCS createGridconPcs() {
+	private GridconPcs createGridconPcs() {
 		return new DummyGridcon();
 	}
 

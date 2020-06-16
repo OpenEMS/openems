@@ -38,13 +38,13 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.mr.gridcon.enums.CCUState;
+import io.openems.edge.ess.mr.gridcon.enums.CcuState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.enums.ParameterSet;
-import io.openems.edge.ess.mr.gridcon.enums.StatusIPUStateMachine;
+import io.openems.edge.ess.mr.gridcon.enums.StatusIpuStateMachine;
 import io.openems.edge.ess.mr.gridcon.writewords.CcuParameters1;
 import io.openems.edge.ess.mr.gridcon.writewords.CcuParameters2;
 import io.openems.edge.ess.mr.gridcon.writewords.Commands;
@@ -52,24 +52,25 @@ import io.openems.edge.ess.mr.gridcon.writewords.DcDcParameter;
 import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "MR.Gridcon", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE
-) //
-public class GridconPCSImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, GridconPCS {
+		configurationPolicy = ConfigurationPolicy.REQUIRE) //
+public class GridconPcsImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, GridconPcs {
+
+	private static final String NAME_PART_INVERTER_2 = "INVERTER2";
+
+	private static final String NAME_PART_INVERTER_3 = "INVERTER3";
 
 	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
-	
+
 	public static final double EFFICIENCY_LOSS_FACTOR = 0.07;
 	public static final double EFFICIENCY_LOSS_DISCHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
 	public static final double EFFICIENCY_LOSS_CHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
-	
 
-	private final Logger log = LoggerFactory.getLogger(GridconPCSImpl.class);
+	private final Logger log = LoggerFactory.getLogger(GridconPcsImpl.class);
 
-	private String modbus_id;
+	private String modbusId;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -83,7 +84,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	private double efficiencyLossDischargeFactor;
 	private double efficiencyLossChargeFactor;
 
-	public GridconPCSImpl() {
+	public GridconPcsImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				GridConChannelId.values() //
@@ -98,9 +99,10 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inverterCount = config.inverterCount();
-		this.modbus_id = config.modbus_id();
+		this.modbusId = config.modbus_id();
 		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
-		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();;
+		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();
+		;
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
@@ -129,10 +131,10 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		CCUState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
+		CcuState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
 		IntegerReadChannel errorCountChannel = this.channel(GridConChannelId.CCU_ERROR_COUNT);
 		int errorCount = errorCountChannel.value().orElse(-1);
-		return "Gridcon ccu state: " + state + "; Error count: " + errorCount;
+		return "Gridcon CCU state: " + state + "; Error count: " + errorCount + "; Active Power: " + getActivePower();
 	}
 
 	@Override
@@ -144,10 +146,9 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 		 * MAX_APPARENT_POWER. So 0.1 => 10% of max power. Values should never take
 		 * values lower than -1 or higher than 1.
 		 */
-		
+
 		activePowerPreset = activePower;
-				
-		
+
 		float activePowerFactor = (-1) * activePower / maxApparentPower;
 		float reactivePowerFactor = (-1) * reactivePower / maxApparentPower;
 
@@ -158,8 +159,6 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeCommands() throws IllegalArgumentException, OpenemsNamedException {
 
 		Commands c = Commands.getCommands();
-
-		System.out.println("Write Command control word:\n" + c.toString());
 
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, c.getPlayBit());
 		this.writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, c.getReadyAndStopBit2nd());
@@ -195,8 +194,6 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeCcuParameters1() throws IllegalArgumentException, OpenemsNamedException {
 		CcuParameters1 ccpw = CcuParameters1.getCcuParameters1();
 
-//		System.out.println("Write CCU control parameters 1 word:\n" + ccpw.toString());
-
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_LOWER, ccpw.getuByQDroopMainLower());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN_UPPER, ccpw.getuByQDroopMainUpper());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, ccpw.getuByQDroopT1Main());
@@ -212,9 +209,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 	protected void writeCcuParameters2() throws IllegalArgumentException, OpenemsNamedException {
 		CcuParameters2 ccpw = CcuParameters2.getCcuParameters2();
-
-//		System.out.println("Write CCU control parameters 2 word:\n" + ccpw.toString());
-
+		
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_LOWER, ccpw.getpByFDroopMainLower());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN_UPPER, ccpw.getpByFDroopMainUpper());
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND_LOWER, ccpw.getpByFDeadBandLower());
@@ -232,9 +227,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 	protected void writeIpuInverter1ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
 		IpuParameter iicw = IpuParameter.getIpu1Parameter();
-
-//		System.out.println("IPU 1 Inverter control word:\n" + iicw.toString());
-
+		
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
@@ -248,8 +241,6 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	protected void writeIpuInverter2ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
 		IpuParameter iicw = IpuParameter.getIpu2Parameter();
 
-//		System.out.println("IPU 2 Inverter control word:\n" + iicw.toString());
-
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_U0_OFFSET_TO_CCU_VALUE, iicw.getU0OffsetToCcu());
@@ -262,8 +253,6 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 	protected void writeIpuInverter3ControlCommand() throws IllegalArgumentException, OpenemsNamedException {
 		IpuParameter iicw = IpuParameter.getIpu3Parameter();
-
-//		System.out.println("IPU 3 Inverter control word:\n" + iicw.toString());
 
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_VOLTAGE_SETPOINT, iicw.getDcVoltageSetpoint());
 		writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_CURRENT_SETPOINT, iicw.getDcCurrentSetpoint());
@@ -513,7 +502,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 //								new FloatDoublewordElement(32928).wordOrder(WordOrder.LSWMSW)), //
 //						m(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP,
 //								new FloatDoublewordElement(32930).wordOrder(WordOrder.LSWMSW)) //
-//				)
+//				)				
 		);
 
 		if (inverterCount > 0) {
@@ -777,14 +766,10 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 			int startAddressIpuDcdc = 33584; // == THREE
 			switch (this.inverterCount) {
 			case ONE:
-//				startAddressIpuControl = 32656;
-//				startAddressIpuControlMirror = 32976;
 				startAddressIpuState = 33200;
 				startAddressIpuDcdc = 33520;
 				break;
 			case TWO:
-//				startAddressIpuControl = 32688;
-//				startAddressIpuControlMirror = 33008;
 				startAddressIpuState = 33232;
 				startAddressIpuDcdc = 33552;
 				break;
@@ -940,18 +925,15 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	// TODO Check sign, round!?
-	//TODO ODER get CCU-Power * Max Power?!
-//	@Override
+	// TODO ODER get CCU-Power * Max Power?!
 	public float getActivePowerInverter1() {
 		return getFloat(GridConChannelId.INVERTER_1_STATUS_DC_LINK_ACTIVE_POWER);
 	}
 
-//	@Override
 	public float getActivePowerInverter2() {
 		return getFloat(GridConChannelId.INVERTER_2_STATUS_DC_LINK_ACTIVE_POWER);
 	}
 
-//	@Override
 	public float getActivePowerInverter3() {
 		return getFloat(GridConChannelId.INVERTER_3_STATUS_DC_LINK_ACTIVE_POWER);
 	}
@@ -960,7 +942,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	public float getActivePower() {
 		return getActivePowerInverter1() + getActivePowerInverter2() + getActivePowerInverter3();
 	}
-	
+
 	@Override
 	public float getReactivePower() { // TODO check if this is correct
 		return getFloat(GridConChannelId.CCU_POWER_Q) * getMaxApparentPower();
@@ -974,7 +956,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public boolean isCommunicationBroken() {
 
-		String modbusId = this.modbus_id;
+		String modbusId = this.modbusId;
 		ComponentManager manager = this.componentManager;
 		AbstractModbusBridge modbusBridge = null;
 		try {
@@ -989,17 +971,11 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 		Channel<Boolean> slaveCommunicationFailedChannel = modbusBridge.getSlaveCommunicationFailedChannel();
 		Optional<Boolean> communicationFailedOpt = slaveCommunicationFailedChannel.value().asOptional();
 
-		// If the channel value is present and it is set then the communication is
-		// broken
-		if (communicationFailedOpt.isPresent() && communicationFailedOpt.get()) {
-			return true;
-		}
-
-		return false;
+		return (communicationFailedOpt.isPresent() && communicationFailedOpt.get());
 	}
 
 	@Override
-	public void setEnableIPU1(boolean enabled) {
+	public void setEnableIpu1(boolean enabled) {
 		switch (inverterCount) {
 		case ONE:
 			Commands.getCommands().setEnableIpu1(enabled);
@@ -1014,7 +990,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void setEnableIPU2(boolean enabled) {
+	public void setEnableIpu2(boolean enabled) {
 		switch (inverterCount) {
 		case ONE:
 			System.out.println("Not allowed, there is only one inverters!");
@@ -1029,7 +1005,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void setEnableIPU3(boolean enabled) {
+	public void setEnableIpu3(boolean enabled) {
 		switch (inverterCount) {
 		case ONE:
 			System.out.println("Not allowed, there are only two inverters!");
@@ -1106,32 +1082,32 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void setPMaxChargeIPU1(float maxPower) {
+	public void setPMaxChargeIpu1(float maxPower) {
 		IpuParameter.getIpu1Parameter().setpMaxCharge(maxPower);
 	}
 
 	@Override
-	public void setPMaxDischargeIPU1(float maxPower) {
+	public void setPMaxDischargeIpu1(float maxPower) {
 		IpuParameter.getIpu1Parameter().setpMaxDischarge(maxPower);
 	}
 
 	@Override
-	public void setPMaxChargeIPU2(float maxPower) {
+	public void setPMaxChargeIpu2(float maxPower) {
 		IpuParameter.getIpu2Parameter().setpMaxCharge(maxPower);
 	}
 
 	@Override
-	public void setPMaxDischargeIPU2(float maxPower) {
+	public void setPMaxDischargeIpu2(float maxPower) {
 		IpuParameter.getIpu2Parameter().setpMaxDischarge(maxPower);
 	}
 
 	@Override
-	public void setPMaxChargeIPU3(float maxPower) {
+	public void setPMaxChargeIpu3(float maxPower) {
 		IpuParameter.getIpu3Parameter().setpMaxCharge(maxPower);
 	}
 
 	@Override
-	public void setPMaxDischargeIPU3(float maxPower) {
+	public void setPMaxDischargeIpu3(float maxPower) {
 		IpuParameter.getIpu3Parameter().setpMaxDischarge(maxPower);
 	}
 
@@ -1174,9 +1150,9 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	public void setIRefStringC(Float current) {
 		DcDcParameter.getDcdcParameter().setiRefStringC(current);
 	}
-	
+
 	@Override
-	public void enableDCDC() {
+	public void enableDcDc() {
 		switch (inverterCount) {
 		case ONE:
 			Commands.getCommands().setEnableIpu2(true);
@@ -1191,7 +1167,7 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void disableDCDC() {
+	public void disableDcDc() {
 		switch (inverterCount) {
 		case ONE:
 			Commands.getCommands().setEnableIpu2(false);
@@ -1237,21 +1213,21 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isStopped() {
-		return getCcuState() == CCUState.SYNC_TO_V || getCcuState() == CCUState.IDLE_CURRENTLY_NOT_WORKING;
+		return getCcuState() == CcuState.SYNC_TO_V || getCcuState() == CcuState.IDLE_CURRENTLY_NOT_WORKING;
 	}
 
 	@Override
 	public boolean isRunning() {
-		return getCcuState() == CCUState.COMPENSATOR;
+		return getCcuState() == CcuState.COMPENSATOR;
 	}
 
 	@Override
 	public boolean isError() {
-		return getCcuState() == CCUState.ERROR;
+		return getCcuState() == CcuState.ERROR || isCommunicationBroken();
 	}
 
-	private CCUState getCcuState() {
-		CCUState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
+	private CcuState getCcuState() {
+		CcuState state = ((EnumReadChannel) this.channel(GridConChannelId.CCU_STATE)).value().asEnum();
 		return state;
 	}
 
@@ -1288,24 +1264,24 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isDcDcStarted() {
-		StatusIPUStateMachine state = ((EnumReadChannel) this.channel(GridConChannelId.DCDC_STATUS_STATE_MACHINE))
+		StatusIpuStateMachine state = ((EnumReadChannel) this.channel(GridConChannelId.DCDC_STATUS_STATE_MACHINE))
 				.value().asEnum();
-		return state == StatusIPUStateMachine.RUN;
+		return state == StatusIpuStateMachine.RUN;
 	}
 
 	@Override
-	public boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3) {
+	public boolean isIpusStarted(boolean enableIpu1, boolean enableIpu2, boolean enableIpu3) {
 		boolean ret = true;
 
-		if (enableIPU1) {
+		if (enableIpu1) {
 			ret = ret && isIpuRunning(GridConChannelId.INVERTER_1_STATUS_STATE_MACHINE);
 		}
 
-		if (enableIPU2) {
+		if (enableIpu2) {
 			ret = ret && isIpuRunning(GridConChannelId.INVERTER_2_STATUS_STATE_MACHINE);
 		}
 
-		if (enableIPU3) {
+		if (enableIpu3) {
 			ret = ret && isIpuRunning(GridConChannelId.INVERTER_3_STATUS_STATE_MACHINE);
 		}
 
@@ -1313,8 +1289,8 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private boolean isIpuRunning(GridConChannelId id) {
-		StatusIPUStateMachine state = ((EnumReadChannel) this.channel(id)).value().asEnum();
-		return (state == StatusIPUStateMachine.RUN);
+		StatusIpuStateMachine state = ((EnumReadChannel) this.channel(id)).value().asEnum();
+		return (state == StatusIpuStateMachine.RUN);
 	}
 
 	@Override
@@ -1330,5 +1306,40 @@ public class GridconPCSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public double getEfficiencyLossDischargeFactor() {
 		return efficiencyLossDischargeFactor;
+	}
+
+	@Override
+	public boolean isUndefined() {
+		// TODO Check all relevant channels
+		// Discussion -> What channels should be defined! All?
+		// currently every used read only channel is checked
+		boolean undefined = false;
+
+		GridConChannelId[] ids = GridConChannelId.values();
+
+		for (io.openems.edge.common.channel.ChannelId id : ids) {
+			Channel<?> c = channel(id);
+
+			if (c == null || c instanceof WriteChannel<?>) {
+				break;
+			}
+
+			if (this.inverterCount.getCount() < 3
+					&& id.id().toUpperCase().contains(GridconPcsImpl.NAME_PART_INVERTER_3)) { // skip inverter_3
+				break;
+			}
+
+			if (this.inverterCount.getCount() < 2
+					&& id.id().toUpperCase().contains(GridconPcsImpl.NAME_PART_INVERTER_2)) { // skip inverter_2
+				break;
+			}
+
+			if (!c.value().isDefined()) {
+				System.out.println("Value in Channel " + id.id() + " is not defined!");
+				undefined = true;
+				break;
+			}
+		}
+		return undefined;
 	}
 }

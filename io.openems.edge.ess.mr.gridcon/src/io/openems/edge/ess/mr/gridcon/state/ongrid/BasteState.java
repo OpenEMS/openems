@@ -3,8 +3,7 @@ package io.openems.edge.ess.mr.gridcon.state.ongrid;
 import io.openems.edge.ess.mr.gridcon.IState;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 
-public abstract class BasteState implements StateObject{
-
+public abstract class BasteState implements StateObject {
 
 	private StateObject subStateObject;
 
@@ -16,7 +15,7 @@ public abstract class BasteState implements StateObject{
 
 	@Override
 	public void setStateBefore(IState stateBefore) {
-		// TODO Auto-generated method stub		
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -28,5 +27,5 @@ public abstract class BasteState implements StateObject{
 	public StateObject getSubStateObject() {
 		return subStateObject;
 	}
-	
+
 }

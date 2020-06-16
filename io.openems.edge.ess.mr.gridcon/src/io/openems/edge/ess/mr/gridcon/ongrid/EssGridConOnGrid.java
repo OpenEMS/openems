@@ -89,8 +89,14 @@ public class EssGridConOnGrid extends EssGridcon
 	}
 
 	@Override
-	protected void initializeStateController(String gridconPCS, String b1, String b2, String b3) {
-		StateController.initOnGrid(componentManager, gridconPCS, b1, b2, b3, config.enableIPU1(), config.enableIPU2(),
-				config.enableIPU3(), config.parameterSet(), config.outputHardReset(), config.offsetCurrent());		
+	protected void initializeStateController(String gridconPcs, String b1, String b2, String b3) {
+		StateController.initOnGrid(componentManager, gridconPcs, b1, b2, b3, config.enableIpu1(), config.enableIpu2(),
+				config.enableIpu3(), config.parameterSet(), config.outputHardReset(), config.offsetCurrent());
+	}
+
+	@Override
+	protected void writeStateMachineToChannel() {
+		this.channel(io.openems.edge.ess.mr.gridcon.ongrid.ChannelId.STATE_MACHINE)
+				.setNextValue(this.stateObject.getState());
 	}
 }

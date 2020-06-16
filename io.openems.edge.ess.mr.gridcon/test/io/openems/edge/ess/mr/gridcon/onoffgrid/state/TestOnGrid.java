@@ -15,8 +15,8 @@ import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyGridcon;
 import io.openems.edge.ess.mr.gridcon.onoffgrid.helper.DummyIo;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.GridconCommunicationFailed;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.MeterCommunicationFailed;
-import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NAProtection_1_On;
-import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NAProtection_2_On;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NaProtection1On;
+import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.NaProtection2On;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.SyncBridgeOn;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.DecisionTableCondition.VoltageInRange;
 import io.openems.edge.ess.mr.gridcon.state.onoffgrid.OnGrid;
@@ -30,7 +30,7 @@ public class TestOnGrid {
 		
 	@Before
 	public void setUp() throws Exception {
-		condition = new DummyDecisionTableCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.TRUE, SyncBridgeOn.TRUE);
+		condition = new DummyDecisionTableCondition(NaProtection1On.TRUE, NaProtection2On.TRUE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.TRUE, SyncBridgeOn.TRUE);
 		sut = new OnGrid(//
 				manager  
 				, condition//
@@ -58,33 +58,33 @@ public class TestOnGrid {
 	@Test
 	public void testGetNextUndefined() {
 		// According to the state machine the next state is "UNDEFINED" if e.g. condition is 1,1,1,1,0,1
-		setCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.FALSE, SyncBridgeOn.TRUE);
+		setCondition(NaProtection1On.TRUE, NaProtection2On.TRUE, GridconCommunicationFailed.TRUE, MeterCommunicationFailed.TRUE, VoltageInRange.FALSE, SyncBridgeOn.TRUE);
 		assertEquals(OnOffGridState.UNDEFINED, sut.getNextState());
 	}
 	
 	@Test
 	public void testGetNextStateOnGrid() {
 		// According to the state machine the next state is "ON_GRID" if condition is 0,0,1,1,-,-
-		setCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
+		setCondition(NaProtection1On.TRUE, NaProtection2On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
 		assertEquals(OnOffGridState.ON_GRID_MODE, sut.getNextState());
 		
-		setCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.FALSE);
+		setCondition(NaProtection1On.TRUE, NaProtection2On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.FALSE);
 		assertEquals(OnOffGridState.ON_GRID_MODE, sut.getNextState());
 		
-		setCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.TRUE);
+		setCondition(NaProtection1On.TRUE, NaProtection2On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.TRUE);
 		assertEquals(OnOffGridState.ON_GRID_MODE, sut.getNextState());
 		
-		setCondition(NAProtection_1_On.TRUE, NAProtection_2_On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.TRUE);
+		setCondition(NaProtection1On.TRUE, NaProtection2On.TRUE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.TRUE, SyncBridgeOn.TRUE);
 		assertEquals(OnOffGridState.ON_GRID_MODE, sut.getNextState());
 	}
 	
 	@Test
 	public void testGetNextStateOffGrid() {
 		// According to the state machine the next state is "OFF GRID" if condition is 0,0,0,0,0,-
-		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
+		setCondition(NaProtection1On.FALSE, NaProtection2On.FALSE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.FALSE);
 		assertEquals(OnOffGridState.OFF_GRID_MODE, sut.getNextState());
 		
-		setCondition(NAProtection_1_On.FALSE, NAProtection_2_On.FALSE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.TRUE);
+		setCondition(NaProtection1On.FALSE, NaProtection2On.FALSE, GridconCommunicationFailed.FALSE, MeterCommunicationFailed.FALSE, VoltageInRange.FALSE, SyncBridgeOn.TRUE);
 		assertEquals(OnOffGridState.OFF_GRID_MODE, sut.getNextState());
 	}
 	
@@ -124,7 +124,7 @@ public class TestOnGrid {
 			}
 	}
 	
-	private static void setCondition(NAProtection_1_On b, NAProtection_2_On c, GridconCommunicationFailed d, MeterCommunicationFailed e, VoltageInRange f, SyncBridgeOn g) {
+	private static void setCondition(NaProtection1On b, NaProtection2On c, GridconCommunicationFailed d, MeterCommunicationFailed e, VoltageInRange f, SyncBridgeOn g) {
 		condition.setNaProtection1On(b);
 		condition.setNaProtection2On(c);
 		condition.setGridconCommunicationFailed(d);
