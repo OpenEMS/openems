@@ -64,8 +64,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class ClusterVersionB extends AbstractOpenemsModbusComponent
-		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class ClusterVersionB extends AbstractOpenemsModbusComponent implements SoltaroBattery, SoltaroCluster, Battery,
+		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
 	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
@@ -107,6 +107,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				SoltaroBattery.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
 				ClusterVersionBChannelId.values() //
 		);
