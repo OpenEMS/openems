@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { Edge, Service, Websocket } from './shared/shared';
+import { Edge, Service, Websocket, ChannelAddress } from './shared/shared';
 import { environment } from '../environments';
 import { filter, takeUntil } from 'rxjs/operators';
 import { LanguageTag } from './shared/translate/language';
@@ -69,6 +69,15 @@ export class AppComponent {
       filter(event => event instanceof NavigationEnd)
     ).subscribe(event => {
       this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
+    })
+
+    // subscribe for single status component
+    this.service.currentEdge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
+      if (edge != null) {
+        edge.subscribeChannels(this.websocket, '', [
+          new ChannelAddress('_sum', 'State'),
+        ]);
+      }
     })
   }
 
@@ -144,7 +153,6 @@ export class AppComponent {
   updateCurrentPage(url: string) {
     let urlArray = url.split('/');
     let file = urlArray.pop();
-
     // Enable Segment Navigation for Edge-Index-Page
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {
       if (file == 'history') {
@@ -152,7 +160,8 @@ export class AppComponent {
       } else {
         this.currentPage = 'IndexLive';
       }
-    } else if (file == 'settings' && urlArray.length == 3 || urlArray.length > 3) {
+    } else if ((file == 'settings' && urlArray.length == 3) || (urlArray.length == 4 && (urlArray[urlArray.length - 1] == 'settings')
+      || (urlArray.length == 5 && urlArray[urlArray.length - 2] == 'settings'))) {
       this.currentPage = 'FemsSettings';
     }
     else {

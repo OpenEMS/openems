@@ -17,6 +17,7 @@ export const TRANSLATION = {
         dateFormat: 'dd.MM.yyyy', // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         dateFormatShort: 'dd.MM',
         dischargePower: 'Entladung',
+        fault: 'Fehler',
         grid: 'Netz',
         gridBuy: 'Netzbezug',
         gridBuyAdvanced: 'Bezug',
@@ -24,6 +25,7 @@ export const TRANSLATION = {
         gridSellAdvanced: 'Einspeisung',
         history: 'Historie',
         inactive: 'Inaktiv',
+        info: 'Info',
         inputNotValid: 'Eingabe ungültig',
         live: 'Live',
         load: 'Last',
@@ -49,7 +51,9 @@ export const TRANSLATION = {
         soc: 'Ladezustand',
         state: 'Zustand',
         storageSystem: 'Speichersystem',
+        systemState: 'Systemzustand',
         total: 'Gesamt',
+        warning: 'Warnung',
         Week: {
             monday: 'Montag',
             tuesday: 'Dienstag',
