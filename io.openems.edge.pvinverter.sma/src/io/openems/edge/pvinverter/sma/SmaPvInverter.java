@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -42,7 +42,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter
 		implements SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	// TODO find actually implemented/required Models
-	private static final Map<ISunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<ISunSpecModel, Priority>builder()
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 //			.put(SunSpecModel.S_1, Priority.LOW) //
 //			.put(SunSpecModel.S_101, Priority.LOW) //
 //			.put(SunSpecModel.S_102, Priority.LOW) //
