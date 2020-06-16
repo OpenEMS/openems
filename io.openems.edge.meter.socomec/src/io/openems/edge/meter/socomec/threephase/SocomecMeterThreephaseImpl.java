@@ -117,7 +117,7 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 					this.logInfo(this.log, "Identified Socomec Countis E24 meter");
 					this.protocolCountisE24();
 
-				} else if (name.startsWith("diris a-10")) {
+				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
 					this.protocolDirisA10();
 
@@ -130,7 +130,7 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 					this.protocolDirisB30();
 
 				} else if (name.startsWith("countis e14")) {
-					this.logError(this.log, "Identified Socomec " + name + " meter. This is not a threephase meter!");
+					this.logError(this.log, "Identified Socomec [" + name + "] meter. This is not a threephase meter!");
 					this.channel(SocomecMeterThreephase.ChannelId.NOT_A_THREEPHASE_METER).setNextValue(true);
 
 				} else {
