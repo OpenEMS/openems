@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -43,25 +44,27 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter
 
 	// TODO find actually implemented/required Models
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
-//			.put(SunSpecModel.S_1, Priority.LOW) //
-//			.put(SunSpecModel.S_101, Priority.LOW) //
-//			.put(SunSpecModel.S_102, Priority.LOW) //
-//			.put(SunSpecModel.S_103, Priority.LOW) //
-//			.put(SunSpecModel.S_111, Priority.LOW) //
-//			.put(SunSpecModel.S_112, Priority.LOW) //
-//			.put(SunSpecModel.S_113, Priority.LOW) //
-//			.put(SunSpecModel.S_120, Priority.LOW) //
-//			.put(SunSpecModel.S_121, Priority.LOW) //
-//			.put(SunSpecModel.S_122, Priority.LOW) //
-//			.put(SunSpecModel.S_123, Priority.LOW) //
-//			.put(SunSpecModel.S_124, Priority.LOW) //
-//			.put(SunSpecModel.S_125, Priority.LOW) //
-//			.put(SunSpecModel.S_127, Priority.LOW) //
-//			.put(SunSpecModel.S_128, Priority.LOW) //
-//			.put(SunSpecModel.S_145, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
+			.put(DefaultSunSpecModel.S_103, Priority.HIGH) // from 40185
+			.put(DefaultSunSpecModel.S_120, Priority.LOW) // from 40237
+			.put(DefaultSunSpecModel.S_121, Priority.LOW) // from 40265
+			.put(DefaultSunSpecModel.S_122, Priority.LOW) // from 40297
+			.put(DefaultSunSpecModel.S_123, Priority.LOW) // from 40343
 			.build();
 
-	private final static int UNIT_ID = 1;
+	// Further available SunSpec blocks provided by SMA Sunny TriPower are:
+	// .put(DefaultSunSpecModel.S_11, Priority.LOW) // from 40070
+	// .put(DefaultSunSpecModel.S_12, Priority.LOW) // from 40085
+	// .put(DefaultSunSpecModel.S_124, Priority.LOW) // from 40369
+	// .put(DefaultSunSpecModel.S_126, Priority.LOW) // from 40395
+	// .put(DefaultSunSpecModel.S_127, Priority.LOW) // from 40461
+	// .put(DefaultSunSpecModel.S_128, Priority.LOW) // from 40473
+	// .put(DefaultSunSpecModel.S_131, Priority.LOW) // from 40489
+	// .put(DefaultSunSpecModel.S_132, Priority.LOW) // from 40555
+	// .put(DefaultSunSpecModel.S_160, Priority.LOW) // from 40621
+	// .put(DefaultSunSpecModel.S_129, Priority.LOW) // from 40751
+	// .put(DefaultSunSpecModel.S_130, Priority.LOW) // from 40813
+
 	private final static int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
@@ -85,7 +88,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id(), READ_FROM_MODBUS_BLOCK);
 	}
 
