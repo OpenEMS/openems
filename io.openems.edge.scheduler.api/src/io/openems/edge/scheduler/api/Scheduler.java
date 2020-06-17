@@ -8,6 +8,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
@@ -30,6 +31,34 @@ public interface Scheduler extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#RUN_FAILED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getRunFailedChannel() {
+		return this.channel(ChannelId.RUN_FAILED);
+	}
+
+	/**
+	 * Gets the Run-Failed State. See {@link ChannelId#RUN_FAILED}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRunFailed() {
+		return this.getRunFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RUN_FAILED}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setRunFailed(boolean value) {
+		this.getRunFailedChannel().setNextValue(value);
+	}
+
+	/**
 	 * Returns Controllers ordered by their current execution priority.
 	 * 
 	 * <p>
@@ -41,12 +70,4 @@ public interface Scheduler extends OpenemsComponent {
 	 */
 	public LinkedHashSet<Controller> getControllers() throws OpenemsNamedException;
 
-	/**
-	 * Gets the "RunFailed" State-Channel.
-	 * 
-	 * @return the Channel
-	 */
-	public default StateChannel getRunFailed() {
-		return this.channel(ChannelId.RUN_FAILED);
-	}
 }

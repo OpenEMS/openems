@@ -239,12 +239,12 @@ public interface SunSpecPoint {
 			switch (type) {
 			case INT16:
 			case SUNSSF:
-				return !value.equals(-32768);
+				return !value.equals(Short.MIN_VALUE /* -32768 */);
 			case UINT16:
 			case ENUM16:
 			case BITFIELD16:
 			case COUNT:
-				return !value.equals(0xFFFF);
+				return !value.equals(65535);
 			case ACC16:
 			case ACC32:
 			case IPADDR:

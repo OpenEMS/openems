@@ -240,7 +240,7 @@ public class SocomecMeterSinglephaseImpl extends AbstractOpenemsModbusComponent 
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override

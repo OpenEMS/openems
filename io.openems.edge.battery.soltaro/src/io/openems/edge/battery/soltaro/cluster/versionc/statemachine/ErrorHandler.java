@@ -27,7 +27,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getState().listStates());
+		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getStateChannel().listStates());
 
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > 120) {
 			// Try again
