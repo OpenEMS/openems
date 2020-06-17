@@ -143,7 +143,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	private void setCapacity() {
 		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
+		this._setCapacity(capacity);
 	}
 
 	private void handleStateMachine() {
@@ -389,7 +389,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.value().asOptional();
 		if (clusterVoltageOpt.isPresent()) {
 			int voltageVolt = (int) (clusterVoltageOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltageVolt);
+			this._setVoltage(voltageVolt);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -397,7 +397,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).value().asOptional();
 		if (minCellVoltageOpt.isPresent()) {
 			int voltageMillivolt = minCellVoltageOpt.get();
-			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltageMillivolt);
+			this._setMinCellVoltage(voltageMillivolt);
 		}
 
 		// write battery ranges to according channels in battery api
@@ -407,7 +407,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).value().asOptional();
 		if (overVoltAlarmOpt.isPresent()) {
 			int maxChargeVoltage = (int) (overVoltAlarmOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(maxChargeVoltage);
+			this._setChargeMaxVoltage(maxChargeVoltage);
 		}
 
 		// DISCHARGE_MIN_VOLTAGE 0x2088
@@ -416,7 +416,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).value().asOptional();
 		if (underVoltAlarmOpt.isPresent()) {
 			int minDischargeVoltage = (int) (underVoltAlarmOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(minDischargeVoltage);
+			this._setDischargeMinVoltage(minDischargeVoltage);
 		}
 
 		// CHARGE_MAX_CURRENT 0x2160
@@ -425,7 +425,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).value().asOptional();
 		if (maxChargeCurrentOpt.isPresent()) {
 			int maxCurrent = (int) (maxChargeCurrentOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(maxCurrent);
+			this._setChargeMaxCurrent(maxCurrent);
 		}
 
 		// DISCHARGE_MAX_CURRENT 0x2161
@@ -434,7 +434,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).value().asOptional();
 		if (maxDischargeCurrentOpt.isPresent()) {
 			int maxCurrent = (int) (maxDischargeCurrentOpt.get() * 0.001);
-			this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(maxCurrent);
+			this._setDischargeMaxCurrent(maxCurrent);
 		}
 
 	}

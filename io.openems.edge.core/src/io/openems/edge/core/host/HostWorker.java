@@ -40,7 +40,7 @@ public class HostWorker extends AbstractWorker {
 			}
 		}
 
-		this.parent.channel(Host.ChannelId.DISK_IS_FULL).setNextValue(totalUsableSpace < MINIMUM_FREE_DISK_SPACE);
+		this.parent._setDiskIsFull(totalUsableSpace < MINIMUM_FREE_DISK_SPACE);
 	}
 
 	@Override

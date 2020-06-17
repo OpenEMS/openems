@@ -227,12 +227,12 @@ public enum SinexcelChannelId implements ChannelId {
 				((StateChannel) channel).onChange((oldValue, newValue) -> {
 					Optional<Boolean> value = newValue.asOptional();
 					if (!value.isPresent()) {
-						self.getGridMode().setNextValue(GridMode.UNDEFINED);
+						self._setGridMode(GridMode.UNDEFINED);
 					} else {
 						if (value.get()) {
-							self.getGridMode().setNextValue(GridMode.ON_GRID);
+							self._setGridMode(GridMode.ON_GRID);
 						} else {
-							self.getGridMode().setNextValue(GridMode.OFF_GRID);
+							self._setGridMode(GridMode.OFF_GRID);
 						}
 					}
 				});

@@ -53,7 +53,7 @@ public class TeslaPowerwall2Battery extends AbstractOpenemsComponent
 				SinglePhaseEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.getCapacity().setNextValue(CAPACITY);
+		this._setCapacity(CAPACITY);
 	}
 
 	@Activate
@@ -78,8 +78,8 @@ public class TeslaPowerwall2Battery extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString();
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

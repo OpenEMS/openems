@@ -46,15 +46,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	 */
 	private float soc = 0;
 
-	/**
-	 * Total configured capacity in Wh.
-	 */
-	private int capacity = 0;
-
-	/**
-	 * Configured max Apparent Power in VA.
-	 */
-	private int maxApparentPower = 0;
+	private Config config;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -79,15 +71,14 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.getSoc().setNextValue(config.initialSoc());
+		this.config = config;
 		this.soc = config.initialSoc();
-		this.capacity = config.capacity();
-		this.maxApparentPower = config.maxApparentPower();
-		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
-		this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
-		this.getAllowedDischarge().setNextValue(this.maxApparentPower);
-		this.getGridMode().setNextValue(config.gridMode());
-		this.getCapacity().setNextValue(this.capacity);
+		this._setSoc(config.initialSoc());
+		this._setMaxApparentPower(config.maxApparentPower());
+		this._setAllowedChargePower(config.maxApparentPower() * -1);
+		this._setAllowedDischargePower(config.maxApparentPower());
+		this._setGridMode(config.gridMode());
+		this._setCapacity(config.capacity());
 	}
 
 	@Deactivate
@@ -120,9 +111,9 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
@@ -139,14 +130,14 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		float watthours = (float) activePower * 1 / 3600;
 		// float watthours = (float) activePower * this.datasource.getTimeDelta() /
 		// 3600;
-		float socChange = watthours / this.capacity;
+		float socChange = watthours / this.config.capacity();
 		this.soc -= socChange;
 		if (this.soc > 100) {
 			this.soc = 100;
 		} else if (this.soc < 0) {
 			this.soc = 0;
 		}
-		this.getSoc().setNextValue(this.soc);
+		this._setSoc(Math.round(this.soc));
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
@@ -156,26 +147,26 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		if (soc == 100 && activePower < 0) {
 			activePower = 0;
 		}
-		this.getActivePower().setNextValue(activePower);
+		this._setActivePower(activePower);
 		if (soc == 0 && reactivePower > 0) {
 			reactivePower = 0;
 		}
 		if (soc == 100 && reactivePower < 0) {
 			reactivePower = 0;
 		}
-		this.getReactivePower().setNextValue(reactivePower);
+		this._setReactivePower(reactivePower);
 		/*
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
 		if (this.soc == 100) {
-			this.getAllowedCharge().setNextValue(0);
+			this._setAllowedChargePower(0);
 		} else {
-			this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
+			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
 		}
 		if (this.soc == 0) {
-			this.getAllowedDischarge().setNextValue(0);
+			this._setAllowedDischargePower(0);
 		} else {
-			this.getAllowedDischarge().setNextValue(this.maxApparentPower);
+			this._setAllowedDischargePower(this.config.maxApparentPower());
 		}
 	}
 
@@ -216,10 +207,10 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 			if (this.lastPowerValue < 0) {
 				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);
+				this._setActiveChargeEnergy((long) accumulatedChargeEnergy);
 			} else if (this.lastPowerValue > 0) {
 				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
+				this._setActiveDischargeEnergy((long) accumulatedDischargeEnergy);
 			}
 
 			this.logDebug(this.log, "accumulated charge energy :" + accumulatedChargeEnergy);
@@ -229,6 +220,6 @@ public class EssSymmetric extends AbstractOpenemsComponent
 			this.lastPowerValuesTimestamp = LocalDateTime.now();
 		}
 
-		this.lastPowerValue = this.getActivePower().value().orElse(0);
+		this.lastPowerValue = this.getActivePower().orElse(0);
 	}
 }
