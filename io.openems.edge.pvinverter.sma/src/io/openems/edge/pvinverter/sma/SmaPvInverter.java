@@ -42,7 +42,6 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 public class SmaPvInverter extends AbstractSunSpecPvInverter
 		implements SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
-	// TODO find actually implemented/required Models
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
 			.put(DefaultSunSpecModel.S_103, Priority.HIGH) // from 40185
