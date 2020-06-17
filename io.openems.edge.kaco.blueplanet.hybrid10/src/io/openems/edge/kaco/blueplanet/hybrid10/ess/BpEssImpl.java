@@ -79,7 +79,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 				ErrorChannelId.values(), //
 				BpEss.ChannelId.values() //
 		);
-		this.getMaxApparentPower().setNextValue(BpConstants.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(BpConstants.MAX_APPARENT_POWER);
 	}
 
 	@Activate
@@ -91,7 +91,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 		}
 
 		this.config = config;
-		this.getCapacity().setNextValue(config.capacity());
+		this._setCapacity(config.capacity());
 	}
 
 	@Deactivate
@@ -163,20 +163,20 @@ public class BpEssImpl extends AbstractOpenemsComponent
 			}
 		}
 
-		this.getSoc().setNextValue(soc);
-		this.getActivePower().setNextValue(activePower);
-		this.getReactivePower().setNextValue(reactivePower);
-		this.getGridMode().setNextValue(gridMode);
+		this._setSoc(soc);
+		this._setActivePower(activePower);
+		this._setReactivePower(reactivePower);
+		this._setGridMode(gridMode);
 
 		if (soc == null || soc >= 99) {
-			this.getAllowedCharge().setNextValue(0);
+			this._setAllowedChargePower(0);
 		} else {
-			this.getAllowedCharge().setNextValue(BpConstants.MAX_APPARENT_POWER * -1);
+			this._setAllowedChargePower(BpConstants.MAX_APPARENT_POWER * -1);
 		}
 		if (soc == null || soc <= 0) {
-			this.getAllowedDischarge().setNextValue(0);
+			this._setAllowedDischargePower(0);
 		} else {
-			this.getAllowedDischarge().setNextValue(BpConstants.MAX_APPARENT_POWER);
+			this._setAllowedDischargePower(BpConstants.MAX_APPARENT_POWER);
 		}
 
 		this.channel(BpEss.ChannelId.BMS_VOLTAGE).setNextValue(bmsVoltage);
@@ -225,12 +225,11 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|Allowed:"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString() //
 				+ (this.config.readOnly() ? "|Read-Only-Mode" : "");
 	}
 
@@ -319,17 +318,17 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 			if (this.lastPowerValue < 0) {
 				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);
+				this._setActiveChargeEnergy(Math.round(accumulatedChargeEnergy));
 			} else if (this.lastPowerValue > 0) {
 				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
+				this._setActiveDischargeEnergy(Math.round(accumulatedDischargeEnergy));
 			}
 
 		} else {
 			this.lastPowerValuesTimestamp = LocalDateTime.now();
 		}
 
-		this.lastPowerValue = this.getActivePower().value().orElse(0);
+		this.lastPowerValue = this.getActivePower().orElse(0);
 	}
 
 }

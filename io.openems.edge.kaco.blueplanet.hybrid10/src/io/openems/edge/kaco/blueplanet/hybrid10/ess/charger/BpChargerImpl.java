@@ -62,7 +62,7 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActualPower().value().asString();
+		return "P:" + this.getActualPower().asString();
 	}
 
 	@Override
@@ -81,6 +81,6 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 		if (inverter != null) {
 			actualPower = Math.round(inverter.getPvPower());
 		}
-		this.getActualPower().setNextValue(actualPower);
+		this._setActualPower(actualPower);
 	}
 }
