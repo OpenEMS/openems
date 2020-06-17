@@ -17,6 +17,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -100,24 +101,28 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedWordElement(36009),
 								ElementToChannelConverter.INVERT)), //
 
-				// Voltage and current of each phase
+				// Voltage, current and Grid Frequency of each phase
 				new FC3ReadRegistersTask(35121, Priority.LOW, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35121),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35122),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-
-				new FC3ReadRegistersTask(35126, Priority.LOW, //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GridMeterChannelId.F_GRID_R, new UnsignedWordElement(35123),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35124, 35125), //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35126),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35127),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-
-				new FC3ReadRegistersTask(35131, Priority.LOW, //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GridMeterChannelId.F_GRID_S, new UnsignedWordElement(35128),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						new DummyRegisterElement(35129, 35130), //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35131),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(GridMeterChannelId.F_GRID_T, new UnsignedWordElement(35133),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 
 				// Power factor and frequency
 				new FC3ReadRegistersTask(36013, Priority.LOW, //
@@ -125,19 +130,6 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
-
-				// Grid Frequency individual phases
-				new FC3ReadRegistersTask(35123, Priority.LOW, //
-						m(GridMeterChannelId.F_GRID_R, new UnsignedWordElement(35123),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
-
-				new FC3ReadRegistersTask(35128, Priority.LOW, //
-						m(GridMeterChannelId.F_GRID_S, new UnsignedWordElement(35128),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
-
-				new FC3ReadRegistersTask(35133, Priority.LOW, //
-						m(GridMeterChannelId.F_GRID_T, new UnsignedWordElement(35133),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
 
 				// Energy values
 				new FC3ReadRegistersTask(35200, Priority.LOW, //
@@ -155,7 +147,7 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 }

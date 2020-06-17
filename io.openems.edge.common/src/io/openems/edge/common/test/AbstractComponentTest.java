@@ -231,17 +231,12 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * @throws Exception on error
 	 */
 	public SELF addReference(String memberName, Object object) throws Exception {
-		// Set the reference via reflection
-		Class<?> clazz = this.sut.getClass();
-		try {
-			Field field = clazz.getDeclaredField(memberName);
-			field.setAccessible(true);
-			field.set(this.sut, object);
-		} catch (NoSuchFieldException e) {
-			// Ignore. Try method.
-			this.invokeSingleArgMethod(memberName, object);
+		// Set the reference recursively via reflection
+		if (!this.addReference(this.sut.getClass(), memberName, object)) {
+			throw new Exception("Unable to add reference on field or method [" + memberName + "]");
 		}
 
+		// Store reference
 		this.references.add(object);
 
 		// If this is a DummyComponentManager -> fill it with existing Components
@@ -250,7 +245,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				((DummyComponentManager) object).addComponent(component);
 			}
 		}
-
 		// If this is an OpenemsComponent -> store it for later
 		if (object instanceof OpenemsComponent) {
 			this.addComponent((OpenemsComponent) object);
@@ -360,9 +354,30 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		method.invoke(this.sut);
 	}
 
-	private void invokeSingleArgMethod(String methodName, Object arg)
+	private boolean addReference(Class<?> clazz, String memberName, Object object)
+			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		try {
+			Field field = clazz.getDeclaredField(memberName);
+			field.setAccessible(true);
+			field.set(this.sut, object);
+			return true;
+		} catch (NoSuchFieldException e) {
+			// Ignore. Try method.
+			if (this.invokeSingleArgMethod(clazz, memberName, object)) {
+				return true;
+			}
+		}
+		// If we are here, no matching field or method was found. Search in parent
+		// classes.
+		Class<?> parent = clazz.getSuperclass();
+		if (parent == null) {
+			return false; // reached 'java.lang.Object'
+		}
+		return addReference(parent, memberName, object);
+	}
+
+	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Class<?> clazz = this.sut.getClass();
 		Method[] methods = clazz.getDeclaredMethods();
 		for (Method method : methods) {
 			if (!method.getName().equals(methodName)) {
@@ -379,10 +394,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 			method.setAccessible(true);
 			method.invoke(this.sut, arg);
-			return;
+			return true;
 		}
-		throw new IllegalArgumentException(
-				"Unable to find matching method for [" + methodName + "] with arg [" + arg + "]");
+
+		// Unable to find matching method
+		return false;
 	}
 
 	/**

@@ -135,33 +135,33 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 
 		for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
 			// SymmetricMeter
-			frequency.addValue(pvInverter.getFrequency());
-			minActivePower.addValue(pvInverter.getMinActivePower());
-			maxActivePower.addValue(pvInverter.getMaxActivePower());
-			activePower.addValue(pvInverter.getActivePower());
-			reactivePower.addValue(pvInverter.getReactivePower());
-			activeProductionEnergy.addValue(pvInverter.getActiveProductionEnergy());
-			activeConsumptionEnergy.addValue(pvInverter.getActiveConsumptionEnergy());
-			voltage.addValue(pvInverter.getVoltage());
-			current.addValue(pvInverter.getCurrent());
+			frequency.addValue(pvInverter.getFrequencyChannel());
+			minActivePower.addValue(pvInverter.getMinActivePowerChannel());
+			maxActivePower.addValue(pvInverter.getMaxActivePowerChannel());
+			activePower.addValue(pvInverter.getActivePowerChannel());
+			reactivePower.addValue(pvInverter.getReactivePowerChannel());
+			activeProductionEnergy.addValue(pvInverter.getActiveProductionEnergyChannel());
+			activeConsumptionEnergy.addValue(pvInverter.getActiveConsumptionEnergyChannel());
+			voltage.addValue(pvInverter.getVoltageChannel());
+			current.addValue(pvInverter.getCurrentChannel());
 			// SymmetricPvInverter
-			maxApparentPower.addValue(pvInverter.getMaxApparentPower());
-			activePowerLimit.addValue(pvInverter.getActivePowerLimit());
+			maxApparentPower.addValue(pvInverter.getMaxApparentPowerChannel());
+			activePowerLimit.addValue(pvInverter.getActivePowerLimitChannel());
 		}
 
 		// SymmetricMeter
-		this.getFrequency().setNextValue(frequency.calculate());
-		this.getMinActivePower().setNextValue(minActivePower.calculate());
-		this.getMaxActivePower().setNextValue(maxActivePower.calculate());
-		this.getActivePower().setNextValue(activePower.calculate());
-		this.getReactivePower().setNextValue(reactivePower.calculate());
-		this.getActiveProductionEnergy().setNextValue(activeProductionEnergy.calculate());
-		this.getActiveConsumptionEnergy().setNextValue(activeConsumptionEnergy.calculate());
-		this.getVoltage().setNextValue(voltage.calculate());
-		this.getCurrent().setNextValue(current.calculate());
+		this.getFrequencyChannel().setNextValue(frequency.calculate());
+		this._setMinActivePower(minActivePower.calculate());
+		this._setMaxActivePower(maxActivePower.calculate());
+		this._setActivePower(activePower.calculate());
+		this._setReactivePower(reactivePower.calculate());
+		this._setActiveProductionEnergy(activeProductionEnergy.calculate());
+		this._setActiveConsumptionEnergy(activeConsumptionEnergy.calculate());
+		this.getVoltageChannel().setNextValue(voltage.calculate());
+		this._setCurrent(current.calculate());
 		// SymmetricPvInverter
-		this.getMaxApparentPower().setNextValue(maxApparentPower.calculate());
-		this.getActivePowerLimit().setNextValue(activePowerLimit.calculate());
+		this._setMaxApparentPower(maxApparentPower.calculate());
+		this._setActivePowerLimit(activePowerLimit.calculate());
 	}
 
 	private void distributePvLimit() throws OpenemsNamedException {
@@ -172,11 +172,11 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 			return;
 		}
 
-		Optional<Integer> activePowerLimitOpt = this.getActivePowerLimit().getNextWriteValueAndReset();
+		Optional<Integer> activePowerLimitOpt = this.getActivePowerLimitChannel().getNextWriteValueAndReset();
 		if (!activePowerLimitOpt.isPresent()) {
 			// no value given -> set all limits to undefined.
 			for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
-				pvInverter.getActivePowerLimit().setNextWriteValue(null);
+				pvInverter.setActivePowerLimit(null);
 			}
 			return;
 		}
@@ -186,7 +186,7 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 		Map<ManagedSymmetricPvInverter, Integer> values = new HashMap<>();
 		int toBeDistributed = 0;
 		for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
-			int maxPower = pvInverter.getMaxApparentPower().value().getOrError();
+			int maxPower = pvInverter.getMaxApparentPower().getOrError();
 			int power = averageActivePowerLimit;
 			if (maxPower < power) {
 				toBeDistributed += power - maxPower;
@@ -197,7 +197,7 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 
 		for (Entry<ManagedSymmetricPvInverter, Integer> entry : values.entrySet()) {
 			if (toBeDistributed > 0) {
-				int maxPower = entry.getKey().getMaxApparentPower().value().getOrError();
+				int maxPower = entry.getKey().getMaxApparentPower().getOrError();
 				int power = entry.getValue();
 				if (maxPower > power) {
 					toBeDistributed -= maxPower - power;
@@ -208,7 +208,7 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 
 		// Apply limit
 		for (Entry<ManagedSymmetricPvInverter, Integer> entry : values.entrySet()) {
-			entry.getKey().getActivePowerLimit().setNextWriteValue(entry.getValue());
+			entry.getKey().setActivePowerLimit(entry.getValue());
 		}
 	}
 

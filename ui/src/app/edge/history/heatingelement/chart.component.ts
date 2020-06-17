@@ -106,7 +106,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-1') + ' kWh'; // TODO get locale dynamically
+      return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
     }
     this.options = options;
   }

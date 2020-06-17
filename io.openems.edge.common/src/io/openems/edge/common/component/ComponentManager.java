@@ -11,6 +11,8 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.jsonapi.JsonApi;
 
 /**
@@ -35,6 +37,93 @@ public interface ComponentManager extends OpenemsComponent, JsonApi {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONFIG_NOT_ACTIVATED}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getConfigNotActivatedChannel() {
+		return this.channel(ChannelId.CONFIG_NOT_ACTIVATED);
+	}
+
+	/**
+	 * Gets the Config Not Activated Warning State. See
+	 * {@link ChannelId#CONFIG_NOT_ACTIVATED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getConfigNotActivated() {
+		return this.getConfigNotActivatedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONFIG_NOT_ACTIVATED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConfigNotActivated(Boolean value) {
+		this.getConfigNotActivatedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#WAS_OUT_OF_MEMORY}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getWasOutOfMemoryChannel() {
+		return this.channel(ChannelId.WAS_OUT_OF_MEMORY);
+	}
+
+	/**
+	 * Gets the Was Out of Memory Fault State. See
+	 * {@link ChannelId#WAS_OUT_OF_MEMORY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getWasOutOfMemory() {
+		return this.getWasOutOfMemoryChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#WAS_OUT_OF_MEMORY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setWasOutOfMemory(boolean value) {
+		this.getWasOutOfMemoryChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEFAULT_CONFIGURATION_FAILED}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getDefaultConfigurationFailedChannel() {
+		return this.channel(ChannelId.DEFAULT_CONFIGURATION_FAILED);
+	}
+
+	/**
+	 * Gets the Default Configuration Failed State. See
+	 * {@link ChannelId#DEFAULT_CONFIGURATION_FAILED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getDefaultConfigurationFailed() {
+		return this.getDefaultConfigurationFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEFAULT_CONFIGURATION_FAILED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDefaultConfigurationFailed(boolean value) {
+		this.getDefaultConfigurationFailedChannel().setNextValue(value);
 	}
 
 	/**

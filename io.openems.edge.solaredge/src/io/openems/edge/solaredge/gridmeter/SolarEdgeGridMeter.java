@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -40,12 +40,12 @@ import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
 
-	private static final Map<ISunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<ISunSpecModel, Priority>builder()
-			.put(SunSpecModel.S_1, Priority.LOW) //
-			.put(SunSpecModel.S_201, Priority.LOW) //
-			.put(SunSpecModel.S_202, Priority.LOW) //
-			.put(SunSpecModel.S_203, Priority.LOW) //
-			.put(SunSpecModel.S_204, Priority.LOW) //
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_201, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_202, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_204, Priority.LOW) //
 			.build();
 
 	private final static int UNIT_ID = 1;

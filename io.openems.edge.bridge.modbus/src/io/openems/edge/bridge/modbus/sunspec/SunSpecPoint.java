@@ -171,6 +171,7 @@ public interface SunSpecPoint {
 		 * @return the {@link OpenemsType}
 		 */
 		public final OpenemsType getMatchingOpenemsType() {
+			// TODO: map to floating point OpenemsType when appropriate
 			switch (this.type) {
 			case UINT16:
 			case ACC16:
@@ -187,7 +188,7 @@ public interface SunSpecPoint {
 			case INT32:
 			case PAD: // ignore
 			case EUI48:
-			case FLOAT32: // avoid floating point numbers
+			case FLOAT32: // avoid floating point numbers; FLOAT32 might not fit in INTEGER
 				return OpenemsType.INTEGER;
 			case UINT64:
 			case ACC64:
@@ -238,12 +239,12 @@ public interface SunSpecPoint {
 			switch (type) {
 			case INT16:
 			case SUNSSF:
-				return !value.equals(-32768);
+				return !value.equals(Short.MIN_VALUE /* -32768 */);
 			case UINT16:
 			case ENUM16:
 			case BITFIELD16:
 			case COUNT:
-				return !value.equals(0xFFFF);
+				return !value.equals(65535);
 			case ACC16:
 			case ACC32:
 			case IPADDR:
