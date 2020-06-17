@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -40,6 +41,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.Level;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
@@ -333,10 +335,8 @@ public class EdgeConfigWorker extends AbstractWorker {
 	private boolean readComponents(EdgeConfig result) {
 		boolean wasConfigUpdated = false;
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
-			if (!result.getComponents().containsKey(component.id())) {
-				this.readComponent(result, component);
-				wasConfigUpdated = true;
-			}
+			this.readComponent(result, component);
+			wasConfigUpdated = true;
 		}
 		return wasConfigUpdated;
 	}
@@ -348,8 +348,8 @@ public class EdgeConfigWorker extends AbstractWorker {
 	 * @param component the Component
 	 */
 	private void readComponent(EdgeConfig result, OpenemsComponent component) {
-		String componentId = component.id();
 		String factoryPid = component.serviceFactoryPid();
+		String componentId = component.id();
 
 		// get configuration properties
 		TreeMap<String, JsonElement> properties = convertProperties( //
@@ -359,9 +359,35 @@ public class EdgeConfigWorker extends AbstractWorker {
 		// get Channels
 		TreeMap<String, io.openems.common.types.EdgeConfig.Component.Channel> channels = this.getChannels(component);
 
-		// Create EdgeConfig.Component and add it to Result
-		result.addComponent(componentId, new EdgeConfig.Component(component.servicePid(), componentId,
-				component.alias(), factoryPid, properties, channels));
+		Optional<Component> resultComponent = result.getComponent(componentId);
+		if (resultComponent.isPresent()) {
+			// Update existing properties
+			Map<String, JsonElement> resultProperties = resultComponent.get().getProperties();
+			for (Entry<String, JsonElement> property : properties.entrySet()) {
+				switch (property.getKey()) {
+				case "org.ops4j.pax.logging.appender.name":
+					// ignore
+					continue;
+				}
+				if (!resultProperties.containsKey(property.getKey())) {
+					resultProperties.put(property.getKey(), property.getValue());
+				}
+			}
+
+			// Update existing Channels
+			Map<String, io.openems.common.types.EdgeConfig.Component.Channel> resultChannels = resultComponent.get()
+					.getChannels();
+			for (Entry<String, io.openems.common.types.EdgeConfig.Component.Channel> channel : channels.entrySet()) {
+				if (!resultChannels.containsKey(channel.getKey())) {
+					resultChannels.put(channel.getKey(), channel.getValue());
+				}
+			}
+
+		} else {
+			// Create new EdgeConfig.Component and add it to Result
+			result.addComponent(componentId, new EdgeConfig.Component(component.servicePid(), componentId,
+					component.alias(), factoryPid, properties, channels));
+		}
 	}
 
 	/**
