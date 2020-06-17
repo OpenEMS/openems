@@ -17,14 +17,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;
+
 	@AttributeDefinition(name = "IP-Address", description = "The IP address to listen on. ('0.0.0.0' for any IP)")
 	String ip() default OcppServerImpl.DEFAULT_IP;
 
 	@AttributeDefinition(name = "Port", description = "The port of to listen on.")
 	int port() default OcppServerImpl.DEFAULT_PORT;
-
-	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
-	boolean debugMode() default false;
 
 	String webconsole_configurationFactory_nameHint() default "EVCS OCPP Server [{id}]";
 }

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -27,7 +26,6 @@ import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -39,7 +37,6 @@ import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
-import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -54,7 +51,7 @@ public class Abl extends AbstractOcppEvcsComponent
 
 	// Default value for the hardware limit
 	private static final Integer DEFAULT_HARDWARE_LIMIT = 22080;
-	
+
 	// Profiles that a ABL is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
 			OcppProfileType.CORE //
@@ -112,18 +109,15 @@ public class Abl extends AbstractOcppEvcsComponent
 
 	@Override
 	public Integer getConfiguredMaximumHardwarePower() {
-		String sessionId = this.getChargingSessionId().getNextValue().orElse("");
-		if (sessionId.isEmpty()) {
+		if (this.sessionId == null || this.ocppServer == null) {
 			return this.config.maxHwPower();
 		}
 		DataTransferRequest request = new DataTransferRequest("ABL");
 		request.setMessageId("GetLimit");
 		request.setData(this.config.limitId());
 
-		UUID sessionUUID = UUID.fromString(sessionId);
-
 		try {
-			this.getConfiguredOcppServer().send(sessionUUID, request).whenComplete((confirmation, throwable) -> {
+			this.ocppServer.send(this.sessionId, request).whenComplete((confirmation, throwable) -> {
 
 				dynamicMaximumHardwarePower = Integer.valueOf(confirmation.toString());
 				this.logInfo(log, confirmation.toString());
@@ -142,16 +136,6 @@ public class Abl extends AbstractOcppEvcsComponent
 	@Override
 	public Integer getConfiguredMinimumHardwarePower() {
 		return this.config.minHwPower();
-	}
-
-	@Override
-	public OcppServerImpl getConfiguredOcppServer() {
-		try {
-			return this.componentManager.getComponent(this.config.ocppServerId());
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	@Override
@@ -174,7 +158,8 @@ public class Abl extends AbstractOcppEvcsComponent
 
 				long target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
 
-				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
+				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(DEFAULT_HARDWARE_LIMIT) / phases
+						/ 230;
 				target = target > maxCurrent ? maxCurrent : target;
 
 				request.setMessageId("SetLimit");
@@ -203,9 +188,13 @@ public class Abl extends AbstractOcppEvcsComponent
 	public List<Request> getRequiredRequestsDuringConnection() {
 		List<Request> requests = new ArrayList<Request>();
 
-		TriggerMessageRequest request = new TriggerMessageRequest(TriggerMessageRequestType.MeterValues);
-		request.setConnectorId(this.getConfiguredConnectorId());
-		requests.add(request);
+		TriggerMessageRequest requestMeterValues = new TriggerMessageRequest(TriggerMessageRequestType.MeterValues);
+		requestMeterValues.setConnectorId(this.getConfiguredConnectorId());
+		requests.add(requestMeterValues);
+		
+		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
+		requestMeterValues.setConnectorId(this.getConfiguredConnectorId());
+		requests.add(requestStatus);
 
 		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
 				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");

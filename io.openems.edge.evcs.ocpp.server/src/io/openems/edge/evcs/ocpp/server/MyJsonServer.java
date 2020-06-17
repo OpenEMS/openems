@@ -3,12 +3,12 @@ package io.openems.edge.evcs.ocpp.server;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.osgi.service.cm.ConfigurationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,6 @@ import eu.chargetime.ocpp.model.core.ChangeAvailabilityRequest;
 import eu.chargetime.ocpp.model.core.GetConfigurationConfirmation;
 import eu.chargetime.ocpp.model.core.GetConfigurationRequest;
 import eu.chargetime.ocpp.model.core.KeyValueType;
-import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
 
 public class MyJsonServer {
@@ -39,11 +38,6 @@ public class MyJsonServer {
 	private final Logger log = LoggerFactory.getLogger(MyJsonServer.class);
 
 	private final OcppServerImpl parent;
-
-	/**
-	 * Currently connected sessions (Communications with each charging station).
-	 */
-	private final List<EvcsSession> activeSessions = new ArrayList<EvcsSession>();
 
 	/**
 	 * The JSON OCPP server.
@@ -64,41 +58,25 @@ public class MyJsonServer {
 	public MyJsonServer(OcppServerImpl parent) {
 		this.parent = parent;
 
-		this.coreProfile = new ServerCoreProfile(new CoreEventHandlerImpl(parent, this));
+		this.coreProfile = new ServerCoreProfile(new CoreEventHandlerImpl(parent));
 		this.firmwareProfile = new ServerFirmwareManagementProfile(new FirmwareManagementEventHandlerImpl(parent));
 
-		JSONServer server = new JSONServer(coreProfile);
-		server.addFeatureProfile(firmwareProfile);
-		server.addFeatureProfile(localAuthListProfile);
-		server.addFeatureProfile(remoteTriggerProfile);
-		server.addFeatureProfile(reservationProfile);
-		server.addFeatureProfile(smartChargingProfile);
+		JSONServer server = new JSONServer(this.coreProfile);
+		server.addFeatureProfile(this.firmwareProfile);
+		server.addFeatureProfile(this.localAuthListProfile);
+		server.addFeatureProfile(this.remoteTriggerProfile);
+		server.addFeatureProfile(this.reservationProfile);
+		server.addFeatureProfile(this.smartChargingProfile);
 		this.server = server;
 	}
 
 	/**
-	 * Defining the protocols and starting the OCPP Server. Responds to every
-	 * connected/disconnected charging station.
+	 * Starting the OCPP Server. Responds to every connecting/disconnecting charging
+	 * station.
 	 */
 	public void activate(String ip, int port) {
-		server.open(ip, port, new ServerEvents() {
 
-			@Override
-			public void lostSession(UUID sessionIndex) {
-				MyJsonServer.this.logDebug("Session " + sessionIndex + " lost connection");
-
-				for (EvcsSession evcsSession : MyJsonServer.this.activeSessions) {
-					for (MeasuringEvcs measuringEvcs : evcsSession.getOcppEvcss()) {
-						if (evcsSession.getSessionId().equals(sessionIndex)) {
-							measuringEvcs.channel(AbstractOcppEvcsComponent.ChannelId.CHARGING_SESSION_ID)
-									.setNextValue(null);
-							measuringEvcs.getChargingstationCommunicationFailed().setNextValue(true);
-							// TODO: never remove during a for-loop! Use iterator instead
-							activeSessions.remove(evcsSession);
-						}
-					}
-				}
-			}
+		this.server.open(ip, port, new ServerEvents() {
 
 			@Override
 			public void newSession(UUID sessionIndex, SessionInformation information) {
@@ -106,38 +84,66 @@ public class MyJsonServer {
 						+ "Chargepoint [" + information.getIdentifier() + "] " //
 						+ "IP: " + information.getAddress());
 
-				List<AbstractOcppEvcsComponent> evcssWithThisId = MyJsonServer.this.parent
-						.getComponentsWithIdentifier(information.getIdentifier(), sessionIndex);
-				activeSessions.add(new EvcsSession(sessionIndex, information, evcssWithThisId));
+				String ocppIdentifier = information.getIdentifier().replace("/", "");
 
-				MyJsonServer.this.sendInitialRequests(sessionIndex, evcssWithThisId);
+				MyJsonServer.this.parent.ocppSessions.put(ocppIdentifier, sessionIndex);
+
+				List<AbstractOcppEvcsComponent> presentEvcss = MyJsonServer.this.parent.ocppEvcss.get(ocppIdentifier);
+
+				if (presentEvcss == null) {
+					return;
+				}
+				MyJsonServer.this.parent.activeEvcsSessions.put(sessionIndex, presentEvcss);
+
+				for (AbstractOcppEvcsComponent evcs : presentEvcss) {
+					evcs.newSession(MyJsonServer.this.parent, sessionIndex);
+					MyJsonServer.this.sendInitialRequests(sessionIndex, evcs);
+				}
+			}
+
+			@Override
+			public void lostSession(UUID sessionIndex) {
+				MyJsonServer.this.logDebug("Session " + sessionIndex + " lost connection");
+
+				List<AbstractOcppEvcsComponent> sessionEvcss = MyJsonServer.this.parent.activeEvcsSessions
+						.getOrDefault(sessionIndex, new ArrayList<>());
+
+				if (sessionEvcss != null) {
+					for (AbstractOcppEvcsComponent ocppEvcs : sessionEvcss) {
+						ocppEvcs.lostSession();
+					}
+				}
+
+				String ocppId = "";
+				for (Entry<String, UUID> session : MyJsonServer.this.parent.ocppSessions.entrySet()) {
+					if (session.getValue().equals(sessionIndex)) {
+						ocppId = session.getKey();
+					}
+				}
+
+				MyJsonServer.this.parent.ocppSessions.remove(ocppId);
+				MyJsonServer.this.parent.activeEvcsSessions.remove(sessionIndex);
 			}
 		});
 	}
 
+	public void deactivate() {
+		this.server.close();
+	}
+
 	/**
-	 * Sending initially all required requests to the EVCS
+	 * Send a request to an Evcs using the server.
 	 * 
-	 * @param sessionIndex
-	 * @param evcss
+	 * @param session unique session id referring to the corresponding Evcs
+	 * @param request given request that needs to be sent
+	 * @return CompletitionStage
+	 * @throws OccurenceConstraintException OccurenceConstraintException
+	 * @throws UnsupportedFeatureException  UnsupportedFeatureException
+	 * @throws NotConnectedException        NotConnectedException
 	 */
-	private void sendInitialRequests(UUID sessionIndex, List<AbstractOcppEvcsComponent> evcss) {
-		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
-			// Setting the Evcss of this session id to available
-			ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest(
-					ocppEvcs.getConnectorId().value().orElse(0), // TODO "0" seems to be a bad idea here 
-					AvailabilityType.Operative);
-			this.sendDefault(sessionIndex, changeAvailabilityRequest);
-
-			// Sending all required requests defined for each EVCS
-			List<Request> requiredRequests = ocppEvcs.getRequiredRequestsAfterConnection();
-			for (Request request : requiredRequests) {
-				this.sendDefault(sessionIndex, request);
-			}
-
-			HashMap<String, String> configuration = getConfiguration(sessionIndex);
-			this.logDebug(configuration.toString());
-		}
+	public CompletionStage<Confirmation> send(UUID session, Request request)
+			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
+		return this.server.send(session, request);
 	}
 
 	/**
@@ -161,27 +167,40 @@ public class MyJsonServer {
 	}
 
 	/**
-	 * Get all active Sessions
+	 * Sending initially all required requests to the EVCS.
 	 * 
-	 * @return List of EvcsSessions
+	 * @param sessionIndex given session
+	 * @param evcs         given evcs
 	 */
-	public List<EvcsSession> getActiveSessions() {
-		return this.activeSessions;
+	protected void sendInitialRequests(UUID sessionIndex, AbstractOcppEvcsComponent ocppEvcs) {
+		// Setting the Evcss of this session id to available
+		ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest(
+				ocppEvcs.getConfiguredConnectorId(), AvailabilityType.Operative);
+		this.sendDefault(sessionIndex, changeAvailabilityRequest);
+
+		// Sending all required requests defined for each EVCS
+		List<Request> requiredRequests = ocppEvcs.getRequiredRequestsAfterConnection();
+		for (Request request : requiredRequests) {
+			this.sendDefault(sessionIndex, request);
+		}
+
+		HashMap<String, String> configuration = this.getConfiguration(sessionIndex);
+		this.logDebug(configuration.toString());
 	}
 
 	/**
-	 * Searching again for all Sessions after the configurations changed.
+	 * Sending all permanently required requests to the EVCS.
+	 * 
+	 * @param evcss given evcss
 	 */
-	public void configurationEvent(ConfigurationEvent event) {
-		for (EvcsSession evcsSession : this.activeSessions) {
-			List<AbstractOcppEvcsComponent> evcss = this.parent.getComponentsWithIdentifier(
-					evcsSession.getSessionInformation().getIdentifier(), evcsSession.getSessionId());
-			if (!evcss.isEmpty()) {
-				evcsSession.setOcppEvcss(evcss);
-			} else {
-				this.logDebug("No EVCS component found for " //
-						+ "Session [" + evcsSession.getSessionId() + "] and " //
-						+ "OCPP Identifier [" + evcsSession.getSessionInformation().getIdentifier() + "].");
+	protected void sendPermanentRequests(List<AbstractOcppEvcsComponent> evcss) {
+		if (evcss == null) {
+			return;
+		}
+		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
+			List<Request> requiredRequests = ocppEvcs.getRequiredRequestsDuringConnection();
+			for (Request request : requiredRequests) {
+				this.sendDefault(ocppEvcs.getSessionId(), request);
 			}
 		}
 	}
@@ -199,20 +218,10 @@ public class MyJsonServer {
 				hash.put(das[i].getKey(), das[i].getValue());
 			}
 		} catch (OccurenceConstraintException | UnsupportedFeatureException | NotConnectedException
-				| InterruptedException | ExecutionException ex) {
-
-		} catch (java.util.concurrent.TimeoutException ex) {
+				| InterruptedException | ExecutionException | java.util.concurrent.TimeoutException ex) {
+			this.logDebug(ex.getMessage());
 		}
 		return hash;
-	}
-
-	public void deactivate() {
-		this.server.close();
-	}
-
-	public CompletionStage<Confirmation> send(UUID session, Request request)
-			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
-		return this.server.send(session, request);
 	}
 
 	private void logWarn(String message) {
@@ -222,5 +231,4 @@ public class MyJsonServer {
 	private void logDebug(String message) {
 		this.parent.logDebug(this.log, message);
 	}
-
 }

@@ -1,19 +1,23 @@
 package io.openems.edge.evcs.ocpp.server;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -30,7 +34,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppServer;
 
@@ -40,20 +44,92 @@ import io.openems.edge.evcs.ocpp.common.OcppServer;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class OcppServerImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, ConfigurationListener, OcppServer, EventHandler {
+public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsComponent, OcppServer, EventHandler {
 
-	public final static String DEFAULT_IP = "0.0.0.0";
-	public final static int DEFAULT_PORT = 8887;
-
+	public static final String DEFAULT_IP = "0.0.0.0";
+	public static final int DEFAULT_PORT = 8887;
 	private final Logger log = LoggerFactory.getLogger(OcppServerImpl.class);
 	protected Config config;
+	
+	/**
+	 * The JSON server.
+	 * 
+	 * <p>
+	 * Responsible for the OCPP communication.
+	 */
+	private final MyJsonServer myJsonServer = new MyJsonServer(this);
+	
+	/**
+	 * Currently connected sessions with their related evcs components.
+	 */
+	protected final Map<UUID, List<AbstractOcppEvcsComponent>> activeEvcsSessions = new HashMap<>();
+
+	/**
+	 * Currently configured ocpp evcss.
+	 */
+	protected Map<String, List<AbstractOcppEvcsComponent>> ocppEvcss = new HashMap<>();
+
+	/**
+	 * Current sessions (Existing connections between server and evcs hardware).
+	 */
+	protected Map<String, UUID> ocppSessions = new HashMap<>();
 
 	@Reference
 	protected ComponentManager componentManager;
 
-	private final MyJsonServer myJsonServer = new MyJsonServer(this);
+	/**
+	 * Adds each Evcs component to a list and checks whether there is a matching
+	 * session.
+	 * 
+	 * @param evcs new Evcs
+	 */
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	protected void addEvcs(Evcs evcs) {
+		if (!(evcs instanceof AbstractOcppEvcsComponent)) {
+			return;
+		}
+		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		List<AbstractOcppEvcsComponent> presentEvcss = this.ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
+		if (presentEvcss == null) {
+			this.ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), Arrays.asList(ocppEvcs));
+			presentEvcss = Arrays.asList(ocppEvcs);
+		} else {
+			presentEvcss.add(ocppEvcs);
+		}
 
+		UUID sessionId = this.ocppSessions.get(ocppEvcs.getConfiguredOcppId());
+		if (sessionId == null) {
+			return;
+		}
+		this.activeEvcsSessions.put(sessionId, presentEvcss);
+		ocppEvcs.newSession(this, sessionId);
+		this.myJsonServer.sendInitialRequests(sessionId, ocppEvcs);
+	}
+
+	/**
+	 * Removes the given Evcs component from the list and checks whether there is a
+	 * present session that should be removed. 
+	 * 
+	 * @param evcs Evcs that should be removed
+	 */
+	protected void removeEvcs(Evcs evcs) {
+		if (!(evcs instanceof AbstractOcppEvcsComponent)) {
+			return;
+		}
+
+		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		List<AbstractOcppEvcsComponent> evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
+		if (evcss != null) {
+			if (evcss.size() < 2) {
+				this.activeEvcsSessions.remove(ocppEvcs.getSessionId());
+			} else {
+				this.activeEvcsSessions.get(ocppEvcs.getSessionId()).remove(ocppEvcs);
+			}
+		}
+		this.ocppEvcss.remove(ocppEvcs.getConfiguredOcppId());
+		ocppEvcs.lostSession();
+	}
+	
 	public OcppServerImpl() {
 		super(OpenemsComponent.ChannelId.values() //
 		);
@@ -79,9 +155,8 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			for (EvcsSession evcsSession : this.myJsonServer.getActiveSessions()) {
-				// TODO: Put that logic in ReadHandler
-				this.sendPermanentRequests(evcsSession);
+			for (Entry<UUID, List<AbstractOcppEvcsComponent>> evcsSessions : this.activeEvcsSessions.entrySet()) {
+				this.myJsonServer.sendPermanentRequests(evcsSessions.getValue());
 			}
 			break;
 		}
@@ -91,76 +166,6 @@ public class OcppServerImpl extends AbstractOpenemsComponent
 	public CompletionStage<Confirmation> send(UUID session, Request request)
 			throws OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
 		return this.myJsonServer.send(session, request);
-	}
-
-	/**
-	 * Sending all permanently required requests to the EVCS
-	 * 
-	 * @param sessionIndex
-	 * @param evcss
-	 */
-	private void sendPermanentRequests(EvcsSession evcsSession) {
-		for (AbstractOcppEvcsComponent evcs : evcsSession.getOcppEvcss()) {
-			List<Request> requiredRequests = evcs.getRequiredRequestsDuringConnection();
-			for (Request request : requiredRequests) {
-				this.myJsonServer.sendDefault(evcsSession.getSessionId(), request);
-			}
-		}
-	}
-
-	/**
-	 * Searching the OcppEvcs components for the given identifier.
-	 * 
-	 * @param identifier   given identifier
-	 * @param sessionIndex given session
-	 * @return List of AbstractOcppEvcsComponents
-	 */
-	protected List<AbstractOcppEvcsComponent> getComponentsWithIdentifier(String identifier, UUID sessionIndex) {
-		List<AbstractOcppEvcsComponent> result = new ArrayList<AbstractOcppEvcsComponent>();
-		List<OpenemsComponent> components = componentManager.getEnabledComponents();
-
-		for (OpenemsComponent openemsComponent : components) {
-			if (openemsComponent instanceof AbstractOcppEvcsComponent) {
-				AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) openemsComponent;
-				String ocppId = ocppEvcs.getOcppId().value().orElse(""); // TODO: Channel unnötig
-
-				if (identifier.equals("/" + ocppId)) {
-					// TODO this does not seem to belong to a 'get' method:
-					ocppEvcs.getChargingSessionId().setNextValue(sessionIndex.toString());
-					ocppEvcs.getChargingstationCommunicationFailed().setNextValue(false);
-					ocppEvcs.getStatus().setNextValue(Status.NOT_READY_FOR_CHARGING);
-					result.add(ocppEvcs);
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Searching again for all Sessions after the configurations changed.
-	 */
-	@Override
-	public void configurationEvent(ConfigurationEvent event) {
-		for (EvcsSession evcsSession : this.getActiveSessions()) {
-			List<AbstractOcppEvcsComponent> evcss = getComponentsWithIdentifier(
-					evcsSession.getSessionInformation().getIdentifier(), evcsSession.getSessionId());
-			if (!evcss.isEmpty()) {
-				evcsSession.setOcppEvcss(evcss);
-			} else {
-				this.logDebug(this.log, "No EVCS component found for " //
-						+ "Session [" + evcsSession.getSessionId() + "] and " //
-						+ "OCPP Identifier [" + evcsSession.getSessionInformation().getIdentifier() + "].");
-			}
-		}
-	}
-
-	/**
-	 * Get all active sessions.
-	 * 
-	 * @return List of EvcsSessions
-	 */
-	public List<EvcsSession> getActiveSessions() {
-		return this.myJsonServer.getActiveSessions();
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package io.openems.edge.evcs.ocpp.common;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,10 +108,8 @@ public class WriteHandler implements Runnable {
 				 */
 				if (!target.equals(lastTarget) || this.nextPowerWrite.isBefore(LocalDateTime.now())) {
 
-					UUID id = UUID.fromString(this.parent.getChargingSessionId().getNextValue().orElse(""));
-
 					try {
-						this.parent.getConfiguredOcppServer().send(id, request)
+						this.parent.ocppServer.send(this.parent.sessionId, request)
 								.whenComplete((confirmation, throwable) -> {
 									this.parent.logInfo(log, confirmation.toString());
 								});

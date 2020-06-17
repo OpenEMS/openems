@@ -35,8 +35,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Minimum power", description = "Minimum power of the charger in Watt.", required = true)
 	int minHwPower() default 0;
 
-	@AttributeDefinition(name = "Ocpp Server", description = "ID of the Ocpp Server.", required = true)
-	String ocppServerId() default "ocppServer0";
-
 	String webconsole_configurationFactory_nameHint() default "EVCS OCPP ABL [{id}]";
 }

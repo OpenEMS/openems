@@ -23,7 +23,7 @@ public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagem
 	@Override
 	public DiagnosticsStatusNotificationConfirmation handleDiagnosticsStatusNotificationRequest(UUID sessionIndex,
 			DiagnosticsStatusNotificationRequest request) {
-		this.parent.logInfo(log, "Handle DiagnosticsStatusNotificationRequest");
+		this.parent.logInfo(this.log, "Handle DiagnosticsStatusNotificationRequest");
 
 		return new DiagnosticsStatusNotificationConfirmation();
 	}
@@ -31,7 +31,7 @@ public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagem
 	@Override
 	public FirmwareStatusNotificationConfirmation handleFirmwareStatusNotificationRequest(UUID sessionIndex,
 			FirmwareStatusNotificationRequest request) {
-		this.parent.logInfo(log, "Handle FirmwareStatusNotificationRequest");
+		this.parent.logInfo(this.log, "Handle FirmwareStatusNotificationRequest");
 
 		return new FirmwareStatusNotificationConfirmation();
 	}

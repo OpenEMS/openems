@@ -18,7 +18,8 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
+import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -30,7 +31,6 @@ import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
-import io.openems.edge.evcs.ocpp.server.OcppServerImpl;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -101,18 +101,6 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	}
 
 	@Override
-	public OcppServerImpl getConfiguredOcppServer() {
-		// TODO: this should be a static @Reference - similar to how we do it with Modbus-Bridge.
-		// TODO: OcppServer needs to be an interface
-		try {
-			return this.componentManager.getComponent(this.config.ocppServerId());
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
 	}
@@ -130,7 +118,13 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 	@Override
 	public List<Request> getRequiredRequestsAfterConnection() {
-		return new ArrayList<Request>();
+		
+		ArrayList<Request> requests = new ArrayList<>();
+		
+		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
+		requests.add(requestStatus);
+		
+		return requests;
 	}
 
 	@Override

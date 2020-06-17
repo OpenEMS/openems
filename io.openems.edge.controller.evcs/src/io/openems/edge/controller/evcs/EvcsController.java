@@ -255,7 +255,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
 						evcs.getMaximumPower().setNextValue(nextChargePower);
 
-						this.logInfoInDebugmode(this.log, "Set a lower charging target of " + nextChargePower + " W");
+						this.logDebug(this.log, "Set a lower charging target of " + nextChargePower + " W");
 					}
 				} else {
 					int currMax = evcs.getMaximumPower().value().orElse(0);
@@ -270,7 +270,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		} else {
 			evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
 		}
-		this.logInfoInDebugmode(this.log, "Next charge power: " + nextChargePower + " W");
+		this.logDebug(this.log, "Next charge power: " + nextChargePower + " W");
 	}
 
 	/**
@@ -327,18 +327,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		return result;
 	}
 
-	/**
-	 * Logs are displayed if the debug mode is configured
-	 * 
-	 * @param log    Logger
-	 * @param string Text to display
-	 */
-	protected void logInfoInDebugmode(Logger log, String string) {
-		if (this.config.debugMode()) {
-			this.logInfo(log, string);
-		}
-	}
-
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
@@ -365,6 +353,23 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			}
 		} catch (IOException | SecurityException e) {
 			this.logError(log, "ERROR: " + e.getMessage());
+		}
+	}
+	
+	@Override
+	public void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
+	}
+
+	@Override
+	protected void logDebug(Logger log, String message) {
+		if (this.config.debugMode()) {
+			this.logInfo(this.log, message);
 		}
 	}
 }
