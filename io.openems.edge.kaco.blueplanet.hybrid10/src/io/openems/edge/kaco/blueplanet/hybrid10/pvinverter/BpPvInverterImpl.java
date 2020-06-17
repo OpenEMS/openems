@@ -68,7 +68,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent
 				ErrorChannelId.values(), //
 				BpPvInverter.ChannelId.values() //
 		);
-		this.getMaxApparentPower().setNextValue(BpConstants.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(BpConstants.MAX_APPARENT_POWER);
 	}
 
 	@Activate
@@ -85,7 +85,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		try {
 			// reset limit
-			this.getActivePowerLimit().setNextWriteValue(null);
+			this.setActivePowerLimit(null);
 			this.setPvLimitHandler.run();
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
@@ -142,14 +142,14 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent
 			}
 		}
 
-		this.getActivePower().setNextValue(activePower);
-		this.getReactivePower().setNextValue(reactivePower);
-		this.getActivePowerLimit().setNextValue(activePowerLimit);
+		this._setActivePower(activePower);
+		this._setReactivePower(reactivePower);
+		this._setActivePowerLimit(activePowerLimit);
 	}
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override

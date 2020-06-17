@@ -90,23 +90,12 @@ public class VectisImpl extends AbstractOpenemsComponent
 		Integer activePowerL1 = null;
 		Integer activePowerL2 = null;
 		Integer activePowerL3 = null;
-		Float freq = null;
+		Integer freq = null;
 		Integer vectisStatus = null;
 
 		if (this.core.isConnected()) {
 			VectisData vectis = this.core.getVectis();
 			InverterData inverter = this.core.getInverterData();
-
-			reactivePowerL1 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePower(0));
-			reactivePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePower(1));
-			reactivePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getReactivePower(2));
-			reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
-
-			activePowerL1 = GlobalUtils.roundToPowerPrecision(vectis.getACPower(0));
-			activePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getACPower(1));
-			activePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getACPower(2));
-			activePower = activePowerL1 + activePowerL2 + activePowerL3;
-			freq = inverter.getGridFrequency();
 
 			if (this.config.external()) {
 				// Use external sensor
@@ -119,7 +108,8 @@ public class VectisImpl extends AbstractOpenemsComponent
 				activePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(1));
 				activePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getACPowerExt(2));
 				activePower = activePowerL1 + activePowerL2 + activePowerL3;
-				freq = vectis.getFrequencyExt();
+
+				freq = Math.round(vectis.getFrequencyExt());
 
 			} else {
 				// Use internal sensor
@@ -132,7 +122,8 @@ public class VectisImpl extends AbstractOpenemsComponent
 				activePowerL2 = GlobalUtils.roundToPowerPrecision(vectis.getACPower(1));
 				activePowerL3 = GlobalUtils.roundToPowerPrecision(vectis.getACPower(2));
 				activePower = activePowerL1 + activePowerL2 + activePowerL3;
-				freq = inverter.getGridFrequency();
+
+				freq = Math.round(inverter.getGridFrequency());
 			}
 
 			Status status = this.core.getStatusData();
@@ -142,21 +133,21 @@ public class VectisImpl extends AbstractOpenemsComponent
 
 		}
 
-		this.getReactivePowerL1().setNextValue(reactivePowerL1);
-		this.getReactivePowerL2().setNextValue(reactivePowerL2);
-		this.getReactivePowerL3().setNextValue(reactivePowerL3);
-		this.getReactivePower().setNextValue(reactivePower);
-		this.getActivePowerL1().setNextValue(activePowerL1);
-		this.getActivePowerL2().setNextValue(activePowerL2);
-		this.getActivePowerL3().setNextValue(activePowerL3);
-		this.getActivePower().setNextValue(activePower);
-		this.getFrequency().setNextValue(freq);
+		this._setReactivePowerL1(reactivePowerL1);
+		this._setReactivePowerL2(reactivePowerL2);
+		this._setReactivePowerL3(reactivePowerL3);
+		this._setReactivePower(reactivePower);
+		this._setActivePowerL1(activePowerL1);
+		this._setActivePowerL2(activePowerL2);
+		this._setActivePowerL3(activePowerL3);
+		this._setActivePower(activePower);
+		this._setFrequency(freq);
 		this.channel(Vectis.ChannelId.VECTIS_STATUS).setNextValue(vectisStatus);
 	}
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override
