@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.kaco.blueplanet;
+package io.openems.edge.pvinverter.sma;
 
 import java.util.Map;
 
@@ -32,44 +32,45 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "PV-Inverter.KACO.blueplanet", //
+		name = "PV-Inverter.SMA.SunnyTripower", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 				"type=PRODUCTION" //
 		})
-public class KacoBlueplanet extends AbstractSunSpecPvInverter
+public class SmaPvInverter extends AbstractSunSpecPvInverter
 		implements SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
-			.put(DefaultSunSpecModel.S_103, Priority.HIGH) // from 40070
-			.put(DefaultSunSpecModel.S_120, Priority.LOW) // from 40184
-			.put(DefaultSunSpecModel.S_121, Priority.LOW) // from 40212
-			.put(DefaultSunSpecModel.S_122, Priority.LOW) // from 40244
-			.put(DefaultSunSpecModel.S_123, Priority.LOW) // from 40290
+			.put(DefaultSunSpecModel.S_103, Priority.HIGH) // from 40185
+			.put(DefaultSunSpecModel.S_120, Priority.LOW) // from 40237
+			.put(DefaultSunSpecModel.S_121, Priority.LOW) // from 40265
+			.put(DefaultSunSpecModel.S_122, Priority.LOW) // from 40297
+			.put(DefaultSunSpecModel.S_123, Priority.LOW) // from 40343
 			.build();
 
-	// Further available SunSpec blocks provided by KACO blueplanet are:
-	// .put(DefaultSunSpecModel.S_113, Priority.LOW) // from 40122
-	// .put(DefaultSunSpecModel.S_126, Priority.LOW) // from 40316
-	// .put(DefaultSunSpecModel.S_129, Priority.LOW) // from 40544
-	// .put(DefaultSunSpecModel.S_130, Priority.LOW) // from 40606
-	// .put(DefaultSunSpecModel.S_130, Priority.LOW) // from 40606
-	// .put(DefaultSunSpecModel.S_135, Priority.LOW) // from 40668
-	// .put(DefaultSunSpecModel.S_136, Priority.LOW) // from 40730
-	// .put(DefaultSunSpecModel.S_160, Priority.LOW) // from 40792
-	// .put(SunSpecModel.S_64204, Priority.LOW) // from 40842
+	// Further available SunSpec blocks provided by SMA Sunny TriPower are:
+	// .put(DefaultSunSpecModel.S_11, Priority.LOW) // from 40070
+	// .put(DefaultSunSpecModel.S_12, Priority.LOW) // from 40085
+	// .put(DefaultSunSpecModel.S_124, Priority.LOW) // from 40369
+	// .put(DefaultSunSpecModel.S_126, Priority.LOW) // from 40395
+	// .put(DefaultSunSpecModel.S_127, Priority.LOW) // from 40461
+	// .put(DefaultSunSpecModel.S_128, Priority.LOW) // from 40473
+	// .put(DefaultSunSpecModel.S_131, Priority.LOW) // from 40489
+	// .put(DefaultSunSpecModel.S_132, Priority.LOW) // from 40555
+	// .put(DefaultSunSpecModel.S_160, Priority.LOW) // from 40621
+	// .put(DefaultSunSpecModel.S_129, Priority.LOW) // from 40751
+	// .put(DefaultSunSpecModel.S_130, Priority.LOW) // from 40813
 
-	private final static int UNIT_ID = 1;
 	private final static int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	// TODO use @Reference in Constructor
-	public KacoBlueplanet() {
+	public SmaPvInverter() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -86,7 +87,7 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id(), READ_FROM_MODBUS_BLOCK);
 	}
 
