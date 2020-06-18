@@ -115,6 +115,8 @@ task copyBundleReadmes() {
                             target = targetScheduler
                         } else if(edgeBundle.startsWith("bridge.")) {
                             target = targetBridge
+                        } else if(edgeBundle.startsWith("io.openems.wrapper")) {
+                            return
                         } else {
                             target = targetDeviceService
                         }
