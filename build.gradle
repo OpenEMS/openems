@@ -118,6 +118,9 @@ task copyBundleReadmes() {
                         } else {
                             target = targetDeviceService
                         }
+                    } else if(bundle.startsWith("io.openems.wrapper")) {
+                        // ignore
+                        return
                     }
 
                     // could we exactly evaluate the bundle type and set the targetFile?
