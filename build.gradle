@@ -115,11 +115,12 @@ task copyBundleReadmes() {
                             target = targetScheduler
                         } else if(edgeBundle.startsWith("bridge.")) {
                             target = targetBridge
-                        } else if(edgeBundle.startsWith("io.openems.wrapper")) {
-                            return
                         } else {
                             target = targetDeviceService
                         }
+                    } else if(edgeBundle.startsWith("io.openems.wrapper")) {
+                        // ignore
+                        return
                     }
 
                     // could we exactly evaluate the bundle type and set the targetFile?
