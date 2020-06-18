@@ -2,6 +2,7 @@ export const TRANSLATION = {
     General: {
         active: 'aktivně',
         actualPower: 'E-Car Nabíjecí výkon',
+        apply: 'Aplikovat',
         autarchy: 'Soběstačnost',
         automatic: 'Automaticky',
         cancel: 'zrušení',
@@ -14,6 +15,7 @@ export const TRANSLATION = {
         connectionLost: 'Spojení ztraceno. Pokouší se znovu připojit.',
         consumption: 'Spotřeba',
         cumulative: 'Kumulativní Hodnoty',
+        currentName: 'Aktuální Jméno',
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         dischargePower: 'Vybíjecí výkon',
@@ -45,7 +47,9 @@ export const TRANSLATION = {
         phases: 'Fáze',
         power: 'Výkon',
         production: 'Výroba',
+        rename: 'Přejmenovat',
         reportValue: 'Nahlásit nesprávná data',
+        reset: 'Reset',
         selfConsumption: 'Vlastní spotřeba',
         soc: 'Stav nabití',
         state: 'Stát',
@@ -271,9 +275,11 @@ export const TRANSLATION = {
                 liveLog: 'Live log systému',
                 log: 'Log',
                 manualControl: 'Manuální ovládání',
+                renameComponents: 'Přejmenovat Komponenty',
                 scheduler: 'Plánovač aplikací',
                 simulator: 'Simulátor',
-                systemExecute: 'Spusťte příkaz systému'
+                systemExecute: 'Spusťte příkaz systému',
+                systemProfile: 'Systémový Profil',
             },
             More: {
                 manualCommand: 'Manuální příkaz ',

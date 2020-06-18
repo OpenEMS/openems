@@ -272,9 +272,11 @@ export const TRANSLATION = {
                 liveLog: 'Protocolos de sistema de vida',
                 log: 'Registro',
                 manualControl: 'Control manual',
+                renameComponents: 'Renombrar componentes',
                 scheduler: 'Planificador de aplicaciones',
                 simulator: 'Simulador',
                 systemExecute: 'Ejecutar comando del sistema',
+                systemProfile: 'Perfil del Sistema',
             },
             More: {
                 manualCommand: 'Comando manual',

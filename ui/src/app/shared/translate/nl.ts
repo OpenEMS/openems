@@ -269,9 +269,11 @@ export const TRANSLATION = {
                 liveLog: 'Live System log',
                 log: 'Log',
                 manualControl: 'Handmatige bediening',
+                renameComponents: 'Componenten hernoem',
                 scheduler: 'Toepassingsschema',
                 simulator: 'Simulator',
                 systemExecute: 'Voer systeemopdracht uit',
+                systemProfile: 'Systeemprofiel',
             },
             More: {
                 manualCommand: 'Handmatig commando',
