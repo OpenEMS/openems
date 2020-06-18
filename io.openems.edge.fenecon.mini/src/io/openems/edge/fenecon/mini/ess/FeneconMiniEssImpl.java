@@ -63,7 +63,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 				SinglePhaseEss.ChannelId.values(), //
 				FeneconMiniEss.ChannelId.values() //
 		);
-		this.getCapacity().setNextValue(3_000);
+		this._setCapacity(3_000);
 	}
 
 	@Activate
@@ -392,8 +392,8 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString(); //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString(); //
 	}
 
 	@Override

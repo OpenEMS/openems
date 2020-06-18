@@ -81,7 +81,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -100,17 +100,17 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		if (meter instanceof AsymmetricMeter) {
 			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
 
-			int gridPowerL1 = asymmetricMeter.getActivePowerL1().value().orElse(0);
-			int gridPowerL2 = asymmetricMeter.getActivePowerL2().value().orElse(0);
-			int gridPowerL3 = asymmetricMeter.getActivePowerL3().value().orElse(0);
+			int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
+			int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
+			int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
 
 			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
 			gridPower = maxPowerOnPhase * 3;
 
 		} else {
-			gridPower = meter.getActivePower().value().orElse(0);
+			gridPower = meter.getActivePower().orElse(0);
 		}
-		int effectiveGridPower = gridPower + ess.getActivePower().value().orElse(0);
+		int effectiveGridPower = gridPower + ess.getActivePower().orElse(0);
 
 		int calculatedPower;
 		int wholePeakShavingPower = this.config.peakShavingPower() * 3;
@@ -134,7 +134,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Apply PID filter
 		 */
-		ess.getSetActivePowerEqualsWithPid().setNextWriteValue(calculatedPower);
-		ess.getSetReactivePowerEquals().setNextWriteValue(0);
+		ess.setActivePowerEqualsWithPid(calculatedPower);
+		ess.setReactivePowerEquals(0);
 	}
 }

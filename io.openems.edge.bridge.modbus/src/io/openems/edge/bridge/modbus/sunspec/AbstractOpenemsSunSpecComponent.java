@@ -258,7 +258,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 				// Add a scale-factor mapping between Element and Channel
 				element = m(channelId, element,
-						new ElementToChannelScaleFactorConverter(this, scaleFactorPoint.getChannelId()));
+						new ElementToChannelScaleFactorConverter(this, point, scaleFactorPoint.getChannelId()));
 
 			} else {
 				// Add a direct mapping between Element and Channel

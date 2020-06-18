@@ -306,12 +306,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	); //
 
 	public static enum S1 implements SunSpecPoint {
-		VERSION(new PointImpl(//
-				"S1_VERSION", //
-				"Version", //
-				"Major Version of model", //
+		MN(new PointImpl(//
+				"S1_MN", //
+				"Manufacturer", //
+				"Well known value registered with SunSpec for compliance", //
 				"", //
-				PointType.UINT16, //
+				PointType.STRING16, //
 				true, //
 				AccessMode.READ_ONLY, //
 				Unit.NONE, //

@@ -297,7 +297,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		this.channels.put(channel.channelId().id(), channel);
 		// Handle StateChannels
 		if (channel instanceof StateChannel) {
-			this.getState().addChannel((StateChannel) channel);
+			this.getStateChannel().addChannel((StateChannel) channel);
 		}
 	}
 
@@ -370,7 +370,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		this.channels.remove(channel.channelId().id(), channel);
 		// Handle StateChannels
 		if (channel instanceof StateChannel) {
-			this.getState().removeChannel((StateChannel) channel);
+			this.getStateChannel().removeChannel((StateChannel) channel);
 		}
 	}
 

@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -104,15 +103,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * Closes the Modbus connection.
 	 */
 	public abstract void closeModbusConnection();
-
-	/**
-	 * Gets the instance for Channel "SlaveCommunicationFailed".
-	 * 
-	 * @return the Channel instance
-	 */
-	protected Channel<Boolean> getSlaveCommunicationFailedChannel() {
-		return this.channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED);
-	}
 
 	public LogVerbosity getLogVerbosity() {
 		return logVerbosity;

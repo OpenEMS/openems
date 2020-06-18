@@ -20,7 +20,6 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -138,7 +137,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 		 * set Cycle-Order
 		 */
 		if (this.cycleOrder.isUndefined()) {
-			int soc = ess.getSoc().value().getOrError();
+			int soc = ess.getSoc().getOrError();
 			if (soc < 50) {
 				this.cycleOrder = CycleOrder.START_WITH_DISCHARGE;
 			} else {
@@ -165,7 +164,6 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 
 	private void applyPower(ManagedSymmetricEss ess, int maxChargePower, int maxDischargePower)
 			throws OpenemsNamedException {
-		final WriteChannel<Integer> channel;
 		final Integer power;
 
 		switch (this.state) {
@@ -186,7 +184,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 
 			}
 			power = Math.max(maxChargePower, this.config.power() * -1);
-			channel = ess.getSetActivePowerLessOrEquals();
+			ess.setActivePowerLessOrEquals(power);
 			break;
 		}
 		case FIRST_DISCHARGE: {
@@ -205,7 +203,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 
 			}
 			power = Math.min(maxDischargePower, this.config.power());
-			channel = ess.getSetActivePowerGreaterOrEquals();
+			ess.setActivePowerGreaterOrEquals(power);
 			break;
 		}
 		case SECOND_CHARGE: {
@@ -216,7 +214,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 				this.changeState(State.FINISHED);
 			}
 			power = Math.max(maxChargePower, this.config.power() * -1);
-			channel = ess.getSetActivePowerLessOrEquals();
+			ess.setActivePowerLessOrEquals(power);
 			break;
 		}
 		case SECOND_DISCHARGE: {
@@ -227,7 +225,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 				this.changeState(State.FINISHED);
 			}
 			power = Math.min(maxDischargePower, this.config.power());
-			channel = ess.getSetActivePowerGreaterOrEquals();
+			ess.setActivePowerGreaterOrEquals(power);
 			break;
 		}
 		case FINISHED:
@@ -235,15 +233,11 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 			/*
 			 * Nothing to do
 			 */
-			channel = null;
 			power = 0;
 			break;
 		}
 
 		this.currentPower = power;
-		if (channel != null) {
-			channel.setNextWriteValue(power);
-		}
 	}
 
 	/**
