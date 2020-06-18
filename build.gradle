@@ -118,7 +118,7 @@ task copyBundleReadmes() {
                         } else {
                             target = targetDeviceService
                         }
-                    } else if(edgeBundle.startsWith("io.openems.wrapper")) {
+                    } else if(bundle.startsWith("io.openems.wrapper")) {
                         // ignore
                         return
                     }
