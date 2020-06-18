@@ -5,6 +5,7 @@ import org.junit.Test;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -84,29 +85,29 @@ public class EvcsClusterTest {
 		}
 	}
 
-	private class EvcsClusterComponentTest extends AbstractComponentTest {
-
-		private final AbstractEvcsCluster cluster;
+	private class EvcsClusterComponentTest
+			extends AbstractComponentTest<EvcsClusterComponentTest, AbstractEvcsCluster> {
 
 		public EvcsClusterComponentTest(AbstractEvcsCluster cluster, OpenemsComponent... components) {
-			super(components);
-			this.cluster = cluster;
-		}
-
-		public EvcsClusterComponentTest(AbstractEvcsCluster cluster, DummyComponentManager componentManager,
-				OpenemsComponent... components) {
-			super(components, componentManager);
-			this.cluster = cluster;
+			super(cluster);
+			for (OpenemsComponent component : components) {
+				this.addComponent(component);
+			}
 		}
 
 		@Override
-		protected void executeLogic() throws OpenemsNamedException {
+		protected void executeController() throws OpenemsNamedException {
 			/*
 			 * Warn: Maximum power is not correct, because the evcs power of the whole
 			 * cluster is still zero
 			 */
-			this.cluster.getMaximumPowerToDistribute();
-			this.cluster.limitEvcss();
+			this.getSut().getMaximumPowerToDistribute();
+			this.getSut().limitEvcss();
+		}
+
+		@Override
+		protected EvcsClusterComponentTest self() {
+			return this;
 		}
 	}
 

@@ -3,6 +3,7 @@ package io.openems.edge.controller.evcs;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;

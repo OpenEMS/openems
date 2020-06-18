@@ -155,9 +155,9 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	public int getMaximumPowerToDistribute() {
 		int excessPower = 0;
 
-		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
-		int essDischarge = this.sum.getEssActivePower().value().orElse(0);
-		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
+		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
+		int essDischarge = this.sum.getEssActivePower().orElse(0);
+		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
 		int evcsCharge = this.getChargePower().getNextValue().orElse(0);
 
 		excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);

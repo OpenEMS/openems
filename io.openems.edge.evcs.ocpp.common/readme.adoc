@@ -1,4 +1,4 @@
-= OCPP implementation of one Charging Station
+= Electric Vehicle Charging Station OCPP Common
 
 The Open Charge Point Protocol (OCPP) is an application protocol for communication between
 Electric vehicle charging stations (EVCS) and a central management system.

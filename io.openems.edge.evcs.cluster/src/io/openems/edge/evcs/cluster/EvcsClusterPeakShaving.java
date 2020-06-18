@@ -175,14 +175,14 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		int maxEssDischarge = 0;
 		long maxAvailableStoragePower = 0;
 
-		maxEssDischarge = this.ess.getAllowedDischarge().value().orElse(0);
+		maxEssDischarge = this.ess.getAllowedDischargePower().orElse(0);
 		// TODO: Should I use power component here
 
 		// TODO: Calculate the available ESS charge power, depending on a specific ESS
 		// component (e.g. If there is a ESS cluster)
-		long essDischargePower = this.sum.getEssActivePower().value().orElse(0);
-		int essActivePowerDC = this.sum.getProductionDcActualPower().value().orElse(0);
-		
+		long essDischargePower = this.sum.getEssActivePower().orElse(0);
+		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
+
 		maxAvailableStoragePower = maxEssDischarge - (essDischargePower - essActivePowerDC);
 
 		int gridPower = getGridPower();
@@ -206,14 +206,14 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		try {
 			meter = this.componentManager.getComponent(this.config.meter_id());
 
-			int gridPower = meter.getActivePower().value().orElse(0);
+			int gridPower = meter.getActivePower().orElse(0);
 
 			if (meter instanceof AsymmetricMeter) {
 				AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
 
-				int gridPowerL1 = asymmetricMeter.getActivePowerL1().value().orElse(0);
-				int gridPowerL2 = asymmetricMeter.getActivePowerL2().value().orElse(0);
-				int gridPowerL3 = asymmetricMeter.getActivePowerL3().value().orElse(0);
+				int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
+				int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
+				int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
 
 				int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
 				gridPower = maxPowerOnPhase * 3;
