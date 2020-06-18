@@ -11,7 +11,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.backend.metadata.api,\
 	io.openems.common,\
 	org.apache.servicemix.bundles.xmlrpc-client,\
-	org.postgresql.jdbc42;version=42.2.11
+	org.postgresql.jdbc;version=42.2.14
 
 -testpath: \
 	${testpath}
