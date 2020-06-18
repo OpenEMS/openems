@@ -8,6 +8,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 
+// TODO replace with DummyManagedSymmetricEss
 public abstract class DummyComponent<T> extends AbstractOpenemsComponent implements ManagedSymmetricEss {
 
 	private final String id;
@@ -26,26 +27,26 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 	}
 
 	public T maxApparentPower(int value) {
-		this.getMaxApparentPower().setNextValue(value);
-		this.getMaxApparentPower().nextProcessImage();
+		this._setMaxApparentPower(value);
+		this.getMaxApparentPowerChannel().nextProcessImage();
 		return this.self();
 	}
 
-	public T allowedCharge(int value) {
-		this.getAllowedCharge().setNextValue(value);
-		this.getAllowedCharge().nextProcessImage();
+	public T allowedChargePower(int value) {
+		this._setAllowedChargePower(value);
+		this.getAllowedChargePowerChannel().nextProcessImage();
 		return this.self();
 	}
 
-	public T allowedDischarge(int value) {
-		this.getAllowedDischarge().setNextValue(value);
-		this.getAllowedDischarge().nextProcessImage();
+	public T allowedDischargePower(int value) {
+		this._setAllowedDischargePower(value);
+		this.getAllowedDischargePowerChannel().nextProcessImage();
 		return this.self();
 	}
 
 	public T soc(int value) {
-		this.getSoc().setNextValue(value);
-		this.getSoc().nextProcessImage();
+		this._setSoc(value);
+		this.getSocChannel().nextProcessImage();
 		return this.self();
 	}
 

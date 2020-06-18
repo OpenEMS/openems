@@ -95,7 +95,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 
 		// Calculate Capacity
 		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
+		this._setCapacity(capacity);
 
 		// Set Watchdog Timeout
 		IntegerWriteChannel c = this.channel(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT);

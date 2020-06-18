@@ -19,6 +19,7 @@ export const TRANSLATION = {
         currentValue: 'Aktuální hodnota',
         dateFormat: 'dd.MM.yyyy', // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         dischargePower: 'Vybíjecí výkon',
+        fault: 'Chyba',
         grid: 'Síť',
         gridBuy: 'Nákup ze sítě',
         gridBuyAdvanced: 'Nákup',
@@ -26,6 +27,7 @@ export const TRANSLATION = {
         gridSellAdvanced: 'Prodej',
         history: 'Historie',
         inactive: 'Neaktivní',
+        info: 'Informace',
         inputNotValid: 'Vstup je neplatný',
         live: 'Live',
         load: 'nálož',
@@ -52,8 +54,10 @@ export const TRANSLATION = {
         soc: 'Stav nabití',
         state: 'Stát',
         storageSystem: 'Systém bateriového úložiště',
+        systemState: 'Stav systému',
         total: 'celková spotřeba',
         totalState: 'Celkový stav',
+        warning: 'Varování',
         Week: {
             monday: 'Pondělí',
             tuesday: 'Úterý',

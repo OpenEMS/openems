@@ -108,7 +108,8 @@ public class StateMachine {
 	 * @throws IllegalArgumentException
 	 */
 	private State handleUndefined() {
-		GridMode gridMode = this.parent.getGridMode().getNextValue().asEnum();
+		// TODO why is NextValue used?
+		GridMode gridMode = this.parent.getGridModeChannel().getNextValue().asEnum();
 		CCUState ccuState = this.getCcuState();
 		if (ccuState == CCUState.ERROR) {
 			return State.ERROR;

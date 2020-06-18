@@ -128,7 +128,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.config = config;
 
 		// Calculate max apparent power from number of inverters
-		this.getMaxApparentPower().setNextValue(config.inverterCount().getMaxApparentPower());
+		this._setMaxApparentPower(config.inverterCount().getMaxApparentPower());
 
 		// Call parent activate()
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
@@ -217,7 +217,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 
 		} finally {
-			this.getGridMode().setNextValue(gridMode);
+			this._setGridMode(gridMode);
 		}
 	}
 
@@ -237,10 +237,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			minCellVoltage = Math.min(minCellVoltage, minCellBattery);
 		}
 
-		this.getAllowedCharge().setNextValue(allowedCharge);
-		this.getAllowedDischarge().setNextValue(allowedDischarge);
-		this.getCapacity().setNextValue(capacity);
-		this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(minCellVoltage);
+		this._setAllowedChargePower(allowedCharge);
+		this._setAllowedDischargePower(allowedDischarge);
+		this._setCapacity(capacity);
+		this._setMinCellVoltage(minCellVoltage);
 	}
 
 	/**
@@ -255,7 +255,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			Optional<Integer> socOpt = b.getSoc().asOptional();
 			if (!totalCapacityOpt.isPresent() || !socOpt.isPresent()) {
 				// if at least one Battery has no valid value -> set UNDEFINED
-				this.getSoc().setNextValue(null);
+				this._setSoc(null);
 				return;
 			}
 			int totalCapacity = totalCapacityOpt.get();
@@ -264,7 +264,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			sumCurrentCapacity += totalCapacity * soc / 100.0;
 		}
 		int soc = Math.round(sumCurrentCapacity * 100 / sumTotalCapacity);
-		this.getSoc().setNextValue(soc);
+		this._setSoc(soc);
 	}
 
 	/**
@@ -305,12 +305,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|Allowed:"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
@@ -1201,7 +1200,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			float ipu1 = ap1.getNextValue().orElse(0f);
 			float ipu2 = ap2.getNextValue().orElse(0f);
 			float ipu3 = ap3.getNextValue().orElse(0f);
-			this.getActivePower().setNextValue(ipu1 + ipu2 + ipu3);
+			this._setActivePower((int) (ipu1 + ipu2 + ipu3));
 		};
 		ap1.onSetNextValue(calculateActivePower);
 		ap2.onSetNextValue(calculateActivePower);

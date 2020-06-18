@@ -125,9 +125,11 @@ public class SocomecMeterSinglephaseImpl extends AbstractOpenemsModbusComponent 
 				} else if (//
 				name.startsWith("countis e24") || //
 				name.startsWith("diris a-10") || //
+				name.startsWith("diris a10") || //
 				name.startsWith("diris a14") || //
 				name.startsWith("diris b30")) {
-					this.logError(this.log, "Identified Socomec " + name + " meter. This is not a singlephase meter!");
+					this.logError(this.log,
+							"Identified Socomec [" + name + "] meter. This is not a singlephase meter!");
 					this.channel(SocomecMeterSinglephase.ChannelId.NOT_A_SINGLEPHASE_METER).setNextValue(true);
 
 				} else {
@@ -238,7 +240,7 @@ public class SocomecMeterSinglephaseImpl extends AbstractOpenemsModbusComponent 
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override

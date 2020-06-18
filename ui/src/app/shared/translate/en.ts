@@ -19,6 +19,7 @@ export const TRANSLATION = {
         currentValue: 'current value',
         dateFormat: 'yyyy-MM-dd', // e.g. German: dd.MM.yyyy (dd = Day, MM = Month, yyyy = Year)
         dischargePower: 'Discharge power',
+        fault: 'Fault',
         grid: 'Grid',
         gridBuy: 'Buy from grid',
         gridBuyAdvanced: 'Buy',
@@ -26,6 +27,7 @@ export const TRANSLATION = {
         gridSellAdvanced: 'Sell',
         history: 'History',
         inactive: 'Inactive',
+        info: 'Info',
         inputNotValid: 'Input not valid',
         live: 'Live',
         load: 'Load',
@@ -53,7 +55,10 @@ export const TRANSLATION = {
         soc: 'State of charge',
         state: 'State',
         storageSystem: 'Storage System',
+        systemState: 'System state',
+        total: 'total',
         totalState: 'Total state',
+        warning: 'Warning',
         Week: {
             monday: 'Monday',
             tuesday: 'Tuesday',
