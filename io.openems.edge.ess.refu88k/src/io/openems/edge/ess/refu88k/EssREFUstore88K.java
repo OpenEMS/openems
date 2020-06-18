@@ -45,6 +45,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -152,13 +153,14 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.battery.getSoc().onChange((oldValue, newValue) -> {
-			this.getSoc().setNextValue(newValue.get());
+		// FIXME no good coding style; use direct mapping in ModbusProtocol-definition
+		// instead
+		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
+			this._setSoc(newValue.get());
 			this.channel(REFUStore88KChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
-		this.battery.getVoltage().onChange((oldValue, newValue) -> {
+		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(REFUStore88KChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
 	}
@@ -173,7 +175,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		// by default: block Power
 		this.isPowerAllowed = false;
 
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(MAX_APPARENT_POWER);
+		this._setMaxApparentPower(MAX_APPARENT_POWER);
 
 		EnumReadChannel operatingStateChannel = this.channel(REFUStore88KChannelId.ST);
 		OperatingState operatingState = operatingStateChannel.value().asEnum();
@@ -294,12 +296,12 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	private void checkIfPowerIsAllowed() {
 
 		// If the battery system is not ready no power can be applied!
-		this.isPowerAllowed = battery.getReadyForWorking().value().orElse(false);
+		this.isPowerAllowed = battery.getStartStop() == StartStop.START;
 
 		// Read important Channels from battery
-		int optV = battery.getVoltage().value().orElse(0);
-		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
+		int optV = battery.getVoltage().orElse(0);
+		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
 
 		// Calculate absolute Value allowedCharge and allowed Discharge from battery
 		double absAllowedCharge = Math.abs((chaMaxA * optV) / (EFFICIENCY_FACTOR));
@@ -307,15 +309,15 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 
 		// Determine allowedCharge and allowedDischarge from Inverter
 		if (absAllowedCharge > MAX_APPARENT_POWER) {
-			this.getAllowedCharge().setNextValue(MAX_APPARENT_POWER * -1);
+			this._setAllowedChargePower(MAX_APPARENT_POWER * -1);
 		} else {
-			this.getAllowedCharge().setNextValue(absAllowedCharge * -1);
+			this._setAllowedChargePower((int) (absAllowedCharge * -1));
 		}
 
 		if (absAllowedDischarge > MAX_APPARENT_POWER) {
-			this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
+			this._setAllowedDischargePower(MAX_APPARENT_POWER);
 		} else {
-			this.getAllowedDischarge().setNextValue(absAllowedDischarge);
+			this._setAllowedDischargePower((int) absAllowedDischarge);
 		}
 	}
 
@@ -381,7 +383,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	 * 
 	 */
 	private void doGridConnectedHandling() {
-		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
+		this._setGridMode(GridMode.ON_GRID);
 		if (this.getOperatingState().value().asEnum() == OperatingState.STARTED) {
 			if (isPowerRequired && isPowerAllowed) {
 				EnumWriteChannel pcsSetOperation = this.channel(REFUStore88KChannelId.PCS_SET_OPERATION);
@@ -448,8 +450,8 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		}
 
 		// Read the current values of Active and Reactive power!
-		int currentActivePower = Math.abs(getActivePower().value().orElse(0));
-		int currentReactivePower = Math.abs(getReactivePower().value().orElse(0));
+		int currentActivePower = Math.abs(this.getActivePower().orElse(0));
+		int currentReactivePower = Math.abs(this.getReactivePower().orElse(0));
 
 		/*
 		 * The self consumption of the inverter in status THROTTLED or MPPT is 40W.
@@ -514,14 +516,6 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		return this.channel(REFUStore88KChannelId.A);
 	}
 
-	public Channel<Integer> getActivePower() {
-		return this.channel(REFUStore88KChannelId.W);
-	}
-
-	public Channel<Integer> getReactivePower() {
-		return this.channel(REFUStore88KChannelId.VA_R);
-	}
-
 	public Channel<Integer> getApparentPower() {
 		return this.channel(REFUStore88KChannelId.VA);
 	}
@@ -546,8 +540,8 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 			// Calculate Reactive Power as a percentage of WMAX
 			varSetPct = ((1000 * reactivePower) / MAX_APPARENT_POWER);
 
-			maxBatteryChargeValue = battery.getChargeMaxCurrent().value().orElse(0);
-			maxBatteryDischargeValue = battery.getDischargeMaxCurrent().value().orElse(0);
+			maxBatteryChargeValue = battery.getChargeMaxCurrent().orElse(0);
+			maxBatteryDischargeValue = battery.getDischargeMaxCurrent().orElse(0);
 		}
 
 		IntegerWriteChannel maxBatAChaChannel = this.channel(REFUStore88KChannelId.MAX_BAT_A_CHA);
@@ -862,8 +856,8 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		return "State:" + this.channel(REFUStore88KChannelId.ST).value().asOptionString() //
 				+ " | Active Power:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
 				+ " | Reactive Power:" + this.channel(SymmetricEss.ChannelId.REACTIVE_POWER).value().asString() //
-				+ " | Allowed Charge:" + this.getAllowedCharge().value() //
-				+ " | Allowed Discharge:" + this.getAllowedDischarge().value() //
+				+ " | Allowed Charge:" + this.getAllowedChargePower() //
+				+ " | Allowed Discharge:" + this.getAllowedDischargePower() //
 				+ " | Allowed ChargeCurrent:" + this.battery.getChargeMaxCurrent() //
 				+ " | Allowed DischargeCurrent:" + this.battery.getDischargeMaxCurrent() //
 				+ " | DC Voltage:" + this.channel(REFUStore88KChannelId.DCV).value().asString() //

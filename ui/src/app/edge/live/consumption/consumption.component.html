@@ -9,7 +9,7 @@
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.consumption as sum">
                 <table class="full_width" *ngIf="evcsComponents">
-                    <ng-container *ngIf="evcsComponents.length == 0">
+                    <ng-container *ngIf="evcsComponents.length == 0 && consumptionMeterComponents.length == 0">
                         <tr>
                             <td style="width:65%"></td>
                             <td style="width:35%" class="align_right">

@@ -17,6 +17,24 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Represents a JSON-RPC Request for 'queryHistoricTimeseriesExportXlxs'.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "queryHistoricTimeseriesExportXlxs",
+ *   "params": {
+ *     "timezone": Number,
+ *     "fromDate": YYYY-MM-DD,
+ *     "toDate": YYYY-MM-DD,
+ *     "dataChannels": ChannelAddress[],
+ *     "energyChannels": ChannelAddress[]
+ *   }
+ * }
+ * </pre>
+ */
 public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
 	public final static String METHOD = "queryHistoricTimeseriesExportXlxs";

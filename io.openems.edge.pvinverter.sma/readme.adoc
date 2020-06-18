@@ -1,0 +1,12 @@
+= SMA Sunny Tripower PV inverter
+
+Implementation of the SMA Sunny Tripower PV inverters.
+
+Tested on
+- https://www.sma.de/produkte/solar-wechselrichter/sunny-tripower-15000tl-20000tl-25000tl.html[SMA SUNNY TRIPOWER 15000TL / 20000TL / 25000TL]
+
+Implemented Natures:
+- SymmetricMeter
+- ManagedSymmetricPvInverter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.sma[Source Code icon:github[]]

@@ -80,6 +80,32 @@ public class ElementToChannelConverter {
 			StaticConverters.INVERT);
 
 	/**
+	 * Sets the value to 'zero' if parameter is true; otherwise
+	 * {@link #DIRECT_1_TO_1}.
+	 * 
+	 * <ul>
+	 * <li>true: set zero
+	 * <li>false: apply {@link #DIRECT_1_TO_1}
+	 * </ul>
+	 * 
+	 * @param setZero true to set to null
+	 * @return the {@link ElementToChannelConverter}
+	 */
+	// CHECKSTYLE:OFF
+	public static ElementToChannelConverter SET_ZERO_IF_TRUE(boolean setZero) {
+		// CHECKSTYLE:ON
+		if (setZero) {
+			return new ElementToChannelConverter(//
+					// element -> channel
+					value -> 0, //
+					// channel -> element
+					value -> 0);
+		} else {
+			return DIRECT_1_TO_1;
+		}
+	}
+
+	/**
 	 * Converts depending on the given parameter.
 	 * 
 	 * <ul>
@@ -147,32 +173,33 @@ public class ElementToChannelConverter {
 	 */
 	public static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT, INVERT);
-	
+
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and INVERT_IF_TRUE.
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_1_AND_INVERT_IF_TRUE(boolean invert) {		
+	public static final ElementToChannelConverter SCALE_FACTOR_1_AND_INVERT_IF_TRUE(boolean invert) {
 		return new ElementToChannelConverterChain(SCALE_FACTOR_1, INVERT_IF_TRUE(invert));
 	}
-	
+
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and INVERT_IF_TRUE.
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_INVERT_IF_TRUE(boolean invert) {		
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_INVERT_IF_TRUE(boolean invert) {
 		return new ElementToChannelConverterChain(SCALE_FACTOR_2, INVERT_IF_TRUE(invert));
 	}
-	
+
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_3} and INVERT_IF_TRUE.
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_3_AND_INVERT_IF_TRUE(boolean invert) {		
+	public static final ElementToChannelConverter SCALE_FACTOR_3_AND_INVERT_IF_TRUE(boolean invert) {
 		return new ElementToChannelConverterChain(SCALE_FACTOR_3, INVERT_IF_TRUE(invert));
 	}
-	
+
 	/**
-	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_MINUS_1} and INVERT_IF_TRUE.
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_MINUS_1} and
+	 * INVERT_IF_TRUE.
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(boolean invert) {		
+	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(boolean invert) {
 		return new ElementToChannelConverterChain(SCALE_FACTOR_MINUS_1, INVERT_IF_TRUE(invert));
 	}
 

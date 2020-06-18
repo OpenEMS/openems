@@ -3,7 +3,6 @@ package io.openems.edge.battery.soltaro.controller.state;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public abstract class BaseState implements IState {
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(BatteryHandlingController.class.getName(), ess,
 				Phase.ALL, Pwr.ACTIVE, calculatedPower);
 		try {
-			ess.getSetActivePowerGreaterOrEquals().setNextWriteValue(calculatedPower);
+			ess.setActivePowerGreaterOrEquals(calculatedPower);
 		} catch (OpenemsNamedException e) {
 			this.log.error(e.getMessage());
 		}
@@ -47,7 +46,7 @@ public abstract class BaseState implements IState {
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(BatteryHandlingController.class.getName(), ess,
 				Phase.ALL, Pwr.ACTIVE, calculatedPower);
 		try {
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+			ess.setActivePowerLessOrEquals(calculatedPower);
 		} catch (OpenemsNamedException e) {
 			this.log.error(e.getMessage());
 		}
@@ -57,7 +56,7 @@ public abstract class BaseState implements IState {
 		int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 		int calculatedPower = maxCharge / 100 * chargePowerPercent;
 		try {
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+			ess.setActivePowerLessOrEquals(calculatedPower);
 		} catch (OpenemsNamedException e) {
 			log.error(e.getMessage());
 		}
@@ -123,28 +122,28 @@ public abstract class BaseState implements IState {
 			return true;
 		}
 
-		Optional<Integer> minCellVoltageOpt = bms.getMinCellVoltage().value().asOptional();
-		if (!minCellVoltageOpt.isPresent()) {
+		Value<Integer> minCellVoltageOpt = bms.getMinCellVoltage();
+		if (!minCellVoltageOpt.isDefined()) {
 			return true;
 		}
 
-		Optional<Integer> maxCellVoltageOpt = bms.getMaxCellVoltage().value().asOptional();
-		if (!maxCellVoltageOpt.isPresent()) {
+		Value<Integer> maxCellVoltageOpt = bms.getMaxCellVoltage();
+		if (!maxCellVoltageOpt.isDefined()) {
 			return true;
 		}
 
-		Optional<Integer> maxCellTemperatureOpt = bms.getMaxCellTemperature().value().asOptional();
-		if (!maxCellTemperatureOpt.isPresent()) {
+		Value<Integer> maxCellTemperature = bms.getMaxCellTemperature();
+		if (!maxCellTemperature.isDefined()) {
 			return true;
 		}
 
-		Optional<Integer> minCellTemperatureOpt = bms.getMinCellTemperature().value().asOptional();
-		if (!minCellTemperatureOpt.isPresent()) {
+		Value<Integer> minCellTemperature = bms.getMinCellTemperature();
+		if (minCellTemperature.isDefined()) {
 			return true;
 		}
 
-		Optional<Integer> socOpt = bms.getSoc().value().asOptional();
-		if (!socOpt.isPresent()) {
+		Value<Integer> soc = bms.getSoc();
+		if (!soc.isDefined()) {
 			return true;
 		}
 
@@ -152,23 +151,23 @@ public abstract class BaseState implements IState {
 	}
 
 	protected int getBmsSoC() {
-		return bms.getSoc().value().get();
+		return bms.getSoc().get(); // TODO this will throw a NullPointerException!
 	}
 
 	protected int getBmsMinCellTemperature() {
-		return bms.getMinCellTemperature().value().get();
+		return bms.getMinCellTemperature().get(); // TODO this will throw a NullPointerException!
 	}
 
 	protected int getBmsMaxCellTemperature() {
-		return bms.getMaxCellTemperature().value().get();
+		return bms.getMaxCellTemperature().get(); // TODO this will throw a NullPointerException!
 	}
 
 	protected int getBmsMinCellVoltage() {
-		return bms.getMinCellVoltage().value().get();
+		return bms.getMinCellVoltage().get(); // TODO this will throw a NullPointerException!
 	}
 
 	protected int getBmsMaxCellVoltage() {
-		return bms.getMaxCellVoltage().value().get();
+		return bms.getMaxCellVoltage().get(); // TODO this will throw a NullPointerException!
 	}
 
 	public ManagedSymmetricEss getEss() {

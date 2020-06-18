@@ -158,8 +158,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 			 * block charging till configured hysteresisSoc
 			 */
 			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
-			if (ess.getSoc().value().orElse(0) <= this.hysteresisSoc) {
-				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " <= " + this.hysteresisSoc
+			if (ess.getSoc().orElse(0) <= this.hysteresisSoc) {
+				this.logInfo(log, "SoC [" + ess.getSoc().orElse(0) + " <= " + this.hysteresisSoc
 						+ "]. Switch to Charge-Normal state.");
 				this.chargeState = ChargeState.NORMAL;
 			}
@@ -276,7 +276,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 */
 	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, activePower);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+				activePower);
 		if (calculatedPower != activePower) {
 			this.logInfo(log, "- Applying [" + calculatedPower + " W] instead of [" + activePower + "] W");
 		}

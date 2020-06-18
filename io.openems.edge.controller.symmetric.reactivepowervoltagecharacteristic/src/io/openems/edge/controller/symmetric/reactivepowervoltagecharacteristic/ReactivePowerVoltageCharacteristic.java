@@ -133,19 +133,20 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsException {
-		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		float voltageRatio = this.meter.getVoltage().orElse(0) / this.nominalVoltage;
 		float valueOfLine = Utils.getValueOfLine(this.qCharacteristic, voltageRatio);
 		if (valueOfLine == 0) {
 			return;
 		}
 
-		Value<Integer> apparentPower = this.ess.getMaxApparentPower().value();
+		Value<Integer> apparentPower = this.ess.getMaxApparentPower();
 		if (!apparentPower.isDefined() || apparentPower.get() == 0) {
 			return;
 		}
 
 		this.power = (int) (apparentPower.orElse(0) * valueOfLine);
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, this.power);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE,
+				this.power);
 		this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL, Pwr.REACTIVE,
 				Relationship.EQUALS, calculatedPower);
 	}

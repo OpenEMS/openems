@@ -54,7 +54,7 @@ public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusCo
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActualPower().value().asString();
+		return "P:" + this.getActualPower().asString();
 	}
 
 	protected abstract int getOffset();

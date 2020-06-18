@@ -69,17 +69,16 @@ public class BatteryHandlingController extends AbstractOpenemsComponent implemen
 		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MIN_CELL_VOLTAGE)
-				.setNextValue(ess.getMinCellVoltage().value());
+				.setNextValue(ess.getMinCellVoltage());
 		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MAX_CELL_VOLTAGE)
-				.setNextValue(ess.getMaxCellVoltage().value());
+				.setNextValue(ess.getMaxCellVoltage());
 		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MIN_CELL_TEMPERATURE)
-				.setNextValue(ess.getMinCellTemperature().value());
+				.setNextValue(ess.getMinCellTemperature());
 		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.MAX_CELL_TEMPERATURE)
-				.setNextValue(ess.getMaxCellTemperature().value());
-		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_POWER)
-				.setNextValue(ess.getActivePower().value());
+				.setNextValue(ess.getMaxCellTemperature());
+		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_POWER).setNextValue(ess.getActivePower());
 		this.channel(io.openems.edge.battery.soltaro.controller.ChannelId.ESS_SOC) //
-				.setNextValue(ess.getSoc().value());
+				.setNextValue(ess.getSoc());
 	}
 
 	@Override

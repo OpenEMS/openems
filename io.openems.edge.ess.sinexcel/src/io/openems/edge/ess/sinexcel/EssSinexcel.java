@@ -33,9 +33,9 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -44,10 +44,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
@@ -59,8 +59,8 @@ import io.openems.edge.ess.power.api.Relationship;
 		name = "Ess.Sinexcel", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = {EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE , //
-		EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE}) //
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE }) //
 public class EssSinexcel extends AbstractOpenemsModbusComponent
 		implements SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
 
@@ -75,7 +75,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	public LocalDateTime timeForSystemInitialization = null;
 
 	protected int SLOW_CHARGE_VOLTAGE = 4370; // for new batteries - 3940
-	protected int FLOAT_CHARGE_VOLTAGE = 4370; // for new batteries - 3940 
+	protected int FLOAT_CHARGE_VOLTAGE = 4370; // for new batteries - 3940
 
 	private int a = 0;
 	private int counterOn = 0;
@@ -113,8 +113,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.inverterState = config.InverterState();
 
 		// initialize the connection to the battery
-		this.initializeBattery(config.battery_id());		
-		
+		this.initializeBattery(config.battery_id());
+
 		this.SLOW_CHARGE_VOLTAGE = config.toppingCharge();
 		this.FLOAT_CHARGE_VOLTAGE = config.toppingCharge();
 
@@ -135,7 +135,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				SinexcelChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(EssSinexcel.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(EssSinexcel.MAX_APPARENT_POWER);
 		this.stateMachine = new StateMachine(this);
 	}
 
@@ -155,18 +155,17 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.battery.getSoc().onChange((oldValue, newValue) -> {
-			this.getSoc().setNextValue(newValue.get());
+		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
+			this._setSoc(newValue.get());
 			this.channel(SinexcelChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
-		this.battery.getVoltage().onChange((oldValue, newValue) -> {
+		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
 			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
 		});
-		
-		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
-			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
+
+		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
+			this._setMinCellVoltage(newValue.get());
 		});
 	}
 
@@ -180,10 +179,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
-		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
+		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+		int disMinV = battery.getDischargeMinVoltage().orElse(0);
+		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
 
 		// Sinexcel range for Max charge/discharge current is 0A to 90A,
 		if (chaMaxA > 90) {
@@ -218,8 +217,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			setChaMaxV.setNextWriteValue(chaMaxV * 10);
 		}
 		final double EFFICIENCY_FACTOR = 0.9;
-		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
-		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
+		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
+		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
 	}
 
 	/**
@@ -304,8 +303,9 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		setdataGridOnCmd.setNextWriteValue(1); // Start
 	}
 
-	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {		
-		//System.out.println("Upper voltage : " + this.channel(SinexcelChannelId.UPPER_VOLTAGE_LIMIT).value().asStringWithoutUnit());
+	public void doHandlingSlowFloatVoltage() throws OpenemsNamedException {
+		// System.out.println("Upper voltage : " +
+		// this.channel(SinexcelChannelId.UPPER_VOLTAGE_LIMIT).value().asStringWithoutUnit());
 		IntegerWriteChannel setSlowChargeVoltage = this.channel(SinexcelChannelId.SET_SLOW_CHARGE_VOLTAGE);
 		setSlowChargeVoltage.setNextWriteValue(this.SLOW_CHARGE_VOLTAGE);
 		IntegerWriteChannel setFloatChargeVoltage = this.channel(SinexcelChannelId.SET_FLOAT_CHARGE_VOLTAGE);
@@ -668,17 +668,17 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		if (!battery.getReadyForWorking().value().orElse(false)) {
+		if (battery.getStartStop() != StartStop.START) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
@@ -747,7 +747,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			} catch (OpenemsNamedException e) {
 				this.logError(this.log, "EventHandler failed: " + e.getMessage());
 			}
-
 
 //			if(island = true) {
 //				islandingOn();

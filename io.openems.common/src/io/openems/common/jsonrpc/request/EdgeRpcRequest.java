@@ -11,6 +11,19 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Wraps a JSON-RPC Request for a specific Edge-ID.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "edgeRpc",
+ *   "params": {
+ *     "edgeId": string,
+ *     "payload": {
+ *     }
+ *   }
+ * }
+ * </pre>
  */
 public class EdgeRpcRequest extends JsonrpcRequest {
 
