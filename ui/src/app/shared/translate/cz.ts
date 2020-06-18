@@ -11,6 +11,7 @@ export const TRANSLATION = {
         changeFailed: 'Změna se nezdařila',
         chargeDischarge: 'Debetní/vybíjení',
         chargePower: 'Nabíjecí výkon',
+        componentInactive: 'Komponenta je neaktivní!',
         connectionLost: 'Spojení ztraceno. Pokouší se znovu připojit.',
         consumption: 'Spotřeba',
         cumulative: 'Kumulativní Hodnoty',
@@ -52,6 +53,7 @@ export const TRANSLATION = {
         state: 'Stát',
         storageSystem: 'Systém bateriového úložiště',
         total: 'celková spotřeba',
+        totalState: 'Celkový stav',
         Week: {
             monday: 'Pondělí',
             tuesday: 'Úterý',
