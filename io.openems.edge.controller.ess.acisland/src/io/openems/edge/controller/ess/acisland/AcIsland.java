@@ -87,8 +87,8 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 	public void run() throws OpenemsNamedException {
 		// Get all required values - or abort with exception
 		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		GridMode gridMode = ess.getGridMode().value().asEnum();
-		int soc = ess.getSoc().value().getOrError();
+		GridMode gridMode = ess.getGridMode();
+		int soc = ess.getSoc().getOrError();
 
 		BooleanWriteChannel onGridOutputChannel = this.componentManager.getChannel(this.onGridOutputChannelAddress);
 		BooleanWriteChannel offGridOutputChannel = this.componentManager.getChannel(this.offGridOutputChannelAddress);

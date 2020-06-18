@@ -4,9 +4,6 @@ import io.openems.common.types.OptionsEnum;
 
 /**
  * The Priorities for charging. Which Component should be preferred.
- * 
- * TODO: If more than 2 Apps are installed, the Priority of the Apps should be
- * handled in an extra controller.
  */
 public enum Priority implements io.openems.common.types.OptionsEnum {
 
@@ -34,5 +31,4 @@ public enum Priority implements io.openems.common.types.OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return CAR;
 	}
-
 }

@@ -85,6 +85,6 @@ public class KostalPikoCharger extends AbstractOpenemsComponent implements EssDc
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActualPower().value().asString();
+		return "P:" + this.getActualPower().asString();
 	}
 }
