@@ -28,8 +28,8 @@ public class WriteHandler implements Runnable {
 	// Default value for the hardware limit
 	private static final Integer DEFAULT_HARDWARE_LIMIT = 22080;
 	
-	// Minimum pause between two consecutive writes
-	private static final int WRITE_INTERVAL_SECONDS = 30;
+	// Minimal pause between two consecutive writes if the limit has not changed
+	private static final int WRITE_INTERVAL_SECONDS = 1800;
 
 	public WriteHandler(AbstractOcppEvcsComponent parent) {
 		this.parent = parent;

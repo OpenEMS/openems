@@ -121,6 +121,10 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		
 		ArrayList<Request> requests = new ArrayList<>();
 		
+		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest(
+				"MeterValueSampleInterval", "10");
+		requests.add(setMeterValueSampleInterval);
+		
 		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requests.add(requestStatus);
 		

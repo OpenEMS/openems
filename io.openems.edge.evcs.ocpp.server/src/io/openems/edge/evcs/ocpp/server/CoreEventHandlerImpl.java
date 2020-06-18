@@ -162,7 +162,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 									.contains(OcppInformations.CORE_METER_VALUES_POWER_ACTIVE_IMPORT)) {
 								this.setPowerDependingOnEnergy(evcs, (Double) correctValue, meterValue.getTimestamp());
 							}
-							// TODO: Set evcs.energySession if we know when the start- and end-time
+							// Some Evcss responding the session Energy and other the total Energy.
+							evcs.getEnergySession().setNextValue(correctValue);
 							break;
 
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:

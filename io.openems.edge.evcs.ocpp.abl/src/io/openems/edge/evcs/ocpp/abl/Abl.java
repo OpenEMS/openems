@@ -193,7 +193,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		requests.add(requestMeterValues);
 		
 		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
-		requestMeterValues.setConnectorId(this.getConfiguredConnectorId());
+		requestStatus.setConnectorId(this.getConfiguredConnectorId());
 		requests.add(requestStatus);
 
 		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
