@@ -38,7 +38,7 @@
   </ion-row>
   <ion-row class="ion-justify-content-center">
 
-    <ion-col size="12" size-md="6" *ngIf="config">
+    <ion-col size="12" size-md="6" *ngIf="components != null">
       <ion-card>
         <ion-item color="light" lines="full">
           <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
@@ -59,15 +59,24 @@
               </ion-item-group>
               <ion-item lines="none" *ngFor="let item of category.components">
                 <ion-label class="ion-text-wrap">
-                  <ion-text style="cursor: pointer" (click)="item['showProperties'] = !item['showProperties']">
+                  <ion-text>
                     <ion-text color="primary">
                       <h3>{{ item.alias }}
-                        <span *ngIf="item.id != item.alias"> ({{ item.id }})</span>
-                        <small *ngIf="!item.isEnabled"> (Komponente ist inaktiv!)</small>
+                        <span *ngIf="item.id != item.alias"> ({{ item.id }}) </span>
+                        <small *ngIf="!item.isEnabled"> (<span translate>General.componentInactive</span>) </small>
+                        <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;" color="dark"
+                          [routerLink]="item.id" name="create-outline">
+                        </ion-icon>
                       </h3>
                     </ion-text>
                     <ng-container *ngIf="config.factories[item.factoryId] as factory">
-                      <p>{{ factory.name }} <small>({{ factory.description }})</small></p>
+                      <p style="cursor: pointer" (click)="item['showProperties'] = !item['showProperties']">
+                        <ion-icon *ngIf="!item['showProperties']" name="arrow-down-circle-outline">
+                        </ion-icon>
+                        <ion-icon *ngIf="item['showProperties']" name="arrow-up-circle-outline">
+                        </ion-icon>
+                        {{ factory.name }} <small>({{ factory.description }})</small>
+                      </p>
                     </ng-container>
                   </ion-text>
                   <ng-container *ngIf="item['showProperties']">

@@ -16,7 +16,8 @@ export class CurrentData {
       system: {
         totalPower: null,
         autarchy: null,
-        selfConsumption: null
+        selfConsumption: null,
+        state: null
       }, storage: {
         soc: null,
         activePowerL1: null,
@@ -209,8 +210,8 @@ export class CurrentData {
 
     {
       /*
-       * Total
-       */
+      * Total
+      */
       result.system.totalPower = Math.max(
         // Productions
         result.grid.buyActivePower
@@ -225,6 +226,8 @@ export class CurrentData {
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
       result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.effectiveDischargePower);
+      // State
+      result.system.state = c['_sum/State'];
     }
     return result;
   }

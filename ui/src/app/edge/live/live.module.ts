@@ -3,9 +3,10 @@ import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmet
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
 import { AutarchyModalComponent } from './autarchy/modal/modal.component';
-import { AwattarChartComponent } from './awattar/modal/chart.component';
+import { AwattarAdvertChartComponent } from './awattar_advert/modal/chart.component';
+import { AwattarAdvertComponent } from './awattar_advert/awattar.component';
+import { AwattarAdvertModalComponent } from './awattar_advert/modal/modal.component';
 import { AwattarComponent } from './awattar/awattar.component';
-import { AwattarModalComponent } from './awattar/modal/modal.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
@@ -57,7 +58,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
   entryComponents: [
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
-    AwattarModalComponent,
+    AwattarAdvertModalComponent,
     ChpsocModalComponent,
     ConsumptionModalComponent,
     CorrentlyModalComponent,
@@ -78,9 +79,10 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
     AutarchyModalComponent,
-    AwattarChartComponent,
+    AwattarAdvertChartComponent,
+    AwattarAdvertComponent,
+    AwattarAdvertModalComponent,
     AwattarComponent,
-    AwattarModalComponent,
     ChannelthresholdComponent,
     ChpSocComponent,
     ChpsocModalComponent,

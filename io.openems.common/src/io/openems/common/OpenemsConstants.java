@@ -20,14 +20,14 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 12;
+	public final static short VERSION_MINOR = 13;
 
 	/**
 	 * The patch version of OpenEMS.
 	 * 
 	 * This is the number of the bugfix release
 	 */
-	public final static short VERSION_PATCH = 4;
+	public final static short VERSION_PATCH = 1;
 
 	/**
 	 * The additional version string
@@ -47,7 +47,7 @@ public class OpenemsConstants {
 	 * 
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER = "OpenEMS Association e.V.";
+	public final static String MANUFACTURER = "FENECON GmbH";
 
 	/**
 	 * The model identifier of the device
