@@ -19,7 +19,7 @@ export class AppComponent {
   public env = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
-  public currentPage: 'FemsSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
+  public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -153,6 +153,10 @@ export class AppComponent {
   updateCurrentPage(url: string) {
     let urlArray = url.split('/');
     let file = urlArray.pop();
+    if (urlArray.length >= 4) {
+      file = urlArray[3];
+    }
+    console.log("file", file, "urlArray", urlArray)
     // Enable Segment Navigation for Edge-Index-Page
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {
       if (file == 'history') {
@@ -160,9 +164,8 @@ export class AppComponent {
       } else {
         this.currentPage = 'IndexLive';
       }
-    } else if ((file == 'settings' && urlArray.length == 3) || (urlArray.length == 4 && (urlArray[urlArray.length - 1] == 'settings')
-      || (urlArray.length == 5 && urlArray[urlArray.length - 2] == 'settings'))) {
-      this.currentPage = 'FemsSettings';
+    } else if (file == 'settings' && urlArray.length > 1) {
+      this.currentPage = 'EdgeSettings';
     }
     else {
       this.currentPage = 'Other';

@@ -10,6 +10,7 @@ export const TRANSLATION = {
         changeFailed: 'Wijziging mislukt',
         chargeDischarge: 'Debet/ontlaad',
         chargePower: 'Laad vermogen',
+        componentInactive: 'Component is inactief!',
         connectionLost: 'Verbinding verbroken. Probeer opnieuw verbinding te maken.',
         consumption: 'Verbruik',
         cumulative: 'Cumulatieve Waarden',
@@ -51,6 +52,7 @@ export const TRANSLATION = {
         storageSystem: 'Batterij',
         systemState: 'Systeemstatus',
         total: 'totale verbruik',
+        totalState: 'Algemene staat',
         warning: 'Waarschuwing',
         Week: {
             monday: 'Maandag',

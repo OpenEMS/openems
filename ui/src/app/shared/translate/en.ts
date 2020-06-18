@@ -10,6 +10,7 @@ export const TRANSLATION = {
         changeFailed: 'Change failed',
         chargeDischarge: 'Charge/Discharge power',
         chargePower: 'Charge power',
+        componentInactive: 'Component is not active!',
         connectionLost: 'Connection lost. Trying to reconnect.',
         consumption: 'Consumption',
         cumulative: 'Cumulative Values',
@@ -52,6 +53,7 @@ export const TRANSLATION = {
         storageSystem: 'Storage System',
         systemState: 'System state',
         total: 'total',
+        totalState: 'Total state',
         warning: 'Warning',
         Week: {
             monday: 'Monday',
