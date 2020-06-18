@@ -405,8 +405,9 @@ export class EdgeConfig {
     /**
      * Returns the corresponding icon for a given factory
      */
-    public getComponentsIconByFactory(factory: EdgeConfig.Factory): string {
-        let result = null;
+    public getFactoryIcon(factory: EdgeConfig.Factory): string {
+        // default icon, if no icons are found
+        let result = "stats-chart-outline";
         this.listAvailableFactories().forEach(availableFactories => {
             availableFactories.factories.forEach(availableFactory => {
                 if (factory == availableFactory) {
