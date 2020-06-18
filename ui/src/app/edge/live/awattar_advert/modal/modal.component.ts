@@ -3,10 +3,10 @@ import { ModalController } from '@ionic/angular';
 import { Service } from '../../../../shared/shared';
 
 @Component({
-    selector: AwattarModalComponent.SELECTOR,
+    selector: AwattarAdvertModalComponent.SELECTOR,
     templateUrl: './modal.component.html'
 })
-export class AwattarModalComponent {
+export class AwattarAdvertModalComponent {
 
     private static readonly SELECTOR = "awattar-modal";
 

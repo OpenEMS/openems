@@ -102,10 +102,15 @@
               class="ion-no-padding">
               <singlethreshold [componentId]="widget.componentId"></singlethreshold>
             </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Symmetric.DynamicDischarge'" size="12" size-lg="6"
+              class="ion-no-padding">
+              <awattar></awattar>
+            </ion-col>
           </ng-container>
 
           <ion-col *ngIf="this.edge.id == 'fems66'" size="12" size-lg="6" class="ion-no-padding">
-            <awattar></awattar>
+            <awattar-advert></awattar-advert>
           </ion-col>
 
           <ion-col size="12" size-lg="6" class="ion-no-padding" *ngIf="service.isAdvertAllowed(edge, widgets)">

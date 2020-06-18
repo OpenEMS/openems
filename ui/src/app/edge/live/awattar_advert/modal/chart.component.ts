@@ -10,7 +10,7 @@ import { Label } from 'ng2-charts';
     selector: 'awattarChart',
     templateUrl: './chart.component.html'
 })
-export class AwattarChartComponent {
+export class AwattarAdvertChartComponent {
 
     public barChartColors = [
         { backgroundColor: 'rgba(255,53,0, 1)' },
