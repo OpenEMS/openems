@@ -1,17 +1,19 @@
 #!/bin/bash
 
-CHANNEL_ID="COMMUNICATION_FAILED"
-METHOD="CommunicationFailed"
-JAVADOC="Communication Failed Fault State"
+CHANNEL_ID="SOC"
+METHOD="Soc"
+JAVADOC="current state of charge of the car [%]."
 #JAVADOC="Temparature in [deci degC]"
 
-#CHANNEL_CLASS="IntegerReadChannel"
-CHANNEL_CLASS="StateChannel"
+#CHANNEL_CLASS="BooleanReadChannel"
+CHANNEL_CLASS="IntegerReadChannel"
+#CHANNEL_CLASS="StateChannel"
 #CHANNEL_CLASS="LongReadChannel"
 #CHANNEL_CLASS="IntegerWriteChannel"
+#CHANNEL_CLASS="StringWriteChannel"
 
 case "$CHANNEL_CLASS" in
-	StateChannel)
+	StateChannel|BooleanReadChannel)
 		CHANNEL_RETURN_TYPE="Value<Boolean>"
 		CHANNEL_PARAM_TYPE1="boolean"
 		CHANNEL_PARAM_TYPE2="boolean"
@@ -30,6 +32,11 @@ case "$CHANNEL_CLASS" in
 		CHANNEL_RETURN_TYPE="Value<Integer>"
 		CHANNEL_PARAM_TYPE1="Integer"
 		CHANNEL_PARAM_TYPE2="int"
+		;;
+	StringWriteChannel)
+		CHANNEL_RETURN_TYPE="Value<String>"
+		CHANNEL_PARAM_TYPE1="String"
+		CHANNEL_PARAM_TYPE2="String"
 		;;
 	*)
 		echo "Unknown Class ${CHANNEL_CLASS}"
