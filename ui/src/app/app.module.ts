@@ -23,6 +23,7 @@ import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.m
 import { SharedModule } from './shared/shared.module';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { StatusSingleComponent } from './shared/status/single/status.component';
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import localDE from '@angular/common/locales/de';
@@ -34,6 +35,7 @@ import localDE from '@angular/common/locales/de';
     InputTypeComponent,
     PickDatePopoverComponent,
     RepeatTypeComponent,
+    StatusSingleComponent,
     SystemLogComponent,
   ],
   entryComponents: [

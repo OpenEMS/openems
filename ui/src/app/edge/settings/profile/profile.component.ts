@@ -4,6 +4,8 @@ import { environment } from '../../../../environments';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
 import { ModbusApiUtil } from './modbusapi/modbusapi';
+import { PopoverController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: ProfileComponent.SELECTOR,
@@ -23,17 +25,20 @@ export class ProfileComponent {
 
   constructor(
     private service: Service,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public popoverController: PopoverController,
+    private translate: TranslateService,
   ) { }
+
   ngOnInit() {
-    this.service.setCurrentComponent("Anlagenprofil" /* TODO translate */, this.route).then(edge => {
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.systemProfile'), this.route).then(edge => {
       this.edge = edge;
+      this.service.getConfig().then(config => {
+        this.config = config;
+        let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum"]
+        this.components = config.listActiveComponents(categorizedComponentIds);
+      })
     });
-    this.service.getConfig().then(config => {
-      this.config = config;
-      let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum"]
-      this.components = config.listActiveComponents(categorizedComponentIds);
-    })
   }
 
   public getModbusProtocol(componentId: string) {

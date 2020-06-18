@@ -143,7 +143,7 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override

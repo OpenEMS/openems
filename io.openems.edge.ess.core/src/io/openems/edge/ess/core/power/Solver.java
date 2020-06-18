@@ -665,7 +665,7 @@ public class Solver {
 			Round round = Round.TOWARDS_ZERO;
 			String essId = inv.getEssId();
 			ManagedSymmetricEss ess = this.data.getEss(essId);
-			int soc = ess.getSoc().value().orElse(0);
+			int soc = ess.getSoc().orElse(0);
 			int precision = ess.getPowerPrecision();
 			PowerTuple powerTuple = new PowerTuple();
 			for (Pwr pwr : Pwr.values()) {
@@ -924,10 +924,9 @@ public class Solver {
 					invL3 = new PowerTuple();
 				}
 				// set debug channels on Ess
-				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER)
-						.setNextValue(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
-				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER)
-						.setNextValue(invL1.getReactivePower() + invL2.getReactivePower() + invL3.getReactivePower());
+				ess._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
+				ess._setDebugSetReactivePower(
+						invL1.getReactivePower() + invL2.getReactivePower() + invL3.getReactivePower());
 				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L1)
 						.setNextValue(invL1.getActivePower());
 				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L1)
@@ -948,13 +947,13 @@ public class Solver {
 							invL3.getActivePower(), invL3.getReactivePower());
 
 					// announce applying power was ok
-					ess.getApplyPowerFailed().setNextValue(false);
+					ess._setApplyPowerFailed(false);
 
 				} catch (OpenemsNamedException e) {
 					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
 
 					// announce running failed
-					ess.getApplyPowerFailed().setNextValue(true);
+					ess._setApplyPowerFailed(true);
 				}
 
 			} else if (inv != null) {
@@ -967,13 +966,13 @@ public class Solver {
 					ess.applyPower(inv.getActivePower(), inv.getReactivePower());
 
 					// announce applying power was ok
-					ess.getApplyPowerFailed().setNextValue(false);
+					ess._setApplyPowerFailed(false);
 
 				} catch (OpenemsNamedException e) {
 					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
 
 					// announce running failed
-					ess.getApplyPowerFailed().setNextValue(true);
+					ess._setApplyPowerFailed(true);
 				}
 
 			} else {

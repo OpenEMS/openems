@@ -28,6 +28,8 @@
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
+	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
+	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -78,6 +80,7 @@
 	bnd.identity;id='io.openems.edge.ess.cluster',\
 	bnd.identity;id='io.openems.edge.ess.core',\
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
+	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
 	bnd.identity;id='io.openems.edge.ess.refu',\
@@ -116,6 +119,7 @@
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
+	bnd.identity;id='io.openems.edge.pvinverter.sma',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
@@ -140,6 +144,9 @@
 	io.openems.edge.battery.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.battery.bydcommercial;version='[1.0.0,1.0.1)',\
 	io.openems.edge.battery.soltaro;version='[1.0.0,1.0.1)',\
+	io.openems.edge.batteryinverter.api;version='[1.0.0,1.0.1)',\
+	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version='[1.0.0,1.0.1)',\
+	io.openems.edge.batteryinverter.sunspec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.mbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.modbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.bridge.onewire;version='[1.0.0,1.0.1)',\
@@ -191,6 +198,7 @@
 	io.openems.edge.ess.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.core;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.fenecon.commercial40;version='[1.0.0,1.0.1)',\
+	io.openems.edge.ess.generic;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.mr.gridcon;version='[1.0.0,1.0.1)',\
 	io.openems.edge.ess.refu;version='[1.0.0,1.0.1)',\
@@ -233,6 +241,7 @@
 	io.openems.edge.pvinverter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version='[1.0.0,1.0.1)',\
+	io.openems.edge.pvinverter.sma;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.solarlog;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.sunspec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.scheduler.allalphabetically;version='[1.0.0,1.0.1)',\

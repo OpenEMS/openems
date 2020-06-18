@@ -1,6 +1,10 @@
 = Carlo Gavazzi EM300 Meter
 
-Implemented Natures::
+Applies to
+- CARLO GAVAZZI EM330
+- CARLO GAVAZZI EM340
+
+Implemented Natures
 - SymmetricMeter
 - AsymmetricMeter
 

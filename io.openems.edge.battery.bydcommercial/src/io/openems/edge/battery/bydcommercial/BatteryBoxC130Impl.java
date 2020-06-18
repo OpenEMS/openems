@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine;
@@ -34,6 +35,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -45,7 +48,7 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
 public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
-		implements BatteryBoxC130, Battery, OpenemsComponent, EventHandler, ModbusSlave {
+		implements BatteryBoxC130, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(BatteryBoxC130Impl.class);
 
@@ -63,6 +66,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				BatteryBoxC130.ChannelId.values() //
 		);
 	}
@@ -101,8 +105,8 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		// Store the current State
 		this.channel(BatteryBoxC130.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
-		// Initialize 'Ready-For-Working' Channel
-		this.setReadyForWorking(false);
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
 		StateMachine.Context context = new StateMachine.Context(this, this.config);
@@ -121,7 +125,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
+		return "SoC:" + this.getSoc() //
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
@@ -610,4 +614,9 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		// TODO start stop is not implemented
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
+	}
 }
