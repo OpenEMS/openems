@@ -114,7 +114,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	protected void deactivate() {
 		for (Evcs evcs : this.sortedEvcss) {
 			this.resetClusteredState(evcs);
-			evcs.getMaximumPower().setNextValue(null);
+			evcs._setMaximumPower(null);
 		}
 		super.deactivate();
 	}
@@ -141,10 +141,10 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	 */
 	private void resetClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
-			((ManagedEvcs) evcs).isClustered().setNextValue(false);
-			((ManagedEvcs) evcs).setChargePowerRequest().setNextValue(null);
+			((ManagedEvcs) evcs)._setIsClustered(false);
+			((ManagedEvcs) evcs)._setSetChargePowerRequest(null);
 		}
-		evcs.getMaximumPower().setNextValue(null);
+		evcs._setMaximumPower(null);
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	 */
 	private void setClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
-			((ManagedEvcs) evcs).isClustered().setNextValue(true);
+			((ManagedEvcs) evcs)._setIsClustered(true);
 		}
 	}
 
@@ -186,7 +186,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		maxAvailableStoragePower = maxEssDischarge - (essDischargePower - essActivePowerDC);
 
 		int gridPower = getGridPower();
-		int evcsCharge = this.getChargePower().value().orElse(0);
+		int evcsCharge = this.getChargePower().orElse(0);
 
 		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower
 				+ (this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES) - gridPower);

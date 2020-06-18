@@ -72,7 +72,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.getChargingType().setNextValue(ChargingType.CCS);
+		this._setChargingType(ChargingType.CCS);
 	}
 
 	@Override
@@ -118,16 +118,16 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 	@Override
 	public List<Request> getRequiredRequestsAfterConnection() {
-		
+
 		ArrayList<Request> requests = new ArrayList<>();
-		
+
 		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest(
 				"MeterValueSampleInterval", "10");
 		requests.add(setMeterValueSampleInterval);
-		
+
 		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requests.add(requestStatus);
-		
+
 		return requests;
 	}
 

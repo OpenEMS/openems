@@ -29,9 +29,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	protected final Set<OcppProfileType> profileTypes;
 
 	private final WriteHandler writeHandler = new WriteHandler(this);
-	
+
 	protected OcppServer ocppServer = null;
-	
+
 	protected UUID sessionId = null;
 
 	protected AbstractOcppEvcsComponent(OcppProfileType[] profileTypes,
@@ -41,7 +41,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 		this.profileTypes = new HashSet<OcppProfileType>(Arrays.asList(profileTypes));
 	}
-	
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
@@ -55,24 +55,24 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 			return this.doc;
 		}
 	}
-	
+
 	@Override
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		super.activate(context, id, alias, enabled);
 
 		this.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(getConfiguredMaximumHardwarePower());
 		this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(getConfiguredMinimumHardwarePower());
-		this.getEnergySession().setNextValue(0);
+		this._setEnergySession(0);
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			if(this.sessionId == null) {
+			if (this.sessionId == null) {
 				return;
 			}
-			if (this.getStatus().getNextValue().asEnum().equals(Status.CHARGING_FINISHED)) {
+			if (this.getStatus().equals(Status.CHARGING_FINISHED)) {
 				this.resetMeasuredChannelValues();
 			}
 			writeHandler.run();
@@ -84,19 +84,19 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 	}
-	
+
 	public void newSession(OcppServer server, UUID sessionId) {
 		this.ocppServer = server;
 		this.sessionId = sessionId;
-		this.getStatus().setNextValue(Status.NOT_READY_FOR_CHARGING);
-		this.getChargingstationCommunicationFailed().setNextValue(false);
+		this._setStatus(Status.NOT_READY_FOR_CHARGING);
+		this._setChargingstationCommunicationFailed(false);
 	}
-	
+
 	public void lostSession() {
 		this.ocppServer = null;
 		this.sessionId = null;
-		this.getStatus().setNextValue(Status.UNDEFINED);
-		this.getChargingstationCommunicationFailed().setNextValue(true);
+		this._setStatus(Status.UNDEFINED);
+		this._setChargingstationCommunicationFailed(true);
 	}
 
 	public abstract Set<OcppInformations> getSupportedMeasurements();
@@ -108,7 +108,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public abstract Integer getConfiguredMaximumHardwarePower();
 
 	public abstract Integer getConfiguredMinimumHardwarePower();
-	
+
 	/**
 	 * Required requests that should be sent after a connection was established.
 	 * 
@@ -129,7 +129,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	 * @return OcppRequests
 	 */
 	public abstract OcppStandardRequests getStandardRequests();
-	
+
 	public UUID getSessionId() {
 		return this.sessionId;
 	};
@@ -139,7 +139,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 			Channel<?> channel = this.channel(c);
 			channel.setNextValue(null);
 		}
-		this.getChargePower().setNextValue(0);
+		this._setChargePower(0);
 	}
 
 	public ChargingProperty getLastChargingProperty() {
@@ -149,7 +149,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	public void setLastChargingProperty(ChargingProperty chargingProperty) {
 		this.lastChargingProperty = chargingProperty;
 	}
-	
+
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
@@ -163,9 +163,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		if (this instanceof ManagedEvcs) {
-			return "Limit:" + ((ManagedEvcs) this).setChargePowerLimit().value().orElse(null) + "|"
-					+ this.getStatus().value().asEnum().getName();
+			return "Limit:" + ((ManagedEvcs) this).getSetChargePowerLimit().orElse(null) + "|"
+					+ this.getStatus().getName();
 		}
-		return "Power:" + this.getChargePower().value().orElse(0) + "|" + this.getStatus().value().asEnum().getName();
+		return "Power:" + this.getChargePower().orElse(0) + "|" + this.getStatus().getName();
 	}
 }

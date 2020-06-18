@@ -99,7 +99,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			return new MeterValuesConfirmation();
 		}
 
-		evcs.getStatus().setNextValue(Status.CHARGING);
+		evcs._setStatus(Status.CHARGING);
 
 		/*
 		 * Set the channels depending on the meter values
@@ -163,7 +163,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								this.setPowerDependingOnEnergy(evcs, (Double) correctValue, meterValue.getTimestamp());
 							}
 							// Some Evcss responding the session Energy and other the total Energy.
-							evcs.getEnergySession().setNextValue(correctValue);
+							evcs._setEnergySession((int) Math.round((Double) correctValue));
 							break;
 
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
@@ -229,7 +229,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		ChargePointStatus ocppStatus = request.getStatus();
 		switch (ocppStatus) {
 		case Available:
-			evcs.getChargingstationCommunicationFailed().setNextValue(false);
+			evcs._setChargingstationCommunicationFailed(false);
 			evcsStatus = Status.NOT_READY_FOR_CHARGING;
 			break;
 		case Charging:
@@ -255,12 +255,12 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			break;
 		case Unavailable:
 			this.logDebug("Charging Station is Unavailable.");
-			evcs.getChargingstationCommunicationFailed().setNextValue(true);
+			evcs._setChargingstationCommunicationFailed(true);
 			evcsStatus = Status.ERROR;
 			break;
 		}
 		if (evcsStatus != null) {
-			evcs.getStatus().setNextValue(evcsStatus);
+			evcs._setStatus(evcsStatus);
 		}
 		return new StatusNotificationConfirmation();
 	}
@@ -374,7 +374,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		if (lastChargingProperty != null) {
 
 			power = this.calculateChargePower(lastChargingProperty, currentEnergy, timestamp);
-			evcs.getChargePower().setNextValue(power);
+			evcs._setChargePower(power);
 		}
 		evcs.setLastChargingProperty(new ChargingProperty(power, currentEnergy, timestamp));
 	}

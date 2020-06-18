@@ -92,7 +92,7 @@ public class ReadHandler implements Consumer<String> {
 
 						// Charging is Finished if 'Plug' is connected, State was charging or already
 						// finished and the EVCS is still ready for charging.
-						Status evcsStatus = parent.getStatus().value().asEnum();
+						Status evcsStatus = parent.getStatus();
 						switch (evcsStatus) {
 						case CHARGING_REJECTED:
 						case ENERGY_LIMIT_REACHED:
@@ -105,7 +105,7 @@ public class ReadHandler implements Consumer<String> {
 						case CHARGING:
 						case CHARGING_FINISHED:
 							if (status.equals(Status.READY_FOR_CHARGING)
-									&& parent.setChargePowerLimit().value().orElse(0) > 0) {
+									&& parent.getSetChargePowerLimit().orElse(0) > 0) {
 								status = Status.CHARGING_FINISHED;
 							}
 						}
@@ -115,12 +115,12 @@ public class ReadHandler implements Consumer<String> {
 					 * Check if the maximum energy limit is reached, informs the user and sets the
 					 * status
 					 */
-					int limit = this.parent.setEnergyLimit().value().orElse(0);
-					int energy = this.parent.getEnergySession().value().orElse(0);
+					int limit = this.parent.getSetEnergyLimit().orElse(0);
+					int energy = this.parent.getEnergySession().orElse(0);
 					if (energy >= limit && limit != 0) {
 						try {
 
-							this.parent.setDisplayText().setNextWriteValue(limit + "Wh erreicht");
+							this.parent.setDisplayText(limit + "Wh erreicht");
 							status = Status.ENERGY_LIMIT_REACHED;
 						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
@@ -187,17 +187,16 @@ public class ReadHandler implements Consumer<String> {
 						if (currentL3.value().orElse(0) > 100) {
 							phases += 1;
 						}
-						this.parent.getPhases().setNextValue(phases);
+						this.parent._setPhases(phases);
 
-						this.parent.logInfoInDebugmode(log,
-								"Used phases: " + this.parent.getPhases().value().orElse(3));
+						this.parent.logInfoInDebugmode(log, "Used phases: " + this.parent.getPhases().orElse(3));
 					}
 
 					/*
 					 * Set MAXIMUM_HARDWARE_POWER of Evcs
 					 */
 					Channel<Integer> maxHW = this.parent.channel(KebaChannelId.MAX_CURR);
-					int phases = this.parent.getPhases().value().orElse(3);
+					int phases = this.parent.getPhases().orElse(3);
 
 					this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(
 							230 /* Spannung */ * (maxHW.value().orElse(32000) / 1000) /* max Strom */ * phases);

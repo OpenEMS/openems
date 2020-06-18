@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
@@ -99,8 +100,8 @@ public class WriteHandler implements Runnable {
 		if (valueOpt.isPresent()) {
 
 			Integer power = valueOpt.get();
-			Channel<Integer> phases = this.parent.getPhases();
-			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
+			Value<Integer> phases = this.parent.getPhases();
+			Integer current = power * 1000 / phases.orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
 			// limits the charging value because KEBA knows only values between 6000 and
 			// 63000
 			if (current > 63000) {
@@ -113,11 +114,11 @@ public class WriteHandler implements Runnable {
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 
 				this.parent.logInfoInDebugmode(log, "Setting KEBA " + this.parent.alias() + " current to [" + current
-						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
+						+ " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
 
 				try {
 					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
-					this.parent.setDisplayText().setNextWriteValue((currPower.value().orElse(0) / 1000) + "W");
+					this.parent.setDisplayText((currPower.value().orElse(0) / 1000) + "W");
 				} catch (OpenemsNamedException e) {
 					e.printStackTrace();
 				}
@@ -126,7 +127,7 @@ public class WriteHandler implements Runnable {
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 					this.lastCurrent = current;
-					this.parent.setChargePowerLimit().setNextValue(power);
+					this.parent._setSetChargePowerLimit(power);
 				}
 			}
 		}
@@ -150,7 +151,7 @@ public class WriteHandler implements Runnable {
 		if (valueOpt.isPresent()) {
 
 			Integer energyTarget = valueOpt.get();
-			this.parent.setEnergyLimit().setNextValue(energyTarget);
+			this.parent._setSetEnergyLimit(energyTarget);
 
 			if (energyTarget < 0) {
 				return;
@@ -175,7 +176,7 @@ public class WriteHandler implements Runnable {
 
 					try {
 						if (energyTarget > 0) {
-							this.parent.setDisplayText().setNextWriteValue("Max: " + energyTarget / 10 + "Wh");
+							this.parent.setDisplayText("Max: " + energyTarget / 10 + "Wh");
 						}
 					} catch (OpenemsNamedException e) {
 						e.printStackTrace();

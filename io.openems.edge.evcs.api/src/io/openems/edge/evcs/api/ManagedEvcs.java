@@ -1,15 +1,18 @@
 package io.openems.edge.evcs.api;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface ManagedEvcs extends Evcs {
@@ -118,49 +121,222 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
-	 * Sets the charge power limit of the EVCS in [W].
-	 * 
-	 * @return the IntegerWriteChannel
+	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_LIMIT}.
+	 *
+	 * @return the Channel
 	 */
-	public default IntegerWriteChannel setChargePowerLimit() {
+	public default IntegerWriteChannel getSetChargePowerLimitChannel() {
 		return this.channel(ChannelId.SET_CHARGE_POWER_LIMIT);
 	}
 
 	/**
-	 * Sets a request for a charge power. The limit is not directly activated by
-	 * this call.
-	 * 
-	 * @return the IntegerWriteChannel
+	 * Gets the set charge power limit of the EVCS in [W]. See
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerWriteChannel setChargePowerRequest() {
-		return this.channel(ChannelId.SET_CHARGE_POWER_REQUEST);
+	public default Value<Integer> getSetChargePowerLimit() {
+		return this.getSetChargePowerLimitChannel().value();
 	}
 
 	/**
-	 * Is true if the EVCS is in a EVCS-Cluster.
-	 * 
-	 * @return the BooleanReadChannel
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT} Channel.
+	 *
+	 * @param value the next value
 	 */
-	public default BooleanReadChannel isClustered() {
+	public default void _setSetChargePowerLimit(Integer value) {
+		this.getSetChargePowerLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetChargePowerLimit(int value) {
+		this.getSetChargePowerLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the charge power limit of the EVCS in [W]. See
+	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setChargePowerLimit(Integer value) throws OpenemsNamedException {
+		this.getSetChargePowerLimitChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#IS_CLUSTERED}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanReadChannel getIsClusteredChannel() {
 		return this.channel(ChannelId.IS_CLUSTERED);
 	}
 
 	/**
-	 * Sets a Text that is shown on the display of the EVCS.
-	 * 
-	 * @return the StringWriteChannel
+	 * Gets the Is true if the EVCS is in a EVCS-Cluster. See
+	 * {@link ChannelId#IS_CLUSTERED}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default StringWriteChannel setDisplayText() {
+	public default Value<Boolean> getIsClustered() {
+		return this.getIsClusteredChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#IS_CLUSTERED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setIsClustered(boolean value) {
+		this.getIsClusteredChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_DISPLAY_TEXT}.
+	 *
+	 * @return the Channel
+	 */
+	public default StringWriteChannel getSetDisplayTextChannel() {
 		return this.channel(ChannelId.SET_DISPLAY_TEXT);
 	}
 
 	/**
-	 * Sets the energy limit for the current or next session in [Wh].
-	 * 
-	 * @return the IntegerWriteChannel
+	 * Gets the Text that is shown on the display of the EVCS. See
+	 * {@link ChannelId#SET_DISPLAY_TEXT}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerWriteChannel setEnergyLimit() {
+	public default Value<String> getSetDisplayText() {
+		return this.getSetDisplayTextChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SET_DISPLAY_TEXT}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetDisplayText(String value) {
+		this.getSetDisplayTextChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets a Text that is shown on the display of the EVCS. See
+	 * {@link ChannelId#SET_DISPLAY_TEXT}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setDisplayText(String value) throws OpenemsNamedException {
+		this.getSetDisplayTextChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_CHARGE_POWER_REQUEST}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetChargePowerRequestChannel() {
+		return this.channel(ChannelId.SET_CHARGE_POWER_REQUEST);
+	}
+
+	/**
+	 * Gets the request for a charge power in [W]. The limit is not directly
+	 * activated by this call.. See {@link ChannelId#SET_CHARGE_POWER_REQUEST}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSetChargePowerRequest() {
+		return this.getSetChargePowerRequestChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_REQUEST} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetChargePowerRequest(Integer value) {
+		this.getSetChargePowerRequestChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SET_CHARGE_POWER_REQUEST} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetChargePowerRequest(int value) {
+		this.getSetChargePowerRequestChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the request for a charge power in [W]. The limit is not directly
+	 * activated by this call. See {@link ChannelId#SET_CHARGE_POWER_REQUEST}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setChargePowerRequest(Integer value) throws OpenemsNamedException {
+		this.getSetChargePowerRequestChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ENERGY_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetEnergyLimitChannel() {
 		return this.channel(ChannelId.SET_ENERGY_LIMIT);
+	}
+
+	/**
+	 * Gets the energy limit for the current or next session in [Wh].. See
+	 * {@link ChannelId#SET_ENERGY_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSetEnergyLimit() {
+		return this.getSetEnergyLimitChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SET_ENERGY_LIMIT}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetEnergyLimit(Integer value) {
+		this.getSetEnergyLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SET_ENERGY_LIMIT}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSetEnergyLimit(int value) {
+		this.getSetEnergyLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the energy limit for the current or next session in [Wh]. See
+	 * {@link ChannelId#SET_ENERGY_LIMIT}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setEnergyLimit(Integer value) throws OpenemsNamedException {
+		this.getSetEnergyLimitChannel().setNextWriteValue(value);
 	}
 
 	/**

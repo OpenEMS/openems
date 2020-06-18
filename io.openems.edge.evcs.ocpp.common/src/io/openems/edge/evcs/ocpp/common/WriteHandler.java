@@ -27,7 +27,7 @@ public class WriteHandler implements Runnable {
 
 	// Default value for the hardware limit
 	private static final Integer DEFAULT_HARDWARE_LIMIT = 22080;
-	
+
 	// Minimal pause between two consecutive writes if the limit has not changed
 	private static final int WRITE_INTERVAL_SECONDS = 1800;
 
@@ -89,7 +89,7 @@ public class WriteHandler implements Runnable {
 		WriteChannel<Integer> energyLimitChannel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
 		int energyLimit = energyLimitChannel.getNextValue().orElse(0);
 
-		if (energyLimit == 0 || energyLimit > this.parent.getEnergySession().getNextValue().orElse(0)) {
+		if (energyLimit == 0 || energyLimit > this.parent.getEnergySession().orElse(0)) {
 			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
 			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 
@@ -97,7 +97,7 @@ public class WriteHandler implements Runnable {
 
 			if (valueOpt.isPresent()) {
 
-				int maxPower = this.parent.getMaximumHardwarePower().getNextValue().orElse(DEFAULT_HARDWARE_LIMIT);
+				int maxPower = this.parent.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
 				Integer power = valueOpt.get();
 
 				Integer target = power > maxPower ? maxPower : power;
@@ -132,7 +132,7 @@ public class WriteHandler implements Runnable {
 			}
 		} else {
 			this.parent.logInfo(this.log, "Maximum energy limit reached");
-			this.parent.getStatus().setNextValue(Status.ENERGY_LIMIT_REACHED);
+			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
 		}
 	}
 

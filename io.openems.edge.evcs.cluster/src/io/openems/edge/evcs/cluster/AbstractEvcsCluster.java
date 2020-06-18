@@ -66,20 +66,20 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		final CalculateIntegerSum minPower = new CalculateIntegerSum();
 
 		for (Evcs evcs : this.getSortedEvcss()) {
-			chargePower.addValue(evcs.getChargePower());
-			minHardwarePower.addValue(evcs.getMinimumHardwarePower());
-			maxHardwarePowerOfAll.addValue(evcs.getMaximumHardwarePower());
-			minPower.addValue(evcs.getMinimumPower());
+			chargePower.addValue(evcs.getChargePowerChannel());
+			minHardwarePower.addValue(evcs.getMinimumHardwarePowerChannel());
+			maxHardwarePowerOfAll.addValue(evcs.getMaximumHardwarePowerChannel());
+			minPower.addValue(evcs.getMinimumPowerChannel());
 		}
 
-		this.getChargePower().setNextValue(chargePower.calculate());
-		this.getMinimumHardwarePower().setNextValue(minHardwarePower.calculate());
+		this._setChargePower(chargePower.calculate());
+		this._setMinimumHardwarePower(minHardwarePower.calculate());
 		Integer maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
 		if (maximalUsedHardwarePower == null) {
 			maximalUsedHardwarePower = this.getMaximumPowerToDistribute();
 		}
-		this.getMaximumHardwarePower().setNextValue(maximalUsedHardwarePower);
-		this.getMinimumPower().setNextValue(minPower.calculate());
+		this._setMaximumHardwarePower(maximalUsedHardwarePower);
+		this._setMinimumPower(minPower.calculate());
 	}
 
 	/**
@@ -95,9 +95,9 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			 * If a maximum power is present, e.g. from another cluster, then the limit will
 			 * be that value or lower.
 			 */
-			if (this.getMaximumPower().getNextValue().isDefined()) {
-				if (totalPowerLimit > this.getMaximumPower().getNextValue().get()) {
-					totalPowerLimit = this.getMaximumPower().getNextValue().get();
+			if (this.getMaximumPower().isDefined()) {
+				if (totalPowerLimit > this.getMaximumPower().get()) {
+					totalPowerLimit = this.getMaximumPower().get();
 				}
 			}
 
@@ -113,12 +113,12 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			for (Evcs evcs : this.getSortedEvcss()) {
 				if (evcs instanceof ManagedEvcs) {
 					ManagedEvcs managedEvcs = (ManagedEvcs) evcs;
-					int requestedPower = managedEvcs.setChargePowerRequest().getNextWriteValue().orElse(0);
-					Status status = evcs.getStatus().value().asEnum();
+					int requestedPower = managedEvcs.getSetChargePowerRequestChannel().getNextWriteValue().orElse(0);
+					Status status = evcs.getStatus();
 					switch (status) {
 					case CHARGING_FINISHED:
 						if (requestedPower > 0) {
-							managedEvcs.setChargePowerLimit().setNextWriteValue(requestedPower);
+							managedEvcs.setChargePowerLimit(requestedPower);
 						}
 						break;
 					case ERROR:
@@ -140,13 +140,13 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 						 * Sets the minimum power depending on the guaranteed and the maximum Power.
 						 */
 						if (requestedPower > 0) {
-							int evcsMaxPower = evcs.getMaximumPower().value()
-									.orElse(evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT));
+							int evcsMaxPower = evcs.getMaximumPower()
+									.orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
 							int minGurarantee = this.getMinimumChargePowerGuarantee();
 							int guarantee = evcsMaxPower > minGurarantee ? minGurarantee : evcsMaxPower;
 
 							totalPowerLeftMinusGuarantee -= guarantee;
-							evcs.getMinimumPower().setNextValue(guarantee);
+							evcs._setMinimumPower(guarantee);
 						}
 					}
 				}
@@ -157,13 +157,13 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			 */
 			for (ManagedEvcs evcs : activeEvcss) {
 
-				int guaranteedPower = evcs.getMinimumPower().getNextValue().orElse(0);
+				int guaranteedPower = evcs.getMinimumPower().orElse(0);
 
 				// Power left for the this EVCS including its guaranteed power
 				final int powerLeft = totalPowerLeftMinusGuarantee + guaranteedPower;
 
 				int nextChargePower;
-				Optional<Integer> requestedPower = evcs.setChargePowerRequest().getNextWriteValue();
+				Optional<Integer> requestedPower = evcs.getSetChargePowerRequestChannel().getNextWriteValue();
 
 				// Power requested by the controller
 				if (requestedPower.isPresent()) {
@@ -171,22 +171,22 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 							"Requested power ( for " + evcs.alias() + "): " + requestedPower.get());
 					nextChargePower = requestedPower.get();
 				} else {
-					nextChargePower = evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT);
+					nextChargePower = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
 				}
 
 				// It should not be charged more than possible for the current EV
-				int maxPower = evcs.getMaximumPower().value()
-						.orElse(evcs.getMaximumHardwarePower().value().orElse(DEFAULT_HARDWARE_LIMIT));
+				int maxPower = evcs.getMaximumPower()
+						.orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
 				nextChargePower = nextChargePower > maxPower ? maxPower : nextChargePower;
 
 				// Checks if there is enough power left and sets the charge power
 				if (nextChargePower < powerLeft) {
-					evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
+					evcs.setChargePowerLimit(nextChargePower);
 					totalPowerLeftMinusGuarantee = totalPowerLeftMinusGuarantee - (nextChargePower - guaranteedPower);
 					this.logInfoInDebugmode(this.log,
 							"Charge power: " + nextChargePower + "; Power left: " + totalPowerLeftMinusGuarantee);
 				} else {
-					evcs.setChargePowerLimit().setNextWriteValue(powerLeft);
+					evcs.setChargePowerLimit(powerLeft);
 					totalPowerLeftMinusGuarantee = 0;
 					this.logInfoInDebugmode(this.log,
 							"Power Left: " + totalPowerLeftMinusGuarantee + " ; Charge power: " + powerLeft);

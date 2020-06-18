@@ -5,6 +5,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
@@ -45,15 +46,39 @@ public interface SocEvcs extends Evcs {
 	}
 
 	/**
-	 * Current SoC.
-	 * 
-	 * <p>
-	 * The current state of charge of the car
-	 * 
-	 * @return the IntegerReadChannel
+	 * Gets the Channel for {@link ChannelId#SOC}.
+	 *
+	 * @return the Channel
 	 */
-	public default IntegerReadChannel getSoc() {
+	public default IntegerReadChannel getSocChannel() {
 		return this.channel(ChannelId.SOC);
+	}
+
+	/**
+	 * Gets the current state of charge of the car [%].. See {@link ChannelId#SOC}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSoc() {
+		return this.getSocChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSoc(Integer value) {
+		this.getSocChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSoc(int value) {
+		this.getSocChannel().setNextValue(value);
 	}
 
 	/**

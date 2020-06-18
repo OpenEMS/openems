@@ -160,8 +160,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|"
-				+ this.getStatus().value().asEnum().getName();
+		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|" + this.getStatus().getName();
 	}
 
 	/**

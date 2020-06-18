@@ -97,7 +97,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	protected void deactivate() {
 		for (Evcs evcs : this.sortedEvcss) {
 			this.resetClusteredState(evcs);
-			evcs.getMaximumPower().setNextValue(null);
+			evcs._setMaximumPower(null);
 		}
 		super.deactivate();
 	}
@@ -124,10 +124,10 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	 */
 	private void resetClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
-			((ManagedEvcs) evcs).isClustered().setNextValue(false);
-			((ManagedEvcs) evcs).setChargePowerRequest().setNextValue(null);
+			((ManagedEvcs) evcs)._setIsClustered(false);
+			((ManagedEvcs) evcs)._setSetChargePowerRequest(null);
 		}
-		evcs.getMaximumPower().setNextValue(null);
+		evcs._setMaximumPower(null);
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	 */
 	private void setClusteredState(Evcs evcs) {
 		if (evcs instanceof ManagedEvcs) {
-			((ManagedEvcs) evcs).isClustered().setNextValue(true);
+			((ManagedEvcs) evcs)._setIsClustered(true);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
 		int essDischarge = this.sum.getEssActivePower().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
-		int evcsCharge = this.getChargePower().getNextValue().orElse(0);
+		int evcsCharge = this.getChargePower().orElse(0);
 
 		excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 

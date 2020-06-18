@@ -87,7 +87,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.getChargingType().setNextValue(ChargingType.AC);
+		this._setChargingType(ChargingType.AC);
 	}
 
 	@Override
@@ -154,12 +154,11 @@ public class Abl extends AbstractOcppEvcsComponent
 
 				DataTransferRequest request = new DataTransferRequest("ABL");
 
-				int phases = evcs.getPhases().getNextValue().orElse(3);
+				int phases = evcs.getPhases().orElse(3);
 
 				long target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
 
-				int maxCurrent = evcs.getMaximumHardwarePower().getNextValue().orElse(DEFAULT_HARDWARE_LIMIT) / phases
-						/ 230;
+				int maxCurrent = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
 				target = target > maxCurrent ? maxCurrent : target;
 
 				request.setMessageId("SetLimit");
@@ -191,7 +190,7 @@ public class Abl extends AbstractOcppEvcsComponent
 		TriggerMessageRequest requestMeterValues = new TriggerMessageRequest(TriggerMessageRequestType.MeterValues);
 		requestMeterValues.setConnectorId(this.getConfiguredConnectorId());
 		requests.add(requestMeterValues);
-		
+
 		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requestStatus.setConnectorId(this.getConfiguredConnectorId());
 		requests.add(requestStatus);

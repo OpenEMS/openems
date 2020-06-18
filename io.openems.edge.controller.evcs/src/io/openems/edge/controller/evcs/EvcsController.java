@@ -134,7 +134,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
 		}
-		this.evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().orElse(22800));
+		this.evcs._setMaximumPower(evcs.getMaximumHardwarePower().orElse(22800));
 	}
 
 	@Override
@@ -150,28 +150,28 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Override
 	public void run() throws OpenemsNamedException {
 		SymmetricEss ess = this.componentManager.getComponent(config.ess_id());
-		int maxHW = evcs.getMaximumHardwarePower().getNextValue().orElse(22800);
+		int maxHW = evcs.getMaximumHardwarePower().orElse(22800);
 		if (maxHW != 0) {
 			maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
 			if (config.defaultChargeMinPower() > maxHW) {
 				configUpdate("defaultChargeMinPower", maxHW);
 			}
-			if (config.forceChargeMinPower() * evcs.getPhases().getNextValue().orElse(3) > maxHW) {
+			if (config.forceChargeMinPower() * evcs.getPhases().orElse(3) > maxHW) {
 				configUpdate("forceChargeMinPower", maxHW / 3);
 			}
 		}
 
-		evcs.setEnergyLimit().setNextWriteValue(config.energySessionLimit());
+		evcs.setEnergyLimit(config.energySessionLimit());
 
 		/*
 		 * Sets a fixed request of 0 if the Charger is not ready
 		 */
-		boolean isClustered = evcs.isClustered().getNextValue().orElse(false);
+		boolean isClustered = evcs.getIsClustered().orElse(false);
 		if (isClustered) {
 
-			Status status = evcs.getStatus().getNextValue().asEnum();
+			Status status = evcs.getStatus();
 			if (status == null) {
-				evcs.getStatus().setNextValue(Status.NOT_READY_FOR_CHARGING);
+				evcs._setStatus(Status.NOT_READY_FOR_CHARGING);
 				status = Status.NOT_READY_FOR_CHARGING;
 			}
 			switch (status) {
@@ -180,14 +180,14 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case UNDEFINED:
 			case NOT_READY_FOR_CHARGING:
 			case ENERGY_LIMIT_REACHED:
-				evcs.setChargePowerRequest().setNextWriteValue(0);
-				evcs.getMinimumPower().setNextValue(0);
-				evcs.getMaximumPower().setNextValue(null);
+				evcs.setChargePowerRequest(0);
+				evcs._setMinimumPower(0);
+				evcs._setMaximumPower(null);
 				return;
 			case CHARGING_REJECTED:
 			case READY_FOR_CHARGING:
 			case CHARGING_FINISHED:
-				evcs.getMaximumPower().setNextValue(null);
+				evcs._setMaximumPower(null);
 			case CHARGING:
 				break;
 			}
@@ -197,7 +197,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 * Stop early if charging is disabled
 		 */
 		if (!config.enabledCharging()) {
-			evcs.setChargePowerLimit().setNextWriteValue(0);
+			evcs.setChargePowerLimit(0);
 			return;
 		}
 
@@ -227,13 +227,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				break;
 			}
 
-			evcs.getMinimumPower().setNextValue(config.defaultChargeMinPower());
+			evcs._setMinimumPower(config.defaultChargeMinPower());
 			nextMinPower = config.defaultChargeMinPower();
 			break;
 
 		case FORCE_CHARGE:
-			evcs.getMinimumPower().setNextValue(0);
-			nextChargePower = config.forceChargeMinPower() * evcs.getPhases().getNextValue().orElse(3);
+			evcs._setMinimumPower(0);
+			nextChargePower = config.forceChargeMinPower() * evcs.getPhases().orElse(3);
 			break;
 		}
 
@@ -245,33 +245,32 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 * Distribute next charge power on EVCS.
 		 */
 		if (isClustered) {
-			// int chargePower = evcs.getChargePower().value().orElse(0);
 			if (nextChargePower != 0) {
 
-				int chargePower = evcs.getChargePower().value().orElse(0);
+				int chargePower = evcs.getChargePower().orElse(0);
 
 				// Check difference of the current charging and the previous charging target
 				if (this.chargingLowerThanTargetHandler.isLower(evcs)) {
-					if (chargePower <= evcs.getMinimumHardwarePower().getNextValue().orElse(1380)) {
+					if (chargePower <= evcs.getMinimumHardwarePower().orElse(1380)) {
 						nextChargePower = 0;
 					} else {
 						nextChargePower = (chargePower + CHARGE_POWER_BUFFER);
-						evcs.getMaximumPower().setNextValue(nextChargePower);
+						evcs._setMaximumPower(nextChargePower);
 
 						this.logDebug(this.log, "Set a lower charging target of " + nextChargePower + " W");
 					}
 				} else {
-					int currMax = evcs.getMaximumPower().value().orElse(0);
+					int currMax = evcs.getMaximumPower().orElse(0);
 
 					if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
-						evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().getOrError());
+						evcs._setMaximumPower(evcs.getMaximumHardwarePower().getOrError());
 					}
 				}
 			}
 
-			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
+			evcs.setChargePowerRequest(nextChargePower);
 		} else {
-			evcs.setChargePowerLimit().setNextWriteValue(nextChargePower);
+			evcs.setChargePowerLimit(nextChargePower);
 		}
 		this.logDebug(this.log, "Next charge power: " + nextChargePower + " W");
 	}
@@ -290,7 +289,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
 		int essDischarge = this.sum.getEssActivePower().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
-		int evcsCharge = evcs.getChargePower().value().orElse(0);
+		int evcsCharge = evcs.getChargePower().orElse(0);
 
 		int excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 
@@ -323,7 +322,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
 		int essActivePower = this.sum.getEssActivePower().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
-		int evcsCharge = evcs.getChargePower().value().orElse(0);
+		int evcsCharge = evcs.getChargePower().orElse(0);
 		int result = -buyFromGrid + evcsCharge - (maxEssCharge + (essActivePower - essActivePowerDC));
 		result = result > 0 ? result : 0;
 
@@ -358,7 +357,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			this.logError(log, "ERROR: " + e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
