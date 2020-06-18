@@ -41,7 +41,7 @@ export class ComponentUpdateComponent implements OnInit {
       this.componentId = componentId;
       let component = config.components[componentId];
       this.factory = config.factories[component.factoryId];
-      this.componentIcon = config.getComponentsIconByFactory(this.factory);
+      this.componentIcon = config.getFactoryIcon(this.factory);
       let fields: FormlyFieldConfig[] = [];
       let model = {};
       for (let property of this.factory.properties) {
