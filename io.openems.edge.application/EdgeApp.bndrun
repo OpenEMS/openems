@@ -90,6 +90,10 @@
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
+	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
+	bnd.identity;id='io.openems.edge.evcs.ocpp.common',\
+	bnd.identity;id='io.openems.edge.evcs.ocpp.ies.keywatt.singleccs',\
+	bnd.identity;id='io.openems.edge.evcs.ocpp.server',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
@@ -115,6 +119,7 @@
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
+	bnd.identity;id='io.openems.edge.pvinverter.sma',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
@@ -204,6 +209,10 @@
 	io.openems.edge.evcs.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.evcs.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.evcs.keba.kecontact;version='[1.0.0,1.0.1)',\
+	io.openems.edge.evcs.ocpp.abl;version='[1.0.0,1.0.1)',\
+	io.openems.edge.evcs.ocpp.common;version='[1.0.0,1.0.1)',\
+	io.openems.edge.evcs.ocpp.ies.keywatt.singleccs;version='[1.0.0,1.0.1)',\
+	io.openems.edge.evcs.ocpp.server;version='[1.0.0,1.0.1)',\
 	io.openems.edge.fenecon.dess;version='[1.0.0,1.0.1)',\
 	io.openems.edge.fenecon.mini;version='[1.0.0,1.0.1)',\
 	io.openems.edge.fenecon.pro;version='[1.0.0,1.0.1)',\
@@ -232,6 +241,7 @@
 	io.openems.edge.pvinverter.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.cluster;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version='[1.0.0,1.0.1)',\
+	io.openems.edge.pvinverter.sma;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.solarlog;version='[1.0.0,1.0.1)',\
 	io.openems.edge.pvinverter.sunspec;version='[1.0.0,1.0.1)',\
 	io.openems.edge.scheduler.allalphabetically;version='[1.0.0,1.0.1)',\
@@ -246,6 +256,7 @@
 	io.openems.edge.timedata.influxdb;version='[1.0.0,1.0.1)',\
 	io.openems.edge.timedata.rrd4j;version='[1.0.0,1.0.1)',\
 	io.openems.shared.influxdb;version='[1.0.0,1.0.1)',\
+	io.openems.wrapper.eu.chargetime.ocpp;version='[1.0.0,1.0.1)',\
 	io.openems.wrapper.fastexcel;version='[0.10.15,0.10.16)',\
 	io.openems.wrapper.influxdb-java;version='[2.17.0,2.17.1)',\
 	io.openems.wrapper.opczip;version='[1.2.0,1.2.1)',\

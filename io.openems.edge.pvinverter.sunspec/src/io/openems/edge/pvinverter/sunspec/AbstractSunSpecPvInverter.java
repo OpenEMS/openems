@@ -36,6 +36,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
+		this._setActiveConsumptionEnergy(0);
 	}
 
 	/**
