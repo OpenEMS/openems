@@ -224,6 +224,7 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 							channelDef.minValue, channelDef.maxValue));
 			// detailed recordings
 			rrdDef.addArchive(channelDef.consolFun, 0.5, 1, 1_440); // 1 step (1 minute), 1440 rows (1 day)
+			rrdDef.addArchive(channelDef.consolFun, 0.5, 15, 360); // 15 steps (15 minutes), 360 rows (1 day)
 			rrdDef.addArchive(channelDef.consolFun, 0.5, 5, 2_880); // 5 steps (5 minutes), 2880 rows (10 days)
 			// hourly values for a very long time
 			rrdDef.addArchive(channelDef.consolFun, 0.5, 60, 87_600); // 60 steps (1 hour), 87600 rows (10 years)
