@@ -125,7 +125,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 		boolean defaultConfigurationFailed = this.createDefaultConfigurations(existingConfigs);
 
 		// Set DefaultConfigurationFailed channel value
-		this.parent.defaultConfigurationFailed().setNextValue(defaultConfigurationFailed);
+		this.parent._setDefaultConfigurationFailed(defaultConfigurationFailed);
 
 		// Execute this worker only once
 		this.deactivate();

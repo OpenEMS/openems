@@ -45,7 +45,7 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.moshi</groupId>
 			<artifactId>moshi</artifactId>
-			<version>1.9.2</version>
+			<version>1.9.3</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.influxdb: influxdb-java -->
@@ -69,7 +69,7 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>converter-moshi</artifactId>
-			<version>2.8.2</version>
+			<version>2.9.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.influxdb: influxdb-java -->
@@ -180,7 +180,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
-			<version>3.15.200</version>
+			<version>3.15.300</version>
 		</dependency>
 		<dependency>
 			<groupId>org.influxdb</groupId>
@@ -200,7 +200,7 @@
 		<dependency>
 			<groupId>org.openmuc</groupId>
 			<artifactId>jmbus</artifactId>
-			<version>3.2.1</version>
+			<version>3.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
@@ -231,7 +231,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.12</version>
+			<version>42.2.14</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->

@@ -2,11 +2,13 @@ package io.openems.edge.pvinverter.api;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -24,7 +26,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 		 * <ul>
 		 * <li>Interface: SymmetricPvInverter
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: VA
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
@@ -70,20 +72,100 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 	}
 
 	/**
-	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0".
-	 * 
+	 * Gets the Channel for {@link ChannelId#MAX_APPARENT_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getMaxApparentPower() {
+	public default IntegerReadChannel getMaxApparentPowerChannel() {
 		return this.channel(ChannelId.MAX_APPARENT_POWER);
 	}
 
 	/**
-	 * Gets the Active Power Limit in [W].
-	 * 
+	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0". See
+	 * {@link ChannelId#MAX_APPARENT_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxApparentPower() {
+		return this.getMaxApparentPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxApparentPower(Integer value) {
+		this.getMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxApparentPower(int value) {
+		this.getMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_LIMIT}.
+	 *
 	 * @return the Channel
 	 */
-	default IntegerWriteChannel getActivePowerLimit() {
+	public default IntegerWriteChannel getActivePowerLimitChannel() {
 		return this.channel(ChannelId.ACTIVE_POWER_LIMIT);
 	}
+
+	/**
+	 * Gets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePowerLimit() {
+		return this.getActivePowerLimitChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_POWER_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerLimit(Integer value) {
+		this.getActivePowerLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_POWER_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePowerLimit(int value) {
+		this.getActivePowerLimitChannel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
+	 * 
+	 * @return the Channel
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerLimit(Integer value) throws OpenemsNamedException {
+		this.getActivePowerLimitChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
+	 * 
+	 * @return the Channel
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerLimit(int value) throws OpenemsNamedException {
+		this.getActivePowerLimitChannel().setNextWriteValue(value);
+	}
+
 }

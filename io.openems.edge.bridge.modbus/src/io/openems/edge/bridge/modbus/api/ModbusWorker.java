@@ -25,8 +25,6 @@ import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.common.channel.LongReadChannel;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.taskmanager.MetaTasksManager;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -104,16 +102,14 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		long noOfRequiredCycles = ceilDiv(totalDurationWithBuffer, cycleTime);
 
 		// Set EXECUTION_DURATION channel
-		LongReadChannel executionDurationChannel = this.parent.channel(BridgeModbus.ChannelId.EXECUTION_DURATION);
-		executionDurationChannel.setNextValue(totalDuration);
+		this.parent._setExecutionDuration(totalDuration);
 
 		// Set CYCLE_TIME_IS_TOO_SHORT state-channel if more than one cycle is required;
 		// but only if SlaveCommunicationFailed-Channel is not set
-		StateChannel cycleTimeIsTooShortChannel = this.parent.channel(BridgeModbus.ChannelId.CYCLE_TIME_IS_TOO_SHORT);
-		if (noOfRequiredCycles > 1 && !this.parent.getSlaveCommunicationFailedChannel().value().orElse(false)) {
-			cycleTimeIsTooShortChannel.setNextValue(true);
+		if (noOfRequiredCycles > 1 && !this.parent.getSlaveCommunicationFailed().orElse(false)) {
+			this.parent._setCycleTimeIsTooShort(true);
 		} else {
-			cycleTimeIsTooShortChannel.setNextValue(false);
+			this.parent._setCycleTimeIsTooShort(false);
 		}
 
 		long durationOfTasksBeforeExecuteWriteEvent = 0;
@@ -182,7 +178,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 					this.defectiveComponents.remove(task.getParent().id());
 				}
 
-				this.parent.getSlaveCommunicationFailedChannel().setNextValue(false);
+				this.parent._setSlaveCommunicationFailed(false);
 			}
 
 		} catch (OpenemsException e) {
@@ -194,7 +190,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 			}
 
 			// set the CommunicationFailedChannel to true
-			this.parent.getSlaveCommunicationFailedChannel().setNextValue(true);
+			this.parent._setSlaveCommunicationFailed(true);
 
 			// invalidate elements of this task
 			for (ModbusElement<?> element : task.getElements()) {
