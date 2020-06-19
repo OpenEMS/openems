@@ -189,14 +189,14 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 		SymmetricMeter pvInverter = this.componentManager.getComponent(this.config.pvInverter());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter());
 
-		ChannelAddress e_intAddress = pvInverter.getActiveProductionEnergy().address();
-		ChannelAddress p_dcAddress = pvInverter.getActivePower().address();
+		ChannelAddress e_intAddress = pvInverter.getActiveProductionEnergyChannel().address();
+		ChannelAddress p_dcAddress = pvInverter.getActivePowerChannel().address();
 		ChannelAddress u_dcAddress = pvInverter.getVoltageChannel().address();
-		ChannelAddress p_acAddress = meter.getActivePower().address();
-		ChannelAddress f_acAddress = meter.getFrequency().address();
-		ChannelAddress q_acAddress = meter.getReactivePower().address();
-		ChannelAddress b_charge_levelAddress = ess.getSoc().address();
-		ChannelAddress b_p_dcAddress = ess.getActivePower().address();
+		ChannelAddress p_acAddress = meter.getActivePowerChannel().address();
+		ChannelAddress f_acAddress = meter.getFrequencyChannel().address();
+		ChannelAddress q_acAddress = meter.getReactivePowerChannel().address();
+		ChannelAddress b_charge_levelAddress = ess.getSocChannel().address();
+		ChannelAddress b_p_dcAddress = ess.getActivePowerChannel().address();
 
 		Set<ChannelAddress> eChannels = new HashSet<>();
 
