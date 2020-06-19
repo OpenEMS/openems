@@ -8,6 +8,9 @@ import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
@@ -78,32 +81,118 @@ public interface EssDcCharger extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Actual Power.
-	 * 
-	 * @see EssDcCharger.ChannelId#ACTUAL_POWER
-	 * 
+	 * Gets the Channel for {@link ChannelId#MAX_ACTUAL_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getActualPower() {
-		return this.channel(ChannelId.ACTUAL_POWER);
-	}
-
-	/**
-	 * Gets the Maximum Ever Actual Power.
-	 * 
-	 * @return the Channel
-	 */
-	default Channel<Integer> getMaxActualPower() {
+	public default IntegerReadChannel getMaxActualPowerChannel() {
 		return this.channel(ChannelId.MAX_ACTUAL_POWER);
 	}
 
 	/**
-	 * Gets the Actual Energy in [Wh].
-	 * 
+	 * Gets the Maximum Ever Actual Power in [W]. See
+	 * {@link ChannelId#MAX_ACTUAL_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxActualPower() {
+		return this.getMaxActualPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTUAL_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxActualPower(Integer value) {
+		this.getMaxActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTUAL_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxActualPower(int value) {
+		this.getMaxActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTUAL_POWER}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Long> getActualEnergy() {
+	public default IntegerReadChannel getActualPowerChannel() {
+		return this.channel(ChannelId.ACTUAL_POWER);
+	}
+
+	/**
+	 * Gets the Actual Power in [W]. See {@link ChannelId#ACTUAL_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActualPower() {
+		return this.getActualPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTUAL_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActualPower(Integer value) {
+		this.getActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTUAL_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActualPower(int value) {
+		this.getActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTUAL_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActualEnergyChannel() {
 		return this.channel(ChannelId.ACTUAL_ENERGY);
+	}
+
+	/**
+	 * Gets the Actual Energy in [Wh]. See {@link ChannelId#ACTUAL_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActualEnergy() {
+		return this.getActualEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTUAL_ENERGY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActualEnergy(Long value) {
+		this.getActualEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTUAL_ENERGY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActualEnergy(long value) {
+		this.getActualEnergyChannel().setNextValue(value);
 	}
 
 }

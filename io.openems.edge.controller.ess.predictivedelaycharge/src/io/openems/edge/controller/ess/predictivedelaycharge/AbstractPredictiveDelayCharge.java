@@ -152,10 +152,10 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 		}
 
 		// battery capacity in wh
-		int capacity = ess.getCapacity().value().getOrError();
+		int capacity = ess.getCapacity().getOrError();
 
 		// Remaining capacity of the battery in Ws till target point.
-		int remainingCapacity = capacity * (100 - ess.getSoc().value().getOrError()) * 36;
+		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
 
 		// No remaining capacity -> no restrictions
 		if (remainingCapacity < 0) {
@@ -171,7 +171,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 		// reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
-		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().value().orElse(0));
+		calculatedPower = Math.min(calculatedPower, ess.getMaxApparentPower().orElse(0));
 
 		this.setChannels(State.ACTIVE_LIMIT, calculatedPower);
 

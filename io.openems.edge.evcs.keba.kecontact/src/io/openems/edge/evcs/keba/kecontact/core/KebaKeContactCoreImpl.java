@@ -19,7 +19,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.evcs.keba.kecontact.KebaKeContact;
 
-@Component( //
+@Component(//
 		name = "Evcs.Keba.KeContact.Core", //
 		immediate = false)
 public class KebaKeContactCoreImpl implements KebaKeContactCore {
@@ -58,7 +58,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 						+ "] to receive UDP messages from KEBA KeContact. " + e.getMessage());
 			}
 		}
- 
+
 		@Override
 		public void activate(String name) {
 			super.activate(name);
@@ -77,7 +77,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 			// Wait for message
 			DatagramPacket packet = new DatagramPacket(new byte[512], 512);
 			try {
- 				socket.receive(packet);
+				socket.receive(packet);
 			} catch (IOException e) {
 				log.error("Error while receiving data from KEBA KeContact: " + e.getMessage());
 			}
@@ -87,7 +87,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 			int len = packet.getLength();
 			byte[] data = packet.getData();
 			String message = new String(data, 0, len);
-			
+
 			// call callbacks
 			onReceiveCallbacks.forEach(consumer -> consumer.accept(ip, message));
 		}

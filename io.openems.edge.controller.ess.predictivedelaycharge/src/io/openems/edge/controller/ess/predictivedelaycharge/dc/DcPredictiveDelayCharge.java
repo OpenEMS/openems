@@ -74,7 +74,7 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 			int productionPower = 0;
 			for (String chargerId : this.config.charger_ids()) {
 				EssDcCharger charger = this.componentManager.getComponent(chargerId);
-				productionPower += charger.getActualPower().value().orElse(0);
+				productionPower += charger.getActualPower().orElse(0);
 			}
 			calculatedPower = productionPower - calculatedPower;
 

@@ -23,7 +23,9 @@ import io.openems.common.session.User;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -88,6 +90,34 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#UNABLE_TO_START}.
+	 *
+	 * @return the Channel
+	 */
+	public StateChannel getUnableToStartChannel() {
+		return this.channel(ChannelId.UNABLE_TO_START);
+	}
+
+	/**
+	 * Gets the Unable to Start Fault State. See {@link ChannelId#UNABLE_TO_START}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public Value<Boolean> getUnableToStart() {
+		return this.getUnableToStartChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#UNABLE_TO_START}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public void _setUnableToStart(boolean value) {
+		this.getUnableToStartChannel().setNextValue(value);
 	}
 
 	private volatile Map<String, ModbusSlave> _components = new HashMap<>();
@@ -159,12 +189,12 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 					AbstractModbusTcpApi.this.logInfo(this.log, "Modbus/TCP Api started on port [" + port
 							+ "] with UnitId [" + AbstractModbusTcpApi.UNIT_ID + "].");
-					AbstractModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(false);
+					AbstractModbusTcpApi.this._setUnableToStart(false);
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
 					AbstractModbusTcpApi.this.logError(this.log,
 							"Unable to start Modbus/TCP Api on port [" + port + "]: " + e.getMessage());
-					AbstractModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
+					AbstractModbusTcpApi.this._setUnableToStart(true);
 				}
 
 			} else {
@@ -173,7 +203,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 				if (error != null) {
 					AbstractModbusTcpApi.this.logError(this.log,
 							"Unable to start Modbus/TCP Api on port [" + port + "]: " + error);
-					AbstractModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
+					AbstractModbusTcpApi.this._setUnableToStart(true);
 					this.slave = null;
 					// stop server
 					ModbusSlaveFactory.close();

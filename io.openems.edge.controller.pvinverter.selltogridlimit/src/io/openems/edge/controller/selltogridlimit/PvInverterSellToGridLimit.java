@@ -73,8 +73,8 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 	 */
 	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, SymmetricMeter meter)
 			throws InvalidValueException {
-		return meter.getActivePower().value().getOrError() /* current buy-from/sell-to grid */
-				+ pvInverter.getActivePower().value().getOrError() /* current charge/discharge Ess */
+		return meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
+				+ pvInverter.getActivePower().getOrError() /* current charge/discharge Ess */
 				+ config.maximumSellToGridPower(); /* the configured limit */
 	}
 
@@ -98,6 +98,6 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 		this.lastSetLimit = calculatedPower;
 
 		// set result
-		pvInverter.getActivePowerLimit().setNextWriteValue(calculatedPower);
+		pvInverter.setActivePowerLimit(calculatedPower);
 	}
 }

@@ -124,19 +124,17 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 		// Calculate Capacity
 		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
+		this._setCapacity(capacity);
 
 		// Set Watchdog Timeout
 		IntegerWriteChannel c = this.channel(SoltaroBatteryVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT);
 		c.setNextWriteValue(config.watchdog());
 
 		// Initialize Battery Limits
-		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */);
-		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(0 /* default value 0 to avoid damages */);
-		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
-				.setNextValue(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT / 1000);
-		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
-				.setNextValue(this.config.numberOfSlaves() * Constants.MIN_VOLTAGE_MILLIVOLT / 1000);
+		this._setChargeMaxCurrent(0 /* default value 0 to avoid damages */);
+		this._setDischargeMaxCurrent(0 /* default value 0 to avoid damages */);
+		this._setChargeMaxVoltage(this.config.numberOfSlaves() * Constants.MAX_VOLTAGE_MILLIVOLT / 1000);
+		this._setDischargeMinVoltage(this.config.numberOfSlaves() * Constants.MIN_VOLTAGE_MILLIVOLT / 1000);
 	}
 
 	@Override
@@ -801,16 +799,12 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	 * Updates Channels on BEFORE_PROCESS_IMAGE event.
 	 */
 	private void updateChannels() {
-		this.channel(Battery.ChannelId.SOC).setNextValue(this.calculateRackAverage(RackChannel.SOC));
-		this.channel(Battery.ChannelId.SOH).setNextValue(this.calculateRackAverage(RackChannel.SOH));
-		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE)
-				.setNextValue(this.calculateRackMax(RackChannel.MAX_CELL_VOLTAGE));
-		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE)
-				.setNextValue(this.calculateRackMin(RackChannel.MIN_CELL_VOLTAGE));
-		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE)
-				.setNextValue(this.calculateRackMax(RackChannel.MAX_CELL_TEMPERATURE));
-		this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE)
-				.setNextValue(this.calculateRackMin(RackChannel.MIN_CELL_TEMPERATURE));
+		this._setSoc(this.calculateRackAverage(RackChannel.SOC));
+		this._setSoh(this.calculateRackAverage(RackChannel.SOH));
+		this._setMaxCellVoltage(this.calculateRackMax(RackChannel.MAX_CELL_VOLTAGE));
+		this._setMinCellVoltage(this.calculateRackMin(RackChannel.MIN_CELL_VOLTAGE));
+		this._setMaxCellTemperature(this.calculateRackMax(RackChannel.MAX_CELL_TEMPERATURE));
+		this._setMinCellTemperature(this.calculateRackMin(RackChannel.MIN_CELL_TEMPERATURE));
 	}
 
 	/**

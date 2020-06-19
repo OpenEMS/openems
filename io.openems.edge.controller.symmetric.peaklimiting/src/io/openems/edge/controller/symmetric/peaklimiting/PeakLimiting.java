@@ -119,7 +119,7 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 
 	private boolean simpleMode(SymmetricMeter gridmeter, ManagedSymmetricEss ess) throws OpenemsNamedException {
 
-		int soc = ess.getSoc().value().orElse(0);
+		int soc = ess.getSoc().orElse(0);
 		int maxP = this.config.maxPower();
 		IntegerReadChannel productionChannel = this.componentManager
 				.getChannel(ChannelAddress.fromString("_sum/ProductionActivePower"));
@@ -157,7 +157,7 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 
 		ZonedDateTime t1today = this.t1.plusDays(1);
 		ZonedDateTime t3today = this.t3.plusDays(1);
-		int soc = ess.getSoc().value().getOrError();
+		int soc = ess.getSoc().getOrError();
 
 		Sum sum;
 		try {
@@ -167,8 +167,8 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 			e.printStackTrace();
 			return false;
 		}
-		Integer consumptionNow = sum.getConsumptionActivePower().value().getOrError();
-		Integer productionNow = sum.getProductionActivePower().value().getOrError();
+		Integer consumptionNow = sum.getConsumptionActivePower().getOrError();
+		Integer productionNow = sum.getProductionActivePower().getOrError();
 
 		if (this.now.isBefore(t1today)) {
 			if (soc >= this.config.maxSOC()) {
@@ -203,7 +203,7 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 					return true;
 				}
 
-				int remainCapacity = (ess.getCapacity().value().orElse(0) * (1 - (soc / 100)))
+				int remainCapacity = (ess.getCapacity().orElse(0) * (1 - (soc / 100)))
 						* (this.config.SOCTarget() / 100);
 
 				int deltaT = t3today.getHour() - this.now.getHour();
@@ -255,8 +255,8 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 		int calcP = this.calculateRequiredPower(ess, gridmeter, setPoint);
 		calcP = ess.getPower().fitValueIntoMinMaxPower(this.config.id(), ess, Phase.ALL, Pwr.ACTIVE, calcP);
 		this.logInfo(log, "CalcP: " + calcP);
-		ess.getSetActivePowerEquals().setNextWriteValue(calcP);
-		ess.getSetReactivePowerEquals().setNextWriteValue(0);
+		ess.setActivePowerEquals(calcP);
+		ess.setReactivePowerEquals(0);
 	}
 
 	private boolean setTimeDeltas() {
@@ -371,8 +371,8 @@ public class PeakLimiting extends AbstractOpenemsComponent implements Controller
 	}
 
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter, int setPoint) {
-		return meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */
+		return meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
+				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */
 				- setPoint; /* the configured target setpoint */
 	}
 

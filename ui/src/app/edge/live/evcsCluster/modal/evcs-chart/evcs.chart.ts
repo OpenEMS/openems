@@ -17,6 +17,8 @@ export class EvcsChart implements OnInit, OnChanges {
   @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component };
   @Input() edge: Edge;
   @Input() currentData: CurrentData;
+  @Input() evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+  @Input() componentId: string;
 
   private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
@@ -33,8 +35,8 @@ export class EvcsChart implements OnInit, OnChanges {
 
   ngOnInit() {
     this.options = DEFAULT_BAR_CHART_OPTIONS;
-    this.options.scales.yAxes[0].ticks.max = 44;// Todo: variabel
 
+    this.options.scales.yAxes[0].ticks.max = this.getMaxPower();
     this.labels = ['Ladeleistung'];
     this.datasets = [
       { data: [], label: '' }
@@ -57,7 +59,7 @@ export class EvcsChart implements OnInit, OnChanges {
     for (let evcsId in this.evcsMap) {
       let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
       let chargePowerKW = chargePower / 1000.0
-      let alias = this.edge.currentData.value.channel[evcsId + '/Alias'];
+      let alias = this.evcsConfigMap[evcsId].properties.alias;
       if (this.datasets[index] == null) {
         this.datasets.push({
           label: alias,
@@ -72,6 +74,21 @@ export class EvcsChart implements OnInit, OnChanges {
       index++;
     };
     this.loading = false;
+  }
+
+  getMaxPower() {
+    let maxPower: number;
+    let minPower = 22;
+    let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
+    let chargePower = this.currentData[this.componentId + '/ChargePower'];
+    console.log("Maximale HW: " + maxHW);
+    console.log("Ladeleistung: " + chargePower);
+    maxHW = maxHW == null ? minPower : maxHW / 1000;
+    chargePower = chargePower == null ? 0 : chargePower / 1000;
+    
+    maxPower = chargePower < minPower || maxPower < minPower ? minPower : maxHW;
+    console.log("Chart größe: "+ maxPower);
+    return Math.round(maxPower);
   }
 }
 

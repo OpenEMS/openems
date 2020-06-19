@@ -14,11 +14,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public interface BatteryBoxC130 extends Battery, OpenemsComponent {
 
-	public default boolean hasFaults() {
-		Level level = this.getState().value().asEnum();
-		return level.isAtLeast(Level.FAULT);
-	}
-
 	public default EnumWriteChannel getPreChargeControlChannel() {
 		return this.channel(ChannelId.PRE_CHARGE_CONTROL);
 	}
