@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class MaxApparentPowerHandler {
 
-	private final static int MAX_DELTA = 400; // [W]
+	private final static int MAX_DELTA = 200; // [W]
 	private final static int ADJUST_CYCLES = 10;
 	private int exceededCounter = 0;
 	private int withinCounter = 0;
@@ -61,8 +61,8 @@ public class MaxApparentPowerHandler {
 
 	private void adjustMaxApparentPower(String description, Integer setPower, Integer power, int oldMaxApparentPower,
 			int newMaxApparentPower) {
-		// never below MAX_DELTA
-		newMaxApparentPower = Math.max(newMaxApparentPower, MAX_DELTA);
+		// never below MAX_DELTA * 1.5
+		newMaxApparentPower = Math.max(newMaxApparentPower, Math.round(MAX_DELTA * 1.5f));
 
 		// never above MAX_APPARENT_POWER
 		newMaxApparentPower = Math.min(newMaxApparentPower, FeneconProEss.MAX_APPARENT_POWER);
