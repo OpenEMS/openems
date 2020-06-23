@@ -20,7 +20,6 @@ export class EvcsModalComponent implements OnInit {
 
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;
-  public numberOfPhases: number;
 
   constructor(
     protected service: Service,
@@ -39,8 +38,6 @@ export class EvcsModalComponent implements OnInit {
         this.chargeMode = 'OFF';
       }
     }
-    this.numberOfPhases = this.edge.currentData['_value'].channel[this.componentId + "/Phases"];
-    this.numberOfPhases = this.numberOfPhases == null ? 3 : this.numberOfPhases;
   }
 
   /**
@@ -171,10 +168,10 @@ export class EvcsModalComponent implements OnInit {
    *
    * @param event
    */
-  updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component) {
+  updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
     let oldMinChargePower = currentController.properties.forceChargeMinPower;
     let newMinChargePower = event.detail.value;
-    newMinChargePower /= this.numberOfPhases;
+    newMinChargePower /= numberOfPhases;
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
@@ -315,6 +312,15 @@ export class EvcsModalComponent implements OnInit {
         console.warn(reason);
       });
     }
+  }
+
+  /**
+   * Returns the number of Phases or the default 3.
+   */
+  getNumberOfPhasesOrThree() {
+    let numberOfPhases = this.edge.currentData['_value'].channel[this.componentId + "/Phases"];
+    numberOfPhases = numberOfPhases == null ? 3 : numberOfPhases;
+    return numberOfPhases
   }
 
   /**

@@ -188,7 +188,7 @@
                     </ion-card-content>
                 </ng-container>
                 <ng-container *ngIf="chargeMode == 'FORCE_CHARGE'">
-                    <ion-card-content class="underline">
+                    <ion-card-content *ngIf="getNumberOfPhasesOrThree() as numberOfPhases" class="underline">
                         <!--Force Charge settings-->
                         <table class="full_width">
                             <tr>
@@ -202,7 +202,8 @@
                         </table>
                         <table class="full_width">
                             <tr>
-                                <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller)"
+                                <ion-range style="width: 100%"
+                                    (ionChange)="updateForceMinPower($event, controller, numberOfPhases)"
                                     min="{{ formatNumber(currentData[componentId + '/MinimumHardwarePower']) }}"
                                     max="{{ formatNumber(currentData[componentId + '/MaximumHardwarePower']) }}"
                                     color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="500"
