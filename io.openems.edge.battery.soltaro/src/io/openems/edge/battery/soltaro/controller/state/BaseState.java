@@ -138,7 +138,7 @@ public abstract class BaseState implements IState {
 		}
 
 		Value<Integer> minCellTemperature = bms.getMinCellTemperature();
-		if (minCellTemperature.isDefined()) {
+		if (!minCellTemperature.isDefined()) {
 			return true;
 		}
 
