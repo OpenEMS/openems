@@ -144,7 +144,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	private void setCapacity() {
 		int capacity = this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh();
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
+		this._setCapacity(capacity);
 	}
 
 	private void handleStateMachine() {

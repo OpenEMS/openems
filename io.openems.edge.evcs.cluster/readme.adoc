@@ -1,3 +1,14 @@
 = EVCS Cluster
 
+Distributes the charging power (Depending on the implementation) to the priorized charging stations.
+The implementations calculate the maximum power that can be used by all charging stations.
+
+Possible Cluster implementations:
+
+*Cluster for peak shaving* +
+The peak shaving cluster is calculating the power depending on the grid power that can be used per phase, the maximum allowed storage power and the current values of grid, storage and EVCS consumption.
+
+*Cluster for self consumption* +
+The self consumption cluster is calculating the power depending on the excess power.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.cluster[Source Code icon:github[]]

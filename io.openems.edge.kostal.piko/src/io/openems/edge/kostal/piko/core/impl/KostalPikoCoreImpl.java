@@ -17,12 +17,10 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.kostal.piko.charger.KostalPikoCharger;
 import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 import io.openems.edge.kostal.piko.ess.KostalPikoEss;
 import io.openems.edge.kostal.piko.gridmeter.KostalPikoGridMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -333,13 +331,13 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 			Channel<Float> pvPower1 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_1);
 			Channel<Float> pvPower2 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_2);
 			float pvPower = pvPower1.value().orElse(0f) + pvPower2.value().orElse(0f);
-			this.charger.channel(EssDcCharger.ChannelId.ACTUAL_POWER).setNextValue(pvPower);
+			this.charger._setActualPower(Math.round(pvPower));
 
 			// calculate ESS ActivePower
 			Channel<Float> gridAcPTotalChannel = this.channel(KostalPikoCore.ChannelId.GRID_AC_P_TOTAL);
 			float gridAcPTotal = gridAcPTotalChannel.value().orElse(0f);
 			float essActivPower = (pvPower - gridAcPTotal);
-			this.ess.channel(SymmetricEss.ChannelId.ACTIVE_POWER).setNextValue(essActivPower);
+			this.ess._setActivePower(Math.round(essActivPower));
 
 			// calculate Meter ActivePower
 			Channel<Float> homeConsumptionBattery = this.channel(KostalPikoCore.ChannelId.HOME_CONSUMPTION_BAT);
@@ -359,7 +357,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 			float homePwL3 = homePowerL3.value().orElse(0f);
 
 			float load = homeConsmBatttery + homeConsmGrid + homePwL1 + homePwL2 + homePwL3;
-			this.meter.channel(SymmetricMeter.ChannelId.ACTIVE_POWER).setNextValue(load - gridAcPTotal);
+			this.meter._setActivePower(Math.round(load - gridAcPTotal));
 		}
 
 	}

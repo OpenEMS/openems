@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.component.ComponentManager;
 
 /**
  * This Worker constantly checks for heap-dump files in /usr/lib/openems
@@ -67,7 +66,7 @@ public class OutOfMemoryHeapDumpWorker extends AbstractWorker {
 			}
 		}
 
-		this.parent.channel(ComponentManager.ChannelId.WAS_OUT_OF_MEMORY).setNextValue(foundhprof);
+		this.parent._setWasOutOfMemory(foundhprof);
 	}
 
 	private void delete(File file) {

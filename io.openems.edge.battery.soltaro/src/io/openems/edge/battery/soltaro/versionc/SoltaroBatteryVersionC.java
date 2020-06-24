@@ -7,19 +7,8 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StateChannel;
 
 public interface SoltaroBatteryVersionC extends Battery {
-
-	/**
-	 * Returns true if any {@link StateChannel} is {@link Level#FAULT}.
-	 * 
-	 * @return true for faults; false if there are no faults
-	 */
-	public default boolean hasFaults() {
-		Level level = this.getState().value().asEnum();
-		return level.isAtLeast(Level.FAULT);
-	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/*
