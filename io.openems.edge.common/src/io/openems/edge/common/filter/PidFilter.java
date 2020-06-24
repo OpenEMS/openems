@@ -96,8 +96,6 @@ public class PidFilter {
 		double outputD = -this.d * (input - this.lastInput);
 
 		// Store last input value
-		double oldLastInput = this.lastInput;
-
 		this.lastInput = input;
 
 		// Sum outputs
