@@ -76,7 +76,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
-		 * <li>Unit: mA
+		 * <li>Unit: A
 		 * </ul>
 		 */
 		CURRENT(Doc.of(OpenemsType.INTEGER) //

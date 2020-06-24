@@ -89,6 +89,9 @@ public class PidFilter {
 		// Calculate I
 		double outputI = this.i * this.errorSum;
 
+		// Apply min/max limits also to I, to avoid the value growing forever
+		outputI = this.applyLowHighLimits(outputI);
+
 		// Calculate D
 		double outputD = -this.d * (input - this.lastInput);
 
@@ -123,6 +126,22 @@ public class PidFilter {
 	 * @return the value within low and high limit
 	 */
 	private int applyLowHighLimits(int value) {
+		if (this.lowLimit != null && value < this.lowLimit) {
+			value = this.lowLimit;
+		}
+		if (this.highLimit != null && value > this.highLimit) {
+			value = this.highLimit;
+		}
+		return value;
+	}
+
+	/**
+	 * Applies the low and high limits to a value.
+	 * 
+	 * @param value the input value
+	 * @return the value within low and high limit
+	 */
+	private double applyLowHighLimits(double value) {
 		if (this.lowLimit != null && value < this.lowLimit) {
 			value = this.lowLimit;
 		}

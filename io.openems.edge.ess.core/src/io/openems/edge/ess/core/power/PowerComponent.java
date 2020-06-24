@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -150,6 +152,21 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	@Activate
 	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
 		super.activate(context, "_power", "Ess.Power", true);
+		this.updateConfig(config);
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
+	@Modified
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, "_power", "Ess.Power", true);
+		this.updateConfig(config);
+	}
+
+	private void updateConfig(Config config) {
 		this.data.setSymmetricMode(config.symmetricMode());
 		this.debugMode = config.debugMode();
 		this.solver.setDebugMode(config.debugMode());
@@ -158,11 +175,6 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 		// build a PidFilter instance with the configured P, I and D variables
 		this.pidFilter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
 	}
 
 	@Reference(//
