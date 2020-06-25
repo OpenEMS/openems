@@ -94,7 +94,23 @@ public class Error extends BaseState implements StateObject {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return;
+//			return;
+		}
+		
+		if (getGridconPcs().isCommunicationBroken() && errorHandlingState == null) {
+			System.out.println("Communication broken!");
+			if (communicationBrokenSince == null) {
+				communicationBrokenSince = LocalDateTime.now();
+				System.out.println("Comm broken --> set timestamp!");
+			}
+			if (communicationBrokenSince.plusSeconds(COMMUNICATION_TIMEOUT).isAfter(LocalDateTime.now())) {
+				System.out.println("comm broken --> in waiting time!");
+				return;
+			} else {
+				System.out.println("comm broken --> hard reset!");
+				communicationBrokenSince = null;
+				errorHandlingState = ErrorHandlingState.HARD_RESTART;
+			}
 		}
 
 		// handle also link voltage too low!!
@@ -116,21 +132,7 @@ public class Error extends BaseState implements StateObject {
 		// TODO sub state machine: start -> reading errors -> acknowledging --> waiting
 		// for a certain period --> finished
 
-		if (getGridconPcs().isCommunicationBroken()) {
-			System.out.println("Communication broken!");
-			if (communicationBrokenSince == null) {
-				communicationBrokenSince = LocalDateTime.now();
-				System.out.println("Comm broken --> set timestamp!");
-			}
-			if (communicationBrokenSince.plusSeconds(COMMUNICATION_TIMEOUT).isAfter(LocalDateTime.now())) {
-				System.out.println("comm broken --> in waiting time!");
-				return;
-			} else {
-				System.out.println("comm broken --> hard reset!");
-				communicationBrokenSince = null;
-				errorHandlingState = ErrorHandlingState.HARD_RESTART;
-			}
-		}
+
 
 		if (errorHandlingState == null) {
 			errorHandlingState = ErrorHandlingState.START;
