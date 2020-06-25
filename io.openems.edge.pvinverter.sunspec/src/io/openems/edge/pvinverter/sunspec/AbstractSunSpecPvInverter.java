@@ -73,6 +73,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled() || !this.isSunSpecInitializationCompleted()) {
+			this.channel(SunSpecPvInverter.ChannelId.PV_LIMIT_FAILED).setNextValue(false);
 			return;
 		}
 
