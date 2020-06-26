@@ -1,6 +1,9 @@
 package io.openems.edge.controller.api.meteocontrol;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -8,20 +11,23 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.fluent.Request;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -34,9 +40,10 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -45,11 +52,9 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -70,32 +75,23 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 
 	private Config config = null;
 
-	private ZonedDateTime lasthour = null;
+	private ZonedDateTime lastsent = null;
 
-	// Required inverter values for MeteoControl
+	// inverter values for MeteoControl
 	private long e_int = 0; // Energy generated per interval
-	private int p_dc = 0; // Power DC (single string or accumulated)
-	private int u_dc = 0; // Voltage DC (single string or accumulated)
-	// private int i_dc = 0; // Current DC (single string or accumulated)
+	private int u_ac = 0; // Voltage AC
 	private int p_ac = 0; // Power AC (single phase or accumulated)
-	// private int u_ac = 0; // Voltage AC (single phase or accumulated)
-	// private int i_ac = 0; // Current AC (single phase or accumulated)
 
-	// Additional inverter values for MeteoControl
-	private int f_ac = 0; // Grid frequency
-	private int q_ac = 0; // Reactive Power
-
-	// Required meter values for MeteoControl
-	// private long e_z_evu = 0; // Feed in energy meter
+	// meter values for MeteoControl
+	private int m_ac_f = 0; // Grid frequency
+	private int m_ac_q = 0; // Reactive Power
+	private int m_ac_p = 0;
 
 	// battery values for MeteoControl
 	private int b_charge_level = 0; // SOC
-	// private int b_capacity = 0; // Nominal capacity
-	// private int b_u_dc = 0; // Battery voltage
 	private int b_p_dc = 0; // Total battery power
-	// private int b_i_dc = 0; // Battery Charge Current
 
-	private String data = "";
+	private Document xmlDoc = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -125,12 +121,7 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
-		if (this.testConnection()) {
-			this.logInfo(this.log, "Connection Test Success!");
-		} else {
-			this.logError(this.log, "Connection Test Fail! Please check the configuration.");
-		}
-		this.lasthour = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(this.config.tInterval());
+		this.lastsent = ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(this.config.tInterval());
 
 	}
 
@@ -142,59 +133,51 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 	@Override
 	public void run() throws OpenemsNamedException {
 		ZonedDateTime now = ZonedDateTime.now();
-		if (now.getMinute() > 14) {
-			ZonedDateTime tmphour = now.truncatedTo(ChronoUnit.HOURS);
 
-			if (tmphour.minusHours(this.config.tInterval()).equals(this.lasthour)) {
+		ZonedDateTime tmp = now.truncatedTo(ChronoUnit.MINUTES);
 
-				this.collectData(now.truncatedTo(ChronoUnit.HOURS));
-				this.logError(this.log, this.formatData());
-				//this.sendData();
+		if (tmp.minusMinutes(this.config.tInterval()).equals(this.lastsent)) {
+			this.lastsent = tmp;
+			this.collectData(tmp);
+			String data = this.formatData();
 
-				this.lasthour = tmphour;
-			}
+			new Thread(() -> {
+				try {
+					this.sendData(data);
+					this.logInfo(this.log, "Measurements succesfully transmitted to Meteo Control!");
+				} catch (OpenemsException e) {
+					// TODO Auto-generated catch block
+					this.logError(this.log, e.getMessage());
+				}
+			}).start();
 		}
 
-	}
-
-	private boolean testConnection() {
-
-		try {
-			HttpResponse response = Request.Get(this.config.host() + "/api/public/connectiontest").execute()
-					.returnResponse();
-			int statusCode = response.getStatusLine().getStatusCode();
-
-			if (statusCode == 200) {
-				return true;
-			} else {
-				this.logError(this.log, "Connection Error! Got status Code: " + statusCode + ", reason:"
-						+ response.getStatusLine().getReasonPhrase());
-			}
-		} catch (IOException e) {
-			this.logError(this.log, e.getMessage());
-			return false;
-		}
-
-		return false;
 	}
 
 	private void collectData(ZonedDateTime toDate) throws OpenemsNamedException {
 
-		this.data = "";
+		Element datapoints = null;
 
-		// Sum sum = this.componentManager.getComponent("_sum");
+		try {
+			datapoints = this.createXMLBody();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new OpenemsException(e.getMessage());
+		}
+
 		SymmetricEss ess = this.componentManager.getComponent(this.config.essId());
-		// ManagedSymmetricPvInverter pvInverter =
-		// this.componentManager.getComponent(this.config.pvInverter());
 		SymmetricMeter pvInverter = this.componentManager.getComponent(this.config.pvInverter());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter());
 
 		ChannelAddress e_intAddress = pvInverter.getActiveProductionEnergyChannel().address();
-		ChannelAddress p_dcAddress = pvInverter.getActivePowerChannel().address();
-		ChannelAddress u_dcAddress = pvInverter.getVoltageChannel().address();
-		ChannelAddress p_acAddress = meter.getActivePowerChannel().address();
-		ChannelAddress f_acAddress = meter.getFrequencyChannel().address();
-		ChannelAddress q_acAddress = meter.getReactivePowerChannel().address();
+		ChannelAddress p_acAddress = pvInverter.getActivePowerChannel().address();
+		ChannelAddress u_acAddress = pvInverter.getVoltageChannel().address();
+
+		ChannelAddress m_ac_fAddress = meter.getFrequencyChannel().address();
+		ChannelAddress m_ac_qAddress = meter.getReactivePowerChannel().address();
+		ChannelAddress m_ac_pAddress = meter.getActivePowerChannel().address();
+
 		ChannelAddress b_charge_levelAddress = ess.getSocChannel().address();
 		ChannelAddress b_p_dcAddress = ess.getActivePowerChannel().address();
 
@@ -204,65 +187,101 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 
 		Set<ChannelAddress> channels = new HashSet<>();
 
-		// channels.add(e_intAddress);
-		channels.add(p_dcAddress);
-		// channels.add(u_dcAddress);
-
 		channels.add(p_acAddress);
-		channels.add(f_acAddress);
-		channels.add(q_acAddress);
-		// channels.add(meter.getActiveProductionEnergy().address());
+		channels.add(u_acAddress);
+
+		channels.add(m_ac_fAddress);
+		channels.add(m_ac_qAddress);
+		channels.add(m_ac_pAddress);
 
 		channels.add(b_charge_levelAddress);
 		channels.add(b_p_dcAddress);
 
-		ZonedDateTime fromDate = toDate.minusHours(1);
+		ZonedDateTime fromDate = toDate.minusMinutes(this.config.tInterval());
 
-		SortedMap<ChannelAddress, JsonElement> eHistory = this.getTimedata().queryHistoricEnergy(null, fromDate, toDate,
-				eChannels);
+		try {
+			SortedMap<ChannelAddress, JsonElement> eHistory = this.getTimedata().queryHistoricEnergy(null, fromDate,
+					toDate, eChannels);
 
-		this.e_int = this.getHistoryDataValue(eHistory, e_intAddress);
+			this.e_int = this.getHistoryDataValue(eHistory, e_intAddress);
+		} catch (OpenemsNamedException e) {
+			this.e_int = 0;
+
+		}
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> history = this.getTimedata()
 				.queryHistoricData(null, fromDate, toDate, channels, this.config.mInterval());
 		for (ZonedDateTime t : history.keySet()) {
 
 			SortedMap<ChannelAddress, JsonElement> tmp = history.get(t);
-			String timestamp = t.truncatedTo(ChronoUnit.MINUTES)
-					.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"));
+			String timestamp = t.truncatedTo(ChronoUnit.MINUTES).format(DateTimeFormatter.ISO_INSTANT).toString();
 
-			this.p_dc = this.getHistoryDataValue(tmp, p_dcAddress);
-			this.u_dc = this.getHistoryDataValue(tmp, u_dcAddress);
+			// this.p_dc = this.getHistoryDataValue(tmp, p_dcAddress);
+			this.u_ac = this.getHistoryDataValue(tmp, u_acAddress);
 			this.p_ac = this.getHistoryDataValue(tmp, p_acAddress);
-			this.f_ac = this.getHistoryDataValue(tmp, f_acAddress);
-			this.q_ac = this.getHistoryDataValue(tmp, q_acAddress);
+
+			this.m_ac_f = this.getHistoryDataValue(tmp, m_ac_fAddress);
+			this.m_ac_q = this.getHistoryDataValue(tmp, m_ac_qAddress);
+			this.m_ac_p = this.getHistoryDataValue(tmp, m_ac_pAddress);
+
 			this.b_charge_level = this.getHistoryDataValue(tmp, b_charge_levelAddress);
 			this.b_p_dc = this.getHistoryDataValue(tmp, b_p_dcAddress);
 
-			this.data += timestamp + ";;" + this.config.serial() + ";" + this.config.mInterval() + ";" + e_int + ";"
-					+ p_dc + ";" + u_dc + ";" + p_ac + ";" + f_ac + ";" + q_ac + ";" + b_charge_level + ";" + b_p_dc
-					+ ";" + System.lineSeparator();
+			Element datapoint = this.xmlDoc.createElement("datapoint");
+			datapoint.setAttribute("interval", Integer.toString(this.config.mInterval()));
+			datapoint.setAttribute("timestamp", timestamp);
+
+			Element inverter = this.xmlDoc.createElement("device");
+			inverter.setAttribute("id", "inverter-1");
+			datapoint.appendChild(inverter);
+
+			inverter.appendChild(this.appendMeasurement("E_INT", Long.toString(this.e_int)));
+			inverter.appendChild(this.appendMeasurement("P_AC", Integer.toString(this.p_ac)));
+			inverter.appendChild(this.appendMeasurement("U_AC", Integer.toString(this.u_ac)));
+
+			Element meterElement = this.xmlDoc.createElement("device");
+			meterElement.setAttribute("id", "meter-1");
+			datapoint.appendChild(meterElement);
+
+			meterElement.appendChild(this.appendMeasurement("M_AC_F", Integer.toString(this.m_ac_f)));
+			meterElement.appendChild(this.appendMeasurement("M_AC_Q", Integer.toString(this.m_ac_q)));
+			meterElement.appendChild(this.appendMeasurement("M_AC_P", Integer.toString(this.m_ac_p)));
+
+			Element battery = this.xmlDoc.createElement("device");
+			battery.setAttribute("id", "battery-1");
+			datapoint.appendChild(battery);
+
+			battery.appendChild(this.appendMeasurement("B_CHARGE_LEVEL", Integer.toString(this.b_charge_level)));
+			battery.appendChild(this.appendMeasurement("B_P_DC", Integer.toString(this.b_p_dc)));
+
+			datapoints.appendChild(datapoint);
 
 		}
 
 	}
 
-	private String formatData() {
+	private String formatData() throws OpenemsException {
 
-		String offset = ZonedDateTime.now().getOffset().toString();
-		JsonObject jsonData = new JsonObject();
+		// Transform Document to XML String
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer;
+		try {
+			transformer = tf.newTransformer();
+		} catch (TransformerConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new OpenemsException(e.getMessageAndLocation());
+		}
+		StringWriter writer = new StringWriter();
 
-		jsonData.addProperty("utcOffset", offset);
-		jsonData.addProperty("intervall", this.config.mInterval());
-		jsonData.addProperty("type", "inverter");
+		try {
+			transformer.transform(new DOMSource(this.xmlDoc), new StreamResult(writer));
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			throw new OpenemsException(e.getMessageAndLocation());
+		}
 
-		String csvData = "timestamp;address;serial;interval;E_INT;P_DC;U_DC;P_AC;F_AC;Q_AC;B_CHARGE_LEVEL;B_P_DC;"
-				+ System.lineSeparator();
-		csvData += this.data;
-
-		jsonData.addProperty("data", csvData);
-
-		return jsonData.toString();
+		return writer.getBuffer().toString();
 	}
 
 	private Timedata getTimedata() throws OpenemsException {
@@ -272,24 +291,27 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 		throw new OpenemsException("There is no Timedata-Service available!");
 	}
 
-	private void sendData() throws OpenemsException {
-		HttpPut httpPut = new HttpPut(this.config.host() + "/api/import/inverterdata");
+	private void sendData(String data) throws OpenemsException {
+		HttpPost httpPost = new HttpPost(this.config.host() + "/v2/?apiKey=" + this.config.apikey());
 
-		httpPut.setHeader("Accept", "application/json");
-		httpPut.setHeader("Content-type", "application/json");
-		httpPut.setHeader("Serial", this.config.serial());
+		httpPost.setHeader("Content-Type", "application/xml");
+		try {
+			httpPost.setEntity(new StringEntity(data));
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			throw new OpenemsException(e1.getMessage());
 
-		CredentialsProvider provider = new BasicCredentialsProvider();
-		provider.setCredentials(AuthScope.ANY,
-				new UsernamePasswordCredentials(this.config.user(), this.config.password()));
+		}
 
-		CloseableHttpClient httpclient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+		CloseableHttpClient httpclient = HttpClientBuilder.create().build();
 
 		try {
-			CloseableHttpResponse response = httpclient.execute(httpPut);
+			CloseableHttpResponse response = httpclient.execute(httpPost);
 
-			if (response.getStatusLine().getStatusCode() != 200) {
-				throw new OpenemsException(response.getStatusLine().toString());
+			if (response.getStatusLine().getStatusCode() != 202) {
+				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+				throw new OpenemsException(response.getStatusLine().toString() + System.lineSeparator() + responseBody);
 			}
 		} catch (ClientProtocolException e) {
 
@@ -315,4 +337,82 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 		return val;
 
 	}
+
+	private Element createXMLBody() throws ParserConfigurationException {
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		this.xmlDoc = docBuilder.newDocument();
+
+		Element mii = this.xmlDoc.createElement("mii");
+		mii.setAttribute("version", "2.0");
+		mii.setAttribute("targetNamespace", "http://api.sspcdn.com/mii");
+		mii.setAttribute("xmlns", "http://api.sspcdn.com/mii");
+		this.xmlDoc.appendChild(mii);
+
+		Element datalogger = this.xmlDoc.createElement("datalogger");
+		mii.appendChild(datalogger);
+
+		Element configuration = this.xmlDoc.createElement("configuration");
+		configuration.setAttribute("xmlns", "http://api.sspcdn.com/mii/datalogger/configuration");
+		datalogger.appendChild(configuration);
+
+		Element uuid = this.xmlDoc.createElement("uuid");
+		configuration.appendChild(uuid);
+
+		Element vendor = this.xmlDoc.createElement("vendor");
+		vendor.setTextContent("KACO new energy GmbH");
+		uuid.appendChild(vendor);
+
+		Element serial = this.xmlDoc.createElement("serial");
+		serial.setTextContent(this.config.serial());
+		uuid.appendChild(serial);
+
+		Element devices = this.xmlDoc.createElement("devices");
+		configuration.appendChild(devices);
+
+		Element inverter = this.xmlDoc.createElement("device");
+		inverter.setAttribute("type", "inverter");
+		inverter.setAttribute("id", "inverter-1");
+		devices.appendChild(inverter);
+
+		Element inverterUid = this.xmlDoc.createElement("uid");
+		inverterUid.setTextContent(this.config.pvInverter());
+		inverter.appendChild(inverterUid);
+
+		Element meter = this.xmlDoc.createElement("device");
+		meter.setAttribute("type", "meter");
+		meter.setAttribute("id", "meter-1");
+		devices.appendChild(meter);
+
+		Element meterUid = this.xmlDoc.createElement("uid");
+		meterUid.setTextContent(this.config.meter());
+		meter.appendChild(meterUid);
+
+		Element battery = this.xmlDoc.createElement("device");
+		battery.setAttribute("type", "battery");
+		battery.setAttribute("id", "battery-1");
+		devices.appendChild(battery);
+
+		Element batteryUid = this.xmlDoc.createElement("uid");
+		batteryUid.setTextContent(this.config.essId());
+		battery.appendChild(batteryUid);
+
+		Element datapoints = this.xmlDoc.createElement("datapoints");
+		datapoints.setAttribute("xmlns", "http://api.sspcdn.com/mii/datalogger/datapoints");
+		datalogger.appendChild(datapoints);
+
+		return datapoints;
+
+	}
+
+	private Element appendMeasurement(String name, String value) {
+
+		Element mv = this.xmlDoc.createElement("mv");
+		mv.setAttribute("t", name);
+		mv.setAttribute("v", value);
+
+		return mv;
+
+	}
+
 }
