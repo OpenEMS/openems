@@ -97,7 +97,7 @@ public class TestForceCharge {
 			fail(e.getMessage());
 		}
 
-		int actual = ess.getSetActivePowerLessOrEquals().getNextWriteValue().get();
+		int actual = ess.getSetActivePowerLessOrEqualsChannel().getNextWriteValue().get();
 
 		// According to the dummy config 20% of -10000 (neg. values for charge are
 		// expected)

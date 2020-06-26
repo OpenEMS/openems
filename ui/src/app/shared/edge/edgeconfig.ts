@@ -405,6 +405,22 @@ export class EdgeConfig {
     }
 
     /**
+     * Returns the corresponding icon for a given factory
+     */
+    public getFactoryIcon(factory: EdgeConfig.Factory): string {
+        // default icon, if no icons are found
+        let result = "stats-chart-outline";
+        this.listAvailableFactories().forEach(availableFactories => {
+            availableFactories.factories.forEach(availableFactory => {
+                if (factory == availableFactory) {
+                    result = availableFactories.category.icon;
+                }
+            })
+        })
+        return result;
+    }
+
+    /**
      * Lists all active Components, grouped by category.
      */
     public listActiveComponents(ignoreComponentIds: string[]): CategorizedComponents[] {

@@ -17,6 +17,7 @@ import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentCompone
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
 import { KacoComponent } from './edge/settings/kaco/kaco.component';
+import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -40,6 +41,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/network', component: EdgeSettingsNetworkComponent },
   { path: 'device/:edgeId/settings/profile', component: EdgeSettingsProfileComponent },
   { path: 'device/:edgeId/settings/kaco', component: KacoComponent },
+  { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
 ];
 
 export const appRoutingProviders: any[] = [

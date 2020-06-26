@@ -102,7 +102,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.getCapacity().setNextValue(NET_CAPACITY);
+		this._setCapacity(NET_CAPACITY);
 	}
 
 	@Override
@@ -1618,12 +1618,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override

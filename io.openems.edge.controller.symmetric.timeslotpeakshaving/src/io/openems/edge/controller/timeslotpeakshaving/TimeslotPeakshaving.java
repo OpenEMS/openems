@@ -124,8 +124,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
-			ess.getSetActivePowerEqualsWithPid().setNextWriteValue(activePower);
-			ess.getSetReactivePowerEquals().setNextWriteValue(0);
+			ess.setActivePowerEqualsWithPid(activePower);
+			ess.setReactivePowerEquals(0);
 		}
 	}
 
@@ -163,14 +163,14 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 				}
 
 				int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-				if (ess.getSoc().value().orElse(0) == 100 || minPower >= 0) {
+				if (ess.getSoc().orElse(0) == 100 || minPower >= 0) {
 					// no need to charge anymore, the soc would be 100 %
 					stateChanged = changeState(ChargeState.HYSTERESIS);
 				}
 				power = config.slowChargePower();
 				break;
 			case HYSTERESIS:
-				if (ess.getSoc().value().orElse(0) <= config.hysteresisSoc()) {
+				if (ess.getSoc().orElse(0) <= config.hysteresisSoc()) {
 					stateChanged = changeState(ChargeState.SLOWCHARGE);
 				}
 				if (this.isHighLoadTimeslot(now)) {
@@ -221,7 +221,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		switch (gridMode) {
 		case UNDEFINED:
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
@@ -233,8 +233,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
+		int gridPower = meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
+				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 
 		int calculatedPower;
 		if (gridPower >= config.peakShavingPower()) {

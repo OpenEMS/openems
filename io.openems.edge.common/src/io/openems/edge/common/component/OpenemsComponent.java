@@ -200,8 +200,17 @@ public interface OpenemsComponent {
 	 * 
 	 * @return the StateCollectorChannel
 	 */
-	default StateCollectorChannel getState() {
+	public default StateCollectorChannel getStateChannel() {
 		return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
+	}
+
+	/**
+	 * Gets the Component State {@link Level}.
+	 * 
+	 * @return the StateCollectorChannel
+	 */
+	public default Level getState() {
+		return this.getStateChannel().value().asEnum();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -244,7 +253,7 @@ public interface OpenemsComponent {
 	 * @return true if there is a Fault.
 	 */
 	public default boolean hasFaults() {
-		Level level = this.getState().value().asEnum();
+		Level level = this.getState();
 		return level.isAtLeast(Level.FAULT);
 	}
 

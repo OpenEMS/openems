@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -107,14 +106,14 @@ public class CycleWorker extends AbstractWorker {
 								controller.run();
 
 								// announce running was ok
-								controller.getRunFailed().setNextValue(false);
+								controller._setRunFailed(false);
 
 							} catch (OpenemsNamedException e) {
 								this.parent.logWarn(this.log,
 										"Error in Controller [" + controller.id() + "]: " + e.getMessage());
 
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 
 							} catch (Exception e) {
 								this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
@@ -124,24 +123,24 @@ public class CycleWorker extends AbstractWorker {
 									e.printStackTrace();
 								}
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 							}
 						}
 
 						// announce running was ok or not ok.
-						scheduler.getRunFailed().setNextValue(schedulerHasError);
+						scheduler._setRunFailed(schedulerHasError);
 
 					} catch (Exception e) {
 						this.parent.logWarn(this.log, "Error in Scheduler [" + scheduler.id() + "]: " + e.getMessage());
 
 						// announce running failed
-						scheduler.getRunFailed().setNextValue(true);
+						scheduler._setRunFailed(true);
 					}
 				}
 			}
 
 			// announce ignoring disabled Controllers.
-			this.parent.channel(Cycle.ChannelId.IGNORE_DISABLED_CONTROLLER).setNextValue(hasDisabledController);
+			this.parent._setIgnoreDisabledController(hasDisabledController);
 
 			/*
 			 * Trigger AFTER_CONTROLLERS event
@@ -175,8 +174,7 @@ public class CycleWorker extends AbstractWorker {
 		// Measure actual cycle time
 		Instant now = Instant.now();
 		if (this.startTime != null) {
-			this.parent.channel(Cycle.ChannelId.MEASURED_CYCLE_TIME)
-					.setNextValue(Duration.between(this.startTime, now).toMillis());
+			this.parent._setMeasuredCycleTime(Duration.between(this.startTime, now).toMillis());
 		}
 		this.startTime = now;
 	}

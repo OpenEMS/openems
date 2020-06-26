@@ -78,19 +78,23 @@ EOT
 				fi
 
 				# Verify bnd.bnd file
-				if [ -f "${D}/bnd.bnd" ] && [ ! "${D}" = "io.openems.wrapper" ]; then
+				if [ -f "${D}/bnd.bnd" ]; then
 					start=$(grep -n '${buildpath},' "${D}/bnd.bnd" | grep -Eo '^[^:]+' | head -n1)
 					end=$(grep -n 'testpath' "${D}/bnd.bnd" | grep -Eo '^[^:]+' | head -n1)
-					(
-						head -n $start "${D}/bnd.bnd"; # before 'buildpath'
-						head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | sort; # the 'buildpath'
-						tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
-					) > "${D}/bnd.bnd.new"
-					if [ $? -eq 0 ]; then
-						mv "${D}/bnd.bnd.new" "${D}/bnd.bnd"
+					if [ -z "$start" -a -z "$end" ]; then
+						:
 					else
-						echo "Unable to sort buildpath in ${D}/bnd.bnd"
-						exit 1
+						(
+							head -n $start "${D}/bnd.bnd"; # before 'buildpath'
+							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | sort; # the 'buildpath'
+							tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
+						) > "${D}/bnd.bnd.new"
+						if [ $? -eq 0 ]; then
+							mv "${D}/bnd.bnd.new" "${D}/bnd.bnd"
+						else
+							echo "Unable to sort buildpath in ${D}/bnd.bnd"
+							exit 1
+						fi
 					fi
 				fi
 				;;

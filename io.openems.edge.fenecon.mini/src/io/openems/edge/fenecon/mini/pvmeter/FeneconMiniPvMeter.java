@@ -107,7 +107,7 @@ public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implement
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActivePower().value().asString();
+		return "P:" + this.getActivePower().asString();
 	}
 
 }

@@ -64,8 +64,8 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class ClusterVersionB extends AbstractOpenemsModbusComponent
-		implements SoltaroCluster, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class ClusterVersionB extends AbstractOpenemsModbusComponent implements SoltaroBattery, SoltaroCluster, Battery,
+		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
 	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
@@ -107,6 +107,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				SoltaroBattery.ChannelId.values(), //
 				SoltaroCluster.ChannelId.values(), //
 				ClusterVersionBChannelId.values() //
 		);
@@ -132,13 +133,13 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
 
-		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(ClusterVersionB.CHARGE_MAX_A);
-		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(ClusterVersionB.DISCHARGE_MAX_A);
-		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
-				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
-		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
-				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue(
+		this._setChargeMaxCurrent(ClusterVersionB.CHARGE_MAX_A);
+		this._setDischargeMaxCurrent(ClusterVersionB.DISCHARGE_MAX_A);
+		this._setChargeMaxVoltage(
+				this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
+		this._setDischargeMinVoltage(
+				this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
+		this._setCapacity(
 				this.config.racks().length * this.config.numberOfSlaves() * this.config.moduleType().getCapacity_Wh());
 	}
 
@@ -665,8 +666,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		if (i > 0) {
 			soc = soc / i;
 		}
-
-		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
+		this._setSoc(soc);
 	}
 
 	protected void recalculateMaxCellVoltage() {
@@ -675,7 +675,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		for (SingleRack rack : this.racks.values()) {
 			max = Math.max(max, rack.getMaximalCellVoltage());
 		}
-		this.channel(Battery.ChannelId.MAX_CELL_VOLTAGE).setNextValue(max);
+		this._setMaxCellVoltage(max);
 	}
 
 	protected void recalculateMinCellVoltage() {
@@ -684,7 +684,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		for (SingleRack rack : this.racks.values()) {
 			min = Math.min(min, rack.getMinimalCellVoltage());
 		}
-		this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(min);
+		this._setMinCellVoltage(min);
 	}
 
 	protected void recalculateMaxCellTemperature() {
@@ -693,7 +693,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		for (SingleRack rack : this.racks.values()) {
 			max = Math.max(max, rack.getMaximalCellTemperature());
 		}
-		this.channel(Battery.ChannelId.MAX_CELL_TEMPERATURE).setNextValue(max);
+		this._setMaxCellTemperature(max);
 	}
 
 	protected void recalculateMinCellTemperature() {
@@ -702,7 +702,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent
 		for (SingleRack rack : this.racks.values()) {
 			min = Math.min(min, rack.getMinimalCellTemperature());
 		}
-		this.channel(Battery.ChannelId.MIN_CELL_TEMPERATURE).setNextValue(min);
+		this._setMinCellTemperature(min);
 	}
 
 	@Override

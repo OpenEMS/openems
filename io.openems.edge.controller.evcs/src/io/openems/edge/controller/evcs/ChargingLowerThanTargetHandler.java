@@ -61,9 +61,8 @@ public class ChargingLowerThanTargetHandler {
 	 * @throws InvalidValueException invalidValueException
 	 */
 	protected boolean isChargingLowerThanTarget(ManagedEvcs evcs) throws InvalidValueException {
-		int chargingPower = evcs.getChargePower().value().orElse(0);
-		int chargingPowerTarget = evcs.setChargePowerLimit().value()
-				.orElse(evcs.getMaximumHardwarePower().value().getOrError());
+		int chargingPower = evcs.getChargePower().orElse(0);
+		int chargingPowerTarget = evcs.getSetChargePowerLimit().orElse(evcs.getMaximumHardwarePower().getOrError());
 		if (chargingPowerTarget - chargingPower > chargingPowerTarget * CHARGING_TARGET_MAX_DIFFERENCE_PERCENT) {
 			this.lastChargingCheck = LocalDateTime.now();
 			return true;

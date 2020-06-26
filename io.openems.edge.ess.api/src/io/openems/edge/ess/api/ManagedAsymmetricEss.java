@@ -8,7 +8,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Phase;
@@ -431,164 +433,608 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException;
 
 	/**
-	 * Gets the Set Active Power L1 Equals in [W]
-	 * 
-	 * @return
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L1_EQUALS}.
+	 *
+	 * @return the Channel
 	 */
-	default WriteChannel<Integer> getSetActivePowerL1Equals() {
+	public default IntegerWriteChannel getSetActivePowerL1EqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L1_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L2 Equals in [W]
+	 * Sets an Active Power Equals setpoint on L1 in [W]. Negative values for
+	 * Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L1_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL2Equals() {
+	public default void setSetActivePowerL1Equals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL1EqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L2_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL2EqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L2_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L3 Equals in [W]
+	 * Sets an Active Power Equals setpoint on L2 in [W]. Negative values for
+	 * Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L2_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL3Equals() {
+	public default void setSetActivePowerL2Equals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL2EqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L3_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL3EqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L3_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L1 Equals in [var]
+	 * Sets a Reactive Power Equals setpoint on L3 in [W]. Negative values for
+	 * Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L3_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL1Equals() {
+	public default void setSetActivePowerL3Equals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL3EqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_L1_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL1EqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L1_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L2 Equals in [var]
+	 * Sets a Reactive Power Equals setpoint on L1 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L1_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL2Equals() {
+	public default void setSetReactivePowerL1Equals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL1EqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_L2_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL2EqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L2_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L3 Equals in [var]
+	 * Sets a Reactive Power Equals setpoint on L2 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L2_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL3Equals() {
+	public default void setSetReactivePowerL2Equals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL2EqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_L3_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL3EqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L3_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L1 Less Or Equals in [W].
+	 * Sets a Reactive Power Equals setpoint on L3 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L3_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL1LessOrEquals() {
+	public default void setSetReactivePowerL3Equals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL3EqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L1_LESS_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL1LessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L1_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L2 Less Or Equals in [W].
+	 * Sets an Active Power Less Or Equals setpoint on L1 in [W]. Negative values
+	 * for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L1_LESS_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL2LessOrEquals() {
+	public default void setSetActivePowerL1LessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL1LessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L2_LESS_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL2LessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L2_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L3 Less Or Equals in [W].
+	 * Sets an Active Power Less Or Equals setpoint on L2 in [W]. Negative values
+	 * for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L2_LESS_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL3LessOrEquals() {
+	public default void setSetActivePowerL2LessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL2LessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L3_LESS_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL3LessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L3_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L1 Greater Or Equals in [W].
+	 * Sets an Active Power Less Or Equals setpoint on L3 in [W]. Negative values
+	 * for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L3_LESS_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL1GreaterOrEquals() {
+	public default void setSetActivePowerL3LessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL3LessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL1GreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L2 Greater Or Equals in [W].
+	 * Sets an Active Power Greater Or Equals setpoint on L1 in [W]. Negative values
+	 * for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL2GreaterOrEquals() {
+	public default void setSetActivePowerL1GreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL1GreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL2GreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Active Power L3 Greater Or Equals in [W].
+	 * Sets an Active Power Greater Or Equals setpoint on L2 in [W]. Negative values
+	 * for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetActivePowerL3GreaterOrEquals() {
+	public default void setSetActivePowerL2GreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL2GreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetActivePowerL3GreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L1 Less Or Equals in [var].
+	 * Sets an Active Power Greater Or Equals setpoint on L3 in [W]. Negative values
+	 * for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL1LessOrEquals() {
+	public default void setSetActivePowerL3GreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetActivePowerL3GreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_L1_LESS_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL1LessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L1_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L2 Less Or Equals in [var].
+	 * Sets a Reactive Power Less Or Equals setpoint on L1 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L1_LESS_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL2LessOrEquals() {
+	public default void setSetReactivePowerL1LessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL1LessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_L2_LESS_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL2LessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L2_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L3 Less Or Equals in [var].
+	 * Sets a Reactive Power Less Or Equals setpoint on L2 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L2_LESS_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL3LessOrEquals() {
+	public default void setSetReactivePowerL2LessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL2LessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_REACTIVE_POWER_L3_LESS_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL3LessOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L3_LESS_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L1 Greater Or Equals in [var].
+	 * Sets a Reactive Power Less Or Equals setpoint on L3 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L3_LESS_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL1GreaterOrEquals() {
+	public default void setSetReactivePowerL3LessOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL3LessOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for
+	 * {@link ChannelId#SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL1GreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L2 Greater Or Equals in [var].
+	 * Sets a Reactive Power Greater Or Equals setpoint on L1 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL2GreaterOrEquals() {
+	public default void setSetReactivePowerL1GreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL1GreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for
+	 * {@link ChannelId#SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL2GreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power L3 Greater Or Equals in [var].
+	 * Sets a Reactive Power Greater Or Equals setpoint on L2 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS}.
 	 * 
-	 * @return
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
 	 */
-	default WriteChannel<Integer> getSetReactivePowerL3GreaterOrEquals() {
+	public default void setSetReactivePowerL2GreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL2GreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for
+	 * {@link ChannelId#SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetReactivePowerL3GreaterOrEqualsChannel() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS);
+	}
+
+	/**
+	 * Sets a Reactive Power Greater Or Equals setpoint on L3 in [var]. See
+	 * {@link ChannelId#SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setSetReactivePowerL3GreaterOrEquals(Integer value) throws OpenemsNamedException {
+		this.getSetReactivePowerL3GreaterOrEqualsChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetActivePowerL1Channel() {
+		return this.channel(ChannelId.DEBUG_SET_ACTIVE_POWER_L1);
+	}
+
+	/**
+	 * Gets the last Active Power setpoint on L1 in [W]. See
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetActivePowerL1() {
+		return this.getDebugSetActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL1(Integer value) {
+		this.getDebugSetActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL1(int value) {
+		this.getDebugSetActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetActivePowerL2Channel() {
+		return this.channel(ChannelId.DEBUG_SET_ACTIVE_POWER_L2);
+	}
+
+	/**
+	 * Gets the last Active Power setpoint on L2 in [W]. See
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetActivePowerL2() {
+		return this.getDebugSetActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL2(Integer value) {
+		this.getDebugSetActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL2(int value) {
+		this.getDebugSetActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetActivePowerL3Channel() {
+		return this.channel(ChannelId.DEBUG_SET_ACTIVE_POWER_L3);
+	}
+
+	/**
+	 * Gets the last Active Power setpoint on L3 in [W]. See
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetActivePowerL3() {
+		return this.getDebugSetActivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL3(Integer value) {
+		this.getDebugSetActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetActivePowerL3(int value) {
+		this.getDebugSetActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetReactivePowerL1Channel() {
+		return this.channel(ChannelId.DEBUG_SET_REACTIVE_POWER_L1);
+	}
+
+	/**
+	 * Gets the last Reactive Power setpoint on L1 in [var]. See
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetReactivePowerL1() {
+		return this.getDebugSetReactivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL1(Integer value) {
+		this.getDebugSetReactivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL1(int value) {
+		this.getDebugSetReactivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetReactivePowerL2Channel() {
+		return this.channel(ChannelId.DEBUG_SET_REACTIVE_POWER_L2);
+	}
+
+	/**
+	 * Gets the last Reactive Power setpoint on L2 in [var]. See
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetReactivePowerL2() {
+		return this.getDebugSetReactivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL2(Integer value) {
+		this.getDebugSetReactivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL2(int value) {
+		this.getDebugSetReactivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugSetReactivePowerL3Channel() {
+		return this.channel(ChannelId.DEBUG_SET_REACTIVE_POWER_L3);
+	}
+
+	/**
+	 * Gets the last Reactive Power setpoint on L3 in [var]. See
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugSetReactivePowerL3() {
+		return this.getDebugSetReactivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL3(Integer value) {
+		this.getDebugSetReactivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugSetReactivePowerL3(int value) {
+		this.getDebugSetReactivePowerL3Channel().setNextValue(value);
 	}
 }
