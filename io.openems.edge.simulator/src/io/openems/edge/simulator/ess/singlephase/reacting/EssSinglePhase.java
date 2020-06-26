@@ -120,6 +120,9 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.updateChannels();

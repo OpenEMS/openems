@@ -173,8 +173,14 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.solver.setStrategy(config.strategy());
 		this.config = config;
 
-		// build a PidFilter instance with the configured P, I and D variables
-		this.pidFilter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
+		if (config.enablePid()) {
+			// build a PidFilter instance with the configured P, I and D variables
+			this.pidFilter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
+			// use a DisabledPidFilter instance, that always just returns the unfiltered
+			// target value
+		} else {
+			this.pidFilter = new DisabledPidFilter();
+		}
 	}
 
 	@Reference(//
