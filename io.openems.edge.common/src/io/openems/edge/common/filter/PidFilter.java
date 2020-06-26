@@ -125,7 +125,7 @@ public class PidFilter {
 	 * @param value the input value
 	 * @return the value within low and high limit
 	 */
-	private int applyLowHighLimits(int value) {
+	protected int applyLowHighLimits(int value) {
 		if (this.lowLimit != null && value < this.lowLimit) {
 			value = this.lowLimit;
 		}
@@ -141,7 +141,7 @@ public class PidFilter {
 	 * @param value the input value
 	 * @return the value within low and high limit
 	 */
-	private double applyLowHighLimits(double value) {
+	protected double applyLowHighLimits(double value) {
 		if (this.lowLimit != null && value < this.lowLimit) {
 			value = this.lowLimit;
 		}

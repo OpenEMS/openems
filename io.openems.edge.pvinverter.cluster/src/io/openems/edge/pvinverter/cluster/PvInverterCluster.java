@@ -91,6 +91,10 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			this.channel(ChannelId.EXECUTION_FAILED).setNextValue(false);
+			return;
+		}
 		try {
 			switch (event.getTopic()) {
 
