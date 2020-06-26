@@ -179,6 +179,7 @@ public class Error extends BaseState implements StateObject {
 			hardRestartCnt = 0;
 			setHardRestartRelay(false);
 			errorHandlingState = ErrorHandlingState.WAITING;
+			errorsAcknowledged = LocalDateTime.now();
 			secondsToWait = WAITING_TIME_HARD_RESTART;
 		}
 	}
