@@ -8,6 +8,10 @@
                 {{evcsComponent.alias}}
             </ion-title>
             <ion-buttons slot="end">
+                <ion-button (click)="presentModal()">
+                    <ion-icon [color]="evcsComponent.properties['minHwCurrent'] == 10000 ? 'success' : ''"
+                        name="car-outline"></ion-icon>
+                </ion-button>
                 <ion-button target="_blank"
                     href="https://openems.github.io/openems.io/openems/latest/edge/controller.html#_evcs">
                     <ion-icon name="help-circle-outline"></ion-icon>

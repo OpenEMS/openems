@@ -37,6 +37,7 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
+import { AdministrationComponent } from './evcs/modal/administration/administration.component';
 
 @NgModule({
   imports: [
@@ -46,6 +47,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SharedModule,
   ],
   entryComponents: [
+    AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChpsocModalComponent,
@@ -63,6 +65,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SymmetricPeakshavingModalComponent,
   ],
   declarations: [
+    AdministrationComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
