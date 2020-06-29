@@ -19,7 +19,29 @@
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
                 <ion-slide class="ion-align-self-center" *ngSwitchCase="'MiniES 3-3'">
-                    <miniupgrade></miniupgrade>
+                    <survey></survey>
+                    <!-- <miniupgrade></miniupgrade> -->
+                </ion-slide>
+                <ion-slide class="ion-align-self-center" *ngSwitchCase="'MiniES 3-6'">
+                    <survey></survey>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'Kostal PIKO + B-Box HV'">
+                    <survey></survey>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'Pro Hybrid GW'">
+                    <survey></survey>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'PRO Hybrid 9-10'">
+                    <survey></survey>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'Pro Hybrid 10-Serie'">
+                    <survey></survey>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'PRO Compact 3-10'">
+                    <survey></survey>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'Pro 9-12'">
+                    <survey></survey>
                 </ion-slide>
                 <ion-slide *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'">
                     <evcsupgrade></evcsupgrade>

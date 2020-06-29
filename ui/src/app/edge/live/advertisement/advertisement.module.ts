@@ -5,6 +5,7 @@ import { MiniupgradeModalComponent } from './miniupgrade/modal/modal.component';
 import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AdvertisementComponent } from './advertisement.component';
+import { SurveyComponent } from './survey/survey.component';
 
 @NgModule({
     imports: [
@@ -20,6 +21,7 @@ import { AdvertisementComponent } from './advertisement.component';
         EvcsUpgradeModalComponent,
         MiniupgradeComponent,
         MiniupgradeModalComponent,
+        SurveyComponent,
     ],
     exports: [AdvertisementComponent]
 })
