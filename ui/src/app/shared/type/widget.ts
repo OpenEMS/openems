@@ -43,8 +43,16 @@ export enum advertisableWidgetNautre {
 }
 
 export enum advertisableWidgetProducttype {
-    'MiniES 3-3'
+    'Kostal PIKO + B-Box HV',
+    'MiniES 3-3',
+    'MiniES 3-6',
+    'Pro 9-12',
+    'PRO Compact 3-10',
+    'Pro Hybrid 10-Serie',
+    'PRO Hybrid 9-10',
+    'Pro Hybrid GW',
 }
+
 
 export class AdvertWidgets {
 
@@ -53,7 +61,7 @@ export class AdvertWidgets {
         let list: AdvertWidget[] = [];
 
         for (let producttype of Object.values(advertisableWidgetProducttype).filter(v => typeof v === 'string')) {
-            if (producttype == 'MiniES 3-3' && edge.producttype == 'MiniES 3-3') {
+            if (producttype == edge.producttype) {
                 list.push({ name: producttype });
             }
         }

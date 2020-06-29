@@ -13,7 +13,7 @@ export class AdvertisementComponent {
 
   @Input() public advertWidgets: AdvertWidgets;
 
-  @ViewChild('slides', { static: true }) slides: IonSlides;
+  @ViewChild('slides', { static: true }) public slides: IonSlides;
 
   public edge: Edge;
   public config: EdgeConfig;
