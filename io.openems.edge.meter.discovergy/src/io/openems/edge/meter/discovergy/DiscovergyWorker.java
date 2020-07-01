@@ -131,30 +131,30 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 			Integer activePowerL3 = TypeUtils.divide(rawPower3, 1_000);
 			switch (config.type()) {
 			case GRID:
-				this.parent.getActivePower().setNextValue(activePower);
-				this.parent.getActivePowerL1().setNextValue(activePowerL1);
-				this.parent.getActivePowerL2().setNextValue(activePowerL2);
-				this.parent.getActivePowerL3().setNextValue(activePowerL3);
-				this.parent.getActiveProductionEnergy().setNextValue(TypeUtils.divide(rawEnergy, 10_000_000));
-				this.parent.getActiveConsumptionEnergy().setNextValue(TypeUtils.divide(rawEnergyOut, 10_000_000));
+				this.parent._setActivePower(activePower);
+				this.parent._setActivePowerL1(activePowerL1);
+				this.parent._setActivePowerL2(activePowerL2);
+				this.parent._setActivePowerL3(activePowerL3);
+				this.parent._setActiveProductionEnergy(TypeUtils.divide(rawEnergy, 10_000_000));
+				this.parent._setActiveConsumptionEnergy(TypeUtils.divide(rawEnergyOut, 10_000_000));
 				break;
 			case CONSUMPTION_NOT_METERED: // to be validated
 			case CONSUMPTION_METERED: // to be validated
 			case PRODUCTION_AND_CONSUMPTION:
 			case PRODUCTION:
-				this.parent.getActivePower().setNextValue(TypeUtils.multiply(activePower, -1)); // invert
-				this.parent.getActivePowerL1().setNextValue(TypeUtils.multiply(activePowerL1, -1)); // invert
-				this.parent.getActivePowerL2().setNextValue(TypeUtils.multiply(activePowerL2, -1)); // invert
-				this.parent.getActivePowerL3().setNextValue(TypeUtils.multiply(activePowerL3, -1)); // invert
-				this.parent.getActiveProductionEnergy().setNextValue(TypeUtils.divide(rawEnergyOut, 10_000_000));
-				this.parent.getActiveConsumptionEnergy().setNextValue(0 /* always zero for production-only meters */);
+				this.parent._setActivePower(TypeUtils.multiply(activePower, -1)); // invert
+				this.parent._setActivePowerL1(TypeUtils.multiply(activePowerL1, -1)); // invert
+				this.parent._setActivePowerL2(TypeUtils.multiply(activePowerL2, -1)); // invert
+				this.parent._setActivePowerL3(TypeUtils.multiply(activePowerL3, -1)); // invert
+				this.parent._setActiveProductionEnergy(TypeUtils.divide(rawEnergyOut, 10_000_000));
+				this.parent._setActiveConsumptionEnergy(0 /* always zero for production-only meters */);
 				break;
 			}
 
-			this.parent.getVoltage().setNextValue(TypeUtils.max(rawVoltage1, rawVoltage2, rawVoltage3));
-			this.parent.getVoltageL1().setNextValue(rawVoltage1);
-			this.parent.getVoltageL2().setNextValue(rawVoltage2);
-			this.parent.getVoltageL3().setNextValue(rawVoltage3);
+			this.parent._setVoltage(TypeUtils.averageRounded(rawVoltage1, rawVoltage2, rawVoltage3));
+			this.parent._setVoltageL1(rawVoltage1);
+			this.parent._setVoltageL2(rawVoltage2);
+			this.parent._setVoltageL3(rawVoltage3);
 		}
 	}
 

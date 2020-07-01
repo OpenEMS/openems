@@ -44,9 +44,9 @@ public class SolverTest {
 
 	private static ManagedSymmetricEss[] prepareEssCluster() {
 		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1") //
-				.allowedCharge(-9000).allowedDischarge(9000).maxApparentPower(5000);
+				.allowedChargePower(-9000).allowedDischargePower(9000).maxApparentPower(5000);
 		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2") //
-				.allowedCharge(-9000).allowedDischarge(9000).maxApparentPower(5000);
+				.allowedChargePower(-9000).allowedDischargePower(9000).maxApparentPower(5000);
 		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2); //
 		return new ManagedSymmetricEss[] { ess0, ess1, ess2, };
 	}
@@ -54,9 +54,9 @@ public class SolverTest {
 	@Test
 	public void testSymmetricMode() throws Exception {
 		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(30);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(30);
 		ManagedAsymmetricEssDummy ess2 = new ManagedAsymmetricEssDummy("ess2") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(60);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(60);
 		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2); //
 		Data d = prepareDataAndSetSymmetricMode(false, ess0, ess1, ess2);
 		Solver s = new Solver(d);
@@ -71,17 +71,17 @@ public class SolverTest {
 	@Test
 	public void testStrSctr() throws Exception {
 		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(30);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(30);
 		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(60);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(60);
 		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(50);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(50);
 		ManagedSymmetricEssDummy ess4 = new ManagedSymmetricEssDummy("ess4") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(10);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(10);
 		ManagedSymmetricEssDummy ess5 = new ManagedSymmetricEssDummy("ess5") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(90);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(90);
 		ManagedSymmetricEssDummy ess6 = new ManagedSymmetricEssDummy("ess6") //
-				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(70);
+				.allowedChargePower(-50000).allowedDischargePower(50000).maxApparentPower(12000).soc(70);
 		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2, ess3, ess4, ess5, ess6); //
 		Data d = prepareData(ess0, ess1, ess2, ess3, ess4, ess5, ess6);
 		final Solver s = new Solver(d);
@@ -139,7 +139,7 @@ public class SolverTest {
 	@Test
 	public void testCommercial40DischargeSymmetricActivePower() throws Exception {
 		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").maxApparentPower(40000)
-				.allowedCharge(-26000).allowedDischarge(40000).precision(100).soc(51);
+				.allowedChargePower(-26000).allowedDischargePower(40000).precision(100).soc(51);
 		Data d = prepareData(ess0);
 		Solver s = new Solver(d);
 
@@ -277,10 +277,10 @@ public class SolverTest {
 
 	@Test
 	public void testCommercial40Cluster() throws Exception {
-		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").maxApparentPower(40000).allowedCharge(-500)
-				.allowedDischarge(500).precision(100).soc(1);
-		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").maxApparentPower(40000).allowedCharge(-500)
-				.allowedDischarge(500).precision(100).soc(97);
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").maxApparentPower(40000)
+				.allowedChargePower(-500).allowedDischargePower(500).precision(100).soc(1);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").maxApparentPower(40000)
+				.allowedChargePower(-500).allowedDischargePower(500).precision(100).soc(97);
 		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2);
 		Data d = prepareData(ess0, ess1, ess2);
 		Solver s = new Solver(d);
@@ -296,8 +296,8 @@ public class SolverTest {
 		d.initializeCycle();
 
 		// #2
-		ess1.allowedCharge(-1000);
-		ess2.allowedCharge(-1000);
+		ess1.allowedChargePower(-1000);
+		ess2.allowedChargePower(-1000);
 		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
 		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
 		ess1.expectP(-1000);
@@ -306,8 +306,8 @@ public class SolverTest {
 		d.initializeCycle();
 
 		// #3
-		ess1.allowedCharge(-2000);
-		ess2.allowedCharge(-2000);
+		ess1.allowedChargePower(-2000);
+		ess2.allowedChargePower(-2000);
 		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
 		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
 		ess1.expectP(-2000);
@@ -316,8 +316,8 @@ public class SolverTest {
 		d.initializeCycle();
 
 		// #4
-		ess1.allowedCharge(-3000);
-		ess2.allowedCharge(-3000);
+		ess1.allowedChargePower(-3000);
+		ess2.allowedChargePower(-3000);
 		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
 		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
 		ess1.expectP(-3000);
@@ -326,8 +326,8 @@ public class SolverTest {
 		d.initializeCycle();
 
 		// #5
-		ess1.allowedCharge(-3500);
-		ess2.allowedCharge(-3500);
+		ess1.allowedChargePower(-3500);
+		ess2.allowedChargePower(-3500);
 		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
 		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
 		// TODO: should prefer ess1, because it is empty!
@@ -337,8 +337,8 @@ public class SolverTest {
 		d.initializeCycle();
 
 		// #6
-		ess1.allowedCharge(-4000);
-		ess2.allowedCharge(-4000);
+		ess1.allowedChargePower(-4000);
+		ess2.allowedChargePower(-4000);
 		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
 		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
 		// TODO: should prefer ess1, because it is empty!
@@ -348,8 +348,8 @@ public class SolverTest {
 		d.initializeCycle();
 
 		// #6
-		ess1.allowedCharge(-5000);
-		ess2.allowedCharge(-5000);
+		ess1.allowedChargePower(-5000);
+		ess2.allowedChargePower(-5000);
 		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
 		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
 		ess1.expectP(-5000);

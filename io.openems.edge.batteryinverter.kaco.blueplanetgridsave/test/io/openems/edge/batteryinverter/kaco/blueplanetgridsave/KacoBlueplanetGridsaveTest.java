@@ -7,7 +7,7 @@ import org.junit.Test;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201_CurrentState;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.State;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
@@ -22,13 +22,13 @@ import io.openems.edge.common.test.DummyCycle;
 
 public class KacoBlueplanetGridsaveTest {
 
-	private final static String BATTERY_INVERTER_ID = "batteryInverter0";
-	private final static String BATTERY_ID = "battery0";
-	private final static String MODBUS_ID = "modbus0";
+	private static final String BATTERY_INVERTER_ID = "batteryInverter0";
+	private static final String BATTERY_ID = "battery0";
+	private static final String MODBUS_ID = "modbus0";
 
-	private final static ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_INVERTER_ID, "StateMachine");
+	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_INVERTER_ID, "StateMachine");
 
-	private final static ChannelAddress CURRENT_STATE = new ChannelAddress(BATTERY_INVERTER_ID,
+	private static final ChannelAddress CURRENT_STATE = new ChannelAddress(BATTERY_INVERTER_ID,
 			KacoSunSpecModel.S64201.CURRENT_STATE.getChannelId().id());
 
 	private static class MyComponentTest extends ComponentTest {
@@ -42,7 +42,7 @@ public class KacoBlueplanetGridsaveTest {
 		@Override
 		protected void handleEvent(String topic) throws Exception {
 			if (topic.equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE)) {
-				((KacoBlueplanetGridsaveImpl) this.getSut()).apply(this.battery, 0, 0);
+				((KacoBlueplanetGridsaveImpl) this.getSut()).run(this.battery, 0, 0);
 			}
 			super.handleEvent(topic);
 		}
@@ -59,7 +59,7 @@ public class KacoBlueplanetGridsaveTest {
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID));
 
 		// TODO implement proper Dummy-Modbus-Bridge with SunSpec support. Till then...
-		test.addReference("isSunSpecInitializationFinished", true); //
+		test.addReference("isSunSpecInitializationCompleted", true); //
 		Method addChannel = AbstractOpenemsComponent.class.getDeclaredMethod("addChannel", ChannelId.class);
 		addChannel.setAccessible(true);
 		addChannel.invoke(sut, KacoSunSpecModel.S64203.BAT_SOC_0.getChannelId());
@@ -72,6 +72,7 @@ public class KacoBlueplanetGridsaveTest {
 		addChannel.invoke(sut, KacoSunSpecModel.S64202.EN_LIMIT_0.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.REQUESTED_STATE.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.CURRENT_STATE.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.WATCHDOG.getChannelId());
 
 		test.activate(MyConfig.create() //
 				.setId(BATTERY_INVERTER_ID) //
@@ -82,7 +83,7 @@ public class KacoBlueplanetGridsaveTest {
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.GO_RUNNING)) //
 				.next(new TestCase() //
-						.input(CURRENT_STATE, S64201_CurrentState.GRID_CONNECTED)) //
+						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.RUNNING)) //
 		;

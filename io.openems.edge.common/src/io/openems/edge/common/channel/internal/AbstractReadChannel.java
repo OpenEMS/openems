@@ -167,9 +167,8 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	}
 
 	@Override
-	public Consumer<Value<T>> onSetNextValue(Consumer<Value<T>> callback) {
+	public void onSetNextValue(Consumer<Value<T>> callback) {
 		this.onSetNextValueCallbacks.add(callback);
-		return callback;
 	}
 
 	@Override

@@ -1,21 +1,19 @@
 package io.openems.edge.battery.soltaro.cluster.versionc.statemachine;
 
-import com.google.common.base.CaseFormat;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public enum State implements io.openems.edge.common.statemachine.State<State, Context>, OptionsEnum {
-	UNDEFINED(-1, new Undefined()), //
+	UNDEFINED(-1, new UndefinedHandler()), //
 
-	GO_RUNNING(10, new GoRunning()), //
-	RUNNING(11, new Running()), //
+	GO_RUNNING(10, new GoRunningHandler()), //
+	RUNNING(11, new RunningHandler()), //
 
-	GO_STOPPED(20, new GoStopped()), //
-	STOPPED(21, new Stopped()), //
+	GO_STOPPED(20, new GoStoppedHandler()), //
+	STOPPED(21, new StoppedHandler()), //
 
-	ERROR_HANDLING(30, new ErrorHandling()), //
+	ERROR(30, new ErrorHandler()), //
 	;
 
 	protected abstract static class Handler {
@@ -57,7 +55,7 @@ public enum State implements io.openems.edge.common.statemachine.State<State, Co
 
 	@Override
 	public String getName() {
-		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name());
+		return this.name();
 	}
 
 	@Override

@@ -35,7 +35,7 @@ public abstract class BaseState implements IState {
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(BatteryHandlingController.class.getName(), ess,
 				Phase.ALL, Pwr.ACTIVE, calculatedPower);
 		try {
-			ess.getSetActivePowerGreaterOrEquals().setNextWriteValue(calculatedPower);
+			ess.setActivePowerGreaterOrEquals(calculatedPower);
 		} catch (OpenemsNamedException e) {
 			this.log.error(e.getMessage());
 		}
@@ -46,7 +46,7 @@ public abstract class BaseState implements IState {
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(BatteryHandlingController.class.getName(), ess,
 				Phase.ALL, Pwr.ACTIVE, calculatedPower);
 		try {
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+			ess.setActivePowerLessOrEquals(calculatedPower);
 		} catch (OpenemsNamedException e) {
 			this.log.error(e.getMessage());
 		}
@@ -56,7 +56,7 @@ public abstract class BaseState implements IState {
 		int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 		int calculatedPower = maxCharge / 100 * chargePowerPercent;
 		try {
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+			ess.setActivePowerLessOrEquals(calculatedPower);
 		} catch (OpenemsNamedException e) {
 			log.error(e.getMessage());
 		}
@@ -138,7 +138,7 @@ public abstract class BaseState implements IState {
 		}
 
 		Value<Integer> minCellTemperature = bms.getMinCellTemperature();
-		if (minCellTemperature.isDefined()) {
+		if (!minCellTemperature.isDefined()) {
 			return true;
 		}
 

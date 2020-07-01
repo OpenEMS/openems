@@ -81,6 +81,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
 		this.config = config;
+		this._setCapacity(this.config.capacity());
 	}
 
 	@Deactivate
@@ -401,7 +402,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 				 */
 				Integer productionPower = null;
 				for (AbstractGoodWeEtCharger charger : this.chargers) {
-					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().value().get());
+					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
 				}
 				if (productionPower == null) {
 					// No PV-Power -> required to put on SELL_POWER
@@ -434,11 +435,11 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString()//
-				+ "|Allowed:" + this.getAllowedCharge().value().asStringWithoutUnit() + ";"
-				+ this.getAllowedDischarge().value().asString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString()//
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString();
 	}
 
 	@Override
@@ -472,26 +473,26 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		final Channel<Integer> batteryPower = this.channel(EssChannelId.P_BATTERY1);
 		Integer activePower = batteryPower.getNextValue().get();
 		for (AbstractGoodWeEtCharger charger : this.chargers) {
-			activePower = TypeUtils.sum(activePower, charger.getActualPower().getNextValue().get());
+			activePower = TypeUtils.sum(activePower, charger.getActualPowerChannel().getNextValue().get());
 		}
-		this.getActivePower().setNextValue(activePower);
+		this._setActivePower(activePower);
 
 		/*
 		 * Update Allowed charge and Allowed discharge
 		 */
 
-		Integer soc = this.getSoc().value().get();
-		Integer maxApparentPower = this.getMaxApparentPower().value().get();
+		Integer soc = this.getSoc().get();
+		Integer maxApparentPower = this.getMaxApparentPower().get();
 
 		if (soc == null || soc >= 99) {
-			this.getAllowedCharge().setNextValue(0);
+			this._setAllowedChargePower(0);
 		} else {
-			this.getAllowedCharge().setNextValue(TypeUtils.multiply(maxApparentPower, -1) );
+			this._setAllowedChargePower(TypeUtils.multiply(maxApparentPower, -1));
 		}
 		if (soc == null || soc <= 0) {
-			this.getAllowedDischarge().setNextValue(0);
+			this._setAllowedDischargePower(0);
 		} else {
-			this.getAllowedDischarge().setNextValue(maxApparentPower);
+			this._setAllowedDischargePower(maxApparentPower);
 		}
 	}
 

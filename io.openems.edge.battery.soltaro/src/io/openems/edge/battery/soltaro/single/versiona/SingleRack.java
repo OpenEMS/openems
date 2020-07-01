@@ -101,10 +101,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				StartStoppable.ChannelId.values(), //
 				SingleRack.ChannelId.values() //
 		);
-		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(SingleRack.CHARGE_MAX_A);
-		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(SingleRack.CHARGE_MAX_V);
-		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(SingleRack.DISCHARGE_MAX_A);
-		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(SingleRack.DISCHARGE_MIN_V);
+		this._setChargeMaxCurrent(SingleRack.CHARGE_MAX_A);
+		this._setChargeMaxVoltage(SingleRack.CHARGE_MAX_V);
+		this._setDischargeMaxCurrent(SingleRack.DISCHARGE_MAX_A);
+		this._setDischargeMinVoltage(SingleRack.DISCHARGE_MIN_V);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

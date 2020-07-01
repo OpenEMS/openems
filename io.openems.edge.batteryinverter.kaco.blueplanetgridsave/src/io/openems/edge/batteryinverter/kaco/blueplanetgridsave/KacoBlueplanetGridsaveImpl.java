@@ -30,13 +30,13 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201_CurrentState;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64202.S64202_EnLimit;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64202.S64202EnLimit;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.Context;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.State;
 import io.openems.edge.batteryinverter.sunspec.AbstractSunSpecBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.sunspec.ISunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
@@ -88,26 +88,28 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	 * Active SunSpec models for KACO blueplanet gridsave. Commented models are
 	 * available but not used currently.
 	 */
-	private static final Map<ISunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<ISunSpecModel, Priority>builder()
-			.put(SunSpecModel.S_1, Priority.LOW) //
-			.put(SunSpecModel.S_103, Priority.LOW) //
-			// .put(SunSpecModel.S_113, Priority.LOW) //
-			// .put(SunSpecModel.S_120, Priority.LOW) //
-			.put(SunSpecModel.S_121, Priority.LOW) //
-			// .put(SunSpecModel.S_122, Priority.LOW) //
-			// .put(SunSpecModel.S_123, Priority.LOW) //
-			// .put(SunSpecModel.S_126, Priority.LOW) //
-			// .put(SunSpecModel.S_129, Priority.LOW) //
-			// .put(SunSpecModel.S_130, Priority.LOW) //
-			// .put(SunSpecModel.S_132, Priority.LOW) //
-			// .put(SunSpecModel.S_135, Priority.LOW) //
-			// .put(SunSpecModel.S_136, Priority.LOW) //
-			// .put(SunSpecModel.S_160, Priority.LOW) //
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
 			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
 			.build();
+
+	// Further available SunSpec blocks provided by KACO blueplanet are:
+	// .put(SunSpecModel.S_113, Priority.LOW) //
+	// .put(SunSpecModel.S_120, Priority.LOW) //
+	// .put(SunSpecModel.S_122, Priority.LOW) //
+	// .put(SunSpecModel.S_123, Priority.LOW) //
+	// .put(SunSpecModel.S_126, Priority.LOW) //
+	// .put(SunSpecModel.S_129, Priority.LOW) //
+	// .put(SunSpecModel.S_130, Priority.LOW) //
+	// .put(SunSpecModel.S_132, Priority.LOW) //
+	// .put(SunSpecModel.S_135, Priority.LOW) //
+	// .put(SunSpecModel.S_136, Priority.LOW) //
+	// .put(SunSpecModel.S_160, Priority.LOW) //
 
 	@Activate
 	public KacoBlueplanetGridsaveImpl() {
@@ -119,7 +121,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 				StartStoppable.ChannelId.values(), //
 				KacoBlueplanetGridsave.ChannelId.values() //
 		);
-		this.channel(SymmetricBatteryInverter.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
+		this._setGridMode(GridMode.ON_GRID);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -140,7 +142,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	}
 
 	@Override
-	public void apply(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
+	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 		// Store the current State
 		this.channel(KacoBlueplanetGridsave.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
@@ -231,7 +233,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 
 		// Activate Battery values
 		EnumWriteChannel enLimitChannel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64202.EN_LIMIT_0);
-		enLimitChannel.setNextWriteValue(S64202_EnLimit.ACTIVATE);
+		enLimitChannel.setNextWriteValue(S64202EnLimit.ACTIVATE);
 	}
 
 	/**
@@ -278,14 +280,15 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	 */
 	private void setStateChannels() throws OpenemsNamedException {
 		/*
-		 * INVALID_CURRENT_STATE
+		 * INVERTER_CURRENT_STATE_FAULT
 		 */
-		StateChannel invalidCurrentStateChannel = this.channel(KacoBlueplanetGridsave.ChannelId.INVALID_CURRENT_STATE);
+		StateChannel inverterCurrentStateChannel = this
+				.channel(KacoBlueplanetGridsave.ChannelId.INVERTER_CURRENT_STATE_FAULT);
 		switch (this.getCurrentState()) {
 		case FAULT:
 		case UNDEFINED:
 		case NO_ERROR_PENDING:
-			invalidCurrentStateChannel.setNextValue(true);
+			inverterCurrentStateChannel.setNextValue(true);
 			break;
 		case GRID_CONNECTED:
 		case GRID_PRE_CONNECTED:
@@ -297,7 +300,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		case STANDBY:
 		case STARTING:
 		case THROTTLED:
-			invalidCurrentStateChannel.setNextValue(false);
+			inverterCurrentStateChannel.setNextValue(false);
 			break;
 		}
 	}
@@ -308,7 +311,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	@Override
 	protected void onSunSpecInitializationCompleted() {
 		this.addCopyListener(//
-				this.getSunSpecChannel(SunSpecModel.S121.W_MAX).get(), //
+				this.getSunSpecChannel(DefaultSunSpecModel.S121.W_MAX).get(), //
 				SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER //
 		);
 		this.addCopyListener(//
@@ -322,17 +325,17 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	}
 
 	@Override
-	public S64201_CurrentState getCurrentState() {
+	public S64201CurrentState getCurrentState() {
 		Optional<EnumReadChannel> channel = this.getSunSpecChannel(KacoSunSpecModel.S64201.CURRENT_STATE);
 		if (channel.isPresent()) {
 			return channel.get().value().asEnum();
 		} else {
-			return S64201_CurrentState.UNDEFINED;
+			return S64201CurrentState.UNDEFINED;
 		}
 	}
 
 	@Override
-	protected ISunSpecModel getSunSpecModel(int blockId) throws IllegalArgumentException {
+	protected SunSpecModel getSunSpecModel(int blockId) throws IllegalArgumentException {
 		return KacoSunSpecModel.valueOf("S_" + blockId);
 	}
 
@@ -351,6 +354,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 		if (!scalefactor.isDefined() || !maxApparentPower.isDefined()) {
 			return 1;
 		}
+		// Take one percent (0.01) of MaxApparentPower and then apply scalefactor
 		return (int) (maxApparentPower.get() * 0.01 * Math.pow(10, scalefactor.get()));
 	}
 
@@ -394,7 +398,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	 * Adds a Copy-Listener. It listens on setNextValue() and copies the value to
 	 * the target channel.
 	 * 
-	 * @param <T>
+	 * @param <T>             the Channel type
 	 * @param sourceChannel   the source Channel
 	 * @param targetChannelId the target ChannelId
 	 */

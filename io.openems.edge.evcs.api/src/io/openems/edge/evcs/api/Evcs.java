@@ -1,11 +1,14 @@
 package io.openems.edge.evcs.api;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -15,11 +18,10 @@ public interface Evcs extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
-		 * The Status of the EVCS charging station.
+		 * Status.
 		 * 
 		 * <p>
-		 * Undefined, Starting, Not ready for Charging, Ready for Charging, Charging,
-		 * Error, Authorization rejected.
+		 * The Status of the EVCS charging station.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -45,6 +47,21 @@ public interface Evcs extends OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		/**
+		 * Charging Type.
+		 * 
+		 * <p>
+		 * Type of charging.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Type: ChargingType
+		 * </ul>
+		 */
+		CHARGING_TYPE(Doc.of(ChargingType.values()) //
+				.accessMode(AccessMode.READ_ONLY)), //
+
+		/**
 		 * Count of phases, the EV is charging with.
 		 * 
 		 * <p>
@@ -52,7 +69,7 @@ public interface Evcs extends OpenemsComponent {
 		 * charging.
 		 * 
 		 * <ul>
-		 * <li>Interface: ManagedEvcs
+		 * <li>Interface: Evcs
 		 * <li>Readable
 		 * <li>Type: Integer
 		 * </ul>
@@ -132,7 +149,18 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		ENERGY_SESSION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY));
+				.accessMode(AccessMode.READ_ONLY)),
+
+		/**
+		 * Failed state channel for a failed communication to the EVCS.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Level: FAULT
+		 * </ul>
+		 */
+		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT).accessMode(AccessMode.READ_ONLY));
 
 		private final Doc doc;
 
@@ -147,81 +175,376 @@ public interface Evcs extends OpenemsComponent {
 	}
 
 	/**
-	 * The Status of the EVCS charging station.
-	 * 
-	 * @return the EnumReadChannel
+	 * Gets the Channel for {@link ChannelId#STATUS}.
+	 *
+	 * @return the Channel
 	 */
-	public default EnumReadChannel status() {
+	public default Channel<Status> getStatusChannel() {
 		return this.channel(ChannelId.STATUS);
 	}
 
 	/**
-	 * Gets the Charge Power in [W].
-	 * 
-	 * @return the IntegerReadChannel
+	 * Gets the Status of the EVCS charging station. See {@link ChannelId#STATUS}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerReadChannel getChargePower() {
+	public default Status getStatus() {
+		return this.getStatusChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#STATUS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setStatus(Status value) {
+		this.getStatusChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getChargePowerChannel() {
 		return this.channel(ChannelId.CHARGE_POWER);
 	}
 
 	/**
-	 * Count of phases, the EV is charging with.
-	 * 
-	 * @return the IntegerReadChannel
+	 * Gets the Charge Power in [W]. See {@link ChannelId#CHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerReadChannel getPhases() {
+	public default Value<Integer> getChargePower() {
+		return this.getChargePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargePower(Integer value) {
+		this.getChargePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargePower(int value) {
+		this.getChargePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CHARGING_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<ChargingType> getChargingTypeChannel() {
+		return this.channel(ChannelId.CHARGING_TYPE);
+	}
+
+	/**
+	 * Gets the Type of charging. See {@link ChannelId#CHARGING_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default ChargingType getChargingType() {
+		return this.getChargingTypeChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGING_TYPE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargingType(ChargingType value) {
+		this.getChargingTypeChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PHASES}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPhasesChannel() {
 		return this.channel(ChannelId.PHASES);
 	}
 
 	/**
-	 * Maximum Power valid by the hardware.
-	 * 
-	 * @return the IntegerReadChannel
+	 * Gets the Count of phases, the EV is charging with. See
+	 * {@link ChannelId#PHASES}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerReadChannel getMaximumHardwarePower() {
-		return this.channel(ChannelId.MAXIMUM_HARDWARE_POWER);
+	public default Value<Integer> getPhases() {
+		return this.getPhasesChannel().value();
 	}
 
 	/**
-	 * Minimum Power valid by the hardware.
-	 * 
-	 * @return the IntegerReadChannel
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PHASES} Channel.
+	 *
+	 * @param value the next value
 	 */
-	public default IntegerReadChannel getMinimumHardwarePower() {
+	public default void _setPhases(Integer value) {
+		this.getPhasesChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PHASES} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPhases(int value) {
+		this.getPhasesChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MINIMUM_HARDWARE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMinimumHardwarePowerChannel() {
 		return this.channel(ChannelId.MINIMUM_HARDWARE_POWER);
 	}
 
 	/**
-	 * Maximum Power defined by software.
-	 * 
-	 * @return the IntegerReadChannel
+	 * Gets the Minimum Power valid by the hardware in [W]. See
+	 * {@link ChannelId#MINIMUM_HARDWARE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerReadChannel getMaximumPower() {
+	public default Value<Integer> getMinimumHardwarePower() {
+		return this.getMinimumHardwarePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MINIMUM_HARDWARE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinimumHardwarePower(Integer value) {
+		this.getMinimumHardwarePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MINIMUM_HARDWARE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinimumHardwarePower(int value) {
+		this.getMinimumHardwarePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAXIMUM_HARDWARE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaximumHardwarePowerChannel() {
+		return this.channel(ChannelId.MAXIMUM_HARDWARE_POWER);
+	}
+
+	/**
+	 * Gets the Maximum Power valid by the hardware in [W]. See
+	 * {@link ChannelId#MAXIMUM_HARDWARE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaximumHardwarePower() {
+		return this.getMaximumHardwarePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAXIMUM_HARDWARE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaximumHardwarePower(Integer value) {
+		this.getMaximumHardwarePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAXIMUM_HARDWARE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaximumHardwarePower(int value) {
+		this.getMaximumHardwarePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAXIMUM_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaximumPowerChannel() {
 		return this.channel(ChannelId.MAXIMUM_POWER);
 	}
 
 	/**
-	 * Minimum Power defined by software.
-	 * 
-	 * @return the IntegerReadChannel
+	 * Gets the Maximum Power valid by software in [W]. See
+	 * {@link ChannelId#MAXIMUM_POWER}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerReadChannel getMinimumPower() {
+	public default Value<Integer> getMaximumPower() {
+		return this.getMaximumPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAXIMUM_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaximumPower(Integer value) {
+		this.getMaximumPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAXIMUM_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaximumPower(int value) {
+		this.getMaximumPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MINIMUM_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMinimumPowerChannel() {
 		return this.channel(ChannelId.MINIMUM_POWER);
 	}
 
 	/**
-	 * Energy that was charged during the current or last Session.
-	 * 
-	 * @return the IntegerReadChannel
+	 * Gets the Minimum Power valid by software in [W]. See
+	 * {@link ChannelId#MINIMUM_POWER}.
+	 *
+	 * @return the Channel {@link Value}
 	 */
-	public default IntegerReadChannel getEnergySession() {
+	public default Value<Integer> getMinimumPower() {
+		return this.getMinimumPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MINIMUM_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinimumPower(Integer value) {
+		this.getMinimumPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MINIMUM_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMinimumPower(int value) {
+		this.getMinimumPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ENERGY_SESSION}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEnergySessionChannel() {
 		return this.channel(ChannelId.ENERGY_SESSION);
 	}
 
+	/**
+	 * Gets the Energy that was charged during the current or last Session in [Wh].
+	 * See {@link ChannelId#ENERGY_SESSION}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEnergySession() {
+		return this.getEnergySessionChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ENERGY_SESSION}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEnergySession(Integer value) {
+		this.getEnergySessionChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ENERGY_SESSION}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEnergySession(int value) {
+		this.getEnergySessionChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CHARGINGSTATION_COMMUNICATION_FAILED}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getChargingstationCommunicationFailedChannel() {
+		return this.channel(ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+	}
+
+	/**
+	 * Gets the Failed state channel for a failed communication to the EVCS. See
+	 * {@link ChannelId#CHARGINGSTATION_COMMUNICATION_FAILED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getChargingstationCommunicationFailed() {
+		return this.getChargingstationCommunicationFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CHARGINGSTATION_COMMUNICATION_FAILED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargingstationCommunicationFailed(boolean value) {
+		this.getChargingstationCommunicationFailedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Returns the modbus table for this nature.
+	 * 
+	 * @param accessMode accessMode
+	 * @return nature table
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		// TODO add remaining channels
-		return ModbusSlaveNatureTable.of(ManagedEvcs.class, accessMode, 100) //
+		return ModbusSlaveNatureTable.of(Evcs.class, accessMode, 100) //
 				.channel(0, ChannelId.STATUS, ModbusType.UINT16) //
+				.channel(1, ChannelId.CHARGE_POWER, ModbusType.UINT16) //
+				.channel(2, ChannelId.CHARGING_TYPE, ModbusType.UINT16) //
+				.channel(3, ChannelId.PHASES, ModbusType.UINT16) //
+				.channel(4, ChannelId.MAXIMUM_HARDWARE_POWER, ModbusType.UINT16) //
+				.channel(5, ChannelId.MINIMUM_HARDWARE_POWER, ModbusType.UINT16) //
+				.channel(6, ChannelId.MAXIMUM_POWER, ModbusType.UINT16) //
+				.channel(7, ChannelId.ENERGY_SESSION, ModbusType.UINT16) //
+				.channel(8, ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, ModbusType.UINT16) //
 				.build();
 	}
 }

@@ -9,12 +9,10 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
 /**
- * Provides a simple, simulated ManagedSymmetricEss component that can be used
+ * Provides a simple, simulated {@link Battery} component that can be used
  * together with the OpenEMS Component test framework.
  */
 public class DummyBattery extends AbstractOpenemsComponent implements Battery, OpenemsComponent, StartStoppable {
-
-	public static final int MAX_APPARENT_POWER = Integer.MAX_VALUE;
 
 	public DummyBattery(String id) {
 		super(//

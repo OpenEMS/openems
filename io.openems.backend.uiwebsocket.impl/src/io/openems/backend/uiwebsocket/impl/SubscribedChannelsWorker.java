@@ -13,20 +13,11 @@ import io.openems.common.types.ChannelAddress;
 public class SubscribedChannelsWorker extends io.openems.common.websocket.SubscribedChannelsWorker {
 
 	private final UiWebsocketImpl parent;
+	private final String edgeId;
 
-	private String edgeId = null;
-
-	public SubscribedChannelsWorker(UiWebsocketImpl parent, WsData wsData) {
+	public SubscribedChannelsWorker(UiWebsocketImpl parent, String edgeId, WsData wsData) {
 		super(wsData);
 		this.parent = parent;
-	}
-
-	/**
-	 * Sets the Edge-ID.
-	 * 
-	 * @param edgeId the Edge-ID
-	 */
-	public void setEdgeId(String edgeId) {
 		this.edgeId = edgeId;
 	}
 

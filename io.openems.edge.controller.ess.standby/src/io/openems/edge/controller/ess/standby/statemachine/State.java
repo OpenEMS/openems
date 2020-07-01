@@ -4,12 +4,12 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public enum State implements io.openems.edge.common.statemachine.State<State, Context>, OptionsEnum {
-	UNDEFINED(-1, new Undefined()), //
-	DISCHARGE(1, new Discharge()), //
-	SLOW_CHARGE_1(2, new SlowCharge1()), //
-	FAST_CHARGE(3, new FastCharge()), //
-	SLOW_CHARGE_2(4, new SlowCharge2()), //
-	FINISHED(5, new Finished()) //
+	UNDEFINED(-1, new UndefinedHandler()), //
+	DISCHARGE(1, new DischargeHandler()), //
+	SLOW_CHARGE_1(2, new SlowCharge1Handler()), //
+	FAST_CHARGE(3, new FastChargeHandler()), //
+	SLOW_CHARGE_2(4, new SlowCharge2Handler()), //
+	FINISHED(5, new FinishedHandler()) //
 	;
 
 	private final int value;

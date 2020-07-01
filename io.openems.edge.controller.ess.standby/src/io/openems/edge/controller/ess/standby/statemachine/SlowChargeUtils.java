@@ -25,8 +25,8 @@ public class SlowChargeUtils {
 	protected static void calculateAndApplyPower(Context context)
 			throws IllegalArgumentException, OpenemsNamedException {
 		// Charge by keeping the grid to zero (just like in Balancing Controller)
-		int gridPower = context.sum.getGridActivePower().value().getOrError();
-		int essPower = context.ess.getActivePower().value().getOrError();
+		int gridPower = context.sum.getGridActivePower().getOrError();
+		int essPower = context.ess.getActivePower().getOrError();
 		int setPower = gridPower + essPower;
 		if (setPower > 0) {
 			// do not discharge
@@ -34,7 +34,7 @@ public class SlowChargeUtils {
 		}
 
 		// Fit within minimum and maximum power limits
-		int maxApparentPower = context.ess.getMaxApparentPower().value().getOrError();
+		int maxApparentPower = context.ess.getMaxApparentPower().getOrError();
 		int minPower = Math.round(maxApparentPower * -1 * MIN_POWER_LIMIT_FACTOR);
 		if (setPower > minPower) {
 			setPower = minPower;
@@ -45,6 +45,6 @@ public class SlowChargeUtils {
 		}
 
 		// Apply power constraint
-		context.ess.getSetActivePowerEqualsWithPid().setNextWriteValue(setPower);
+		context.ess.setActivePowerEqualsWithPid(setPower);
 	}
 }
