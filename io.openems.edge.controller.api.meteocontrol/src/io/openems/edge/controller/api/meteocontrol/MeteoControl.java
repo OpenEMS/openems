@@ -80,18 +80,18 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 	// inverter values for MeteoControl
 	private long e_int = 0; // Energy generated per interval
 	private int u_ac = 0; // Voltage AC
-	private int p_ac = 0; // Power AC (single phase or accumulated)
+	private int p_ac = 0; // Power AC
 
 	// meter values for MeteoControl
 	private int m_ac_f = 0; // Grid frequency
 	private int m_ac_q = 0; // Reactive Power
-	private int m_ac_p = 0;
+	private int m_ac_p = 0; // Power AC
 
 	// battery values for MeteoControl
 	private int b_charge_level = 0; // SOC
 	private int b_p_dc = 0; // Total battery power
 
-	private Document xmlDoc = null;
+	XmlUtils xmldata;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -138,9 +138,15 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 
 		if (tmp.minusMinutes(this.config.tInterval()).equals(this.lastsent)) {
 			this.lastsent = tmp;
+			try {
+				this.xmldata = new XmlUtils(this.config);
+			} catch (ParserConfigurationException e1) {
+				e1.printStackTrace();
+				throw new OpenemsException(e1.getMessage());
+			}
 			this.collectData(tmp);
-			String data = this.formatData();
-
+			String data = this.xmldata.formatData();
+			this.logError(log, data);
 			new Thread(() -> {
 				try {
 					this.sendData(data);
@@ -155,16 +161,6 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 	}
 
 	private void collectData(ZonedDateTime toDate) throws OpenemsNamedException {
-
-		Element datapoints = null;
-
-		try {
-			datapoints = this.createXMLBody();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new OpenemsException(e.getMessage());
-		}
 
 		SymmetricEss ess = this.componentManager.getComponent(this.config.essId());
 		SymmetricMeter pvInverter = this.componentManager.getComponent(this.config.pvInverter());
@@ -216,7 +212,7 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 			SortedMap<ChannelAddress, JsonElement> tmp = history.get(t);
 			String timestamp = t.truncatedTo(ChronoUnit.MINUTES).format(DateTimeFormatter.ISO_INSTANT).toString();
 
-			// this.p_dc = this.getHistoryDataValue(tmp, p_dcAddress);
+			this.xmldata.addDataPoint(timestamp);
 			this.u_ac = this.getHistoryDataValue(tmp, u_acAddress);
 			this.p_ac = this.getHistoryDataValue(tmp, p_acAddress);
 
@@ -227,61 +223,19 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 			this.b_charge_level = this.getHistoryDataValue(tmp, b_charge_levelAddress);
 			this.b_p_dc = this.getHistoryDataValue(tmp, b_p_dcAddress);
 
-			Element datapoint = this.xmlDoc.createElement("datapoint");
-			datapoint.setAttribute("interval", Integer.toString(this.config.mInterval()));
-			datapoint.setAttribute("timestamp", timestamp);
+			this.xmldata.addInverterData("E_INT", Long.toString(this.e_int));
+			this.xmldata.addInverterData("P_AC", Integer.toString(this.p_ac));
+			this.xmldata.addInverterData("U_AC", Integer.toString(this.u_ac));
 
-			Element inverter = this.xmlDoc.createElement("device");
-			inverter.setAttribute("id", "inverter-1");
-			datapoint.appendChild(inverter);
+			this.xmldata.addMeterData("M_AC_F", Integer.toString(this.m_ac_f));
+			this.xmldata.addMeterData("M_AC_Q", Integer.toString(this.m_ac_q));
+			this.xmldata.addMeterData("M_AC_P", Integer.toString(this.m_ac_p));
 
-			inverter.appendChild(this.appendMeasurement("E_INT", Long.toString(this.e_int)));
-			inverter.appendChild(this.appendMeasurement("P_AC", Integer.toString(this.p_ac)));
-			inverter.appendChild(this.appendMeasurement("U_AC", Integer.toString(this.u_ac)));
-
-			Element meterElement = this.xmlDoc.createElement("device");
-			meterElement.setAttribute("id", "meter-1");
-			datapoint.appendChild(meterElement);
-
-			meterElement.appendChild(this.appendMeasurement("M_AC_F", Integer.toString(this.m_ac_f)));
-			meterElement.appendChild(this.appendMeasurement("M_AC_Q", Integer.toString(this.m_ac_q)));
-			meterElement.appendChild(this.appendMeasurement("M_AC_P", Integer.toString(this.m_ac_p)));
-
-			Element battery = this.xmlDoc.createElement("device");
-			battery.setAttribute("id", "battery-1");
-			datapoint.appendChild(battery);
-
-			battery.appendChild(this.appendMeasurement("B_CHARGE_LEVEL", Integer.toString(this.b_charge_level)));
-			battery.appendChild(this.appendMeasurement("B_P_DC", Integer.toString(this.b_p_dc)));
-
-			datapoints.appendChild(datapoint);
+			this.xmldata.addBatteryData("B_CHARGE_LEVEL", Integer.toString(this.b_charge_level));
+			this.xmldata.addBatteryData("B_P_DC", Integer.toString(this.b_p_dc));
 
 		}
 
-	}
-
-	private String formatData() throws OpenemsException {
-
-		// Transform Document to XML String
-		TransformerFactory tf = TransformerFactory.newInstance();
-		Transformer transformer;
-		try {
-			transformer = tf.newTransformer();
-		} catch (TransformerConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new OpenemsException(e.getMessageAndLocation());
-		}
-		StringWriter writer = new StringWriter();
-
-		try {
-			transformer.transform(new DOMSource(this.xmlDoc), new StreamResult(writer));
-		} catch (TransformerException e) {
-			// TODO Auto-generated catch block
-			throw new OpenemsException(e.getMessageAndLocation());
-		}
-
-		return writer.getBuffer().toString();
 	}
 
 	private Timedata getTimedata() throws OpenemsException {
@@ -298,7 +252,7 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 		try {
 			httpPost.setEntity(new StringEntity(data));
 		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
+
 			e1.printStackTrace();
 			throw new OpenemsException(e1.getMessage());
 
@@ -315,11 +269,9 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 			}
 		} catch (ClientProtocolException e) {
 
-			e.printStackTrace();
 			throw new OpenemsException(e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 			throw new OpenemsException(e.getMessage());
 		}
 
@@ -331,87 +283,9 @@ public class MeteoControl extends AbstractOpenemsComponent implements Controller
 		try {
 			val = history.get(address).getAsInt();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 
 		}
 		return val;
-
-	}
-
-	private Element createXMLBody() throws ParserConfigurationException {
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-		this.xmlDoc = docBuilder.newDocument();
-
-		Element mii = this.xmlDoc.createElement("mii");
-		mii.setAttribute("version", "2.0");
-		mii.setAttribute("targetNamespace", "http://api.sspcdn.com/mii");
-		mii.setAttribute("xmlns", "http://api.sspcdn.com/mii");
-		this.xmlDoc.appendChild(mii);
-
-		Element datalogger = this.xmlDoc.createElement("datalogger");
-		mii.appendChild(datalogger);
-
-		Element configuration = this.xmlDoc.createElement("configuration");
-		configuration.setAttribute("xmlns", "http://api.sspcdn.com/mii/datalogger/configuration");
-		datalogger.appendChild(configuration);
-
-		Element uuid = this.xmlDoc.createElement("uuid");
-		configuration.appendChild(uuid);
-
-		Element vendor = this.xmlDoc.createElement("vendor");
-		vendor.setTextContent("KACO new energy GmbH");
-		uuid.appendChild(vendor);
-
-		Element serial = this.xmlDoc.createElement("serial");
-		serial.setTextContent(this.config.serial());
-		uuid.appendChild(serial);
-
-		Element devices = this.xmlDoc.createElement("devices");
-		configuration.appendChild(devices);
-
-		Element inverter = this.xmlDoc.createElement("device");
-		inverter.setAttribute("type", "inverter");
-		inverter.setAttribute("id", "inverter-1");
-		devices.appendChild(inverter);
-
-		Element inverterUid = this.xmlDoc.createElement("uid");
-		inverterUid.setTextContent(this.config.pvInverter());
-		inverter.appendChild(inverterUid);
-
-		Element meter = this.xmlDoc.createElement("device");
-		meter.setAttribute("type", "meter");
-		meter.setAttribute("id", "meter-1");
-		devices.appendChild(meter);
-
-		Element meterUid = this.xmlDoc.createElement("uid");
-		meterUid.setTextContent(this.config.meter());
-		meter.appendChild(meterUid);
-
-		Element battery = this.xmlDoc.createElement("device");
-		battery.setAttribute("type", "battery");
-		battery.setAttribute("id", "battery-1");
-		devices.appendChild(battery);
-
-		Element batteryUid = this.xmlDoc.createElement("uid");
-		batteryUid.setTextContent(this.config.essId());
-		battery.appendChild(batteryUid);
-
-		Element datapoints = this.xmlDoc.createElement("datapoints");
-		datapoints.setAttribute("xmlns", "http://api.sspcdn.com/mii/datalogger/datapoints");
-		datalogger.appendChild(datapoints);
-
-		return datapoints;
-
-	}
-
-	private Element appendMeasurement(String name, String value) {
-
-		Element mv = this.xmlDoc.createElement("mv");
-		mv.setAttribute("t", name);
-		mv.setAttribute("v", value);
-
-		return mv;
 
 	}
 
