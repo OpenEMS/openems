@@ -294,7 +294,7 @@ export class EvcsModalComponent implements OnInit {
   }
 
   /**
-  * Aktivates or deaktivates the Charging
+  * Activates or deactivates the Charging
   * 
   * @param event 
   */
@@ -313,6 +313,31 @@ export class EvcsModalComponent implements OnInit {
         this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
+    }
+  }
+
+  /**
+   * Updates the MinChargePower for Renault Zoe Charging Mode if activated in administration component
+   */
+  updateRenaultZoeConfig() {
+    if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
+
+      let oldMinChargePower = this.controller.properties.forceChargeMinPower;
+      let maxAllowedChargePower = 10 /* Ampere */ * 230 /* Volt */ * this.getNumberOfPhasesOrThree()
+
+      if (oldMinChargePower < maxAllowedChargePower) {
+        if (this.edge != null) {
+          let newMinChargePower = maxAllowedChargePower;
+          this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+            { name: 'forceChargeMinPower', value: newMinChargePower }
+          ]).then(() => {
+            this.controller.properties.forceChargeMinPower = newMinChargePower;
+          }).catch(reason => {
+            this.controller.properties.forceChargeMinPower = oldMinChargePower;
+            console.warn(reason);
+          });
+        }
+      }
     }
   }
 
@@ -357,6 +382,9 @@ export class EvcsModalComponent implements OnInit {
         edge: this.edge,
       }
     });
+    modal.onDidDismiss().then(() => {
+      this.updateRenaultZoeConfig();
+    })
     return await modal.present();
   }
 }
