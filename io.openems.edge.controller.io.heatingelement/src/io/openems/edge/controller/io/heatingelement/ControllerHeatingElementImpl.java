@@ -127,9 +127,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws IllegalArgumentException on error
 	 */
 	private void modeManualOn() throws IllegalArgumentException, OpenemsNamedException {
-		this.phase1.switchOn();
-		this.phase2.switchOn();
-		this.phase3.switchOn();
+		this.applyLevel(this.config.defaultLevel());
 	}
 
 	/**
@@ -139,9 +137,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws IllegalArgumentException on error
 	 */
 	private void modeManualOff() throws IllegalArgumentException, OpenemsNamedException {
-		this.phase1.switchOff();
-		this.phase2.switchOff();
-		this.phase3.switchOff();
+		this.applyLevel(Level.LEVEL_0);
 	}
 
 	/**
@@ -193,8 +189,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		// Apply Hysteresis
 		targetLevel = this.applyHysteresis(targetLevel);
 
-		// Update Channels
-		this.channel(ControllerHeatingElement.ChannelId.LEVEL).setNextValue(targetLevel);
+		// Update Channel
 		this.channel(ControllerHeatingElement.ChannelId.FORCE_START_AT_SECONDS_OF_DAY)
 				.setNextValue(latestForceChargeStartTime.toSecondOfDay());
 
@@ -280,6 +275,10 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException    on error
 	 */
 	public void applyLevel(Level level) throws IllegalArgumentException, OpenemsNamedException {
+		// Update Channel
+		this.channel(ControllerHeatingElement.ChannelId.LEVEL).setNextValue(level);
+
+		// Set phases accordingly
 		switch (level) {
 		case UNDEFINED:
 		case LEVEL_0:

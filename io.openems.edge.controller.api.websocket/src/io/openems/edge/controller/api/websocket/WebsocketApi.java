@@ -190,6 +190,9 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
 			if (this.server.getConnections().isEmpty()) {

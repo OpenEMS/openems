@@ -353,6 +353,9 @@ public class Rrd4jTimedata extends AbstractOpenemsComponent implements Timedata,
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.worker.collectData();

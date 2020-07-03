@@ -1,7 +1,6 @@
 package io.openems.edge.ess.generic.symmetric.statemachine;
 
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 
 public class UndefinedHandler extends StateHandler<State, Context> {
 
@@ -16,8 +15,9 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			// force START
 			if (context.component.hasFaults()) {
 				// TODO should we consider also Battery-Inverter and Battery Faults?
-				// TODO should the Modbus-Device also be on error, when then Modbus-Bridge is on error?
-				
+				// TODO should the Modbus-Device also be on error, when then Modbus-Bridge is on
+				// error?
+
 				// Has Faults -> error handling
 				return State.ERROR;
 			} else {

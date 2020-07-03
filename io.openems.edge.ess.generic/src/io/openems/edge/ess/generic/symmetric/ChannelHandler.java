@@ -42,7 +42,7 @@ public class ChannelHandler {
 	}
 
 	/**
-	 * Called on Component activate()
+	 * Called on Component activate().
 	 * 
 	 * @param battery         the {@link Battery}
 	 * @param batteryInverter the {@link ManagedSymmetricBatteryInverter}
@@ -54,7 +54,7 @@ public class ChannelHandler {
 		final Consumer<Value<Integer>> allowedChargeDischargeCallback = (value) -> {
 			// TODO: find proper efficiency factor to calculate AC Charge/Discharge limits
 			// from DC
-			final double EFFICIENCY_FACTOR = 0.9;
+			final double efficiencyFactor = 0.9;
 
 			Value<Integer> dischargeMinVoltage = battery.getDischargeMinVoltageChannel().getNextValue();
 			Value<Integer> dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue();
@@ -64,9 +64,9 @@ public class ChannelHandler {
 			if (dischargeMinVoltage.isDefined() && dischargeMaxCurrent.isDefined() && chargeMaxCurrent.isDefined()
 					&& chargeMaxVoltage.isDefined()) {
 				this.parent._setAllowedChargePower(//
-						(int) (chargeMaxCurrent.get() * chargeMaxVoltage.get() * -1 * EFFICIENCY_FACTOR));
+						(int) (chargeMaxCurrent.get() * chargeMaxVoltage.get() * -1 * efficiencyFactor));
 				this.parent._setAllowedDischargePower(//
-						(int) (dischargeMaxCurrent.get() * dischargeMinVoltage.get() * EFFICIENCY_FACTOR));
+						(int) (dischargeMaxCurrent.get() * dischargeMinVoltage.get() * efficiencyFactor));
 			}
 		};
 
@@ -134,7 +134,7 @@ public class ChannelHandler {
 	 * Adds a Copy-Listener. It listens on setNextValue() and copies the value to
 	 * the target channel.
 	 * 
-	 * @param <T>
+	 * @param <T>             the Channel-Type
 	 * @param sourceComponent the source component - Battery or BatteryInverter
 	 * @param sourceChannelId the source ChannelId
 	 * @param targetChannelId the target ChannelId
