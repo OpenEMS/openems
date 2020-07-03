@@ -66,14 +66,16 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 	public void run() throws OpenemsNamedException {
 		// Get required variables
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		EssDcCharger charger = this.componentManager.getComponent(this.config.charger_id());
 		Integer calculatedPower = super.getCalculatedPower(ess, productionHourlyPredictor, consumptionHourlyPredictor,
 				componentManager);
 
 		// checking if power per second is calculated
 		if (calculatedPower != null) {
-
-			int productionPower = charger.getActualPower().value().orElse(0);
+			int productionPower = 0;
+			for (String chargerId : this.config.charger_ids()) {
+				EssDcCharger charger = this.componentManager.getComponent(chargerId);
+				productionPower += charger.getActualPower().orElse(0);
+			}
 			calculatedPower = productionPower - calculatedPower;
 
 			// avoiding buying power from grid to charge the battery.
@@ -84,4 +86,5 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 			}
 		}
 	}
+
 }

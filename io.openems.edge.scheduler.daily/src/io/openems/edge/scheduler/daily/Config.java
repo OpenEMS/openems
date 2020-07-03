@@ -3,8 +3,6 @@ package io.openems.edge.scheduler.daily;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.scheduler.api.Scheduler;
-
 @ObjectClassDefinition(//
 		name = "Scheduler Daily", //
 		description = "This Scheduler executes the Controller in desired Time in a DAY")
@@ -19,8 +17,6 @@ import io.openems.edge.scheduler.api.Scheduler;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-
-	int cycleTime() default Scheduler.DEFAULT_CYCLE_TIME;
 
 	@AttributeDefinition(name = "Always Run Before", description = "IDs of Controllers that should be executed _before_ other Controllers in the order of the IDs.")
 	String[] alwaysRunBeforeController_ids() default {};

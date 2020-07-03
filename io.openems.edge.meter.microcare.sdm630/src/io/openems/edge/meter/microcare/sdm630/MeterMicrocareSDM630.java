@@ -82,6 +82,7 @@ public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
 		REACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS)), //
 		;
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -242,7 +243,7 @@ public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 }

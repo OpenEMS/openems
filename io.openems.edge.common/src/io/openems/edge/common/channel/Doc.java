@@ -107,6 +107,14 @@ public interface Doc {
 	public Unit getUnit();
 
 	/**
+	 * Sets the descriptive text. Defaults to an empty string.
+	 * 
+	 * @param text the text
+	 * @return myself
+	 */
+	public Doc text(String text);
+
+	/**
 	 * Gets the descriptive text. Defaults to empty String.
 	 * 
 	 * @return the text

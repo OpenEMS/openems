@@ -38,7 +38,7 @@ public class CalculateIntegerSum {
 	 * @param converter is applied to the channel value
 	 */
 	public void addValue(Channel<Integer> channel, Function<Integer, Integer> converter) {
-		Optional<Integer> value = channel.getNextValue().asOptional();
+		Optional<Integer> value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
 				this.values.add(converter.apply(value.get()));

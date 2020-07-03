@@ -6,6 +6,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -78,6 +81,24 @@ public interface Sum extends OpenemsComponent {
 		 * </ul>
 		 */
 		ESS_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text(OpenemsConstants.POWER_DOC_TEXT)),
+		/**
+		 * Ess: Discharge Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * <li>For AC coupled energy storage systems this is the same as
+		 * {@link ChannelId#ESS_ACTIVE_POWER}; for DC coupled or hybrid ESS this is the
+		 * {@link ChannelId#ESS_ACTIVE_POWER} minus
+		 * {@link ChannelId#PRODUCTION_DC_ACTUAL_POWER}, i.e. the power that is actually
+		 * charged to or discharged from the battery.
+		 * </ul>
+		 */
+		ESS_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
 		/**
@@ -475,6 +496,14 @@ public interface Sum extends OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Update all Channel-Values of this Sum-Component.
+	 * 
+	 * This method is called by the 'Cycle' just before the
+	 * TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
+	 */
+	public void updateChannelsBeforeProcessImage();
+
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(Sum.class, accessMode, 220) //
 				.channel(0, ChannelId.ESS_SOC, ModbusType.UINT16) //
@@ -527,147 +556,1438 @@ public interface Sum extends OpenemsComponent {
 				.build();
 	}
 
-	public default Channel<Integer> getEssSoc() {
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_SOC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssSocChannel() {
 		return this.channel(ChannelId.ESS_SOC);
 	}
 
-	public default Channel<Integer> getEssActivePower() {
+	/**
+	 * Gets the Average of all Energy Storage System State of Charge in [%], range
+	 * 0..100 %. See {@link ChannelId#ESS_SOC}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssSoc() {
+		return this.getEssSocChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssSoc(Integer value) {
+		this.getEssSocChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssSoc(int value) {
+		this.getEssSocChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssActivePowerChannel() {
 		return this.channel(ChannelId.ESS_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getEssActivePowerL1() {
+	/**
+	 * Gets the Sum of all Energy Storage System Active Power in [W]. Negative
+	 * values for Charge; positive for Discharge. See
+	 * {@link ChannelId#ESS_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssActivePower() {
+		return this.getEssActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePower(Integer value) {
+		this.getEssActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePower(int value) {
+		this.getEssActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssActivePowerL1Channel() {
 		return this.channel(ChannelId.ESS_ACTIVE_POWER_L1);
 	}
 
-	public default Channel<Integer> getEssActivePowerL2() {
+	/**
+	 * Gets the Sum of all Energy Storage System Active Power on L1 in [W]. Negative
+	 * values for Charge; positive for Discharge. See
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssActivePowerL1() {
+		return this.getEssActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePowerL1(Integer value) {
+		this.getEssActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePowerL1(int value) {
+		this.getEssActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssActivePowerL2Channel() {
 		return this.channel(ChannelId.ESS_ACTIVE_POWER_L2);
 	}
 
-	public default Channel<Integer> getEssActivePowerL3() {
+	/**
+	 * Gets the Sum of all Energy Storage System Active Power on L2 in [W]. Negative
+	 * values for Charge; positive for Discharge. See
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssActivePowerL2() {
+		return this.getEssActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePowerL2(Integer value) {
+		this.getEssActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePowerL2(int value) {
+		this.getEssActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssActivePowerL3Channel() {
 		return this.channel(ChannelId.ESS_ACTIVE_POWER_L3);
 	}
 
-	public default Channel<Integer> getEssMaxApparentPower() {
-		return this.channel(ChannelId.ESS_MAX_APPARENT_POWER);
+	/**
+	 * Gets the Sum of all Energy Storage System Active Power on L3 in [W]. Negative
+	 * values for Charge; positive for Discharge. See
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssActivePowerL3() {
+		return this.getEssActivePowerL3Channel().value();
 	}
 
-	public default Channel<Integer> getEssCapacity() {
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePowerL3(Integer value) {
+		this.getEssActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActivePowerL3(int value) {
+		this.getEssActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssDischargePowerChannel() {
+		return this.channel(ChannelId.ESS_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Sum of all Energy Storage System Discharge Power [W]. See
+	 * {@link ChannelId#ESS_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssDischargePower() {
+		return this.getEssDischargePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_DISCHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssDischargePower(Integer value) {
+		this.getEssDischargePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_DISCHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssDischargePower(int value) {
+		this.getEssDischargePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_CAPACITY}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssCapacityChannel() {
 		return this.channel(ChannelId.ESS_CAPACITY);
 	}
 
-	public default Channel<Integer> getGridActivePower() {
+	/**
+	 * Gets the Sum of all Energy Storage System Capacity in [Wh]. See
+	 * {@link ChannelId#ESS_CAPACITY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssCapacity() {
+		return this.getEssCapacityChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_CAPACITY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssCapacity(Integer value) {
+		this.getEssCapacityChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ESS_CAPACITY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssCapacity(int value) {
+		this.getEssCapacityChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getGridActivePowerChannel() {
 		return this.channel(ChannelId.GRID_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getGridActivePowerL1() {
+	/**
+	 * Gets the Total Grid Active Power in [W]. See
+	 * {@link ChannelId#GRID_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridActivePower() {
+		return this.getGridActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePower(Integer value) {
+		this.getGridActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePower(int value) {
+		this.getGridActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getGridActivePowerL1Channel() {
 		return this.channel(ChannelId.GRID_ACTIVE_POWER_L1);
 	}
 
-	public default Channel<Integer> getGridActivePowerL2() {
+	/**
+	 * Gets the Total Grid Active Power on L1 in [W]. See
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridActivePowerL1() {
+		return this.getGridActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePowerL1(Integer value) {
+		this.getGridActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePowerL1(int value) {
+		this.getGridActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getGridActivePowerL2Channel() {
 		return this.channel(ChannelId.GRID_ACTIVE_POWER_L2);
 	}
 
-	public default Channel<Integer> getGridActivePowerL3() {
+	/**
+	 * Gets the Total Grid Active Power on L2 in [W]. See
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridActivePowerL2() {
+		return this.getGridActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePowerL2(Integer value) {
+		this.getGridActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePowerL2(int value) {
+		this.getGridActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getGridActivePowerL3Channel() {
 		return this.channel(ChannelId.GRID_ACTIVE_POWER_L3);
 	}
 
-	public default Channel<Integer> getGridMinActivePower() {
+	/**
+	 * Gets the Total Grid Active Power on L3 in [W]. See
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridActivePowerL3() {
+		return this.getGridActivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePowerL3(Integer value) {
+		this.getGridActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridActivePowerL3(int value) {
+		this.getGridActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_MIN_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getGridMinActivePowerChannel() {
 		return this.channel(ChannelId.GRID_MIN_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getGridMaxActivePower() {
+	/**
+	 * Gets the Total Minimum Ever Active Power in [W]. See
+	 * {@link ChannelId#GRID_MIN_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridMinActivePower() {
+		return this.getGridMinActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_MIN_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridMinActivePower(Integer value) {
+		this.getGridMinActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_MIN_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridMinActivePower(int value) {
+		this.getGridMinActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getGridMaxActivePowerChannel() {
 		return this.channel(ChannelId.GRID_MAX_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getProductionActivePower() {
+	/**
+	 * Gets the Total Maximum Ever Active Power in [W]. See
+	 * {@link ChannelId#GRID_MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridMaxActivePower() {
+		return this.getGridMaxActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridMaxActivePower(Integer value) {
+		this.getGridMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridMaxActivePower(int value) {
+		this.getGridMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionActivePowerChannel() {
 		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getProductionAcActivePower() {
+	/**
+	 * Gets the Total Production Active Power in [W]. See
+	 * {@link ChannelId#PRODUCTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionActivePower() {
+		return this.getProductionActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionActivePower(Integer value) {
+		this.getProductionActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionActivePower(int value) {
+		this.getProductionActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionAcActivePowerChannel() {
 		return this.channel(ChannelId.PRODUCTION_AC_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getProductionAcActivePowerL1() {
+	/**
+	 * Gets the Total AC Production Active Power in [W]. See
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionAcActivePower() {
+		return this.getProductionAcActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePower(Integer value) {
+		this.getProductionAcActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePower(int value) {
+		this.getProductionAcActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionAcActivePowerL1Channel() {
 		return this.channel(ChannelId.PRODUCTION_AC_ACTIVE_POWER_L1);
 	}
 
-	public default Channel<Integer> getProductionAcActivePowerL2() {
+	/**
+	 * Gets the Total AC Production Active Power on L1 in [W]. See
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionAcActivePowerL1() {
+		return this.getProductionAcActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePowerL1(Integer value) {
+		this.getProductionAcActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePowerL1(int value) {
+		this.getProductionAcActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionAcActivePowerL2Channel() {
 		return this.channel(ChannelId.PRODUCTION_AC_ACTIVE_POWER_L2);
 	}
 
-	public default Channel<Integer> getProductionAcActivePowerL3() {
+	/**
+	 * Gets the Total AC Production Active Power on L2 in [W]. See
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionAcActivePowerL2() {
+		return this.getProductionAcActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePowerL2(Integer value) {
+		this.getProductionAcActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePowerL2(int value) {
+		this.getProductionAcActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionAcActivePowerL3Channel() {
 		return this.channel(ChannelId.PRODUCTION_AC_ACTIVE_POWER_L3);
 	}
 
-	public default Channel<Integer> getProductionDcActualPower() {
+	/**
+	 * Gets the Total AC Production Active Power on L3 in [W]. See
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionAcActivePowerL3() {
+		return this.getProductionAcActivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePowerL3(Integer value) {
+		this.getProductionAcActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActivePowerL3(int value) {
+		this.getProductionAcActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_DC_ACTUAL_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionDcActualPowerChannel() {
 		return this.channel(ChannelId.PRODUCTION_DC_ACTUAL_POWER);
 	}
 
-	public default Channel<Integer> getProductionMaxActivePower() {
+	/**
+	 * Gets the Total DC Production Actual Power in [W]. See
+	 * {@link ChannelId#PRODUCTION_DC_ACTUAL_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionDcActualPower() {
+		return this.getProductionDcActualPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_DC_ACTUAL_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionDcActualPower(Integer value) {
+		this.getProductionDcActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_DC_ACTUAL_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionDcActualPower(int value) {
+		this.getProductionDcActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionMaxActivePowerChannel() {
 		return this.channel(ChannelId.PRODUCTION_MAX_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getProductionMaxAcActivePower() {
+	/**
+	 * Gets the Total Maximum Ever Production Active Power in [W]. See
+	 * {@link ChannelId#PRODUCTION_MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionMaxActivePower() {
+		return this.getProductionMaxActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionMaxActivePower(Integer value) {
+		this.getProductionMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionMaxActivePower(int value) {
+		this.getProductionMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionMaxAcActivePowerChannel() {
 		return this.channel(ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getProductionMaxDcActualPower() {
+	/**
+	 * Gets the Total Maximum Ever AC Production Active Power in [W]. See
+	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionMaxAcActivePower() {
+		return this.getProductionMaxAcActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionMaxAcActivePower(Integer value) {
+		this.getProductionMaxAcActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionMaxAcActivePower(int value) {
+		this.getProductionMaxAcActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionMaxDcActualPowerChannel() {
 		return this.channel(ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER);
 	}
 
-	public default Channel<Integer> getConsumptionActivePower() {
+	/**
+	 * Gets the Total Maximum Ever DC Production Actual Power in [W]. See
+	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionMaxDcActualPower() {
+		return this.getProductionMaxDcActualPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionMaxDcActualPower(Integer value) {
+		this.getProductionMaxDcActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionMaxDcActualPower(int value) {
+		this.getProductionMaxDcActualPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONSUMPTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getConsumptionActivePowerChannel() {
 		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getConsumptionActivePowerL1() {
+	/**
+	 * Gets the Total Consumption Active Power in [W]. See
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getConsumptionActivePower() {
+		return this.getConsumptionActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePower(Integer value) {
+		this.getConsumptionActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePower(int value) {
+		this.getConsumptionActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getConsumptionActivePowerL1Channel() {
 		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L1);
 	}
 
-	public default Channel<Integer> getConsumptionActivePowerL2() {
+	/**
+	 * Gets the Total Consumption Active Power on L1 in [W]. See
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getConsumptionActivePowerL1() {
+		return this.getConsumptionActivePowerL1Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePowerL1(Integer value) {
+		this.getConsumptionActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePowerL1(int value) {
+		this.getConsumptionActivePowerL1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getConsumptionActivePowerL2Channel() {
 		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L2);
 	}
 
-	public default Channel<Integer> getConsumptionActivePowerL3() {
+	/**
+	 * Gets the Total Consumption Active Power on L2 in [W]. See
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getConsumptionActivePowerL2() {
+		return this.getConsumptionActivePowerL2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePowerL2(Integer value) {
+		this.getConsumptionActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePowerL2(int value) {
+		this.getConsumptionActivePowerL2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getConsumptionActivePowerL3Channel() {
 		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L3);
 	}
 
-	public default Channel<Integer> getConsumptionMaxActivePower() {
+	/**
+	 * Gets the Total Consumption Active Power on L3 in [W]. See
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getConsumptionActivePowerL3() {
+		return this.getConsumptionActivePowerL3Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePowerL3(Integer value) {
+		this.getConsumptionActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER_L3} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActivePowerL3(int value) {
+		this.getConsumptionActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONSUMPTION_MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getConsumptionMaxActivePowerChannel() {
 		return this.channel(ChannelId.CONSUMPTION_MAX_ACTIVE_POWER);
 	}
 
-	public default Channel<Integer> getGridMode() {
+	/**
+	 * Gets the Total Maximum Ever Consumption Active Power in [W]. See
+	 * {@link ChannelId#CONSUMPTION_MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getConsumptionMaxActivePower() {
+		return this.getConsumptionMaxActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionMaxActivePower(Integer value) {
+		this.getConsumptionMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionMaxActivePower(int value) {
+		this.getConsumptionMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_MAX_APPARENT_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssMaxApparentPowerChannel() {
+		return this.channel(ChannelId.ESS_MAX_APPARENT_POWER);
+	}
+
+	/**
+	 * Gets the Sum of all Energy Storage Systems Maximum Apparent Power in [Wh].
+	 * See {@link ChannelId#ESS_MAX_APPARENT_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssMaxApparentPower() {
+		return this.getEssMaxApparentPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_MAX_APPARENT_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssMaxApparentPower(Integer value) {
+		this.getEssMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_MAX_APPARENT_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssMaxApparentPower(int value) {
+		this.getEssMaxApparentPowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<GridMode> getGridModeChannel() {
 		return this.channel(ChannelId.GRID_MODE);
 	}
 
-	public default Channel<Long> getEssActiveChargeEnergy() {
+	/**
+	 * Gets the Overall GridMode of all Energy Storage Systems. See
+	 * {@link ChannelId#GRID_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default GridMode getGridMode() {
+		return this.getGridModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridMode(GridMode value) {
+		this.getGridModeChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_ACTIVE_CHARGE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getEssActiveChargeEnergyChannel() {
 		return this.channel(ChannelId.ESS_ACTIVE_CHARGE_ENERGY);
 	}
 
-	public default Channel<Long> getEssActiveDischargeEnergy() {
+	/**
+	 * Gets the Sum of all Energy Storage Systems Active Charge Energy in [Wh]. See
+	 * {@link ChannelId#ESS_ACTIVE_CHARGE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getEssActiveChargeEnergy() {
+		return this.getEssActiveChargeEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_CHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActiveChargeEnergy(Long value) {
+		this.getEssActiveChargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_CHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActiveChargeEnergy(long value) {
+		this.getEssActiveChargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_ACTIVE_DISCHARGE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getEssActiveDischargeEnergyChannel() {
 		return this.channel(ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY);
 	}
 
-	public default Channel<Long> getGridBuyActiveEnergy() {
+	/**
+	 * Gets the Sum of all Energy Storage Systems Active Discharge Energy in [Wh].
+	 * See {@link ChannelId#ESS_ACTIVE_DISCHARGE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getEssActiveDischargeEnergy() {
+		return this.getEssActiveDischargeEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_DISCHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActiveDischargeEnergy(Long value) {
+		this.getEssActiveDischargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_ACTIVE_DISCHARGE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssActiveDischargeEnergy(long value) {
+		this.getEssActiveDischargeEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_BUY_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getGridBuyActiveEnergyChannel() {
 		return this.channel(ChannelId.GRID_BUY_ACTIVE_ENERGY);
 	}
 
-	public default Channel<Long> getGridSellActiveEnergy() {
+	/**
+	 * Gets the Total Grid Buy Active Energy in [Wh]. See
+	 * {@link ChannelId#GRID_BUY_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getGridBuyActiveEnergy() {
+		return this.getGridBuyActiveEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_BUY_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridBuyActiveEnergy(Long value) {
+		this.getGridBuyActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_BUY_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridBuyActiveEnergy(long value) {
+		this.getGridBuyActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_SELL_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getGridSellActiveEnergyChannel() {
 		return this.channel(ChannelId.GRID_SELL_ACTIVE_ENERGY);
 	}
 
-	public default Channel<Long> getProductionActiveEnergy() {
+	/**
+	 * Gets the Total Grid Sell Active Energy in [Wh]. See
+	 * {@link ChannelId#GRID_SELL_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getGridSellActiveEnergy() {
+		return this.getGridSellActiveEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_SELL_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridSellActiveEnergy(Long value) {
+		this.getGridSellActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_SELL_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridSellActiveEnergy(long value) {
+		this.getGridSellActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getProductionActiveEnergyChannel() {
 		return this.channel(ChannelId.PRODUCTION_ACTIVE_ENERGY);
 	}
 
-	public default Channel<Long> getProductionAcActiveEnergy() {
+	/**
+	 * Gets the Total Production Active Energy in [Wh]. See
+	 * {@link ChannelId#PRODUCTION_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getProductionActiveEnergy() {
+		return this.getProductionActiveEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionActiveEnergy(Long value) {
+		this.getProductionActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionActiveEnergy(long value) {
+		this.getProductionActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_AC_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getProductionAcActiveEnergyChannel() {
 		return this.channel(ChannelId.PRODUCTION_AC_ACTIVE_ENERGY);
 	}
 
-	public default Channel<Long> getProductionDcActiveEnergy() {
+	/**
+	 * Gets the Total AC Production Active Energy in [Wh]. See
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getProductionAcActiveEnergy() {
+		return this.getProductionAcActiveEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActiveEnergy(Long value) {
+		this.getProductionAcActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionAcActiveEnergy(long value) {
+		this.getProductionAcActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_DC_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getProductionDcActiveEnergyChannel() {
 		return this.channel(ChannelId.PRODUCTION_DC_ACTIVE_ENERGY);
 	}
 
-	public default Channel<Long> getConsumptionActiveEnergy() {
+	/**
+	 * Gets the Total DC Production Active Energy in [Wh]. See
+	 * {@link ChannelId#PRODUCTION_DC_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getProductionDcActiveEnergy() {
+		return this.getProductionDcActiveEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_DC_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionDcActiveEnergy(Long value) {
+		this.getProductionDcActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PRODUCTION_DC_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProductionDcActiveEnergy(long value) {
+		this.getProductionDcActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CONSUMPTION_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getConsumptionActiveEnergyChannel() {
 		return this.channel(ChannelId.CONSUMPTION_ACTIVE_ENERGY);
+	}
+
+	/**
+	 * Gets the Total Consumption Active Energy in [Wh]. See
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getConsumptionActiveEnergy() {
+		return this.getConsumptionActiveEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActiveEnergy(Long value) {
+		this.getConsumptionActiveEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CONSUMPTION_ACTIVE_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setConsumptionActiveEnergy(long value) {
+		this.getConsumptionActiveEnergyChannel().setNextValue(value);
 	}
 }

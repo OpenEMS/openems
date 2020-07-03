@@ -34,20 +34,15 @@ public class Edge {
 	private EdgeConfig config;
 	private ZonedDateTime lastMessage = null;
 	private ZonedDateTime lastUpdate = null;
-	private Integer soc = null;
-	private String ipv4 = null;
 	private boolean isOnline = false;
 
-	public Edge(String id, String comment, State state, String version, String producttype, EdgeConfig config,
-			Integer soc, String ipv4) {
+	public Edge(String id, String comment, State state, String version, String producttype, EdgeConfig config) {
 		this.id = id;
 		this.comment = comment;
 		this.state = state;
 		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
 		this.config = config;
-		this.soc = soc;
-		this.ipv4 = ipv4;
 	}
 
 	public String getId() {
@@ -69,14 +64,6 @@ public class Edge {
 		return this.config;
 	}
 
-	public String getProducttype() {
-		return this.producttype;
-	}
-
-	public void setProducttype(String producttype) {
-		this.producttype = producttype;
-	}
-
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("id", this.id) //
@@ -92,7 +79,7 @@ public class Edge {
 		return "Edge [id=" + id + ", comment=" + comment + ", state=" + state + ", version=" + version
 				+ ", producttype=" + producttype + ", deprecatedConfig="
 				+ (config.toString().isEmpty() ? "NOT_SET" : "set") + ", lastMessage=" + lastMessage + ", lastUpdate="
-				+ lastUpdate + ", soc=" + soc + ", ipv4=" + ipv4 + ", isOnline=" + isOnline + "]";
+				+ lastUpdate + ", isOnline=" + isOnline + "]";
 	}
 
 	/*
@@ -272,69 +259,41 @@ public class Edge {
 	}
 
 	/*
-	 * State of Charge (SoC)
+	 * Producttype
 	 */
-	private final List<Consumer<Integer>> onSetSoc = new CopyOnWriteArrayList<>();
+	public String getProducttype() {
+		return this.producttype;
+	}
 
-	public void onSetSoc(Consumer<Integer> listener) {
-		this.onSetSoc.add(listener);
+	private final List<Consumer<String>> onSetProducttype = new CopyOnWriteArrayList<>();
+
+	public void onSetProducttype(Consumer<String> listener) {
+		this.onSetProducttype.add(listener);
 	}
 
 	/**
-	 * Sets the State-of-Charge and calls the SetSoc-Listeners.
+	 * Sets the Producttype and calls the SetProducttype-Listeners.
 	 * 
-	 * @param soc the State-of-Charge
+	 * @param producttype the Producttype
 	 */
-	public synchronized void setSoc(Integer soc) {
-		this.setSoc(soc, true);
+	public synchronized void setProducttype(String producttype) {
+		this.setProducttype(producttype, true);
 	}
 
 	/**
-	 * Sets the State-of-Charge.
+	 * Sets the Producttype.
 	 * 
-	 * @param soc           the soc
-	 * @param callListeners whether to call the SetSoc-Listeners
+	 * @param producttype   the Producttype
+	 * @param callListeners whether to call the SetProducttype-Listeners
 	 */
-	public synchronized void setSoc(Integer soc, boolean callListeners) {
-		if (!Objects.equal(this.soc, soc)) { // on change
+	public synchronized void setProducttype(String producttype, boolean callListeners) {
+		if (!Objects.equal(this.producttype, producttype)) { // on change
 			if (callListeners) {
-				this.onSetSoc.forEach(listener -> listener.accept(soc));
+				this.log.info("Edge [" + this.getId() + "]: Update Product-Type to [" + producttype + "]. It was ["
+						+ this.producttype + "]");
+				this.onSetProducttype.forEach(listener -> listener.accept(producttype));
 			}
-			this.soc = soc;
-		}
-	}
-
-	/*
-	 * IPv4
-	 */
-	// TODO rename to "onUpdateIpv4"
-	private final List<Consumer<String>> onSetIpv4 = new CopyOnWriteArrayList<>();
-
-	public void onSetIpv4(Consumer<String> listener) {
-		this.onSetIpv4.add(listener);
-	}
-
-	/**
-	 * Sets the IPv4 address and calls the SetIpv4-Listeners.
-	 * 
-	 * @param ipv4 the IPv4 address
-	 */
-	public synchronized void setIpv4(String ipv4) {
-		this.setIpv4(ipv4, true);
-	}
-
-	/**
-	 * Sets the IPv4 address and calls the SetIpv4-Listeners.
-	 * 
-	 * @param ipv4          the IPv4 address
-	 * @param callListeners whether to call the SetIpv4-Listeners
-	 */
-	public synchronized void setIpv4(String ipv4, boolean callListeners) {
-		if (!Objects.equal(this.ipv4, ipv4)) { // on change
-			if (callListeners) {
-				this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
-			}
-			this.ipv4 = ipv4;
+			this.producttype = producttype;
 		}
 	}
 

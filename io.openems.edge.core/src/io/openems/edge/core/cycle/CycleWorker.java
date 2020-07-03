@@ -3,7 +3,6 @@ package io.openems.edge.core.cycle;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
@@ -13,6 +12,7 @@ import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.Scheduler;
 
@@ -29,19 +29,17 @@ public class CycleWorker extends AbstractWorker {
 
 	@Override
 	protected int getCycleTime() {
-		return this.parent.commonCycleTime;
+		return this.parent.getCycleTime();
 	}
 
 	@Override
 	protected void forever() {
-		// handle cycle number
-		if (++this.parent.cycle > this.parent.maxCycles) {
-			this.parent.cycle = 1;
-		}
-
 		// Kick Operating System Watchdog
-		if (SDNotify.isAvailable()) {
-			SDNotify.sendWatchdog();
+		String socketName = System.getenv().get("NOTIFY_SOCKET");
+		if (socketName != null && socketName.length() != 0) {
+			if (SDNotify.isAvailable()) {
+				SDNotify.sendWatchdog();
+			}
 		}
 
 		try {
@@ -54,13 +52,22 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Before Controllers start: switch to next process image for each channel
 			 */
-			this.parent.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled())
+			this.parent.componentManager.getEnabledComponents().stream() //
+					.filter(c -> c.isEnabled() && !(c instanceof Sum)) //
 					.forEach(component -> {
 						component.channels().forEach(channel -> {
 							channel.nextProcessImage();
 						});
 					});
 			this.parent.channels().forEach(channel -> {
+				channel.nextProcessImage();
+			});
+
+			/*
+			 * Update the Channels in the Sum-Component.
+			 */
+			this.parent.sumComponent.updateChannelsBeforeProcessImage();
+			this.parent.sumComponent.channels().forEach(channel -> {
 				channel.nextProcessImage();
 			});
 
@@ -84,14 +91,9 @@ public class CycleWorker extends AbstractWorker {
 			if (this.parent.schedulers.isEmpty()) {
 				this.parent.logWarn(this.log, "There are no Schedulers configured!");
 			} else {
-				for (Entry<Scheduler, Integer> entry : this.parent.schedulers.entrySet()) {
+				for (Scheduler scheduler : this.parent.schedulers) {
 					boolean schedulerHasError = false;
 
-					Scheduler scheduler = entry.getKey();
-					if (this.parent.cycle % entry.getValue() != 0) {
-						// abort if relativeCycleTime is not matching this cycle
-						return;
-					}
 					try {
 						for (Controller controller : scheduler.getControllers()) {
 							if (!controller.isEnabled()) {
@@ -104,14 +106,14 @@ public class CycleWorker extends AbstractWorker {
 								controller.run();
 
 								// announce running was ok
-								controller.getRunFailed().setNextValue(false);
+								controller._setRunFailed(false);
 
 							} catch (OpenemsNamedException e) {
 								this.parent.logWarn(this.log,
 										"Error in Controller [" + controller.id() + "]: " + e.getMessage());
 
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 
 							} catch (Exception e) {
 								this.parent.logWarn(this.log, "Error in Controller [" + controller.id() + "]. "
@@ -121,24 +123,24 @@ public class CycleWorker extends AbstractWorker {
 									e.printStackTrace();
 								}
 								// announce running failed
-								controller.getRunFailed().setNextValue(true);
+								controller._setRunFailed(true);
 							}
 						}
 
 						// announce running was ok or not ok.
-						scheduler.getRunFailed().setNextValue(schedulerHasError);
+						scheduler._setRunFailed(schedulerHasError);
 
 					} catch (Exception e) {
 						this.parent.logWarn(this.log, "Error in Scheduler [" + scheduler.id() + "]: " + e.getMessage());
 
 						// announce running failed
-						scheduler.getRunFailed().setNextValue(true);
+						scheduler._setRunFailed(true);
 					}
 				}
 			}
 
 			// announce ignoring disabled Controllers.
-			this.parent.channel(Cycle.ChannelId.IGNORE_DISABLED_CONTROLLER).setNextValue(hasDisabledController);
+			this.parent._setIgnoreDisabledController(hasDisabledController);
 
 			/*
 			 * Trigger AFTER_CONTROLLERS event
@@ -172,8 +174,7 @@ public class CycleWorker extends AbstractWorker {
 		// Measure actual cycle time
 		Instant now = Instant.now();
 		if (this.startTime != null) {
-			this.parent.channel(Cycle.ChannelId.MEASURED_CYCLE_TIME)
-					.setNextValue(Duration.between(this.startTime, now).toMillis());
+			this.parent._setMeasuredCycleTime(Duration.between(this.startTime, now).toMillis());
 		}
 		this.startTime = now;
 	}

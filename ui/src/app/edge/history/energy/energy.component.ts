@@ -1,20 +1,20 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
-import * as FileSaver from 'file-saver';
-import { fromEvent, Subject } from 'rxjs';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
-import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ActivatedRoute } from '@angular/router';
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { Component, Input, OnChanges } from '@angular/core';
+import { debounceTime, delay, takeUntil } from 'rxjs/operators';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { EnergyModalComponent } from './modal/modal.component';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { formatNumber } from '@angular/common';
+import { fromEvent, Subject } from 'rxjs';
+import { ModalController } from '@ionic/angular';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { TranslateService } from '@ngx-translate/core';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'energy',
@@ -40,8 +40,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   ) {
     super(service, translate);
   }
-
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   // EXPORT WILL MOVE TO MODAL WHEN KWH ARE READY
 
@@ -105,18 +103,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
-    this.setLabel()
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
-    const source = fromEvent(window, 'resize', null, null);
-    source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-      this.getChartHeight();
-    });
+    this.subscribeChartRefresh()
   }
 
   ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.unsubscribeChartRefresh()
   }
 
   protected updateChart() {
@@ -152,7 +145,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             })
             datasets.push({
-              label: this.translate.instant('General.Soc'),
+              label: this.translate.instant('General.soc'),
               data: socData,
               hidden: false,
               yAxisID: 'yAxis2',
@@ -179,7 +172,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             });
 
             datasets.push({
-              label: this.translate.instant('General.Production'),
+              label: this.translate.instant('General.production'),
               data: productionData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -206,7 +199,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             });
 
             datasets.push({
-              label: this.translate.instant('General.GridBuy'),
+              label: this.translate.instant('General.gridBuy'),
               data: buyFromGridData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -230,7 +223,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.GridSell'),
+              label: this.translate.instant('General.gridSell'),
               data: sellToGridData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -254,7 +247,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.Consumption'),
+              label: this.translate.instant('General.consumption'),
               data: consumptionData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -288,7 +281,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.ChargePower'),
+              label: this.translate.instant('General.chargePower'),
               data: chargeData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -311,7 +304,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               }
             });
             datasets.push({
-              label: this.translate.instant('General.DischargePower'),
+              label: this.translate.instant('General.dischargePower'),
               data: dischargeData,
               hidden: false,
               yAxisID: 'yAxis1',
@@ -410,22 +403,29 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       position: 'right',
       scaleLabel: {
         display: true,
-        labelString: "%"
+        labelString: "%",
+        padding: -2,
+        fontSize: 11
       },
       gridLines: {
         display: false
       },
       ticks: {
         beginAtZero: true,
-        max: 100
+        max: 100,
+        padding: -5,
+        stepSize: 20
       }
     })
     options.scales.yAxes[0].id = "yAxis1"
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    options.scales.yAxes[0].scaleLabel.padding = -2;
+    options.scales.yAxes[0].scaleLabel.fontSize = 11;
+    options.scales.yAxes[0].ticks.padding = -5;
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == translate.instant('General.Soc')) {
+      if (label == translate.instant('General.soc')) {
         return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
@@ -558,7 +558,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   public getChartHeight(): number {
-    return window.innerHeight / 2.5;
+    return window.innerHeight / 2;
   }
 
   async presentModal() {

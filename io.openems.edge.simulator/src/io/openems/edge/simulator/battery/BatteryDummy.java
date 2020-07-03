@@ -9,10 +9,14 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -21,7 +25,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 )
-public class BatteryDummy extends AbstractOpenemsComponent implements Battery, OpenemsComponent, EventHandler {
+public class BatteryDummy extends AbstractOpenemsComponent
+		implements Battery, OpenemsComponent, EventHandler, StartStoppable {
 
 	private int disChargeMinVoltage;
 	private int chargeMaxVoltage;
@@ -58,6 +63,9 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
@@ -66,21 +74,27 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	private void updateChannels() {
-		this.getDischargeMinVoltage().setNextValue(this.disChargeMinVoltage);
-		this.getChargeMaxVoltage().setNextValue(this.chargeMaxVoltage);
-		this.getDischargeMaxCurrent().setNextValue(this.disChargeMaxCurrent);
-		this.getChargeMaxCurrent().setNextValue(this.chargeMaxCurrent);
-		this.getSoc().setNextValue(this.soc);
-		this.getSoh().setNextValue(this.soh);
-		this.getMinCellTemperature().setNextValue(this.temperature);
-		this.getMaxCellTemperature().setNextValue(this.temperature);
-		this.getCapacity().setNextValue(this.capacityKWh);
+		this._setDischargeMinVoltage(this.disChargeMinVoltage);
+		this._setChargeMaxVoltage(this.chargeMaxVoltage);
+		this._setDischargeMaxCurrent(this.disChargeMaxCurrent);
+		this._setChargeMaxCurrent(this.chargeMaxCurrent);
+		this._setSoc(this.soc);
+		this._setSoh(this.soh);
+		this._setMinCellTemperature(this.temperature);
+		this._setMaxCellTemperature(this.temperature);
+		this._setCapacity(this.capacityKWh);
 
-		this.getVoltage().setNextValue(this.voltage);
-		this.getMinCellVoltage().setNextValue(this.minCellVoltage);
-		this.getMaxCellVoltage().setNextValue(this.minCellVoltage);
-		
-		this.getReadyForWorking().setNextValue(true);
+		this._setVoltage(this.voltage);
+		this._setMinCellVoltage(this.minCellVoltage);
+		this._setMaxCellVoltage(this.minCellVoltage);
+
+		this._setStartStop(StartStop.START);
+	}
+
+	@Override
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		// TODO start stop is not implemented
+		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
 	}
 
 }

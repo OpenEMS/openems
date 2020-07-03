@@ -24,7 +24,7 @@ public class CalculateAverage {
 	 * @param channel
 	 */
 	public void addValue(Channel<Integer> channel) {
-		Optional<Integer> value = channel.getNextValue().asOptional();
+		Optional<Integer> value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
 				this.values.add(Double.valueOf(value.get()));
@@ -50,5 +50,24 @@ public class CalculateAverage {
 				.mapToDouble(value -> value) //
 				.average() //
 				.orElse(0.0);
+	}
+
+	/**
+	 * Calculates the average and rounds to Integer.
+	 * 
+	 * @return the average or null
+	 */
+	public Integer calculateRounded() throws NoSuchElementException {
+		Double value = this.calculate();
+		if (value == null) {
+			return null;
+		}
+		long longValue = Math.round(value);
+		if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
+			return Integer.valueOf((int) longValue);
+		} else {
+			throw new IllegalArgumentException(
+					"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
+		}
 	}
 }

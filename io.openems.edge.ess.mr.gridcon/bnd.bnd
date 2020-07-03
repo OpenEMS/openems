@@ -11,8 +11,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.io.api,\
-	io.openems.edge.meter.api,\
-	slf4j.api
+	io.openems.edge.meter.api
 
 -testpath: \
 	${testpath}

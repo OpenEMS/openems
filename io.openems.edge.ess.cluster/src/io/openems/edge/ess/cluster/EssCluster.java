@@ -94,9 +94,14 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			// TODO calculate channel values using onChangeListeners; do avoid possible lag
+			// of one Cycle
 			this.calculateChannelValues();
 			break;
 		}
@@ -131,42 +136,42 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 				continue;
 			}
 
-			soc.addValue(ess.getSoc());
-			capacity.addValue(ess.getCapacity());
-			gridMode.addValue(ess.getGridMode());
-			activePower.addValue(ess.getActivePower());
-			reactivePower.addValue(ess.getReactivePower());
-			maxApparentPower.addValue(ess.getMaxApparentPower());
-			activeChargeEnergy.addValue(ess.getActiveChargeEnergy());
-			activeDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
+			soc.addValue(ess.getSocChannel());
+			capacity.addValue(ess.getCapacityChannel());
+			gridMode.addValue(ess.getGridModeChannel());
+			activePower.addValue(ess.getActivePowerChannel());
+			reactivePower.addValue(ess.getReactivePowerChannel());
+			maxApparentPower.addValue(ess.getMaxApparentPowerChannel());
+			activeChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
+			activeDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
 
 			if (ess instanceof AsymmetricEss) {
 				AsymmetricEss e = (AsymmetricEss) ess;
-				activePowerL1.addValue(e.getActivePowerL1());
-				reactivePowerL1.addValue(e.getReactivePowerL1());
-				activePowerL2.addValue(e.getActivePowerL2());
-				reactivePowerL2.addValue(e.getReactivePowerL2());
-				activePowerL3.addValue(e.getActivePowerL3());
-				reactivePowerL3.addValue(e.getReactivePowerL3());
+				activePowerL1.addValue(e.getActivePowerL1Channel());
+				reactivePowerL1.addValue(e.getReactivePowerL1Channel());
+				activePowerL2.addValue(e.getActivePowerL2Channel());
+				reactivePowerL2.addValue(e.getReactivePowerL2Channel());
+				activePowerL3.addValue(e.getActivePowerL3Channel());
+				reactivePowerL3.addValue(e.getReactivePowerL3Channel());
 			}
 		}
 
 		// Set values
-		this.getSoc().setNextValue(soc.calculate());
-		this.getCapacity().setNextValue(capacity.calculate());
-		this.getGridMode().setNextValue(gridMode.calculate());
-		this.getActivePower().setNextValue(activePower.calculate());
-		this.getReactivePower().setNextValue(reactivePower.calculate());
-		this.getMaxApparentPower().setNextValue(maxApparentPower.calculate());
-		this.getActiveChargeEnergy().setNextValue(activeChargeEnergy.calculate());
-		this.getActiveDischargeEnergy().setNextValue(activeDischargeEnergy.calculate());
+		this._setSoc(soc.calculateRounded());
+		this._setCapacity(capacity.calculate());
+		this._setGridMode(gridMode.calculate());
+		this._setActivePower(activePower.calculate());
+		this._setReactivePower(reactivePower.calculate());
+		this._setMaxApparentPower(maxApparentPower.calculate());
+		this._setActiveChargeEnergy(activeChargeEnergy.calculate());
+		this._setActiveDischargeEnergy(activeDischargeEnergy.calculate());
 
-		this.getActivePowerL1().setNextValue(activePowerL1.calculate());
-		this.getReactivePowerL1().setNextValue(reactivePowerL1.calculate());
-		this.getActivePowerL2().setNextValue(activePowerL2.calculate());
-		this.getReactivePowerL2().setNextValue(reactivePowerL2.calculate());
-		this.getActivePowerL3().setNextValue(activePowerL3.calculate());
-		this.getReactivePowerL3().setNextValue(reactivePowerL3.calculate());
+		this._setActivePowerL1(activePowerL1.calculate());
+		this._setReactivePowerL1(reactivePowerL1.calculate());
+		this._setActivePowerL2(activePowerL2.calculate());
+		this._setReactivePowerL2(reactivePowerL2.calculate());
+		this._setActivePowerL3(activePowerL3.calculate());
+		this._setReactivePowerL3(reactivePowerL3.calculate());
 	}
 
 	@Override

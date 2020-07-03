@@ -18,17 +18,21 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 
 	private final Power power;
 
-	public DummyManagedSymmetricEss(String id) {
+	public DummyManagedSymmetricEss(String id, Power power) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				SymmetricEss.ChannelId.values() //
 		);
-		this.power = new DummyPower(MAX_APPARENT_POWER);
+		this.power = power;
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
 		super.activate(null, id, "", true);
+	}
+
+	public DummyManagedSymmetricEss(String id) {
+		this(id, new DummyPower(MAX_APPARENT_POWER));
 	}
 
 	@Override

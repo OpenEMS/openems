@@ -369,6 +369,137 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely subtract Integers.
+	 * 
+	 * <ul>
+	 * <li>if minuend is null -> result is null
+	 * <li>if subtrahend is null -> result is minuend
+	 * <li>if both are null -> result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 */
+	public static Integer subtract(Integer minuend, Integer subtrahend) {
+		if (minuend == null) {
+			return null;
+		}
+		if (subtrahend == null) {
+			return minuend;
+		}
+		return minuend - subtrahend;
+	}
+
+	/**
+	 * Safely multiply Integers.
+	 * 
+	 * @param factors the factors of the multiplication
+	 * @return the result, possibly null if all factors are null
+	 */
+	public static Integer multiply(Integer... factors) {
+		Integer result = null;
+		for (Integer factor : factors) {
+			if (result == null) {
+				result = factor;
+			} else if (factor != null) {
+				result *= factor;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely divides Integers.
+	 * 
+	 * <ul>
+	 * <li>if dividend is null -> result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the dividend of the division
+	 * @param subtrahend the divisor of the division
+	 * @return the result, possibly null
+	 */
+	public static Integer divide(Integer dividend, int divisor) {
+		if (dividend == null) {
+			return null;
+		}
+		return dividend / divisor;
+	}
+
+	/**
+	 * Safely divides Longs.
+	 * 
+	 * <ul>
+	 * <li>if dividend is null -> result is null
+	 * </ul>
+	 * 
+	 * @param minuend    the dividend of the division
+	 * @param subtrahend the divisor of the division
+	 * @return the result, possibly null
+	 */
+	public static Long divide(Long dividend, long divisor) {
+		if (dividend == null) {
+			return null;
+		}
+		return dividend / divisor;
+	}
+
+	/**
+	 * Safely finds the max value of all values.
+	 * 
+	 * @return the max value; or null if all values are null
+	 */
+	public static Integer max(Integer... values) {
+		Integer result = null;
+		for (Integer value : values) {
+			if (value != null) {
+				if (result == null) {
+					result = value;
+				} else {
+					result = Math.max(result, value);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely finds the average value of all values.
+	 * 
+	 * @return the average value; or null if all values are null
+	 */
+	public static Float average(Integer... values) {
+		int count = 0;
+		float sum = 0.f;
+		for (Integer value : values) {
+			if (value != null) {
+				count++;
+				sum += value;
+			}
+		}
+		if (count == 0) {
+			return null;
+		}
+		return sum / count;
+	}
+
+	/**
+	 * Safely finds the average value of all values and rounds the result to an
+	 * Integer using {@link Math#round(float)}.
+	 * 
+	 * @return the rounded average value; or null if all values are null
+	 */
+	public static Integer averageRounded(Integer... values) {
+		Float result = average(values);
+		if (result == null) {
+			return null;
+		} else {
+			return Math.round(result);
+		}
+	}
+
+	/**
 	 * Throws an descriptive exception if the object is null.
 	 * 
 	 * @param description text that is added to the exception
@@ -380,4 +511,5 @@ public class TypeUtils {
 			throw new OpenemsException(description + " value is null!");
 		}
 	}
+
 }

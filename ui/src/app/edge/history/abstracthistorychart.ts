@@ -1,13 +1,23 @@
-import { TranslateService } from '@ngx-translate/core';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
+import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../shared/shared";
-import { ChartOptions, Dataset, EMPTY_DATASET } from './shared';
+import { TranslateService } from '@ngx-translate/core';
+import { interval, Subject, fromEvent } from 'rxjs';
+import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 
 export abstract class AbstractHistoryChart {
 
+
     public loading: boolean = true;
+
+    //observable is used to fetch new chart data every 5 minutes
+    private refreshChartData = interval(300000);
+    //observable is used to refresh chart height dependend on the window size
+    private refreshChartHeight = fromEvent(window, 'resize', null, null);
+
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
@@ -16,8 +26,8 @@ export abstract class AbstractHistoryChart {
 
     // Colors for Phase 1-3
     protected phase1Color = {
-        backgroundColor: 'rgba(255,0,0,0.05)',
-        borderColor: 'rgba(255,0,0,1)',
+        backgroundColor: 'rgba(255,127,80,0.05)',
+        borderColor: 'rgba(255,127,80,1)',
     }
     protected phase2Color = {
         backgroundColor: 'rgba(0,0,255,0.1)',
@@ -53,6 +63,7 @@ export abstract class AbstractHistoryChart {
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
+                    this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses);
                         edge.sendRequest(this.service.websocket, request).then(response => {
@@ -70,9 +81,29 @@ export abstract class AbstractHistoryChart {
     }
 
     /**
+     * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
+     */
+    protected subscribeChartRefresh() {
+        this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            this.updateChart()
+        })
+        this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+            this.getChartHeight();
+        });
+    }
+
+    /**
+     * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
+     */
+    protected unsubscribeChartRefresh() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
+    /**
      * Sets the Label of Chart
      */
-    protected abstract setLabel()
+    protected abstract setLabel(config: EdgeConfig)
 
     /**
      * Updates and Fills the Chart

@@ -53,6 +53,16 @@ public enum Level implements OptionsEnum {
 	}
 
 	/**
+	 * Is this Level at least as high as the other Level.
+	 * 
+	 * @param level the other level
+	 * @return true if it as at least as high
+	 */
+	public boolean isAtLeast(Level level) {
+		return this.value >= level.value;
+	}
+
+	/**
 	 * Gets the Level from an integer value.
 	 * 
 	 * @param value the integer value

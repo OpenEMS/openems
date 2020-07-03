@@ -21,9 +21,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -47,6 +47,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
@@ -65,6 +66,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		}) //
+// TODO: drop this Component in favour of KACO blueplanet Battery-Inverter implemention + Generic ESS.
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -104,7 +106,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
+		this._setGridMode(GridMode.ON_GRID);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -156,9 +158,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void refreshPower() {
-		maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
-		if (maxApparentPower > 0) {
-			this.getMaxApparentPower().setNextValue(maxApparentPower);
+		this.maxApparentPower = this.maxApparentPowerUnscaled * this.maxApparentPowerScaleFactor;
+		if (this.maxApparentPower > 0) {
+			this._setMaxApparentPower(this.maxApparentPower);
 		}
 	}
 
@@ -258,7 +260,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void doGridConnectedHandling() {
 		// If the battery system is not ready yet set power to zero to avoid damaging or
 		// improper system states
-		if (!battery.getReadyForWorking().value().orElse(false)) {
+		if (battery.getStartStop() != StartStop.START) {
 			this.isActivePowerAllowed = false;
 		} else {
 			this.isActivePowerAllowed = true;
@@ -278,13 +280,13 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		}
 
 		// Read some Channels from Battery
-		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
-		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
-		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
-		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
-		int batSoC = battery.getSoc().value().orElse(0);
-		int batSoH = battery.getSoh().value().orElse(0);
-		int batTemp = battery.getMaxCellTemperature().value().orElse(0);
+		int disMinV = battery.getDischargeMinVoltage().orElse(0);
+		int chaMaxV = battery.getChargeMaxVoltage().orElse(0);
+		int disMaxA = battery.getDischargeMaxCurrent().orElse(0);
+		int chaMaxA = battery.getChargeMaxCurrent().orElse(0);
+		int batSoC = battery.getSoc().orElse(0);
+		int batSoH = battery.getSoh().orElse(0);
+		int batTemp = battery.getMaxCellTemperature().orElse(0);
 
 		// Update Power Constraints
 		// TODO: The actual AC allowed charge and discharge should come from the KACO
@@ -297,8 +299,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// allowedDischarge += battery.getVoltage().value().orElse(0) *
 		// battery.getDischargeMaxCurrent().value().orElse(0);
 
-		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
-		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
+		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
+		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
 
 		if (disMinV == 0 || chaMaxV == 0) {
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
@@ -317,15 +319,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.getBatterySohChannel().setNextWriteValue(batSoH);
 			this.getBatteryTempChannel().setNextWriteValue(batTemp);
 
-			this.getCapacity().setNextValue(battery.getCapacity().value().get());
+			this._setCapacity(battery.getCapacity().get());
 		} catch (OpenemsNamedException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
 	}
 
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:" //
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";" //
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
@@ -384,10 +386,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 			if (this.lastActivePowerValue < 0) {
 				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);
+				this._setActiveChargeEnergy((long) accumulatedChargeEnergy);
 			} else if (this.lastActivePowerValue > 0) {
 				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
+				this._setActiveDischargeEnergy((long) accumulatedDischargeEnergy);
 			}
 
 			log.debug("accumulated charge energy :" + accumulatedChargeEnergy);
@@ -397,12 +399,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.lastPowerValuesTimestamp = LocalDateTime.now();
 		}
 
-		this.lastActivePowerValue = this.getActivePower().value().orElse(0);
+		this.lastActivePowerValue = this.getActivePower().orElse(0);
 
 		IntegerReadChannel lastCurrentValueChannel = this.channel(ChannelId.DC_CURRENT);
 		this.lastCurrentValue = lastCurrentValueChannel.value().orElse(0) / 1000.0;
 
-		this.lastVoltageValue = this.battery.getVoltage().value().orElse(0);
+		this.lastVoltageValue = this.battery.getVoltage().orElse(0);
 	}
 
 	private void startGridMode() {
@@ -447,22 +449,33 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	 * from interfaces
 	 */
 	private void doChannelMapping() {
-		this.battery.getSoc().onChange((oldValue, newValue) -> {
-			this.getSoc().setNextValue(newValue.get());
+		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
+			this._setSoc(newValue.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(newValue.get());
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(newValue.get());
 		});
 
-		this.battery.getSoh().onChange((oldValue, newValue) -> {
+		this.battery.getSohChannel().onChange((oldValue, newValue) -> {
 			this.channel(ChannelId.BAT_SOH).setNextValue(newValue.get());
 		});
 
-		this.battery.getMaxCellTemperature().onChange((oldValue, newValue) -> {
+		this.battery.getMaxCellTemperatureChannel().onChange((oldValue, newValue) -> {
 			this.channel(ChannelId.BAT_TEMP).setNextValue(newValue.get());
 		});
-		
-		this.battery.getMinCellVoltage().onChange((oldValue, newValue) -> {
-			this.channel(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE).setNextValue(newValue.get());
+
+		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
+			this._setMinCellVoltage(newValue.get());
+		});
+
+		this.battery.getMaxCellVoltageChannel().onChange((oldValue, newValue) -> {
+			this._setMaxCellVoltage(newValue.get());
+		});
+
+		this.battery.getMinCellTemperatureChannel().onChange((oldValue, newValue) -> {
+			this._setMinCellTemperature(newValue.get());
+		});
+
+		this.battery.getMaxCellTemperatureChannel().onChange((oldValue, newValue) -> {
+			this._setMaxCellTemperature(newValue.get());
 		});
 	}
 

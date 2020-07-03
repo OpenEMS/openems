@@ -213,15 +213,15 @@ public class Data {
 			// Allowed Charge Power
 			result.add(this.createSimpleConstraint(essId + ": Allowed Charge", //
 					essId, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
-					ess.getAllowedCharge().value().orElse(0)));
+					ess.getAllowedChargePower().orElse(0)));
 
 			// Allowed Charge Power
 			result.add(this.createSimpleConstraint(essId + ": Allowed Discharge", //
 					essId, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
-					ess.getAllowedDischarge().value().orElse(0)));
+					ess.getAllowedDischargePower().orElse(0)));
 
 			// Max Apparent Power
-			int maxApparentPower = ess.getMaxApparentPower().value().orElse(0);
+			int maxApparentPower = ess.getMaxApparentPower().orElse(0);
 			if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode && !(ess instanceof ManagedSinglePhaseEss)) {
 				double maxApparentPowerPerPhase = maxApparentPower / 3d;
 				for (Phase phase : Phase.values()) {
@@ -442,7 +442,7 @@ public class Data {
 	private void invertersUpdateWeights(List<Inverter> inverters) {
 		for (Inverter inv : inverters) {
 			ManagedSymmetricEss ess = this.parent.getEss(inv.getEssId());
-			inv.setWeight(ess.getSoc().value().orElse(50));
+			inv.setWeight(ess.getSoc().orElse(50));
 		}
 	}
 

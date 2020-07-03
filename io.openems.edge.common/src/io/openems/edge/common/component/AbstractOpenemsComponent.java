@@ -106,28 +106,32 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param enabled is the Component enabled?
 	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
-		if (id == null || id.trim().isEmpty()) {
-			this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
-		} else {
-			this.id = id;
-		}
-
-		if (alias == null || alias.trim().isEmpty()) {
-			this.alias = this.id;
-		} else {
-			this.alias = alias;
-		}
-
-		this.enabled = enabled;
-		this.componentContext = context;
+		this.updateContext(context, id, alias, enabled);
 
 		if (isEnabled()) {
 			this.logMessage("Activate");
 		} else {
 			this.logMessage("Activate DISABLED");
 		}
+	}
 
-		this.addChannelsForProperties(context);
+	/**
+	 * Handles @Modified of implementations.
+	 * 
+	 * @param context the OSGi ComponentContext
+	 * @param id      the unique OpenEMS Component ID
+	 * @param alias   Human-readable name of this Component. Typically
+	 *                'config.alias()'. Defaults to 'id' if empty
+	 * @param enabled is the Component enabled?
+	 */
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
+		this.updateContext(context, id, alias, enabled);
+
+		if (isEnabled()) {
+			this.logMessage("Modified");
+		} else {
+			this.logMessage("Modified DISABLED");
+		}
 	}
 
 	/**
@@ -153,6 +157,36 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 					"ComponentContext is null. Please make sure to call AbstractOpenemsComponent.activate()-method early!");
 		}
 		return this.componentContext;
+	}
+
+	/**
+	 * Helper method to update the Context on @Activate and @Modified.
+	 * 
+	 * @param context the OSGi ComponentContext
+	 * @param id      the unique OpenEMS Component ID
+	 * @param alias   Human-readable name of this Component. Typically
+	 *                'config.alias()'. Defaults to 'id' if empty
+	 * @param enabled is the Component enabled?
+	 */
+	private void updateContext(ComponentContext context, String id, String alias, boolean enabled) {
+		if (id == null || id.trim().isEmpty()) {
+			if (this.id == null) {
+				this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
+			}
+		} else {
+			this.id = id;
+		}
+
+		if (alias == null || alias.trim().isEmpty()) {
+			this.alias = this.id;
+		} else {
+			this.alias = alias;
+		}
+
+		this.enabled = enabled;
+		this.componentContext = context;
+
+		this.addChannelsForProperties(context);
 	}
 
 	/**
@@ -196,20 +230,26 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 				String channelName = PROPERTY_CHANNEL_ID_PREFIX
 						+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, key);
-				Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
-				io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
-					@Override
-					public String name() {
-						return channelName;
-					}
+				Channel<?> channel = this.channels
+						.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
+				if (channel == null) {
+					// Channel does not already exist -> create new Channel
+					Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
+					io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
-					@Override
-					public Doc doc() {
-						return doc;
-					}
-				};
-				Channel<?> channel = this.addChannel(channelId);
+						@Override
+						public String name() {
+							return channelName;
+						}
+
+						@Override
+						public Doc doc() {
+							return doc;
+						}
+					};
+					channel = this.addChannel(channelId);
+				}
 				channel.setNextValue(value);
 
 			} catch (OpenemsException e) {
@@ -235,6 +275,30 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		Channel<?> channel = doc.createChannelInstance(this, channelId);
 		this.addChannel(channel);
 		return channel;
+	}
+
+	/**
+	 * Adds a Channel to this Component.
+	 * 
+	 * @param channel the Channel
+	 * @throws NullPointerException     if the Channel was not initialized.
+	 * @throws IllegalArgumentException if the Channel-ID had already been added.
+	 */
+	private void addChannel(Channel<?> channel) throws NullPointerException, IllegalArgumentException {
+		if (channel == null) {
+			throw new NullPointerException(
+					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
+		}
+		if (this.channels.containsKey(channel.channelId().id())) {
+			throw new IllegalArgumentException(
+					"Duplicated Channel-ID [" + channel.channelId().id() + "] for Component [" + this.id + "]");
+		}
+		// Add Channel to channels list
+		this.channels.put(channel.channelId().id(), channel);
+		// Handle StateChannels
+		if (channel instanceof StateChannel) {
+			this.getStateChannel().addChannel((StateChannel) channel);
+		}
 	}
 
 	/**
@@ -296,30 +360,6 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	/**
-	 * Adds a Channel to this Component.
-	 * 
-	 * @param channel the Channel
-	 * @throws NullPointerException     if the Channel was not initialized.
-	 * @throws IllegalArgumentException if the Channel-ID had already been added.
-	 */
-	private void addChannel(Channel<?> channel) throws NullPointerException, IllegalArgumentException {
-		if (channel == null) {
-			throw new NullPointerException(
-					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
-		}
-		if (this.channels.containsKey(channel.channelId().id())) {
-			throw new IllegalArgumentException(
-					"Duplicated Channel-ID [" + channel.channelId().id() + "] for Component [" + this.id + "]");
-		}
-		// Add Channel to channels list
-		this.channels.put(channel.channelId().id(), channel);
-		// Handle StateChannels
-		if (channel instanceof StateChannel) {
-			this.getState().addChannel((StateChannel) channel);
-		}
-	}
-
-	/**
 	 * Removes a Channel from this Component.
 	 * 
 	 * @param channel the Channel
@@ -330,7 +370,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		this.channels.remove(channel.channelId().id(), channel);
 		// Handle StateChannels
 		if (channel instanceof StateChannel) {
-			this.getState().removeChannel((StateChannel) channel);
+			this.getStateChannel().removeChannel((StateChannel) channel);
 		}
 	}
 

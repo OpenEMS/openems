@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { fromEvent, Subject } from 'rxjs';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
-import { CurrentData } from '../../../../shared/edge/currentdata';
 import { ConsumptionSectionComponent } from './section/consumption.component';
+import { CurrentData } from '../../../../shared/edge/currentdata';
+import { debounceTime, delay, takeUntil } from 'rxjs/operators';
+import { fromEvent, Subject } from 'rxjs';
 import { GridSectionComponent } from './section/grid.component';
 import { ProductionSectionComponent } from './section/production.component';
 import { StorageSectionComponent } from './section/storage.component';

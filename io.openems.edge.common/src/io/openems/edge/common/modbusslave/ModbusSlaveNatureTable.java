@@ -51,6 +51,9 @@ public final class ModbusSlaveNatureTable {
 				case UINT16:
 					this.uint16Reserved(offset);
 					break;
+				case UINT32:
+					this.uint32Reserved(offset);
+					break;
 				}
 			}
 			return this;
@@ -68,6 +71,11 @@ public final class ModbusSlaveNatureTable {
 
 		public Builder uint16Reserved(int offset) {
 			this.add(new ModbusRecordUint16Reserved(offset));
+			return this;
+		}
+
+		public Builder uint32Reserved(int offset) {
+			this.add(new ModbusRecordUint32Reserved(offset));
 			return this;
 		}
 

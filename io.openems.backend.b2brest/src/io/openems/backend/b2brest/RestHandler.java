@@ -118,12 +118,16 @@ public class RestHandler extends AbstractHandler {
 	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {
 		try {
 			response.setContentType("application/json");
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			// Choosing SC_OK here instead of SC_BAD_REQUEST, because otherwise no error
+			// message is sent to client
+			response.setStatus(HttpServletResponse.SC_OK);
 			baseRequest.setHandled(true);
 			JsonrpcResponseError message;
 			if (ex instanceof OpenemsNamedException) {
 				// Get Named Exception error response
 				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
+			} else if (ex.getCause() != null && ex.getCause() instanceof OpenemsNamedException) {
+				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex.getCause());
 			} else {
 				// Get GENERIC error response
 				message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
@@ -207,8 +211,7 @@ public class RestHandler extends AbstractHandler {
 			try {
 				response = responseFuture.get();
 			} catch (InterruptedException | ExecutionException e) {
-				this.sendErrorResponse(baseRequest, httpResponse, request.getId(),
-						new OpenemsException("Unable to get Response: " + e.getMessage()));
+				this.sendErrorResponse(baseRequest, httpResponse, request.getId(), e);
 				return;
 			}
 

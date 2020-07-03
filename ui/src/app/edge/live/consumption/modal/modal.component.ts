@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Edge, Service, Websocket, EdgeConfig } from '../../../../shared/shared';
+import { Edge, Service, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: ConsumptionModalComponent.SELECTOR,
@@ -13,7 +12,11 @@ export class ConsumptionModalComponent {
 
     @Input() public edge: Edge;
     @Input() public evcsComponents: EdgeConfig.Component[];
+    @Input() public consumptionMeterComponents: EdgeConfig.Component[];
     @Input() public currentTotalChargingPower: () => number;
+    @Input() public currentTotalConsumptionMeterPower: () => number;
+    @Input() public sumOfChannel: () => number;
+    @Input() public getTotalOtherPower: () => number;
 
     public config: EdgeConfig = null;
 
@@ -21,7 +24,4 @@ export class ConsumptionModalComponent {
         public service: Service,
         public modalCtrl: ModalController
     ) { }
-
-    ngOnInit() {
-    }
 }

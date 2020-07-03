@@ -16,7 +16,7 @@
                         </ng-template>
                         <ng-template #fiveBars><img src="assets/img/storage_100.png" /></ng-template>
                     </ion-avatar>
-                    <ion-label translate>General.StorageSystem</ion-label>
+                    <ion-label translate>General.storageSystem</ion-label>
                 </ion-item>
             </ng-container>
         </ng-container>
@@ -29,16 +29,16 @@
                     <ion-card-content>
                         <table class="full_width">
                             <tr class="underline">
-                                <td style="width:65%" translate>General.Soc</td>
+                                <td style="width:65%" translate>General.soc</td>
                                 <td style="width:35%" class="align_right">{{ sum.soc  | unitvalue:'%' }}</td>
                             </tr>
                             <tr>
-                                <td style="width:65%" translate>General.ChargePower</td>
+                                <td style="width:65%" translate>General.chargePower</td>
                                 <td style="width:35%" class="align_right">
                                     {{ sum.effectiveChargePower  | unitvalue:'kW' }}</td>
                             </tr>
                             <tr>
-                                <td style="width:65%" translate>General.DischargePower</td>
+                                <td style="width:65%" translate>General.dischargePower</td>
                                 <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
                                     <td style="width:35%" class="align_right">
                                         {{ sum.effectiveDischargePower  | unitvalue:'kW' }}</td>
@@ -69,13 +69,13 @@
                             </table>
                             <table class="full_width">
                                 <tr>
-                                    <td style="width:65%" translate>General.ChargePower</td>
+                                    <td style="width:65%" translate>General.chargePower</td>
                                     <td style="width:35%" class="align_right">
                                         {{ sum.effectiveChargePower | unitvalue:'kW' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="width:65%" translate>General.DischargePower</td>
+                                    <td style="width:65%" translate>General.dischargePower</td>
                                     <td style="width:35%" class="align_right">
                                         {{ sum.effectiveDischargePower | unitvalue:'kW' }}
                                     </td>
@@ -107,7 +107,7 @@
                         </table>
                         <table class="full_width" *ngIf="currentData[component.id + '/ActivePower'] != null">
                             <tr>
-                                <td style="width:65%" translate>General.ChargePower</td>
+                                <td style="width:65%" translate>General.chargePower</td>
                                 <td style="width:35%" class="align_right"
                                     *ngIf="currentData[component.id + '/ActivePower'] <= 0; else empty">
                                     {{ (currentData[component.id + '/ActivePower'] * -1) | unitvalue:'kW' }}
@@ -119,7 +119,7 @@
                                 </ng-template>
                             </tr>
                             <tr>
-                                <td style="width:65%" translate>General.DischargePower</td>
+                                <td style="width:65%" translate>General.dischargePower</td>
                                 <td style="width:35%" class="align_right"
                                     *ngIf="currentData[component.id + '/ActivePower'] > 0; else empty">
                                     {{ currentData[component.id + '/ActivePower'] | unitvalue:'kW'}}

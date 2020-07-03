@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -58,7 +59,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would change State, but hystesis is active")); //
+				.text("Would change State, but hysteresis is active")); //
 
 		private final Doc doc;
 
@@ -116,8 +117,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		// Set to normal state and return if SoC is not available
-		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
-		if (!socOpt.isPresent()) {
+		Value<Integer> socOpt = ess.getSoc();
+		if (!socOpt.isDefined()) {
 			this.state = State.NORMAL;
 			return;
 		}
@@ -192,7 +193,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		}
 
 		// Apply Force-Charge if it was set
-		ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+		ess.setActivePowerLessOrEquals(calculatedPower);
 
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);

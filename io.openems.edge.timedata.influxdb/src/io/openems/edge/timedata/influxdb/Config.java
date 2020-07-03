@@ -22,6 +22,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "TCP Port", description = "TCP Port of InfluxDB server.")
 	int port() default 8086;
+	
+	@AttributeDefinition(name = "No of Cycles", description = "How many Cycles till data is written to InfluxDB.")
+	int noOfCycles() default 1;
 
 	@AttributeDefinition(name = "Username", description = "Username of InfluxDB server.")
 	String username() default "root";

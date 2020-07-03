@@ -102,7 +102,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.getCapacity().setNextValue(NET_CAPACITY);
+		this._setCapacity(NET_CAPACITY);
 	}
 
 	@Override
@@ -746,307 +746,307 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.unit(Unit.MILLIVOLT)), //
 
 		// StateChannels
-		STATE_0(Doc.of(Level.WARNING) //
+		STATE_0(Doc.of(Level.INFO) //
 				.text("Emergency Stop")), //
-		STATE_1(Doc.of(Level.WARNING) //
+		STATE_1(Doc.of(Level.INFO) //
 				.text("Key Manual Stop")), //
-		STATE_2(Doc.of(Level.WARNING) //
+		STATE_2(Doc.of(Level.INFO) //
 				.text("Transformer Phase B Temperature Sensor Invalidation")), //
-		STATE_3(Doc.of(Level.WARNING) //
+		STATE_3(Doc.of(Level.INFO) //
 				.text("SD Memory Card Invalidation")), //
-		STATE_4(Doc.of(Level.WARNING) //
+		STATE_4(Doc.of(Level.INFO) //
 				.text("Inverter Communication Abnormity")), //
-		STATE_5(Doc.of(Level.WARNING) //
+		STATE_5(Doc.of(Level.INFO) //
 				.text("Battery Stack Communication Abnormity")), //
-		STATE_6(Doc.of(Level.WARNING) //
+		STATE_6(Doc.of(Level.INFO) //
 				.text("Multifunctional Ammeter Communication Abnormity")), //
-		STATE_7(Doc.of(Level.WARNING) //
+		STATE_7(Doc.of(Level.INFO) //
 				.text("Remote Communication Abnormity")), //
-		STATE_8(Doc.of(Level.WARNING) //
+		STATE_8(Doc.of(Level.INFO) //
 				.text("PVDC1 Communication Abnormity")), //
-		STATE_9(Doc.of(Level.WARNING) //
+		STATE_9(Doc.of(Level.INFO) //
 				.text("PVDC2 Communication Abnormity")), //
-		STATE_10(Doc.of(Level.WARNING) //
+		STATE_10(Doc.of(Level.INFO) //
 				.text("Transformer Severe Overtemperature")), //
-		STATE_11(Doc.of(Level.FAULT) //
+		STATE_11(Doc.of(Level.INFO) //
 				.text("DC Precharge Contactor Close Unsuccessfully")), //
-		STATE_12(Doc.of(Level.FAULT) //
+		STATE_12(Doc.of(Level.INFO) //
 				.text("AC Precharge Contactor Close Unsuccessfully")), //
-		STATE_13(Doc.of(Level.FAULT) //
+		STATE_13(Doc.of(Level.INFO) //
 				.text("AC Main Contactor Close Unsuccessfully")), //
-		STATE_14(Doc.of(Level.FAULT) //
+		STATE_14(Doc.of(Level.INFO) //
 				.text("DC Electrical Breaker1 Close Unsuccessfully")), //
-		STATE_15(Doc.of(Level.FAULT) //
+		STATE_15(Doc.of(Level.INFO) //
 				.text("DC Main Contactor Close Unsuccessfully")), //
-		STATE_16(Doc.of(Level.FAULT) //
+		STATE_16(Doc.of(Level.INFO) //
 				.text("AC Breaker Trip")), //
-		STATE_17(Doc.of(Level.FAULT) //
+		STATE_17(Doc.of(Level.INFO) //
 				.text("AC Main Contactor Open When Running")), //
-		STATE_18(Doc.of(Level.FAULT) //
+		STATE_18(Doc.of(Level.INFO) //
 				.text("DC Main Contactor Open When Running")), //
-		STATE_19(Doc.of(Level.FAULT) //
+		STATE_19(Doc.of(Level.INFO) //
 				.text("AC Main Contactor Open Unsuccessfully")), //
-		STATE_20(Doc.of(Level.FAULT) //
+		STATE_20(Doc.of(Level.INFO) //
 				.text("DC Electrical Breaker1 Open Unsuccessfully")), //
-		STATE_21(Doc.of(Level.FAULT) //
+		STATE_21(Doc.of(Level.INFO) //
 				.text("DC Main Contactor Open Unsuccessfully")), //
-		STATE_22(Doc.of(Level.FAULT) //
+		STATE_22(Doc.of(Level.INFO) //
 				.text("Hardware PDP Fault")), //
-		STATE_23(Doc.of(Level.FAULT) //
+		STATE_23(Doc.of(Level.INFO) //
 				.text("Master Stop Suddenly")), //
-		STATE_24(Doc.of(Level.FAULT) //
+		STATE_24(Doc.of(Level.INFO) //
 				.text("DCShortCircuitProtection")), //
-		STATE_25(Doc.of(Level.FAULT) //
+		STATE_25(Doc.of(Level.INFO) //
 				.text("DCOvervoltageProtection")), //
-		STATE_26(Doc.of(Level.FAULT) //
+		STATE_26(Doc.of(Level.INFO) //
 				.text("DCUndervoltageProtection")), //
-		STATE_27(Doc.of(Level.FAULT) //
+		STATE_27(Doc.of(Level.INFO) //
 				.text("DCInverseNoConnectionProtection")), //
-		STATE_28(Doc.of(Level.FAULT) //
+		STATE_28(Doc.of(Level.INFO) //
 				.text("DCDisconnectionProtection")), //
-		STATE_29(Doc.of(Level.FAULT) //
+		STATE_29(Doc.of(Level.INFO) //
 				.text("CommutingVoltageAbnormityProtection")), //
-		STATE_30(Doc.of(Level.FAULT) //
+		STATE_30(Doc.of(Level.INFO) //
 				.text("DCOvercurrentProtection")), //
-		STATE_31(Doc.of(Level.FAULT) //
+		STATE_31(Doc.of(Level.INFO) //
 				.text("Phase1PeakCurrentOverLimitProtection")), //
-		STATE_32(Doc.of(Level.FAULT) //
+		STATE_32(Doc.of(Level.INFO) //
 				.text("Phase2PeakCurrentOverLimitProtection")), //
-		STATE_33(Doc.of(Level.FAULT) //
+		STATE_33(Doc.of(Level.INFO) //
 				.text("Phase3PeakCurrentOverLimitProtection")), //
-		STATE_34(Doc.of(Level.FAULT) //
+		STATE_34(Doc.of(Level.INFO) //
 				.text("Phase1GridVoltageSamplingInvalidation")), //
-		STATE_35(Doc.of(Level.FAULT) //
+		STATE_35(Doc.of(Level.INFO) //
 				.text("Phase2VirtualCurrentOverLimitProtection")), //
-		STATE_36(Doc.of(Level.FAULT) //
+		STATE_36(Doc.of(Level.INFO) //
 				.text("Phase3VirtualCurrentOverLimitProtection")), //
-		STATE_37(Doc.of(Level.FAULT) //
+		STATE_37(Doc.of(Level.INFO) //
 				.text("Phase1GridVoltageSamplingInvalidation2")), //
-		STATE_38(Doc.of(Level.FAULT) //
+		STATE_38(Doc.of(Level.INFO) //
 				.text("Phase2ridVoltageSamplingInvalidation")), //
-		STATE_39(Doc.of(Level.FAULT) //
+		STATE_39(Doc.of(Level.INFO) //
 				.text("Phase3GridVoltageSamplingInvalidation")), //
-		STATE_40(Doc.of(Level.FAULT) //
+		STATE_40(Doc.of(Level.INFO) //
 				.text("Phase1InvertVoltageSamplingInvalidation")), //
-		STATE_41(Doc.of(Level.FAULT) //
+		STATE_41(Doc.of(Level.INFO) //
 				.text("Phase2InvertVoltageSamplingInvalidation")), //
-		STATE_42(Doc.of(Level.FAULT) //
+		STATE_42(Doc.of(Level.INFO) //
 				.text("Phase3InvertVoltageSamplingInvalidation")), //
-		STATE_43(Doc.of(Level.FAULT) //
+		STATE_43(Doc.of(Level.INFO) //
 				.text("ACCurrentSamplingInvalidation")), //
-		STATE_44(Doc.of(Level.FAULT) //
+		STATE_44(Doc.of(Level.INFO) //
 				.text("DCCurrentSamplingInvalidation")), //
-		STATE_45(Doc.of(Level.FAULT) //
+		STATE_45(Doc.of(Level.INFO) //
 				.text("Phase1OvertemperatureProtection")), //
-		STATE_46(Doc.of(Level.FAULT) //
+		STATE_46(Doc.of(Level.INFO) //
 				.text("Phase2OvertemperatureProtection")), //
-		STATE_47(Doc.of(Level.FAULT) //
+		STATE_47(Doc.of(Level.INFO) //
 				.text("Phase3OvertemperatureProtection")), //
-		STATE_48(Doc.of(Level.FAULT) //
+		STATE_48(Doc.of(Level.INFO) //
 				.text("Phase1TemperatureSamplingInvalidation")), //
-		STATE_49(Doc.of(Level.FAULT) //
+		STATE_49(Doc.of(Level.INFO) //
 				.text("Phase2TemperatureSamplingInvalidation")), //
-		STATE_50(Doc.of(Level.FAULT) //
+		STATE_50(Doc.of(Level.INFO) //
 				.text("Phase3TemperatureSamplingInvalidation")), //
-		STATE_51(Doc.of(Level.FAULT) //
+		STATE_51(Doc.of(Level.INFO) //
 				.text("Phase1PrechargeUnmetProtection")), //
-		STATE_52(Doc.of(Level.FAULT) //
+		STATE_52(Doc.of(Level.INFO) //
 				.text("Phase2PrechargeUnmetProtection")), //
-		STATE_53(Doc.of(Level.FAULT) //
+		STATE_53(Doc.of(Level.INFO) //
 				.text("Phase3PrechargeUnmetProtection")), //
-		STATE_54(Doc.of(Level.FAULT) //
+		STATE_54(Doc.of(Level.INFO) //
 				.text("UnadaptablePhaseSequenceErrorProtection")), //
-		STATE_55(Doc.of(Level.FAULT) //
+		STATE_55(Doc.of(Level.INFO) //
 				.text("DSPProtection")), //
-		STATE_56(Doc.of(Level.FAULT) //
+		STATE_56(Doc.of(Level.INFO) //
 				.text("Phase1GridVoltageSevereOvervoltageProtection")), //
-		STATE_57(Doc.of(Level.FAULT) //
+		STATE_57(Doc.of(Level.INFO) //
 				.text("Phase1GridVoltageGeneralOvervoltageProtection")), //
-		STATE_58(Doc.of(Level.FAULT) //
+		STATE_58(Doc.of(Level.INFO) //
 				.text("Phase2GridVoltageSevereOvervoltageProtection")), //
-		STATE_59(Doc.of(Level.FAULT) //
+		STATE_59(Doc.of(Level.INFO) //
 				.text("Phase2GridVoltageGeneralOvervoltageProtection")), //
-		STATE_60(Doc.of(Level.FAULT) //
+		STATE_60(Doc.of(Level.INFO) //
 				.text("Phase3GridVoltageSevereOvervoltageProtection")), //
-		STATE_61(Doc.of(Level.FAULT) //
+		STATE_61(Doc.of(Level.INFO) //
 				.text("Phase3GridVoltageGeneralOvervoltageProtection")), //
-		STATE_62(Doc.of(Level.FAULT) //
+		STATE_62(Doc.of(Level.INFO) //
 				.text("Phase1GridVoltageSevereUndervoltageProtection")), //
-		STATE_63(Doc.of(Level.FAULT) //
+		STATE_63(Doc.of(Level.INFO) //
 				.text("Phase1GridVoltageGeneralUndervoltageProtection")), //
-		STATE_64(Doc.of(Level.FAULT) //
+		STATE_64(Doc.of(Level.INFO) //
 				.text("Phase2GridVoltageSevereUndervoltageProtection")), //
-		STATE_65(Doc.of(Level.FAULT) //
+		STATE_65(Doc.of(Level.INFO) //
 				.text("Phase2GridVoltageGeneralUndervoltageProtection")), //
-		STATE_66(Doc.of(Level.FAULT) //
+		STATE_66(Doc.of(Level.INFO) //
 				.text("Phase3GridVoltageSevereUndervoltageProtection")), //
-		STATE_67(Doc.of(Level.FAULT) //
+		STATE_67(Doc.of(Level.INFO) //
 				.text("Phase3GridVoltageGeneralUndervoltageProtection")), //
-		STATE_68(Doc.of(Level.FAULT) //
+		STATE_68(Doc.of(Level.INFO) //
 				.text("SevereOverfrequncyProtection")), //
-		STATE_69(Doc.of(Level.FAULT) //
+		STATE_69(Doc.of(Level.INFO) //
 				.text("GeneralOverfrequncyProtection")), //
-		STATE_70(Doc.of(Level.FAULT) //
+		STATE_70(Doc.of(Level.INFO) //
 				.text("SevereUnderfrequncyProtection")), //
-		STATE_71(Doc.of(Level.FAULT) //
+		STATE_71(Doc.of(Level.INFO) //
 				.text("GeneralsUnderfrequncyProtection")), //
-		STATE_72(Doc.of(Level.FAULT) //
+		STATE_72(Doc.of(Level.INFO) //
 				.text("Phase1Gridloss")), //
-		STATE_73(Doc.of(Level.FAULT) //
+		STATE_73(Doc.of(Level.INFO) //
 				.text("Phase2Gridloss")), //
-		STATE_74(Doc.of(Level.FAULT) //
+		STATE_74(Doc.of(Level.INFO) //
 				.text("Phase3Gridloss")), //
-		STATE_75(Doc.of(Level.FAULT) //
+		STATE_75(Doc.of(Level.INFO) //
 				.text("IslandingProtection")), //
-		STATE_76(Doc.of(Level.FAULT) //
+		STATE_76(Doc.of(Level.INFO) //
 				.text("Phase1UnderVoltageRideThrough")), //
-		STATE_77(Doc.of(Level.FAULT) //
+		STATE_77(Doc.of(Level.INFO) //
 				.text("Phase2UnderVoltageRideThrough")), //
-		STATE_78(Doc.of(Level.FAULT) //
+		STATE_78(Doc.of(Level.INFO) //
 				.text("Phase3UnderVoltageRideThrough")), //
-		STATE_79(Doc.of(Level.FAULT) //
+		STATE_79(Doc.of(Level.INFO) //
 				.text("Phase1InverterVoltageSevereOvervoltageProtection")), //
-		STATE_80(Doc.of(Level.FAULT) //
+		STATE_80(Doc.of(Level.INFO) //
 				.text("Phase1InverterVoltageGeneralOvervoltageProtection")), //
-		STATE_81(Doc.of(Level.FAULT) //
+		STATE_81(Doc.of(Level.INFO) //
 				.text("Phase2InverterVoltageSevereOvervoltageProtection")), //
-		STATE_82(Doc.of(Level.FAULT) //
+		STATE_82(Doc.of(Level.INFO) //
 				.text("Phase2InverterVoltageGeneralOvervoltageProtection")), //
-		STATE_83(Doc.of(Level.FAULT) //
+		STATE_83(Doc.of(Level.INFO) //
 				.text("Phase3InverterVoltageSevereOvervoltageProtection")), //
-		STATE_84(Doc.of(Level.FAULT) //
+		STATE_84(Doc.of(Level.INFO) //
 				.text("Phase3InverterVoltageGeneralOvervoltageProtection")), //
-		STATE_85(Doc.of(Level.FAULT) //
+		STATE_85(Doc.of(Level.INFO) //
 				.text("InverterPeakVoltageHighProtectionCauseByACDisconnect")), //
-		STATE_86(Doc.of(Level.WARNING) //
+		STATE_86(Doc.of(Level.INFO) //
 				.text("DCPrechargeContactorInspectionAbnormity")), //
-		STATE_87(Doc.of(Level.WARNING) //
+		STATE_87(Doc.of(Level.INFO) //
 				.text("DCBreaker1InspectionAbnormity")), //
-		STATE_88(Doc.of(Level.WARNING) //
+		STATE_88(Doc.of(Level.INFO) //
 				.text("DCBreaker2InspectionAbnormity")), //
-		STATE_89(Doc.of(Level.WARNING) //
+		STATE_89(Doc.of(Level.INFO) //
 				.text("ACPrechargeContactorInspectionAbnormity")), //
-		STATE_90(Doc.of(Level.WARNING) //
+		STATE_90(Doc.of(Level.INFO) //
 				.text("ACMainontactorInspectionAbnormity")), //
-		STATE_91(Doc.of(Level.WARNING) //
+		STATE_91(Doc.of(Level.INFO) //
 				.text("ACBreakerInspectionAbnormity")), //
-		STATE_92(Doc.of(Level.WARNING) //
+		STATE_92(Doc.of(Level.INFO) //
 				.text("DCBreaker1CloseUnsuccessfully")), //
-		STATE_93(Doc.of(Level.WARNING) //
+		STATE_93(Doc.of(Level.INFO) //
 				.text("DCBreaker2CloseUnsuccessfully")), //
-		STATE_94(Doc.of(Level.WARNING) //
+		STATE_94(Doc.of(Level.INFO) //
 				.text("ControlSignalCloseAbnormallyInspectedBySystem")), //
-		STATE_95(Doc.of(Level.WARNING) //
+		STATE_95(Doc.of(Level.INFO) //
 				.text("ControlSignalOpenAbnormallyInspectedBySystem")), //
-		STATE_96(Doc.of(Level.WARNING) //
+		STATE_96(Doc.of(Level.INFO) //
 				.text("NeutralWireContactorCloseUnsuccessfully")), //
-		STATE_97(Doc.of(Level.WARNING) //
+		STATE_97(Doc.of(Level.INFO) //
 				.text("NeutralWireContactorOpenUnsuccessfully")), //
-		STATE_98(Doc.of(Level.WARNING) //
+		STATE_98(Doc.of(Level.INFO) //
 				.text("WorkDoorOpen")), //
-		STATE_99(Doc.of(Level.WARNING) //
+		STATE_99(Doc.of(Level.INFO) //
 				.text("Emergency1Stop")), //
-		STATE_100(Doc.of(Level.WARNING) //
+		STATE_100(Doc.of(Level.INFO) //
 				.text("ACBreakerCloseUnsuccessfully")), //
-		STATE_101(Doc.of(Level.WARNING) //
+		STATE_101(Doc.of(Level.INFO) //
 				.text("ControlSwitchStop")), //
-		STATE_102(Doc.of(Level.WARNING) //
+		STATE_102(Doc.of(Level.INFO) //
 				.text("GeneralOverload")), //
-		STATE_103(Doc.of(Level.WARNING) //
+		STATE_103(Doc.of(Level.INFO) //
 				.text("SevereOverload")), //
-		STATE_104(Doc.of(Level.WARNING) //
+		STATE_104(Doc.of(Level.INFO) //
 				.text("BatteryCurrentOverLimit")), //
-		STATE_105(Doc.of(Level.WARNING) //
+		STATE_105(Doc.of(Level.INFO) //
 				.debounce(5 * 60 /* 5 minutes with a cycle time of 1 sec */,
 						Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)
 				.text("PowerDecreaseCausedByOvertemperature")), //
-		STATE_106(Doc.of(Level.WARNING) //
+		STATE_106(Doc.of(Level.INFO) //
 				.text("InverterGeneralOvertemperature")), //
-		STATE_107(Doc.of(Level.WARNING) //
+		STATE_107(Doc.of(Level.INFO) //
 				.text("ACThreePhaseCurrentUnbalance")), //
-		STATE_108(Doc.of(Level.WARNING) //
+		STATE_108(Doc.of(Level.INFO) //
 				.text("RestoreFactorySettingUnsuccessfully")), //
-		STATE_109(Doc.of(Level.WARNING) //
+		STATE_109(Doc.of(Level.INFO) //
 				.text("PoleBoardInvalidation")), //
-		STATE_110(Doc.of(Level.WARNING) //
+		STATE_110(Doc.of(Level.INFO) //
 				.text("SelfInspectionFailed")), //
-		STATE_111(Doc.of(Level.WARNING) //
+		STATE_111(Doc.of(Level.INFO) //
 				.text("ReceiveBMSFaultAndStop")), //
-		STATE_112(Doc.of(Level.WARNING) //
+		STATE_112(Doc.of(Level.INFO) //
 				.text("RefrigerationEquipmentinvalidation")), //
-		STATE_113(Doc.of(Level.WARNING) //
+		STATE_113(Doc.of(Level.INFO) //
 				.text("LargeTemperatureDifferenceAmongIGBTThreePhases")), //
-		STATE_114(Doc.of(Level.WARNING) //
+		STATE_114(Doc.of(Level.INFO) //
 				.text("EEPROMParametersOverRange")), //
-		STATE_115(Doc.of(Level.WARNING) //
+		STATE_115(Doc.of(Level.INFO) //
 				.text("EEPROMParametersBackupFailed")), //
-		STATE_116(Doc.of(Level.WARNING) //
+		STATE_116(Doc.of(Level.INFO) //
 				.text("DCBreakerCloseunsuccessfully")), //
-		STATE_117(Doc.of(Level.WARNING) //
+		STATE_117(Doc.of(Level.INFO) //
 				.text("CommunicationBetweenInverterAndBSMUDisconnected")), //
-		STATE_118(Doc.of(Level.WARNING) //
+		STATE_118(Doc.of(Level.INFO) //
 				.text("CommunicationBetweenInverterAndMasterDisconnected")), //
-		STATE_119(Doc.of(Level.WARNING) //
+		STATE_119(Doc.of(Level.INFO) //
 				.text("CommunicationBetweenInverterAndUCDisconnected")), //
-		STATE_120(Doc.of(Level.WARNING) //
+		STATE_120(Doc.of(Level.INFO) //
 				.text("BMSStartOvertimeControlledByPCS")), //
-		STATE_121(Doc.of(Level.WARNING) //
+		STATE_121(Doc.of(Level.INFO) //
 				.text("BMSStopOvertimeControlledByPCS")), //
-		STATE_122(Doc.of(Level.WARNING) //
+		STATE_122(Doc.of(Level.INFO) //
 				.text("SyncSignalInvalidation")), //
-		STATE_123(Doc.of(Level.WARNING) //
+		STATE_123(Doc.of(Level.INFO) //
 				.text("SyncSignalContinuousCaputureFault")), //
-		STATE_124(Doc.of(Level.WARNING) //
+		STATE_124(Doc.of(Level.INFO) //
 				.text("SyncSignalSeveralTimesCaputureFault")), //
-		STATE_125(Doc.of(Level.WARNING) //
+		STATE_125(Doc.of(Level.INFO) //
 				.text("CurrentSamplingChannelAbnormityOnHighVoltageSide")), //
-		STATE_126(Doc.of(Level.WARNING) //
+		STATE_126(Doc.of(Level.INFO) //
 				.text("CurrentSamplingChannelAbnormityOnLowVoltageSide")), //
-		STATE_127(Doc.of(Level.WARNING) //
+		STATE_127(Doc.of(Level.INFO) //
 				.text("EEPROMParametersOverRange")), //
-		STATE_128(Doc.of(Level.WARNING) //
+		STATE_128(Doc.of(Level.INFO) //
 				.text("UpdateEEPROMFailed")), //
-		STATE_129(Doc.of(Level.WARNING) //
+		STATE_129(Doc.of(Level.INFO) //
 				.text("ReadEEPROMFailed")), //
-		STATE_130(Doc.of(Level.WARNING) //
+		STATE_130(Doc.of(Level.INFO) //
 				.text("CurrentSamplingChannelAbnormityBeforeInductance")), //
-		STATE_131(Doc.of(Level.WARNING) //
+		STATE_131(Doc.of(Level.INFO) //
 				.text("ReactorPowerDecreaseCausedByOvertemperature")), //
-		STATE_132(Doc.of(Level.WARNING) //
+		STATE_132(Doc.of(Level.INFO) //
 				.text("IGBTPowerDecreaseCausedByOvertemperature")), //
-		STATE_133(Doc.of(Level.WARNING) //
+		STATE_133(Doc.of(Level.INFO) //
 				.text("TemperatureChanel3PowerDecreaseCausedByOvertemperature")), //
-		STATE_134(Doc.of(Level.WARNING) //
+		STATE_134(Doc.of(Level.INFO) //
 				.text("TemperatureChanel4PowerDecreaseCausedByOvertemperature")), //
-		STATE_135(Doc.of(Level.WARNING) //
+		STATE_135(Doc.of(Level.INFO) //
 				.text("TemperatureChanel5PowerDecreaseCausedByOvertemperature")), //
-		STATE_136(Doc.of(Level.WARNING) //
+		STATE_136(Doc.of(Level.INFO) //
 				.text("TemperatureChanel6PowerDecreaseCausedByOvertemperature")), //
-		STATE_137(Doc.of(Level.WARNING) //
+		STATE_137(Doc.of(Level.INFO) //
 				.text("TemperatureChanel7PowerDecreaseCausedByOvertemperature")), //
-		STATE_138(Doc.of(Level.WARNING) //
+		STATE_138(Doc.of(Level.INFO) //
 				.text("TemperatureChanel8PowerDecreaseCausedByOvertemperature")), //
-		STATE_139(Doc.of(Level.WARNING) //
+		STATE_139(Doc.of(Level.INFO) //
 				.text("Fan1StopFailed")), //
-		STATE_140(Doc.of(Level.WARNING) //
+		STATE_140(Doc.of(Level.INFO) //
 				.text("Fan2StopFailed")), //
-		STATE_141(Doc.of(Level.WARNING) //
+		STATE_141(Doc.of(Level.INFO) //
 				.text("Fan3StopFailed")), //
-		STATE_142(Doc.of(Level.WARNING) //
+		STATE_142(Doc.of(Level.INFO) //
 				.text("Fan4StopFailed")), //
-		STATE_143(Doc.of(Level.WARNING) //
+		STATE_143(Doc.of(Level.INFO) //
 				.text("Fan1StartupFailed")), //
-		STATE_144(Doc.of(Level.WARNING) //
+		STATE_144(Doc.of(Level.INFO) //
 				.text("Fan2StartupFailed")), //
-		STATE_145(Doc.of(Level.WARNING) //
+		STATE_145(Doc.of(Level.INFO) //
 				.text("Fan3StartupFailed")), //
-		STATE_146(Doc.of(Level.WARNING) //
+		STATE_146(Doc.of(Level.INFO) //
 				.text("Fan4StartupFailed")), //
-		STATE_147(Doc.of(Level.WARNING) //
+		STATE_147(Doc.of(Level.INFO) //
 				.text("HighVoltageSideOvervoltage")), //
-		STATE_148(Doc.of(Level.WARNING) //
+		STATE_148(Doc.of(Level.INFO) //
 				.text("HighVoltageSideUndervoltage")), //
-		STATE_149(Doc.of(Level.WARNING) //
+		STATE_149(Doc.of(Level.INFO) //
 				.text("HighVoltageSideVoltageChangeUnconventionally")); //
 
 		private final Doc doc;
@@ -1618,12 +1618,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -78,10 +79,12 @@ public class OsgiValidateWorker extends AbstractWorker {
 				for (Configuration config : configs) {
 					Dictionary<String, Object> properties = config.getProperties();
 					String componentId = (String) properties.get("id");
-					if (this.isComponentActivated(componentId)) {
-						this.componentDefectiveSince.remove(componentId);
-					} else {
-						this.componentDefectiveSince.putIfAbsent(componentId, new DefectiveComponent());
+					if (componentId != null) {
+						if (this.isComponentActivated(componentId)) {
+							this.componentDefectiveSince.remove(componentId);
+						} else {
+							this.componentDefectiveSince.putIfAbsent(componentId, new DefectiveComponent());
+						}
 					}
 				}
 			}
@@ -100,20 +103,28 @@ public class OsgiValidateWorker extends AbstractWorker {
 			this.parent.logWarn(this.log, "Component(s) configured but not active: "
 					+ String.join(",", this.componentDefectiveSince.keySet()));
 
-			this.parent.configNotActivatedChannel().setNextValue(true);
+			this.parent._setConfigNotActivated(true);
 
-			for (Entry<String, DefectiveComponent> entry : this.componentDefectiveSince.entrySet()) {
+			Iterator<Entry<String, DefectiveComponent>> iterator = this.componentDefectiveSince.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Entry<String, DefectiveComponent> entry = iterator.next();
 				DefectiveComponent defectiveComponent = entry.getValue();
 
 				if (defectiveComponent.lastTryToRestart.isBefore(LocalDateTime.now().minusMinutes(RESTART_PERIOD))) {
+					this.parent.logInfo(this.log, "Trying to restart Component [" + entry.getKey() + "]");
+					Configuration config;
 					try {
-						this.parent.logInfo(this.log, "Trying to restart Component [" + entry.getKey() + "]");
-						Configuration config = this.parent.getExistingConfigForId(entry.getKey());
+						config = this.parent.getExistingConfigForId(entry.getKey());
+					} catch (OpenemsNamedException e) {
+						// Component with this ID is not existing (anymore?!)
+						iterator.remove();
+						continue;
+					}
+					try {
 						Dictionary<String, Object> properties = config.getProperties();
 						config.update(properties);
 						defectiveComponent.updateLastTryToRestart();
-
-					} catch (OpenemsNamedException | IOException e) {
+					} catch (IOException e) {
 						this.parent.logError(this.log, e.getMessage());
 						e.printStackTrace();
 					}
@@ -126,7 +137,7 @@ public class OsgiValidateWorker extends AbstractWorker {
 			}
 		}
 
-		this.parent.configNotActivatedChannel().setNextValue(announceConfigNotActivated);
+		this.parent._setConfigNotActivated(announceConfigNotActivated);
 	}
 
 	private boolean isComponentActivated(String componentId) {

@@ -52,6 +52,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -82,13 +83,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
 
 	public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
-	
+
 	public static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
 	public static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
 	protected static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
 	protected static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
-		
+
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
 	// State-Machines
@@ -127,14 +128,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.config = config;
 
 		// Calculate max apparent power from number of inverters
-		this.getMaxApparentPower().setNextValue(config.inverterCount().getMaxApparentPower());
+		this._setMaxApparentPower(config.inverterCount().getMaxApparentPower());
 
 		// Call parent activate()
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
-		
+
 	}
-	
 
 	@Deactivate
 	protected void deactivate() {
@@ -217,7 +217,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 
 		} finally {
-			this.getGridMode().setNextValue(gridMode);
+			this._setGridMode(gridMode);
 		}
 	}
 
@@ -228,16 +228,19 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		int allowedCharge = 0;
 		int allowedDischarge = 0;
 		int capacity = 0;
+		int minCellVoltage = Integer.MAX_VALUE;
 		for (Battery battery : this.getBatteries()) {
-			allowedCharge += battery.getVoltage().value().orElse(0) * battery.getChargeMaxCurrent().value().orElse(0)
-					* -1;
-			allowedDischarge += battery.getVoltage().value().orElse(0)
-					* battery.getDischargeMaxCurrent().value().orElse(0);
-			capacity += battery.getCapacity().value().orElse(0);
+			allowedCharge += battery.getVoltage().orElse(0) * battery.getChargeMaxCurrent().orElse(0) * -1;
+			allowedDischarge += battery.getVoltage().orElse(0) * battery.getDischargeMaxCurrent().orElse(0);
+			capacity += battery.getCapacity().orElse(0);
+			int minCellBattery = battery.getMinCellVoltage().orElse(Integer.MAX_VALUE);
+			minCellVoltage = Math.min(minCellVoltage, minCellBattery);
 		}
-		this.getAllowedCharge().setNextValue(allowedCharge);
-		this.getAllowedDischarge().setNextValue(allowedDischarge);
-		this.getCapacity().setNextValue(capacity);
+
+		this._setAllowedChargePower(allowedCharge);
+		this._setAllowedDischargePower(allowedDischarge);
+		this._setCapacity(capacity);
+		this._setMinCellVoltage(minCellVoltage);
 	}
 
 	/**
@@ -248,11 +251,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		float sumTotalCapacity = 0;
 		float sumCurrentCapacity = 0;
 		for (Battery b : this.getBatteries()) {
-			Optional<Integer> totalCapacityOpt = b.getCapacity().value().asOptional();
-			Optional<Integer> socOpt = b.getSoc().value().asOptional();
+			Optional<Integer> totalCapacityOpt = b.getCapacity().asOptional();
+			Optional<Integer> socOpt = b.getSoc().asOptional();
 			if (!totalCapacityOpt.isPresent() || !socOpt.isPresent()) {
 				// if at least one Battery has no valid value -> set UNDEFINED
-				this.getSoc().setNextValue(null);
+				this._setSoc(null);
 				return;
 			}
 			int totalCapacity = totalCapacityOpt.get();
@@ -261,7 +264,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			sumCurrentCapacity += totalCapacity * soc / 100.0;
 		}
 		int soc = Math.round(sumCurrentCapacity * 100 / sumTotalCapacity);
-		this.getSoc().setNextValue(soc);
+		this._setSoc(soc);
 	}
 
 	/**
@@ -297,17 +300,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					.writeToChannels(this, IpuInverterControl.Inverter.THREE);
 			break;
 		}
-		
+
 	}
-	
+
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|Allowed:"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
@@ -347,21 +349,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		FloatWriteChannel qRefChannel = this.channel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF);
 		pRefChannel.setNextWriteValue(activePowerFactor);
 		qRefChannel.setNextWriteValue(reactivePowerFactor);
-		
+
 		// calculate and set the weights for battery strings A, B and C.
 		Map<GridConChannelId, Float> map = this.weightBatteryStrings(activePower);
-		
-		new DcdcControl()
-		.dcVoltageSetpoint(GridconPCS.DC_LINK_VOLTAGE_SETPOINT)
-		.weightStringA(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A))
-		.weightStringB(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B))
-		.weightStringC(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C))
-		.iRefStringA(0)
-		.iRefStringB(0)
-		.iRefStringC(0)
-		.stringControlMode(componentManager, config)
-		.writeToChannels(this);
-		
+
+		new DcdcControl().dcVoltageSetpoint(GridconPCS.DC_LINK_VOLTAGE_SETPOINT)
+				.weightStringA(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A))
+				.weightStringB(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B))
+				.weightStringC(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C)).iRefStringA(0).iRefStringB(0)
+				.iRefStringC(0).stringControlMode(componentManager, config).writeToChannels(this);
+
 	}
 
 	/**
@@ -369,7 +366,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * current.
 	 * 
 	 * @param activePower
-	 * @return 
+	 * @return
 	 * @throws OpenemsNamedException
 	 */
 	private Map<GridConChannelId, Float> weightBatteryStrings(int activePower) throws OpenemsNamedException {
@@ -382,7 +379,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		Battery batteryStringC = null;
 
 		// TODO if battery is not ready for work, set weight to '0'
-		
+
 		try {
 			batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
 		} catch (Exception e) {
@@ -403,25 +400,31 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			 * Discharge
 			 */
 			if (batteryStringA != null) {
-				weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
-				// if battery is not ready or if minSoc is reached, do not allow further discharging
-				if (!this.isBatteryReady(batteryStringA) || batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryA()) {
+				weightA = batteryStringA.getDischargeMaxCurrent().orElse(0);
+				// if battery is not ready or if minSoc is reached, do not allow further
+				// discharging
+				if (!this.isBatteryReady(batteryStringA)
+						|| batteryStringA.getSoc().orElse(0) <= this.config.minSocBatteryA()) {
 					weightA = 0;
 				}
 			}
 
 			if (batteryStringB != null) {
-				weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
-				// if battery is not ready or if minSoc is reached, do not allow further discharging
-				if (!this.isBatteryReady(batteryStringB) || batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryB()) {
+				weightB = batteryStringB.getDischargeMaxCurrent().orElse(0);
+				// if battery is not ready or if minSoc is reached, do not allow further
+				// discharging
+				if (!this.isBatteryReady(batteryStringB)
+						|| batteryStringB.getSoc().orElse(0) <= this.config.minSocBatteryB()) {
 					weightB = 0;
 				}
 			}
 
 			if (batteryStringC != null) {
-				weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
-				// if battery is not ready or if minSoc is reached, do not allow further discharging
-				if (!this.isBatteryReady(batteryStringC) || batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryC()) {
+				weightC = batteryStringC.getDischargeMaxCurrent().orElse(0);
+				// if battery is not ready or if minSoc is reached, do not allow further
+				// discharging
+				if (!this.isBatteryReady(batteryStringC)
+						|| batteryStringC.getSoc().orElse(0) <= this.config.minSocBatteryC()) {
 					weightC = 0;
 				}
 			}
@@ -431,36 +434,34 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			 * Charge
 			 */
 			if (batteryStringA != null && this.isBatteryReady(batteryStringA)) {
-				weightA = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0);
+				weightA = batteryStringA.getChargeMaxCurrent().orElse(0);
 			}
 			if (batteryStringB != null && this.isBatteryReady(batteryStringB)) {
-				weightB = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0);
+				weightB = batteryStringB.getChargeMaxCurrent().orElse(0);
 			}
 			if (batteryStringC != null && this.isBatteryReady(batteryStringC)) {
-				weightC = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0);
+				weightC = batteryStringC.getChargeMaxCurrent().orElse(0);
 			}
 
 		} else {
 			/*
 			 * active power is zero
 			 */
-			
+
 			int factor = 100;
 			if (batteryStringA != null && batteryStringB != null && batteryStringC != null) { // ABC
-				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
-				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
-				
-				
+				Optional<Integer> vAopt = batteryStringA.getVoltage().asOptional();
+				Optional<Integer> vBopt = batteryStringB.getVoltage().asOptional();
+				Optional<Integer> vCopt = batteryStringC.getVoltage().asOptional();
+
 				// Racks die abgeschalten sind dürfen nicht berücksichtigt werden
-				//--> Gewichtung auf 0
-				
-				
+				// --> Gewichtung auf 0
+
 				if (vAopt.isPresent() && vBopt.isPresent() && vCopt.isPresent()) {
 					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
 					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
 					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
-					
+
 					double min = Math.min(averageVoltageA, Math.min(averageVoltageB, averageVoltageC));
 					if (this.isBatteryReady(batteryStringA)) {
 						weightA = (int) ((averageVoltageA - min) * factor);
@@ -473,8 +474,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					}
 				}
 			} else if (batteryStringA != null && batteryStringB != null && batteryStringC == null) { // AB
-				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
+				Optional<Integer> vAopt = batteryStringA.getVoltage().asOptional();
+				Optional<Integer> vBopt = batteryStringB.getVoltage().asOptional();
 				if (vAopt.isPresent() && vBopt.isPresent()) {
 					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
 					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
@@ -487,8 +488,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					}
 				}
 			} else if (batteryStringA != null && batteryStringB == null && batteryStringC != null) { // AC
-				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+				Optional<Integer> vAopt = batteryStringA.getVoltage().asOptional();
+				Optional<Integer> vCopt = batteryStringC.getVoltage().asOptional();
 				if (vAopt.isPresent() && vCopt.isPresent()) {
 					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
 					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
@@ -501,8 +502,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					}
 				}
 			} else if (batteryStringA == null && batteryStringB != null && batteryStringC != null) { // BC
-				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
-				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+				Optional<Integer> vBopt = batteryStringB.getVoltage().asOptional();
+				Optional<Integer> vCopt = batteryStringC.getVoltage().asOptional();
 				if (vBopt.isPresent() && vCopt.isPresent()) {
 					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
 					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
@@ -516,19 +517,19 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				}
 			}
 		}
-		
+
 //		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
 //		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
 //		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);
 //		weightBchannel.setNextWriteValue(Float.valueOf(weightB));
 //		FloatWriteChannel weightCchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C);
 //		weightCchannel.setNextWriteValue(Float.valueOf(weightC));
-		
+
 		Map<GridConChannelId, Float> map = new HashMap<>();
 		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, (float) weightA);
 		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, (float) weightB);
 		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, (float) weightC);
-		
+
 		return map;
 	}
 
@@ -536,10 +537,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (battery == null) {
 			return false;
 		}
-		
-		Optional<Boolean> readyOpt = battery.getReadyForWorking().getNextValue().asOptional();
-		
-		return (readyOpt.isPresent() && readyOpt.get());
+
+		return battery.getStartStop() == StartStop.START;
 	}
 
 	@Override
@@ -588,22 +587,19 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return batteries;
 	}
 
-
 	public boolean isAtLeastOneBatteryReady() {
 		for (Battery battery : getBatteries()) {
-			Optional<Boolean> val = battery.getReadyForWorking().value().asOptional();
-			
-			if (val.isPresent() && val.get()) {
+			if (battery.getStartStop() == StartStop.START) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		int inverterCount = this.config.inverterCount().getCount();
-	
+
 		ModbusProtocol result = new ModbusProtocol(this, //
 				/*
 				 * CCU State
@@ -1204,7 +1200,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			float ipu1 = ap1.getNextValue().orElse(0f);
 			float ipu2 = ap2.getNextValue().orElse(0f);
 			float ipu3 = ap3.getNextValue().orElse(0f);
-			this.getActivePower().setNextValue(ipu1 + ipu2 + ipu3);
+			this._setActivePower((int) (ipu1 + ipu2 + ipu3));
 		};
 		ap1.onSetNextValue(calculateActivePower);
 		ap2.onSetNextValue(calculateActivePower);
