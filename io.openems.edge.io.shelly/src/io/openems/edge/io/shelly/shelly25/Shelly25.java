@@ -1,184 +1,187 @@
 package io.openems.edge.io.shelly.shelly25;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.ShellyApi;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "IO.Shelly.25", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
-public class Shelly25 extends AbstractOpenemsComponent implements DigitalOutput, OpenemsComponent, EventHandler {
+public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(Shelly25.class);
+	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/**
+		 * Holds writes to Relay Output 1 for debugging.
+		 * 
+		 * <ul>
+		 * <li>Interface: Shelly25
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN)), //
+		/**
+		 * Relay Output 1.
+		 * 
+		 * <ul>
+		 * <li>Interface: Shelly25
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		RELAY_1(new BooleanDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_1))), //
+		/**
+		 * Holds writes to Relay Output 2 for debugging.
+		 * 
+		 * <ul>
+		 * <li>Interface: Shelly25
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN)), //
+		/**
+		 * Relay Output 2.
+		 * 
+		 * <ul>
+		 * <li>Interface: Shelly25
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		RELAY_2(new BooleanDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_2))), //
+		/**
+		 * Slave Communication Failed Fault.
+		 * 
+		 * <ul>
+		 * <li>Interface: Shelly25
+		 * <li>Type: State
+		 * </ul>
+		 */
+		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
 
-	private final BooleanWriteChannel[] digitalOutputChannels;
-	private ShellyApi shellyApi = null;
+		private final Doc doc;
 
-	public Shelly25() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				DigitalOutput.ChannelId.values(), //
-				ThisChannelId.values() //
-		);
-		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(ThisChannelId.RELAY_1), //
-				this.channel(ThisChannelId.RELAY_2), //
-		};
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.shellyApi = new ShellyApi(config.ip());
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
-
-	@Override
-	public BooleanWriteChannel[] digitalOutputChannels() {
-		return this.digitalOutputChannels;
-	}
-
-	@Override
-	public String debugLog() {
-		StringBuilder b = new StringBuilder();
-		int i = 1;
-		for (WriteChannel<Boolean> channel : this.digitalOutputChannels) {
-			String valueText;
-			Optional<Boolean> valueOpt = channel.value().asOptional();
-			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "x" : "-";
-			} else {
-				valueText = "?";
-			}
-			b.append(i + valueText);
-
-			// add space for all but the last
-			if (++i <= this.digitalOutputChannels.length) {
-				b.append(" ");
-			}
-		}
-		return b.toString();
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
 
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.eventBeforeProcessImage();
-			break;
-
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.eventExecuteWrite();
-			break;
+		public Doc doc() {
+			return this.doc;
 		}
 	}
 
-	private BooleanWriteChannel getRelay1Channel() {
-		return this.channel(ThisChannelId.RELAY_1);
+	/**
+	 * Gets the Channel for {@link ChannelId#RELAY_1}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getRelay1Channel() {
+		return this.channel(ChannelId.RELAY_1);
 	}
 
-	private BooleanWriteChannel getRelay2Channel() {
-		return this.channel(ThisChannelId.RELAY_2);
+	/**
+	 * Gets the Relay Output 1. See {@link ChannelId#RELAY_1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRelay1() {
+		return this.getRelay1Channel().value();
 	}
 
-	private StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(ThisChannelId.SLAVE_COMMUNICATION_FAILED);
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RELAY_1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRelay1(boolean value) {
+		this.getRelay1Channel().setNextValue(value);
 	}
 
-	private void setSlaveCommunicationFailed(boolean value) {
+	/**
+	 * Sets the Relay Output 1. See {@link ChannelId#RELAY_1}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRelay1(boolean value) throws OpenemsNamedException {
+		this.getRelay1Channel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RELAY_2}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getRelay2Channel() {
+		return this.channel(ChannelId.RELAY_2);
+	}
+
+	/**
+	 * Gets the Relay Output 2. See {@link ChannelId#RELAY_2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRelay2() {
+		return this.getRelay2Channel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RELAY_2} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRelay2(boolean value) {
+		this.getRelay2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Sets the Relay Output 2. See {@link ChannelId#RELAY_2}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRelay2(boolean value) throws OpenemsNamedException {
+		this.getRelay2Channel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getSlaveCommunicationFailedChannel() {
+		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
+	}
+
+	/**
+	 * Gets the Slave Communication Failed State. See
+	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getSlaveCommunicationFailed() {
+		return this.getSlaveCommunicationFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setSlaveCommunicationFailed(boolean value) {
 		this.getSlaveCommunicationFailedChannel().setNextValue(value);
 	}
-
-	/**
-	 * Execute on Cycle Event "Before Process Image".
-	 */
-	private void eventBeforeProcessImage() {
-		Boolean relay1ison;
-		Boolean relay2ison;
-		try {
-			JsonObject json = this.shellyApi.getStatus();
-			JsonArray relays = JsonUtils.getAsJsonArray(json, "relays");
-			JsonObject relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			relay1ison = JsonUtils.getAsBoolean(relay1, "ison");
-			JsonObject relay2 = JsonUtils.getAsJsonObject(relays.get(1));
-			relay2ison = JsonUtils.getAsBoolean(relay2, "ison");
-
-			this.setSlaveCommunicationFailed(false);
-
-		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
-			relay1ison = null;
-			relay2ison = null;
-			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
-			this.setSlaveCommunicationFailed(true);
-		}
-		this.getRelay1Channel().setNextValue(relay1ison);
-		this.getRelay2Channel().setNextValue(relay2ison);
-	}
-
-	/**
-	 * Execute on Cycle Event "Execute Write".
-	 */
-	private void eventExecuteWrite() {
-		try {
-			this.executeWrite(this.getRelay1Channel(), 0);
-			this.executeWrite(this.getRelay2Channel(), 1);
-
-			this.setSlaveCommunicationFailed(false);
-		} catch (OpenemsNamedException e) {
-			this.setSlaveCommunicationFailed(true);
-		}
-	}
-
-	private void executeWrite(BooleanWriteChannel channel, int index) throws OpenemsNamedException {
-		Boolean readValue = channel.value().get();
-		Optional<Boolean> writeValue = channel.getNextWriteValueAndReset();
-		if (!writeValue.isPresent()) {
-			// no write value
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			// read value = write value
-			return;
-		}
-		this.shellyApi.setRelayTurn(index, writeValue.get());
-	}
-
 }

@@ -1,173 +1,180 @@
 package io.openems.edge.io.shelly.shellyplug;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.ShellyApi;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "IO.Shelly.Plug", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
-public class ShellyPlug extends AbstractOpenemsComponent implements DigitalOutput, OpenemsComponent, EventHandler {
+public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(ShellyPlug.class);
+	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/**
+		 * Holds writes to Relay Output for debugging.
+		 * 
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_RELAY(Doc.of(OpenemsType.BOOLEAN)), //
+		/**
+		 * Relay Output.
+		 * 
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		RELAY(new BooleanDoc() //
+				.accessMode(AccessMode.READ_WRITE) //
+				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY))), //
+		/**
+		 * Active Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Slave Communication Failed Fault.
+		 * 
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: State
+		 * </ul>
+		 */
+		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
 
-	private final BooleanWriteChannel[] digitalOutputChannels;
-	private ShellyApi shellyApi = null;
+		private final Doc doc;
 
-	public ShellyPlug() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				DigitalOutput.ChannelId.values(), //
-				ThisChannelId.values() //
-		);
-		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(ThisChannelId.RELAY) //
-		};
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.shellyApi = new ShellyApi(config.ip());
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
-
-	@Override
-	public BooleanWriteChannel[] digitalOutputChannels() {
-		return this.digitalOutputChannels;
-	}
-
-	@Override
-	public String debugLog() {
-		StringBuilder b = new StringBuilder();
-		Optional<Boolean> valueOpt = this.getRelayChannel().value().asOptional();
-		if (valueOpt.isPresent()) {
-			b.append(valueOpt.get() ? "On" : "Off");
-		} else {
-			b.append("Unknown");
-		}
-		b.append("|");
-		b.append(this.getActivePowerChannel().value().asString());
-		return b.toString();
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
 
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.eventBeforeProcessImage();
-			break;
-
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.eventExecuteWrite();
-			break;
+		public Doc doc() {
+			return this.doc;
 		}
 	}
 
-	private BooleanWriteChannel getRelayChannel() {
-		return this.channel(ThisChannelId.RELAY);
+	/**
+	 * Gets the Channel for {@link ChannelId#RELAY}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getRelayChannel() {
+		return this.channel(ChannelId.RELAY);
 	}
 
-	private IntegerReadChannel getActivePowerChannel() {
-		return this.channel(ThisChannelId.ACTIVE_POWER);
+	/**
+	 * Gets the Relay Output 1. See {@link ChannelId#RELAY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRelay() {
+		return this.getRelayChannel().value();
 	}
 
-	private StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(ThisChannelId.SLAVE_COMMUNICATION_FAILED);
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RELAY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRelay(boolean value) {
+		this.getRelayChannel().setNextValue(value);
 	}
 
-	private void setSlaveCommunicationFailed(boolean value) {
+	/**
+	 * Sets the Relay Output. See {@link ChannelId#RELAY}.
+	 * 
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRelay(boolean value) throws OpenemsNamedException {
+		this.getRelayChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 * 
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerChannel() {
+		return this.channel(ChannelId.ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePower() {
+		return this.getActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActivePower(Integer value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setActivePower(int value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getSlaveCommunicationFailedChannel() {
+		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
+	}
+
+	/**
+	 * Gets the Slave Communication Failed State. See
+	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getSlaveCommunicationFailed() {
+		return this.getSlaveCommunicationFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setSlaveCommunicationFailed(boolean value) {
 		this.getSlaveCommunicationFailedChannel().setNextValue(value);
 	}
-
-	/**
-	 * Execute on Cycle Event "Before Process Image".
-	 */
-	private void eventBeforeProcessImage() {
-		Boolean relayIson = null;
-		Float power = null;
-		try {
-			JsonObject json = this.shellyApi.getStatus();
-			JsonArray relays = JsonUtils.getAsJsonArray(json, "relays");
-			JsonObject relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			relayIson = JsonUtils.getAsBoolean(relay1, "ison");
-			JsonArray meters = JsonUtils.getAsJsonArray(json, "meters");
-			JsonObject meter1 = JsonUtils.getAsJsonObject(meters.get(0));
-			power = JsonUtils.getAsFloat(meter1, "power");
-
-			this.setSlaveCommunicationFailed(false);
-
-		} catch (OpenemsNamedException e) {
-			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
-			this.setSlaveCommunicationFailed(true);
-		}
-		this.getRelayChannel().setNextValue(relayIson);
-		this.getActivePowerChannel().setNextValue(power);
-	}
-
-	/**
-	 * Execute on Cycle Event "Execute Write".
-	 */
-	private void eventExecuteWrite() {
-		try {
-			this.executeWrite(this.getRelayChannel(), 0);
-
-			this.setSlaveCommunicationFailed(false);
-		} catch (OpenemsNamedException e) {
-			this.setSlaveCommunicationFailed(true);
-		}
-	}
-
-	private void executeWrite(BooleanWriteChannel channel, int index) throws OpenemsNamedException {
-		Boolean readValue = channel.value().get();
-		Optional<Boolean> writeValue = channel.getNextWriteValueAndReset();
-		if (!writeValue.isPresent()) {
-			// no write value
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			// read value = write value
-			return;
-		}
-		this.shellyApi.setRelayTurn(index, writeValue.get());
-	}
-
 }

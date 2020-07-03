@@ -16,6 +16,7 @@ import io.openems.common.utils.JsonUtils;
 /**
  * Implements the local Shelly REST Api.
  * 
+ * <p>
  * See https://shelly-api-docs.shelly.cloud
  */
 public class ShellyApi {
@@ -29,6 +30,7 @@ public class ShellyApi {
 	/**
 	 * Gets the status of the device.
 	 * 
+	 * <p>
 	 * See https://shelly-api-docs.shelly.cloud/#shelly2-5-status
 	 * 
 	 * @param index the index of the relay
@@ -42,6 +44,7 @@ public class ShellyApi {
 	/**
 	 * Gets the "ison" state of the relay with the given index.
 	 * 
+	 * <p>
 	 * See https://shelly-api-docs.shelly.cloud/#shelly2-5-relay-index
 	 * 
 	 * @param index the index of the relay

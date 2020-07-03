@@ -3,7 +3,7 @@ package io.openems.edge.io.shelly.shelly25;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "IO Shelly 2.5", //
 		description = "Implements the Shelly2.5 WiFi Switch.")
 @interface Config {
