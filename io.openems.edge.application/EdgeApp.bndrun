@@ -68,6 +68,7 @@
 	io.openems.edge.controller.api;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.api.backend;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.api.common;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.api.meteocontrol;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.api.modbus;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.api.rest;version='[1.0.0,1.0.1)',\
 	io.openems.edge.controller.api.websocket;version='[1.0.0,1.0.1)',\
@@ -107,14 +108,13 @@
 	org.apache.felix.scr;version='[2.1.20,2.1.21)',\
 	org.apache.felix.webconsole;version='[4.5.2,4.5.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
+	org.apache.httpcomponents.httpclient;version='[4.5.12,4.5.13)',\
+	org.apache.httpcomponents.httpcore;version='[4.4.13,4.4.14)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.0.2,2.0.3)',\
-	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.3,2.0.4)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.0.4,2.0.5)',\
+	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.4,2.0.5)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	rrd4j;version='[3.6.0,3.6.1)',\
-	io.openems.edge.controller.api.meteocontrol;version='[1.0.0,1.0.1)',\
-	org.apache.httpcomponents.httpclient;version='[4.5.12,4.5.13)',\
-	org.apache.httpcomponents.httpcore;version='[4.4.13,4.4.14)'
+	rrd4j;version='[3.6.0,3.6.1)'

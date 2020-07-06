@@ -94,6 +94,9 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
