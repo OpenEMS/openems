@@ -219,7 +219,14 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 	protected void forever() {
 		List<Config> existingConfigs = this.readConfigs();
 
-		boolean defaultConfigurationFailed = this.createDefaultConfigurations(existingConfigs);
+		boolean defaultConfigurationFailed;
+		try {
+			defaultConfigurationFailed = this.createDefaultConfigurations(existingConfigs);
+		} catch (Exception e) {
+			this.parent.logError(this.log, "Unable to create default configuration: " + e.getMessage());
+			e.printStackTrace();
+			defaultConfigurationFailed = true;
+		}
 
 		// Set DefaultConfigurationFailed channel value
 		this.parent._setDefaultConfigurationFailed(defaultConfigurationFailed);
