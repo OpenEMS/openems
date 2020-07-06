@@ -172,7 +172,7 @@ public class GenericManagedSymmetricEssImpl extends AbstractOpenemsComponent imp
 	 */
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.batteryInverter.run(battery, activePower, reactivePower);
+		this.batteryInverter.run(this.battery, activePower, reactivePower);
 	}
 
 	/**

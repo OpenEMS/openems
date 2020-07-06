@@ -1,19 +1,20 @@
 #!/bin/bash
 
-CHANNEL_ID="SOC"
-METHOD="Soc"
-JAVADOC="current state of charge of the car [%]."
+CHANNEL_ID="RELAY_2"
+METHOD="Relay2"
+JAVADOC="Relay Output 2"
 #JAVADOC="Temparature in [deci degC]"
 
 #CHANNEL_CLASS="BooleanReadChannel"
-CHANNEL_CLASS="IntegerReadChannel"
+#CHANNEL_CLASS="IntegerReadChannel"
 #CHANNEL_CLASS="StateChannel"
 #CHANNEL_CLASS="LongReadChannel"
+CHANNEL_CLASS="BooleanWriteChannel"
 #CHANNEL_CLASS="IntegerWriteChannel"
 #CHANNEL_CLASS="StringWriteChannel"
 
 case "$CHANNEL_CLASS" in
-	StateChannel|BooleanReadChannel)
+	StateChannel|BooleanReadChannel|BooleanWriteChannel)
 		CHANNEL_RETURN_TYPE="Value<Boolean>"
 		CHANNEL_PARAM_TYPE1="boolean"
 		CHANNEL_PARAM_TYPE2="boolean"

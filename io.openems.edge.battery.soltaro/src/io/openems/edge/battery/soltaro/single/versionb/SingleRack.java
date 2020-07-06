@@ -56,6 +56,7 @@ import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -383,60 +384,30 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void writeValuesInApiChannels() {
-
-		@SuppressWarnings("unchecked")
-		Optional<Integer> clusterVoltageOpt = (Optional<Integer>) this.channel(SingleRackChannelId.CLUSTER_1_VOLTAGE)
-				.value().asOptional();
-		if (clusterVoltageOpt.isPresent()) {
-			int voltageVolt = (int) (clusterVoltageOpt.get() * 0.001);
-			this._setVoltage(voltageVolt);
+		//Battery operating data
+		writeApiValue(SingleRackChannelId.CLUSTER_1_VOLTAGE, 0.001, Battery.ChannelId.VOLTAGE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_CURRENT, 0.001, Battery.ChannelId.CURRENT);
+		
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, 1, Battery.ChannelId.MIN_CELL_VOLTAGE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, 1, Battery.ChannelId.MAX_CELL_VOLTAGE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, 0.1, Battery.ChannelId.MIN_CELL_TEMPERATURE);
+		writeApiValue(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, 0.1, Battery.ChannelId.MAX_CELL_TEMPERATURE);
+		
+		//Battery ranges
+		writeApiValue(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, 0.001, Battery.ChannelId.CHARGE_MAX_VOLTAGE); // MAX_VOLTAGE x2082
+		writeApiValue(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM, 0.001, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE); // DISCHARGE_MIN_VOLTAGE 0x2088
+		writeApiValue(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, 0.001, Battery.ChannelId.CHARGE_MAX_CURRENT); // CHARGE_MAX_CURRENT 0x2160
+		writeApiValue(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, 0.001, Battery.ChannelId.DISCHARGE_MAX_CURRENT); // DISCHARGE_MAX_CURRENT 0x2161
+	}
+	
+	// Helper function that writes a value from source channel to a target channel
+	private void writeApiValue(SingleRackChannelId sourceChannelId, double factor, io.openems.edge.battery.api.Battery.ChannelId targetApiChannelId) {
+		IntegerReadChannel sourceChannel = this.channel(sourceChannelId);
+		Value<Integer> value = sourceChannel.value();
+		if (value.isDefined()) {
+			int number = (int) (value.get() * factor);
+			this.channel(targetApiChannelId).setNextValue(number);
 		}
-
-		@SuppressWarnings("unchecked")
-		Optional<Integer> minCellVoltageOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).value().asOptional();
-		if (minCellVoltageOpt.isPresent()) {
-			int voltageMillivolt = minCellVoltageOpt.get();
-			this._setMinCellVoltage(voltageMillivolt);
-		}
-
-		// write battery ranges to according channels in battery api
-		// MAX_VOLTAGE x2082
-		@SuppressWarnings("unchecked")
-		Optional<Integer> overVoltAlarmOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).value().asOptional();
-		if (overVoltAlarmOpt.isPresent()) {
-			int maxChargeVoltage = (int) (overVoltAlarmOpt.get() * 0.001);
-			this._setChargeMaxVoltage(maxChargeVoltage);
-		}
-
-		// DISCHARGE_MIN_VOLTAGE 0x2088
-		@SuppressWarnings("unchecked")
-		Optional<Integer> underVoltAlarmOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).value().asOptional();
-		if (underVoltAlarmOpt.isPresent()) {
-			int minDischargeVoltage = (int) (underVoltAlarmOpt.get() * 0.001);
-			this._setDischargeMinVoltage(minDischargeVoltage);
-		}
-
-		// CHARGE_MAX_CURRENT 0x2160
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxChargeCurrentOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT).value().asOptional();
-		if (maxChargeCurrentOpt.isPresent()) {
-			int maxCurrent = (int) (maxChargeCurrentOpt.get() * 0.001);
-			this._setChargeMaxCurrent(maxCurrent);
-		}
-
-		// DISCHARGE_MAX_CURRENT 0x2161
-		@SuppressWarnings("unchecked")
-		Optional<Integer> maxDischargeCurrentOpt = (Optional<Integer>) this
-				.channel(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).value().asOptional();
-		if (maxDischargeCurrentOpt.isPresent()) {
-			int maxCurrent = (int) (maxDischargeCurrentOpt.get() * 0.001);
-			this._setDischargeMaxCurrent(maxCurrent);
-		}
-
 	}
 
 	@Override
