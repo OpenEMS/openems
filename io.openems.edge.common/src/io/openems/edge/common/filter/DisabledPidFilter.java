@@ -1,6 +1,4 @@
-package io.openems.edge.ess.core.power;
-
-import io.openems.edge.common.filter.PidFilter;
+package io.openems.edge.common.filter;
 
 /**
  * This implementation ignores the PID filter and instead just returns the

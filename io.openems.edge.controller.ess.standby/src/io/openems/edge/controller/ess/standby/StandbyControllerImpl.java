@@ -108,8 +108,8 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 	/**
 	 * Converts a string to a LocalDate.
 	 * 
-	 * @param date
-	 * @return
+	 * @param date the date as string in the format "dd.MM.yyyy" (DATE_FORMAT).
+	 * @return the date as {@link LocalDate}
 	 */
 	private static LocalDate convertDate(String date) {
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);

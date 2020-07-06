@@ -7,7 +7,7 @@ public class SlowChargeUtils {
 	/**
 	 * Charge with at least 'maxApparentPower' x MIN_POWER_LIMIT_FACTOR.
 	 */
-	private static final float MIN_POWER_LIMIT_FACTOR = 0.3f;
+	private static final float MIN_POWER_LIMIT_FACTOR = 0.2f;
 
 	/**
 	 * Charge with at maximum 'maxApparentPower' x MAX_POWER_LIMIT_FACTOR.
@@ -40,7 +40,7 @@ public class SlowChargeUtils {
 			setPower = minPower;
 		}
 		int maxPower = Math.round(maxApparentPower * -1 * MAX_POWER_LIMIT_FACTOR);
-		if (setPower > maxPower) {
+		if (setPower < maxPower) {
 			setPower = maxPower;
 		}
 

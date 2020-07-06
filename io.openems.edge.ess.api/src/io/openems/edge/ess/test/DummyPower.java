@@ -1,5 +1,6 @@
 package io.openems.edge.ess.test;
 
+import io.openems.edge.common.filter.DisabledPidFilter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
@@ -15,6 +16,10 @@ public class DummyPower implements Power {
 	private final int maxApparentPower;
 	private final PidFilter pidFilter;
 
+	public static DummyPower withDisabledPid() {
+		return new DummyPower(Integer.MAX_VALUE, new DisabledPidFilter());
+	}
+
 	public DummyPower(int maxApparentPower) {
 		this(maxApparentPower, PidFilter.DEFAULT_P, PidFilter.DEFAULT_I, PidFilter.DEFAULT_D);
 	}
@@ -24,8 +29,12 @@ public class DummyPower implements Power {
 	}
 
 	public DummyPower(int maxApparentPower, double p, double i, double d) {
+		this(maxApparentPower, new PidFilter(p, i, d));
+	}
+
+	public DummyPower(int maxApparentPower, PidFilter pidFilter) {
 		this.maxApparentPower = maxApparentPower;
-		this.pidFilter = new PidFilter(p, i, d);
+		this.pidFilter = pidFilter;
 	}
 
 	@Override

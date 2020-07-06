@@ -42,7 +42,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 	}
 
 	/**
-	 * Handles the limitation of Discharge Power according to the specification:
+	 * Handles the limitation of Discharge Power according to the specification.
 	 * 
 	 * <ul>
 	 * <li>discharge like in Balancing (keep grid at 0)
@@ -113,7 +113,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 				if (this.highDischargePowerSince == null) {
 					this.highDischargePowerSince = now;
 				}
-				if (Duration.between(this.highDischargePowerSince, now).toMinutes() > MAX_HIGH_POWER_MINUTES) {
+				if (Duration.between(this.highDischargePowerSince, now).toMinutes() >= MAX_HIGH_POWER_MINUTES) {
 					this.isDischargePowerLimited = true;
 				}
 			}
@@ -131,7 +131,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 
 	/**
 	 * Wraps the evaluation of the next State after DISCHARGE according to the
-	 * specification:
+	 * specification.
 	 * 
 	 * <ul>
 	 * <li>Production is higher than Consumption for more than 1 minute.
@@ -185,10 +185,12 @@ public class DischargeHandler extends StateHandler<State, Context> {
 					this.productionHigherThanConsumptionSince = now;
 				}
 				if (Duration.between(this.productionHigherThanConsumptionSince, now)
-						.toMinutes() > MAX_PRODUCTION_HIGHER_THAN_CONSUMPTION_MINUTES) {
+						.toMinutes() >= MAX_PRODUCTION_HIGHER_THAN_CONSUMPTION_MINUTES) {
 					// time passed
 					return State.SLOW_CHARGE_1;
 				}
+			} else {
+				this.productionHigherThanConsumptionSince = null;
 			}
 
 			// stay in current State

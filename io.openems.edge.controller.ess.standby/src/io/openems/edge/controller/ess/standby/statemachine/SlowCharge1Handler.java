@@ -26,7 +26,7 @@ public class SlowCharge1Handler extends StateHandler<State, Context> {
 
 		// Evaluate next state
 		if (Duration.between(this.enteredStateAt, Instant.now(context.clock))
-				.toMinutes() > MAX_STATE_DURATION_MINUTES) {
+				.toMinutes() >= MAX_STATE_DURATION_MINUTES) {
 			// time passed
 			return State.FAST_CHARGE;
 		} else {

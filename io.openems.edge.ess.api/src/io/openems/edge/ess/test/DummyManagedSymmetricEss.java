@@ -48,6 +48,12 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		return this;
 	}
 
+	public DummyManagedSymmetricEss setSoc(int soc) {
+		this._setSoc(soc);
+		this.getSocChannel().nextProcessImage();
+		return this;
+	}
+
 	@Override
 	public Power getPower() {
 		return this.power;
