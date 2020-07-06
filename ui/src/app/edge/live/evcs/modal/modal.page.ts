@@ -323,7 +323,7 @@ export class EvcsModalComponent implements OnInit {
     if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
 
       let oldMinChargePower = this.controller.properties.forceChargeMinPower;
-      let maxAllowedChargePower = 10 /* Ampere */ * 230 /* Volt */ * this.getNumberOfPhasesOrThree()
+      let maxAllowedChargePower = 10 /* Ampere */ * 230 /* Volt */
 
       if (oldMinChargePower < maxAllowedChargePower) {
         if (this.edge != null) {
