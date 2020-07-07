@@ -918,6 +918,9 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.errorHandler.run();

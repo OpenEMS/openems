@@ -77,10 +77,10 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.getMaximumHardwarePower().setNextValue(22800);
-		this.getMinimumHardwarePower().setNextValue(6000);
-		this.getPhases().setNextValue(3);
-		this.status().setNextValue(Status.CHARGING);
+		this._setMaximumHardwarePower(22800);
+		this._setMinimumHardwarePower(6000);
+		this._setPhases(3);
+		this._setStatus(Status.CHARGING);
 
 	}
 
@@ -91,6 +91,9 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
@@ -104,11 +107,11 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	private void updateChannels() {
 		int simulatedChargePower = 0;
 
-		Optional<Integer> chargePowerLimitOpt = this.setChargePowerLimit().getNextWriteValueAndReset();
+		Optional<Integer> chargePowerLimitOpt = this.getSetChargePowerLimitChannel().getNextWriteValueAndReset();
 		if (chargePowerLimitOpt.isPresent()) {
 
 			// copy write value to read value
-			this.setChargePowerLimit().setNextValue(chargePowerLimitOpt);
+			this._setSetChargePowerLimit(chargePowerLimitOpt.get());
 
 			// get and store Simulated Charge Power
 			simulatedChargePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
@@ -117,22 +120,22 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 			// Apply Charge Limit
 			int chargePowerLimit = chargePowerLimitOpt.get();
 			simulatedChargePower = Math.min(simulatedChargePower, chargePowerLimit);
-			this.setChargePowerLimit().setNextValue(chargePowerLimit);
+			this._setSetChargePowerLimit(chargePowerLimit);
 		}
 
-		this.getChargePower().setNextValue(simulatedChargePower);
+		this._setChargePower(simulatedChargePower);
 
 		long timeDiff = ChronoUnit.MILLIS.between(lastUpdate, LocalDateTime.now());
-		double energieTransfered = (timeDiff / 1000.0 / 60 / 60) * this.getChargePower().getNextValue().orElse(0);
+		double energieTransfered = (timeDiff / 1000.0 / 60 / 60) * this.getChargePower().orElse(0);
 		this.exactEnergySession = this.exactEnergySession + energieTransfered;
-		this.getEnergySession().setNextValue((int) exactEnergySession);
+		this._setEnergySession((int) exactEnergySession);
 
 		lastUpdate = LocalDateTime.now();
 	}
 
 	@Override
 	public String debugLog() {
-		return this.getChargePower().value().asString();
+		return this.getChargePower().asString();
 	}
 
 }

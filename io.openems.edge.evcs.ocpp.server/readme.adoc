@@ -1,0 +1,10 @@
+= OCPP Server
+
+The OCPP Server is implementing a central management system.
+The server maintains connections to the EVCS's, i.e. 
+
+* connects to the charging stations
+* distributes their information to each EVCS component 
+* send commands to the charging stations
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.ocpp.server[Source Code icon:github[]]

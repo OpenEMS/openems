@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 /**
@@ -20,12 +22,12 @@ public class WriteHandler implements Runnable {
 
 	private final KebaKeContact parent;
 
-	/**
-	 * Minimum pause between two consecutive writes
+	/*
+	 * Minimum pause between two consecutive writes.
 	 */
-	private final static int WRITE_INTERVAL_SECONDS = 5;
-	private final static int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
-	private final static int WRITE_ENERGY_SESSION_INTERVAL_SECONDS = 10;
+	private static final int WRITE_INTERVAL_SECONDS = 5;
+	private static final int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
+	private static final int WRITE_ENERGY_SESSION_INTERVAL_SECONDS = 10;
 
 	public WriteHandler(KebaKeContact parent) {
 		this.parent = parent;
@@ -34,7 +36,8 @@ public class WriteHandler implements Runnable {
 	@Override
 	public void run() {
 
-		Channel<Boolean> communicationChannel = this.parent.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+		Channel<Boolean> communicationChannel = this.parent
+				.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
 		if (communicationChannel.value().orElse(true)) {
 			return;
 		}
@@ -47,8 +50,9 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextDisplayWrite = LocalDateTime.MIN;
 
 	/**
-	 * Sets the display text from SET_DISPLAY channel
+	 * Sets the display text from SET_DISPLAY channel.
 	 * 
+	 * <p>
 	 * Note:
 	 * <ul>
 	 * <li>Maximum 23 ASCII characters can be used.
@@ -66,7 +70,9 @@ public class WriteHandler implements Runnable {
 			}
 			display = display.replace(" ", "$"); // $ == blank
 			if (!display.equals(this.lastDisplay) || this.nextDisplayWrite.isBefore(LocalDateTime.now())) {
-				this.parent.logInfo(this.log, "Setting KEBA KeContact display text to [" + display + "]");
+
+				this.parent.logInfoInDebugmode(this.log, "Setting KEBA KeContact display text to [" + display + "]");
+
 				boolean sentSuccessfully = parent.send("display 0 0 0 0 " + display);
 				if (sentSuccessfully) {
 					this.nextDisplayWrite = LocalDateTime.now().plusSeconds(WRITE_DISPLAY_INTERVAL_SECONDS);
@@ -80,8 +86,9 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextCurrentWrite = LocalDateTime.MIN;
 
 	/**
-	 * Sets the current from SET_CHARGE_POWER channel
+	 * Sets the current from SET_CHARGE_POWER channel.
 	 * 
+	 * <p>
 	 * Allowed loading current are between 6000mA and 63000mA. Invalid values are
 	 * discarded. The value is also depending on the DIP-switch settings and the
 	 * used cable of the charging station.
@@ -93,8 +100,8 @@ public class WriteHandler implements Runnable {
 		if (valueOpt.isPresent()) {
 
 			Integer power = valueOpt.get();
-			Channel<Integer> phases = this.parent.getPhases();
-			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
+			Value<Integer> phases = this.parent.getPhases();
+			Integer current = power * 1000 / phases.orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
 			// limits the charging value because KEBA knows only values between 6000 and
 			// 63000
 			if (current > 63000) {
@@ -105,12 +112,13 @@ public class WriteHandler implements Runnable {
 			}
 
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
-				this.parent.logInfo(this.log, "Setting KEBA " + this.parent.alias() + " current to [" + current
-						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
+
+				this.parent.logInfoInDebugmode(log, "Setting KEBA " + this.parent.alias() + " current to [" + current
+						+ " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
 
 				try {
 					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
-					this.parent.setDisplayText().setNextWriteValue((currPower.value().orElse(0) / 1000) + "W");
+					this.parent.setDisplayText((currPower.value().orElse(0) / 1000) + "W");
 				} catch (OpenemsNamedException e) {
 					e.printStackTrace();
 				}
@@ -119,6 +127,7 @@ public class WriteHandler implements Runnable {
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 					this.lastCurrent = current;
+					this.parent._setSetChargePowerLimit(power);
 				}
 			}
 		}
@@ -128,27 +137,29 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextEnergySessionWrite = LocalDateTime.MIN;
 
 	/**
-	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel
+	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel.
 	 * 
+	 * <p>
 	 * Allowed values for the command setenergy are 0; 1-999999999 the value of the
 	 * command is 0.1 Wh. The charging station will charge till this limit.
 	 */
 	private void setEnergySession() {
-		
+
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		
+
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 
 			Integer energyTarget = valueOpt.get();
-			this.parent.setEnergyLimit().setNextValue(energyTarget);
+			this.parent._setSetEnergyLimit(energyTarget);
 
 			if (energyTarget < 0) {
 				return;
 			}
-			
-			/**
-			 *  limits the target value because KEBA knows only values between 0 and 999999999 0.1Wh
+
+			/*
+			 * limits the target value because KEBA knows only values between 0 and
+			 * 999999999 0.1Wh
 			 */
 			energyTarget = energyTarget > 99999999 ? 99999999 : energyTarget;
 			energyTarget = energyTarget > 0 && energyTarget < 1 ? 1 : energyTarget;
@@ -156,20 +167,21 @@ public class WriteHandler implements Runnable {
 
 			if (!energyTarget.equals(this.lastEnergySession)
 					|| this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
-				this.parent.logInfo(this.log, "Setting KEBA " + this.parent.alias()
+
+				this.parent.logInfoInDebugmode(this.log, "Setting KEBA " + this.parent.alias()
 						+ " Energy Limit in this Session to [" + energyTarget / 10 + " Wh]");
 
 				boolean sentSuccessfully = parent.send("setenergy " + energyTarget);
 				if (sentSuccessfully) {
-					
+
 					try {
 						if (energyTarget > 0) {
-							this.parent.setDisplayText().setNextWriteValue("Max: " + energyTarget / 10 + "Wh");
+							this.parent.setDisplayText("Max: " + energyTarget / 10 + "Wh");
 						}
 					} catch (OpenemsNamedException e) {
 						e.printStackTrace();
 					}
-					
+
 					this.nextEnergySessionWrite = LocalDateTime.now()
 							.plusSeconds(WRITE_ENERGY_SESSION_INTERVAL_SECONDS);
 					this.lastEnergySession = energyTarget;
