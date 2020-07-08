@@ -23,7 +23,7 @@ export class SystemExecuteComponent implements OnInit {
   public fields: FormlyFieldConfig[] = [{
     key: 'predefined',
     type: 'radio',
-    templateOptions: { label: "test", options: [{ value: 'ping', label: 'Ping device in network' }] },
+    templateOptions: { options: [{ value: 'ping', label: 'Ping device in network' }] },
   }, {
     key: 'ping',
     hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'ping',
@@ -42,19 +42,14 @@ export class SystemExecuteComponent implements OnInit {
   }, {
     key: 'predefined',
     type: 'radio',
-    templateOptions: { options: [{ value: 'openems-restart', label: 'Restart OpenEMS Edge service' }] },
-  }, {
-    key: 'predefined',
-    type: 'radio',
-    templateOptions: { options: [{ value: 'install-latest-debian-package', label: 'Install latest Debian package' }] },
-  }, {
-    key: 'predefined',
-    type: 'radio',
-    templateOptions: { options: [{ value: 'pagekite-log', label: 'Show Pagekite log' }] },
-  }, {
-    key: 'predefined',
-    type: 'radio',
-    templateOptions: { options: [{ value: 'pagekite-restart', label: 'Show Pagekite log' }] },
+    templateOptions: {
+      options: [
+        { value: 'openems-restart', label: 'Restart OpenEMS Edge service' },
+        { value: 'install-latest-debian-package', label: 'Install latest Debian package' },
+        { value: 'pagekite-log', label: 'Show Pagekite log' },
+        { value: 'pagekite-restart', label: 'Show Pagekite log' }
+      ]
+    }
   }];
 
   constructor(
