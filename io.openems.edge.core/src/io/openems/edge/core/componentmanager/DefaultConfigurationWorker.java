@@ -24,10 +24,8 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.type.TypeUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -171,12 +169,12 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 				"Meter.SOCOMEC.DirisB30".equals(c.factoryPid) || //
 				"Meter.SOCOMEC.DirisE24".equals(c.factoryPid) //
 		)).forEach(c -> {
-			String alias = TypeUtils.getAsType(OpenemsType.STRING, c.properties.get("alias"));
-			boolean enabled = TypeUtils.getAsType(OpenemsType.BOOLEAN, c.properties.get("enabled"));
-			String modbusId = TypeUtils.getAsType(OpenemsType.STRING, c.properties.get("modbus.id"));
-			int modbusUnitId = TypeUtils.getAsType(OpenemsType.INTEGER, c.properties.get("modbusUnitId"));
-			boolean invert = TypeUtils.getAsType(OpenemsType.BOOLEAN, c.properties.get("invert"));
-			String type = TypeUtils.getAsType(OpenemsType.STRING, c.properties.get("type"));
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+			int modbusUnitId = DictionaryUtils.getAsInteger(c.properties, "modbusUnitId"); // can cause NPE
+			boolean invert = DictionaryUtils.getAsOptionalBoolean(c.properties, "invert").orElse(false);
+			String type = DictionaryUtils.getAsString(c.properties, "type");
 
 			this.deleteConfiguration(configurationFailed, c.componentId.get());
 
@@ -194,12 +192,12 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 		existingConfigs.stream().filter(c -> c.componentId.isPresent() && //
 				"Meter.SOCOMEC.CountisE24".equals(c.factoryPid)//
 		).forEach(c -> {
-			String alias = TypeUtils.getAsType(OpenemsType.STRING, c.properties.get("alias"));
-			boolean enabled = TypeUtils.getAsType(OpenemsType.BOOLEAN, c.properties.get("enabled"));
-			String modbusId = TypeUtils.getAsType(OpenemsType.STRING, c.properties.get("modbus.id"));
-			int modbusUnitId = TypeUtils.getAsType(OpenemsType.INTEGER, c.properties.get("modbusUnitId"));
-			boolean invert = TypeUtils.getAsType(OpenemsType.BOOLEAN, c.properties.get("invert"));
-			String type = TypeUtils.getAsType(OpenemsType.STRING, c.properties.get("type"));
+			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
+			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
+			String modbusId = DictionaryUtils.getAsString(c.properties, "modbus.id");
+			int modbusUnitId = DictionaryUtils.getAsInteger(c.properties, "modbusUnitId"); // can cause NPE
+			boolean invert = DictionaryUtils.getAsOptionalBoolean(c.properties, "invert").orElse(false);
+			String type = DictionaryUtils.getAsString(c.properties, "type");
 
 			this.deleteConfiguration(configurationFailed, c.componentId.get());
 
