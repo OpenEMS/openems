@@ -3,15 +3,15 @@
     <ion-col size="12" size-md="6" size-lg="4">
 
       <!-- Waiting for authentication -->
-      <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
+      <ion-card *ngIf="websocket.status == 'waiting for authentication'">
         <ion-item color="primary" lines="full">
           <ion-icon slot="start" name="contact-outline"></ion-icon>
           <ion-label>Login</ion-label>
         </ion-item>
 
         <!-- Regular Login -->
-        <ion-card-content>
-          <form (ngSubmit)="doLogin(password.value)">
+        <ion-card-content *ngIf="env.backend === 'OpenEMS Edge'">
+          <form (ngSubmit)="doLogin({ password: password.value})">
             <div class="ion-padding">
               <ion-item>
                 <ion-text class="ion-text-wrap" color="medium">
@@ -30,27 +30,26 @@
         </ion-card-content>
 
         <!-- Backend Login -->
-        <ion-card-content>
-          <form (ngSubmit)="doLogin(password.value)">
+        <ion-card-content *ngIf="env.backend === 'OpenEMS Backend'">
+          <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
             <div class="ion-padding">
               <ion-item>
                 <ion-label position="floating">E-Mail/Benutzername</ion-label>
-                <ion-input #password required type="password" placeholder="Passwort" value="user"></ion-input>
+                <ion-input #username required type="input" placeholder="username"></ion-input>
               </ion-item>
               <ion-item>
                 <ion-label position="floating">Passwort</ion-label>
-                <ion-input #password required type="password" placeholder="Passwort" value="user"></ion-input>
+                <ion-input #password required type="password" placeholder="Passwort"></ion-input>
               </ion-item>
               <ion-button class="ion-float-right" type="submit">
-                <ion-icon slot="icon-only" name="log-in"></ion-icon>
+                <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
               </ion-button>
-              <ion-button class="ion-float-right">
+              <!-- <ion-button class="ion-float-right">
                 <ion-label>Passwort zurücksetzen</ion-label>
-              </ion-button>
+              </ion-button> -->
             </div>
           </form>
         </ion-card-content>
-
 
       </ion-card>
     </ion-col>

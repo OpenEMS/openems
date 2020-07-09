@@ -17,7 +17,7 @@ import io.openems.common.utils.JsonUtils;
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     "token": UUID,
+ *     "token": String,
  *     "edges": {@link EdgeMetadata#toJson(java.util.Collection)}
  *   }
  * }
@@ -25,27 +25,27 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithPasswordResponse extends JsonrpcResponseSuccess {
 
-	private final UUID token;
+	private final String token;
 	private final List<EdgeMetadata> metadatas;
 
-	public AuthenticateWithPasswordResponse(UUID id, UUID token, List<EdgeMetadata> metadatas) {
+	public AuthenticateWithPasswordResponse(UUID id, String token, List<EdgeMetadata> metadatas) {
 		super(id);
 		this.token = token;
 		this.metadatas = metadatas;
 	}
 
-	public UUID getToken() {
-		return token;
+	public String getToken() {
+		return this.token;
 	}
 
 	public List<EdgeMetadata> getMetadatas() {
-		return metadatas;
+		return this.metadatas;
 	}
 
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("token", this.token.toString()) //
+				.addProperty("token", this.token) //
 				.add("edges", EdgeMetadata.toJson(this.metadatas)) //
 				.build();
 	}

@@ -9,6 +9,7 @@ import { JsonrpcRequest } from "../base";
  *   "id": UUID,
  *   "method": "authenticateWithPassword",
  *   "params": {
+ *     "username"?: string,
  *     "password": string
  *   }
  * }
@@ -20,6 +21,7 @@ export class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 
     public constructor(
         public readonly params: {
+            username?: string,
             password: string
         }
     ) {

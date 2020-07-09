@@ -15,6 +15,7 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { environment as env } from '../../../environments';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -96,6 +97,20 @@ export class Service implements ErrorHandler {
    */
   public removeToken() {
     Cookie.delete("token");
+  }
+
+  /**
+   * Sets the session_id in the cookie
+   */
+  public setSessionId(session_id: string) {
+    Cookie.set("session_id", session_id);
+  }
+
+  /**
+   * Removes the session_id from the cookie
+   */
+  public removeSessionId() {
+    Cookie.delete("session_id");
   }
 
   /**
@@ -216,6 +231,11 @@ export class Service implements ErrorHandler {
 
     // received login token -> save in cookie
     this.setToken(token);
+
+    // For compatibility with Odoo Backend: store token also as 'session_id'
+    if (env.backend === "OpenEMS Backend") {
+      this.setSessionId(token);
+    }
 
     // Metadata
     let newEdges = {};

@@ -81,8 +81,8 @@ export class IndexComponent {
       .map(edgeId => allEdges[edgeId]);
   }
 
-  doLogin(password: string) {
-    let request = new AuthenticateWithPasswordRequest({ password: password });
+  doLogin(param: { username?: string, password: string }) {
+    let request = new AuthenticateWithPasswordRequest(param);
     this.websocket.sendRequest(request).then(response => {
       this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
     }).catch(reason => {
@@ -96,6 +96,7 @@ export class IndexComponent {
    * @param message 
    */
   private handleAuthenticateWithPasswordResponse(message: AuthenticateWithPasswordResponse) {
+    console.log("handleAuthenticateWithPasswordResponse ", message)
     this.service.handleAuthentication(message.result.token, message.result.edges);
   }
 

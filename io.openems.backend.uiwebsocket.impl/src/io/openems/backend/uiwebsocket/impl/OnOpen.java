@@ -1,8 +1,5 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,14 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
-import io.openems.common.jsonrpc.shared.EdgeMetadata;
-import io.openems.common.session.Role;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -46,8 +40,15 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 				// authenticate with Session-ID
 				user = this.parent.metadata.authenticate(sessionIdOpt.get());
 			} else {
-				// authenticate without Session-ID
-				user = this.parent.metadata.authenticate();
+				Optional<String> tokenOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
+						"token");
+				if (tokenOpt.isPresent()) {
+					// authenticate with Token
+					user = this.parent.metadata.authenticate(tokenOpt.get());
+				} else {
+					// authenticate without Session-ID
+					user = this.parent.metadata.authenticate();
+				}
 			}
 		} catch (OpenemsNamedException e) {
 			// login using session_id failed. Still keeping the WebSocket opened to give the
@@ -68,26 +69,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		wsData.setToken(token);
 
 		// send connection successful reply
-		List<EdgeMetadata> metadatas = new ArrayList<>();
-		for (Entry<String, Role> edgeRole : user.getEdgeRoles().entrySet()) {
-			String edgeId = edgeRole.getKey();
-			Role role = edgeRole.getValue();
-			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
-			if (edgeOpt.isPresent()) {
-				Edge e = edgeOpt.get();
-				metadatas.add(new EdgeMetadata(//
-						e.getId(), // Edge-ID
-						e.getComment(), // Comment
-						e.getProducttype(), // Product-Type
-						e.getVersion(), // Version
-						role, // Role
-						e.isOnline() // Online-State
-				));
-			}
-		}
-
-		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(token,
-				metadatas);
+		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(
+				user.getSessionId(), user.getEdgeMetadatas(this.parent.metadata));
 		this.parent.server.sendMessage(ws, notification);
 
 		this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");

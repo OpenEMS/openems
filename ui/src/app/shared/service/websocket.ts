@@ -258,15 +258,15 @@ export class Websocket {
    * @param message 
    */
   private handleAuthenticateWithSessionIdFailed(message: AuthenticateWithSessionIdFailedNotification): void {
-    if (env.backend === "OpenEMS Backend") {
-      if (env.production) {
-        window.location.href = "/web/login?redirect=/m/index";
-      } else {
-        console.info("would redirect...");
-      }
-    } else if (env.backend === "OpenEMS Edge") {
-      this.router.navigate(['/index']);
-    }
+    // if (env.backend === "OpenEMS Backend") {
+    //   if (env.production) {
+    //     window.location.href = "/web/login?redirect=/m/index";
+    //   } else {
+    //     console.info("would redirect...");
+    //   }
+    // } else if (env.backend === "OpenEMS Edge") {
+    this.router.navigate(['/index']);
+    // }
   }
 
   /**

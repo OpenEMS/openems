@@ -9,7 +9,7 @@ import { Edges } from "../shared";
  *   "jsonrpc": "2.0",
  *   "method": "authenticatedWithSessionId",
  *   "params": {
- *     "token": UUID,
+ *     "token": string,
  *     "edges": shared.Edges
  *   }
  * }
