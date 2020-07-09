@@ -47,7 +47,7 @@ export class SystemExecuteComponent implements OnInit {
         { value: 'openems-restart', label: 'Restart OpenEMS Edge service' },
         { value: 'install-latest-debian-package', label: 'Install latest Debian package' },
         { value: 'pagekite-log', label: 'Show Pagekite log' },
-        { value: 'pagekite-restart', label: 'Show Pagekite log' }
+        { value: 'pagekite-restart', label: 'Restart Pagekite' }
       ]
     }
   }];
