@@ -1,5 +1,7 @@
 package io.openems.edge.meter.bcontrol.em300;
 
+import java.util.function.Consumer;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -10,9 +12,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -27,23 +26,20 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.BControl.EM300", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
-) //
+@Component(name = "Meter.BControl.EM300", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE) //
 public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -135,7 +131,7 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this, //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0, Priority.HIGH, //
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_POS, new UnsignedDoublewordElement(0),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
@@ -161,10 +157,7 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(60, Priority.HIGH,
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60)),
-						m(new UnsignedDoublewordElement(62)) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.build()),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62))), //
 
 				new FC3ReadRegistersTask(80, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
@@ -200,6 +193,80 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
 								ElementToChannelConverter.SCALE_FACTOR_1)));
+
+		this.calculateCorrectChannelValues();
+		this.calculateAverageVoltage();
+		this.calculateSumCurrent();
+
+		return modbusProtocol;
+	}
+
+	/**
+	 * Calculate Average Voltage from current L1, L2 and L3.
+	 */
+	private void calculateAverageVoltage() {
+		final Consumer<Value<Integer>> calculateAverageVoltage = ignore -> {
+			this._setVoltage(TypeUtils.averageRounded(//
+					this.getVoltageL1Channel().getNextValue().get(), //
+					this.getVoltageL2Channel().getNextValue().get(), //
+					this.getVoltageL3Channel().getNextValue().get() //
+			));
+		};
+		this.getVoltageL1Channel().onSetNextValue(calculateAverageVoltage);
+		this.getVoltageL2Channel().onSetNextValue(calculateAverageVoltage);
+		this.getVoltageL3Channel().onSetNextValue(calculateAverageVoltage);
+	}
+
+	/**
+	 * Calculate Sum Current from Current L1, L2 and L3.
+	 */
+	private void calculateSumCurrent() {
+		final Consumer<Value<Integer>> calculateSumCurrent = ignore -> {
+			this._setCurrent(TypeUtils.sum(//
+					this.getCurrentL1Channel().getNextValue().get(), //
+					this.getCurrentL2Channel().getNextValue().get(), //
+					this.getCurrentL3Channel().getNextValue().get() //
+			));
+		};
+		this.getCurrentL1Channel().onSetNextValue(calculateSumCurrent);
+		this.getCurrentL2Channel().onSetNextValue(calculateSumCurrent);
+		this.getCurrentL3Channel().onSetNextValue(calculateSumCurrent);
+	}
+
+	/**
+	 * Write the result of the arithmetic operation into the corresponding channel
+	 */
+	private void calculateCorrectChannelValues() {
+
+		// Active Power
+		this._setActivePower(this.invertIfTrue(
+				this.getActivePowerPos().getNextValue().orElse(0) - this.getActivePowerNeg().getNextValue().orElse(0)));
+
+		// Active Power L1
+		this._setActivePowerL1(this.invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
+				- this.getActivePowerL1Neg().getNextValue().orElse(0)));
+
+		// Active Power L2
+		this._setActivePowerL2(this.invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
+				- this.getActivePowerL2Neg().getNextValue().orElse(0)));
+		// Active Power L3
+		this._setActivePowerL3(this.invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
+				- this.getActivePowerL3Neg().getNextValue().orElse(0)));
+
+		// Reactive Power
+		this._setReactivePower(this.invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
+				- this.getReactivePowerNeg().getNextValue().orElse(0)));
+
+		// Reactive Power L1
+		this._setReactivePowerL1(this.invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
+				- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
+
+		// Reactive Power L2
+		this._setReactivePowerL2(this.invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
+				- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
+		// Reactive Power L3
+		this._setReactivePowerL3(this.invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
+				- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
 	}
 
 	Channel<Integer> getActivePowerPos() {
@@ -272,59 +339,6 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-
-			// write the result of the arithmetic operation into the corresponding channel
-
-			// Active Power
-			this._setActivePower(this.invertIfTrue(this.getActivePowerPos().getNextValue().orElse(0)
-					- this.getActivePowerNeg().getNextValue().orElse(0)));
-
-			// Active Power L1
-			this._setActivePowerL1(this.invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
-					- this.getActivePowerL1Neg().getNextValue().orElse(0)));
-
-			// Active Power L2
-			this._setActivePowerL2(this.invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
-					- this.getActivePowerL2Neg().getNextValue().orElse(0)));
-			// Active Power L3
-			this._setActivePowerL3(this.invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
-					- this.getActivePowerL3Neg().getNextValue().orElse(0)));
-
-			// Reactive Power
-			this._setReactivePower(this.invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
-					- this.getReactivePowerNeg().getNextValue().orElse(0)));
-
-			// Reactive Power L1
-			this._setReactivePowerL1(this.invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
-
-			// Reactive Power L2
-			this._setReactivePowerL2(this.invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
-			// Reactive Power L3
-			this._setReactivePowerL3(this.invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
-					- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
-
-			// Current
-			Channel<Integer> currL1 = this.getCurrentL1Channel();
-			Channel<Integer> currL2 = this.getCurrentL2Channel();
-			Channel<Integer> currL3 = this.getCurrentL3Channel();
-
-			this._setCurrent(currL1.getNextValue().orElse(0) + currL2.getNextValue().orElse(0)
-					+ currL3.getNextValue().orElse(0));
-
-			break;
-		}
-
-	}
-
-	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
@@ -342,8 +356,7 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	private int invertIfTrue(int invertValue) {
 		if (config.invert()) {
 			return -invertValue;
-		} else {
-			return invertValue;
 		}
+		return invertValue;
 	}
 }
