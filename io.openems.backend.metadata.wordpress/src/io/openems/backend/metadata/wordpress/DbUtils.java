@@ -28,59 +28,33 @@ import io.openems.common.exceptions.OpenemsException;
 
 public class DbUtils {
 	private String password;
-	private Connection conn;
-	private String url;
+
 	private String wpurl;
 	private String dbuser;
-	private String dbname;
+
 	private String dburl;
 
 	private final Logger log = LoggerFactory.getLogger(DbUtils.class);
 
 	public DbUtils(String dbuser, String p, String dbname, String dburl, String wpurl) {
+
 		this.password = p;
 		this.wpurl = wpurl;
 		this.dbuser = dbuser;
-		this.dbname = dbname;
 		this.dburl = dburl;
-		this.url = dburl + "/" + this.dbname + "?user=" + this.dbuser + "&password=" + this.password;
 
 		try {
 			DriverManager.registerDriver(new Driver());
-			this.conn = DriverManager.getConnection(this.url);
+			Connection conn = this.getDbConnection();
+			conn.close();
 		} catch (SQLException e) {
 			this.log.error("Cannot connect to Database: " + e.getMessage());
 		}
 	}
 
-	public void reconnect() throws SQLException {
-		if (this.conn.isClosed()) {
-			this.conn = DriverManager.getConnection(this.url);
-		}
-	}
-
-	public ResultSet getEdges() {
-
-		try {
-			reconnect();
-			Statement stmt = this.conn.createStatement();
-			String sql = "SELECT * FROM Edges";
-			ResultSet result = stmt.executeQuery(sql);
-
-			return result;
-
-		} catch (SQLException e) {
-			this.log.error("Failed to get Edges from Database: " + e.getMessage());
-		}
-
-		return null;
-
-	}
-
 	public ResultSet getWpEdges() {
 		try {
-			Connection conn = DriverManager
-					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			Connection conn = this.getDbConnection();
 			Statement stmt = conn.createStatement();
 			String sql = "SELECT * FROM wp_participants_database";
 			ResultSet result = stmt.executeQuery(sql);
@@ -98,13 +72,13 @@ public class DbUtils {
 	public boolean addEdge(String apikey, String mac, String version) {
 		Connection conn;
 		try {
-			conn = DriverManager
-					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			conn = this.getDbConnection();
 			Statement stmt = conn.createStatement();
 			String sql = "INSERT INTO wp_participants_database (apikey,mac,producttype,edge_name,edge_comment,serial) VALUES('"
 					+ apikey + "', '" + mac + "', 'blueplanet hybrid 10.0 TL3', '" + version + "', '" + apikey + "', '"
 					+ apikey + "')";
 			int result = stmt.executeUpdate(sql);
+			conn.close();
 			if (result == 1) {
 				return true;
 			}
@@ -116,30 +90,15 @@ public class DbUtils {
 
 	}
 
-	public void writeEdge(String apikey, String name, String comment, String producttype, int id) {
-		try {
-			reconnect();
-			Statement stmt = this.conn.createStatement();
-
-			String sql = "INSERT INTO Edges (apikey,name,comment,producttype,id) VALUES ('" + apikey + "', '" + name
-					+ "', '" + comment + "', '" + producttype + "', '" + id + "')";
-			stmt.executeUpdate(sql);
-
-		} catch (SQLException e) {
-
-			this.log.error("Failed to write Edge to Database: " + e.getMessage());
-		}
-	}
-
 	public MyUser getUserFromDB(String login, String sessionId) throws OpenemsException {
 
-		MyUser user = createUser(sessionId);
+		MyUser user = getOrCreateUser(sessionId);
 
 		return user;
 
 	}
 
-	private MyUser createUser(String sessionId) throws OpenemsException {
+	private MyUser getOrCreateUser(String sessionId) throws OpenemsException {
 
 		if (sessionId == null) {
 
@@ -191,8 +150,7 @@ public class DbUtils {
 	private boolean updateNewUser(String userid, ArrayList<String> edges, String role) throws OpenemsException {
 		Connection conn;
 		try {
-			conn = DriverManager
-					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			conn = this.getDbConnection();
 			Statement stmt = conn.createStatement();
 			String sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid + "', 'primus', '"
 					+ edges.get(0) + "')";
@@ -201,6 +159,7 @@ public class DbUtils {
 				sql = "INSERT INTO wp_usermeta (user_id,meta_key,meta_value) VALUES('" + userid + "', 'primusrole', '"
 						+ role + "')";
 				result = stmt.executeUpdate(sql);
+				conn.close();
 				if (result == 1) {
 					return true;
 				}
@@ -231,8 +190,7 @@ public class DbUtils {
 
 	private String getEdgeIdFromDB(String serial, String mac) throws OpenemsException {
 		try {
-			Connection conn = DriverManager
-					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			Connection conn = this.getDbConnection();
 			Statement stmt = conn.createStatement();
 			String sql = "SELECT * FROM wp_participants_database WHERE apikey = " + serial + " AND mac = '" + mac + "'";
 			ResultSet result = stmt.executeQuery(sql);
@@ -309,6 +267,11 @@ public class DbUtils {
 
 		return null;
 
+	}
+
+	private Connection getDbConnection() throws SQLException {
+		return DriverManager
+				.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
 	}
 
 }

@@ -154,7 +154,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		return null;
 
 	}
-	
+
 	@Override
 	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
 
@@ -207,9 +207,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	}
 
 	private boolean updateEdges() {
-		/*
-		 * ResultSet result = this.dbu.getEdges();
-		 */
+		
 		ResultSet result = this.dbu.getWpEdges();
 
 		try {
@@ -268,18 +266,9 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
+
 		updateEdges();
-
-		/*
-		 * this.user = new User(0, "admin"); for (int edgeId : this.edges.keySet()) {
-		 * this.user.addEdgeRole(edgeId, Role.ADMIN); }
-		 */
 		String id = null;
-
-		/*
-		 * Map<Integer, MyEdge> tmpedges = this.dbu.getEdges();
-		 * if(!this.edges.equals(tmpedges)) { this.edges = tmpedges; }
-		 */
 
 		for (MyEdge edge : this.edges.values()) {
 			if (edge.getApikey().equals(apikey)) {
@@ -288,7 +277,6 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 				break;
 			}
 		}
-		// edge.setOnline(this.edgeWebsocket.isOnline(edge.getId()));
 
 		return Optional.ofNullable(id);
 	}
@@ -302,9 +290,8 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		edge.onSetConfig(config -> {
 			log.debug("Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
 		});
-		
-	}
 
+	}
 
 	@Override
 	public Optional<String> addEdgeToDB(String apikey, String mac, String version) {
