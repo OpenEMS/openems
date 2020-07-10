@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -130,6 +132,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
 	private Config config;
+	private PidFilter pidFilter;
 
 	public PowerComponent() {
 		super(//
@@ -149,16 +152,35 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	@Activate
 	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
 		super.activate(context, "_power", "Ess.Power", true);
-		this.data.setSymmetricMode(config.symmetricMode());
-		this.debugMode = config.debugMode();
-		this.solver.setDebugMode(config.debugMode());
-		this.solver.setStrategy(config.strategy());
-		this.config = config;
+		this.updateConfig(config);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Modified
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, "_power", "Ess.Power", true);
+		this.updateConfig(config);
+	}
+
+	private void updateConfig(Config config) {
+		this.data.setSymmetricMode(config.symmetricMode());
+		this.debugMode = config.debugMode();
+		this.solver.setDebugMode(config.debugMode());
+		this.solver.setStrategy(config.strategy());
+		this.config = config;
+
+		if (config.enablePid()) {
+			// build a PidFilter instance with the configured P, I and D variables
+			this.pidFilter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
+			// use a DisabledPidFilter instance, that always just returns the unfiltered
+			// target value
+		} else {
+			this.pidFilter = new DisabledPidFilter();
+		}
 	}
 
 	@Reference(//
@@ -321,17 +343,9 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		super.logError(log, message);
 	}
 
-	/**
-	 * Builds a PidFilter instance with the configured P, I and D variables. If no
-	 * configuration is found, it falls back to default PidFilter values.
-	 * 
-	 * @return an instance of {@link PidFilter}
-	 */
-	public PidFilter buildPidFilter() {
-		try {
-			return new PidFilter(this.config.p(), this.config.i(), this.config.d());
-		} catch (NullPointerException e) {
-			return new PidFilter();
-		}
+	@Override
+	public PidFilter getPidFilter() {
+		return this.pidFilter;
 	}
+
 }

@@ -4,8 +4,12 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
@@ -16,7 +20,8 @@ public interface BridgeModbus extends OpenemsComponent {
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
 		CYCLE_TIME_IS_TOO_SHORT(Doc.of(Level.WARNING) //
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
-		EXECUTION_DURATION(Doc.of(OpenemsType.LONG));
+		EXECUTION_DURATION(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.MILLISECONDS));
 
 		private final Doc doc;
 
@@ -28,6 +33,93 @@ public interface BridgeModbus extends OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getSlaveCommunicationFailedChannel() {
+		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
+	}
+
+	/**
+	 * Gets the Slave Communication Failed State. See
+	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getSlaveCommunicationFailed() {
+		return this.getSlaveCommunicationFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setSlaveCommunicationFailed(boolean value) {
+		this.getSlaveCommunicationFailedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getCycleTimeIsTooShortChannel() {
+		return this.channel(ChannelId.CYCLE_TIME_IS_TOO_SHORT);
+	}
+
+	/**
+	 * Gets the Cycle-Time-is-too-short State. See
+	 * {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getCycleTimeIsTooShort() {
+		return this.getCycleTimeIsTooShortChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCycleTimeIsTooShort(boolean value) {
+		this.getCycleTimeIsTooShortChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#EXECUTION_DURATION}.
+	 * 
+	 * @return the Channel
+	 */
+	public default LongReadChannel getExecutionDurationChannel() {
+		return this.channel(ChannelId.EXECUTION_DURATION);
+	}
+
+	/**
+	 * Gets the Execution Duration in [ms], see
+	 * {@link ChannelId#EXECUTION_DURATION}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getExecutionDuration() {
+		return this.getExecutionDurationChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#EXECUTION_DURATION} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setExecutionDuration(long value) {
+		this.getExecutionDurationChannel().setNextValue(value);
 	}
 
 	/**

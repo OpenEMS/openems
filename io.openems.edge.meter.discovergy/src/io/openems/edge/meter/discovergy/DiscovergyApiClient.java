@@ -1,21 +1,14 @@
 package io.openems.edge.meter.discovergy;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
+import java.util.Base64;
 import java.util.stream.Collectors;
 
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.model.OAuth1AccessToken;
-import com.github.scribejava.core.model.OAuth1RequestToken;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.oauth.OAuth10aService;
-import com.github.scribejava.core.utils.StreamUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,16 +20,18 @@ import io.openems.edge.meter.discovergy.jsonrpc.Field;
 
 /**
  * Client for the Discovergy API (<a href=
- * "https://api.discovergy.com/docs/">https://api.discovergy.com/docs/</a>)
+ * "https://api.discovergy.com/docs/">https://api.discovergy.com/docs/</a>).
  */
 public class DiscovergyApiClient {
 
-	private final static String CLIENT_ID = "OpenEMS";
+	private static final String BASE_URL = "https://api.discovergy.com/public/v1";
 
-	private final DiscovergyApi api;
+	private final String authorizationHeader;
 
-	public DiscovergyApiClient(DiscovergyApi api) {
-		this.api = api;
+	public DiscovergyApiClient(String email, String password) {
+		// Generate authorization header
+		this.authorizationHeader = "Basic "
+				+ new String(Base64.getEncoder().encode((email + ":" + password).getBytes()));
 	}
 
 	/**
@@ -58,6 +53,7 @@ public class DiscovergyApiClient {
 	 * <p>
 	 * See https://api.discovergy.com/docs/ for details.
 	 * 
+	 * @param meterId the Discovergy Meter-ID
 	 * @return the Meters as a JsonArray.
 	 * @throws OpenemsNamedException on error
 	 */
@@ -73,6 +69,8 @@ public class DiscovergyApiClient {
 	 * <p>
 	 * See https://api.discovergy.com/docs/ for details.
 	 * 
+	 * @param meterId the Discovergy Meter-ID
+	 * @param fields  the fields to be queried
 	 * @return the Meters as a JsonArray.
 	 * @throws OpenemsNamedException on error
 	 */
@@ -80,7 +78,7 @@ public class DiscovergyApiClient {
 		String endpoint = String.format("/last_reading?meterId=%s&fields=%s", //
 				meterId, //
 				Arrays.stream(fields) //
-						.map(field -> field.getName()) //
+						.map(field -> field.n()) //
 						.collect(Collectors.joining(",")));
 		return JsonUtils.getAsJsonObject(//
 				this.sendGetRequest(endpoint));
@@ -95,99 +93,34 @@ public class DiscovergyApiClient {
 	 */
 	private JsonElement sendGetRequest(String endpoint) throws OpenemsNamedException {
 		try {
-			OAuthRequest request = this.createRequest(Verb.GET, endpoint);
-			Response response = this.executeRequest(request, 200);
-			return JsonUtils.parse(response.getBody());
-		} catch (InterruptedException | ExecutionException | IOException e) {
+			URL url = new URL(BASE_URL + endpoint);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con.setRequestProperty("Authorization", this.authorizationHeader);
+			con.setRequestMethod("GET");
+			con.setConnectTimeout(5000);
+			con.setReadTimeout(5000);
+			int status = con.getResponseCode();
+			String body;
+			try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+				// Read HTTP response
+				StringBuilder content = new StringBuilder();
+				String line;
+				while ((line = in.readLine()) != null) {
+					content.append(line);
+					content.append(System.lineSeparator());
+				}
+				body = content.toString();
+			}
+			if (status < 300) {
+				// Parse response to JSON
+				return JsonUtils.parse(body);
+			} else {
+				throw new OpenemsException(
+						"Error while reading from Discovergy API. Response code: " + status + ". " + body);
+			}
+		} catch (OpenemsNamedException | IOException e) {
 			throw new OpenemsException(
 					"Unable to read from Discovergy API. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
-	}
-
-	private OAuthRequest createRequest(Verb verb, String endpoint)
-			throws InterruptedException, ExecutionException, IOException {
-		return new OAuthRequest(verb, this.api.getBaseAddress() + endpoint);
-	}
-
-	private Response executeRequest(OAuthRequest request, int expectedStatusCode)
-			throws InterruptedException, ExecutionException, IOException, OpenemsNamedException {
-		Response response = this.executeRequest(request);
-		if (response.getCode() != expectedStatusCode) {
-			response.getBody();
-			throw new RuntimeException("Status code is not " + expectedStatusCode + ": " + response);
-		}
-		return response;
-	}
-
-	private Response executeRequest(OAuthRequest request)
-			throws InterruptedException, ExecutionException, IOException, OpenemsNamedException {
-		OAuth10aService authenticationService = this.getAuthenticationService();
-		OAuth1AccessToken accessToken = this.getAccessToken();
-		authenticationService.signRequest(accessToken, request);
-		return authenticationService.execute(request);
-	}
-
-	private OAuth1AccessToken _accessToken = null;
-
-	private OAuth1AccessToken getAccessToken()
-			throws IOException, InterruptedException, ExecutionException, OpenemsNamedException {
-		if (this._accessToken != null) {
-			return this._accessToken;
-		}
-		OAuth10aService authenticationService = this.getAuthenticationService();
-		OAuth1RequestToken requestToken = authenticationService.getRequestToken();
-		String authorizationURL = authenticationService.getAuthorizationUrl(requestToken);
-		String verifier = authorize(authorizationURL);
-		this._accessToken = authenticationService.getAccessToken(requestToken, verifier);
-		return this._accessToken;
-	}
-
-	private OAuth10aService _authenticationService = null;
-
-	private OAuth10aService getAuthenticationService() throws IOException, OpenemsNamedException {
-		if (this._authenticationService != null) {
-			return this._authenticationService;
-		}
-		JsonObject consumerTokenEntries = this.getConsumerToken();
-		String key = JsonUtils.getAsString(consumerTokenEntries, "key");
-		String secret = JsonUtils.getAsString(consumerTokenEntries, "secret");
-		this._authenticationService = new ServiceBuilder(key).apiSecret(secret).build(this.api);
-		return this._authenticationService;
-	}
-
-	private JsonObject getConsumerToken() throws IOException, OpenemsNamedException {
-		byte[] rawRequest = ("client=" + CLIENT_ID).getBytes(StandardCharsets.UTF_8);
-		HttpURLConnection connection = getConnection(this.api.getBaseAddress() + "/oauth1/consumer_token", "POST", true,
-				true);
-		connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-		connection.setRequestProperty("Content-Length", Integer.toString(rawRequest.length));
-		connection.connect();
-		connection.getOutputStream().write(rawRequest);
-		connection.getOutputStream().flush();
-		String content = StreamUtils.getStreamContents(connection.getInputStream());
-		connection.disconnect();
-		return JsonUtils.getAsJsonObject(JsonUtils.parse(content));
-	}
-
-	private static HttpURLConnection getConnection(String rawURL, String method, boolean doInput, boolean doOutput)
-			throws IOException {
-		URL url = new URL(rawURL);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setDoInput(doInput);
-		connection.setDoOutput(doOutput);
-		connection.setRequestMethod(method);
-		connection.setRequestProperty("Accept", "*");
-		connection.setInstanceFollowRedirects(false);
-		connection.setRequestProperty("charset", "utf-8");
-		connection.setUseCaches(false);
-		return connection;
-	}
-
-	private static String authorize(String authorizationURL) throws IOException {
-		HttpURLConnection connection = getConnection(authorizationURL, "GET", true, false);
-		connection.connect();
-		String content = StreamUtils.getStreamContents(connection.getInputStream());
-		connection.disconnect();
-		return content.substring(content.indexOf('=') + 1);
 	}
 }

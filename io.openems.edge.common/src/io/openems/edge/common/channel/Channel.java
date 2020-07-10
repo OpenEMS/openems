@@ -112,9 +112,28 @@ public interface Channel<T> {
 	 * Add an onSetNextValue callback. It is called, after a new NextValue was set.
 	 * Note that usually you should prefer the onUpdate() callback.
 	 * 
+	 * <p>
+	 * 
+	 * Remember to remove the callback using
+	 * {@link #removeOnSetNextValueCallback(Consumer)} once it is not needed
+	 * anymore, e.g. on deactivate().
+	 * 
 	 * @see #onUpdate
+	 * 
+	 * @param callback the callback {@link Consumer}
+	 * @return the callback to enable fluent programming
 	 */
+	// TODO rename to 'addOnSetNextValueCallback()'; apply same naming also for
+	// other callbacks
 	public void onSetNextValue(Consumer<Value<T>> callback);
+
+	/**
+	 * Removes an onSetNextValue callback.
+	 * 
+	 * @see #onSetNextValue(Consumer)
+	 * @param callback the callback {@link Consumer}
+	 */
+	public void removeOnSetNextValueCallback(Consumer<?> callback);
 
 	/**
 	 * Internal method. Do not call directly.
@@ -126,8 +145,11 @@ public interface Channel<T> {
 
 	/**
 	 * Gets the currently active value, wrapped in a @{link Value}.
+	 * 
+	 * @throws IllegalArgumentException if value cannot be access, e.g. because the
+	 *                                  Channel is Write-Only.
 	 */
-	Value<T> value();
+	Value<T> value() throws IllegalArgumentException;
 
 	/**
 	 * Gets the past values for this Channel.

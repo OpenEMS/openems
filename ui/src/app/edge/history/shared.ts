@@ -1,3 +1,8 @@
+import { ChannelAddress } from 'src/app/shared/shared';
+import { DecimalPipe } from '@angular/common';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
+
 export interface Dataset {
     label: string;
     data: number[];
@@ -52,13 +57,22 @@ export type ChartOptions = {
     },
     scales: {
         yAxes: [{
+            id?: string,
+            position: string,
             scaleLabel: {
                 display: boolean,
-                labelString: string
+                labelString: string,
+                padding?: number,
+                fontSize?: number
+            },
+            gridLines?: {
+                display: boolean
             },
             ticks: {
                 beginAtZero: boolean,
-                max?: number
+                max?: number,
+                padding?: number,
+                stepSize?: number
             }
         }],
         xAxes: [{
@@ -112,6 +126,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     },
     scales: {
         yAxes: [{
+            position: 'left',
             scaleLabel: {
                 display: true,
                 labelString: ""
@@ -151,3 +166,30 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     }
 };
 
+export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
+    let result;
+    let startDate = startOfDay(new Date(queryResult.timestamps[0]));
+    let endDate = endOfDay(new Date(queryResult.timestamps[queryResult.timestamps.length - 1]));
+    let activeSum = 0;
+    queryResult.data[channel.toString()].forEach(value => {
+        activeSum += value;
+    });
+
+    let activePercent = activeSum / queryResult.timestamps.length;
+    let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
+    let activeTimeHours = (activeTimeMinutes / 60).toFixed(1);
+    if (activeTimeMinutes > 59) {
+        result = activeTimeHours + ' h';
+        // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
+        activeTimeHours.split('').forEach((letter, index) => {
+            if (index == activeTimeHours.length - 1 && letter == "0") {
+                result = activeTimeHours.slice(0, -2) + ' h';
+            }
+        });
+    } else {
+        // TODO get locale dynamically
+        let decimalPipe = new DecimalPipe('de-DE')
+        result = decimalPipe.transform(activeTimeMinutes.toString(), '1.0-0') + ' m';
+    }
+    return result;
+}; 

@@ -15,7 +15,44 @@ This chapter describes some of the core concepts and commonly used terms in Open
 
 OpenEMS Edge is using the https://en.wikipedia.org/wiki/OSGi[OSGi icon:external-link[]] platform to provide a completely modular and dynamic service oriented system.
 
-Logical groups of source code are put into one OSGi Bundle. Every directory in the source code root directory starting with 'io.openems.*' is a bundle. 
+Logical groups of source code are put into one OSGi Bundle. Every directory in the source code root directory starting with `io.openems.*`` is a bundle. 
+
+More bundle naming conventions are:
+
+* Bundle names ending with `*.common` are for common code that is shared by multiple components. Examples are:
+`io.openems.common`::
+  for common code between Edge and Backend, like helper utils, JSON-RPC definitions and Abstract Worker implementations
+`io.openems.backend.common`::
+  for common code within Backend.
+`io.openems.edge.common`::
+  for common code within Edge.
+`io.openems.edge.controller.api.common`::
+  for common code used by API Controllers
+`...`::
+
+* Bundle names ending with `*.api` are for xref:#_nature[Natures and APIs]. Examples are:
+`io.openems.edge.controller.api`::
+  for xref:edge/controller.adoc[Controllers]
+`io.openems.edge.scheduler.api`::
+  for xref:edge/scheduler.adoc[Schedulers]
+`...`::
+
+* Bundle names ending with `*.core` are for shared and helper OSGi services. Examples are:
+`io.openems.edge.core`:::
+for central singleton services:
+  *ComponentManager*::
+    handles access to OpenEMS Components and Channels
+  *Cycle*::
+    is responsible for the process xref:edge/architecture.adoc#_cycle[Cycle]
+  *Host*::
+    for accessing the host and operating system
+  *Meta*::
+    for some Meta information like the version of the running OpenEMS Edge
+  *Sum*::
+    for summing the values of the entire energy system, all meters, energy storage systems and so on.
+   
+`io.openems.edge.ess.core`:::
+  for the central *EssPower* service, that distributes power requirements to different energy storage systems
 
 == OpenEMS Component
 

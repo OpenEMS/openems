@@ -23,6 +23,9 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default PowerComponent.DEFAULT_DEBUG_MODE;
 
+	@AttributeDefinition(name = "Enable PID Filter", description = "Enables the PID Filter with the settings for P, I and D below")
+	boolean enablePid() default true;
+
 	@AttributeDefinition(name = "PID Filter: Proportional gain", description = "The weight of proportional gain in the PID filter. Value between [0;1].")
 	double p() default PidFilter.DEFAULT_P;
 

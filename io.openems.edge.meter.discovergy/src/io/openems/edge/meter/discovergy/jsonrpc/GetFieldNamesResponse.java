@@ -41,7 +41,7 @@ public class GetFieldNamesResponse extends JsonrpcResponseSuccess {
 	public JsonObject getResult() {
 		JsonArray fieldNames = new JsonArray();
 		for (Field field : this.fields) {
-			fieldNames.add(field.getName());
+			fieldNames.add(field.n());
 		}
 		return JsonUtils.buildJsonObject() //
 				.add("fieldNames", fieldNames) //

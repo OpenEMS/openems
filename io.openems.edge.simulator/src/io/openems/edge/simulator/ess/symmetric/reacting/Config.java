@@ -19,9 +19,6 @@ import io.openems.edge.common.sum.GridMode;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Datasource-ID", description = "ID of Simulator Datasource.")
-	String datasource_id() default "datasource0";
-
 	@AttributeDefinition(name = "Max Apparant Power [VA]")
 	int maxApparentPower() default 10000;
 

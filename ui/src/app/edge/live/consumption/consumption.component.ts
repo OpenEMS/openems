@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { Component } from '@angular/core';
 import { ConsumptionModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: ConsumptionComponent.SELECTOR,
@@ -15,18 +15,25 @@ export class ConsumptionComponent {
   public config: EdgeConfig = null;
   public edge: Edge = null;
   public evcsComponents: EdgeConfig.Component[] = null;
+  public consumptionMeterComponents: EdgeConfig.Component[] = null;
 
   constructor(
-    public service: Service,
-    private websocket: Websocket,
     private route: ActivatedRoute,
+    private websocket: Websocket,
     public modalCtrl: ModalController,
+    public service: Service,
   ) { }
 
   ngOnInit() {
     let channels = [];
     this.service.getConfig().then(config => {
       this.config = config;
+      this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+      for (let component of this.consumptionMeterComponents) {
+        channels.push(
+          new ChannelAddress(component.id, 'ActivePower'),
+        )
+      }
       this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumtion') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
       for (let component of this.evcsComponents) {
         channels.push(
@@ -59,20 +66,31 @@ export class ConsumptionComponent {
       componentProps: {
         edge: this.edge,
         evcsComponents: this.evcsComponents,
+        consumptionMeterComponents: this.consumptionMeterComponents,
         currentTotalChargingPower: this.currentTotalChargingPower,
-        sumOfChannel: this.sumOfChannel
+        currentTotalConsumptionMeterPower: this.currentTotalConsumptionMeterPower,
+        sumOfChannel: this.sumOfChannel,
+        getTotalOtherPower: this.getTotalOtherPower,
       }
     });
     return await modal.present();
   }
 
-  public currentTotalChargingPower(): number {
-    return this.sumOfChannel("ChargePower");
+  public getTotalOtherPower(): number {
+    return this.currentTotalChargingPower() + this.currentTotalConsumptionMeterPower();
   }
 
-  private sumOfChannel(channel: String): number {
+  private currentTotalChargingPower(): number {
+    return this.sumOfChannel(this.evcsComponents, "ChargePower");
+  }
+
+  private currentTotalConsumptionMeterPower(): number {
+    return this.sumOfChannel(this.consumptionMeterComponents, "ActivePower");
+  }
+
+  private sumOfChannel(components: EdgeConfig.Component[], channel: String): number {
     let sum = 0;
-    this.evcsComponents.forEach(component => {
+    components.forEach(component => {
       let channelValue = this.edge.currentData.value.channel[component.id + "/" + channel];
       if (channelValue != null) {
         sum += channelValue;

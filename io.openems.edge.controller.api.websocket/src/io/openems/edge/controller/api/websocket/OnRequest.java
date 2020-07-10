@@ -218,9 +218,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.getTimedata()
 				.queryHistoricData(//
 						null, /* ignore Edge-ID */
-						request.getFromDate(), //
-						request.getToDate(), //
-						request.getChannels());
+						request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));

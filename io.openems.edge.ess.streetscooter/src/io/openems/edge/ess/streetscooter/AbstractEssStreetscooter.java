@@ -70,7 +70,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 
 		if (readonly) {
 			// Do not allow Power in read-only mode
-			this.getMaxApparentPower().setNextValue(0);
+			this._setMaxApparentPower(0);
 		}
 
 		super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
@@ -78,9 +78,9 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() + ", mode:"
+		return "SoC:" + this.getSoc().asString() + ", mode:"
 				+ this.channel(StrtsctrChannelId.INVERTER_MODE).value().asOptionString() + "|L:"
-				+ this.getActivePower().value().asString() //
+				+ this.getActivePower().asString() //
 		;
 	}
 

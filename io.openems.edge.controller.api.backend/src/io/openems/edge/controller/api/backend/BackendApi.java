@@ -9,8 +9,6 @@ import java.util.Map;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,7 +36,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiWorker;
+import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -47,11 +45,12 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"org.ops4j.pax.logging.appender.name=Controller.Api.Backend", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
 		} //
 )
 public class BackendApi extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, PaxAppender, EventHandler, ConfigurationListener {
+		implements Controller, OpenemsComponent, PaxAppender, EventHandler {
 
 	protected static final int DEFAULT_NO_OF_CYCLES = 10;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
@@ -59,7 +58,7 @@ public class BackendApi extends AbstractOpenemsComponent
 	protected final BackendWorker worker = new BackendWorker(this);
 
 	protected final ApiWorker apiWorker = new ApiWorker();
-	
+
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
 
 	protected WebsocketClient websocket = null;
@@ -191,21 +190,22 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.worker.triggerNextRun();
 			break;
-		}
-	}
 
-	@Override
-	public void configurationEvent(ConfigurationEvent event) {
-		EdgeConfig config = this.componentManager.getEdgeConfig();
-		EdgeConfigNotification message = new EdgeConfigNotification(config);
-		WebsocketClient ws = this.websocket;
-		if (ws == null) {
-			return;
+		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
+			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+			EdgeConfigNotification message = new EdgeConfigNotification(config);
+			WebsocketClient ws = this.websocket;
+			if (ws == null) {
+				return;
+			}
+			ws.sendMessage(message);
 		}
-		ws.sendMessage(message);
 	}
 }

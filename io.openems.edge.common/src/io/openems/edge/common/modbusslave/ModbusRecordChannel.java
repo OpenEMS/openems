@@ -52,6 +52,9 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case UINT16:
 			byteLength = ModbusRecordUint16.BYTE_LENGTH;
 			break;
+		case UINT32:
+			byteLength = ModbusRecordUint32.BYTE_LENGTH;
+			break;
 		}
 		this.writeValueBuffer = new Byte[byteLength];
 	}
@@ -60,9 +63,9 @@ public class ModbusRecordChannel extends ModbusRecord {
 	 * Evaluate the AccessMode from configured Modbus-Api-AccessMode and
 	 * Channel-AccessMode.
 	 * 
-	 * @param channelId
-	 * @param channelAccessMode
-	 * @return
+	 * @param channelId         the {@link ChannelId}
+	 * @param channelAccessMode the configured {@link AccessMode}
+	 * @return the actual {@link AccessMode}
 	 */
 	private static AccessMode evaluateActualAccessMode(ChannelId channelId, AccessMode modbusApiAccessMode) {
 		AccessMode channelAccessMode = channelId.doc().getAccessMode();
@@ -98,25 +101,27 @@ public class ModbusRecordChannel extends ModbusRecord {
 	}
 
 	public ChannelId getChannelId() {
-		return channelId;
+		return this.channelId;
 	}
 
 	@Override
 	public String toString() {
-		return "ModbusRecordChannel [channelId=" + channelId + ", getOffset()=" + getOffset() + ", getType()="
-				+ getType() + "]";
+		return "ModbusRecordChannel [" //
+				+ "channelId=" + this.channelId + ", " //
+				+ "getOffset()=" + this.getOffset() + ", " //
+				+ "getType()=" + this.getType() //
+				+ "]";
 	}
 
 	@Override
 	public byte[] getValue(OpenemsComponent component) {
 		Channel<?> channel = component.channel(this.channelId);
-		Object value = channel.value().get();
 		switch (this.getType()) {
 		case FLOAT32:
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordFloat32.toByteArray(value);
+				return ModbusRecordFloat32.toByteArray(channel.value().get());
 			case WRITE_ONLY:
 				return ModbusRecordFloat32Reserved.UNDEFINED_VALUE;
 			}
@@ -124,7 +129,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordFloat64.toByteArray(value);
+				return ModbusRecordFloat64.toByteArray(channel.value().get());
 			case WRITE_ONLY:
 				return ModbusRecordFloat64Reserved.UNDEFINED_VALUE;
 			}
@@ -132,7 +137,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordString16.toByteArray(value);
+				return ModbusRecordString16.toByteArray(channel.value().get());
 			case WRITE_ONLY:
 				return ModbusRecordString16Reserved.UNDEFINED_VALUE;
 			}
@@ -140,9 +145,17 @@ public class ModbusRecordChannel extends ModbusRecord {
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordUint16.toByteArray(value);
+				return ModbusRecordUint16.toByteArray(channel.value().get());
 			case WRITE_ONLY:
 				return ModbusRecordUint16Reserved.UNDEFINED_VALUE;
+			}
+		case UINT32:
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordUint32.toByteArray(channel.value().get());
+			case WRITE_ONLY:
+				return ModbusRecordUint32Reserved.UNDEFINED_VALUE;
 			}
 		}
 		assert true;
@@ -201,13 +214,16 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case UINT16:
 			value = buff.getShort();
 			break;
+		case UINT32:
+			value = buff.getInt();
+			break;
 		}
 
 		// Forward Value to ApiWorker
 		if (this.onWriteValueCallback != null) {
 			this.onWriteValueCallback.accept(value);
 		} else {
-			log.error("No onWriteValueCallback registered. What should I do with [" + value + "]?");
+			this.log.error("No onWriteValueCallback registered. What should I do with [" + value + "]?");
 		}
 	}
 

@@ -1,27 +1,35 @@
 package io.openems.edge.core.cycle;
 
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.TreeSet;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.scheduler.api.Scheduler;
 
+@Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Core.Cycle", //
 		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
 				"id=" + OpenemsConstants.CYCLE_ID, //
 				"enabled=true" //
@@ -30,39 +38,38 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 	private final CycleWorker worker = new CycleWorker(this);
 
-	@Reference(policy = ReferencePolicy.STATIC)
+	@Reference
 	protected EventAdmin eventAdmin;
+
+	@Reference
+	protected Sum sumComponent;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	/**
 	 * Holds the Schedulers and their relative cycleTime. They are sorted ascending
 	 * by their cycleTimes.
 	 */
-	protected final TreeMap<Scheduler, Integer> schedulers = new TreeMap<Scheduler, Integer>(
-			(a, b) -> a.getCycleTime() - b.getCycleTime());
+	protected final TreeSet<Scheduler> schedulers = new TreeSet<Scheduler>(Comparator.comparing(Scheduler::id));
 
-	@Reference
-	protected ComponentManager componentManager;
+	private Config config = null;;
 
-	protected int commonCycleTime = Scheduler.DEFAULT_CYCLE_TIME;
-	protected int maxCycles = 1;
-	protected int cycle = 0;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(enabled=true)")
 	protected void addScheduler(Scheduler newScheduler) {
-		if (newScheduler.isEnabled()) {
-			synchronized (this.schedulers) {
-				this.schedulers.put(newScheduler, 1); // relativeCycleTime is going to be overwritten by
-														// recalculateCommonCycleTime
-				this.commonCycleTime = Utils.recalculateCommonCycleTime(this.schedulers);
-				this.maxCycles = Utils.recalculateRelativeCycleTimes(schedulers, this.commonCycleTime);
-			}
+		synchronized (this.schedulers) {
+			this.schedulers.add(newScheduler);
 		}
 	}
 
 	protected void removeScheduler(Scheduler scheduler) {
-		this.schedulers.remove(scheduler);
-		this.commonCycleTime = Utils.recalculateCommonCycleTime(this.schedulers);
-		this.maxCycles = Utils.recalculateRelativeCycleTimes(schedulers, this.commonCycleTime);
+		synchronized (this.schedulers) {
+			this.schedulers.remove(scheduler);
+		}
 	}
 
 	public CycleImpl() {
@@ -73,8 +80,9 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	}
 
 	@Activate
-	void activate(ComponentContext context) {
+	void activate(ComponentContext context, Config config) {
 		super.activate(context, OpenemsConstants.CYCLE_ID, "Core.Cycle", true);
+		this.config = config;
 		this.worker.activate("Core.Cycle");
 	}
 
@@ -84,9 +92,29 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 		this.worker.deactivate();
 	}
 
+	@Modified
+	void modified(Config config) {
+		Config oldConfig = this.config;
+		this.config = config;
+		// make sure the worker starts if it had been stopped
+		if (oldConfig.cycleTime() <= 0 && oldConfig.cycleTime() != config.cycleTime()) {
+			this.worker.triggerNextRun();
+		}
+	}
+
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	public int getCycleTime() {
+		Config config = this.config;
+		if (config != null) {
+			return config.cycleTime();
+		} else {
+			return Cycle.DEFAULT_CYCLE_TIME;
+		}
 	}
 
 }

@@ -2,20 +2,13 @@ Bundle-Name: OpenEMS Edge Scheduler Fixed-Order
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.scheduler.api
-Private-Package: io.openems.edge.scheduler.fixedorder
 
--includeresource: {readme.adoc}
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.scheduler.api
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.scheduler.api;version=latest,\
-	com.google.guava,\
-	slf4j.api
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

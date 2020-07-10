@@ -2,25 +2,12 @@ Bundle-Name: OpenEMS Edge Bridge Modbus
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.bridge.modbus.api,\
-	io.openems.edge.bridge.modbus.api.task,\
-	io.openems.edge.bridge.modbus.api.element,\
-	io.openems.edge.bridge.modbus.api.facade,\
-	io.openems.edge.bridge.modbus.sunspec,\
-	io.openems.edge.bridge.modbus
 
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	com.google.gson,\
-	com.google.guava,\
+-buildpath: \
+	${buildpath},\
 	com.ghgande.j2mod;version=2.5.5,\
-	slf4j.api
+	io.openems.common,\
+	io.openems.edge.common
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

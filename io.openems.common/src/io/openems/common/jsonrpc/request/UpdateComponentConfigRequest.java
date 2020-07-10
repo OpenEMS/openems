@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -94,8 +95,21 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 		 * @param value the new value
 		 */
 		public Property(String name, JsonElement value) {
-			this.name = name;
+			// convert underscore ('_') to point ('.') in property name
+			this.name = name.replace("_", ".");
 			this.value = value;
+		}
+
+		public Property(String name, String value) {
+			this(name, new JsonPrimitive(value));
+		}
+
+		public Property(String name, boolean value) {
+			this(name, new JsonPrimitive(value));
+		}
+
+		public Property(String name, Number value) {
+			this(name, new JsonPrimitive(value));
 		}
 
 		public String getName() {

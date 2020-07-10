@@ -274,7 +274,8 @@ export class Service implements ErrorHandler {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: 2000
+      duration: 2000,
+      cssClass: 'container'
     });
     toast.present();
   }
@@ -283,11 +284,7 @@ export class Service implements ErrorHandler {
    * checks if fems is allowed to show kWh
    */
   public isKwhAllowed(edge: Edge): boolean {
-    if (edge && ['fems7', 'fems66', 'fems566', 'fems888'].includes(edge.id)) {
-      return true;
-    } else {
-      return false;
-    }
+    return false;
   }
 
   /**

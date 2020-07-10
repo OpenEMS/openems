@@ -1,7 +1,6 @@
 package io.openems.edge.simulator.pvinverter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -86,6 +86,9 @@ public class PvInverter extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
@@ -95,7 +98,7 @@ public class PvInverter extends AbstractOpenemsComponent
 
 	private void updateChannels() {
 		// copy write value to read value
-		this.getActivePowerLimit().setNextValue(this.getActivePowerLimit().getNextWriteValueAndReset());
+		this._setActivePowerLimit(this.getActivePowerLimitChannel().getNextWriteValueAndReset().orElse(null));
 
 		/*
 		 * get and store Simulated Active Power
@@ -104,18 +107,18 @@ public class PvInverter extends AbstractOpenemsComponent
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
 		// Apply Active Power Limit
-		Optional<Integer> activePowerLimitOpt = this.getActivePowerLimit().value().asOptional();
-		if (activePowerLimitOpt.isPresent()) {
+		Value<Integer> activePowerLimitOpt = this.getActivePowerLimit();
+		if (activePowerLimitOpt.isDefined()) {
 			int activePowerLimit = activePowerLimitOpt.get();
 			simulatedActivePower = Math.min(simulatedActivePower, activePowerLimit);
 		}
 
-		this.getActivePower().setNextValue(simulatedActivePower);
+		this._setActivePower(simulatedActivePower);
 	}
 
 	@Override
 	public String debugLog() {
-		return this.getActivePower().value().asString();
+		return this.getActivePower().asString();
 	}
 
 	@Override

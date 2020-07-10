@@ -12,6 +12,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
+import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -45,7 +46,7 @@ public class SingleRack {
 	public static final String KEY_MIN_CELL_VOLTAGE = "MIN_CELL_VOLTAGE";
 	public static final String KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW = "ALARM_LEVEL_1_CELL_VOLTAGE_LOW";
 	public static final String KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH = "ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH";
-	
+
 	private static final String KEY_MAX_CELL_TEMPERATURE_ID = "MAX_CELL_TEMPERATURE_ID";
 	private static final String KEY_MAX_CELL_TEMPERATURE = "MAX_CELL_TEMPERATURE";
 	private static final String KEY_MIN_CELL_TEMPERATURE_ID = "MIN_CELL_TEMPERATURE_ID";
@@ -63,7 +64,7 @@ public class SingleRack {
 	private static final String KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH = "ALARM_LEVEL_2_CELL_VOLTAGE_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW = "ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW";
 	private static final String KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH = "ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH";
-	private static final String KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH = "ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH";	
+	private static final String KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH = "ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH = "ALARM_LEVEL_1_GR_TEMPERATURE_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH = "ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_SOC_LOW = "ALARM_LEVEL_1_SOC_LOW";
@@ -71,7 +72,7 @@ public class SingleRack {
 	private static final String KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH = "ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH = "ALARM_LEVEL_1_DISCHA_CURRENT_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW = "ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW";
-	
+
 	private static final String KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH = "ALARM_LEVEL_1_CHA_CURRENT_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH = "ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH";
 	private static final String KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH = "ALARM_LEVEL_1_CELL_VOLTAGE_HIGH";
@@ -107,11 +108,11 @@ public class SingleRack {
 	private int rackNumber;
 	private int numberOfSlaves;
 	private int addressOffset;
-	private Cluster parent;
+	private ClusterVersionB parent;
 	private final Map<String, ChannelId> channelIds;
 	private final Map<String, Channel<?>> channelMap;
 
-	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset, Cluster parent) {
+	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset, ClusterVersionB parent) {
 		this.rackNumber = racknumber;
 		this.numberOfSlaves = numberOfSlaves;
 		this.addressOffset = addressOffset;
@@ -127,15 +128,35 @@ public class SingleRack {
 	public Channel<?> getChannel(String key) {
 		return channelMap.get(key);
 	}
-	
+
 	public int getSoC() {
+		return getIntFromChannel(KEY_SOC, 0);
+	}
+
+	public int getMinimalCellVoltage() {
+		return getIntFromChannel(KEY_MIN_CELL_VOLTAGE, -1);
+	}
+
+	public int getMaximalCellVoltage() {
+		return getIntFromChannel(KEY_MAX_CELL_VOLTAGE, -1);
+	}
+
+	public int getMinimalCellTemperature() {
+		return getIntFromChannel(KEY_MIN_CELL_TEMPERATURE, -1);
+	}
+
+	public int getMaximalCellTemperature() {
+		return getIntFromChannel(KEY_MAX_CELL_TEMPERATURE, -1);
+	}
+
+	private int getIntFromChannel(String key, int defaultValue) {
 		@SuppressWarnings("unchecked")
-		Optional<Integer> socOpt = (Optional<Integer>) this.channelMap.get(KEY_SOC).value().asOptional();
-		int soc = 0;
-		if (socOpt.isPresent()) {
-			soc = socOpt.get();
+		Optional<Integer> opt = (Optional<Integer>) this.channelMap.get(key).value().asOptional();
+		int value = defaultValue;
+		if (opt.isPresent()) {
+			value = opt.get();
 		}
-		return soc;
+		return value;
 	}
 
 	private Map<String, Channel<?>> createChannelMap() {
@@ -225,7 +246,7 @@ public class SingleRack {
 		channels.put(KEY_FAILURE_LTC6803, parent.addChannel(channelIds.get(KEY_FAILURE_LTC6803)));
 		channels.put(KEY_FAILURE_CONNECTOR_WIRE, parent.addChannel(channelIds.get(KEY_FAILURE_CONNECTOR_WIRE)));
 		channels.put(KEY_FAILURE_SAMPLING_WIRE, parent.addChannel(channelIds.get(KEY_FAILURE_SAMPLING_WIRE)));
-		
+
 		channels.put(KEY_RESET, parent.addChannel(channelIds.get(KEY_RESET)));
 		channels.put(KEY_SLEEP, parent.addChannel(channelIds.get(KEY_SLEEP)));
 
@@ -254,7 +275,7 @@ public class SingleRack {
 		this.addEntry(map, KEY_VOLTAGE, new IntegerDoc().unit(Unit.MILLIVOLT));
 		this.addEntry(map, KEY_CURRENT, new IntegerDoc().unit(Unit.MILLIAMPERE));
 
-		this.addEntry(map, KEY_CHARGE_INDICATION, Doc.of(Enums.ChargeIndication.values()));
+		this.addEntry(map, KEY_CHARGE_INDICATION, Doc.of(ChargeIndication.values()));
 		this.addEntry(map, KEY_SOC, new IntegerDoc().unit(Unit.PERCENT));
 		this.addEntry(map, KEY_SOH, new IntegerDoc().unit(Unit.PERCENT));
 		this.addEntry(map, KEY_MAX_CELL_VOLTAGE_ID, new IntegerDoc().unit(Unit.NONE));
@@ -364,9 +385,9 @@ public class SingleRack {
 		this.addEntry(map, KEY_FAILURE_LTC6803, Doc.of(Level.FAULT).text("LTC6803 fault")); // Bit 2
 		this.addEntry(map, KEY_FAILURE_CONNECTOR_WIRE, Doc.of(Level.FAULT).text("connector wire fault")); // Bit 1
 		this.addEntry(map, KEY_FAILURE_SAMPLING_WIRE, Doc.of(Level.FAULT).text("sampling wire fault")); // Bit 0
-		
-		this.addEntry(map, KEY_SLEEP, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)); 
-		this.addEntry(map, KEY_RESET, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)); 
+
+		this.addEntry(map, KEY_SLEEP, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE));
+		this.addEntry(map, KEY_RESET, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE));
 
 		// Cell voltages formatted like: "RACK_1_BATTERY_000_VOLTAGE"
 		for (int i = 0; i < this.numberOfSlaves; i++) {
@@ -390,9 +411,9 @@ public class SingleRack {
 		Collection<Task> tasks = new ArrayList<>();
 
 		// State values
-		tasks.add(new FC3ReadRegistersTask(this.addressOffset + 0x100, Priority.LOW, //
-				parent.map(channelIds.get(KEY_VOLTAGE), getUWE(0x100), ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-				parent.map(channelIds.get(KEY_CURRENT), getUWE(0x101), ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+		tasks.add(new FC3ReadRegistersTask(this.addressOffset + 0x100, Priority.HIGH, //
+				parent.map(channelIds.get(KEY_VOLTAGE), getUWE(0x100), ElementToChannelConverter.SCALE_FACTOR_2), //
+				parent.map(channelIds.get(KEY_CURRENT), getSWE(0x101), ElementToChannelConverter.SCALE_FACTOR_2), //
 				parent.map(channelIds.get(KEY_CHARGE_INDICATION), getUWE(0x102)), //
 				parent.map(channelIds.get(KEY_SOC), getUWE(0x103)). //
 						onUpdateCallback(val -> {
@@ -400,13 +421,27 @@ public class SingleRack {
 						}), //
 				parent.map(channelIds.get(KEY_SOH), getUWE(0x104)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE_ID), getUWE(0x105)), //
-				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE), getUWE(0x106)), //
+				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE), getUWE(0x106)). //
+						onUpdateCallback(val -> {
+							parent.recalculateMaxCellVoltage();
+						}), //
 				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE_ID), getUWE(0x107)), //
-				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE), getUWE(0x108)), //
+				parent.map(channelIds.get(KEY_MIN_CELL_VOLTAGE), getUWE(0x108)). //
+						onUpdateCallback(val -> {
+							parent.recalculateMinCellVoltage();
+						}), //
 				parent.map(channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID), getUWE(0x109)), //
-				parent.map(channelIds.get(KEY_MAX_CELL_TEMPERATURE), getUWE(0x10A)), //
+				parent.map(channelIds.get(KEY_MAX_CELL_TEMPERATURE), getUWE(0x10A),
+						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						onUpdateCallback(val -> {
+							parent.recalculateMaxCellTemperature();
+						}), //
 				parent.map(channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID), getUWE(0x10B)), //
-				parent.map(channelIds.get(KEY_MIN_CELL_TEMPERATURE), getUWE(0x10C)) //
+				parent.map(channelIds.get(KEY_MIN_CELL_TEMPERATURE), getUWE(0x10C),
+						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						onUpdateCallback(val -> {
+							parent.recalculateMinCellTemperature();
+						}) //
 		));
 
 		// Alarm levels
@@ -463,14 +498,12 @@ public class SingleRack {
 						.bit(12, channelIds.get(KEY_FAILURE_INITIALIZATION))//
 				) //
 		));
-		
-		//Reset and sleep
+
+		// Reset and sleep
 		tasks.add(new FC6WriteRegisterTask(this.addressOffset + 0x0004, //
-				parent.map(channelIds.get(KEY_RESET), getUWE(0x0004)
-		)));
+				parent.map(channelIds.get(KEY_RESET), getUWE(0x0004))));
 		tasks.add(new FC6WriteRegisterTask(this.addressOffset + 0x001D, //
-				parent.map(channelIds.get(KEY_SLEEP), getUWE(0x001D)
-		)));
+				parent.map(channelIds.get(KEY_SLEEP), getUWE(0x001D))));
 
 		int MAX_ELEMENTS_PER_TASK = 100;
 
@@ -522,11 +555,11 @@ public class SingleRack {
 	}
 
 	public int getRackNumber() {
-		return rackNumber;
+		return this.rackNumber;
 	}
 
 	public int getAddressOffset() {
-		return addressOffset;
+		return this.addressOffset;
 	}
 
 	private ChannelId createChannelId(String key, Doc doc) {

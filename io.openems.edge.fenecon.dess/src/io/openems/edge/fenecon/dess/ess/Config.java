@@ -3,7 +3,7 @@ package io.openems.edge.fenecon.dess.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "FENECON DESS ESS", //
 		description = "The energy storage system implementation of a FENECON DESS (PRO Hybrid, PRO Compact,...)")
 @interface Config {

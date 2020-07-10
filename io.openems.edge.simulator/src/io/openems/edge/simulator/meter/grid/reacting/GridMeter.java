@@ -19,8 +19,6 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,8 +42,7 @@ public class GridMeter extends AbstractOpenemsComponent
 	// private final Logger log = LoggerFactory.getLogger(GridMeter.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT));
+		;
 
 		private final Doc doc;
 
@@ -94,6 +91,9 @@ public class GridMeter extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
@@ -109,20 +109,30 @@ public class GridMeter extends AbstractOpenemsComponent
 
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
 			try {
-				powerSum += ess.getActivePower().getNextValue().get();
+				powerSum += ess.getActivePowerChannel().getNextValue().get();
 			} catch (NullPointerException e) {
 				// ignore
 			}
 		}
 		for (SymmetricMeter sm : this.symmetricMeters) {
-			if (sm.getMeterType() != MeterType.GRID) {
-				try {
-					powerSum += (Integer) sm.getActivePower().getNextValue().get();
-				} catch (NullPointerException e) {
+			try {
+				switch (sm.getMeterType()) {
+				case CONSUMPTION_METERED:
 					// ignore
+					break;
+				case CONSUMPTION_NOT_METERED:
+					powerSum -= sm.getActivePowerChannel().getNextValue().get();
+					break;
+				case GRID:
+					gridCount++;
+					break;
+				case PRODUCTION:
+				case PRODUCTION_AND_CONSUMPTION:
+					powerSum += sm.getActivePowerChannel().getNextValue().get();
+					break;
 				}
-			} else {
-				gridCount++;
+			} catch (NullPointerException e) {
+				// ignore
 			}
 		}
 
@@ -133,15 +143,14 @@ public class GridMeter extends AbstractOpenemsComponent
 			activePower /= gridCount;
 		}
 
-		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(activePower);
-		this.getActivePower().setNextValue(activePower);
-		this.getActivePowerL1().setNextValue(activePower / 3);
-		this.getActivePowerL2().setNextValue(activePower / 3);
-		this.getActivePowerL3().setNextValue(activePower / 3);
+		this._setActivePower(activePower);
+		this._setActivePowerL1(activePower / 3);
+		this._setActivePowerL2(activePower / 3);
+		this._setActivePowerL3(activePower / 3);
 	}
 
 	@Override
 	public String debugLog() {
-		return this.getActivePower().value().asString();
+		return this.getActivePower().asString();
 	}
 }

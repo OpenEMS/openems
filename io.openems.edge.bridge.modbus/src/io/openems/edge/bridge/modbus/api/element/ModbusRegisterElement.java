@@ -25,9 +25,10 @@ public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 	 * Sets a value that should be written to the Modbus device.
 	 * 
 	 * @param valueOpt the Optional value
-	 * @throws OpenemsException on error
+	 * @throws OpenemsException         on error
+	 * @throws IllegalArgumentException on error
 	 */
-	public default void setNextWriteValue(Optional<Object> valueOpt) throws OpenemsException {
+	public default void setNextWriteValue(Optional<Object> valueOpt) throws OpenemsException, IllegalArgumentException {
 		if (valueOpt.isPresent()) {
 			this._setNextWriteValue(//
 					Optional.of(//

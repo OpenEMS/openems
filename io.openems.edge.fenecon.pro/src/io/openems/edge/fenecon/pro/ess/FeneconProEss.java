@@ -60,6 +60,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 	protected final static int MAX_APPARENT_POWER = 9000;
 	private final static int UNIT_ID = 4;
 
+	private final MaxApparentPowerHandler maxApparentPowerHandler = new MaxApparentPowerHandler(this);
+
 	private String modbusBridgeId;
 
 	@Reference
@@ -77,8 +79,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 				ManagedSymmetricEss.ChannelId.values(), //
 				ProChannelId.values() //
 		);
-		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(FeneconProEss.MAX_APPARENT_POWER);
-		this.getCapacity().setNextValue(12_000);
+		this._setMaxApparentPower(FeneconProEss.MAX_APPARENT_POWER);
+		this._setCapacity(12_000);
 		AsymmetricEss.initializePowerSumChannels(this);
 	}
 
@@ -442,10 +444,10 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|Allowed:" + this.getAllowedCharge().value().asStringWithoutUnit() + ";"
-				+ this.getAllowedDischarge().value().asString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString();
 	}
 
 	@Override
@@ -506,6 +508,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.activateRemoteMode();
+			this.maxApparentPowerHandler.calculateMaxApparentPower();
 		}
 	}
 
@@ -551,4 +554,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						.build());
 	}
 
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
 }

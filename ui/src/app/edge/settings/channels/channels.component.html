@@ -7,11 +7,11 @@
 
         <ion-card>
           <ion-item color="light" lines="full">
-            <ion-icon slot="start" name="today" color="primary"></ion-icon>
+            <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
             <ion-label>Channel {{ address.toString() }}</ion-label>
             <!-- TODO translate  -->
             <ion-button (click)="unsubscribeChannel(address)" slot="end" color="light">
-              <ion-icon slot="icon-only" name="trash"></ion-icon>
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
             </ion-button>
           </ion-item>
 
@@ -60,13 +60,13 @@
                 <!-- show Toggle for boolean value  -->
                 <ion-toggle #valueToggle></ion-toggle>
                 <ion-button (click)="setChannelValue(address, valueToggle.checked)" slot="end" color="light">
-                  <ion-icon slot="icon-only" name="send"></ion-icon>
+                  <ion-icon slot="icon-only" name="send-outline"></ion-icon>
                 </ion-button>
               </ng-container>
               <ng-template #no_boolean>
                 <ion-input placeholder="value" #value></ion-input>
                 <ion-button (click)="setChannelValue(address, value.value)" slot="end" color="light">
-                  <ion-icon slot="icon-only" name="send"></ion-icon>
+                  <ion-icon slot="icon-only" name="send-outline"></ion-icon>
                 </ion-button>
               </ng-template>
             </ion-item>
@@ -79,7 +79,7 @@
     <ion-col size="12" size-md="6">
       <ion-card>
         <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="today" color="primary"></ion-icon>
+          <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
           <ion-label>Add Channel</ion-label>
           <!-- TODO translate  -->
         </ion-item>

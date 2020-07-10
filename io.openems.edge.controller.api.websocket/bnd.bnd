@@ -2,24 +2,16 @@ Bundle-Name: OpenEMS Edge Controller Api Websocket
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.controller.api
-Private-Package:  \
-	io.openems.edge.controller.api.websocket
 
--includeresource: {readme.adoc}
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.controller.api.common,\
+	io.openems.edge.timedata.api,\
+	Java-WebSocket;version=1.4.1,\
+	org.ops4j.pax.logging.pax-logging-api
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.controller.api.core;version=latest,\
-	io.openems.edge.timedata.api;version=latest,\
-	io.openems.wrapper.websocket;version=latest,\
-	org.ops4j.pax.logging.pax-logging-api,\
-	com.google.gson,\
-	com.google.guava
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

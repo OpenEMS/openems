@@ -2,37 +2,50 @@ Bundle-Name: OpenEMS Common
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.common,\
-	io.openems.common.api,\
-	io.openems.common.channel,\
-	io.openems.common.config,\
-	io.openems.common.exceptions,\
-	io.openems.common.jsonrpc,\
-	io.openems.common.jsonrpc.base,\
-	io.openems.common.jsonrpc.notification,\
-	io.openems.common.jsonrpc.request,\
-	io.openems.common.jsonrpc.response,\
-	io.openems.common.jsonrpc.shared,\
-	io.openems.common.session,\
-	io.openems.common.timedata,\
-	io.openems.common.types,\
-	io.openems.common.utils,\
-	io.openems.common.websocket,\
-	io.openems.common.worker
-
--includeresource: {readme.md}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.wrapper.websocket;version=latest,\
-	org.apache.felix.configadmin;version=1.8,\
-	com.google.guava,\
-	com.google.gson,\
+	io.openems.wrapper.fastexcel,\
+	Java-WebSocket;version=1.4.1,\
 	org.ops4j.pax.logging.pax-logging-api,\
-	org.dhatim:fastexcel
 
--testpath: ${testpath}
+-testpath: \
+	${testpath}
 
-javac.source: 1.8
-javac.target: 1.8
+-includeresource.resources: \
+	resources
+
+template-category: \
+	bbb/OpenEMS Templates
+template-icon: \
+	data:image/gif;base64,${base64;openems.gif}
+
+Provide-Capability: \
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Controller;\
+		category=${template-category};\
+		ranking:Double=900;\
+		dir=templates/controller;\
+		icon="${template-icon}";\
+		help=controller-help.xml,\
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Device;\
+		category=${template-category};\
+		ranking:Double=800;\
+		dir=templates/device;\
+		icon="${template-icon}";\
+		help=device-help.xml,\
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Modbus Device;\
+		category=${template-category};\
+		ranking:Double=700;\
+		dir=templates/device-modbus;\
+		icon="${template-icon}";\
+		help=device-modbus-help.xml,\
+	org.bndtools.template; org.bndtools.template=project;\
+		name=OpenEMS Api;\
+		category=${template-category};\
+		ranking:Double=600;\
+		dir=templates/api;\
+		icon="${template-icon}";\
+		help=api-help.xml

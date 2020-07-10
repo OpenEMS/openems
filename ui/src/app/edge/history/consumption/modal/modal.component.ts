@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 import { EdgeConfig, Service } from '../../../../shared/shared';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: ConsumptionModalComponent.SELECTOR,
@@ -11,6 +11,7 @@ export class ConsumptionModalComponent {
     private static readonly SELECTOR = "consumption-modal";
 
     public evcsComponents: EdgeConfig.Component[] = null;
+    public consumptionMeterComponents: EdgeConfig.Component[] = null;
     public showPhases: boolean = false;
     public showTotal: boolean = null;
     public isOnlyChart: boolean = null;
@@ -23,6 +24,7 @@ export class ConsumptionModalComponent {
     ngOnInit() {
         this.service.getConfig().then(config => {
             this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumtion'))
+            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
             // determine if singlechart is the only chart that is shown
             // disable total option to choose for chartoptions component
             if (this.evcsComponents.length > 0) {

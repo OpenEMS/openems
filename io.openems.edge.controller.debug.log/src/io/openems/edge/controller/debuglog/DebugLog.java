@@ -73,7 +73,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 				.sorted((c1, c2) -> c1.id().compareTo(c2.id())) // sorted by Component-ID
 				.forEachOrdered(component -> {
 					String debugLog = component.debugLog();
-					String state = component.getState().listStates();
+					String state = component.getStateChannel().listStates();
 
 					if (debugLog != null || !state.isEmpty()) {
 						b.append(component.id() + "[");

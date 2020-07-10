@@ -25,6 +25,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -71,8 +72,7 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (config.enabled()) {
-			DiscovergyApi api = new DiscovergyApi(config.email(), config.password());
-			this.apiClient = new DiscovergyApiClient(api);
+			this.apiClient = new DiscovergyApiClient(config.email(), config.password());
 
 			this.worker = new DiscovergyWorker(this, apiClient, config);
 			this.worker.activate(config.id());
@@ -90,6 +90,26 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/*
+		 * Raw values from Discovergy API
+		 */
+		RAW_POWER(Doc.of(OpenemsType.INTEGER)), //
+		RAW_POWER1(Doc.of(OpenemsType.INTEGER)), //
+		RAW_POWER2(Doc.of(OpenemsType.INTEGER)), //
+		RAW_POWER3(Doc.of(OpenemsType.INTEGER)), //
+		RAW_VOLTAGE1(Doc.of(OpenemsType.INTEGER)), //
+		RAW_VOLTAGE2(Doc.of(OpenemsType.INTEGER)), //
+		RAW_VOLTAGE3(Doc.of(OpenemsType.INTEGER)), //
+		RAW_ENERGY(Doc.of(OpenemsType.LONG)), //
+		RAW_ENERGY1(Doc.of(OpenemsType.LONG)), //
+		RAW_ENERGY2(Doc.of(OpenemsType.LONG)), //
+		RAW_ENERGY_OUT(Doc.of(OpenemsType.LONG)), //
+		RAW_ENERGY_OUT1(Doc.of(OpenemsType.LONG)), //
+		RAW_ENERGY_OUT2(Doc.of(OpenemsType.LONG)), //
+
+		/*
+		 * StateChannels
+		 */
 		REST_API_FAILED(Doc.of(Level.FAULT)), //
 		LAST_READING_TOO_OLD(Doc.of(Level.FAULT));
 
@@ -123,7 +143,7 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override

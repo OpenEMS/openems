@@ -4,20 +4,11 @@ Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	This bundle contains the Predictor API. It provides abstract access to prediction of production and consumption.
-Require-Capability: \
-	compile-only
-	
-Export-Package:  io.openems.edge.predictor.api
 
--includeresource: {readme.adoc}
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	slf4j.api
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
-
+-testpath: \
+	${testpath}
