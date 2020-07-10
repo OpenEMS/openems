@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.OnClose;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.controller.api.backend.BackendApi.ChannelId;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
@@ -30,6 +32,9 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = (ws, code, reason, remote) -> {
+			this.parent.channel(ChannelId.BACKEND_CONNECTED).setNextValue(false);
+			BooleanReadChannel status = this.parent.channel(ChannelId.BACKEND_CONNECTED);
+			log.info("Backend Connected Channel: " + status.getNextValue().get());
 			log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() + //
 			(proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
 		};
