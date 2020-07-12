@@ -9,8 +9,11 @@ OpenEMS - the Open Source Energy Management System - is a modular platform for e
 
 If you plan to use OpenEMS for your own projects, please consider joining the https://openems.io/association[OpenEMS Association e.V. icon:external-link[]], a network of universities, hardware manufacturers, software companies as well as commercial and private owners, and get in touch in the https://community.openems.io[OpenEMS Community forum icon:external-link[]]. 
 
-![alt text](./doc/modules/ROOT/assets/images/what-is-local-energy-management.png "What is local Energy Management?")
-![alt text](./doc/modules/ROOT/assets/images/what-is-central-energy-management.png "What is central Energy Management?")
+=== OpenEMS in »Local Energy Management«
+image::local-energy-management.png[Local Energy Management]
+
+=== OpenEMS in »Areal Energy Management«
+image::areal-energy-management.png[Areal Energy Management]
 
 == OpenEMS IoT stack
 
