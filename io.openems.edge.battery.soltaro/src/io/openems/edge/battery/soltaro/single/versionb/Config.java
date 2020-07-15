@@ -9,7 +9,7 @@ import io.openems.edge.battery.soltaro.ModuleType;
 @ObjectClassDefinition( //
 		name = "BMS Soltaro Single Rack Version B", //
 		description = "Implements the Soltaro battery rack system.")
-@interface Config {
+public @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "bms0";

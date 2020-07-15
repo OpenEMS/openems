@@ -696,7 +696,17 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
 			.text("sampling wire fault")), //
 	PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.FAULT) //
-			.text("precharge time was too long"));
+			.text("precharge time was too long")),
+	
+	// OpenEMS Faults
+	RUN_FAILED(Doc.of(Level.FAULT) //
+			.text("Running the Logic failed")), //
+	MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+			.text("The maximum number of start attempts failed")), //
+	MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+			.text("The maximum number of stop attempts failed")), //
+	
+	;
 
 	private final Doc doc;
 
