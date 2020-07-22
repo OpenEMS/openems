@@ -93,6 +93,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	private Battery battery;
+	private Version version = Version.VERSION_5_34;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setBattery(Battery battery) {
@@ -116,6 +117,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+		this.version = config.sw_version();
 		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id()); //
 		// update filter for 'battery'
@@ -609,22 +611,40 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		}
 	}
 
-//	private final static int SUNSPEC_1 = 40003 - 1; // According to setup process pdf currently not used...
-	private final static int SUNSPEC_103 = 40071 - 1;
-	private final static int SUNSPEC_121 = 40213 - 1;
-	private final static int SUNSPEC_64201 = 40823 - 1;
-	private final static int SUNSPEC_64202 = 40877 - 1;
-	private final static int SUNSPEC_64203 = 40893 - 1;
-	private final static int SUNSPEC_64302 = 40931 - 1;
-	/*
-	 * private final static int SUNSPEC_103 = 40071; // private final static int
-	 * SUNSPEC_121 = 40213; // private final static int SUNSPEC_64201 = 40823; //
-	 * private final static int SUNSPEC_64202 = 40877; // private final static int
-	 * SUNSPEC_64203 = 40893; // private final static int SUNSPEC_64302 = 40931; //
-	 */
+	static enum Version {
+		VERSION_5_34(40070, 40212, 40822, 40876, 40892, 40930), //
+		VERSION_5_56(40070, 40212, 40888, 40942, 40958, 40996);
+//		VERSION_5_56(40070, 40212, 41050, 41104, 41120, 41136);
+		
+		private Version(int sunSpec_103, int sunSpec_121, int sunSpec_64201, int sunSpec_64202, int sunSpec_64203,
+				int sunSpec_64302) {
+			this.sunSpec_103 = sunSpec_103;
+			this.sunSpec_121 = sunSpec_121;
+			this.sunSpec_64201 = sunSpec_64201;
+			this.sunSpec_64202 = sunSpec_64202;
+			this.sunSpec_64203 = sunSpec_64203;
+			this.sunSpec_64302 = sunSpec_64302;
+		}
+
+		int sunSpec_103;
+		int sunSpec_121;
+		int sunSpec_64201;
+		int sunSpec_64202;
+		int sunSpec_64203;
+		int sunSpec_64302;
+
+	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
+		
+		int SUNSPEC_103 = version.sunSpec_103;
+		int SUNSPEC_121 = version.sunSpec_121;
+		int SUNSPEC_64201 = version.sunSpec_64201;
+		int SUNSPEC_64202 = version.sunSpec_64202;
+		int SUNSPEC_64203 = version.sunSpec_64203;
+		int SUNSPEC_64302 = version.sunSpec_64302;
+		
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_103 + 24, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.AC_ENERGY,
@@ -654,7 +674,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(SUNSPEC_64201 + 4,
 						m(EssKacoBlueplanetGridsave50.ChannelId.REQUESTED_STATE,
 								new UnsignedWordElement(SUNSPEC_64201 + 4))), //
-				new FC3ReadRegistersTask(SUNSPEC_64201 + 5, Priority.LOW, //
+				new FC3ReadRegistersTask(SUNSPEC_64201 + 5, Priority.HIGH, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.CURRENT_STATE,
 								new UnsignedWordElement(SUNSPEC_64201 + 5))), //
 				new FC16WriteRegistersTask(SUNSPEC_64201 + 8, //
