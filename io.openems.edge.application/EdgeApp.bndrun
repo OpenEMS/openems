@@ -48,7 +48,13 @@
 	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
-	bnd.identity;version='latest';id='io.openems.edge.controller.api.meteocontrol'
+	bnd.identity;version='latest';id='io.openems.edge.controller.api.meteocontrol',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.fixactivepower',\
+	bnd.identity;id='io.openems.edge.io.iot2000',\
+	bnd.identity;id='io.openems.edge.controller.io.alarm',\
+	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
+	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
+	bnd.identity;id='io.openems.edge.controller.io.heatingelement'
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.1,1.5.2)',\
@@ -117,4 +123,10 @@
 	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.4,2.0.5)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	rrd4j;version='[3.6.0,3.6.1)'
+	rrd4j;version='[3.6.0,3.6.1)',\
+	io.openems.edge.controller.symmetric.fixactivepower;version='[1.0.0,1.0.1)',\
+	io.openems.edge.io.iot2000;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.io.alarm;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.io.channelsinglethreshold;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.io.fixdigitaloutput;version='[1.0.0,1.0.1)',\
+	io.openems.edge.controller.io.heatingelement;version='[1.0.0,1.0.1)'
