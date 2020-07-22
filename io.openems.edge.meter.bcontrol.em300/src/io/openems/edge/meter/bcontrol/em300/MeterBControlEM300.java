@@ -239,34 +239,68 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	private void calculateCorrectChannelValues() {
 
 		// Active Power
-		this._setActivePower(this.invertIfTrue(
-				this.getActivePowerPos().getNextValue().orElse(0) - this.getActivePowerNeg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateActivePower = ignore -> {
+			this._setActivePower(this.invertIfTrue(this.getActivePowerPos().getNextValue().orElse(0)
+					- this.getActivePowerNeg().getNextValue().orElse(0)));
+		};
+		this.getActivePowerPos().onSetNextValue(calculateActivePower);
+		this.getActivePowerNeg().onSetNextValue(calculateActivePower);
 
 		// Active Power L1
-		this._setActivePowerL1(this.invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
-				- this.getActivePowerL1Neg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateActivePowerL1 = ignore -> {
+			this._setActivePowerL1(this.invertIfTrue(this.getActivePowerL1Pos().getNextValue().orElse(0)
+					- this.getActivePowerL1Neg().getNextValue().orElse(0)));
+		};
+		this.getActivePowerL1Pos().onSetNextValue(calculateActivePowerL1);
+		this.getActivePowerL1Neg().onSetNextValue(calculateActivePowerL1);
 
 		// Active Power L2
-		this._setActivePowerL2(this.invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
-				- this.getActivePowerL2Neg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateActivePowerL2 = ignore -> {
+			this._setActivePowerL2(this.invertIfTrue(this.getActivePowerL2Pos().getNextValue().orElse(0)
+					- this.getActivePowerL2Neg().getNextValue().orElse(0)));
+		};
+		this.getActivePowerL2Pos().onSetNextValue(calculateActivePowerL2);
+		this.getActivePowerL2Neg().onSetNextValue(calculateActivePowerL2);
+
 		// Active Power L3
-		this._setActivePowerL3(this.invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
-				- this.getActivePowerL3Neg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateActivePowerL3 = ignore -> {
+			this._setActivePowerL3(this.invertIfTrue(this.getActivePowerL3Pos().getNextValue().orElse(0)
+					- this.getActivePowerL3Neg().getNextValue().orElse(0)));
+		};
+		this.getActivePowerL3Pos().onSetNextValue(calculateActivePowerL3);
+		this.getActivePowerL3Neg().onSetNextValue(calculateActivePowerL3);
 
 		// Reactive Power
-		this._setReactivePower(this.invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
-				- this.getReactivePowerNeg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateReactivePower = ignore -> {
+			this._setReactivePower(this.invertIfTrue(this.getReactivePowerPos().getNextValue().orElse(0)
+					- this.getReactivePowerNeg().getNextValue().orElse(0)));
+		};
+		this.getReactivePowerPos().onSetNextValue(calculateReactivePower);
+		this.getReactivePowerNeg().onSetNextValue(calculateReactivePower);
 
 		// Reactive Power L1
-		this._setReactivePowerL1(this.invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
-				- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateReactivePowerL1 = ignore -> {
+			this._setReactivePowerL1(this.invertIfTrue(this.getReactivePowerL1Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL1Neg().getNextValue().orElse(0)));
+		};
+		this.getReactivePowerL1Pos().onSetNextValue(calculateReactivePowerL1);
+		this.getReactivePowerL1Neg().onSetNextValue(calculateReactivePowerL1);
 
 		// Reactive Power L2
-		this._setReactivePowerL2(this.invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
-				- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateReactivePowerL2 = ignore -> {
+			this._setReactivePowerL2(this.invertIfTrue(this.getReactivePowerL2Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL2Neg().getNextValue().orElse(0)));
+		};
+		this.getReactivePowerL2Pos().onSetNextValue(calculateReactivePowerL2);
+		this.getReactivePowerL2Neg().onSetNextValue(calculateReactivePowerL2);
+
 		// Reactive Power L3
-		this._setReactivePowerL3(this.invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
-				- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
+		final Consumer<Value<Integer>> calculateReactivePowerL3 = ignore -> {
+			this._setReactivePowerL3(this.invertIfTrue(this.getReactivePowerL3Pos().getNextValue().orElse(0)
+					- this.getReactivePowerL3Neg().getNextValue().orElse(0)));
+		};
+		this.getReactivePowerL3Pos().onSetNextValue(calculateReactivePowerL3);
+		this.getReactivePowerL3Neg().onSetNextValue(calculateReactivePowerL3);
 	}
 
 	Channel<Integer> getActivePowerPos() {
