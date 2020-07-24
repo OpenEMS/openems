@@ -7,7 +7,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (context.component.hasFaults()) {
+		if (context.component.hasError()) {
 			return State.UNDEFINED;
 		}
 

@@ -1,11 +1,11 @@
 package io.openems.edge.battery.soltaro.single.versionb;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -26,16 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
-import io.openems.edge.battery.soltaro.ResetState;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
-import io.openems.edge.battery.soltaro.State;
-import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
-import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactorControl;
+import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
+import io.openems.edge.battery.soltaro.single.versionb.statemachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -50,19 +46,17 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -70,52 +64,39 @@ import io.openems.edge.common.taskmanager.Priority;
 		name = "Bms.Soltaro.SingleRack.VersionB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class SingleRack extends AbstractOpenemsModbusComponent
-		implements SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
+		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
 
-	protected static final int SYSTEM_ON = 1;
-	protected static final int SYSTEM_OFF = 0;
 
 	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
 	private static final String KEY_VOLTAGE = "_VOLTAGE";
-	private static final Integer SYSTEM_RESET = 0x1;
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
+	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+
+	/**
+	 * Manages the {@link State}s of the StateMachine.
+	 */
+	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+	
+	private final Logger log = LoggerFactory.getLogger(SingleRackVersionBImpl.class);
 	private String modbusBridgeId;
-	private State state = State.UNDEFINED;
-	// if configuring is needed this is used to go through the necessary steps
-	private ConfiguringProcess nextConfiguringProcess = ConfiguringProcess.NONE;
+	
+	
 	private Config config;
 	private Map<String, Channel<?>> channelMap;
-	// If an error has occurred, this indicates the time when next action could be
-	// done
-	private LocalDateTime errorDelayIsOver = null;
-	private int unsuccessfulStarts = 0;
-	private LocalDateTime startAttemptTime = null;
 
-	private LocalDateTime timeAfterAutoId = null;
-	private LocalDateTime configuringFinished = null;
-	private int delayAutoIdSeconds = 5;
-	private int delayAfterConfiguringFinished = 5;
 
-	private ResetState resetState = ResetState.NONE;
-	private boolean resetDone;
-
-	private LocalDateTime pendingTimestamp;
-
-	public SingleRack() {
+	public SingleRackVersionBImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				SoltaroBattery.ChannelId.values(), //
 				SingleRackChannelId.values() //
 		);
 	}
@@ -131,15 +112,15 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 		// adds dynamically created channels and save them into a map to access them
 		// when modbus tasks are created
-		channelMap = createDynamicChannels();
+		this.channelMap = this.createDynamicChannels();
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 
-		setWatchdog(config.watchdog());
-		setSoCLowAlarm(config.SoCLowAlarm());
-		setCapacity();
+		this.setWatchdog(config.watchdog());
+		this.setSoCLowAlarm(config.SoCLowAlarm());
+		this.setCapacity();
 	}
 
 	private void setCapacity() {
@@ -148,185 +129,27 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleStateMachine() {
-		boolean readyForWorking = false;
-		switch (this.getStateMachineState()) {
-		case ERROR:
-			// handle errors with resetting the system
-			this.stopSystem();
+		// Store the current State
+		this.channel(SingleRackChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
-			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-			setStateMachineState(State.ERRORDELAY);
-			break;
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
 
-		case ERRORDELAY:
-			// If we are in the error delay time, the system is resetted, this can help
-			// handling the rrors
-			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
-				errorDelayIsOver = null;
-				resetDone = false;
-				if (this.isError()) {
-					this.setStateMachineState(State.ERROR);
-				} else {
-					this.setStateMachineState(State.UNDEFINED);
-				}
-			} else if (!resetDone) {
-				this.handleErrorsWithReset();
-			}
-			break;
-		case INIT:
-			if (this.isSystemRunning()) {
-				this.setStateMachineState(State.RUNNING);
-				unsuccessfulStarts = 0;
-				startAttemptTime = null;
-			} else {
-				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
-					startAttemptTime = null;
-					unsuccessfulStarts++;
-					this.stopSystem();
-					this.setStateMachineState(State.STOPPING);
-					if (unsuccessfulStarts >= config.maxStartAppempts()) {
-						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
-						this.setStateMachineState(State.ERRORDELAY);
-						unsuccessfulStarts = 0;
-					}
-				}
-			}
-			break;
-		case OFF:
-			log.debug("in case 'OFF'; try to start the system");
-			this.startSystem();
-			log.debug("set state to 'INIT'");
-			this.setStateMachineState(State.INIT);
-			startAttemptTime = LocalDateTime.now();
-			break;
-		case RUNNING:
-			if (this.isError()) {
-				this.setStateMachineState(State.ERROR);
-			} else if (!this.isSystemRunning()) {
-				this.setStateMachineState(State.UNDEFINED);
-			} else {
-				this.setStateMachineState(State.RUNNING);
-				this.checkAllowedCurrent();
-				readyForWorking = true;
-			}
-			break;
-		case STOPPING:
-			if (this.isError()) {
-				this.setStateMachineState(State.ERROR);
-			} else {
-				if (this.isSystemStopped()) {
-					this.setStateMachineState(State.OFF);
-				}
-			}
-			break;
-		case UNDEFINED:
-			if (this.isError()) {
-				this.setStateMachineState(State.ERROR);
-			} else if (this.isSystemStopped()) {
-				this.setStateMachineState(State.OFF);
-			} else if (this.isSystemRunning()) {
-				this.setStateMachineState(State.RUNNING);
-			} else if (this.isSystemStatePending()) {
-				this.setStateMachineState(State.PENDING);
-			}
-			break;
-		case PENDING:
-			if (this.pendingTimestamp == null) {
-				this.pendingTimestamp = LocalDateTime.now();
-			}
-			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
-				// System state could not be determined, stop and start it
-				this.pendingTimestamp = null;
-				this.stopSystem();
-				this.setStateMachineState(State.OFF);
-			} else {
-				if (this.isError()) {
-					this.setStateMachineState(State.ERROR);
-					this.pendingTimestamp = null;
-				} else if (this.isSystemStopped()) {
-					this.setStateMachineState(State.OFF);
-					this.pendingTimestamp = null;
-				} else if (this.isSystemRunning()) {
-					this.setStateMachineState(State.RUNNING);
-					this.pendingTimestamp = null;
-				}
-			}
-			break;
-		case ERROR_HANDLING:
-			this.handleErrorsWithReset();
-			break;
-		}
+		// Prepare Context
+		Context context = new Context(this, this.config);
 
-		// TODO start stop is not implemented; mark as started if 'readyForWorking'
-		this._setStartStop(readyForWorking ? StartStop.START : StartStop.UNDEFINED);
-	}
-
-	private void checkAllowedCurrent() {
-		if (isPoleTemperatureTooHot()) {
-			this.limitMaxCurrent();
-		}
-
-	}
-
-	private void limitMaxCurrent() {
-		// TODO limit current
-	}
-
-	private boolean isPoleTemperatureTooHot() {
-		@SuppressWarnings("unchecked")
-		Optional<Boolean> poleTempTooHighOpt = (Optional<Boolean>) this
-				.channel(SingleRackChannelId.ALARM_LEVEL_1_POLE_TEMPERATURE_TOO_HIGH).value().asOptional();
-
-		if (!poleTempTooHighOpt.isPresent()) {
-			return false;
-		} else {
-			boolean poleTempTooHot = poleTempTooHighOpt.get();
-			return poleTempTooHot;
-		}
-	}
-
-	private void handleErrorsWithReset() {
-		// To reset , first sleep and then reset the system
-		switch (this.resetState) {
-		case NONE:
-			this.resetState = ResetState.SLEEP;
-			break;
-		case SLEEP:
-			this.sleepSystem();
-			this.resetState = ResetState.RESET;
-			break;
-		case RESET:
-			this.resetSystem();
-			this.resetState = ResetState.FINISHED;
-			break;
-		case FINISHED:
-			this.resetState = ResetState.NONE;
-			this.setStateMachineState(State.ERRORDELAY);
-			resetDone = true;
-			break;
-		}
-	}
-
-	private void resetSystem() {
-
-		IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
+		// Call the StateMachine
 		try {
-			resetChannel.setNextWriteValue(SYSTEM_RESET);
+			this.stateMachine.run(context);
+
+			this.channel(SingleRackChannelId.RUN_FAILED).setNextValue(false);
+
 		} catch (OpenemsNamedException e) {
-			System.out.println("Error while trying to reset the system!");
+			this.channel(SingleRackChannelId.RUN_FAILED).setNextValue(true);
+			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
 
-	private void sleepSystem() {
-
-		IntegerWriteChannel sleepChannel = this.channel(SingleRackChannelId.SLEEP);
-		try {
-			sleepChannel.setNextWriteValue(0x1);
-		} catch (OpenemsNamedException e) {
-			System.out.println("Error while trying to sleep the system!");
-		}
-
-	}
 
 	/*
 	 * creates a map containing channels for voltage and temperature depending on
@@ -338,7 +161,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
-				String key = getSingleCellPrefix(j) + KEY_VOLTAGE;
+				String key = this.getSingleCellPrefix(j) + KEY_VOLTAGE;
 				IntegerDoc doc = new IntegerDoc();
 				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key, doc.unit(Unit.MILLIVOLT));
 				IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
@@ -349,7 +172,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
-				String key = getSingleCellPrefix(j) + KEY_TEMPERATURE;
+				String key = this.getSingleCellPrefix(j) + KEY_TEMPERATURE;
 
 				IntegerDoc doc = new IntegerDoc();
 				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key,
@@ -370,7 +193,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			IntegerWriteChannel c = this.channel(SingleRackChannelId.EMS_COMMUNICATION_TIMEOUT);
 			c.setNextWriteValue(time_seconds);
 		} catch (OpenemsNamedException e) {
-			log.error("Error while setting ems timeout!\n" + e.getMessage());
+			this.log.error("Error while setting ems timeout!\n" + e.getMessage());
 		}
 	}
 
@@ -383,33 +206,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	private void writeValuesInApiChannels() {
-		//Battery operating data
-		writeApiValue(SingleRackChannelId.CLUSTER_1_VOLTAGE, 0.001, Battery.ChannelId.VOLTAGE);
-		writeApiValue(SingleRackChannelId.CLUSTER_1_CURRENT, 0.001, Battery.ChannelId.CURRENT);
-		
-		writeApiValue(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, 1, Battery.ChannelId.MIN_CELL_VOLTAGE);
-		writeApiValue(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, 1, Battery.ChannelId.MAX_CELL_VOLTAGE);
-		writeApiValue(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, 0.1, Battery.ChannelId.MIN_CELL_TEMPERATURE);
-		writeApiValue(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, 0.1, Battery.ChannelId.MAX_CELL_TEMPERATURE);
-		
-		//Battery ranges
-		writeApiValue(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, 0.001, Battery.ChannelId.CHARGE_MAX_VOLTAGE); // MAX_VOLTAGE x2082
-		writeApiValue(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM, 0.001, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE); // DISCHARGE_MIN_VOLTAGE 0x2088
-		writeApiValue(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, 0.001, Battery.ChannelId.CHARGE_MAX_CURRENT); // CHARGE_MAX_CURRENT 0x2160
-		writeApiValue(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, 0.001, Battery.ChannelId.DISCHARGE_MAX_CURRENT); // DISCHARGE_MAX_CURRENT 0x2161
-	}
-	
-	// Helper function that writes a value from source channel to a target channel
-	private void writeApiValue(SingleRackChannelId sourceChannelId, double factor, io.openems.edge.battery.api.Battery.ChannelId targetApiChannelId) {
-		IntegerReadChannel sourceChannel = this.channel(sourceChannelId);
-		Value<Integer> value = sourceChannel.value();
-		if (value.isDefined()) {
-			int number = (int) (value.get() * factor);
-			this.channel(targetApiChannelId).setNextValue(number);
-		}
-	}
-
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -417,333 +213,81 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.writeValuesInApiChannels();
-			break;
-
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.handleBatteryState();
+			this.handleStateMachine();
 			break;
 		}
-	}
-
-	private void handleBatteryState() {
-		switch (config.batteryState()) {
-		case DEFAULT:
-			handleStateMachine();
-			break;
-		case OFF:
-			stopSystem();
-			break;
-		case ON:
-			startSystem();
-			break;
-		case CONFIGURE:
-			configureSlaves();
-			break;
-
-		}
-	}
-
-	private void configureSlaves() {
-		if (nextConfiguringProcess == ConfiguringProcess.NONE) {
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_STARTED;
-		}
-
-		switch (nextConfiguringProcess) {
-		case CONFIGURING_STARTED:
-			System.out.println(" ===> CONFIGURING STARTED: setNumberOfModules() <===");
-			setNumberOfModules();
-			break;
-		case SET_ID_AUTO_CONFIGURING:
-			System.out.println(" ===> SET_ID_AUTO_CONFIGURING: setIdAutoConfiguring() <===");
-			setIdAutoConfiguring();
-			break;
-		case CHECK_ID_AUTO_CONFIGURING:
-			if (timeAfterAutoId != null) {
-				if (timeAfterAutoId.plusSeconds(delayAutoIdSeconds).isAfter(LocalDateTime.now())) {
-					break;
-				} else {
-					timeAfterAutoId = null;
-				}
-			}
-			System.out.println(" ===> CHECK_ID_AUTO_CONFIGURING: checkIdAutoConfiguring() <===");
-			checkIdAutoConfiguring();
-			break;
-		case SET_TEMPERATURE_ID_AUTO_CONFIGURING:
-			System.out.println(" ===> SET_TEMPERATURE_ID_AUTO_CONFIGURING: setTemperatureIdAutoConfiguring() <===");
-			setTemperatureIdAutoConfiguring();
-			break;
-		case CHECK_TEMPERATURE_ID_AUTO_CONFIGURING:
-			if (timeAfterAutoId != null) {
-				if (timeAfterAutoId.plusSeconds(delayAutoIdSeconds).isAfter(LocalDateTime.now())) {
-					break;
-				} else {
-					timeAfterAutoId = null;
-				}
-			}
-			System.out.println(" ===> CHECK_TEMPERATURE_ID_AUTO_CONFIGURING: checkTemperatureIdAutoConfiguring() <===");
-			checkTemperatureIdAutoConfiguring();
-			break;
-		case SET_VOLTAGE_RANGES:
-			System.out.println(" ===> SET_VOLTAGE_RANGES: setVoltageRanges() <===");
-			setVoltageRanges();
-
-			break;
-		case CONFIGURING_FINISHED:
-			System.out.println("====>>> Configuring successful! <<<====");
-
-			if (configuringFinished == null) {
-				nextConfiguringProcess = ConfiguringProcess.RESTART_AFTER_SETTING;
-			} else {
-				if (configuringFinished.plusSeconds(delayAfterConfiguringFinished).isAfter(LocalDateTime.now())) {
-					System.out.println(">>> Delay time after configuring!");
-				} else {
-					System.out.println("Delay time after configuring is over, reset system");
-					IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
-					try {
-						resetChannel.setNextWriteValue(SYSTEM_RESET);
-						configuringFinished = null;
-					} catch (OpenemsNamedException e) {
-						System.out.println("Error while trying to reset the system!");
-					}
-				}
-			}
-			break;
-		case RESTART_AFTER_SETTING:
-			// A manual restart is needed
-			System.out.println("====>>>  Please restart system manually!");
-			break;
-		case NONE:
-			break;
-		}
-	}
-
-	private void setVoltageRanges() {
-
-		try {
-			IntegerWriteChannel level1OverVoltageChannel = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM);
-			level1OverVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_1_TOTAL_OVER_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level1OverVoltageChannelRecover = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER);
-			level1OverVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_1_TOTAL_OVER_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level1LowVoltageChannel = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM);
-			level1LowVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_1_TOTAL_LOW_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level1LowVoltageChannelRecover = this
-					.channel(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER);
-			level1LowVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_1_TOTAL_LOW_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2OverVoltageChannel = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_PROTECTION);
-			level2OverVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_2_TOTAL_OVER_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2OverVoltageChannelRecover = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER);
-			level2OverVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_2_TOTAL_OVER_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2LowVoltageChannel = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_PROTECTION);
-			level2LowVoltageChannel.setNextWriteValue(
-					this.config.numberOfSlaves() * ModuleParameters.LEVEL_2_TOTAL_LOW_VOLTAGE_MILLIVOLT.getValue());
-
-			IntegerWriteChannel level2LowVoltageChannelRecover = this
-					.channel(SingleRackChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER);
-			level2LowVoltageChannelRecover.setNextWriteValue(this.config.numberOfSlaves()
-					* ModuleParameters.LEVEL_2_TOTAL_LOW_VOLTAGE_RECOVER_MILLIVOLT.getValue());
-
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_FINISHED;
-			configuringFinished = LocalDateTime.now();
-
-		} catch (OpenemsNamedException e) {
-			log.error("Setting voltage ranges not successful!");
-		}
-
-	}
-
-	private void checkTemperatureIdAutoConfiguring() {
-		IntegerReadChannel autoSetTemperatureSlavesIdChannel = this
-				.channel(SingleRackChannelId.AUTO_SET_SLAVES_TEMPERATURE_ID);
-		Optional<Integer> autoSetTemperatureSlavesIdOpt = autoSetTemperatureSlavesIdChannel.value().asOptional();
-		if (!autoSetTemperatureSlavesIdOpt.isPresent()) {
-			return;
-		}
-		int autoSetTemperatureSlaves = autoSetTemperatureSlavesIdOpt.get();
-		if (autoSetTemperatureSlaves == Enums.AutoSetFunction.FAILURE.getValue()) {
-			log.error("Auto set temperature slaves id failed! Start configuring process again!");
-			// Auto set failed, try again
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_STARTED;
-		} else if (autoSetTemperatureSlaves == Enums.AutoSetFunction.SUCCES.getValue()) {
-			log.info("Auto set temperature slaves id succeeded!");
-			nextConfiguringProcess = ConfiguringProcess.SET_VOLTAGE_RANGES;
-		}
-	}
-
-	private void setTemperatureIdAutoConfiguring() {
-
-		IntegerWriteChannel autoSetSlavesTemperatureIdChannel = this
-				.channel(SingleRackChannelId.AUTO_SET_SLAVES_TEMPERATURE_ID);
-		try {
-			autoSetSlavesTemperatureIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
-			timeAfterAutoId = LocalDateTime.now();
-			nextConfiguringProcess = ConfiguringProcess.CHECK_TEMPERATURE_ID_AUTO_CONFIGURING;
-		} catch (OpenemsNamedException e) {
-			log.error("Setting temperature id auto set not successful"); // Set was not successful, it will be tried
-																			// until it succeeded
-		}
-	}
-
-	private void checkIdAutoConfiguring() {
-		IntegerReadChannel autoSetSlavesIdChannel = this.channel(SingleRackChannelId.AUTO_SET_SLAVES_ID);
-		Optional<Integer> autoSetSlavesIdOpt = autoSetSlavesIdChannel.value().asOptional();
-		if (!autoSetSlavesIdOpt.isPresent()) {
-			return;
-		}
-		int autoSetSlaves = autoSetSlavesIdOpt.get();
-		if (autoSetSlaves == Enums.AutoSetFunction.FAILURE.getValue()) {
-			log.error("Auto set slaves id failed! Start configuring process again!");
-			// Auto set failed, try again
-			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_STARTED;
-		} else if (autoSetSlaves == Enums.AutoSetFunction.SUCCES.getValue()) {
-			log.info("Auto set slaves id succeeded!");
-			nextConfiguringProcess = ConfiguringProcess.SET_TEMPERATURE_ID_AUTO_CONFIGURING;
-		}
-	}
-
-	private void setIdAutoConfiguring() {
-		// Set number of modules
-		IntegerWriteChannel autoSetSlavesIdChannel = this.channel(SingleRackChannelId.AUTO_SET_SLAVES_ID);
-		try {
-			autoSetSlavesIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
-			timeAfterAutoId = LocalDateTime.now();
-			nextConfiguringProcess = ConfiguringProcess.CHECK_ID_AUTO_CONFIGURING;
-		} catch (OpenemsNamedException e) {
-			// Set was not successful, it will be tried until it succeeded
-			log.error("Setting slave numbers not successful");
-		}
-	}
-
-	private void setNumberOfModules() {
-		// Set number of modules
-		IntegerWriteChannel numberOfSlavesChannel = this
-				.channel(SingleRackChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE);
-		try {
-			numberOfSlavesChannel.setNextWriteValue(this.config.numberOfSlaves());
-			nextConfiguringProcess = ConfiguringProcess.SET_ID_AUTO_CONFIGURING;
-		} catch (OpenemsNamedException e) {
-			// Set was not successful, it will be tried until it succeeded
-			log.error("Setting slave numbers not successful");
-		}
-	}
-
-	private enum ConfiguringProcess {
-		NONE, CONFIGURING_STARTED, SET_ID_AUTO_CONFIGURING, CHECK_ID_AUTO_CONFIGURING,
-		SET_TEMPERATURE_ID_AUTO_CONFIGURING, CHECK_TEMPERATURE_ID_AUTO_CONFIGURING, SET_VOLTAGE_RANGES,
-		CONFIGURING_FINISHED, RESTART_AFTER_SETTING
-	}
-
-	private boolean isSystemRunning() {
-		EnumReadChannel contactorControlChannel = this.channel(SingleRackChannelId.BMS_CONTACTOR_CONTROL);
-		ContactorControl cc = contactorControlChannel.value().asEnum();
-		return cc == ContactorControl.ON_GRID;
-	}
-
-	private boolean isSystemStopped() {
-		EnumReadChannel contactorControlChannel = this.channel(SingleRackChannelId.BMS_CONTACTOR_CONTROL);
-		ContactorControl cc = contactorControlChannel.value().asEnum();
-		return cc == ContactorControl.CUT_OFF;
-	}
-
-	/**
-	 * Checks whether system has an undefined state, e.g. rack 1 & 2 are configured,
-	 * but only rack 1 is running. This state can only be reached at startup coming
-	 * from state undefined
-	 * 
-	 * @return boolean
-	 */
-	private boolean isSystemStatePending() {
-		return !isSystemRunning() && !isSystemStopped();
 	}
 
 	private boolean isAlarmLevel2Error() {
-		return (readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_SOC_LOW)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_INSULATION_LOW)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
-				|| readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
+		return (this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_SOC_LOW)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_INSULATION_LOW)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
+				|| this.readValueFromBooleanChannel(SingleRackChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
 	}
 
 	private boolean isSlaveCommunicationError() {
 		boolean b = false;
 		switch (this.config.numberOfSlaves()) {
 		case 20:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_20_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_20_COMMUNICATION_ERROR);
 		case 19:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_19_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_19_COMMUNICATION_ERROR);
 		case 18:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_18_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_18_COMMUNICATION_ERROR);
 		case 17:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_17_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_17_COMMUNICATION_ERROR);
 		case 16:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_16_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_16_COMMUNICATION_ERROR);
 		case 15:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_15_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_15_COMMUNICATION_ERROR);
 		case 14:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_14_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_14_COMMUNICATION_ERROR);
 		case 13:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_13_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_13_COMMUNICATION_ERROR);
 		case 12:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_12_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_12_COMMUNICATION_ERROR);
 		case 11:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_11_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_11_COMMUNICATION_ERROR);
 		case 10:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_10_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_10_COMMUNICATION_ERROR);
 		case 9:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_9_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_9_COMMUNICATION_ERROR);
 		case 8:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_8_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_8_COMMUNICATION_ERROR);
 		case 7:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_7_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_7_COMMUNICATION_ERROR);
 		case 6:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_6_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_6_COMMUNICATION_ERROR);
 		case 5:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_5_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_5_COMMUNICATION_ERROR);
 		case 4:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_4_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_4_COMMUNICATION_ERROR);
 		case 3:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_3_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_3_COMMUNICATION_ERROR);
 		case 2:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_2_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_2_COMMUNICATION_ERROR);
 		case 1:
-			b = b || readValueFromBooleanChannel(SingleRackChannelId.SLAVE_1_COMMUNICATION_ERROR);
+			b = b || this.readValueFromBooleanChannel(SingleRackChannelId.SLAVE_1_COMMUNICATION_ERROR);
 		}
 
 		return b;
 	}
 
-	private boolean isError() {
-		return isAlarmLevel2Error() || isSlaveCommunicationError();
+	public boolean hasError() {
+		return this.isAlarmLevel2Error() || this.isSlaveCommunicationError();
 	}
 
 	private boolean readValueFromBooleanChannel(SingleRackChannelId singleRackChannelId) {
@@ -753,7 +297,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.modbusBridgeId;
 	}
 
 	@Override
@@ -761,51 +305,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc() //
 				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
 				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.getStateMachineState();
+				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
-	private void startSystem() {
-		EnumWriteChannel contactorControlChannel = this.channel(SingleRackChannelId.BMS_CONTACTOR_CONTROL);
-		ContactorControl cc = contactorControlChannel.value().asEnum();
-		// To avoid hardware damages do not send start command if system has already
-		// started
-		if (cc == ContactorControl.ON_GRID || cc == ContactorControl.CONNECTION_INITIATING) {
-			return;
-		}
-
-		try {
-			log.debug("write value to contactor control channel: value: " + SYSTEM_ON);
-			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
-		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to start system\n" + e.getMessage());
-		}
-	}
-
-	private void stopSystem() {
-		EnumWriteChannel contactorControlChannel = this.channel(SingleRackChannelId.BMS_CONTACTOR_CONTROL);
-		ContactorControl cc = contactorControlChannel.value().asEnum();
-		// To avoid hardware damages do not send stop command if system has already
-		// stopped
-		if (cc == ContactorControl.CUT_OFF) {
-			return;
-		}
-
-		try {
-			log.debug("write value to contactor control channel: value: " + SYSTEM_OFF);
-			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
-		} catch (OpenemsNamedException e) {
-			log.error("Error while trying to stop system\n" + e.getMessage());
-		}
-	}
-
-	public State getStateMachineState() {
-		return state;
-	}
-
-	public void setStateMachineState(State state) {
-		this.state = state;
-		this.channel(SingleRackChannelId.STATE_MACHINE).setNextValue(this.state);
-	}
 
 	private void setSoCLowAlarm(int soCLowAlarm) {
 		try {
@@ -814,7 +316,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			((IntegerWriteChannel) this.channel(SingleRackChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER))
 					.setNextWriteValue(soCLowAlarm);
 		} catch (OpenemsNamedException e) {
-			log.error("Error while setting parameter for soc low protection!" + e.getMessage());
+			this.log.error("Error while setting parameter for soc low protection!" + e.getMessage());
 		}
 	}
 
@@ -918,31 +420,51 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				), //
 
 				// Voltage ranges
-				new FC3ReadRegistersTask(0x2082, Priority.LOW, //
-						m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, new UnsignedWordElement(0x2082),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						new DummyRegisterElement(0x2083, 0x2087),
-						m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
-								new UnsignedWordElement(0x2088), ElementToChannelConverter.SCALE_FACTOR_2) //
+				new FC3ReadRegistersTask(0x2082, Priority.LOW, //						
+						m(new UnsignedWordElement(0x2082)) //
+						.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build(), //						
+						new DummyRegisterElement(0x2083, 0x2087),						
+						m(new UnsignedWordElement(0x2088)) //
+						.m(SingleRackChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build() //						
 				),
 
 				// Summary state
-				new FC3ReadRegistersTask(0x2100, Priority.LOW,
-						m(SingleRackChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SingleRackChannelId.CLUSTER_1_CURRENT, new SignedWordElement(0x2101),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
+				new FC3ReadRegistersTask(0x2100, Priority.LOW,						
+						m(new UnsignedWordElement(0x2100)) //
+						.m(SingleRackChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build(), //
+						m(new SignedWordElement(0x2101)) //
+						.m(SingleRackChannelId.CLUSTER_1_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build(), //
+						m(SingleRackChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),
 						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)),
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
-						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, new UnsignedWordElement(0x2106)), //
+						m(new SignedWordElement(0x2106)) //
+						.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+						.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+						.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
-						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, new UnsignedWordElement(0x2108)), //
+						m(new UnsignedWordElement(0x2108)) //
+						.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+						.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+						.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
-						m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, new UnsignedWordElement(0x210A)), //
+						m(new SignedWordElement(0x210A)) //
+						.m(SingleRackChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+						.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build(), //
 						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
-						m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, new UnsignedWordElement(0x210C)), //
+						m(new SignedWordElement(0x210C)) //
+						.m(SingleRackChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+						.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build(), //
 						m(SingleRackChannelId.MAX_CELL_RESISTANCE_ID, new UnsignedWordElement(0x210D)), //
 						m(SingleRackChannelId.MAX_CELL_RESISTANCE, new UnsignedWordElement(0x210E),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
@@ -1024,10 +546,15 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x2154, 0x215A), //
 						m(SingleRackChannelId.OTHER_ALARM_EQUIPMENT_FAILURE, new UnsignedWordElement(0x215B)), //
 						new DummyRegisterElement(0x215C, 0x215F), //
-						m(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160),
-								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if correct!
-						m(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161),
-								ElementToChannelConverter.SCALE_FACTOR_2) // TODO Check if correct!
+			
+						m(new UnsignedWordElement(0x2160)) //
+						.m(SingleRackChannelId.SYSTEM_MAX_CHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.CHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build(),  //
+						m(new UnsignedWordElement(0x2161)) //
+						.m(SingleRackChannelId.SYSTEM_MAX_DISCHARGE_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) //
+						.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						.build()  //						
 				), //
 
 				// Cluster info
@@ -1119,7 +646,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				) //
 		); //
 
-		if (!config.ReduceTasks()) {
+		if (!this.config.ReduceTasks()) {
 
 			// Add tasks to read/write work and warn parameters
 			// Stop parameter
@@ -1382,9 +909,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 				for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
-					String key = getSingleCellPrefix(j) + KEY_VOLTAGE;
+					String key = this.getSingleCellPrefix(j) + KEY_VOLTAGE;
 					UnsignedWordElement uwe = new UnsignedWordElement(offset + voltOffset + j);
-					AbstractModbusElement<?> ame = m(channelMap.get(key).channelId(), uwe);
+					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), uwe);
 					elements.add(ame);
 				}
 				protocol.addTask(new FC3ReadRegistersTask(offset + voltOffset + i * voltSensors, Priority.LOW,
@@ -1397,9 +924,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 				Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 				for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
-					String key = getSingleCellPrefix(j) + KEY_TEMPERATURE;
+					String key = this.getSingleCellPrefix(j) + KEY_TEMPERATURE;
 					SignedWordElement swe = new SignedWordElement(offset + tempOffset + j);
-					AbstractModbusElement<?> ame = m(channelMap.get(key).channelId(), swe);
+					AbstractModbusElement<?> ame = m(this.channelMap.get(key).channelId(), swe);
 					elements.add(ame);
 				}
 				protocol.addTask(new FC3ReadRegistersTask(offset + tempOffset + i * tempSensors, Priority.LOW,
@@ -1412,16 +939,39 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 
+
 	@Override
-	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// TODO start stop is not implemented
-		throw new NotImplementedException("Start Stop is not implemented for Soltaro SingleRack Version B");
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		switch (this.config.startStop()) {
+		case AUTO:
+			// read StartStop-Channel
+			return this.startStopTarget.get();
+
+		case START:
+			// force START
+			return StartStop.START;
+
+		case STOP:
+			// force STOP
+			return StartStop.STOP;
+		}
+
+		assert false;
+		return StartStop.UNDEFINED; // can never happen
 	}
 
 }

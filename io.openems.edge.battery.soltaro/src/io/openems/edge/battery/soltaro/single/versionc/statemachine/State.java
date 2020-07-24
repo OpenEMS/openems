@@ -16,7 +16,6 @@ public enum State implements io.openems.edge.common.statemachine.State<State, Co
 
 	ERROR(30, new ErrorHandler()), //
 
-	GO_CONFIGURATION(40, new GoConfigurationHandler()), //
 	;
 
 	private final int value;

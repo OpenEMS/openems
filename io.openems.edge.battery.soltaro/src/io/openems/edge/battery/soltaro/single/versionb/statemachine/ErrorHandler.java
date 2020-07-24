@@ -8,50 +8,6 @@ import io.openems.edge.common.statemachine.StateHandler;
 
 public class ErrorHandler extends StateHandler<State, Context> {
 
-	// private void handleErrorsWithReset() {
-	// // To reset , first sleep and then reset the system
-	// switch (this.resetState) {
-	// case NONE:
-	// this.resetState = ResetState.SLEEP;
-	// break;
-	// case SLEEP:
-	// this.sleepSystem();
-	// this.resetState = ResetState.RESET;
-	// break;
-	// case RESET:
-	// this.resetSystem();
-	// this.resetState = ResetState.FINISHED;
-	// break;
-	// case FINISHED:
-	// this.resetState = ResetState.NONE;
-	// this.setStateMachineState(State.ERRORDELAY);
-	// resetDone = true;
-	// break;
-	// }
-	// }
-
-	// private void resetSystem() {
-	// EnumWriteChannel resetChannel =
-	// this.channel(SingleRackVersionC.ChannelId.SYSTEM_RESET);
-	// try {
-	// resetChannel.setNextWriteValue(SystemReset.ACTIVATE);
-	// } catch (OpenemsNamedException e) {
-	// // TODO should throw an exception
-	// System.out.println("Error while trying to reset the system!");
-	// }
-	// }
-
-	// private void sleepSystem() {
-	// EnumWriteChannel sleepChannel =
-	// this.channel(SingleRackVersionC.ChannelId.SLEEP);
-	// try {
-	// sleepChannel.setNextWriteValue(Sleep.ACTIVATE);
-	// } catch (OpenemsNamedException e) {
-	// // TODO should throw an exception
-	// System.out.println("Error while trying to send the system to sleep!");
-	// }
-	// }
-
 	private Instant entryAt = Instant.MIN;
 
 	@Override
@@ -69,10 +25,12 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	}
 
 	@Override
-	public State runAndGetNextState(Context context) {
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getStateChannel().listStates());
 
-		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > 120) {
+		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > context.config.errorLevel2Delay()) {
+			context.component.resetSystem();
+			context.component.sleepSystem();
 			// Try again
 			return State.UNDEFINED;
 		}

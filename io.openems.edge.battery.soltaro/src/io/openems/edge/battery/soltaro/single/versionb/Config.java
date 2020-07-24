@@ -3,10 +3,10 @@ package io.openems.edge.battery.soltaro.single.versionb;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.common.startstop.StartStopConfig;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "BMS Soltaro Single Rack Version B", //
 		description = "Implements the Soltaro battery rack system.")
 public @interface Config {
@@ -24,16 +24,16 @@ public @interface Config {
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
-	int modbusUnitId() default 0;
+	int modbusUnitId() default 11;
 
-	@AttributeDefinition(name = "Battery state", description = "Switches the battery into the given state, if default is used, battery state is set automatically")
-	BatteryState batteryState() default BatteryState.DEFAULT;
+	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
+	StartStopConfig startStop() default StartStopConfig.AUTO;
 
 	@AttributeDefinition(name = "Number of slaves", description = "The number of slaves in this battery rack (max. 20)", min = "1", max = "20")
 	int numberOfSlaves() default 20;
 	
 	@AttributeDefinition(name = "Module type", description = "The type of modules in the rack")
-	ModuleType moduleType() default ModuleType.MODULE_3_KWH;
+	ModuleType moduleType() default ModuleType.MODULE_3_5_KWH;
 
 	@AttributeDefinition(name = "Error Level 2 Delay", description = "Sets the delay time in seconds how long the system should be stopped after an error level 2 has occurred")
 	int errorLevel2Delay() default 600;

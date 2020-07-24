@@ -2,7 +2,6 @@ package io.openems.edge.battery.soltaro.single.versionb;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ContactorControl;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -12,60 +11,35 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface SingleRackVersionB extends SoltaroBattery, Battery, OpenemsComponent, StartStoppable {
+public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStoppable {
 	
 	static final Integer SYSTEM_RESET = 0x1;
 	static final Integer SLEEP = 0x1;
 	public static int RETRY_COMMAND_SECONDS = 30;
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
-	default void startSystem() {
+	default void startSystem() throws OpenemsNamedException {
 		// To avoid hardware damages do not send start command if system has already
 		// started
-		if (this.getContactorControl() == ContactorControl.ON_GRID || this.getContactorControl() == ContactorControl.CONNECTION_INITIATING) {
-			return;
-		}
-
-		try {
-//			log.debug("write value to contactor control channel: value: " + ContactorControl.CONNECTION_INITIATING);
+		if (this.getContactorControl() != ContactorControl.ON_GRID && this.getContactorControl() != ContactorControl.CONNECTION_INITIATING) {
 			this.setContactorControl(ContactorControl.CONNECTION_INITIATING);
-		} catch (OpenemsNamedException e) {
-//			log.error("Error while trying to start system\n" + e.getMessage());
-			System.out.println(("Error while trying to start system\n" + e.getMessage()));
 		}
 	}
 
-	default void stopSystem() {
+	default void stopSystem() throws OpenemsNamedException {
 		// To avoid hardware damages do not send stop command if system has already
 		// stopped
-		if (this.getContactorControl() == ContactorControl.CUT_OFF) {
-			return;
-		}
-
-		try {
-//			log.debug("write value to contactor control channel: value: " + ContactorControl.CUT_OFF);
+		if (this.getContactorControl() != ContactorControl.CUT_OFF) {
 			this.setContactorControl(ContactorControl.CUT_OFF);
-		} catch (OpenemsNamedException e) {
-//			log.error("Error while trying to stop system\n" + e.getMessage());
-			System.out.println(("Error while trying to stop system\n" + e.getMessage()));
 		}
 	}
 	
-	default void resetSystem() {
-		try {
-			this.setSystemReset(SYSTEM_RESET);
-		} catch (OpenemsNamedException e) {
-			System.out.println("Error while trying to reset the system!");
-		}
+	default void resetSystem() throws OpenemsNamedException {
+		this.setSystemReset(SYSTEM_RESET);
 	}
 
-	default void sleepSystem() {
-		try {
-			this.setSleep(SLEEP);
-		} catch (OpenemsNamedException e) {
-			System.out.println("Error while trying to sleep the system!");
-		}
-
+	default void sleepSystem() throws OpenemsNamedException {
+		this.setSleep(SLEEP);
 	}
 	
 	default boolean isSystemRunning() {		
@@ -76,6 +50,7 @@ public interface SingleRackVersionB extends SoltaroBattery, Battery, OpenemsComp
 		return  this.getContactorControl() == ContactorControl.CUT_OFF;
 	}
 
+	public boolean hasError();
 	
 	public default WriteChannel<ContactorControl> getContactorControlChannel() {
 		return this.channel(io.openems.edge.battery.soltaro.single.versionb.SingleRackChannelId.BMS_CONTACTOR_CONTROL);
