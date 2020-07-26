@@ -156,6 +156,7 @@ public interface Channel<T> {
 	 * 
 	 * @return a map of recording time and historic value at that time
 	 */
+	// TODO this should be a ZonedDateTime
 	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues();
 
 	/**
