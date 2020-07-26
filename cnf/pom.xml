@@ -115,9 +115,11 @@
 			<version>3.6.1</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Configuration Admin Service -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.16</version>
+			<version>1.9.18</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
