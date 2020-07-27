@@ -16,7 +16,7 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_1(Doc.of(OpenemsType.BOOLEAN) //
+	DQ0(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_WRITE)), //
 
@@ -29,7 +29,7 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	OUT_2(Doc.of(OpenemsType.BOOLEAN) //
+	DQ1(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_WRITE)), //
 
@@ -42,7 +42,7 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	IN_1(Doc.of(OpenemsType.BOOLEAN) //
+	DI0(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_ONLY)), //
 	
@@ -55,7 +55,7 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	IN_2(Doc.of(OpenemsType.BOOLEAN) //
+	DI1(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_ONLY)), //
 	
@@ -68,7 +68,7 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	IN_3(Doc.of(OpenemsType.BOOLEAN) //
+	DI2(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_ONLY)), //
 	
@@ -81,7 +81,7 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	IN_4(Doc.of(OpenemsType.BOOLEAN) //
+	DI3(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_ONLY)), //
 	
@@ -94,9 +94,22 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	 * <li>Range: On/Off
 	 * </ul>
 	 */
-	IN_5(Doc.of(OpenemsType.BOOLEAN) //
+	DI4(Doc.of(OpenemsType.BOOLEAN) //
 			.unit(Unit.NONE) //
 			.accessMode(AccessMode.READ_ONLY)), //
+	
+	/**
+	 * User LED 
+	 * 
+	 * <ul>
+	 * <li>Interface: IOT2000
+	 * <li>Type: Boolean
+	 * <li>Range: On/Off
+	 * </ul>
+	 */
+	LED(Doc.of(OpenemsType.BOOLEAN) //
+			.unit(Unit.NONE) //
+			.accessMode(AccessMode.READ_WRITE)), //
 	
 	; //
 
