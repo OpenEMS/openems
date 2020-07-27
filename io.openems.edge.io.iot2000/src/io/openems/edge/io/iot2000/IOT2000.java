@@ -49,7 +49,7 @@ public class IOT2000 extends AbstractOpenemsComponent
 	private final BooleanReadChannel[] digitalInputChannels;
 	private final Logger log = LoggerFactory.getLogger(IOT2000.class);
 	private final int[] gpioInputMap = { 15, 5, 10, 4, 6 };
-	private final int[] gpioOutputMap = { 40, 38 };
+	private final int[] gpioOutputMap = { 40, 38, 7 };
 
 	public IOT2000() {
 		super(//
@@ -59,17 +59,18 @@ public class IOT2000 extends AbstractOpenemsComponent
 				ThisChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(ThisChannelId.OUT_1), //
-				this.channel(ThisChannelId.OUT_2) //
+				this.channel(ThisChannelId.DQ0), //
+				this.channel(ThisChannelId.DQ1), //
+				this.channel(ThisChannelId.LED) //
 
 		};
 
 		this.digitalInputChannels = new BooleanReadChannel[] { //
-				this.channel(ThisChannelId.IN_1), //
-				this.channel(ThisChannelId.IN_2), //
-				this.channel(ThisChannelId.IN_3), //
-				this.channel(ThisChannelId.IN_4), //
-				this.channel(ThisChannelId.IN_5) //
+				this.channel(ThisChannelId.DI0), //
+				this.channel(ThisChannelId.DI1), //
+				this.channel(ThisChannelId.DI2), //
+				this.channel(ThisChannelId.DI3), //
+				this.channel(ThisChannelId.DI4) //
 		};
 
 	}
@@ -111,11 +112,11 @@ public class IOT2000 extends AbstractOpenemsComponent
 
 			if (!writeValue.isPresent()) {
 				// no write value
-				return;
+				continue;
 			}
 			if (Objects.equals(readValue, writeValue.get())) {
 				// read value = write value
-				return;
+				continue;
 			}
 			try {
 				this.setOutputValue(this.gpioOutputMap[i], writeValue.get());
@@ -159,10 +160,10 @@ public class IOT2000 extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		StringBuilder b = new StringBuilder();
-		int i = 0;
-		b.append("IN:");
+		b.append("IN: ");
 		for (BooleanReadChannel channel : this.digitalInputChannels) {
 			Optional<Boolean> valueOpt = channel.value().asOptional();
+			b.append(channel.channelId().id() + " ");
 			if (valueOpt.isPresent()) {
 				if (valueOpt.get()) {
 					b.append("1");
@@ -172,14 +173,14 @@ public class IOT2000 extends AbstractOpenemsComponent
 			} else {
 				b.append("-");
 			}
-			if ((i++) % 4 == 3) {
-				b.append(" ");
-			}
+			b.append(";");
+
 		}
-		i = 0;
-		b.append("  OUT:");
+
+		b.append("  OUT: ");
 		for (BooleanWriteChannel channel : this.digitalOutputChannels) {
 			Optional<Boolean> valueOpt = channel.value().asOptional();
+			b.append(channel.channelId().id() + " ");
 			if (valueOpt.isPresent()) {
 				if (valueOpt.get()) {
 					b.append("1");
@@ -189,9 +190,8 @@ public class IOT2000 extends AbstractOpenemsComponent
 			} else {
 				b.append("-");
 			}
-			if ((i++) % 4 == 3) {
-				b.append(" ");
-			}
+			b.append(";");
+
 		}
 		return b.toString();
 	}
@@ -229,6 +229,8 @@ public class IOT2000 extends AbstractOpenemsComponent
 		}
 		fos.write((byte) write);
 		fos.close();
+
+		//Runtime.getRuntime().exec("echo -n " + write + " /sys/class/gpio/gpio" + gpio + "/value");
 		this.logError(log, "wrote " + write + " to " + file.getAbsolutePath());
 	}
 
