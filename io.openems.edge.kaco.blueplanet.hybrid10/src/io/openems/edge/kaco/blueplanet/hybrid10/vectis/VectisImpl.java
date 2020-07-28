@@ -53,8 +53,10 @@ public class VectisImpl extends AbstractOpenemsComponent
 
 	private Config config;
 
-	private CalculateEnergyFromPower calculateProductionEnergy;
-	private CalculateEnergyFromPower calculateConsumptionEnergy;
+	private CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
@@ -65,11 +67,6 @@ public class VectisImpl extends AbstractOpenemsComponent
 			return;
 		}
 		this.config = config;
-
-		this.calculateProductionEnergy = new CalculateEnergyFromPower(this,
-				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-		this.calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-				SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
 	@Deactivate

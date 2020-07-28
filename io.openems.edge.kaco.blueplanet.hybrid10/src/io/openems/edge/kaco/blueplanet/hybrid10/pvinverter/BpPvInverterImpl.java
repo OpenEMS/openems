@@ -66,7 +66,8 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private CalculateEnergyFromPower calculateEnergy;
+	private CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	public BpPvInverterImpl() {
 		super(//
@@ -87,8 +88,6 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
-
-		this.calculateEnergy = new CalculateEnergyFromPower(this, SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	}
 
 	@Deactivate

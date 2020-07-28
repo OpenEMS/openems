@@ -3,6 +3,8 @@ package io.openems.edge.timedata.api.utils;
 import java.time.Duration;
 import java.time.Instant;
 
+import org.osgi.service.event.EventHandler;
+
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
@@ -16,7 +18,41 @@ import io.openems.edge.timedata.api.TimedataProvider;
  * <p>
  * 
  * This is commonly used to calculate SymmetricEss or SymmetricMeter
- * ActiveChargePower and ActiveDischargePower from ActivePower channels.
+ * ActiveChargePower and ActiveDischargePower from ActivePower channels. To use
+ * it, you have to:
+ * 
+ * <ol>
+ * <li>Make your OpenemsComponent implement {@link TimedataProvider}:
+ * 
+ * <pre>
+ * public class ComponentImpl extends AbstractOpenemsComponent implements
+ * OpenemsComponent, TimedataProvider, EventHandler {
+ * </pre>
+ * 
+ * <li>Add a @Reference to {@link Timedata}. It's a good idea to make this
+ * reference 'dynamic', otherwise your component will not start if there is no
+ * Timedata service configured.
+ * 
+ * <pre>
+ * &#64;Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+ * private volatile Timedata timedata = null;
+ * </pre>
+ * 
+ * <li>Add a private instance of {@link CalculateEnergyFromPower} for each
+ * energy channel:
+ * 
+ * <pre>
+ * private CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
+ * 		SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+ * </pre>
+ * 
+ * <li>Call the {@link #update(Integer)} method on each cycle - e.g. via an
+ * {@link EventHandler}.
+ * 
+ * <pre>
+ * this.calculateEnergy.update(power);
+ * </pre>
+ * </ol>
  */
 public class CalculateEnergyFromPower {
 
@@ -103,8 +139,9 @@ public class CalculateEnergyFromPower {
 	 */
 	private void initializeCumulatedEnergyFromTimedata() {
 		Timedata timedata = this.component.getTimedata();
-		if (timedata == null) {
-			// Wait for Timedata service to appear
+		String componentId = this.component.id();
+		if (timedata == null || componentId == null) {
+			// Wait for Timedata service to appear or Component to be activated
 			this.state = State.TIMEDATA_QUERY_NOT_STARTED;
 
 		} else {

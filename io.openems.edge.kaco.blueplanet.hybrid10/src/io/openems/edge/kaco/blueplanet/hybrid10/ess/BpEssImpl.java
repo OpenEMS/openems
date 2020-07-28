@@ -74,8 +74,10 @@ public class BpEssImpl extends AbstractOpenemsComponent
 	@Reference
 	private Power power;
 
-	private CalculateEnergyFromPower calculateChargeEnergy;
-	private CalculateEnergyFromPower calculateDischargeEnergy;
+	private CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	private Config config;
 
@@ -100,10 +102,6 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 		this.config = config;
 		this._setCapacity(config.capacity());
-
-		this.calculateChargeEnergy = new CalculateEnergyFromPower(this, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-		this.calculateDischargeEnergy = new CalculateEnergyFromPower(this,
-				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
 
 	@Deactivate

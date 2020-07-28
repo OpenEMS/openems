@@ -44,7 +44,8 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private CalculateEnergyFromPower calculateActualEnergy;
+	private CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
+			EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
 	public BpChargerImpl() {
 		super(//
@@ -61,8 +62,6 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
-
-		this.calculateActualEnergy = new CalculateEnergyFromPower(this, EssDcCharger.ChannelId.ACTUAL_ENERGY);
 	}
 
 	@Deactivate
