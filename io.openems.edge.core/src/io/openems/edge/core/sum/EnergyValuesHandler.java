@@ -28,6 +28,7 @@ public class EnergyValuesHandler {
 	private final static Sum.ChannelId[] ENERGY_CHANNEL_IDS = { //
 			Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY, //
 			Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, //
+			Sum.ChannelId.ESS_DC_CHARGE_ENERGY, Sum.ChannelId.ESS_DC_DISCHARGE_ENERGY, //
 			Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, Sum.ChannelId.GRID_SELL_ACTIVE_ENERGY, //
 			Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY, //
 			Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY, Sum.ChannelId.PRODUCTION_DC_ACTIVE_ENERGY };

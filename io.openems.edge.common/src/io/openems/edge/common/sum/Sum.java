@@ -401,7 +401,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -412,12 +412,34 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
 		ESS_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Ess: DC Discharge Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: HybridEss)
+		 * <li>Type: Long
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ESS_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		/**
+		 * Ess: DC Charge Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: HybridEss)
+		 * <li>Type: Long
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ESS_DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
 		/**
 		 * Grid: Buy-from-grid Energy ("Production").
 		 * 
@@ -434,7 +456,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricMeter)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -444,7 +466,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Energy.
 		 * 
 		 * <ul>
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -455,7 +477,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricMeter)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -466,7 +488,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: EssDcCharger)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -478,7 +500,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricMeter)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */

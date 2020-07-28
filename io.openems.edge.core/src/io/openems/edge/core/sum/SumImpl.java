@@ -26,6 +26,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateGridMode;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
@@ -98,6 +99,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final CalculateGridMode essGridMode = new CalculateGridMode();
 		final CalculateLongSum essActiveChargeEnergy = new CalculateLongSum();
 		final CalculateLongSum essActiveDischargeEnergy = new CalculateLongSum();
+		final CalculateLongSum essDcChargeEnergy = new CalculateLongSum();
+		final CalculateLongSum essDcDischargeEnergy = new CalculateLongSum();
 		final CalculateIntegerSum essCapacity = new CalculateIntegerSum();
 
 		// Grid
@@ -152,6 +155,12 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					essActivePowerL1.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 					essActivePowerL2.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 					essActivePowerL3.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
+				}
+
+				if (ess instanceof HybridEss) {
+					HybridEss e = (HybridEss) ess;
+					essDcChargeEnergy.addValue(e.getDcChargeEnergyChannel());
+					essDcDischargeEnergy.addValue(e.getDcDischargeEnergyChannel());
 				}
 
 			} else if (component instanceof SymmetricMeter) {
@@ -259,6 +268,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, essActiveChargeEnergySum);
 		Long essActiveDischargeEnergySum = essActiveDischargeEnergy.calculate();
 		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, essActiveDischargeEnergySum);
+
+		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_DC_CHARGE_ENERGY, essDcChargeEnergy.calculate());
+		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_DC_DISCHARGE_ENERGY, essDcDischargeEnergy.calculate());
 
 		Integer essCapacitySum = essCapacity.calculate();
 		this._setEssCapacity(essCapacitySum);
