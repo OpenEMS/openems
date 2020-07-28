@@ -168,7 +168,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
+	public synchronized CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		// Prepare result
 		final CompletableFuture<Optional<Object>> result = new CompletableFuture<>();
 

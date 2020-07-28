@@ -34,6 +34,9 @@ import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -44,8 +47,8 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		})
-public class BpPvInverterImpl extends AbstractOpenemsComponent
-		implements BpPvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvInverter, ManagedSymmetricPvInverter,
+		SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(BpPvInverterImpl.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
@@ -59,6 +62,11 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private Power power;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	private CalculateEnergyFromPower calculateEnergy;
 
 	public BpPvInverterImpl() {
 		super(//
@@ -79,6 +87,8 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
+
+		this.calculateEnergy = new CalculateEnergyFromPower(this, SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	}
 
 	@Deactivate
@@ -145,6 +155,9 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent
 		this._setActivePower(activePower);
 		this._setReactivePower(reactivePower);
 		this._setActivePowerLimit(activePowerLimit);
+
+		// Calculate Energy
+		this.calculateEnergy.update(activePower);
 	}
 
 	@Override
@@ -160,6 +173,11 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 }

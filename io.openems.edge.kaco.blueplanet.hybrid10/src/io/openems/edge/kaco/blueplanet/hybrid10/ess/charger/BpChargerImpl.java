@@ -22,6 +22,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -30,13 +33,18 @@ import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class BpChargerImpl extends AbstractOpenemsComponent
-		implements BpCharger, EssDcCharger, OpenemsComponent, EventHandler {
+		implements BpCharger, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BpCore core;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	private CalculateEnergyFromPower calculateActualEnergy;
 
 	public BpChargerImpl() {
 		super(//
@@ -53,6 +61,8 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
+
+		this.calculateActualEnergy = new CalculateEnergyFromPower(this, EssDcCharger.ChannelId.ACTUAL_ENERGY);
 	}
 
 	@Deactivate
@@ -82,5 +92,13 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 			actualPower = Math.round(inverter.getPvPower());
 		}
 		this._setActualPower(actualPower);
+
+		// Calculate Energy
+		this.calculateActualEnergy.update(actualPower);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }
