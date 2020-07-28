@@ -34,6 +34,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -55,8 +56,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class BpEssImpl extends AbstractOpenemsComponent
-		implements BpEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
+public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, HybridEss, ManagedSymmetricEss, SymmetricEss,
+		OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final int WATCHDOG_SECONDS = 8;
 
@@ -74,10 +75,14 @@ public class BpEssImpl extends AbstractOpenemsComponent
 	@Reference
 	private Power power;
 
-	private CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+	private CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+	private CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	private CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_CHARGE_ENERGY);
+	private CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
 	private Config config;
 
@@ -86,6 +91,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
+				HybridEss.ChannelId.values(), //
 				ErrorChannelId.values(), //
 				BpEss.ChannelId.values() //
 		);
@@ -121,6 +127,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 	private void updateChannels() {
 		Integer soc = null;
 		Integer activePower = null;
+		Integer dcDischargePower = null;
 		Integer reactivePower = null;
 		GridMode gridMode = GridMode.UNDEFINED;
 		Float bmsVoltage = null;
@@ -138,7 +145,9 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 			if (battery != null) {
 				soc = Math.round(battery.getSOE());
-				activePower = GlobalUtils.roundToPowerPrecision(battery.getPower() - inverter.getPvPower()) * -1; // invert
+				float batteryPower = battery.getPower();
+				activePower = GlobalUtils.roundToPowerPrecision(batteryPower - inverter.getPvPower()) * -1; // invert
+				dcDischargePower = GlobalUtils.roundToPowerPrecision(batteryPower) * -1; // invert
 				bmsVoltage = battery.getBmsVoltage();
 			}
 
@@ -174,6 +183,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 		this._setSoc(soc);
 		this._setActivePower(activePower);
+		this._setDcDischargePower(dcDischargePower);
 		this._setReactivePower(reactivePower);
 		this._setGridMode(gridMode);
 
@@ -196,19 +206,34 @@ public class BpEssImpl extends AbstractOpenemsComponent
 		// Surplus Feed-In Channel
 		this.channel(BpEss.ChannelId.SURPLUS_FEED_IN).setNextValue(this.calculateSurplusFeedIn());
 
-		// Calculate Energy
+		// Calculate AC Energy
 		if (activePower == null) {
 			// Not available
-			this.calculateChargeEnergy.update(null);
-			this.calculateDischargeEnergy.update(null);
+			this.calculateAcChargeEnergy.update(null);
+			this.calculateAcDischargeEnergy.update(null);
 		} else if (activePower > 0) {
 			// Discharge
-			this.calculateChargeEnergy.update(0);
-			this.calculateDischargeEnergy.update(activePower);
+			this.calculateAcChargeEnergy.update(0);
+			this.calculateAcDischargeEnergy.update(activePower);
 		} else {
 			// Charge
-			this.calculateChargeEnergy.update(activePower * -1);
-			this.calculateDischargeEnergy.update(0);
+			this.calculateAcChargeEnergy.update(activePower * -1);
+			this.calculateAcDischargeEnergy.update(0);
+		}
+
+		// Calculate DC Energy
+		if (dcDischargePower == null) {
+			// Not available
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null);
+		} else if (dcDischargePower > 0) {
+			// Discharge
+			this.calculateDcChargeEnergy.update(0);
+			this.calculateDcDischargeEnergy.update(dcDischargePower);
+		} else {
+			// Charge
+			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
+			this.calculateDcDischargeEnergy.update(0);
 		}
 	}
 
