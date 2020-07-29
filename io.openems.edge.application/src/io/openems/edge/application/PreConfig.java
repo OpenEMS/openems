@@ -310,17 +310,16 @@ public class PreConfig {
 				factory.update(grid);
 				
 				
-				// Create PVMeter
-				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
-
-				Hashtable<String, Object> pv = new Hashtable<>();
-				pv.put("enabled", true);
-				pv.put("core.id", "kacoCore0");
-				pv.put("id", "pv0");
-				pv.put("alias", "PV");
-				factory.update(pv);
-				
 				/*
+				 * // Create PVMeter factory =
+				 * cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
+				 * 
+				 * Hashtable<String, Object> pv = new Hashtable<>(); pv.put("enabled", true);
+				 * pv.put("core.id", "kacoCore0"); pv.put("id", "pv0"); pv.put("alias", "PV");
+				 * factory.update(pv);
+				 */
+				
+				
 				// Create Charger
 				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Charger", null);
 
@@ -330,7 +329,7 @@ public class PreConfig {
 				charger.put("id", "charger0");
 				charger.put("alias", "PV");
 				factory.update(charger);
-				 */
+				 
 			} else {
 				System.out.println("Kaco already active");
 			}
