@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -19,27 +20,29 @@ import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
 
-public class UpdateEdgeStatesSum implements DatabaseTask {
+public class UpdateEdgeStatesSum extends DatabaseTask {
 
 	private final Logger log = LoggerFactory.getLogger(UpdateEdgeStatesSum.class);
 
-	private final int odooId;
+	private final Set<Integer> odooIds;
 
-	public UpdateEdgeStatesSum(int odooId) {
-		this.odooId = odooId;
+	public UpdateEdgeStatesSum(Set<Integer> odooIds) {
+		this.odooIds = odooIds;
 	}
 
 	@Override
-	public void execute(Connection connection) throws SQLException {
-		/*
-		 * Query non-acknowledged states
-		 */
-		Level highestLevel = Level.OK;
-		String stateChannels;
-		{
-			PreparedStatement ps = this.psQueryNotAcknowledgedDeviceStates(connection);
-			ps.setInt(1, this.odooId);
-			ResultSet rs = ps.executeQuery();
+	protected void _execute(Connection connection) throws SQLException {
+		PreparedStatement psQueryNotAcknowledgedDeviceStates = this.psQueryNotAcknowledgedDeviceStates(connection);
+		PreparedStatement psUpdateEdgeState = this.psUpdateEdgeState(connection);
+
+		for (int odooId : this.odooIds) {
+			/*
+			 * Query non-acknowledged states
+			 */
+			Level highestLevel = Level.OK;
+			String stateChannels;
+			psQueryNotAcknowledgedDeviceStates.setInt(1, odooId);
+			ResultSet rs = psQueryNotAcknowledgedDeviceStates.executeQuery();
 			TreeMap<Level, TreeMultimap<String, String>> levels = new TreeMap<>(
 					(l1, l2) -> Integer.compare(l1.getValue(), l2.getValue() * -1));
 			while (rs.next()) {
@@ -79,16 +82,13 @@ public class UpdateEdgeStatesSum implements DatabaseTask {
 							return componentIdsEntry.getKey() + ": " + String.join(", ", componentIdsEntry.getValue());
 						}).collect(Collectors.joining(";"));
 			}).collect(Collectors.joining(" "));
-		}
-		/*
-		 * Update Edge openems_sum_state_level and openems_sum_state_text
-		 */
-		{
-			PreparedStatement ps = this.psUpdateEdgeState(connection);
-			ps.setString(1, highestLevel.name().toLowerCase());
-			ps.setString(2, stateChannels);
-			ps.setInt(3, this.odooId);
-			ps.execute();
+			/*
+			 * Update Edge openems_sum_state_level and openems_sum_state_text
+			 */
+			psUpdateEdgeState.setString(1, highestLevel.name().toLowerCase());
+			psUpdateEdgeState.setString(2, stateChannels);
+			psUpdateEdgeState.setInt(3, odooId);
+			psUpdateEdgeState.execute();
 		}
 	}
 
@@ -111,7 +111,7 @@ public class UpdateEdgeStatesSum implements DatabaseTask {
 
 	/**
 	 * UPDATE {} SET openems_sum_state_level = {}, openems_sum_state_text = {} WHERE
-	 * id = {};
+	 * id = {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
@@ -127,7 +127,7 @@ public class UpdateEdgeStatesSum implements DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "UpdateEdgeStatesSum [odooId=" + odooId + "]";
+		return "UpdateEdgeStatesSum []";
 	}
 
 }

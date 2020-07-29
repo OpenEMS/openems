@@ -86,7 +86,7 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.modbusBridgeId;
 	}
 
 	@Override
