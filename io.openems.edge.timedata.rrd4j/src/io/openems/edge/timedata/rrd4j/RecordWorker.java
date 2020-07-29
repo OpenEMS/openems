@@ -1,7 +1,8 @@
 package io.openems.edge.timedata.rrd4j;
 
+import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.OptionalDouble;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -27,7 +28,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	protected static final int DEFAULT_NO_OF_CYCLES = 60;
 
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
-	private final Rrd4jTimedata parent;
+	private final Rrd4jTimedataImpl parent;
 	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
 
 	// Counts the number of Cycles till data is recorded
@@ -51,9 +52,10 @@ public class RecordWorker extends AbstractImmediateWorker {
 	private LinkedBlockingQueue<Record> records = new LinkedBlockingQueue<>();
 
 	// keeps the last recorded timestamp
-	private LocalDateTime lastRecordedTimestamp = LocalDateTime.MIN;
+	private Instant lastTimestamp = Instant.MIN;
+	private LocalDateTime readChannelValuesSince = LocalDateTime.MIN;
 
-	public RecordWorker(Rrd4jTimedata parent) {
+	public RecordWorker(Rrd4jTimedataImpl parent) {
 		this.parent = parent;
 	}
 
@@ -63,7 +65,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 	 * RRD4J.
 	 */
 	public void collectData() {
-		LocalDateTime recordTimestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+		Instant timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final LocalDateTime nextReadChannelValuesSince = LocalDateTime.now();
 
 		// Increase CycleCount
 		if (++this.cycleCount < this.noOfCycles) {
@@ -75,11 +78,10 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 		// Same second as last run? -> RRD4j can only handle one sample per second per
 		// database. Timestamps are all stored "truncated to seconds".
-		if (recordTimestamp.isEqual(this.lastRecordedTimestamp)) {
+		if (timestamp.equals(this.lastTimestamp)) {
 			return;
 		}
 
-		long timestamp = recordTimestamp.toEpochSecond(ZoneOffset.UTC);
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
 				if (channel.channelDoc().getAccessMode() != AccessMode.READ_ONLY
@@ -90,12 +92,12 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
-				Function<DoubleStream, OptionalDouble> channelAggregateFunction = getChannelAggregateFunction(
-						channel.channelDoc().getUnit());
+				Function<DoubleStream, OptionalDouble> channelAggregateFunction = this
+						.getChannelAggregateFunction(channel.channelDoc().getUnit());
 
 				OptionalDouble value = channelAggregateFunction.apply(//
 						channel.getPastValues() //
-								.tailMap(this.lastRecordedTimestamp, false) // new values since last recording
+								.tailMap(this.readChannelValuesSince, false) // new values since last recording
 								.values().stream() //
 								.map(v -> v.get()) //
 								.filter(v -> v != null) // only not-null values
@@ -107,39 +109,46 @@ public class RecordWorker extends AbstractImmediateWorker {
 				}
 
 				if (this.records.offer(//
-						new Record(timestamp, channel.address(), channel.channelDoc().getUnit(),
+						new Record(timestamp.getEpochSecond(), channel.address(), channel.channelDoc().getUnit(),
 								value.getAsDouble()))) {
-					this.parent.getQueueIsFullChannel().setNextValue(false);
+					this.parent._setQueueIsFull(false);
 				} else {
 					this.log.warn("Unable to add record [" + channel.address() + "]. Queue is full!");
-					this.parent.getQueueIsFullChannel().setNextValue(true);
+					this.parent._setQueueIsFull(true);
 				}
 			}
 		}
-		this.lastRecordedTimestamp = recordTimestamp;
+		this.readChannelValuesSince = nextReadChannelValuesSince;
 		this.triggerNextRun();
 	}
 
 	@Override
 	protected void forever() throws InterruptedException {
 		Record record = this.records.take();
+		RrdDb database = null;
 		try {
-			RrdDb db = this.parent.getRrdDb(record.address, record.unit, record.timestamp - 1);
+			database = this.parent.getRrdDb(record.address, record.unit, record.timestamp - 1);
 
 			// Add Sample to RRD4J
-			Sample sample = db.createSample(record.timestamp);
+			Sample sample = database.createSample(record.timestamp);
 			sample.setValue(0, record.value);
 			sample.update();
 
-			// Close file
-			db.close();
-
-			this.parent.getUnableToInsertSample().setNextValue(false);
+			this.parent._setUnableToInsertSample(false);
 
 		} catch (Throwable e) {
-			this.parent.getUnableToInsertSample().setNextValue(true);
+			this.parent._setUnableToInsertSample(true);
 			this.parent.logWarn(this.log, "Unable to insert Sample [" + record.address + "] "
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
+		} finally {
+			if (database != null) {
+				try {
+					database.close();
+				} catch (IOException e) {
+					this.parent.logWarn(this.log,
+							"Unable to close database [" + record.address + "]: " + e.getMessage());
+				}
+			}
 		}
 	}
 

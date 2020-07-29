@@ -3,7 +3,8 @@ package io.openems.edge.common.filter;
 /**
  * A proportional-integral-derivative controller.
  * 
- * @see https://en.wikipedia.org/wiki/PID_controller
+ * @see <a href=
+ *      "https://en.wikipedia.org/wiki/PID_controller">https://en.wikipedia.org/wiki/PID_controller</a>
  */
 public class PidFilter {
 
@@ -89,9 +90,6 @@ public class PidFilter {
 		// Calculate I
 		double outputI = this.i * this.errorSum;
 
-		// Apply min/max limits also to I, to avoid the value growing forever
-		outputI = this.applyLowHighLimits(outputI);
-
 		// Calculate D
 		double outputD = -this.d * (input - this.lastInput);
 
@@ -101,8 +99,9 @@ public class PidFilter {
 		// Sum outputs
 		double output = outputP + outputI + outputD;
 
-		// sum up the error
-		this.errorSum += error;
+		// Sum up the error and limit Error-Sum to not grow too much. Otherwise the PID
+		// filter will stop reacting on changes properly.
+		this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 
 		// Post-process the output value: convert to integer and apply value limits
 		return this.applyLowHighLimits(Math.round((float) output));
@@ -120,12 +119,12 @@ public class PidFilter {
 	}
 
 	/**
-	 * Applies the low and high limits to a value.
+	 * Applies the configured PID low and high limits to a value.
 	 * 
 	 * @param value the input value
 	 * @return the value within low and high limit
 	 */
-	private int applyLowHighLimits(int value) {
+	protected int applyLowHighLimits(int value) {
 		if (this.lowLimit != null && value < this.lowLimit) {
 			value = this.lowLimit;
 		}
@@ -136,17 +135,33 @@ public class PidFilter {
 	}
 
 	/**
-	 * Applies the low and high limits to a value.
+	 * Applies the low and high limits to the error sum.
 	 * 
 	 * @param value the input value
 	 * @return the value within low and high limit
 	 */
-	private double applyLowHighLimits(double value) {
-		if (this.lowLimit != null && value < this.lowLimit) {
-			value = this.lowLimit;
+	private double applyErrorSumLimit(double value) {
+		// find (positive) limit from low & high limits
+		double errorSumLimit;
+		if (this.lowLimit != null && this.highLimit != null) {
+			errorSumLimit = Math.max(Math.abs(this.lowLimit), Math.abs(this.highLimit));
+		} else if (this.lowLimit != null) {
+			errorSumLimit = Math.abs(this.lowLimit);
+		} else if (this.highLimit != null) {
+			errorSumLimit = Math.abs(this.highLimit);
+		} else {
+			return value;
 		}
-		if (this.highLimit != null && value > this.highLimit) {
-			value = this.highLimit;
+
+		// apply additional factor to increase limit
+		errorSumLimit *= 2;
+
+		// apply limit
+		if (value < errorSumLimit * -1) {
+			return errorSumLimit * -1;
+		}
+		if (value > errorSumLimit) {
+			return errorSumLimit;
 		}
 		return value;
 	}

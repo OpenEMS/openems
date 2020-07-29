@@ -106,7 +106,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.5.0</version>
+			<version>5.6.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -115,9 +115,11 @@
 			<version>3.6.1</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Configuration Admin Service -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.16</version>
+			<version>1.9.18</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -136,7 +138,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.0.18</version>
+			<version>4.0.20</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -155,7 +157,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.5.2</version>
+			<version>4.5.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -175,7 +177,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.15</version>
+			<version>0.10.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
@@ -205,12 +207,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.0.2</version>
+			<version>2.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j1</artifactId>
-			<version>2.0.3</version>
+			<version>2.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>

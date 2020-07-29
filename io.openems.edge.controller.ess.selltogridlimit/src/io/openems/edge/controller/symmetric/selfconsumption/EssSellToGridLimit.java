@@ -84,7 +84,11 @@ public class EssSellToGridLimit extends AbstractOpenemsComponent implements Cont
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != GridMode.ON_GRID) {
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
 			return;
 		}
 
@@ -103,7 +107,7 @@ public class EssSellToGridLimit extends AbstractOpenemsComponent implements Cont
 
 			// set result
 			ess.addPowerConstraintAndValidate("Controller.Ess.SellToGridLimit", Phase.ALL, Pwr.ACTIVE,
-					Relationship.GREATER_OR_EQUALS, calculatedPower); //
+					Relationship.LESS_OR_EQUALS, calculatedPower); //
 		}
 	}
 }
