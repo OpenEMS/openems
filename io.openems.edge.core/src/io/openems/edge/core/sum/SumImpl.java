@@ -339,7 +339,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essMaxApparentPowerSum, gridMaxActivePowerSum, productionMaxAcActivePowerSum));
 
 		Long enterTheSystem = TypeUtils.sum(essActiveDischargeEnergySum, gridBuyActiveEnergySum,
-				productionActiveEnergySum);
+				productionAcActiveEnergySum);
 		Long leaveTheSystem = TypeUtils.sum(essActiveChargeEnergySum, gridSellActiveEnergySum,
 				/* handling corner-case */ productionAcActiveEnergyNegative.calculate());
 		this.energyValuesHandler.setValue(Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY,
@@ -418,5 +418,4 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		String resultString = result.toString();
 		return resultString.substring(0, resultString.length() - 1);
 	}
-
 }
