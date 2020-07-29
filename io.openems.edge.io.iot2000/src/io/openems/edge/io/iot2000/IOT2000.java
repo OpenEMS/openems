@@ -1,8 +1,5 @@
 package io.openems.edge.io.iot2000;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,6 +25,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.iot2000.api.IOT2000Util;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -48,8 +46,12 @@ public class IOT2000 extends AbstractOpenemsComponent
 	private final BooleanWriteChannel[] digitalOutputChannels;
 	private final BooleanReadChannel[] digitalInputChannels;
 	private final Logger log = LoggerFactory.getLogger(IOT2000.class);
+
+	// Mapping the Channels to their corresponding GPIO numbers
 	private final int[] gpioInputMap = { 15, 5, 10, 4, 6 };
 	private final int[] gpioOutputMap = { 40, 38, 7 };
+	
+	private final IOT2000Util ioUtil = IOT2000Util.getInstance();
 
 	public IOT2000() {
 		super(//
@@ -79,6 +81,7 @@ public class IOT2000 extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+
 		this.deactivateAllWriteChannels();
 	}
 
@@ -119,8 +122,8 @@ public class IOT2000 extends AbstractOpenemsComponent
 				continue;
 			}
 			try {
-				this.setOutputValue(this.gpioOutputMap[i], writeValue.get());
-
+				//this.setOutputValue(this.gpioOutputMap[i], writeValue.get());
+				this.ioUtil.setOutput(i, writeValue.get());
 			} catch (Exception e) {
 				this.logError(this.log,
 						"Could not write Value to " + channel.address().toString() + " - Reason: " + e.getMessage());
@@ -138,10 +141,10 @@ public class IOT2000 extends AbstractOpenemsComponent
 
 	}
 
-	private void updateIoChannels(Channel[] channels, int[] gpioMap) {
+	private void updateIoChannels(Channel<?>[] channels, int[] gpioMap) {
 		for (int i = 0; i < channels.length; i++) {
 			try {
-				boolean val = this.getIoValue(gpioMap[i]);
+				boolean val = this.ioUtil.getIoValue(gpioMap[i]);
 
 				Optional<Boolean> inOpt = Optional.ofNullable(val);
 
@@ -163,7 +166,7 @@ public class IOT2000 extends AbstractOpenemsComponent
 		b.append("IN: ");
 		for (BooleanReadChannel channel : this.digitalInputChannels) {
 			Optional<Boolean> valueOpt = channel.value().asOptional();
-			b.append(channel.channelId().id() + " ");
+			b.append(channel.channelId().name() + " ");
 			if (valueOpt.isPresent()) {
 				if (valueOpt.get()) {
 					b.append("1");
@@ -180,7 +183,7 @@ public class IOT2000 extends AbstractOpenemsComponent
 		b.append("  OUT: ");
 		for (BooleanWriteChannel channel : this.digitalOutputChannels) {
 			Optional<Boolean> valueOpt = channel.value().asOptional();
-			b.append(channel.channelId().id() + " ");
+			b.append(channel.channelId().name() + " ");
 			if (valueOpt.isPresent()) {
 				if (valueOpt.get()) {
 					b.append("1");
@@ -204,34 +207,6 @@ public class IOT2000 extends AbstractOpenemsComponent
 	@Override
 	public BooleanWriteChannel[] digitalOutputChannels() {
 		return this.digitalOutputChannels;
-	}
-
-	private boolean getIoValue(int gpio) throws IOException {
-		File file = new File("/sys/class/gpio/gpio" + gpio + "/value");
-		FileInputStream fis = new FileInputStream(file);
-		int value = fis.read();
-		fis.close();
-
-		if (value == 49) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	private void setOutputValue(int gpio, boolean val) throws Exception {
-		File file = new File("/sys/class/gpio/gpio" + gpio + "/value");
-		FileOutputStream fos = new FileOutputStream(file);
-		char write = '0';
-		if (val) {
-			write = '1';
-		}
-		fos.write((byte) write);
-		fos.close();
-
-		//Runtime.getRuntime().exec("echo -n " + write + " /sys/class/gpio/gpio" + gpio + "/value");
-		this.logError(log, "wrote " + write + " to " + file.getAbsolutePath());
 	}
 
 	private void deactivateAllWriteChannels() {
