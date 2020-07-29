@@ -103,7 +103,6 @@ export class IndexComponent {
    * @param message 
    */
   private handleAuthenticateWithPasswordResponse(message: AuthenticateWithPasswordResponse) {
-    console.log("handleAuthenticateWithPasswordResponse ", message)
     this.service.handleAuthentication(message.result.token, message.result.edges);
   }
 

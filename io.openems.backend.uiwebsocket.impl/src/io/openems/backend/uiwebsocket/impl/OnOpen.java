@@ -32,19 +32,18 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		// declare user
 		BackendUser user;
 
-		// login using session_id from the handshake
-		Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
-				"session_id");
 		try {
-			if (sessionIdOpt.isPresent()) {
-				// authenticate with Session-ID
-				user = this.parent.metadata.authenticate(sessionIdOpt.get());
+			// authenticate with Token
+			Optional<String> tokenOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
+					"token");
+			if (tokenOpt.isPresent()) {
+				user = this.parent.metadata.authenticate(tokenOpt.get());
 			} else {
-				Optional<String> tokenOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
-						"token");
-				if (tokenOpt.isPresent()) {
-					// authenticate with Token
-					user = this.parent.metadata.authenticate(tokenOpt.get());
+				// authenticate with Session-ID
+				Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen
+						.getFieldFromHandshakeCookie(handshake, "session_id");
+				if (sessionIdOpt.isPresent()) {
+					user = this.parent.metadata.authenticate(sessionIdOpt.get());
 				} else {
 					// authenticate without Session-ID
 					user = this.parent.metadata.authenticate();
