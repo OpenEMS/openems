@@ -10,7 +10,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -19,7 +21,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
@@ -29,6 +30,9 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,11 +40,11 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				"type=GRID" //
 		})
 public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
-		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
+		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -49,6 +53,9 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -63,6 +70,11 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 			return this.doc;
 		}
 	}
+
+	private CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	public GoodWeEtGridMeter() {
 		super(//
@@ -129,15 +141,52 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 						m(GridMeterChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2))); //
 
-				// Energy values
-				new FC3ReadRegistersTask(35200, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(35200),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
-				new FC3ReadRegistersTask(35195, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(35195),
-								ElementToChannelConverter.SCALE_FACTOR_2)));
+		// Energy values
+		/*
+		 * NOTE: Energy values are calculated manually from ActivePower, because the
+		 * data in registers 35200 and 35195 is not correct. GoodWe is informed,
+		 * acknowledged the problem and is working on fixing it.
+		 */
+		// new FC3ReadRegistersTask(35200, Priority.LOW, //
+		// m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new
+		// UnsignedDoublewordElement(35200),
+		// ElementToChannelConverter.SCALE_FACTOR_2)), //
+		// new FC3ReadRegistersTask(35195, Priority.LOW, //
+		// m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new
+		// UnsignedDoublewordElement(35195),
+		// ElementToChannelConverter.SCALE_FACTOR_2)))
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateEnergy();
+			break;
+		}
+	}
+
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateProductionEnergy.update(null);
+			this.calculateConsumptionEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateProductionEnergy.update(activePower);
+			this.calculateConsumptionEnergy.update(0);
+		} else {
+			// Sell-To-Grid
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(activePower * -1);
+		}
 	}
 
 	@Override
@@ -148,6 +197,11 @@ public class GoodWeEtGridMeter extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString();
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 }
