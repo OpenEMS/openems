@@ -31,7 +31,10 @@ public interface OnOpen {
 	public static Optional<String> getFieldFromHandshakeCookie(JsonObject handshake, String fieldname) {
 		Optional<String> cookieOpt = JsonUtils.getAsOptionalString(handshake, "Cookie");
 		if (!cookieOpt.isPresent()) {
-			return Optional.empty();
+			cookieOpt = JsonUtils.getAsOptionalString(handshake, "cookie");
+			if (!cookieOpt.isPresent()) {
+				return Optional.empty();
+			}
 		}
 		String cookie = cookieOpt.get();
 		for (String cookieVariable : cookie.split("; ")) {
