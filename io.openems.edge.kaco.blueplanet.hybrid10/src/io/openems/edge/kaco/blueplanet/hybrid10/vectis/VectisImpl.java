@@ -53,9 +53,9 @@ public class VectisImpl extends AbstractOpenemsComponent
 
 	private Config config;
 
-	private CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Activate

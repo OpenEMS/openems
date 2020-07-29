@@ -75,13 +75,13 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	@Reference
 	private Power power;
 
-	private CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-	private CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_CHARGE_ENERGY);
-	private CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
 	private Config config;

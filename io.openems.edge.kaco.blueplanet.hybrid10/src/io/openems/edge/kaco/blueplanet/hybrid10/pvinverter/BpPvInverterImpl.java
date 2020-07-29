@@ -66,7 +66,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	public BpPvInverterImpl() {
