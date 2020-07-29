@@ -73,11 +73,11 @@ public interface Field {
 		}
 
 		public int index() {
-			return queryIndex;
+			return this.queryIndex;
 		}
 
 		public boolean isQuery() {
-			return query;
+			return this.query;
 		}
 	}
 
@@ -124,11 +124,11 @@ public interface Field {
 		}
 
 		public int index() {
-			return queryIndex;
+			return this.queryIndex;
 		}
 
 		public boolean isQuery() {
-			return query;
+			return this.query;
 		}
 	}
 
@@ -170,11 +170,11 @@ public interface Field {
 		}
 
 		public int index() {
-			return queryIndex;
+			return this.queryIndex;
 		}
 
 		public boolean isQuery() {
-			return query;
+			return this.query;
 		}
 	}
 }
