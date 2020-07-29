@@ -42,7 +42,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
  * energy channel:
  * 
  * <pre>
- * private CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
+ * private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
  * 		SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
  * </pre>
  * 
