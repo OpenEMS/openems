@@ -78,8 +78,9 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	private final static String[] MAINHEADER = new String[] { "Netzbezug [kWh]", "Netzeinspeisung [kWh]",
 			"Erzeugung [kWh]", "Speicher Beladung [kWh]", "Speicher Entladung [kWh]", "Verbrauch [kWh]" };
 	// Comments for main header
-	private final static String[] MOREINFO = new String[] { "(berechnet aus Leistung [W])",
-			"(Letzter kumulierter Wert minus erster kumulierter Wert)" };
+//	private final static String[] MOREINFO = new String[] { //
+//			"(berechnet aus Leistung [W])", //
+//			"(Letzter kumulierter Wert minus erster kumulierter Wert)" };
 
 	private final static String[] LABELS = new String[] { "Date/Time", //
 			"Netzbezug [W]", // Grid buy
@@ -153,7 +154,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		// Main header
 		boolean isMainHeader = false;
 		// Header Info
-		boolean isHeaderInfo = false;
+//		boolean isHeaderInfo = false;
 		// Headers
 		boolean isHeaderInitialized = false;
 		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> tableRow : table.entrySet()) {
@@ -170,10 +171,11 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				isMainHeader = true;
 			}
 
-			if (!isHeaderInfo) {
-				initializeHeaderInfo(worksheet);
-				isHeaderInfo = true;
-			}
+			//TODO adding the comments
+//			if (!isHeaderInfo) {
+//				initializeHeaderInfo(worksheet);
+//				isHeaderInfo = true;
+//			}
 
 			if (!isHeaderInitialized) {
 				ROW++;
@@ -195,6 +197,8 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				if (jValue.isJsonNull()) {
 					continue;
 				}
+				
+				System.out.println(channelName);
 				// Grid buy and sell
 				if (channelName.equals("_sum/EssActivePower")) {
 					if (jValue.getAsDouble() > 0) {
@@ -292,23 +296,24 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		ROW++;
 	}
 
-	/**
-	 * Method to populate the Header information
-	 * 
-	 * @param worksheet
-	 */
-	private static void initializeHeaderInfo(Worksheet worksheet) {
-		int col = 1;
-		for (int i = 0; i < MAINHEADER.length; i++) {
-			if (col % 2 != 0) {
-				worksheet.value(ROW + 1, col, MOREINFO[0]);
-			} else {
-				worksheet.value(ROW + 1, col, MOREINFO[1]);
-			}
-			col++;
-		}
-		ROW++;
-	}
+	//TODO Adding the comments 
+//	/**
+//	 * Method to populate the Header information
+//	 * 
+//	 * @param worksheet
+//	 */
+//	private static void initializeHeaderInfo(Worksheet worksheet) {
+//		int col = 1;
+//		for (int i = 0; i < MAINHEADER.length; i++) {
+//			if (col % 2 != 0) {
+//				worksheet.value(ROW + 1, col, MOREINFO[0]);
+//			} else {
+//				worksheet.value(ROW + 1, col, MOREINFO[1]);
+//			}
+//			col++;
+//		}
+//		ROW++;
+//	}
 
 	/**
 	 * Initializes the header for Data.
