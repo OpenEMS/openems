@@ -156,7 +156,6 @@ export class AppComponent {
     if (urlArray.length >= 4) {
       file = urlArray[3];
     }
-    console.log("file", file, "urlArray", urlArray)
     // Enable Segment Navigation for Edge-Index-Page
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {
       if (file == 'history') {

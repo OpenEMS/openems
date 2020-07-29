@@ -48,14 +48,14 @@
                                     <rect attr.x="{{ component.properties['lowThreshold'] }}%" y="2" rx="5" ry="5"
                                         attr.width="{{ component.properties['highThreshold'] - component.properties['lowThreshold'] }}%"
                                         height="16" style="fill:#2d8fab" />
-                                    <rect y="2" rx="5" ry="5" attr.x="{{currentData.channel[inputChannel]}}%" width="1%"
-                                        height="16" style="fill:#bdbdbd" />
-                                    <text attr.x="{{ component.properties['lowThreshold'] - 7 }}%" y="58%"
-                                        dominant-baseline="middle" text-anchor="middle"
-                                        style="font-weight: 500">{{ component.properties['lowThreshold'] + " %" }}</text>
-                                    <text attr.x="{{ component.properties['highThreshold'] + 7 }}%" y="58%"
-                                        dominant-baseline="middle" text-anchor="middle"
-                                        style="font-weight: 500">{{ component.properties['highThreshold'] + " %" }}</text>
+                                    <rect y="2" rx="5" ry="5" attr.x="{{currentData.channel[inputChannel] + 2}}%"
+                                        width="1%" height="16" style="fill:#bdbdbd" />
+                                    <text attr.x="{{ component.properties['lowThreshold'] }}%" y="58%"
+                                        dominant-baseline="middle" text-anchor="start"
+                                        style="font-weight: 500; fill: white">{{ component.properties['lowThreshold'] + " %" }}</text>
+                                    <text attr.x="{{ component.properties['highThreshold'] }}%" y="58%"
+                                        dominant-baseline="middle" text-anchor="end"
+                                        style="font-weight: 500; fill: white">{{ component.properties['highThreshold'] + " %" }}</text>
                                 </svg>
                             </td>
                         </tr>
