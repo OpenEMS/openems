@@ -40,6 +40,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -56,8 +57,8 @@ import io.openems.edge.goodwe.et.charger.AbstractGoodWeEtCharger;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 ) //
-public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
-		implements GoodWeEtBatteryInverter, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
+public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent implements GoodWeEtBatteryInverter,
+		HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
 	protected EnumWriteChannel setEmsPowerMode;
 
@@ -94,6 +95,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
+				HybridEss.ChannelId.values(), //
 				EssChannelId.values() //
 		);
 	}
@@ -494,6 +496,8 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		} else {
 			this._setAllowedDischargePower(maxApparentPower);
 		}
+
+		// TODO Calculate DC Energy
 	}
 
 	@Override
