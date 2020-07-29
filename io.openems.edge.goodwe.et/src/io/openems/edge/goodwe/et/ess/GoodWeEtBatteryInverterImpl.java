@@ -49,6 +49,9 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.et.charger.AbstractGoodWeEtCharger;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -58,17 +61,25 @@ import io.openems.edge.goodwe.et.charger.AbstractGoodWeEtCharger;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 ) //
 public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent implements GoodWeEtBatteryInverter,
-		HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
+		HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
 
 	protected EnumWriteChannel setEmsPowerMode;
 
 	private Config config;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
+
+	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	private final Set<AbstractGoodWeEtCharger> chargers = new HashSet<>();
 
@@ -206,13 +217,11 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 						m(EssChannelId.WORK_MODE, new UnsignedWordElement(35187)), //
 						m(EssChannelId.OPERATION_MODE, new UnsignedDoublewordElement(35188))), //
 
-				// Ess Active charge energy
 				new FC3ReadRegistersTask(35206, Priority.LOW, //
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(35206), //
+						m(HybridEss.ChannelId.DC_CHARGE_ENERGY, new UnsignedDoublewordElement(35206), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(35208), //
-						// Ess Active Discharge energy
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(35209),
+						m(HybridEss.ChannelId.DC_DISCHARGE_ENERGY, new UnsignedDoublewordElement(35209),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 
 				new FC3ReadRegistersTask(36003, Priority.LOW, //
@@ -468,7 +477,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 	}
 
 	private void updatechannels() {
-
 		/*
 		 * Update ActivePower from P_BATTERY1 and chargers ACTUAL_POWER
 		 */
@@ -480,9 +488,29 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		this._setActivePower(activePower);
 
 		/*
-		 * Update Allowed charge and Allowed discharge
+		 * Calculate AC Energy
+		 */
+		if (activePower == null) {
+			// Not available
+			this.calculateAcChargeEnergy.update(null);
+			this.calculateAcDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Discharge
+			this.calculateAcChargeEnergy.update(0);
+			this.calculateAcDischargeEnergy.update(activePower);
+		} else {
+			// Charge
+			this.calculateAcChargeEnergy.update(activePower * -1);
+			this.calculateAcDischargeEnergy.update(0);
+		}
+
+		/*
+		 * Calculate AC Energy values
 		 */
 
+		/*
+		 * Update Allowed charge and Allowed discharge
+		 */
 		Integer soc = this.getSoc().get();
 		Integer maxApparentPower = this.getMaxApparentPower().get();
 
@@ -496,8 +524,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		} else {
 			this._setAllowedDischargePower(maxApparentPower);
 		}
-
-		// TODO Calculate DC Energy
 	}
 
 	@Override
@@ -521,4 +547,10 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		}
 		return Power.NO_CONSTRAINTS;
 	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
 }
