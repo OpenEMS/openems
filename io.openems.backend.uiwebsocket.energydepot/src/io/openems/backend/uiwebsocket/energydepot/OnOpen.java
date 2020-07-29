@@ -12,6 +12,9 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.BackendUser;
@@ -118,6 +121,14 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		this.parent.server.sendMessage(ws, notification);
 
 		this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
+	}
+	
+	private String getCookieHash(String url) {
+		
+		HashCode md5 = Hashing.md5()
+				.hashString(url, Charsets.UTF_8);
+		
+		return "wordpress_logged_in_" + md5;
 	}
 
 }
