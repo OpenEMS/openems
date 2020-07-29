@@ -55,7 +55,7 @@
     </ion-col>
   </ion-row>
 
-  <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+  <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
 
     <!--
       No access to Edges
