@@ -161,6 +161,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					HybridEss e = (HybridEss) ess;
 					essDcChargeEnergy.addValue(e.getDcChargeEnergyChannel());
 					essDcDischargeEnergy.addValue(e.getDcDischargeEnergyChannel());
+				} else {
+					essDcChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
+					essDcDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
 				}
 
 			} else if (component instanceof SymmetricMeter) {
