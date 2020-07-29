@@ -265,9 +265,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setGridMode(essGridMode.calculate());
 
 		Long essActiveChargeEnergySum = essActiveChargeEnergy.calculate();
-		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, essActiveChargeEnergySum);
+		essActiveChargeEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY,
+				essActiveChargeEnergySum);
 		Long essActiveDischargeEnergySum = essActiveDischargeEnergy.calculate();
-		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, essActiveDischargeEnergySum);
+		essActiveDischargeEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY,
+				essActiveDischargeEnergySum);
 
 		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_DC_CHARGE_ENERGY, essDcChargeEnergy.calculate());
 		this.energyValuesHandler.setValue(Sum.ChannelId.ESS_DC_DISCHARGE_ENERGY, essDcDischargeEnergy.calculate());
@@ -289,9 +291,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setGridMaxActivePower(gridMaxActivePowerSum);
 
 		Long gridBuyActiveEnergySum = gridBuyActiveEnergy.calculate();
-		this.energyValuesHandler.setValue(Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, gridBuyActiveEnergySum);
+		gridBuyActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY,
+				gridBuyActiveEnergySum);
 		Long gridSellActiveEnergySum = gridSellActiveEnergy.calculate();
-		this.energyValuesHandler.setValue(Sum.ChannelId.GRID_SELL_ACTIVE_ENERGY, gridSellActiveEnergySum);
+		gridSellActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.GRID_SELL_ACTIVE_ENERGY,
+				gridSellActiveEnergySum);
 
 		// Production
 		Integer productionAcActivePowerSum = productionAcActivePower.calculate();
@@ -313,11 +317,14 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setProductionMaxActivePower(TypeUtils.sum(productionMaxAcActivePowerSum, productionMaxDcActualPowerSum));
 
 		Long productionAcActiveEnergySum = productionAcActiveEnergy.calculate();
-		this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY, productionAcActiveEnergySum);
+		productionAcActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY,
+				productionAcActiveEnergySum);
 		Long productionDcActiveEnergySum = productionDcActiveEnergy.calculate();
-		this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_DC_ACTIVE_ENERGY, productionDcActiveEnergySum);
+		productionDcActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_DC_ACTIVE_ENERGY,
+				productionDcActiveEnergySum);
 		Long productionActiveEnergySum = TypeUtils.sum(productionAcActiveEnergySum, productionDcActiveEnergySum);
-		this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY, productionActiveEnergySum);
+		productionActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY,
+				productionActiveEnergySum);
 
 		// Consumption
 		this._setConsumptionActivePower(TypeUtils.sum(//

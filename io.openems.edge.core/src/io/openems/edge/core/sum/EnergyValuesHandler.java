@@ -90,20 +90,23 @@ public class EnergyValuesHandler {
 	/**
 	 * Sets the value of the Channel if it is greater-or-equals the lastValue.
 	 * 
-	 * @param essActiveChargeEnergy
-	 * @param essActiveChargeEnergySum
+	 * @param channelId the Channel-Id
+	 * @param value     the energy value
+	 * @return the value that was set; might be null
 	 */
-	public void setValue(Sum.ChannelId channelId, Long value) {
+	public Long setValue(Sum.ChannelId channelId, Long value) {
 		if (!this.lastEnergyValues.containsKey(channelId)) {
-			// lastValue was not initialized yet -> abort
-			return;
+			// lastValue was not initialized yet -> ignore value
+			value = null;
+
+		} else if (value == null) {
+			// if value is null, replace it by last value
+			Long lastValue = this.lastEnergyValues.get(channelId);
+			value = lastValue;
 		}
-		Long lastValue = this.lastEnergyValues.get(channelId);
-		if (value == null || (lastValue != null && lastValue > value)) {
-			this.parent.channel(channelId).setNextValue(null);
-		} else {
-			this.parent.channel(channelId).setNextValue(value);
-			this.lastEnergyValues.put(channelId, value);
-		}
+
+		this.parent.channel(channelId).setNextValue(value);
+		this.lastEnergyValues.put(channelId, value);
+		return value;
 	}
 }
