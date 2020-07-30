@@ -42,13 +42,13 @@ public class PostgresHandler {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.dataSource = this.getDataSource(config);
-		this.initializeEdgesWorker = new InitializeEdgesWorker(this, dataSource, () -> {
+		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.dataSource, () -> {
 			onInitialized.run();
 		});
 		this.initializeEdgesWorker.start();
-		this.periodicWriteWorker = new PeriodicWriteWorker(this, dataSource);
+		this.periodicWriteWorker = new PeriodicWriteWorker(this, this.dataSource);
 		this.periodicWriteWorker.start();
-		this.queueWriteWorker = new QueueWriteWorker(this, dataSource);
+		this.queueWriteWorker = new QueueWriteWorker(this, this.dataSource);
 		this.queueWriteWorker.start();
 	}
 

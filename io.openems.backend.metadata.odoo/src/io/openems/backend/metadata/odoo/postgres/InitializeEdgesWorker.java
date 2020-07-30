@@ -37,7 +37,7 @@ public class InitializeEdgesWorker {
 	}
 
 	public synchronized void start() {
-		this.executor.execute(() -> task.accept(this));
+		this.executor.execute(() -> this.task.accept(this));
 	}
 
 	public synchronized void stop() {
@@ -118,7 +118,7 @@ public class InitializeEdgesWorker {
 	}
 
 	/**
-	 * UPDATE {} SET openems_is_connected = FALSE;
+	 * UPDATE {} SET openems_is_connected = FALSE;.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error

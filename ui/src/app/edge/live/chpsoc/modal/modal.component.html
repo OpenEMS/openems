@@ -79,13 +79,13 @@
                 </table>
                 <table class="full_width">
                     <tr>
-                        <ion-range (ionChange)="updateThresholds()" dual-knobs pin color="dark" min="15" max="85"
+                        <ion-range (ionChange)="updateThresholds()" dual-knobs pin color="dark" min="0" max="100"
                             [(ngModel)]="thresholds" debounce="500">
                             <ion-label slot="start">
-                                {{ 15 | unitvalue:'%' }}
+                                {{ 0 | unitvalue:'%' }}
                             </ion-label>
                             <ion-label slot="end">
-                                {{ 85 | unitvalue:'%' }}
+                                {{ 100 | unitvalue:'%' }}
                             </ion-label>
                         </ion-range>
                     </tr>

@@ -179,6 +179,11 @@ export const TRANSLATION = {
                     totalCharge: 'Totale lading',
                     totalChargingPower: 'Totaal laadvermogen',
                     unplugged: 'Unplugged',
+                    Administration: {
+                        carAdministration: 'Auto administratie',
+                        customCarInfo: 'Als dit het geval is, kan uw auto alleen efficiënt worden geladen vanaf een bepaalde output. Met deze knop is dit opgenomen in uw configuratie-opties en in het automatisch laden.',
+                        renaultZoe: 'Wordt een Renault Zoe voornamelijk op dit laadstation geladen?'
+                    },
                     NoConnection: {
                         description: 'Hij kon niet op het laadstation worden aangesloten.',
                         help1_1: 'Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen',

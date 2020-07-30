@@ -79,6 +79,6 @@ public class InsertOrUpdateDeviceStates extends DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "InsertOrUpdateDeviceState [odooId=" + odooId + ", timestamp=" + timestamp + "]";
+		return "InsertOrUpdateDeviceState [odooId=" + this.odooId + ", timestamp=" + this.timestamp + "]";
 	}
 }
