@@ -1,3 +1,4 @@
+import { AdministrationComponent } from './evcs/modal/administration/administration.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -37,7 +38,6 @@ import { StorageComponent } from './storage/storage.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { SymmetricPeakshavingComponent } from './peakshaving/symmetric/symmetricpeakshaving.component';
 import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/modal/modal.component';
-import { AdministrationComponent } from './evcs/modal/administration/administration.component';
 
 @NgModule({
   imports: [

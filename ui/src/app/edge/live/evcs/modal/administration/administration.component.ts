@@ -35,7 +35,7 @@ export class AdministrationComponent {
   }
 
   updateZoeMode(event: CustomEvent) {
-    let newValue;
+    let newValue = this.evcsComponent.properties['minHwCurrent'];
     let oldValue = this.evcsComponent.properties['minHwCurrent'];
 
     if (event.detail.checked == true) {
@@ -44,7 +44,7 @@ export class AdministrationComponent {
       newValue = 6000;
     }
 
-    if (this.edge != null) {
+    if (this.edge != null && oldValue != newValue) {
       this.edge.updateComponentConfig(this.websocket, this.evcsComponent.id, [
         { name: 'minHwCurrent', value: newValue }
       ]).then(() => {
