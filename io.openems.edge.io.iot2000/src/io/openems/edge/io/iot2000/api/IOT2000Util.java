@@ -9,13 +9,13 @@ public class IOT2000Util {
 
 	private static final String[] ALLPINS = { "7", "46", "30", "31", "15", "42", "43", "5", "44", "72", "24", "25",
 			"10", "74", "26", "27", "4", "70", "22", "23", "6", "36", "37", "40", "41", "38", "39" };
-	
+
 	private static final IOT2000Util OBJ = new IOT2000Util();
-	
+
 	private IOT2000Util() {
-		setupPins();
+		this.setupPins();
 	}
-	
+
 	public static IOT2000Util getInstance() {
 		return OBJ;
 	}
@@ -26,7 +26,7 @@ public class IOT2000Util {
 
 		for (String gpio : ALLPINS) {
 			try {
-				unexport(gpio);
+				this.unexport(gpio);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -34,7 +34,7 @@ public class IOT2000Util {
 			}
 
 			try {
-				export(gpio);
+				this.export(gpio);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -49,12 +49,12 @@ public class IOT2000Util {
 
 		// LED
 		try {
-			setDirLow("46");
-			setDirLow("30");
-			setDirIn("31");
-			setVal("46", '0');
-			setVal("30", '0');
-			setDirLow("7");
+			this.setDirLow("46");
+			this.setDirLow("30");
+			this.setDirIn("31");
+			this.setVal("46", '0');
+			this.setVal("30", '0');
+			this.setDirLow("7");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,10 +63,10 @@ public class IOT2000Util {
 
 		// DI0
 		try {
-			setDirIn("15");
-			setDirHigh("42");
-			setDirIn("43");
-			setVal("42", '1');
+			this.setDirIn("15");
+			this.setDirHigh("42");
+			this.setDirIn("43");
+			this.setVal("42", '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,12 +75,12 @@ public class IOT2000Util {
 
 		// DI1
 		try {
-			setDirIn("5");
-			setDirLow("44");
-			setDirLow("72");
-			setDirHigh("24");
-			setDirIn("25");
-			setVal("24", '1');
+			this.setDirIn("5");
+			this.setDirLow("44");
+			this.setDirLow("72");
+			this.setDirHigh("24");
+			this.setDirIn("25");
+			this.setVal("24", '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,11 +89,11 @@ public class IOT2000Util {
 
 		// DI2
 		try {
-			setDirIn("10");
-			setDirLow("74");
-			setDirHigh("26");
-			setDirIn("25");
-			setVal("26", '1');
+			this.setDirIn("10");
+			this.setDirLow("74");
+			this.setDirHigh("26");
+			this.setDirIn("25");
+			this.setVal("26", '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,11 +102,11 @@ public class IOT2000Util {
 
 		// DI3
 		try {
-			setDirIn("4");
-			setDirLow("70");
-			setDirHigh("22");
-			setDirIn("23");
-			setVal("22", '1');
+			this.setDirIn("4");
+			this.setDirLow("70");
+			this.setDirHigh("22");
+			this.setDirIn("23");
+			this.setVal("22", '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,10 +115,10 @@ public class IOT2000Util {
 
 		// DI4
 		try {
-			setDirIn("6");
-			setDirHigh("36");
-			setDirIn("37");
-			setVal("36", '1');
+			this.setDirIn("6");
+			this.setDirHigh("36");
+			this.setDirIn("37");
+			this.setVal("36", '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -127,8 +127,8 @@ public class IOT2000Util {
 
 		// DQ0
 		try {
-			setDirLow("40");
-			setDirIn("41");
+			this.setDirLow("40");
+			this.setDirIn("41");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -137,8 +137,8 @@ public class IOT2000Util {
 
 		// DQ1
 		try {
-			setDirLow("38");
-			setDirIn("39");
+			this.setDirLow("38");
+			this.setDirIn("39");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -167,15 +167,15 @@ public class IOT2000Util {
 	}
 
 	private void setDirHigh(String gpio) throws IOException {
-		setDir(gpio, "high");
+		this.setDir(gpio, "high");
 	}
 
 	private void setDirLow(String gpio) throws IOException {
-		setDir(gpio, "low");
+		this.setDir(gpio, "low");
 	}
 
-	private  void setDirIn(String gpio) throws IOException {
-		setDir(gpio, "in");
+	private void setDirIn(String gpio) throws IOException {
+		this.setDir(gpio, "in");
 	}
 
 	private void setDir(String gpio, String dir) throws IOException {
@@ -195,7 +195,7 @@ public class IOT2000Util {
 
 	public void setLedOn() {
 		try {
-			setVal("7", '1');
+			this.setVal("7", '1');
 		} catch (IOException e) {
 			// Ignore
 		}
@@ -203,7 +203,7 @@ public class IOT2000Util {
 
 	public void setLedOff() {
 		try {
-			setVal("7", '0');
+			this.setVal("7", '0');
 		} catch (IOException e) {
 			// Ignore
 		}
@@ -222,20 +222,19 @@ public class IOT2000Util {
 		default:
 			return;
 		}
-		
+
 		char val = '0';
-		if(state) {
+		if (state) {
 			val = '1';
 		}
-		
 
 		try {
-			setVal(gpio, val);
+			this.setVal(gpio, val);
 		} catch (IOException e) {
 			// Ignore
 		}
 	}
-	
+
 	public boolean getIoValue(int gpio) throws IOException {
 		File file = new File("/sys/class/gpio/gpio" + gpio + "/value");
 		FileInputStream fis = new FileInputStream(file);
