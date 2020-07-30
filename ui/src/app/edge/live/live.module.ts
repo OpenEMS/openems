@@ -1,3 +1,4 @@
+import { AdministrationComponent } from './evcs/modal/administration/administration.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -46,6 +47,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SharedModule,
   ],
   entryComponents: [
+    AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChpsocModalComponent,
@@ -63,6 +65,7 @@ import { SymmetricPeakshavingModalComponent } from './peakshaving/symmetric/moda
     SymmetricPeakshavingModalComponent,
   ],
   declarations: [
+    AdministrationComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,
