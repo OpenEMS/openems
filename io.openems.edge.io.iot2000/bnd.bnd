@@ -12,4 +12,6 @@ Bundle-Version: 1.0.0.${tstamp}
 -testpath: \
 	${testpath}
 Bundle-Description: Implementation of the Siemens IOT2000 IO Extension Module + User LED
-Export-Package: io.openems.edge.io.iot2000.api
+Export-Package: \
+	io.openems.edge.io.iot2000.api,\
+	io.openems.edge.io.iot2000
