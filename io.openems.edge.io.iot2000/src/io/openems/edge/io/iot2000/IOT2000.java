@@ -46,10 +46,6 @@ public class IOT2000 extends AbstractOpenemsComponent
 	private final BooleanWriteChannel[] digitalOutputChannels;
 	private final BooleanReadChannel[] digitalInputChannels;
 	private final Logger log = LoggerFactory.getLogger(IOT2000.class);
-
-	// Mapping the Channels to their corresponding GPIO numbers
-	private final int[] gpioInputMap = { 15, 5, 10, 4, 6 };
-	private final int[] gpioOutputMap = { 40, 38, 7 };
 	
 	private final IOT2000Util ioUtil = IOT2000Util.getInstance();
 
@@ -136,12 +132,12 @@ public class IOT2000 extends AbstractOpenemsComponent
 
 	private void updateChannels() {
 
-		this.updateIoChannels(this.digitalInputChannels, this.gpioInputMap);
-		this.updateIoChannels(this.digitalOutputChannels, this.gpioOutputMap);
+		this.updateIoChannels(this.digitalInputChannels, IOT2000Util.GPIO_INPUT_MAP);
+		this.updateIoChannels(this.digitalOutputChannels, IOT2000Util.GPIO_OUTPUT_MAP);
 
 	}
 
-	private void updateIoChannels(Channel<?>[] channels, int[] gpioMap) {
+	private void updateIoChannels(Channel<?>[] channels, String[] gpioMap) {
 		for (int i = 0; i < channels.length; i++) {
 			try {
 				boolean val = this.ioUtil.getIoValue(gpioMap[i]);

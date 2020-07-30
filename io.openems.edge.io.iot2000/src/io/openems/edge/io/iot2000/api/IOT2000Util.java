@@ -6,9 +6,43 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class IOT2000Util {
+	
+	private static final String PIN_4 = "4";
+	private static final String PIN_5 = "5";
+	private static final String PIN_6 = "6";
+	private static final String PIN_7 = "7";
+	private static final String PIN_10 = "10";
+	private static final String PIN_15 = "15";
+	private static final String PIN_22 = "22";
+	private static final String PIN_23 = "23";
+	private static final String PIN_24 = "24";
+	private static final String PIN_25 = "25";
+	private static final String PIN_26 = "26";
+	private static final String PIN_27 = "27";
+	private static final String PIN_30 = "30";
+	private static final String PIN_31 = "31";
+	private static final String PIN_36 = "36";
+	private static final String PIN_37 = "37";
+	private static final String PIN_38 = "38";
+	private static final String PIN_39 = "39";
+	private static final String PIN_40 = "40";
+	private static final String PIN_41 = "41";
+	private static final String PIN_42 = "42";
+	private static final String PIN_43 = "43";
+	private static final String PIN_44 = "44";
+	private static final String PIN_46 = "46";
+	private static final String PIN_70 = "70";
+	private static final String PIN_72 = "72";
+	private static final String PIN_74 = "74";
+	
+	
 
-	private static final String[] ALLPINS = { "7", "46", "30", "31", "15", "42", "43", "5", "44", "72", "24", "25",
-			"10", "74", "26", "27", "4", "70", "22", "23", "6", "36", "37", "40", "41", "38", "39" };
+	private static final String[] ALLPINS = { PIN_4, PIN_5, PIN_6, PIN_7, PIN_10, PIN_15, PIN_22, PIN_23, PIN_24, PIN_25, PIN_26, PIN_27,
+			PIN_30, PIN_31, PIN_36, PIN_37, PIN_38, PIN_39, PIN_40, PIN_41, PIN_42, PIN_43, PIN_44, PIN_46, PIN_70, PIN_72, PIN_74 };
+	
+	
+	public static final String[] GPIO_INPUT_MAP = { PIN_15, PIN_15, PIN_10, PIN_4, PIN_6 };
+	public static final String[] GPIO_OUTPUT_MAP = { PIN_40, PIN_38, PIN_7 };
 
 	private static final IOT2000Util OBJ = new IOT2000Util();
 
@@ -49,12 +83,12 @@ public class IOT2000Util {
 
 		// LED
 		try {
-			this.setDirLow("46");
-			this.setDirLow("30");
-			this.setDirIn("31");
-			this.setVal("46", '0');
-			this.setVal("30", '0');
-			this.setDirLow("7");
+			this.setDirectionLow(IOT2000Util.PIN_46);
+			this.setDirectionLow(IOT2000Util.PIN_30);
+			this.setDirectionIn(IOT2000Util.PIN_31);
+			this.setIoValue(IOT2000Util.PIN_46, '0');
+			this.setIoValue(IOT2000Util.PIN_30, '0');
+			this.setDirectionLow(IOT2000Util.PIN_7);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,10 +97,10 @@ public class IOT2000Util {
 
 		// DI0
 		try {
-			this.setDirIn("15");
-			this.setDirHigh("42");
-			this.setDirIn("43");
-			this.setVal("42", '1');
+			this.setDirectionIn(IOT2000Util.PIN_15);
+			this.setDirectionHigh(IOT2000Util.PIN_42);
+			this.setDirectionIn(IOT2000Util.PIN_43);
+			this.setIoValue(IOT2000Util.PIN_42, '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,12 +109,12 @@ public class IOT2000Util {
 
 		// DI1
 		try {
-			this.setDirIn("5");
-			this.setDirLow("44");
-			this.setDirLow("72");
-			this.setDirHigh("24");
-			this.setDirIn("25");
-			this.setVal("24", '1');
+			this.setDirectionIn(IOT2000Util.PIN_5);
+			this.setDirectionLow(IOT2000Util.PIN_44);
+			this.setDirectionLow(IOT2000Util.PIN_72);
+			this.setDirectionHigh(IOT2000Util.PIN_24);
+			this.setDirectionIn(IOT2000Util.PIN_25);
+			this.setIoValue(IOT2000Util.PIN_24, '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,11 +123,11 @@ public class IOT2000Util {
 
 		// DI2
 		try {
-			this.setDirIn("10");
-			this.setDirLow("74");
-			this.setDirHigh("26");
-			this.setDirIn("25");
-			this.setVal("26", '1');
+			this.setDirectionIn(IOT2000Util.PIN_10);
+			this.setDirectionLow(IOT2000Util.PIN_74);
+			this.setDirectionHigh(IOT2000Util.PIN_26);
+			this.setDirectionIn(IOT2000Util.PIN_25);
+			this.setIoValue(IOT2000Util.PIN_26, '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,11 +136,11 @@ public class IOT2000Util {
 
 		// DI3
 		try {
-			this.setDirIn("4");
-			this.setDirLow("70");
-			this.setDirHigh("22");
-			this.setDirIn("23");
-			this.setVal("22", '1');
+			this.setDirectionIn(IOT2000Util.PIN_4);
+			this.setDirectionLow(IOT2000Util.PIN_70);
+			this.setDirectionHigh(IOT2000Util.PIN_22);
+			this.setDirectionIn(IOT2000Util.PIN_23);
+			this.setIoValue(IOT2000Util.PIN_22, '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,10 +149,10 @@ public class IOT2000Util {
 
 		// DI4
 		try {
-			this.setDirIn("6");
-			this.setDirHigh("36");
-			this.setDirIn("37");
-			this.setVal("36", '1');
+			this.setDirectionIn(IOT2000Util.PIN_6);
+			this.setDirectionHigh(IOT2000Util.PIN_36);
+			this.setDirectionIn(IOT2000Util.PIN_37);
+			this.setIoValue(IOT2000Util.PIN_36, '1');
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -127,8 +161,8 @@ public class IOT2000Util {
 
 		// DQ0
 		try {
-			this.setDirLow("40");
-			this.setDirIn("41");
+			this.setDirectionLow(IOT2000Util.PIN_40);
+			this.setDirectionIn(IOT2000Util.PIN_41);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -137,8 +171,8 @@ public class IOT2000Util {
 
 		// DQ1
 		try {
-			this.setDirLow("38");
-			this.setDirIn("39");
+			this.setDirectionLow(IOT2000Util.PIN_38);
+			this.setDirectionIn(IOT2000Util.PIN_39);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -166,19 +200,19 @@ public class IOT2000Util {
 		fos.close();
 	}
 
-	private void setDirHigh(String gpio) throws IOException {
-		this.setDir(gpio, "high");
+	private void setDirectionHigh(String gpio) throws IOException {
+		this.setDirection(gpio, "high");
 	}
 
-	private void setDirLow(String gpio) throws IOException {
-		this.setDir(gpio, "low");
+	private void setDirectionLow(String gpio) throws IOException {
+		this.setDirection(gpio, "low");
 	}
 
-	private void setDirIn(String gpio) throws IOException {
-		this.setDir(gpio, "in");
+	private void setDirectionIn(String gpio) throws IOException {
+		this.setDirection(gpio, "in");
 	}
 
-	private void setDir(String gpio, String dir) throws IOException {
+	private void setDirection(String gpio, String dir) throws IOException {
 		byte[] b = dir.getBytes();
 		File file = new File("/sys/class/gpio/gpio" + gpio + "/direction");
 		FileOutputStream fos = new FileOutputStream(file);
@@ -186,7 +220,7 @@ public class IOT2000Util {
 		fos.close();
 	}
 
-	private void setVal(String gpio, char val) throws IOException {
+	private void setIoValue(String gpio, char val) throws IOException {
 		File file = new File("/sys/class/gpio/gpio" + gpio + "/value");
 		FileOutputStream fos = new FileOutputStream(file);
 		fos.write((byte) val);
@@ -195,7 +229,7 @@ public class IOT2000Util {
 
 	public void setLedOn() {
 		try {
-			this.setVal("7", '1');
+			this.setIoValue("7", '1');
 		} catch (IOException e) {
 			// Ignore
 		}
@@ -203,7 +237,7 @@ public class IOT2000Util {
 
 	public void setLedOff() {
 		try {
-			this.setVal("7", '0');
+			this.setIoValue("7", '0');
 		} catch (IOException e) {
 			// Ignore
 		}
@@ -229,13 +263,13 @@ public class IOT2000Util {
 		}
 
 		try {
-			this.setVal(gpio, val);
+			this.setIoValue(gpio, val);
 		} catch (IOException e) {
 			// Ignore
 		}
 	}
 
-	public boolean getIoValue(int gpio) throws IOException {
+	public boolean getIoValue(String gpio) throws IOException {
 		File file = new File("/sys/class/gpio/gpio" + gpio + "/value");
 		FileInputStream fis = new FileInputStream(file);
 		int value = fis.read();
