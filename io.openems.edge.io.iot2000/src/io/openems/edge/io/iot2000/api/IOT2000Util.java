@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class IOT2000Util {
-	
+
 	private static final String PIN_4 = "4";
 	private static final String PIN_5 = "5";
 	private static final String PIN_6 = "6";
@@ -34,15 +34,19 @@ public class IOT2000Util {
 	private static final String PIN_70 = "70";
 	private static final String PIN_72 = "72";
 	private static final String PIN_74 = "74";
-	
-	
 
-	private static final String[] ALLPINS = { PIN_4, PIN_5, PIN_6, PIN_7, PIN_10, PIN_15, PIN_22, PIN_23, PIN_24, PIN_25, PIN_26, PIN_27,
-			PIN_30, PIN_31, PIN_36, PIN_37, PIN_38, PIN_39, PIN_40, PIN_41, PIN_42, PIN_43, PIN_44, PIN_46, PIN_70, PIN_72, PIN_74 };
-	
-	
-	public static final String[] GPIO_INPUT_MAP = { PIN_15, PIN_15, PIN_10, PIN_4, PIN_6 };
-	public static final String[] GPIO_OUTPUT_MAP = { PIN_40, PIN_38, PIN_7 };
+	public static final String USER_LED = PIN_7;
+	public static final String DQ_0 = PIN_40;
+	public static final String DQ_1 = PIN_38;
+	public static final String DI_0 = PIN_15;
+	public static final String DI_1 = PIN_5;
+	public static final String DI_2 = PIN_10;
+	public static final String DI_3 = PIN_5;
+	public static final String DI_4 = PIN_5;
+
+	private static final String[] ALLPINS = { PIN_4, PIN_5, PIN_6, PIN_7, PIN_10, PIN_15, PIN_22, PIN_23, PIN_24,
+			PIN_25, PIN_26, PIN_27, PIN_30, PIN_31, PIN_36, PIN_37, PIN_38, PIN_39, PIN_40, PIN_41, PIN_42, PIN_43,
+			PIN_44, PIN_46, PIN_70, PIN_72, PIN_74 };
 
 	private static final IOT2000Util OBJ = new IOT2000Util();
 
@@ -229,7 +233,7 @@ public class IOT2000Util {
 
 	public void setLedOn() {
 		try {
-			this.setIoValue("7", '1');
+			this.setIoValue(IOT2000Util.USER_LED, '1');
 		} catch (IOException e) {
 			// Ignore
 		}
@@ -237,7 +241,7 @@ public class IOT2000Util {
 
 	public void setLedOff() {
 		try {
-			this.setIoValue("7", '0');
+			this.setIoValue(IOT2000Util.USER_LED, '0');
 		} catch (IOException e) {
 			// Ignore
 		}
@@ -248,10 +252,10 @@ public class IOT2000Util {
 		String gpio;
 		switch (out) {
 		case 0:
-			gpio = "40";
+			gpio = IOT2000Util.DQ_0;
 			break;
 		case 1:
-			gpio = "38";
+			gpio = IOT2000Util.DQ_1;
 			break;
 		default:
 			return;
