@@ -1,10 +1,15 @@
 package io.openems.edge.controller.api.rest;
 
+import java.util.concurrent.TimeUnit;
+
+import org.eclipse.jetty.server.AcceptRateLimit;
+import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Server;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -71,6 +76,8 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent implement
 		try {
 			this.server = new Server(port);
 			this.server.setHandler(new RestHandler(this));
+			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
+			this.server.addBean(new ConnectionLimit(5, this.server));
 			this.server.start();
 			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
 		} catch (Exception e) {

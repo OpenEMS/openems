@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -40,6 +41,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.Level;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
@@ -60,14 +62,13 @@ import io.openems.edge.common.event.EdgeEventConstants;
  */
 public class EdgeConfigWorker extends AbstractWorker {
 
-	private final static int CYCLE_TIME = 30_000; // in ms
-//	TODO private final static int CYCLE_TIME = 300_000; // in ms
+	private static final int CYCLE_TIME = 300_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
-
 	private final ComponentManagerImpl parent;
-	private EdgeConfig cache = null;
 	private final Queue<ConfigurationEvent> events = new ArrayDeque<ConfigurationEvent>();
+
+	private EdgeConfig cache = null;
 
 	public EdgeConfigWorker(ComponentManagerImpl parent) {
 		this.parent = parent;
@@ -333,10 +334,8 @@ public class EdgeConfigWorker extends AbstractWorker {
 	private boolean readComponents(EdgeConfig result) {
 		boolean wasConfigUpdated = false;
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
-			if (!result.getComponents().containsKey(component.id())) {
-				this.readComponent(result, component);
-				wasConfigUpdated = true;
-			}
+			this.readComponent(result, component);
+			wasConfigUpdated = true;
 		}
 		return wasConfigUpdated;
 	}
@@ -348,20 +347,46 @@ public class EdgeConfigWorker extends AbstractWorker {
 	 * @param component the Component
 	 */
 	private void readComponent(EdgeConfig result, OpenemsComponent component) {
-		String componentId = component.id();
 		String factoryPid = component.serviceFactoryPid();
+		String componentId = component.id();
 
 		// get configuration properties
-		TreeMap<String, JsonElement> properties = convertProperties( //
+		TreeMap<String, JsonElement> properties = convertProperties(//
 				component.getComponentContext().getProperties(), //
 				result.getFactories().get(factoryPid));
 
 		// get Channels
 		TreeMap<String, io.openems.common.types.EdgeConfig.Component.Channel> channels = this.getChannels(component);
 
-		// Create EdgeConfig.Component and add it to Result
-		result.addComponent(componentId, new EdgeConfig.Component(component.servicePid(), componentId,
-				component.alias(), factoryPid, properties, channels));
+		Optional<Component> resultComponent = result.getComponent(componentId);
+		if (resultComponent.isPresent()) {
+			// Update existing properties
+			Map<String, JsonElement> resultProperties = resultComponent.get().getProperties();
+			for (Entry<String, JsonElement> property : properties.entrySet()) {
+				switch (property.getKey()) {
+				case "org.ops4j.pax.logging.appender.name":
+					// ignore
+					continue;
+				}
+				if (!resultProperties.containsKey(property.getKey())) {
+					resultProperties.put(property.getKey(), property.getValue());
+				}
+			}
+
+			// Update existing Channels
+			Map<String, io.openems.common.types.EdgeConfig.Component.Channel> resultChannels = resultComponent.get()
+					.getChannels();
+			for (Entry<String, io.openems.common.types.EdgeConfig.Component.Channel> channel : channels.entrySet()) {
+				if (!resultChannels.containsKey(channel.getKey())) {
+					resultChannels.put(channel.getKey(), channel.getValue());
+				}
+			}
+
+		} else {
+			// Create new EdgeConfig.Component and add it to Result
+			result.addComponent(componentId, new EdgeConfig.Component(component.servicePid(), componentId,
+					component.alias(), factoryPid, properties, channels));
+		}
 	}
 
 	/**
@@ -395,7 +420,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
 					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(factoryPid, null);
 					// Get Natures implemented by this Factory-PID
-					String[] natures = getNatures(bundle, manifest, factoryPid);
+					String[] natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
 					result.addFactory(factoryPid,
 							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
@@ -409,7 +434,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
 					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(pid, null);
 					// Get Natures implemented by this Factory-PID
-					String[] natures = getNatures(bundle, manifest, pid);
+					String[] natures = this.getNatures(bundle, manifest, pid);
 					// Add Factory to config
 					result.addFactory(pid, EdgeConfig.Factory.create(pid, objectClassDefinition, natures));
 				}
@@ -418,14 +443,14 @@ public class EdgeConfigWorker extends AbstractWorker {
 	}
 
 	/**
-	 * Reads Natures from an XML:
+	 * Reads Natures from an XML.
 	 * 
 	 * <pre>
-	 * <scr:component>
-	 *   <service>
-	 *     <provide interface="...">
-	 *   </service>
-	 * </scr:component>
+	 * &lt;scr:component&gt;
+	 *   &lt;service&gt;
+	 *     &lt;provide interface="..."&gt;
+	 *   &lt;/service&gt;
+	 * &lt;/scr:component&gt;
 	 * </pre>
 	 * 
 	 * @return
