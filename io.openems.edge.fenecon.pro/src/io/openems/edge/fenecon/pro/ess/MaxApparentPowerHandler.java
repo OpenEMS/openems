@@ -5,13 +5,14 @@ import org.slf4j.LoggerFactory;
 
 public class MaxApparentPowerHandler {
 
-	private final static int MAX_DELTA = 200; // [W]
-	private final static int ADJUST_CYCLES = 10;
-	private int exceededCounter = 0;
-	private int withinCounter = 0;
+	private static final int MAX_DELTA = 200; // [W]
+	private static final int ADJUST_CYCLES = 10;
 
 	private final FeneconProEss parent;
 	private final Logger log = LoggerFactory.getLogger(MaxApparentPowerHandler.class);
+
+	private int exceededCounter = 0;
+	private int withinCounter = 0;
 
 	public MaxApparentPowerHandler(FeneconProEss parent) {
 		this.parent = parent;
@@ -34,24 +35,24 @@ public class MaxApparentPowerHandler {
 		if (/* Discharge */ (setPower > 0 && setPower - MAX_DELTA > power) //
 				|| /* Charge */ (setPower < 0 && setPower + MAX_DELTA < power)) {
 			// Exceeded MaxDelta
-			exceededCounter++;
-			withinCounter = 0;
+			this.exceededCounter++;
+			this.withinCounter = 0;
 		} else {
 			// Within MaxDelta
-			exceededCounter = 0;
-			withinCounter++;
+			this.exceededCounter = 0;
+			this.withinCounter++;
 		}
 
 		/*
 		 * Adjust MaxApparentPower accordingly and reset counter.
 		 */
-		if (exceededCounter > ADJUST_CYCLES) {
+		if (this.exceededCounter > ADJUST_CYCLES) {
 			this.adjustMaxApparentPower("Exceeded MaxDelta -> Reducing MaxApparentPower", setPower, power,
 					oldMaxApparentPower, oldMaxApparentPower - MAX_DELTA);
 
 			this.exceededCounter = 0; // reset
 
-		} else if (withinCounter > ADJUST_CYCLES) {
+		} else if (this.withinCounter > ADJUST_CYCLES) {
 			this.adjustMaxApparentPower("Within MaxDelta -> Increasing MaxApparentPower", setPower, power,
 					oldMaxApparentPower, oldMaxApparentPower + MAX_DELTA);
 

@@ -186,6 +186,11 @@ export const TRANSLATION = {
                     totalCharge: 'Gesamte Beladung',
                     totalChargingPower: 'Gesamte Lade-Leistung',
                     unplugged: 'Ausgesteckt',
+                    Administration: {
+                        carAdministration: 'Autoverwaltung',
+                        customCarInfo: 'Sollte das der Fall sein, kann ihr Auto nur ab einer bestimmten Leistung effizient beladen werden. Durch diesen Button wird das in Ihre Konfigurationsmöglichkeiten- sowie die in die automatische Beladung einberechnet.',
+                        renaultZoe: 'Wird an dieser Ladesäule hauptsächlich ein Renault Zoe beladen?'
+                    },
                     NoConnection: {
                         description: 'Es konnte keine Verbindung zur Ladestation aufgebaut werden.',
                         help1_1: 'Die IP der Ladesäule erscheint beim erneuten einschalten',

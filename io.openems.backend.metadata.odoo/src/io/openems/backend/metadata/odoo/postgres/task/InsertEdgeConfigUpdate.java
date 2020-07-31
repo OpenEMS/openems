@@ -10,7 +10,7 @@ import java.time.ZoneOffset;
 import io.openems.backend.metadata.odoo.Field.EdgeConfigUpdate;
 import io.openems.common.types.EdgeConfigDiff;
 
-public class InsertEdgeConfigUpdate implements DatabaseTask {
+public class InsertEdgeConfigUpdate extends DatabaseTask {
 
 	private final Timestamp createDate;
 	private final int odooId;
@@ -25,7 +25,7 @@ public class InsertEdgeConfigUpdate implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(Connection connection) throws SQLException {
+	protected void _execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psInsertEdgeConfigUpdate(connection);
 		ps.setTimestamp(1, this.createDate);
 		ps.setInt(2, this.odooId);
@@ -36,7 +36,7 @@ public class InsertEdgeConfigUpdate implements DatabaseTask {
 
 	/**
 	 * UPDATE {} SET openems_config = {}, openems_config_components = {} WHERE id =
-	 * {};
+	 * {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
@@ -53,7 +53,8 @@ public class InsertEdgeConfigUpdate implements DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "InsertEdgeConfigUpdate [createDate=" + createDate + ", odooId=" + odooId + ", teaser=" + teaser + "]";
+		return "InsertEdgeConfigUpdate [createDate=" + this.createDate + ", odooId=" + this.odooId + ", teaser="
+				+ this.teaser + "]";
 	}
 
 }
