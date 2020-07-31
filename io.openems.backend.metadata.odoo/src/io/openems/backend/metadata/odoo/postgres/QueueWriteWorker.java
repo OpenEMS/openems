@@ -25,12 +25,12 @@ import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
  */
 public class QueueWriteWorker {
 
-	private final static int NUMBER_OF_THREADS = 5;
+	private final static int NUMBER_OF_THREADS = 10;
 
 	/**
 	 * DEBUG_MODE activates printing of reqular statistics about queued tasks.
 	 */
-	private final static boolean DEBUG_MODE = true;
+	private final static boolean DEBUG_MODE = false;
 
 	private final Logger log = LoggerFactory.getLogger(QueueWriteWorker.class);
 	private final PostgresHandler parent;
@@ -92,7 +92,7 @@ public class QueueWriteWorker {
 			try {
 				task.execute(this.dataSource);
 			} catch (SQLException e) {
-				parent.logWarn(this.log,
+				this.parent.logWarn(this.log,
 						"Unable to execute Task. " + task.getClass().getSimpleName() + ": " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -118,7 +118,7 @@ public class QueueWriteWorker {
 			int countUpdateEdgeVersionUp = this.countUpdateEdgeVersionUp.get();
 			int countUpdateEdgeVersionDown = this.countUpdateEdgeVersionDown.get();
 
-			parent.logInfo(this.log, "QueueWriteWorker. " //
+			this.parent.logInfo(this.log, "QueueWriteWorker. " //
 					+ "Total tasks [" + totalTasks + "|" + completedTasks + "|" + (totalTasks - completedTasks) + "] " //
 					+ "Threads [" + this.executor.getPoolSize() + "] " //
 					+ "InsertEdgeConfigUpdate [" + countInsertEdgeConfigUpdateUp + "|" + countInsertEdgeConfigUpdateDown

@@ -62,14 +62,13 @@ import io.openems.edge.common.event.EdgeEventConstants;
  */
 public class EdgeConfigWorker extends AbstractWorker {
 
-	private final static int CYCLE_TIME = 30_000; // in ms
-//	TODO private final static int CYCLE_TIME = 300_000; // in ms
+	private static final int CYCLE_TIME = 300_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
-
 	private final ComponentManagerImpl parent;
-	private EdgeConfig cache = null;
 	private final Queue<ConfigurationEvent> events = new ArrayDeque<ConfigurationEvent>();
+
+	private EdgeConfig cache = null;
 
 	public EdgeConfigWorker(ComponentManagerImpl parent) {
 		this.parent = parent;
@@ -352,7 +351,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 		String componentId = component.id();
 
 		// get configuration properties
-		TreeMap<String, JsonElement> properties = convertProperties( //
+		TreeMap<String, JsonElement> properties = convertProperties(//
 				component.getComponentContext().getProperties(), //
 				result.getFactories().get(factoryPid));
 
@@ -421,7 +420,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
 					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(factoryPid, null);
 					// Get Natures implemented by this Factory-PID
-					String[] natures = getNatures(bundle, manifest, factoryPid);
+					String[] natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
 					result.addFactory(factoryPid,
 							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
@@ -435,7 +434,7 @@ public class EdgeConfigWorker extends AbstractWorker {
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
 					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(pid, null);
 					// Get Natures implemented by this Factory-PID
-					String[] natures = getNatures(bundle, manifest, pid);
+					String[] natures = this.getNatures(bundle, manifest, pid);
 					// Add Factory to config
 					result.addFactory(pid, EdgeConfig.Factory.create(pid, objectClassDefinition, natures));
 				}
@@ -444,14 +443,14 @@ public class EdgeConfigWorker extends AbstractWorker {
 	}
 
 	/**
-	 * Reads Natures from an XML:
+	 * Reads Natures from an XML.
 	 * 
 	 * <pre>
-	 * <scr:component>
-	 *   <service>
-	 *     <provide interface="...">
-	 *   </service>
-	 * </scr:component>
+	 * &lt;scr:component&gt;
+	 *   &lt;service&gt;
+	 *     &lt;provide interface="..."&gt;
+	 *   &lt;/service&gt;
+	 * &lt;/scr:component&gt;
 	 * </pre>
 	 * 
 	 * @return

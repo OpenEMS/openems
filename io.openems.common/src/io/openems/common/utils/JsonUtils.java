@@ -365,6 +365,14 @@ public class JsonUtils {
 		}
 	}
 
+	public static Optional<String> getAsOptionalString(JsonElement jElement) {
+		try {
+			return Optional.of(getAsString(jElement));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsString(jElement, memberName));

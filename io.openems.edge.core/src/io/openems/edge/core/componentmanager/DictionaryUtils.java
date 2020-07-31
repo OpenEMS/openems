@@ -6,6 +6,9 @@ import java.util.Optional;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.type.TypeUtils;
 
+/**
+ * Provides helper utilities to handle {@link Dictionary}s.
+ */
 public class DictionaryUtils {
 
 	public static String getAsString(Dictionary<String, Object> dict, String key) {
