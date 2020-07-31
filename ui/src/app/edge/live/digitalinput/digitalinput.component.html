@@ -1,0 +1,41 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+        <ion-card>
+            <ion-item color="light" lines="full">
+                <ion-icon slot="start" name="radio-button-off"></ion-icon>
+                <ion-label translate>Digital Inputs</ion-label>
+            </ion-item>
+
+            <ng-container *ngFor="let component of ioComponents">
+                <ion-card-content>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width: 100%;">{{ component.id }}</td>
+                        </tr>
+                        <ng-container *ngFor="let channel of (component.channels | keys)">
+
+                            <ng-container *ngIf="channel.value['accessMode'] === 'RO'">
+                                <ng-container *ngIf="channel.key !== 'State' && channel.key !== '_PropertyEnabled'">
+                                    <tr>
+                                        <td style="width: 100%">
+                                            <ion-text color="primary">{{ channel.key }} :
+                                                <ion-icon name="radio-button-off"
+                                                    *ngIf="currentData[component.id + '/' + channel.key] === 0; else inputOn">
+                                                </ion-icon>
+                                                <ng-template #inputOn>
+                                                    <ion-icon name="radio-button-on"></ion-icon>
+                                                </ng-template>
+                                            </ion-text>
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </ng-container>
+
+                        </ng-container>
+
+                    </table>
+                </ion-card-content>
+            </ng-container>
+        </ion-card>
+    </ng-container>
+</ng-container>
