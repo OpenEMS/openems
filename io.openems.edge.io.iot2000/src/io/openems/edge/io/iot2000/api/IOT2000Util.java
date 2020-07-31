@@ -41,8 +41,8 @@ public class IOT2000Util {
 	public static final String DI_0 = PIN_15;
 	public static final String DI_1 = PIN_5;
 	public static final String DI_2 = PIN_10;
-	public static final String DI_3 = PIN_5;
-	public static final String DI_4 = PIN_5;
+	public static final String DI_3 = PIN_4;
+	public static final String DI_4 = PIN_6;
 
 	private static final String[] ALLPINS = { PIN_4, PIN_5, PIN_6, PIN_7, PIN_10, PIN_15, PIN_22, PIN_23, PIN_24,
 			PIN_25, PIN_26, PIN_27, PIN_30, PIN_31, PIN_36, PIN_37, PIN_38, PIN_39, PIN_40, PIN_41, PIN_42, PIN_43,
