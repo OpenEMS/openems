@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -335,12 +336,27 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		}
 	}
 
-	private void logMessage(String reason) {
-		String packageName = this.getClass().getPackage().getName();
-		if (packageName.startsWith("io.openems.")) {
-			packageName = packageName.substring(11);
+	/**
+	 * Nicely writes a log message on activate/deactivate/modified events.
+	 * 
+	 * @param message the message
+	 */
+	private void logMessage(String message) {
+		// by default: use the class name
+		String name = this.getClass().getSimpleName();
+
+		// try to find the component name
+		ComponentContext context = this.componentContext;
+		if (context != null) {
+			Dictionary<String, Object> properties = context.getProperties();
+			if (properties != null) {
+				Object obj = properties.get(ComponentConstants.COMPONENT_NAME);
+				if (obj != null) {
+					name = obj.toString();
+				}
+			}
 		}
-		this.logInfo(this.log, reason + " " + this.getClass().getSimpleName() + " [" + packageName + "]");
+		this.logInfo(this.log, message + " " + name);
 	}
 
 	@Override

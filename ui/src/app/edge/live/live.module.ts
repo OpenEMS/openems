@@ -1,3 +1,4 @@
+import { AdministrationComponent } from './evcs/modal/administration/administration.component';
 import { AsymmetricPeakshavingComponent } from './peakshaving/asymmetric/asymmetricpeakshaving.component';
 import { AsymmetricPeakshavingModalComponent } from './peakshaving/asymmetric/modal/modal.component';
 import { AutarchyComponent } from './autarchy/autarchy.component';
@@ -51,6 +52,7 @@ import { DigitalInputComponent } from './digitalinput/digitalinput.component';
     SharedModule,
   ],
   entryComponents: [
+    AdministrationComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyModalComponent,
     ChpsocModalComponent,
@@ -71,6 +73,7 @@ import { DigitalInputComponent } from './digitalinput/digitalinput.component';
     DigitalInputComponent,
   ],
   declarations: [
+    AdministrationComponent,
     AsymmetricPeakshavingComponent,
     AsymmetricPeakshavingModalComponent,
     AutarchyComponent,

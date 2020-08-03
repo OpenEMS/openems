@@ -198,6 +198,11 @@ export const TRANSLATION = {
                     totalCharge: 'Total charge',
                     totalChargingPower: 'Total charging power',
                     unplugged: 'Unplugged',
+                    Administration: {
+                        carAdministration: 'Car administration',
+                        customCarInfo: 'If this is the case, your car can only be charged efficiently from a certain output. With this button, this is included in your configuration options as well as in the automatic charging calculations.',
+                        renaultZoe: 'Is a Renault Zoe mainly charged on this charging station?'
+                    },
                     NoConnection: {
                         description: 'No connection to the charging station.',
                         help1_1: 'The IP of the charging station appears when switching on again',

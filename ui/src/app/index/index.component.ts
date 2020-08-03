@@ -21,6 +21,12 @@ export class IndexComponent {
   private static readonly EDGE_ID_REGEXP = new RegExp('\\d+');
 
   public env = environment;
+
+  /**
+   * True, if there is no access to any Edge.
+   */
+  public noEdges: boolean = false;
+
   public form: FormGroup;
   public wpForm: FormGroup;
   public filter: string = '';
@@ -53,6 +59,7 @@ export class IndexComponent {
       //Forwarding to device index if there is only 1 edge
       service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
         let edgeIds = Object.keys(edges);
+        this.noEdges = edgeIds.length == 0;
         if (edgeIds.length == 1) {
           let edge = edges[edgeIds[0]];
           if (edge.isOnline) {
