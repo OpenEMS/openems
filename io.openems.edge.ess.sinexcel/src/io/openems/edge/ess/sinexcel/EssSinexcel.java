@@ -119,7 +119,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.FLOAT_CHARGE_VOLTAGE = config.toppingCharge();
 
 		// this.getNoOfCells();
-		this.resetDcAcEnergy();
 		this.inverterOn();
 	}
 
@@ -239,22 +238,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	public void inverterOff() throws OpenemsNamedException {
 		EnumWriteChannel setdataModOffCmd = this.channel(SinexcelChannelId.MOD_OFF_CMD);
 		setdataModOffCmd.setNextWriteValue(FalseTrue.TRUE); // true = STOP
-	}
-
-	/**
-	 * Resets DC/AC energy values to zero.
-	 * 
-	 * @throws OpenemsNamedException on error
-	 */
-	public void resetDcAcEnergy() throws OpenemsNamedException {
-		IntegerWriteChannel chargeEnergy = this.channel(SinexcelChannelId.SET_ANALOG_CHARGE_ENERGY);
-		chargeEnergy.setNextWriteValue(0);
-		IntegerWriteChannel dischargeEnergy = this.channel(SinexcelChannelId.SET_ANALOG_DISCHARGE_ENERGY);
-		dischargeEnergy.setNextWriteValue(0);
-		IntegerWriteChannel chargeDcEnergy = this.channel(SinexcelChannelId.SET_ANALOG_DC_CHARGE_ENERGY);
-		chargeDcEnergy.setNextWriteValue(0);
-		IntegerWriteChannel dischargeDcEnergy = this.channel(SinexcelChannelId.SET_ANALOG_DC_DISCHARGE_ENERGY);
-		dischargeDcEnergy.setNextWriteValue(0);
 	}
 
 	/**
@@ -429,9 +412,11 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 						m(SinexcelChannelId.INVOUTCURRENT_L3, new UnsignedWordElement(0x006A),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
-				new FC3ReadRegistersTask(0x007E, Priority.HIGH,
-						m(SinexcelChannelId.ANALOG_CHARGE_ENERGY, new UnsignedDoublewordElement(0x007E)), // 1
-						m(SinexcelChannelId.ANALOG_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0x0080)), // 1
+				new FC3ReadRegistersTask(0x007E, Priority.LOW,
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0x007E),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(0x0080),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0082, 0x0083),
 						m(SinexcelChannelId.TEMPERATURE, new SignedWordElement(0x0084)),
 						new DummyRegisterElement(0x0085, 0x008C), //
