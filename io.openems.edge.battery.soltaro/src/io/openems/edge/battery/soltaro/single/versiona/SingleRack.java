@@ -1136,7 +1136,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x2104)), //

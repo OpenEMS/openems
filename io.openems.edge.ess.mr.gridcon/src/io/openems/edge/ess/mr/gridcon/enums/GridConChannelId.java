@@ -113,6 +113,11 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_MEASUREMENTS_CURRENT_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	DCDC_MEASUREMENTS_CURRENT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
 	DCDC_MEASUREMENTS_CURRENT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
+	
+	DCDC_MEASUREMENTS_CURRENT_STRING_A_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
+	DCDC_MEASUREMENTS_CURRENT_STRING_B_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
+	DCDC_MEASUREMENTS_CURRENT_STRING_C_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
+	
 	DCDC_MEASUREMENTS_POWER_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.KILOWATT)),
 	DCDC_MEASUREMENTS_POWER_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.KILOWATT)),
 	DCDC_MEASUREMENTS_POWER_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.KILOWATT)),
@@ -554,10 +559,15 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_CONTROL_WEIGHT_STRING_C_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
 	DCDC_CONTROL_WEIGHT_STRING_C(new FloatDoc().unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C_DEBUG))), ////
-	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
-			.accessMode(AccessMode.READ_WRITE)), //
-	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+
+	DCDC_CONTROL_I_REF_STRING_A_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //
+	DCDC_CONTROL_I_REF_STRING_B_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //			
+	DCDC_CONTROL_I_REF_STRING_C_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //
+	
+	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //			
+	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
+	
 	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),;
 
 	private final Doc doc;

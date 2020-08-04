@@ -69,7 +69,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: A
 		 * </ul>
 		 */
-		CURRENT(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)),
+		CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
 
 		/**
 		 * Capacity of battery.

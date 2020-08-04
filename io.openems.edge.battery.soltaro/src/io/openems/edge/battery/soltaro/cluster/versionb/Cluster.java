@@ -549,8 +549,11 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
 						m(ClusterChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
-						m(ClusterChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
-								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
+						
+						m(new UnsignedWordElement(0x1045)).
+							m(ClusterChannelId.SYSTEM_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2).
+							m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_2).
+							build(),						
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 								.onUpdateCallback(val -> {

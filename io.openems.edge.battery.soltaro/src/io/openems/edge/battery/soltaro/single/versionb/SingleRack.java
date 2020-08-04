@@ -423,10 +423,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 		
 		@SuppressWarnings("unchecked")
-		Optional<Float> currentOpt = (Optional<Float>) this
+		Optional<Integer> currentOpt = (Optional<Integer>) this
 				.channel(SingleRackChannelId.CLUSTER_1_CURRENT).value().asOptional();
 		if (currentOpt.isPresent()) {
-			float current= currentOpt.get();
+			int current= currentOpt.get();
 			this.channel(Battery.ChannelId.CURRENT).setNextValue(current);
 		}
 		
@@ -997,7 +997,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRackChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackChannelId.CLUSTER_1_CURRENT, new SignedWordElement(0x2101),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)),
 						m(SingleRackChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)) //
