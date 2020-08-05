@@ -1,10 +1,7 @@
 package io.openems.edge.application;
 
 import java.io.IOException;
-import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Optional;
-import java.util.OptionalInt;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -14,23 +11,6 @@ public class PreConfig {
 
 	protected static void initConfig(ConfigurationAdmin cm) {
 
-		/*
-		char[] password = { 'g', 'u', 'e', 's', 't' };
-
-		try {
-			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-			byte[] salt = Base64.getDecoder().decode("dXNlcg==");
-
-			PBEKeySpec spec = new PBEKeySpec(password, salt, 10, 256);
-			SecretKey key = skf.generateSecret(spec);
-			byte[] res = key.getEncoded();
-
-			System.out.println("PASSWORT: " + Base64.getEncoder().encodeToString(res));
-
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new RuntimeException(e);
-		}
-		*/
 		Configuration factory;
 
 		Configuration[] configs;
@@ -46,49 +26,36 @@ public class PreConfig {
 				rrd4j.put("alias", "");
 				rrd4j.put("noOfCycles", 60);
 				factory.update(rrd4j);
-			} 
-		} catch (IOException | InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		/*
-		try {
-			configs = cm.listConfigurations("(id=influx0)");
-
-			if (configs == null || configs.length == 0) {
-				factory = cm.createFactoryConfiguration("Timedata.InfluxDB", null);
-
-				Hashtable<String, Object> influx = new Hashtable<>();
-				influx.put("enabled", true);
-				influx.put("database", "db");
-				influx.put("id", "influx0");
-				influx.put("alias", "");
-				influx.put("ip", "localhost");
-				influx.put("isReadOnly", false);
-				influx.put("port", 8086);
-				influx.put("retentionPolicy", "autogen");
-				influx.put("username", "root");
-				influx.put("noOfCycles", 300);
-				factory.update(influx);
-			} else {
-				System.out.println("Influx already active. Checking no of Cycles");
-				Configuration oldinfluxconf = configs[0];
-				Dictionary<String, Object> influxprops = oldinfluxconf.getProperties();
-				
-				Optional<Object> oldcycles = Optional.ofNullable(influxprops.get("noOfCycles"));
-				
-				if(!oldcycles.isPresent()) {
-					System.out.println("Update no of Cycles");
-					influxprops.put("noOfCycles", 60);
-					oldinfluxconf.update(influxprops);
-				}
 			}
 		} catch (IOException | InvalidSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
+
+		/*
+		 * try { configs = cm.listConfigurations("(id=influx0)");
+		 * 
+		 * if (configs == null || configs.length == 0) { factory =
+		 * cm.createFactoryConfiguration("Timedata.InfluxDB", null);
+		 * 
+		 * Hashtable<String, Object> influx = new Hashtable<>(); influx.put("enabled",
+		 * true); influx.put("database", "db"); influx.put("id", "influx0");
+		 * influx.put("alias", ""); influx.put("ip", "localhost");
+		 * influx.put("isReadOnly", false); influx.put("port", 8086);
+		 * influx.put("retentionPolicy", "autogen"); influx.put("username", "root");
+		 * influx.put("noOfCycles", 300); factory.update(influx); } else {
+		 * System.out.println("Influx already active. Checking no of Cycles");
+		 * Configuration oldinfluxconf = configs[0]; Dictionary<String, Object>
+		 * influxprops = oldinfluxconf.getProperties();
+		 * 
+		 * Optional<Object> oldcycles =
+		 * Optional.ofNullable(influxprops.get("noOfCycles"));
+		 * 
+		 * if(!oldcycles.isPresent()) { System.out.println("Update no of Cycles");
+		 * influxprops.put("noOfCycles", 60); oldinfluxconf.update(influxprops); } } }
+		 * catch (IOException | InvalidSyntaxException e) { // TODO Auto-generated catch
+		 * block e.printStackTrace(); }
+		 */
 		try {
 			configs = cm.listConfigurations("(service.pid=Core.User)");
 
@@ -103,7 +70,6 @@ public class PreConfig {
 			e1.printStackTrace();
 		}
 
-		
 		try {
 			configs = cm.listConfigurations("(id=scheduler0)");
 
@@ -125,7 +91,7 @@ public class PreConfig {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		try {
 			configs = cm.listConfigurations("(id=ctrlApiWebsocket0)");
 
@@ -146,7 +112,7 @@ public class PreConfig {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		try {
 			configs = cm.listConfigurations("(id=ctrlDebugLog0)");
 
@@ -161,15 +127,15 @@ public class PreConfig {
 		} catch (IOException | InvalidSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
-		
+		}
+
 		String userkey = "";
 
 		try {
 			configs = cm.listConfigurations("(&(id=kacoCore0)(service.factoryPid=Kaco.BlueplanetHybrid10.Core))");
 
 			if (configs == null || configs.length == 0) {
-				
+
 				// Energy Depot Start
 
 				Configuration[] oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.EdCom)");
@@ -179,18 +145,16 @@ public class PreConfig {
 					Configuration edcom = oldconfigs[0];
 					userkey = (String) edcom.getProperties().get("userkey");
 					edcom.delete();
-					
+
 				}
-				
-				
-				
+
 				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.CenturioEss)");
 
 				if (oldconfigs != null) {
 
 					Configuration ess = oldconfigs[0];
 					ess.delete();
-					
+
 				}
 
 				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.CenturioPVMeter)");
@@ -199,29 +163,29 @@ public class PreConfig {
 
 					Configuration pvmeter = oldconfigs[0];
 					pvmeter.delete();
-					
+
 				}
-				
+
 				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.Vectis)");
 
 				if (oldconfigs != null) {
 
 					Configuration vectis = oldconfigs[0];
 					vectis.delete();
-					
+
 				}
-				
+
 				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.CenturioMeter)");
 
 				if (oldconfigs != null) {
 
 					Configuration gridmeter = oldconfigs[0];
 					gridmeter.delete();
-					
+
 				}
-				
-				//Energy Depot End
-				
+
+				// Energy Depot End
+
 				// Old Kaco Start
 				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpCom)");
 
@@ -230,18 +194,18 @@ public class PreConfig {
 					Configuration bpCom = oldconfigs[0];
 					userkey = (String) bpCom.getProperties().get("userkey");
 					bpCom.delete();
-					
+
 				}
-				
+
 				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpEss)");
 
 				if (oldconfigs != null) {
 
 					Configuration bpEss = oldconfigs[0];
 					bpEss.delete();
-					
+
 				}
-				
+
 				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpPVMeter)");
 
 				if (oldconfigs != null) {
@@ -249,14 +213,14 @@ public class PreConfig {
 					Configuration bpPV = oldconfigs[0];
 					bpPV.delete();
 				}
-				
+
 				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.hy-switch)");
 
 				if (oldconfigs != null) {
 
 					Configuration hyswitch = oldconfigs[0];
 					hyswitch.delete();
-					
+
 				}
 				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpGridMeter)");
 
@@ -266,7 +230,6 @@ public class PreConfig {
 					bpgridMeter.delete();
 				}
 				// old Kaco End
-				
 
 				// Create Kaco Core
 				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Core", null);
@@ -276,7 +239,7 @@ public class PreConfig {
 				core.put("serialnumber", "");
 				core.put("id", "kacoCore0");
 				core.put("alias", "");
-				if(userkey == "") {
+				if (userkey == "") {
 					userkey = "user";
 				}
 				core.put("userkey", userkey);
@@ -306,10 +269,9 @@ public class PreConfig {
 				grid.put("core.id", "kacoCore0");
 				grid.put("id", "meter0");
 				grid.put("alias", "Vectis");
-			//	grid.put("external", false);
+				// grid.put("external", false);
 				factory.update(grid);
-				
-				
+
 				/*
 				 * // Create PVMeter factory =
 				 * cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
@@ -318,8 +280,7 @@ public class PreConfig {
 				 * pv.put("core.id", "kacoCore0"); pv.put("id", "pv0"); pv.put("alias", "PV");
 				 * factory.update(pv);
 				 */
-				
-				
+
 				// Create Charger
 				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Charger", null);
 
@@ -329,7 +290,7 @@ public class PreConfig {
 				charger.put("id", "charger0");
 				charger.put("alias", "PV");
 				factory.update(charger);
-				 
+
 			} else {
 				System.out.println("Kaco already active");
 			}
@@ -338,7 +299,7 @@ public class PreConfig {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		try {
 			configs = cm.listConfigurations("(id=ctrlDebugLog0)");
 
@@ -356,7 +317,5 @@ public class PreConfig {
 		}
 
 	}
-
-
 
 }
