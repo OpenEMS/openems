@@ -383,7 +383,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		case VOLT_AMPERE_HOURS:
 		case VOLT_AMPERE_REACTIVE_HOURS:
 		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return new ChannelDef(DsType.GAUGE, Double.NaN, 1, ConsolFun.MAX);
+			return new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
 		}
 		throw new IllegalArgumentException("Unhandled Channel unit [" + channelUnit + "]");
 	}
