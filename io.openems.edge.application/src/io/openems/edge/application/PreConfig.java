@@ -1,7 +1,9 @@
 package io.openems.edge.application;
 
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Optional;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -9,53 +11,68 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class PreConfig {
 
-	protected static void initConfig(ConfigurationAdmin cm) {
+	protected static void initConfig(ConfigurationAdmin cm, boolean old) {
 
 		Configuration factory;
 
 		Configuration[] configs;
-		try {
-			configs = cm.listConfigurations("(id=rrd4j0)");
 
-			if (configs == null || configs.length == 0) {
-				factory = cm.createFactoryConfiguration("Timedata.Rrd4j", null);
+		if (old) {
+			try {
+				configs = cm.listConfigurations("(id=influx0)");
 
-				Hashtable<String, Object> rrd4j = new Hashtable<>();
-				rrd4j.put("enabled", true);
-				rrd4j.put("id", "rrd4j0");
-				rrd4j.put("alias", "");
-				rrd4j.put("noOfCycles", 60);
-				factory.update(rrd4j);
+				if (configs == null || configs.length == 0) {
+					factory = cm.createFactoryConfiguration("Timedata.InfluxDB", null);
+
+					Hashtable<String, Object> influx = new Hashtable<>();
+					influx.put("enabled", true);
+					influx.put("database", "db");
+					influx.put("id", "influx0");
+					influx.put("alias", "");
+					influx.put("ip", "localhost");
+					influx.put("isReadOnly", false);
+					influx.put("port", 8086);
+					influx.put("retentionPolicy", "autogen");
+					influx.put("username", "root");
+					influx.put("noOfCycles", 300);
+					factory.update(influx);
+				} else {
+					System.out.println("Influx already active. Checking no of Cycles");
+					Configuration oldinfluxconf = configs[0];
+					Dictionary<String, Object> influxprops = oldinfluxconf.getProperties();
+
+					Optional<Object> oldcycles = Optional.ofNullable(influxprops.get("noOfCycles"));
+
+					if (!oldcycles.isPresent()) {
+						System.out.println("Update no of Cycles");
+						influxprops.put("noOfCycles", 60);
+						oldinfluxconf.update(influxprops);
+					}
+				}
+			} catch (IOException | InvalidSyntaxException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException | InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} else {
+
+			try {
+				configs = cm.listConfigurations("(id=rrd4j0)");
+
+				if (configs == null || configs.length == 0) {
+					factory = cm.createFactoryConfiguration("Timedata.Rrd4j", null);
+
+					Hashtable<String, Object> rrd4j = new Hashtable<>();
+					rrd4j.put("enabled", true);
+					rrd4j.put("id", "rrd4j0");
+					rrd4j.put("alias", "");
+					rrd4j.put("noOfCycles", 60);
+					factory.update(rrd4j);
+				}
+			} catch (IOException | InvalidSyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
-		/*
-		 * try { configs = cm.listConfigurations("(id=influx0)");
-		 * 
-		 * if (configs == null || configs.length == 0) { factory =
-		 * cm.createFactoryConfiguration("Timedata.InfluxDB", null);
-		 * 
-		 * Hashtable<String, Object> influx = new Hashtable<>(); influx.put("enabled",
-		 * true); influx.put("database", "db"); influx.put("id", "influx0");
-		 * influx.put("alias", ""); influx.put("ip", "localhost");
-		 * influx.put("isReadOnly", false); influx.put("port", 8086);
-		 * influx.put("retentionPolicy", "autogen"); influx.put("username", "root");
-		 * influx.put("noOfCycles", 300); factory.update(influx); } else {
-		 * System.out.println("Influx already active. Checking no of Cycles");
-		 * Configuration oldinfluxconf = configs[0]; Dictionary<String, Object>
-		 * influxprops = oldinfluxconf.getProperties();
-		 * 
-		 * Optional<Object> oldcycles =
-		 * Optional.ofNullable(influxprops.get("noOfCycles"));
-		 * 
-		 * if(!oldcycles.isPresent()) { System.out.println("Update no of Cycles");
-		 * influxprops.put("noOfCycles", 60); oldinfluxconf.update(influxprops); } } }
-		 * catch (IOException | InvalidSyntaxException e) { // TODO Auto-generated catch
-		 * block e.printStackTrace(); }
-		 */
 		try {
 			configs = cm.listConfigurations("(service.pid=Core.User)");
 
@@ -229,6 +246,15 @@ public class PreConfig {
 					Configuration bpgridMeter = oldconfigs[0];
 					bpgridMeter.delete();
 				}
+				
+				oldconfigs = cm.listConfigurations("(service.factoryPid=Kaco.BlueplanetHybrid10.PVMeter)");
+
+				if (oldconfigs != null) {
+
+					Configuration pvmeter = oldconfigs[0];
+					pvmeter.delete();
+				}
+				
 				// old Kaco End
 
 				// Create Kaco Core
