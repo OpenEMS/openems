@@ -123,8 +123,10 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 
 			Optional<String> pwd = Optional.of(KacoConstants.PASSWORD);
 			Optional<String> usr = Optional.of(KacoConstants.USERNAME);
+
 			return this.handleExecuteCommandRequest(user,
-					new ExecuteSystemCommandRequest(request.getId(), KacoConstants.RESTART_CMD, false, 5, usr, pwd));
+					new ExecuteSystemCommandRequest(request.getId(), KacoConstants.RESTART_CMD, true, 5, usr, pwd));
+
 		}
 
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.ADMIN);

@@ -12,10 +12,9 @@ public class KacoConstants {
 	public final static String UI_FOLDER = "/var/www/html/";
 	public final static String UI_FOLDER_BACKUP = LOCAL_FOLDER + "ui-backup/";
 	//public final static String RESTART_CMD = "sudo systemctl restart hy-control.service";
-	public final static String RESTART_CMD = "/etc/init.d/hy-control restart";
+	public final static String RESTART_CMD = "/etc/init.d/hy-control stop";
 	//public final static String USERNAME = "pi";
 	public final static String USERNAME = "root";
-	//public final static String PASSWORD = "raspberry";
-	public final static String PASSWORD = "KNKonstanz2020!";
+	public final static String PASSWORD = "";
 	public final static String TMP_FOLDER = LOCAL_FOLDER + "download/";
 }
