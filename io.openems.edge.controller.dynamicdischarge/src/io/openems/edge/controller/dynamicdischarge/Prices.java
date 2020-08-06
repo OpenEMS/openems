@@ -21,14 +21,13 @@ public class Prices {
 	private static LocalDateTime startTimeStamp = null;
 	private TreeMap<LocalDateTime, Float> hourlyPrices = new TreeMap<LocalDateTime, Float>();
 
-
-	public TreeMap<LocalDateTime, Float> houlryPrices(Config config) {
+	public TreeMap<LocalDateTime, Float> houlryPrices(String url, String apiKey) {
 
 		try {
 
 			OkHttpClient client = new OkHttpClient();
-			Request request = new Request.Builder().url(config.url())
-					.header("Authorization", Credentials.basic(config.apikey(), "")).build();
+			Request request = new Request.Builder().url(url)
+					.header("Authorization", Credentials.basic(apiKey, "")).build();
 			Response response = null;
 
 			response = client.newCall(request).execute();
@@ -43,6 +42,10 @@ public class Prices {
 			JsonArray data = (JsonArray) jsonObject.get("data");
 			this.hourlyPrices.clear();
 
+			if (data == null) {
+				return null;
+			}
+
 			for (JsonElement element : data) {
 				JsonObject jsonelement = (JsonObject) element;
 
@@ -54,10 +57,6 @@ public class Prices {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return this.hourlyPrices;
-	}
-
-	public TreeMap<LocalDateTime, Float> getHourlyPrices() {
 		return this.hourlyPrices;
 	}
 

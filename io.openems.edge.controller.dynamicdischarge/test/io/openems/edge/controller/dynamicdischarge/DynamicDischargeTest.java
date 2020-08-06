@@ -71,6 +71,12 @@ public class DynamicDischargeTest {
 		public int Max_Evening_hour() {
 			return this.eveningHour;
 		}
+
+		@Override
+		public int startHour() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
 	}
 
 	@Test

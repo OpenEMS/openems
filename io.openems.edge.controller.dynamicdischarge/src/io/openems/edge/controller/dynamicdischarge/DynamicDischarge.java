@@ -45,21 +45,16 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 	@Reference
 	protected ConsumptionHourlyPredictor consumptionHourlyPredictor;
 
-	private Float minPrice;
 	private Config config = null;
-	private boolean executed = false;
+	private boolean isTargetHoursCalculated = false;
 	private Integer remainingCapacity = 0;
-	private Integer availableCapacity = 0;
 	private LocalDateTime startHour = null;
 	private LocalDateTime proLessThanCon = null;
 	private LocalDateTime proMoreThanCon = null;
 	private LocalDateTime cheapTimeStamp = null;
-	private Integer[] productionValues = new Integer[24];
-	private Integer[] consumptionValues = new Integer[24];
+//	private Integer[] productionValues = new Integer[24];
+//	private Integer[] consumptionValues = new Integer[24];
 	private List<LocalDateTime> cheapHours = new ArrayList<LocalDateTime>();
-	private TreeMap<LocalDateTime, Float> hourlyPrices = new TreeMap<LocalDateTime, Float>();
-	private TreeMap<LocalDateTime, Integer> hourlyProduction = new TreeMap<LocalDateTime, Integer>();
-	private TreeMap<LocalDateTime, Integer> hourlyConsumption = new TreeMap<LocalDateTime, Integer>();
 
 	public DynamicDischarge() {
 		super(//
@@ -75,8 +70,8 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 				Controller.ChannelId.values() //
 		);
 
-		this.productionValues = productionValues;
-		this.consumptionValues = consumptionValues;
+//		this.productionValues = productionValues;
+//		this.consumptionValues = consumptionValues;
 		this.startHour = startHour;
 	}
 
@@ -110,22 +105,22 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 		// Get required variables
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		System.out.println(ess.getSoc());
-
-		System.out.println(ess.getCapacity());
-		int nettcapacity = ess.getCapacity().value().getOrError();
-		this.availableCapacity = (100 / ess.getSoc().value().getOrError()) * nettcapacity;
 		LocalDateTime now = LocalDateTime.now();
+		int nettcapacity = ess.getCapacity().value().getOrError();
+		Integer availableCapacity = (100 / ess.getSoc().value().getOrError()) * nettcapacity;
 
-		if (now.getHour() == 14 && !executed) {
-			this.productionValues = productionHourlyPredictor.get24hPrediction().getValues();
-			this.consumptionValues = consumptionHourlyPredictor.get24hPrediction().getValues();
+		if (now.getHour() == this.config.startHour() && !isTargetHoursCalculated) {
+			Integer[] productionValues = productionHourlyPredictor.get24hPrediction().getValues();
+			Integer[] consumptionValues = consumptionHourlyPredictor.get24hPrediction().getValues();
 			this.startHour = productionHourlyPredictor.get24hPrediction().getStart();
 
+			TreeMap<LocalDateTime, Integer> hourlyProduction = new TreeMap<LocalDateTime, Integer>();
+			TreeMap<LocalDateTime, Integer> hourlyConsumption = new TreeMap<LocalDateTime, Integer>();
+
 			for (int i = 0; i <= 24; i++) {
-				if (consumptionValues[i] != null) {
-					this.hourlyProduction.put(startHour.plusHours(i), productionValues[i]);
-					this.hourlyConsumption.put(startHour.plusHours(i), consumptionValues[i]);
+				if (consumptionValues[i] != null && productionValues[i] != null) {
+					hourlyProduction.put(startHour.plusHours(i), productionValues[i]);
+					hourlyConsumption.put(startHour.plusHours(i), consumptionValues[i]);
 				}
 			}
 
@@ -135,40 +130,37 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 			this.proLessThanCon = null;
 			this.proMoreThanCon = null;
 
-			this.hourlyPrices = this.prices.houlryPrices(config);
+			TreeMap<LocalDateTime, Float> hourlyPrices = this.prices.houlryPrices(config.url(), config.apikey());
+			
+			if(hourlyPrices==null) {
+				return;
+			}
 
 			// calculates the boundary hours, within which the controller needs to work
-			this.calculateTargetHours();
+			this.calculateBoundaryHours(hourlyProduction, hourlyConsumption);
 
 			// if the target hours are calculated.
 			if (this.proLessThanCon != null && this.proMoreThanCon != null) {
 
-				this.calculateRemainingCapacity(this.availableCapacity);
+				this.calculateRemainingCapacity(availableCapacity, hourlyProduction, hourlyConsumption);
 
 				// list of hours, during which battery is avoided.
-				this.calculateCheapHours();
-				this.executed = true;
+				this.calculateTargetHours(hourlyConsumption, hourlyPrices);
+				this.isTargetHoursCalculated = true;
 			}
 		}
 
-		if (now.getHour() == 15 && this.executed) {
-			this.executed = false;
+		if (now.getHour() == this.config.startHour() + 1 && this.isTargetHoursCalculated) {
+			this.isTargetHoursCalculated = false;
 		}
 
 		// Avoiding Discharging during cheapest hours
 		if (!this.cheapHours.isEmpty()) {
 			for (LocalDateTime entry : cheapHours) {
 				if (now.getHour() == entry.getHour()) {
-
-					// adjust value so that it fits into Min/MaxActivePower
-					int calculatedPower = ess.getPower() //
-							.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, 0);
-					/*
-					 * set result
-					 */
+					// set result
 					ess.addPowerConstraintAndValidate("SymmetricActivePower", Phase.ALL, Pwr.ACTIVE,
-							Relationship.EQUALS, calculatedPower);
-
+							Relationship.EQUALS, 0);
 					this.channel(ChannelId.BUYING_FROM_GRID).setNextValue(true);
 				}
 			}
@@ -177,27 +169,24 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 		}
 	}
 
-	private void calculateTargetHours() {
+	private void calculateBoundaryHours(TreeMap<LocalDateTime, Integer> hourlyProduction,
+			TreeMap<LocalDateTime, Integer> hourlyConsumption) {
 
-		// last hour of the day when production was greater than consumption
-		for (LocalDateTime key : this.hourlyProduction.keySet()) {
-			int production = this.hourlyProduction.get(key);
-			int consumption = this.hourlyConsumption.get(key);
+		for (LocalDateTime key : hourlyProduction.keySet()) {
+			int production = hourlyProduction.get(key);
+			int consumption = hourlyConsumption.get(key);
 
+			// last hour of the day when production was greater than consumption
 			if ((production > consumption) //
 					&& (this.startHour.getDayOfYear() == LocalDateTime.now().getDayOfYear())) {
-				this.proLessThanCon = key.plusHours(1);
+				this.proLessThanCon = key;
 			}
-		}
 
-		// First hour of the day when production was greater than consumption
-		for (LocalDateTime key : this.hourlyProduction.keySet()) {
-			int production = this.hourlyProduction.get(key);
-			int consumption = this.hourlyConsumption.get(key);
+			// First hour of the day when production was greater than consumption
 			if ((production > consumption) //
-					&& (this.startHour.plusDays(1).getDayOfYear() == LocalDateTime.now().getDayOfYear())) {
+					&& (this.startHour.plusDays(1).getDayOfYear() == LocalDateTime.now().getDayOfYear())
+					&& (this.proMoreThanCon == null)) {
 				this.proMoreThanCon = key;
-				return;
 			}
 		}
 
@@ -210,23 +199,64 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 		if (this.proMoreThanCon == null) {
 			LocalDateTime now = LocalDateTime.now();
 			this.proMoreThanCon = now.withHour(0).withMinute(0).withSecond(0).withNano(0)
-					.plusHours(config.Max_Evening_hour());
+					.plusHours(config.Max_Evening_hour()).plusDays(1);
 		}
 	}
 
-	private void calculateRemainingCapacity(int availableCapacity) {
+	private void calculateRemainingCapacity(int availableCapacity, TreeMap<LocalDateTime, Integer> hourlyProduction,
+			TreeMap<LocalDateTime, Integer> hourlyConsumption) {
 
 		int consumptionTotal = 0;
 
-		for (Entry<LocalDateTime, Integer> entry : this.hourlyConsumption.entrySet()) {
+		for (Entry<LocalDateTime, Integer> entry : hourlyConsumption.entrySet()) {
 			if (entry.getKey().isAfter(this.proLessThanCon) && entry.getKey().isBefore(this.proMoreThanCon)) {
-				consumptionTotal += entry.getValue() - this.hourlyProduction.get(entry.getKey());
+
+				// TODO Confirm production is needed here?
+				consumptionTotal += entry.getValue() - hourlyProduction.get(entry.getKey());
 			}
 		}
 
 		// remaining amount of energy that should be covered from grid.
 		this.remainingCapacity = consumptionTotal - availableCapacity;
 	}
+	
+//	@SuppressWarnings("unused")
+//	private void calculateBoundaryhours(Integer[] productionValues, Integer[] consumptionValues,
+//			LocalDateTime startHour) {
+//
+//		for (int i = 0; i < 24; i++) {
+//			Integer production = productionValues[i];
+//			Integer consumption = consumptionValues[i];
+//
+//			if (production != null || consumption != null) {
+//
+//				// last hour of the day when production was greater than consumption
+//				if ((production > consumption) //
+//						&& (startHour.getDayOfYear() == LocalDateTime.now().getDayOfYear())) {
+//					this.proLessThanCon = startHour.plusHours(i);
+//				}
+//
+//				// First hour of the day when production was greater than consumption
+//				if ((production > consumption) //
+//						&& (startHour.plusDays(1).getDayOfYear() == LocalDateTime.now().getDayOfYear())
+//						&& (this.proMoreThanCon == null)) {
+//					this.proMoreThanCon = startHour.plusHours(i);
+//				}
+//			}
+//		}
+//
+//		// if there is no enough production available.
+//		if (this.proLessThanCon == null) {
+//			LocalDateTime now = LocalDateTime.now();
+//			this.proLessThanCon = now.withHour(0).withMinute(0).withSecond(0).withNano(0)
+//					.plusHours(config.MaxEveningHour());
+//		}
+//		if (this.proMoreThanCon == null) {
+//			LocalDateTime now = LocalDateTime.now();
+//			this.proMoreThanCon = now.withHour(0).withMinute(0).withSecond(0).withNano(0)
+//					.plusHours(config.MaxMorningHour()).plusDays(1);
+//		}
+//	}
 
 //	@SuppressWarnings("unused")
 //	private TreeMap<LocalDateTime, Integer> calculateAdjustedHourlyProduction(int availableCapacity) {
@@ -250,23 +280,11 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 //	}
 
 	// list of hours, during which battery is avoided.
-	private void calculateCheapHours() {
-		minPrice = Float.MAX_VALUE;
+	private void calculateTargetHours(TreeMap<LocalDateTime, Integer> hourlyConsumption,
+			TreeMap<LocalDateTime, Float> hourlyPrices) {
+		Float minPrice = Float.MAX_VALUE;
 		Integer remainingEnergy = this.remainingCapacity;
 
-		// Calculates the cheapest price-hour within certain Hours.
-		if (this.cheapHours.isEmpty()) {
-			// cheapest price-hour among all
-			minPrice = this.hourlyPrices.values() //
-					.stream() //
-					.min(Float::compare) //
-					.get();
-			for (Map.Entry<LocalDateTime, Float> entry : hourlyPrices.entrySet()) {
-				if (minPrice.equals(entry.getValue())) {
-					this.cheapTimeStamp = entry.getKey();
-				}
-			}
-		} else {
 			for (Map.Entry<LocalDateTime, Float> entry : hourlyPrices.entrySet()) {
 				if (!this.cheapHours.contains(entry.getKey())) {
 					if (entry.getValue() < minPrice) {
@@ -275,13 +293,12 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 					}
 				}
 			}
-		}
 		this.cheapHours.add(this.cheapTimeStamp);
 		log.info("cheapTimeStamp: " + this.cheapTimeStamp);
 
 		// check -> consumption for cheap hour for previous day and compare with
 		// remaining energy needed for today.
-		for (Map.Entry<LocalDateTime, Integer> entry : this.hourlyConsumption.entrySet()) {
+		for (Map.Entry<LocalDateTime, Integer> entry : hourlyConsumption.entrySet()) {
 			if (!this.cheapHours.isEmpty()) {
 				for (LocalDateTime hours : cheapHours) {
 					if (entry.getKey().getHour() == hours.getHour()) {
@@ -293,7 +310,7 @@ public class DynamicDischarge extends AbstractOpenemsComponent
 
 		// if we need more cheap hours
 		if (remainingEnergy > 0) {
-			this.calculateCheapHours();
+			this.calculateTargetHours(hourlyConsumption, hourlyPrices);
 		}
 	}
 
