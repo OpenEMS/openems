@@ -219,6 +219,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		final double EFFICIENCY_FACTOR = 0.9;
 		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
 		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
+		
+		this._setCapacity(battery.getCapacity().get());
 	}
 
 	/**
