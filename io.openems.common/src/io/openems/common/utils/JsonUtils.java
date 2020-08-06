@@ -69,6 +69,16 @@ public class JsonUtils {
 		}
 	}
 
+	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement)
+			throws OpenemsNamedException {
+		String element = getAsString(jElement);
+		try {
+			return (E) Enum.valueOf(enumType, element);
+		} catch (IllegalArgumentException e) {
+			throw OpenemsError.JSON_NO_ENUM.exception(element);
+		}
+	}
+
 	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement,
 			String memberName) {
 		Optional<String> elementOpt = getAsOptionalString(jElement, memberName);
@@ -350,6 +360,14 @@ public class JsonUtils {
 	public static Optional<Long> getAsOptionalLong(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsLong(jElement, memberName));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	public static Optional<String> getAsOptionalString(JsonElement jElement) {
+		try {
+			return Optional.of(getAsString(jElement));
 		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
@@ -694,6 +712,34 @@ public class JsonUtils {
 
 		public JsonObjectBuilder addProperty(String property, boolean value) {
 			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, String value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Integer value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Long value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Boolean value) {
+			if (value != null) {
+				j.addProperty(property, value);
+			}
 			return this;
 		}
 

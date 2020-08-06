@@ -16,7 +16,9 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -27,10 +29,13 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Dess.GridMeter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				"type=GRID" //
+		})
 public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
 
@@ -83,6 +88,13 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(11109, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+								new UnsignedDoublewordElement(11109).wordOrder(WordOrder.MSWLSW),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								new UnsignedDoublewordElement(11111).wordOrder(WordOrder.MSWLSW),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(11136, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(11136),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -109,7 +121,7 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override
@@ -117,7 +129,7 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 		return MeterType.GRID;
 	}
 
-	private final static ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter( //
+	private static final ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter(//
 			// element -> channel
 			value -> {
 				if (value == null) {
@@ -129,7 +141,8 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 				}
 				return (intValue - 10_000) * -1; // apply delta of 10_000 and invert
 			}, //
-				// channel -> element
+
+			// channel -> element
 			value -> value);
 
 }

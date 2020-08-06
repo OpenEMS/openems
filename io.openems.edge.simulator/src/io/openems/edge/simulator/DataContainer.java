@@ -9,7 +9,7 @@ import java.util.Set;
 public class DataContainer {
 
 	private HashMap<String, Integer> keys = new HashMap<>();
-	private List<float[]> records = new ArrayList<>();
+	private List<Float[]> records = new ArrayList<>();
 	private int currentIndex = 0;
 
 	/**
@@ -37,7 +37,7 @@ public class DataContainer {
 	 * 
 	 * @param record the record values
 	 */
-	public void addRecord(float[] record) {
+	public void addRecord(Float[] record) {
 		this.records.add(record);
 	}
 
@@ -46,24 +46,32 @@ public class DataContainer {
 	 * 
 	 * @return the current record
 	 */
-	public float[] getCurrentRecord() {
+	public Float[] getCurrentRecord() {
 		return this.records.get(currentIndex);
 	}
 
 	/**
-	 * Gets the value for the key from the current record.
+	 * Gets the value for the key from the current record. If no keys exist, get the
+	 * first value of the record.
 	 * 
 	 * @param key the Channel-Id
 	 * @return the record value
 	 */
 	public Optional<Float> getValue(String key) {
-		Integer index = this.keys.get(key);
-		if (index == null) {
-			return Optional.empty();
+		Integer index;
+		if (this.keys.isEmpty()) {
+			// no keys -> first value
+			index = 0;
+		} else {
+			// find index of key
+			index = this.keys.get(key);
+			if (index == null) {
+				return Optional.empty();
+			}
 		}
-		float[] record = this.getCurrentRecord();
+		Float[] record = this.getCurrentRecord();
 		if (index < record.length) {
-			return Optional.of(record[index]);
+			return Optional.ofNullable(record[index]);
 		} else {
 			return Optional.empty();
 		}

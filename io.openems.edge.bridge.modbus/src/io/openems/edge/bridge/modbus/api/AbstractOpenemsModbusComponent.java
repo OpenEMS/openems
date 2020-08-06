@@ -99,7 +99,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbusReference The name of the @Reference setter method for the
 	 *                        Modbus bridge - e.g. 'Modbus' if you have a
 	 *                        setModbus()-method
-	 * @param modbusId        The ID of the Modbus brige. Typically
+	 * @param modbusId        The ID of the Modbus bridge. Typically
 	 *                        'config.modbus_id()'
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
@@ -235,21 +235,31 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 							try {
 								((ModbusRegisterElement<?>) element)
 										.setNextWriteValue(Optional.ofNullable(convertedValue));
-							} catch (OpenemsException e) {
-								log.warn("Unable to write to ModbusRegisterElement [" + this.element.getStartAddress()
-										+ "]: " + e.getMessage());
+							} catch (OpenemsException | IllegalArgumentException e) {
+								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
+										"Unable to write to ModbusRegisterElement. " //
+												+ "Address [" + this.element.getStartAddress() + "] " //
+												+ "Channel [" + channel.address() + "]. " //
+												+ "Exception [" + e.getClass().getSimpleName() + "] " //
+												+ ": " + e.getMessage());
+								if (e instanceof IllegalArgumentException) {
+									// This is likely a software development bug. Draw some attention:
+									e.printStackTrace();
+								}
 							}
 						} else if (this.element instanceof ModbusCoilElement) {
 							try {
 								((ModbusCoilElement) element).setNextWriteValue(
 										Optional.ofNullable(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue)));
 							} catch (OpenemsException e) {
-								log.warn("Unable to write to ModbusCoilElement [" + this.element.getStartAddress()
-										+ "]: " + e.getMessage());
+								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
+										"Unable to write to ModbusCoilElement " //
+												+ "[" + this.element.getStartAddress() + "]: " + e.getMessage());
 							}
 						} else {
-							log.warn("Unable to write to Element [" + this.element.getStartAddress()
-									+ "]: it is not a ModbusElement");
+							AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
+									"Unable to write to Element " //
+											+ "[" + this.element.getStartAddress() + "]: it is not a ModbusElement");
 						}
 					});
 				}

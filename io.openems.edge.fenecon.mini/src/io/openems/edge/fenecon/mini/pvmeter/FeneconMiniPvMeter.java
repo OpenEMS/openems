@@ -30,12 +30,14 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Mini.PvMeter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, //
+				"type=PRODUCTION" //
+		})
 public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implements SymmetricMeter, OpenemsComponent {
 
 	@Reference
@@ -83,7 +85,7 @@ public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implement
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.modbusBridgeId;
 	}
 
 	@Override
@@ -105,7 +107,7 @@ public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implement
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActivePower().value().asString();
+		return "P:" + this.getActivePower().asString();
 	}
 
 }

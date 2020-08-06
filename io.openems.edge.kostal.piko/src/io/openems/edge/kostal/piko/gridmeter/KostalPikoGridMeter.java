@@ -28,8 +28,10 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		name = "Kostal.Piko.GridMeter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, //
+				"type=GRID" //
+		})
 public class KostalPikoGridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
 
 	@Reference
@@ -91,6 +93,6 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent implements Sym
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 }

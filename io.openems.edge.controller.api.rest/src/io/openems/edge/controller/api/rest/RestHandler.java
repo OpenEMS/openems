@@ -37,6 +37,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
@@ -54,6 +55,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.UuidUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -64,9 +66,9 @@ public class RestHandler extends AbstractHandler {
 
 	private final Logger log = LoggerFactory.getLogger(RestHandler.class);
 
-	private final RestApi parent;
+	private final AbstractRestApi parent;
 
-	public RestHandler(RestApi parent) {
+	public RestHandler(AbstractRestApi parent) {
 		this.parent = parent;
 	}
 
@@ -93,7 +95,14 @@ public class RestHandler extends AbstractHandler {
 				break;
 
 			case "jsonrpc":
-				this.handleJsonRpc(user, baseRequest, request, response);
+				// Validate API Access-Mode
+				switch (this.parent.getAccessMode()) {
+				case READ_ONLY:
+					throw new OpenemsException("REST-Api is in Read-Only mode");
+				case READ_WRITE:
+				case WRITE_ONLY:
+					this.handleJsonRpc(user, baseRequest, request, response);
+				}
 				break;
 
 			default:
@@ -104,7 +113,7 @@ public class RestHandler extends AbstractHandler {
 			if (this.parent.isDebugModeEnabled()) {
 				this.parent.logError(this.log, "REST call failed: " + e.getMessage());
 			}
-			throw new IOException(e.getMessage());
+			this.sendErrorResponse(baseRequest, response, UuidUtils.getNilUuid(), e);
 		}
 	}
 
@@ -133,12 +142,12 @@ public class RestHandler extends AbstractHandler {
 						String username = credentials.substring(0, p).trim();
 						String password = credentials.substring(p + 1).trim();
 						// authenticate using username & password
-						Optional<EdgeUser> userOpt = this.parent.userService.authenticate(username, password);
+						Optional<EdgeUser> userOpt = this.parent.getUserService().authenticate(username, password);
 						if (userOpt.isPresent()) {
 							return userOpt.get();
 						}
 						// authenticate using password only
-						userOpt = this.parent.userService.authenticate(password);
+						userOpt = this.parent.getUserService().authenticate(password);
 						if (userOpt.isPresent()) {
 							return userOpt.get();
 						}
@@ -164,7 +173,6 @@ public class RestHandler extends AbstractHandler {
 
 		default:
 			throw new OpenemsException("Unhandled REST target [" + thisTarget + "]");
-
 		}
 	}
 
@@ -183,7 +191,14 @@ public class RestHandler extends AbstractHandler {
 			return this.handleGet(user, channelAddress, baseRequest, request, response);
 
 		case "POST":
-			return this.handlePost(user, channelAddress, baseRequest, request, response);
+			// Validate API Access-Mode
+			switch (this.parent.getAccessMode()) {
+			case READ_ONLY:
+				throw new OpenemsException("REST-Api is in Read-Only mode");
+			case READ_WRITE:
+			case WRITE_ONLY:
+				return this.handlePost(user, channelAddress, baseRequest, request, response);
+			}
 
 		default:
 			throw new OpenemsException("Unhandled REST Channel request method [" + request.getMethod() + "]");
@@ -198,7 +213,7 @@ public class RestHandler extends AbstractHandler {
 	 * @param baseRequest    the HTTP POST base-request
 	 * @param request        the HTTP POST request
 	 * @param response       the result to be returned
-	 * @throws OpenemsNamedException
+	 * @throws OpenemsNamedException on error
 	 */
 	private boolean handleGet(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws OpenemsNamedException {
@@ -207,7 +222,7 @@ public class RestHandler extends AbstractHandler {
 		// get channel
 		Channel<?> channel;
 		try {
-			channel = this.parent.componentManager.getChannel(channelAddress);
+			channel = this.parent.getComponentManager().getChannel(channelAddress);
 		} catch (IllegalArgumentException e) {
 			this.parent.logWarn(this.log, e.getMessage());
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -232,6 +247,25 @@ public class RestHandler extends AbstractHandler {
 		return this.sendOkResponse(baseRequest, response, j);
 	}
 
+	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {
+		try {
+			response.setContentType("application/json");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			baseRequest.setHandled(true);
+			JsonrpcResponseError message;
+			if (ex instanceof OpenemsNamedException) {
+				// Get Named Exception error response
+				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
+			} else {
+				// Get GENERIC error response
+				message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+			}
+			response.getWriter().write(message.toString());
+		} catch (IOException e) {
+			this.parent.logWarn(this.log, "Unable to send Error-Response: " + e.getMessage());
+		}
+	}
+
 	private boolean sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
 			throws OpenemsException {
 		try {
@@ -253,7 +287,7 @@ public class RestHandler extends AbstractHandler {
 	 * @param baseRequest    the HTTP POST base-request
 	 * @param request        the HTTP POST request
 	 * @param response       the result to be returned
-	 * @throws OpenemsNamedException
+	 * @throws OpenemsNamedException on error
 	 */
 	private boolean handlePost(User user, ChannelAddress channelAddress, Request baseRequest,
 			HttpServletRequest request, HttpServletResponse response) throws OpenemsNamedException {
@@ -276,7 +310,7 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// send request to apiworker
-		this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager, user,
+		this.parent.apiWorker.handleSetChannelValueRequest(this.parent.getComponentManager(), user,
 				new SetChannelValueRequest(channelAddress.getComponentId(), channelAddress.getChannelId(), jValue));
 
 		return this.sendOkResponse(baseRequest, response, new JsonObject());
@@ -286,7 +320,7 @@ public class RestHandler extends AbstractHandler {
 	 * Parses a Request to JSON.
 	 * 
 	 * @param baseRequest the Request
-	 * @return
+	 * @return the request as JSON
 	 * @throws OpenemsException on error
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
@@ -305,66 +339,73 @@ public class RestHandler extends AbstractHandler {
 	 * @param user           the User
 	 * @param edgeRpcRequest the EdgeRpcRequest
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
-	 * @throws ExecutionException
-	 * @throws InterruptedException
 	 */
 	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws OpenemsNamedException {
-		// call handler methods
-		if (!httpRequest.getMethod().equals("POST")) {
-			throw new OpenemsException(
-					"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
-		}
-
-		// parse json and add "jsonrpc" and "id" properties if missing
-		JsonObject json = RestHandler.parseJson(baseRequest);
-		if (this.parent.isDebugModeEnabled()) {
-			this.parent.logInfo(this.log,
-					"REST/JsonRpc call by User [" + user.getName() + "]: " + StringUtils.toShortString(json, 100));
-		}
-
-		if (!json.has("jsonrpc")) {
-			json.addProperty("jsonrpc", "2.0");
-		}
-		if (!json.has("id")) {
-			json.addProperty("id", UUID.randomUUID().toString());
-		}
-		if (json.has("params")) {
-			JsonObject params = JsonUtils.getAsJsonObject(json, "params");
-			if (params.has("payload")) {
-				JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
-				if (!payload.has("jsonrpc")) {
-					payload.addProperty("jsonrpc", "2.0");
-				}
-				if (!payload.has("id")) {
-					payload.addProperty("id", UUID.randomUUID().toString());
-				}
-				params.add("payload", payload);
-			}
-			json.add("params", params);
-		}
-
-		// parse JSON-RPC Request
-		JsonrpcMessage message = JsonrpcMessage.from(json);
-		if (!(message instanceof JsonrpcRequest)) {
-			throw new OpenemsException("Only JSON-RPC Request is supported here.");
-		}
-		JsonrpcRequest request = (JsonrpcRequest) message;
-
-		// handle the request
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user, request);
-
-		// wait for response
-		JsonrpcResponseSuccess response;
+			HttpServletResponse httpResponse) {
+		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
-			response = responseFuture.get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new OpenemsException("Unable to get Response: " + e.getMessage());
-		}
+			// call handler methods
+			if (!httpRequest.getMethod().equals("POST")) {
+				throw new OpenemsException(
+						"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
+			}
 
-		// send response
-		this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
+			// parse json and add "jsonrpc" and "id" properties if missing
+			JsonObject json = RestHandler.parseJson(baseRequest);
+			if (this.parent.isDebugModeEnabled()) {
+				this.parent.logInfo(this.log,
+						"REST/JsonRpc call by User [" + user.getName() + "]: " + StringUtils.toShortString(json, 100));
+			}
+
+			if (!json.has("jsonrpc")) {
+				json.addProperty("jsonrpc", "2.0");
+			}
+			if (!json.has("id")) {
+				json.addProperty("id", UUID.randomUUID().toString());
+			}
+			if (json.has("params")) {
+				JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+				if (params.has("payload")) {
+					JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+					if (!payload.has("jsonrpc")) {
+						payload.addProperty("jsonrpc", "2.0");
+					}
+					if (!payload.has("id")) {
+						payload.addProperty("id", UUID.randomUUID().toString());
+					}
+					params.add("payload", payload);
+				}
+				json.add("params", params);
+			}
+
+			// parse JSON-RPC Request
+			JsonrpcMessage message = JsonrpcMessage.from(json);
+			if (!(message instanceof JsonrpcRequest)) {
+				throw new OpenemsException("Only JSON-RPC Request is supported here.");
+			}
+			JsonrpcRequest request = (JsonrpcRequest) message;
+			requestId = request.getId();
+
+			// handle the request
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user, request);
+
+			// wait for response
+			JsonrpcResponseSuccess response;
+			try {
+				response = responseFuture.get();
+			} catch (InterruptedException | ExecutionException e) {
+				this.sendErrorResponse(baseRequest, httpResponse, request.getId(),
+						new OpenemsException("Unable to get Response: " + e.getMessage()));
+				return;
+			}
+
+			// send response
+			this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
+
+		} catch (OpenemsNamedException e) {
+			this.sendErrorResponse(baseRequest, httpResponse, requestId,
+					new OpenemsException("Unable to get Response: " + e.getMessage()));
+		}
 	}
 
 	/**
@@ -419,9 +460,7 @@ public class RestHandler extends AbstractHandler {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.getTimedata()
 				.queryHistoricData(//
 						null, /* ignore Edge-ID */
-						request.getFromDate(), //
-						request.getToDate(), //
-						request.getChannels());
+						request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
@@ -524,7 +563,7 @@ public class RestHandler extends AbstractHandler {
 			ComponentJsonApiRequest request) throws OpenemsNamedException {
 		// get Component
 		String componentId = request.getComponentId();
-		OpenemsComponent component = this.parent.componentManager.getComponent(componentId);
+		OpenemsComponent component = this.parent.getComponentManager().getComponent(componentId);
 
 		if (component == null) {
 			throw new OpenemsException("Unable to find Component [" + componentId + "]");

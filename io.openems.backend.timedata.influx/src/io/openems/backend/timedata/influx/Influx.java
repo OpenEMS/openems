@@ -9,11 +9,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
+import org.influxdb.InfluxDBException.FieldTypeConflictException;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
 import org.osgi.service.component.annotations.Activate;
@@ -33,8 +33,8 @@ import com.google.gson.JsonPrimitive;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.timedata.api.EdgeCache;
 import io.openems.backend.timedata.api.Timedata;
-import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -52,11 +52,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
+	private final FieldTypeConflictHandler fieldTypeConflictHandler;
 
 	private InfluxConnector influxConnector = null;
 
 	public Influx() {
 		super("Timedata.InfluxDB");
+		this.fieldTypeConflictHandler = new FieldTypeConflictHandler(this);
 	}
 
 	@Reference
@@ -78,10 +80,14 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
 				(failedPoints, throwable) -> {
-					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
-							.map(Point::lineProtocol).collect(Collectors.joining(","));
-					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
-							+ StringUtils.toShortString(pointsString, 100));
+					if (throwable instanceof FieldTypeConflictException) {
+						this.fieldTypeConflictHandler.handleException((FieldTypeConflictException) throwable);
+					} else {
+						this.logError(this.log,
+								"Unable to write to InfluxDB. " + throwable.getClass().getSimpleName() + ": "
+										+ throwable.getMessage() + " for "
+										+ StringUtils.toShortString(failedPoints.toString(), 100));
+					}
 				});
 	}
 
@@ -183,7 +189,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 					.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, TimeUnit.MILLISECONDS);
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
-				Influx.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
+				this.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
 			if (builder.hasFields()) {
 				this.influxConnector.write(builder.build());
@@ -230,9 +236,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param element the value
 	 * @return
 	 */
-	private static void addValue(Builder builder, String field, JsonElement element) {
+	private void addValue(Builder builder, String field, JsonElement element) {
 		if (element == null || element.isJsonNull()) {
 			// do not add
+			return;
+		}
+		if (this.specialCaseFieldHandling(builder, field, element)) {
+			// already handled by special case handling
 			return;
 		}
 		if (element.isJsonPrimitive()) {
@@ -257,6 +267,29 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		} else {
 			builder.addField(field, element.toString());
 		}
+	}
+
+	/**
+	 * Handles some special cases for fields.
+	 * 
+	 * <p>
+	 * E.g. to avoid errors like "field type conflict: input field XYZ on
+	 * measurement "data" is type integer, already exists as type string"
+	 * 
+	 * @param builder the InfluxDB Builder
+	 * @param field   the fieldName, i.e. the ChannelAddress
+	 * @param value   the value, guaranteed to be not-null and not JsonNull.
+	 * @return true if field was handled; false otherwise
+	 */
+	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
+		BiConsumer<Builder, JsonElement> handler = this.fieldTypeConflictHandler.getHandler(field);
+		if (handler == null) {
+			// no special handling exists for this field
+			return false;
+		}
+		// call special handler
+		handler.accept(builder, value);
+		return true;
 	}
 
 	@Override
@@ -356,6 +389,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 							new ChannelFormula(Function.PLUS, 9_000), //
 					};
 				case "Pro Hybrid 10-Serie":
+				case "Kostal PIKO + B-Box HV":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 10_000), //
 					};
@@ -460,6 +494,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 		}
 		return new ChannelFormula[0];
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
 	}
 
 }

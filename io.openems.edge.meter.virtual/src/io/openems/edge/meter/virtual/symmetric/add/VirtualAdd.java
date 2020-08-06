@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
@@ -28,6 +29,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.VirtualMeter;
@@ -39,7 +42,7 @@ import io.openems.edge.meter.api.VirtualMeter;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
 ) //
 public class VirtualAdd extends AbstractOpenemsComponent
-		implements VirtualMeter, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements VirtualMeter, SymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(VirtualAdd.class);
 
@@ -106,26 +109,26 @@ public class VirtualAdd extends AbstractOpenemsComponent
 		final CalculateIntegerSum meterCurrent = new CalculateIntegerSum();
 
 		for (SymmetricMeter meter : meters) {
-			meterFrequency.addValue(meter.getFrequency());
-			meterMinActivePower.addValue(meter.getMinActivePower());
-			meterMaxActivePower.addValue(meter.getMaxActivePower());
-			meterActivePower.addValue(meter.getActivePower());
-			meterReactivePower.addValue(meter.getReactivePower());
-			meterActiveConsumptionEnergy.addValue(getActiveConsumptionEnergy());
-			meterActiveProductionEnergy.addValue(meter.getActiveProductionEnergy());
-			meterVoltage.addValue(meter.getVoltage());
-			meterCurrent.addValue(meter.getCurrent());
+			meterFrequency.addValue(meter.getFrequencyChannel());
+			meterMinActivePower.addValue(meter.getMinActivePowerChannel());
+			meterMaxActivePower.addValue(meter.getMaxActivePowerChannel());
+			meterActivePower.addValue(meter.getActivePowerChannel());
+			meterReactivePower.addValue(meter.getReactivePowerChannel());
+			meterActiveConsumptionEnergy.addValue(getActiveConsumptionEnergyChannel());
+			meterActiveProductionEnergy.addValue(meter.getActiveProductionEnergyChannel());
+			meterVoltage.addValue(meter.getVoltageChannel());
+			meterCurrent.addValue(meter.getCurrentChannel());
 		}
 
-		this.getFrequency().setNextValue(meterFrequency.calculate());
-		this.getMinActivePower().setNextValue(meterMinActivePower.calculate());
-		this.getMaxActivePower().setNextValue(meterMaxActivePower.calculate());
-		this.getActivePower().setNextValue(meterActivePower.calculate());
-		this.getReactivePower().setNextValue(meterReactivePower.calculate());
-		this.getActiveConsumptionEnergy().setNextValue(meterActiveConsumptionEnergy.calculate());
-		this.getActiveProductionEnergy().setNextValue(meterActiveProductionEnergy.calculate());
-		this.getVoltage().setNextValue(meterVoltage.calculate());
-		this.getCurrent().setNextValue(meterCurrent.calculate());
+		this.getFrequencyChannel().setNextValue(meterFrequency.calculate());
+		this._setMinActivePower(meterMinActivePower.calculate());
+		this._setMaxActivePower(meterMaxActivePower.calculate());
+		this._setActivePower(meterActivePower.calculate());
+		this._setReactivePower(meterReactivePower.calculate());
+		this._setActiveConsumptionEnergy(meterActiveConsumptionEnergy.calculate());
+		this._setActiveProductionEnergy(meterActiveProductionEnergy.calculate());
+		this.getVoltageChannel().setNextValue(meterVoltage.calculate());
+		this._setCurrent(meterCurrent.calculate());
 	}
 
 	@Override
@@ -135,7 +138,7 @@ public class VirtualAdd extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override
@@ -143,4 +146,11 @@ public class VirtualAdd extends AbstractOpenemsComponent
 		return this.config.addToSum();
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+		);
+	}
 }

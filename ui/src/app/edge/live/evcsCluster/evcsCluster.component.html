@@ -4,11 +4,11 @@
       <ion-avatar>
         <ion-img src="assets/img/evcs.png"></ion-img>
       </ion-avatar>
-      <ion-label *ngIf="currentData[componentId + '/Alias'] as alias" style="padding-left: 20px;">
+      <ion-label *ngIf="config.properties.alias as alias" style="padding-left: 20px;">
         {{ alias }}
       </ion-label>
-      <ion-label *ngIf="!currentData[componentId + '/Alias']" style="padding-left: 20px;" translate>
-        Edge.Index.Widgets.EVCS.ChargingStationCluster
+      <ion-label *ngIf="!config.properties.alias" style="padding-left: 20px;" translate>
+        Edge.Index.Widgets.EVCS.chargingStationCluster
       </ion-label>
     </ion-item>
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
@@ -16,7 +16,7 @@
 
         <table class="full_width">
           <tr>
-            <td style="width:50%" translate>Edge.Index.Widgets.EVCS.AmountOfChargingStations</td>
+            <td style="width:50%" translate>Edge.Index.Widgets.EVCS.amountOfChargingStations</td>
             <td style="width:15%"></td>
             <td style="width:45%" class="align_right">
               {{ evcssInCluster.length }}
@@ -24,7 +24,7 @@
           </tr>
           <tr>
             <td style="width:50%">
-              <ion-label *ngIf="!isEvcsCluster" translate>Edge.Index.Widgets.EVCS.TotalChargingPower
+              <ion-label *ngIf="!isEvcsCluster" translate>Edge.Index.Widgets.EVCS.totalChargingPower
               </ion-label>
             </td>
             <td style="width:15%"></td>
@@ -40,7 +40,7 @@
         <table>
           <tr>
             <td translate>
-              Edge.Index.Widgets.EVCS.ClusterConfigError
+              Edge.Index.Widgets.EVCS.clusterConfigError
             </td>
           </tr>
         </table>

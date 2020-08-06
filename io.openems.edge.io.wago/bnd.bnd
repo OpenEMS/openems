@@ -2,23 +2,15 @@ Bundle-Name: OpenEMS Edge IO WAGO Fieldbus Coupler
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.io.api
-Private-Package: \
-	io.openems.edge.wago
 
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.io.api;version=latest,\
-	io.openems.edge.meter.api;version=latest,\
-	com.google.guava,\
-	slf4j.api
+	io.openems.edge.common,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.io.api,\
+	io.openems.edge.meter.api
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

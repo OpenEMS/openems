@@ -16,12 +16,16 @@ export class CurrentData {
       system: {
         totalPower: null,
         autarchy: null,
-        selfConsumption: null
+        selfConsumption: null,
+        state: null
       }, storage: {
         soc: null,
         activePowerL1: null,
         activePowerL2: null,
         activePowerL3: null,
+        effectiveActivePowerL1: null,
+        effectiveActivePowerL2: null,
+        effectiveActivePowerL3: null,
         chargeActivePower: null, // sum of chargeActivePowerAc and chargeActivePowerDc
         chargeActivePowerAc: null,
         chargeActivePowerDc: null,
@@ -149,10 +153,28 @@ export class CurrentData {
       result.storage.dischargeActivePower = result.storage.dischargeActivePowerAc;
 
       let effectivePower;
+      let effectivePowerL1;
+      let effectivePowerL2;
+      let effectivePowerL3;
       if (result.storage.chargeActivePowerAc == null && result.storage.dischargeActivePowerAc == null && result.production.activePowerDc == null) {
         result.storage.effectivePower = null;
         effectivePower = null;
+        effectivePowerL1 = null;
+        effectivePowerL2 = null;
+        effectivePowerL3 = null;
       } else {
+        effectivePowerL1 = Utils.subtractSafely(
+          result.storage.activePowerL1, result.production.activePowerDc / 3);
+        result.storage.effectiveActivePowerL1 = effectivePowerL1;
+
+        effectivePowerL2 = Utils.subtractSafely(
+          result.storage.activePowerL2, result.production.activePowerDc / 3);
+        result.storage.effectiveActivePowerL2 = effectivePowerL2;
+
+        effectivePowerL3 = Utils.subtractSafely(
+          result.storage.activePowerL3, result.production.activePowerDc / 3);
+        result.storage.effectiveActivePowerL3 = effectivePowerL3;
+
         effectivePower = Utils.subtractSafely(
           Utils.subtractSafely(
             Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc
@@ -190,8 +212,8 @@ export class CurrentData {
 
     {
       /*
-       * Total
-       */
+      * Total
+      */
       result.system.totalPower = Math.max(
         // Productions
         result.grid.buyActivePower
@@ -206,6 +228,8 @@ export class CurrentData {
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
       result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.effectiveDischargePower);
+      // State
+      result.system.state = c['_sum/State'];
     }
     return result;
   }

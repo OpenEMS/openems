@@ -1,36 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
+import { Edge, Service, Websocket, ChannelAddress } from './shared/shared';
+import { environment } from '../environments';
+import { filter, takeUntil } from 'rxjs/operators';
+import { LanguageTag } from './shared/translate/language';
+import { MenuController, Platform, ToastController, ModalController } from '@ionic/angular';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Platform, ToastController, MenuController } from '@ionic/angular';
+import { StatusSingleComponent } from './shared/status/single/status.component';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
-import { environment } from '../environments';
-import { Service, Websocket, Edge } from './shared/shared';
-import { LanguageTag } from './shared/translate/language';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html'
 })
 export class AppComponent {
+
   public env = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
-  public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
+  public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
-
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    public websocket: Websocket,
-    public service: Service,
+    public menu: MenuController,
+    public modalCtrl: ModalController,
     public router: Router,
+    public service: Service,
     public toastController: ToastController,
-    public menu: MenuController
+    public websocket: Websocket,
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
@@ -47,10 +50,14 @@ export class AppComponent {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
-        showCloseButton: true,
         position: 'top',
-        closeButtonText: 'Ok',
-        duration: 2000
+        duration: 2000,
+        buttons: [
+          {
+            text: 'Ok',
+            role: 'cancel',
+          }
+        ]
       });
       toast.present();
     });
@@ -63,6 +70,20 @@ export class AppComponent {
     ).subscribe(event => {
       this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
     })
+
+    // subscribe for single status component
+    this.service.currentEdge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
+      if (edge != null) {
+        edge.subscribeChannels(this.websocket, '', [
+          new ChannelAddress('_sum', 'State'),
+        ]);
+      }
+    })
+  }
+
+  // used to prevent 'Expression has changed after it was checked' error
+  ngAfterViewChecked() {
+    this.cdRef.detectChanges()
   }
 
   updateUrl(url: string) {
@@ -132,7 +153,9 @@ export class AppComponent {
   updateCurrentPage(url: string) {
     let urlArray = url.split('/');
     let file = urlArray.pop();
-
+    if (urlArray.length >= 4) {
+      file = urlArray[3];
+    }
     // Enable Segment Navigation for Edge-Index-Page
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {
       if (file == 'history') {
@@ -140,9 +163,28 @@ export class AppComponent {
       } else {
         this.currentPage = 'IndexLive';
       }
-    } else {
+    } else if (file == 'settings' && urlArray.length > 1) {
+      this.currentPage = 'EdgeSettings';
+    }
+    else {
       this.currentPage = 'Other';
     }
+  }
+
+  updateLiveHistorySegment(event) {
+    if (event.detail.value == "IndexLive") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
+    }
+    if (event.detail.value == "IndexHistory") {
+      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
+    }
+  }
+
+  async presentSingleStatusModal() {
+    const modal = await this.modalCtrl.create({
+      component: StatusSingleComponent,
+    });
+    return await modal.present();
   }
 
   ngOnDestroy() {

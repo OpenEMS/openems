@@ -106,13 +106,20 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public void nextProcessImage() {
 		Value<T> oldValue = this.activeValue;
-		boolean valueHasChanged = !Objects.equals(oldValue, this.nextValue);
+		final boolean valueHasChanged;
+		if (oldValue == null && this.nextValue == null) {
+			valueHasChanged = false;
+		} else if (oldValue == null || this.nextValue == null) {
+			valueHasChanged = true;
+		} else {
+			valueHasChanged = !Objects.equals(oldValue.get(), this.nextValue.get());
+		}
 		this.activeValue = this.nextValue;
 		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
 		if (valueHasChanged) {
 			this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
 		}
-		this.pastValues.put(oldValue.getTimestamp(), oldValue);
+		this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
 	}
 
 	@Override
@@ -145,7 +152,14 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	}
 
 	@Override
-	public Value<T> value() {
+	public Value<T> value() throws IllegalArgumentException {
+		switch (this.channelDoc.getAccessMode()) {
+		case WRITE_ONLY:
+			throw new IllegalArgumentException("Channel [" + this.channelId + "] is WRITE_ONLY.");
+		case READ_ONLY:
+		case READ_WRITE:
+			break;
+		}
 		return this.activeValue;
 	}
 
@@ -162,6 +176,11 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public void onSetNextValue(Consumer<Value<T>> callback) {
 		this.onSetNextValueCallbacks.add(callback);
+	}
+
+	@Override
+	public void removeOnSetNextValueCallback(Consumer<?> callback) {
+		this.onSetNextValueCallbacks.remove(callback);
 	}
 
 	@Override

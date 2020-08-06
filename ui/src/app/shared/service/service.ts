@@ -1,16 +1,20 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
+import { JsonrpcResponseError } from '../jsonrpc/base';
+import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { Edges } from '../jsonrpc/shared';
-import { LanguageTag, Language } from '../translate/language';
+import { ChannelAddress } from '../shared';
+import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
-import { ToastController } from '@ionic/angular';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -229,17 +233,69 @@ export class Service implements ErrorHandler {
     this.edges.next(newEdges);
   }
 
+  /**
+   * Gets the ChannelAdresses for cumulated values that should be queried.
+   * 
+   * @param edge the current Edge
+   */
+  public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
+    return new Promise((resolve) => {
+      resolve(channels);
+    });
+  };
+
+  /**
+   * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
+   * 
+   * @param fromDate the From-Date
+   * @param toDate   the To-Date
+   * @param edge     the current Edge
+   * @param ws       the websocket
+   */
+  public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
+    return new Promise((resolve, reject) => {
+      this.getCurrentEdge().then(edge => {
+        this.getChannelAddresses(edge, channels).then(channelAddresses => {
+          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
+          edge.sendRequest(this.websocket, request).then(response => {
+            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+            if (Object.keys(result.data).length != 0) {
+              resolve(response as QueryHistoricTimeseriesEnergyResponse);
+            } else {
+              reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+            }
+          }).catch(reason => reject(reason));
+        }).catch(reason => reject(reason));
+      })
+    })
+  }
+
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: 2000
+      duration: 2000,
+      cssClass: 'container'
     });
     toast.present();
+  }
+
+  /**
+   * checks if fems is allowed to show kWh
+   */
+  public isKwhAllowed(edge: Edge): boolean {
+    return false;
   }
 
   /**
    * Currently selected history period
    */
   public historyPeriod: DefaultTypes.HistoryPeriod;
+
+  /**
+   * Currently selected history period string
+   * 
+   * initialized as day, is getting changed by pickdate component
+   */
+  public periodString: DefaultTypes.PeriodString = 'day';
 }

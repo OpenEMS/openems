@@ -1,75 +1,73 @@
-import { NgModule, ErrorHandler } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-//import { RouterModule, RouteReuseStrategy, Routes } from '@angular/router';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
-
-// modules
-import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
-import { IndexModule } from './index/index.module';
-import { EdgeModule } from './edge/edge.module';
-
-// components
+import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
-
-// services
-import { Language } from './shared/translate/language';
-
-// locale Data
-import { LOCALE_ID } from '@angular/core';
-import { registerLocaleData } from '@angular/common';
-import localDE from '@angular/common/locales/de';
-import { SettingsModule } from './settings/settings.module';
-import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
-import { RouteReuseStrategy } from '@angular/router';
-import { ServiceWorkerModule } from '@angular/service-worker';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
+import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
+import { EdgeModule } from './edge/edge.module';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
+import { IndexModule } from './index/index.module';
 import { InputTypeComponent } from './edge/settings/component/shared/input';
-import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { Language } from './shared/translate/language';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { registerLocaleData } from '@angular/common';
+import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
+import { RouteReuseStrategy } from '@angular/router';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { SettingsModule } from './settings/settings.module';
+import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
+import { SharedModule } from './shared/shared.module';
+import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { StatusSingleComponent } from './shared/status/single/status.component';
+import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import localDE from '@angular/common/locales/de';
 
 @NgModule({
   declarations: [
     AppComponent,
+    ChartOptionsPopoverComponent,
     InputTypeComponent,
+    PickDatePopoverComponent,
     RepeatTypeComponent,
+    StatusSingleComponent,
     SystemLogComponent,
+  ],
+  entryComponents: [
+    ChartOptionsPopoverComponent,
     PickDatePopoverComponent,
   ],
-  entryComponents: [PickDatePopoverComponent],
   imports: [
+    AboutModule,
+    AngularMyDatePickerModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
     BrowserModule,
-    IonicModule.forRoot(),
+    EdgeModule,
+    EdgeSettingsModule,
+    env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
     FormlyModule.forRoot({
       types: [
         { name: 'input', component: InputTypeComponent },
         { name: 'repeat', component: RepeatTypeComponent },
       ],
     }),
-    AppRoutingModule,
-    SharedModule,
-    AboutModule,
-    SettingsModule,
-    EdgeModule,
-    EdgeSettingsModule,
+    IonicModule.forRoot(),
     IndexModule,
+    SettingsModule,
+    SharedModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
-    env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
-    BrowserAnimationsModule
   ],
   providers: [
-    StatusBar,
     SplashScreen,
+    StatusBar,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     // { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' }

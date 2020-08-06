@@ -46,7 +46,8 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+				"type=PRODUCTION" //
 		})
 public class SolarLog extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
@@ -78,7 +79,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.config = config;
-		this.getMaxApparentPower().setNextValue(config.maxActivePower());
+		this._setMaxApparentPower(config.maxActivePower());
 
 		// Stop if component is disabled
 		if (!config.enabled()) {
@@ -144,6 +145,9 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			try {
@@ -164,7 +168,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

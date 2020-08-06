@@ -2,6 +2,7 @@ package io.openems.backend.metadata.odoo.odoo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -9,10 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.odoo.Config;
+import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.backend.metadata.odoo.odoo.OdooUtils.JsonrpcResponseSuccessAndHeaders;
 import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
-import io.openems.backend.metadata.odoo.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -24,28 +26,22 @@ public class OdooHandler {
 
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
-	private final WriteWorker writeWorker;
 
 	public OdooHandler(MetadataOdoo parent, Config config) {
 		this.parent = parent;
 		this.credentials = Credentials.fromConfig(config);
-		this.writeWorker = new WriteWorker(this, this.credentials);
-		this.writeWorker.start();
-	}
-
-	public WriteWorker getWriteWorker() {
-		return writeWorker;
 	}
 
 	/**
-	 * Writes one field to Odoo.
+	 * Writes one field to Odoo Edge model.
 	 * 
 	 * @param edge        the Edge
 	 * @param fieldValues the FieldValues
 	 */
-	public void write(MyEdge edge, FieldValue<?>... fieldValues) {
+	public void writeEdge(MyEdge edge, FieldValue<?>... fieldValues) {
 		try {
-			OdooUtils.write(this.credentials, MetadataOdoo.ODOO_MODEL, new Integer[] { edge.getOdooId() }, fieldValues);
+			OdooUtils.write(this.credentials, Field.EdgeDevice.ODOO_MODEL, new Integer[] { edge.getOdooId() },
+					fieldValues);
 		} catch (OpenemsException e) {
 			this.parent.logError(this.log, "Unable to update Edge [" + edge.getId() + "] " //
 					+ "Odoo-ID [" + edge.getOdooId() + "] " //
@@ -62,7 +58,7 @@ public class OdooHandler {
 	 */
 	public void addChatterMessage(MyEdge edge, String message) {
 		try {
-			OdooUtils.addChatterMessage(this.credentials, MetadataOdoo.ODOO_MODEL, edge.getOdooId(), message);
+			OdooUtils.addChatterMessage(this.credentials, Field.EdgeDevice.ODOO_MODEL, edge.getOdooId(), message);
 		} catch (OpenemsException e) {
 			this.parent.logError(this.log, "Unable to add Chatter Message to Edge [" + edge.getId() + "] " //
 					+ "Message [" + message + "]" //
@@ -81,11 +77,19 @@ public class OdooHandler {
 	public String authenticate(String username, String password) throws OpenemsNamedException {
 		AuthenticateWithUsernameAndPasswordRequest request = new AuthenticateWithUsernameAndPasswordRequest(
 				this.credentials.getDatabase(), username, password);
-		JsonrpcResponseSuccess origResponse = OdooUtils
+		JsonrpcResponseSuccessAndHeaders response = OdooUtils
 				.sendJsonrpcRequest(this.credentials.getUrl() + "/web/session/authenticate", request);
-		AuthenticateWithUsernameAndPasswordResponse response = AuthenticateWithUsernameAndPasswordResponse
-				.from(origResponse);
-		return response.getSessionId();
+		List<String> setCookieHeaders = response.headers.get("Set-Cookie");
+		if(setCookieHeaders != null && !setCookieHeaders.isEmpty()) {
+			final String[] setCookieHeader = setCookieHeaders.get(0).split(";");
+			for(String entry : setCookieHeader) {
+				String[] values = entry.split("=", 2);
+				if(values.length == 2 && values[0].equals("session_id")) {
+					return values[1];
+				}
+			}
+		}
+		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
 	/**
@@ -104,7 +108,7 @@ public class OdooHandler {
 		} catch (UnsupportedEncodingException e) {
 			throw OpenemsError.GENERIC.exception(e.getMessage());
 		}
-		return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info?" + query, request);
+		return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info?" + query, request).response;
 	}
 
 }

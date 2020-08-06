@@ -5,14 +5,14 @@
                 <ion-avatar slot="start">
                     <img src="assets/img/production.png">
                 </ion-avatar>
-                <ion-label translate>General.Production</ion-label>
+                <ion-label translate>General.production</ion-label>
             </ion-item>
             <ion-card-content *ngIf="currentData.summary.production as sum">
                 <ng-container *ngIf="!edge.isVersionAtLeast('2018.8'); else newVersion">
                     <ion-grid class="ion-no-padding">
                         <table class="full_width">
                             <tr>
-                                <td style="width:65%" translate>General.Production
+                                <td style="width:65%" translate>General.production
                                 </td>
                                 <td style="width:35%" class="align_right">
                                     {{ sum.activePower | unitvalue:'kW' }}

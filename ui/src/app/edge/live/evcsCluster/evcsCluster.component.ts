@@ -1,11 +1,9 @@
-import { Component, Input, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { ModalController } from '@ionic/angular';
-
-import { filter, first } from 'rxjs/operators';
+import { Component, Input } from '@angular/core';
 import { ModalComponentEvcsCluster } from './modal/evcsCluster-modal.page';
+import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Component({
@@ -16,7 +14,7 @@ export class EvcsClusterComponent {
 
   private static readonly SELECTOR = "evcsCluster";
 
-  @Input() private componentId: string;
+  @Input() public componentId: string;
 
   public edge: Edge = null;
   public config: EdgeConfig.Component = new EdgeConfig.Component;
@@ -35,7 +33,6 @@ export class EvcsClusterComponent {
 
 
   ngOnInit() {
-
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;

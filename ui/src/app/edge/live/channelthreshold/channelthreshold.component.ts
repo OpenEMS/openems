@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: ChannelthresholdComponent.SELECTOR,
@@ -17,9 +17,9 @@ export class ChannelthresholdComponent {
   public component: EdgeConfig.Component = null;
 
   constructor(
+    private route: ActivatedRoute,
     private service: Service,
     private websocket: Websocket,
-    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {

@@ -11,9 +11,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -33,7 +30,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssSymmetric.Reacting", //
@@ -50,15 +46,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	 */
 	private float soc = 0;
 
-	/**
-	 * Total configured capacity in Wh.
-	 */
-	private int capacity = 0;
-
-	/**
-	 * Configured max Apparent Power in VA.
-	 */
-	private int maxApparentPower = 0;
+	private Config config;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -76,9 +64,6 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	@Reference
 	private Power power;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected SimulatorDatasource datasource;
-
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -86,20 +71,14 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
-		}
-
-		this.getSoc().setNextValue(config.initialSoc());
+		this.config = config;
 		this.soc = config.initialSoc();
-		this.capacity = config.capacity();
-		this.maxApparentPower = config.maxApparentPower();
-		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
-		this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
-		this.getAllowedDischarge().setNextValue(this.maxApparentPower);
-		this.getGridMode().setNextValue(config.gridMode());
-		this.getCapacity().setNextValue(this.capacity);
+		this._setSoc(config.initialSoc());
+		this._setMaxApparentPower(config.maxApparentPower());
+		this._setAllowedChargePower(config.maxApparentPower() * -1);
+		this._setAllowedDischargePower(config.maxApparentPower());
+		this._setGridMode(config.gridMode());
+		this._setCapacity(config.capacity());
 	}
 
 	@Deactivate
@@ -118,6 +97,9 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.updateChannels();
@@ -132,9 +114,9 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
@@ -147,15 +129,18 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		/*
 		 * calculate State of charge
 		 */
-		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
-		float socChange = watthours / this.capacity;
+		// TODO timedelta
+		float watthours = (float) activePower * 1 / 3600;
+		// float watthours = (float) activePower * this.datasource.getTimeDelta() /
+		// 3600;
+		float socChange = watthours / this.config.capacity();
 		this.soc -= socChange;
 		if (this.soc > 100) {
 			this.soc = 100;
 		} else if (this.soc < 0) {
 			this.soc = 0;
 		}
-		this.getSoc().setNextValue(this.soc);
+		this._setSoc(Math.round(this.soc));
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
@@ -165,26 +150,26 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		if (soc == 100 && activePower < 0) {
 			activePower = 0;
 		}
-		this.getActivePower().setNextValue(activePower);
+		this._setActivePower(activePower);
 		if (soc == 0 && reactivePower > 0) {
 			reactivePower = 0;
 		}
 		if (soc == 100 && reactivePower < 0) {
 			reactivePower = 0;
 		}
-		this.getReactivePower().setNextValue(reactivePower);
+		this._setReactivePower(reactivePower);
 		/*
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
 		if (this.soc == 100) {
-			this.getAllowedCharge().setNextValue(0);
+			this._setAllowedChargePower(0);
 		} else {
-			this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
+			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
 		}
 		if (this.soc == 0) {
-			this.getAllowedDischarge().setNextValue(0);
+			this._setAllowedDischargePower(0);
 		} else {
-			this.getAllowedDischarge().setNextValue(this.maxApparentPower);
+			this._setAllowedDischargePower(this.config.maxApparentPower());
 		}
 	}
 
@@ -225,10 +210,10 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 			if (this.lastPowerValue < 0) {
 				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);
+				this._setActiveChargeEnergy((long) accumulatedChargeEnergy);
 			} else if (this.lastPowerValue > 0) {
 				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
+				this._setActiveDischargeEnergy((long) accumulatedDischargeEnergy);
 			}
 
 			this.logDebug(this.log, "accumulated charge energy :" + accumulatedChargeEnergy);
@@ -238,6 +223,6 @@ public class EssSymmetric extends AbstractOpenemsComponent
 			this.lastPowerValuesTimestamp = LocalDateTime.now();
 		}
 
-		this.lastPowerValue = this.getActivePower().value().orElse(0);
+		this.lastPowerValue = this.getActivePower().orElse(0);
 	}
 }

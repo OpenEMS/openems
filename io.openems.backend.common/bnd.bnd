@@ -1,22 +1,12 @@
-Bundle-Name: OpenEMS Backend Commons
+Bundle-Name: OpenEMS Backend Common
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version:	1.0.0.${tstamp}
-Export-Package: \
-	io.openems.backend.common.session,\
-	io.openems.backend.common.component,\
-	io.openems.backend.common.jsonrpc.request,\
-	io.openems.backend.common.jsonrpc.response
 
--includeresource: {readme.md}
+-buildpath: \
+	${buildpath},\
+	io.openems.backend.metadata.api,\
+	io.openems.common
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	com.google.gson,\
-	com.google.guava,\
-	slf4j.api
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

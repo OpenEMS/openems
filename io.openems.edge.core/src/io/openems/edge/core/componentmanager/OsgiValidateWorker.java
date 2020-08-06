@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -37,8 +38,28 @@ public class OsgiValidateWorker extends AbstractWorker {
 	private final static int INITIAL_CYCLE_TIME = 5_000; // in ms
 	private final static int REGULAR_CYCLE_TIME = 60_000; // in ms
 
+	private final static int RESTART_PERIOD = 10; // in minutes
+	private final static int FIRST_RESTART_PERIOD = RESTART_PERIOD - 1; // in minutes
+	private final static int ANNOUNCE_FAULT_AFTER = 5; // in minutes
+
 	private final Logger log = LoggerFactory.getLogger(OsgiValidateWorker.class);
-	private final Map<String, LocalDateTime> componentDefectiveSince = new HashMap<>();
+
+	private static class DefectiveComponent {
+		private final LocalDateTime defectiveSince;
+		private LocalDateTime lastTryToRestart = LocalDateTime.MIN;
+
+		public DefectiveComponent() {
+			this.defectiveSince = LocalDateTime.now();
+			// wait only 1 minute till first restart
+			this.lastTryToRestart = this.defectiveSince.minusMinutes(FIRST_RESTART_PERIOD);
+		}
+
+		public void updateLastTryToRestart() {
+			this.lastTryToRestart = LocalDateTime.now();
+		}
+	}
+
+	private final Map<String, DefectiveComponent> componentDefectiveSince = new HashMap<>();
 	private final ComponentManagerImpl parent;
 
 	public OsgiValidateWorker(ComponentManagerImpl parent) {
@@ -58,11 +79,12 @@ public class OsgiValidateWorker extends AbstractWorker {
 				for (Configuration config : configs) {
 					Dictionary<String, Object> properties = config.getProperties();
 					String componentId = (String) properties.get("id");
-					if (this.isComponentActivated(componentId)) {
-						this.componentDefectiveSince.remove(componentId);
-					} else {
-						// wait only 1 minute initially
-						this.componentDefectiveSince.putIfAbsent(componentId, LocalDateTime.now().minusMinutes(9));
+					if (componentId != null) {
+						if (this.isComponentActivated(componentId)) {
+							this.componentDefectiveSince.remove(componentId);
+						} else {
+							this.componentDefectiveSince.putIfAbsent(componentId, new DefectiveComponent());
+						}
 					}
 				}
 			}
@@ -75,31 +97,47 @@ public class OsgiValidateWorker extends AbstractWorker {
 		 * If there are inactive Components: print log and set Warning State-Channel and
 		 * try to restart them.
 		 */
-		if (this.componentDefectiveSince.isEmpty()) {
-			this.parent.configNotActivatedChannel().setNextValue(false);
+		boolean announceConfigNotActivated = false;
 
-		} else {
+		if (!this.componentDefectiveSince.isEmpty()) {
 			this.parent.logWarn(this.log, "Component(s) configured but not active: "
 					+ String.join(",", this.componentDefectiveSince.keySet()));
 
-			this.parent.configNotActivatedChannel().setNextValue(true);
+			this.parent._setConfigNotActivated(true);
 
-			for (Entry<String, LocalDateTime> entry : this.componentDefectiveSince.entrySet()) {
-				if (entry.getValue().isBefore(LocalDateTime.now().minusMinutes(10))) {
+			Iterator<Entry<String, DefectiveComponent>> iterator = this.componentDefectiveSince.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Entry<String, DefectiveComponent> entry = iterator.next();
+				DefectiveComponent defectiveComponent = entry.getValue();
+
+				if (defectiveComponent.lastTryToRestart.isBefore(LocalDateTime.now().minusMinutes(RESTART_PERIOD))) {
+					this.parent.logInfo(this.log, "Trying to restart Component [" + entry.getKey() + "]");
+					Configuration config;
 					try {
-						this.parent.logInfo(this.log, "Trying to restart Component [" + entry.getKey() + "]");
-						Configuration config = this.parent.getExistingConfigForId(entry.getKey());
+						config = this.parent.getExistingConfigForId(entry.getKey());
+					} catch (OpenemsNamedException e) {
+						// Component with this ID is not existing (anymore?!)
+						iterator.remove();
+						continue;
+					}
+					try {
 						Dictionary<String, Object> properties = config.getProperties();
 						config.update(properties);
-						entry.setValue(LocalDateTime.now());
-
-					} catch (OpenemsNamedException | IOException e) {
+						defectiveComponent.updateLastTryToRestart();
+					} catch (IOException e) {
 						this.parent.logError(this.log, e.getMessage());
 						e.printStackTrace();
 					}
 				}
+
+				if (defectiveComponent.defectiveSince
+						.isBefore(LocalDateTime.now().minusMinutes(ANNOUNCE_FAULT_AFTER))) {
+					announceConfigNotActivated = true;
+				}
 			}
 		}
+
+		this.parent._setConfigNotActivated(announceConfigNotActivated);
 	}
 
 	private boolean isComponentActivated(String componentId) {

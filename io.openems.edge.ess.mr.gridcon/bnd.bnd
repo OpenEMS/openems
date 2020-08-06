@@ -2,27 +2,16 @@ Bundle-Name: OpenEMS Edge ESS MR Gridcon
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.battery.api,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.ess.power.api
-Private-Package: \
-	io.openems.edge.ess.mr.gridcon,\
-	io.openems.edge.ess.mr.gridcon.enums,\
-	io.openems.edge.ess.mr.gridcon.writeutils
+	io.openems.edge.io.api,\
+	io.openems.edge.meter.api
 
--includeresource: {readme.adoc}
-
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.battery.api;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	io.openems.edge.io.api;version=latest,\
-	io.openems.edge.meter.api;version=latest,\
-	slf4j.api
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

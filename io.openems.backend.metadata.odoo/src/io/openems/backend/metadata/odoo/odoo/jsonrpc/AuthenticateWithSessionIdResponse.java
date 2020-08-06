@@ -45,7 +45,7 @@ public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 	private static final Logger log = LoggerFactory.getLogger(AuthenticateWithSessionIdResponse.class);
 
 	public static AuthenticateWithSessionIdResponse from(JsonrpcResponseSuccess response, String sessionId,
-			EdgeCache edgeCache) throws OpenemsNamedException {
+			EdgeCache edgeCache, boolean isMetadataServiceInitialized) throws OpenemsNamedException {
 		JsonObject r = response.getResult();
 		JsonObject jUser = JsonUtils.getAsJsonObject(r, "user");
 		MyUser user = new MyUser(//
@@ -63,16 +63,11 @@ public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 				user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 			}
 		}
-		if (!notAvailableEdges.isEmpty()) {
+		if (!notAvailableEdges.isEmpty() && isMetadataServiceInitialized) {
 			log.warn("For User [" + user.getId() + "] following Edges are not available: "
 					+ String.join(",", notAvailableEdges));
 		}
 		return new AuthenticateWithSessionIdResponse(response.getId(), user);
-	}
-
-	public static AuthenticateWithSessionIdResponse from(JsonObject j, String sessionId, EdgeCache edges)
-			throws OpenemsNamedException {
-		return from(JsonrpcResponseSuccess.from(j), sessionId, edges);
 	}
 
 	private final MyUser user;

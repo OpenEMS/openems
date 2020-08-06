@@ -18,10 +18,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -39,9 +36,10 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	@Reference
 	protected ComponentManager componentManager;
 
-	private Config config;
+	@Reference
+	protected Power power;
 
-	private int lastSetActivePower = 0;
+	private Config config;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -84,17 +82,21 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != GridMode.ON_GRID) {
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
 			return;
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
+		int gridPower = meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
+				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */;
 
 		int calculatedPower;
 		if (gridPower >= this.config.peakShavingPower()) {
@@ -117,30 +119,9 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		/*
-		 * Calculates required charge/discharge power
-		 */
-		if (Math.abs(this.lastSetActivePower) > 100 && Math.abs(calculatedPower) > 100
-				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
-						* this.config.maxPowerAdjustmentRate())) {
-			if (this.lastSetActivePower > calculatedPower) {
-				calculatedPower = this.lastSetActivePower
-						- (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-			} else {
-				calculatedPower = this.lastSetActivePower
-						+ (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-			}
-		}
-
-		Power power = ess.getPower();
-		calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
-
-		// store lastSetActivePower
-		this.lastSetActivePower = calculatedPower;
-
-		/*
 		 * set result
 		 */
-		ess.addPowerConstraintAndValidate("PeakShavingController", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				calculatedPower); //
+		ess.setActivePowerEqualsWithPid(calculatedPower);
+		ess.setReactivePowerEquals(0);
 	}
 }

@@ -18,7 +18,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.goodwe.et.ess.GoodWeEtBatteryInverter;
 
 @Designate(ocd = ConfigPV2.class, factory = true)
-@Component( //
+@Component(//
 		name = "GoodWe.ET.Charger-PV2", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //

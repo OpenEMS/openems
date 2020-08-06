@@ -1,3 +1,8 @@
+import { ChannelAddress } from 'src/app/shared/shared';
+import { DecimalPipe } from '@angular/common';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
+
 export interface Dataset {
     label: string;
     data: number[];
@@ -5,7 +10,7 @@ export interface Dataset {
 }
 
 export const EMPTY_DATASET = [{
-    label: "",
+    label: "no Data available",
     data: [],
     hidden: false
 }];
@@ -52,18 +57,28 @@ export type ChartOptions = {
     },
     scales: {
         yAxes: [{
+            id?: string,
+            position: string,
             scaleLabel: {
                 display: boolean,
-                labelString: string
+                labelString: string,
+                padding?: number,
+                fontSize?: number
+            },
+            gridLines?: {
+                display: boolean
             },
             ticks: {
                 beginAtZero: boolean,
-                max?: number
+                max?: number,
+                padding?: number,
+                stepSize?: number
             }
         }],
         xAxes: [{
             type: "time",
             time: {
+                minUnit: string,
                 displayFormats: {
                     millisecond: string,
                     second: string,
@@ -111,6 +126,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     },
     scales: {
         yAxes: [{
+            position: 'left',
             scaleLabel: {
                 display: true,
                 labelString: ""
@@ -122,11 +138,12 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         xAxes: [{
             type: 'time',
             time: {
+                minUnit: 'hour',
                 displayFormats: {
                     millisecond: 'SSS [ms]',
                     second: 'HH:mm:ss a', // 17:20:01
                     minute: 'HH:mm', // 17:20
-                    hour: 'HH:mm', // 17:20
+                    hour: 'HH:[00]', // 17:20
                     day: 'll', // Sep 4 2015
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
                     month: 'MMM YYYY', // Sept 2015
@@ -149,3 +166,30 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     }
 };
 
+export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
+    let result;
+    let startDate = startOfDay(new Date(queryResult.timestamps[0]));
+    let endDate = endOfDay(new Date(queryResult.timestamps[queryResult.timestamps.length - 1]));
+    let activeSum = 0;
+    queryResult.data[channel.toString()].forEach(value => {
+        activeSum += value;
+    });
+
+    let activePercent = activeSum / queryResult.timestamps.length;
+    let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
+    let activeTimeHours = (activeTimeMinutes / 60).toFixed(1);
+    if (activeTimeMinutes > 59) {
+        result = activeTimeHours + ' h';
+        // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
+        activeTimeHours.split('').forEach((letter, index) => {
+            if (index == activeTimeHours.length - 1 && letter == "0") {
+                result = activeTimeHours.slice(0, -2) + ' h';
+            }
+        });
+    } else {
+        // TODO get locale dynamically
+        let decimalPipe = new DecimalPipe('de-DE')
+        result = decimalPipe.transform(activeTimeMinutes.toString(), '1.0-0') + ' m';
+    }
+    return result;
+}; 

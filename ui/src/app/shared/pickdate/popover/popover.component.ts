@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, endOfWeek } from 'date-fns/esm';
+import { Component, Input } from '@angular/core';
+import { DefaultTypes } from '../../service/defaulttypes';
+import { IAngularMyDpOptions, IMyDate, IMyDateRangeModel, CalAnimation } from 'angular-mydatepicker';
+import { isFuture } from 'date-fns';
 import { PopoverController } from '@ionic/angular';
-import { addDays, getDate, getMonth, getYear } from 'date-fns/esm';
-import { IMyDrpOptions, IMyDate, IMyDateRangeModel } from 'mydaterangepicker';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from '../../service/defaulttypes';
+
 
 @Component({
     selector: 'pickdatepopover',
@@ -12,38 +14,69 @@ import { DefaultTypes } from '../../service/defaulttypes';
 })
 export class PickDatePopoverComponent {
 
-    public readonly TOMORROW = addDays(new Date(), 1);
 
-    private selectedPeriod: DefaultTypes.HistoryPeriod;
+    @Input() private setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
 
-    //DateRangePicker Options
-    public dateRangePickerOptions: IMyDrpOptions = {
-        inline: true,
-        showClearBtn: false,
-        showApplyBtn: false,
+    private readonly TODAY = new Date();
+    private readonly TOMORROW = addDays(new Date(), 1);
+
+    public locale: string = 'de';
+    public showCustomDate: boolean = false;
+
+    myDpOptions: IAngularMyDpOptions = {
+        stylesData: {
+            selector: 'dp1',
+            styles: `
+               .dp1 .myDpMarkCurrDay, 
+               .dp1 .myDpMarkCurrMonth, 
+               .dp1 .myDpMarkCurrYear {
+                   border-bottom: 2px solid #2d8fab;
+                   color: #2d8fab;
+                }
+             `
+        },
+        calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
         dateFormat: 'dd.mm.yyyy',
-        disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
+        dateRange: true,
         disableSince: this.toIMyDate(this.TOMORROW),
+        disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
+        inline: true,
+        selectorHeight: '225px',
         showWeekNumbers: true,
-        showClearDateRangeBtn: false,
-        editableDateRangeField: false,
-        openSelectorOnInputClick: true,
     };
 
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        private translate: TranslateService
+        public translate: TranslateService,
     ) { }
 
     ngOnInit() {
-        this.selectedPeriod = this.service.historyPeriod;
+        this.locale = this.translate.getBrowserLang();
     }
 
-    ngOnDestroy() { }
-
-    dismiss() {
-        this.popoverCtrl.dismiss(this.selectedPeriod);
+    /**
+     * This is called by the input button on the UI.
+     * 
+     * @param period
+     * @param from
+     * @param to
+     */
+    public setPeriod(period: DefaultTypes.PeriodString) {
+        switch (period) {
+            case 'day': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(this.TODAY, this.TODAY));
+                this.service.periodString = period;
+                this.popoverCtrl.dismiss();
+                break;
+            }
+            case 'week': {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfWeek(this.TODAY, { weekStartsOn: 1 }), endOfWeek(this.TODAY, { weekStartsOn: 1 })));
+                this.service.periodString = period;
+                this.popoverCtrl.dismiss();
+                break;
+            }
+        }
     }
 
     /**
@@ -52,12 +85,13 @@ export class PickDatePopoverComponent {
      * @param date the 'Date'
      * @returns the 'IMyDate'
      */
-    public toIMyDate(date: Date): IMyDate {
+    private toIMyDate(date: Date): IMyDate {
         return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
     }
 
-    public onDateRangeChanged(event: IMyDateRangeModel) {
-        this.selectedPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
-        this.dismiss()
+    public onDateChanged(event: IMyDateRangeModel) {
+        this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
+        this.service.periodString = 'custom';
+        this.popoverCtrl.dismiss();
     }
 }

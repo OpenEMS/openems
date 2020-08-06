@@ -7,12 +7,15 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -27,7 +30,7 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 @Component(name = "Controller.Asymmetric.PhaseRectification", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class PhaseRectification extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	// private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);
+	private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -72,16 +75,31 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		AsymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
-		int meterL1 = meter.getActivePowerL1().value().orElse(0) * -1;
-		int meterL2 = meter.getActivePowerL2().value().orElse(0) * -1;
-		int meterL3 = meter.getActivePowerL3().value().orElse(0) * -1;
+		/*
+		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
+		 */
+		GridMode gridMode = ess.getGridMode();
+		if (gridMode.isUndefined()) {
+			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
+		}
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
+			return;
+		}
+
+		int meterL1 = meter.getActivePowerL1().orElse(0) * -1;
+		int meterL2 = meter.getActivePowerL2().orElse(0) * -1;
+		int meterL3 = meter.getActivePowerL3().orElse(0) * -1;
 		int meterPowerAvg = (meterL1 + meterL2 + meterL3) / 3;
 		int meterL1Delta = meterPowerAvg - meterL1;
 		int meterL2Delta = meterPowerAvg - meterL2;
 		int meterL3Delta = meterPowerAvg - meterL3;
-		int essL1 = ess.getActivePowerL1().value().orElse(0);
-		int essL2 = ess.getActivePowerL2().value().orElse(0);
-		int essL3 = ess.getActivePowerL3().value().orElse(0);
+		int essL1 = ess.getActivePowerL1().orElse(0);
+		int essL2 = ess.getActivePowerL2().orElse(0);
+		int essL3 = ess.getActivePowerL3().orElse(0);
 		int activePowerL1 = essL1 + meterL1Delta;
 		int activePowerL2 = essL2 + meterL2Delta;
 		int activePowerL3 = essL3 + meterL3Delta;

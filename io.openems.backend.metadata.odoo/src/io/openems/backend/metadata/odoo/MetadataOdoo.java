@@ -1,8 +1,10 @@
 package io.openems.backend.metadata.odoo;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,14 +29,13 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 @Component(name = "Metadata.Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Metadata {
 
-	public final static String ODOO_MODEL = "edge.device";
-	public static final String ODOO_DEVICE_TABLE = ODOO_MODEL.replace(".", "_");
-
 	private final Logger log = LoggerFactory.getLogger(MetadataOdoo.class);
 	private final EdgeCache edgeCache;
 
 	protected OdooHandler odooHandler = null;
 	protected PostgresHandler postgresHandler = null;
+
+	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
 	/**
 	 * Maps User-ID to User.
@@ -48,7 +49,7 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 	}
 
 	@Activate
-	void activate(Config config) {
+	void activate(Config config) throws SQLException {
 		this.logInfo(this.log, "Activate. " //
 				+ "Odoo [" + config.odooHost() + ":" + config.odooPort() + ";PW "
 				+ (config.odooPassword() != null ? "ok" : "NOT_SET") + "] " //
@@ -57,7 +58,9 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 				+ "Database [" + config.database() + "]");
 
 		this.odooHandler = new OdooHandler(this, config);
-		this.postgresHandler = new PostgresHandler(this, edgeCache, config);
+		this.postgresHandler = new PostgresHandler(this, edgeCache, config, () -> {
+			this.isInitialized.set(true);
+		});
 	}
 
 	@Deactivate
@@ -66,6 +69,11 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 		if (this.postgresHandler != null) {
 			this.postgresHandler.deactivate();
 		}
+	}
+
+	@Override
+	public boolean isInitialized() {
+		return this.isInitialized.get();
 	}
 
 	@Override
@@ -85,7 +93,7 @@ public class MetadataOdoo extends AbstractOpenemsBackendComponent implements Met
 	public BackendUser authenticate(String sessionId) throws OpenemsNamedException {
 		JsonrpcResponseSuccess origResponse = this.odooHandler.authenticateSession(sessionId);
 		AuthenticateWithSessionIdResponse response = AuthenticateWithSessionIdResponse.from(origResponse, sessionId,
-				this.edgeCache);
+				this.edgeCache, this.isInitialized());
 		MyUser user = response.getUser();
 		this.users.put(user.getId(), user);
 		return user;

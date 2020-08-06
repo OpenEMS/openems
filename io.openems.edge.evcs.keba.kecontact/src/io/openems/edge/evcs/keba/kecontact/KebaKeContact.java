@@ -37,15 +37,14 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
-		name = "Evcs.Keba.KeContact", //
+@Component(name = "Evcs.Keba.KeContact", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class KebaKeContact extends AbstractOpenemsComponent
 		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
-	public final static int UDP_PORT = 7090;
+	public static final int UDP_PORT = 7090;
 
 	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
@@ -53,16 +52,20 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private final WriteHandler writeHandler = new WriteHandler(this);
 	private Boolean lastConnectionLostState = false;
 
+	protected Config config;
+
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
 
+	/**
+	 * Constructor.
+	 */
 	public KebaKeContact() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				KebaChannelId.values() //
-
 		);
 	}
 
@@ -76,13 +79,15 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 		this.ip = Inet4Address.getByName(config.ip());
 
+		this.config = config;
+
 		/*
 		 * subscribe on replies to report queries
 		 */
 		this.kebaKeContactCore.onReceive((ip, message) -> {
 			if (ip.equals(this.ip)) { // same IP -> handle message
 				this.readHandler.accept(message);
-				this.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
+				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
 			}
 		});
 
@@ -99,11 +104,14 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 
 			// Clear channels if the connection to the Charging Station has been lost
-			Channel<Boolean> connectionLostChannel = this.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+			Channel<Boolean> connectionLostChannel = this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
 			Boolean connectionLost = connectionLostChannel.value().orElse(lastConnectionLostState);
 			if (connectionLost != lastConnectionLostState) {
 				if (connectionLost) {
@@ -121,16 +129,16 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	/**
 	 * Send UDP message to KEBA KeContact. Returns true if sent successfully
 	 *
-	 * @param s
-	 * @return
+	 * @param s Message to send
+	 * @return true if sent
 	 */
 	protected boolean send(String s) {
 		byte[] raw = s.getBytes();
 		DatagramPacket packet = new DatagramPacket(raw, raw.length, ip, KebaKeContact.UDP_PORT);
-		DatagramSocket dSocket = null;
+		DatagramSocket datagrammSocket = null;
 		try {
-			dSocket = new DatagramSocket();
-			dSocket.send(packet);
+			datagrammSocket = new DatagramSocket();
+			datagrammSocket.send(packet);
 			return true;
 		} catch (SocketException e) {
 			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + ip.getHostAddress()
@@ -139,28 +147,35 @@ public class KebaKeContact extends AbstractOpenemsComponent
 			this.logError(this.log,
 					"Unable to send [" + s + "] UDP message to [" + ip.getHostAddress() + "]: " + e.getMessage());
 		} finally {
-			if (dSocket != null) {
-				dSocket.close();
+			if (datagrammSocket != null) {
+				datagrammSocket.close();
 			}
 		}
 		return false;
 	}
 
 	/**
-	 * Triggers an immediate execution of query reports
+	 * Triggers an immediate execution of query reports.
 	 */
 	protected void triggerQuery() {
 		this.readWorker.triggerNextRun();
 	}
 
 	@Override
-	protected void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
+	public String debugLog() {
+		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|" + this.getStatus().getName();
 	}
 
-	@Override
-	public String debugLog() {
-		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString();
+	/**
+	 * Logs are displayed if the debug mode is configured
+	 * 
+	 * @param log    Logger
+	 * @param string Text to display
+	 */
+	protected void logInfoInDebugmode(Logger log, String string) {
+		if (this.config.debugMode()) {
+			this.logInfo(log, string);
+		}
 	}
 
 	public ReadWorker getReadWorker() {
@@ -172,11 +187,11 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Resets all channel values except the Communication_Failed channel
+	 * Resets all channel values except the Communication_Failed channel.
 	 */
 	private void resetChannelValues() {
 		for (KebaChannelId c : KebaChannelId.values()) {
-			if (c != KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED && c != KebaChannelId.ALIAS) {
+			if (c != KebaChannelId.ALIAS) {
 				Channel<?> channel = this.channel(c);
 				channel.setNextValue(null);
 			}
@@ -186,8 +201,11 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 
-		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode),
-				ManagedEvcs.getModbusSlaveNatureTable(accessMode), this.getModbusSlaveNatureTable(accessMode));
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Evcs.getModbusSlaveNatureTable(accessMode), //
+				ManagedEvcs.getModbusSlaveNatureTable(accessMode), //
+				this.getModbusSlaveNatureTable(accessMode));
 	}
 
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
@@ -209,8 +227,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(72, KebaChannelId.CURR_FAILSAFE, ModbusType.UINT16)
 				.channel(73, KebaChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
 				.channel(74, KebaChannelId.CURR_TIMER, ModbusType.UINT16)
-				.channel(75, KebaChannelId.TIMEOUT_CT, ModbusType.UINT16)
-				.uint16Reserved(76)
+				.channel(75, KebaChannelId.TIMEOUT_CT, ModbusType.UINT16).uint16Reserved(76)
 				.channel(77, KebaChannelId.OUTPUT, ModbusType.UINT16)
 				.channel(78, KebaChannelId.INPUT, ModbusType.UINT16)
 
@@ -222,10 +239,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(83, KebaChannelId.CURRENT_L2, ModbusType.UINT16)
 				.channel(84, KebaChannelId.CURRENT_L3, ModbusType.UINT16)
 				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
-				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16)
-				.uint16Reserved(87)
-				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16)
-				.uint16Reserved(89).uint16Reserved(90)
-				.channel(91, KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, ModbusType.UINT16).build();
+				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
+				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
 	}
 }

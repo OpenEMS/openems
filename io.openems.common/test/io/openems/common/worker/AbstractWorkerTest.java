@@ -1,12 +1,10 @@
 package io.openems.common.worker;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
-
-import io.openems.common.worker.AbstractWorker;
 
 public class AbstractWorkerTest {
 

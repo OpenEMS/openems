@@ -18,15 +18,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Balancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
-
-	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	private final Logger log = LoggerFactory.getLogger(Balancing.class);
 
@@ -55,9 +52,10 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	@Reference
 	protected ComponentManager componentManager;
 
-	private Config config;
+	@Reference
+	protected Power power;
 
-	private int lastSetActivePower = 0;
+	private Config config;
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
@@ -78,8 +76,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * @return the required power
 	 */
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) {
-		return meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */
+		return meter.getActivePower().orElse(0) /* current buy-from/sell-to grid */
+				+ ess.getActivePower().orElse(0) /* current charge/discharge Ess */
 				- config.targetGridSetpoint(); /* the configured target setpoint */
 	}
 
@@ -91,7 +89,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode().value().asEnum();
+		GridMode gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -108,29 +106,10 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 */
 		int calculatedPower = this.calculateRequiredPower(ess, meter);
 
-		if (Math.abs(this.lastSetActivePower) > 100 && Math.abs(calculatedPower) > 100
-				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
-						* this.config.maxPowerAdjustmentRate())) {
-			if (this.lastSetActivePower > calculatedPower) {
-				calculatedPower = this.lastSetActivePower
-						- (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-			} else {
-				calculatedPower = this.lastSetActivePower
-						+ (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
-			}
-		}
-
-		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-				calculatedPower);
-
-		// store lastSetActivePower
-		this.lastSetActivePower = calculatedPower;
-
 		/*
 		 * set result
 		 */
-		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
-		ess.getSetReactivePowerEquals().setNextWriteValue(0);
+		ess.setActivePowerEqualsWithPid(calculatedPower);
+		ess.setReactivePowerEquals(0);
 	}
 }

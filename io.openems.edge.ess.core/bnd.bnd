@@ -2,21 +2,13 @@ Bundle-Name: OpenEMS Edge ESS Core
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.ess.core.power
-
--includeresource: {readme.md}
 
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.ess.api;version=latest,\
-	com.google.guava,\
-	org.apache.commons.math3,\
-	slf4j.api,\
-	com.google.gson
+	io.openems.edge.common,\
+	io.openems.edge.ess.api,\
+	org.apache.commons.math3
 
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

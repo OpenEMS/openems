@@ -19,6 +19,7 @@ export class ComponentUpdateComponent implements OnInit {
   public form: FormGroup = null;
   public model = null;
   public fields: FormlyFieldConfig[] = null;
+  public componentIcon: string = null;
 
   private componentId: string = null;
 
@@ -32,7 +33,7 @@ export class ComponentUpdateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AdjustComponents'), this.route).then(edge => {
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.adjustComponents'), this.route).then(edge => {
       this.edge = edge;
     });
     let componentId = this.route.snapshot.params["componentId"];
@@ -40,6 +41,7 @@ export class ComponentUpdateComponent implements OnInit {
       this.componentId = componentId;
       let component = config.components[componentId];
       this.factory = config.factories[component.factoryId];
+      this.componentIcon = config.getFactoryIcon(this.factory);
       let fields: FormlyFieldConfig[] = [];
       let model = {};
       for (let property of this.factory.properties) {

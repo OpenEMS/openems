@@ -1,7 +1,9 @@
 package io.openems.edge.timedata.rrd4j;
 
+import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.OptionalDouble;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
@@ -26,7 +28,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	protected static final int DEFAULT_NO_OF_CYCLES = 60;
 
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
-	private final Rrd4jTimedata parent;
+	private final Rrd4jTimedataImpl parent;
 	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
 
 	// Counts the number of Cycles till data is recorded
@@ -48,9 +50,12 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 	// Record queue
 	private LinkedBlockingQueue<Record> records = new LinkedBlockingQueue<>();
-	private LocalDateTime lastRecordedTimestamp = LocalDateTime.MIN;
 
-	public RecordWorker(Rrd4jTimedata parent) {
+	// keeps the last recorded timestamp
+	private Instant lastTimestamp = Instant.MIN;
+	private LocalDateTime readChannelValuesSince = LocalDateTime.MIN;
+
+	public RecordWorker(Rrd4jTimedataImpl parent) {
 		this.parent = parent;
 	}
 
@@ -60,14 +65,23 @@ public class RecordWorker extends AbstractImmediateWorker {
 	 * RRD4J.
 	 */
 	public void collectData() {
+		Instant timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final LocalDateTime nextReadChannelValuesSince = LocalDateTime.now();
+
 		// Increase CycleCount
 		if (++this.cycleCount < this.noOfCycles) {
 			// Stop here if not reached CycleCount
 			return;
 		}
+		// reset Cycle-Count
+		this.cycleCount = 0;
 
-		LocalDateTime recordTimestamp = LocalDateTime.now();
-		long timestamp = recordTimestamp.toEpochSecond(ZoneOffset.UTC);
+		// Same second as last run? -> RRD4j can only handle one sample per second per
+		// database. Timestamps are all stored "truncated to seconds".
+		if (timestamp.equals(this.lastTimestamp)) {
+			return;
+		}
+
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
 				if (channel.channelDoc().getAccessMode() != AccessMode.READ_ONLY
@@ -78,12 +92,12 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
-				Function<DoubleStream, OptionalDouble> channelAggregateFunction = getChannelAggregateFunction(
-						channel.channelDoc().getUnit());
+				Function<DoubleStream, OptionalDouble> channelAggregateFunction = this
+						.getChannelAggregateFunction(channel.channelDoc().getUnit());
 
-				OptionalDouble value = channelAggregateFunction.apply( //
+				OptionalDouble value = channelAggregateFunction.apply(//
 						channel.getPastValues() //
-								.tailMap(this.lastRecordedTimestamp, false) // new values since last recording
+								.tailMap(this.readChannelValuesSince, false) // new values since last recording
 								.values().stream() //
 								.map(v -> v.get()) //
 								.filter(v -> v != null) // only not-null values
@@ -95,62 +109,74 @@ public class RecordWorker extends AbstractImmediateWorker {
 				}
 
 				if (this.records.offer(//
-						new Record(timestamp, channel.address(), channel.channelDoc().getUnit(),
+						new Record(timestamp.getEpochSecond(), channel.address(), channel.channelDoc().getUnit(),
 								value.getAsDouble()))) {
-					this.parent.getQueueIsFullChannel().setNextValue(false);
+					this.parent._setQueueIsFull(false);
 				} else {
 					this.log.warn("Unable to add record [" + channel.address() + "]. Queue is full!");
-					this.parent.getQueueIsFullChannel().setNextValue(true);
+					this.parent._setQueueIsFull(true);
 				}
 			}
 		}
-		this.lastRecordedTimestamp = recordTimestamp;
+		this.readChannelValuesSince = nextReadChannelValuesSince;
 		this.triggerNextRun();
 	}
 
 	@Override
 	protected void forever() throws InterruptedException {
 		Record record = this.records.take();
+		RrdDb database = null;
 		try {
-			RrdDb db = this.parent.getRrdDb(record.address, record.unit, record.timestamp - 1);
+			database = this.parent.getRrdDb(record.address, record.unit, record.timestamp - 1);
 
-			// Add Sample to RRD4J
-			Sample sample = db.createSample(record.timestamp);
-			sample.setValue(0, record.value);
-			sample.update();
+			if (database.getLastUpdateTime() < record.timestamp) {
+				// Avoid and silently ignore error "IllegalArgumentException: Bad sample time:
+				// XXX. Last update time was YYY, at least one second step is required".
 
-			// Close file
-			db.close();
+				// Add Sample to RRD4J
+				Sample sample = database.createSample(record.timestamp);
+				sample.setValue(0, record.value);
+				sample.update();
+			}
 
-			this.parent.getUnableToInsertSample().setNextValue(false);
+			this.parent._setUnableToInsertSample(false);
 
 		} catch (Throwable e) {
-			this.parent.getUnableToInsertSample().setNextValue(true);
+			this.parent._setUnableToInsertSample(true);
 			this.parent.logWarn(this.log, "Unable to insert Sample [" + record.address + "] "
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
+		} finally {
+			if (database != null) {
+				try {
+					database.close();
+				} catch (IOException e) {
+					this.parent.logWarn(this.log,
+							"Unable to close database [" + record.address + "]: " + e.getMessage());
+				}
+			}
 		}
 	}
 
-	private final static ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = (value) -> {
 		return (Boolean) value ? 1d : 0d;
 	};
 
-	private final static ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = (value) -> {
 		return ((Short) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = (value) -> {
 		return ((Integer) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = (value) -> {
 		return ((Long) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = (value) -> {
 		return ((Float) value).doubleValue();
 	};
-	private final static ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = (value) -> {
 		return (Double) value;
 	};
-	private final static ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = (value) -> {
+	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = (value) -> {
 		return 0d;
 	};
 

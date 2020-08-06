@@ -27,10 +27,13 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Fenecon.Dess.PvMeter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				"type=PRODUCTION" //
+		})
 public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, OpenemsComponent {
 
@@ -83,7 +86,7 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.modbusBridgeId;
 	}
 
 	@Override
@@ -105,10 +108,10 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActivePower().value().asString();
+		return "P:" + this.getActivePower().asString();
 	}
 
-	private final static ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter( //
+	private static final ElementToChannelConverter DELTA_10000 = new ElementToChannelConverter(//
 			// element -> channel
 			value -> {
 				if (value == null) {
@@ -120,7 +123,8 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 				}
 				return (intValue - 10_000); // apply delta of 10_000
 			}, //
-				// channel -> element
+
+			// channel -> element
 			value -> value);
 
 }

@@ -13,6 +13,9 @@
   <property name="charset" value="UTF-8"/>
   <property name="fileExtensions" value="java, properties, xml"/>
   <module name="TreeWalker">
+    <module name="RequireThis">
+      <property name="validateOnlyOverlapping" value="false"/>
+    </module>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -23,12 +26,6 @@
       <property name="allowEscapesForControlCharacters" value="true"/>
       <property name="allowByTailComment" value="true"/>
       <property name="allowNonPrintableEscapes" value="true"/>
-    </module>
-    <module name="LineLength">
-      <property name="severity" value="ignore"/>
-      <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-      <property name="max" value="140"/>
-      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="AvoidStarImport"/>
     <module name="OneTopLevelClass"/>
@@ -154,10 +151,6 @@
     </module>
     <module name="OverloadMethodsDeclarationOrder"/>
     <module name="VariableDeclarationUsageDistance"/>
-    <module name="CustomImportOrder">
-      <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-      <property name="sortImportsInGroupAlphabetically" value="false"/>
-    </module>
     <module name="MethodParamPad"/>
     <module name="NoWhitespaceBefore">
       <property name="allowLineBreaks" value="true"/>
@@ -200,11 +193,13 @@
       <property name="exceptionVariableName" value="expected"/>
     </module>
     <module name="CommentsIndentation"/>
-    <module name="JavadocMethod">
-      <property name="allowMissingJavadoc" value="true"/>
-      <property name="suppressLoadErrors" value="true"/>
-    </module>
     <module name="SuppressionCommentFilter"/>
+  </module>
+  <module name="LineLength">
+    <property name="severity" value="ignore"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    <property name="max" value="140"/>
+    <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
   </module>
   <module name="FileTabCharacter">
     <property name="severity" value="ignore"/>

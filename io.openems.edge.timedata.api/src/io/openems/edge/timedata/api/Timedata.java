@@ -1,8 +1,13 @@
 package io.openems.edge.timedata.api;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.CommonTimedataService;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -22,5 +27,14 @@ public interface Timedata extends CommonTimedataService, OpenemsComponent {
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Gets the latest known value for the given {@link ChannelAddress}.
+	 * 
+	 * @param channelAddress the ChannelAddress to be queried
+	 * @return the latest known value or Empty
+	 * @throws OpenemsNamedException on error
+	 */
+	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress);
 
 }

@@ -30,8 +30,12 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.ProductionMeter.Acting", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				"type=PRODUCTION" //
+		})
 public class ProductionMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
@@ -87,6 +91,9 @@ public class ProductionMeter extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
@@ -102,14 +109,14 @@ public class ProductionMeter extends AbstractOpenemsComponent
 
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
-		this.getActivePower().setNextValue(simulatedActivePower);
-		this.getActivePowerL1().setNextValue(simulatedActivePower / 3);
-		this.getActivePowerL2().setNextValue(simulatedActivePower / 3);
-		this.getActivePowerL3().setNextValue(simulatedActivePower / 3);
+		this._setActivePower(simulatedActivePower);
+		this._setActivePowerL1(simulatedActivePower / 3);
+		this._setActivePowerL2(simulatedActivePower / 3);
+		this._setActivePowerL3(simulatedActivePower / 3);
 	}
 
 	@Override
 	public String debugLog() {
-		return this.getActivePower().value().asString();
+		return this.getActivePower().asString();
 	}
 }

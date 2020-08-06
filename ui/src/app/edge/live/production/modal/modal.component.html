@@ -1,9 +1,9 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title class="ion-text-start ion-padding-left" translate>General.Production</ion-title>
+        <ion-title translate>General.production</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
+                <ion-icon name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -19,7 +19,7 @@
                 <ion-card-content class="underline" *ngIf="currentData.summary.production as sum">
                     <table class="full_width">
                         <tr>
-                            <td style="width:65%" translate>General.Total</td>
+                            <td style="width:65%" translate>General.total</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.activePower | unitvalue:'W' }}
                             </td>
@@ -62,7 +62,7 @@
                                     <div style="padding-top: 5px;"></div>
                                     <tr>
                                         <td style="width:2%"></td>
-                                        <td style="width:23%"><span translate>General.Phase</span> L1</td>
+                                        <td style="width:23%"><span translate>General.phase</span> L1</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
                                             {{ sum.activePowerAcL1 | unitvalue:'W' }}
@@ -70,7 +70,7 @@
                                     </tr>
                                     <tr>
                                         <td style="width:2%"></td>
-                                        <td style="width:23%"><span translate>General.Phase</span> L2</td>
+                                        <td style="width:23%"><span translate>General.phase</span> L2</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
                                             {{ sum.activePowerAcL2 | unitvalue:'W' }}
@@ -78,7 +78,7 @@
                                     </tr>
                                     <tr>
                                         <td style="width:2%"></td>
-                                        <td style="width:23%"><span translate>General.Phase</span> L3</td>
+                                        <td style="width:23%"><span translate>General.phase</span> L3</td>
                                         <td style="width:40%"></td>
                                         <td style="width:35%" class="align_right">
                                             {{ sum.activePowerAcL3 | unitvalue:'W' }}
@@ -103,10 +103,10 @@
                     <table class="full_width">
                         <tr>
                             <ng-container *ngIf="chargerComponents.length > 0; else onlyProductionMeters">
-                                <td style="width:65%"><span translate>General.Total</span> AC</td>
+                                <td style="width:65%"><span translate>General.total</span> AC</td>
                             </ng-container>
                             <ng-template #onlyProductionMeters>
-                                <td style="width:65%" translate>General.Total</td>
+                                <td style="width:65%" translate>General.total</td>
                             </ng-template>
                             <td style="width:35%" class="align_right">
                                 {{ sum.activePowerAc | unitvalue:'W' }}
@@ -121,7 +121,7 @@
                         <table class="full_width">
                             <tr>
                                 <td style="width:2%"></td>
-                                <td style="width:23%"><span translate>General.Phase</span> L1</td>
+                                <td style="width:23%"><span translate>General.phase</span> L1</td>
                                 <td style="width:40%"></td>
                                 <td style="width:35%" class="align_right">
                                     {{ sum.activePowerAcL1 | unitvalue:'W' }}
@@ -129,7 +129,7 @@
                             </tr>
                             <tr>
                                 <td style="width:2%"></td>
-                                <td style="width:23%"><span translate>General.Phase</span> L2</td>
+                                <td style="width:23%"><span translate>General.phase</span> L2</td>
                                 <td style="width:40%"></td>
                                 <td style="width:35%" class="align_right">
                                     {{ sum.activePowerAcL2 | unitvalue:'W' }}
@@ -137,7 +137,7 @@
                             </tr>
                             <tr>
                                 <td style="width:2%"></td>
-                                <td style="width:23%"><span translate>General.Phase</span> L3</td>
+                                <td style="width:23%"><span translate>General.phase</span> L3</td>
                                 <td style="width:40%"></td>
                                 <td style="width:35%" class="align_right">
                                     {{ sum.activePowerAcL3 | unitvalue:'W' }}
@@ -202,10 +202,10 @@
                         <table class="full_width">
                             <tr>
                                 <ng-container *ngIf="productionMeterComponents.length > 0; else onlyCharger">
-                                    <td style="width:35%"><span translate>General.Total</span> DC</td>
+                                    <td style="width:35%"><span translate>General.total</span> DC</td>
                                 </ng-container>
                                 <ng-template #onlyCharger>
-                                    <td style="width:35%" translate>General.Total</td>
+                                    <td style="width:35%" translate>General.total</td>
                                 </ng-template>
                                 <td style="width:15%"></td>
                                 <td style="width:50%" class="align_right">
@@ -242,7 +242,7 @@
                     class="ion-padding-top">
                     <ion-row class="ion-justify-content-center ion-align-items-center">
                         <ion-col size="2" class="ion-text-center">
-                            <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
+                            <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
                         </ion-col>
                         <ion-col size="10">
                             <ion-note class="ion-text-wrap"><small translate>Edge.Index.Widgets.phasesInfo</small>

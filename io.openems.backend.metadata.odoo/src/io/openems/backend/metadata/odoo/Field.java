@@ -7,6 +7,27 @@ public interface Field {
 
 	public String id();
 
+	public int index();
+
+	public String name();
+
+	public boolean isQuery();
+
+	/**
+	 * Gets all fields that should be queried as a comma separated string.
+	 * 
+	 * @return the String
+	 */
+	public static String getSqlQueryFields(Field[] fields) {
+		return Stream.of(fields) //
+				.filter(f -> f.isQuery()) //
+				.map(f -> f.id()) //
+				.collect(Collectors.joining(","));
+	}
+
+	/**
+	 * The EdgeDevice-Model.
+	 */
 	public enum EdgeDevice implements Field {
 		ID("id", true), //
 		APIKEY("apikey", true), //
@@ -19,11 +40,12 @@ public interface Field {
 		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
 		LAST_MESSAGE("lastmessage", false), //
 		LAST_UPDATE("lastupdate", false), //
-		SOC("soc", true), //
-		IPV4("ipv4", true), //
-		OPENEMS_SUM_STATE("openems_sum_state", false), //
-		OPENEMS_SUM_STATE_TEXT("openem_sum_state_text", false), //
+		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
+		OPENEMS_SUM_STATE_TEXT("openems_sum_state_text", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
+
+		public static final String ODOO_MODEL = "edge.device";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -51,23 +73,108 @@ public interface Field {
 		}
 
 		public int index() {
-			return queryIndex;
+			return this.queryIndex;
 		}
 
 		public boolean isQuery() {
-			return query;
+			return this.query;
+		}
+	}
+
+	/**
+	 * The EdgeDeviceStatus-Model.
+	 */
+	public enum EdgeDeviceStatus implements Field {
+		DEVICE_ID("device_id", false), //
+		CHANNEL_ADDRESS("channel_address", false), //
+		LEVEL("level", true), //
+		COMPONENT_ID("component_id", true), //
+		CHANNEL_NAME("channel_name", true), //
+		LAST_APPEARANCE("last_appearance", false), //
+		LAST_ACKNOWLEDGE("last_acknowledge", false), //
+		ACKNOWLEDGE_DAYS("acknowledge_days", false);
+
+		public static final String ODOO_MODEL = "edge.device_status";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
 		}
 
+		private final int queryIndex;
+		private final String id;
 		/**
-		 * Gets all fields that should be queried as a comma separated string.
-		 * 
-		 * @return the String
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
 		 */
-		public static final String getSqlQueryFields() {
-			return Stream.of(EdgeDevice.values()) //
-					.filter(f -> f.isQuery()) //
-					.map(f -> f.id()) //
-					.collect(Collectors.joining(","));
+		private final boolean query;
+
+		private EdgeDeviceStatus(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		public String id() {
+			return this.id;
+		}
+
+		public int index() {
+			return this.queryIndex;
+		}
+
+		public boolean isQuery() {
+			return this.query;
+		}
+	}
+
+	/**
+	 * The EdgeConfigUpdate-Model.
+	 */
+	public enum EdgeConfigUpdate implements Field {
+		DEVICE_ID("device_id", false), //
+		TEASER("teaser", false), //
+		DETAILS("details", false);
+
+		public static final String ODOO_MODEL = "edge.openemsconfigupdate";
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private EdgeConfigUpdate(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		public String id() {
+			return this.id;
+		}
+
+		public int index() {
+			return this.queryIndex;
+		}
+
+		public boolean isQuery() {
+			return this.query;
 		}
 	}
 }

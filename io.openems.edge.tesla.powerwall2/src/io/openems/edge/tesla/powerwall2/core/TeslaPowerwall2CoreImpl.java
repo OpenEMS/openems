@@ -17,7 +17,6 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -82,12 +81,4 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 		return Optional.ofNullable(battery.get());
 	}
 
-	/**
-	 * Gets the instance for Channel "SlaveCommunicationFailed".
-	 * 
-	 * @return the Channel instance
-	 */
-	protected Channel<Boolean> getSlaveCommunicationFailedChannel() {
-		return this.channel(CoreChannelId.SLAVE_COMMUNICATION_FAILED);
-	}
 }
