@@ -175,8 +175,11 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
 
 				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
-
+				
 				FetchData data = request.fetchData();
+
+				database.close();
+				
 
 				double first = Double.NaN;
 				double last = Double.NaN;
