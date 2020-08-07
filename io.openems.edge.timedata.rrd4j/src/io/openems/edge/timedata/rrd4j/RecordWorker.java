@@ -89,6 +89,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 					// Ignore WRITE_ONLY Channels
 					continue;
 				}
+				
+				
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
@@ -119,6 +121,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 			}
 		}
 		this.readChannelValuesSince = nextReadChannelValuesSince;
+		this.lastTimestamp = timestamp;
 		this.triggerNextRun();
 	}
 
