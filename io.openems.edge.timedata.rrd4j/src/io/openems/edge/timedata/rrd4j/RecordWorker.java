@@ -122,7 +122,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 			}
 		}
 		this.readChannelValuesSince = nextReadChannelValuesSince;
-		this.lastTimestamp = timestamp;
 		this.triggerNextRun();
 	}
 
