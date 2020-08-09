@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -158,32 +157,27 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-
 		SortedMap<ChannelAddress, JsonElement> table = new TreeMap<>();
+		long fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
+		RrdDb database = null;
 		try {
-			long fromTimestamp = fromDate.toEpochSecond();
-			long toTimeStamp = toDate.toEpochSecond();
-
 			for (ChannelAddress channelAddress : channels) {
 				Channel<?> channel = this.componentManager.getChannel(channelAddress);
-				RrdDb database = this.getExistingRrdDb(channel.address());
+				database = this.getExistingRrdDb(channel.address());
 				if (database == null) {
 					continue; // not existing -> abort
 				}
 
 				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-
 				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
-				
 				FetchData data = request.fetchData();
-
 				database.close();
-				
 
+				// Find first and last energy value != null
 				double first = Double.NaN;
 				double last = Double.NaN;
-
 				for (Double tmp : data.getValues(0)) {
 					if (Double.isNaN(first) && !Double.isNaN(tmp)) {
 						first = tmp;
@@ -193,6 +187,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 					}
 				}
 
+				// Calculate difference between last and first value
 				double value = last - first;
 
 				if (Double.isNaN(value)) {
@@ -204,6 +199,14 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			}
 		} catch (IOException | IllegalArgumentException e) {
 			throw new OpenemsException("Unable to read historic data: " + e.getMessage());
+		} finally {
+			if (database != null && !database.isClosed()) {
+				try {
+					database.close();
+				} catch (IOException e) {
+					this.logWarn(this.log, "Unable to close database: " + e.getMessage());
+				}
+			}
 		}
 		return table;
 	}
