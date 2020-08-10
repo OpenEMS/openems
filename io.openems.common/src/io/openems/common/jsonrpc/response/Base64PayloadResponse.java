@@ -30,6 +30,10 @@ public class Base64PayloadResponse extends JsonrpcResponseSuccess {
 		this.payload = Base64.getEncoder().encodeToString(payload);
 	}
 
+	public String getPayload() {
+		return payload;
+	}
+
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //

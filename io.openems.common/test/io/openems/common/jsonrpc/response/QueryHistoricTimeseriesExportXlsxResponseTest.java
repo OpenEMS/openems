@@ -1,49 +1,27 @@
 package io.openems.common.jsonrpc.response;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedMap;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.TreeMap;
 
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
+import org.junit.Test;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
-/**
- * Represents a JSON-RPC Response for 'queryHistoricTimeseriesExportXlxs'.
- * 
- * <p>
- * 
- * <pre>
- * {
- *   "jsonrpc": "2.0",
- *   "id": "UUID",
- *   "result": {
- *     "payload": Base64-String
- *   }
- * }
- * </pre>
- */
-public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResponse {
-
-	public QueryHistoricTimeseriesExportXlsxResponse(UUID id, String edgeId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData,
-			SortedMap<ChannelAddress, JsonElement> historicEnergy) throws IOException, OpenemsNamedException {
-		super(id, generatePayload(edgeId, fromDate, toDate, historicData, historicEnergy));
-		// TODO Auto-generated constructor stub
-	}
+public class QueryHistoricTimeseriesExportXlsxResponseTest {
 
 	public static ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
 	public static ChannelAddress GRID_BUY_ENERGY = new ChannelAddress("_sum", "GridBuyEnergy");
@@ -54,63 +32,49 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	public static ChannelAddress CONSUMPTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ConsumptionActiveEnergy");
 	public static ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress("_sum", "EssActivePower");
 	public static ChannelAddress ESS_ACTIVE_ENERGY = new ChannelAddress("_sum", "EssActiveEnergy");
-	// public static ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
-	public static Set<ChannelAddress> POWER_CHANNELS = Stream.of(//
-			GRID_ACTIVE_POWER, //
-			PRODUCTION_ACTIVE_POWER, //
-			CONSUMPTION_ACTIVE_POWER, //
-			ESS_ACTIVE_POWER).collect(Collectors.toCollection(HashSet::new));
+	@Test
+	public void test() throws IOException, OpenemsNamedException {
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData = getMockedPowerData();
+		SortedMap<ChannelAddress, JsonElement> energyData = getMockedEnergyData();
 
-	public static Set<ChannelAddress> ENERGY_CHANNELS = Stream.of(//
-			GRID_BUY_ENERGY, //
-			GRID_SELL_ENERGY, //
-			PRODUCTION_ACTIVE_ENERGY, //
-			CONSUMPTION_ACTIVE_ENERGY, //
-			ESS_ACTIVE_ENERGY // ,ESS_SOC
-	).collect(Collectors.toCollection(HashSet::new));
+//		QueryHistoricTimeseriesExportXlsxResponse response = new QueryHistoricTimeseriesExportXlsxResponse(UUID.randomUUID(), powerData, energyData);
+//		Base64.getDecoder().decode(response.getPayload());
 
-	public static byte[] generatePayload(String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
-			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData,
-			SortedMap<ChannelAddress, JsonElement> energyData) throws IOException, OpenemsNamedException {
-		byte[] payload = new byte[0];
+//		byte[] payload = new byte[0];
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			Workbook workbook = new Workbook(os, "Historic data", "1.0");
-			Worksheet worksheet = workbook.newWorksheet("Sheet1");
+			Worksheet ws = workbook.newWorksheet("Sheet1");
 
-			addBasicInfo(worksheet, edgeId, fromDate, toDate);
-			addEnergyData(worksheet, energyData);
-			addPowerData(worksheet, powerData);
+			addBasicInfo(ws);
+			addEnergyData(ws, energyData);
+			addPowerData(ws, powerData);
 
 			workbook.finish();
 			os.flush();
-			payload = os.toByteArray();
+//			payload = os .toByteArray();
+
+			String rootPath = System.getProperty("user.home");
+			try (OutputStream outputStream = new FileOutputStream(rootPath + "\\test.xlsx")) {
+				os.writeTo(outputStream);
+			}
 
 			os.close();
 		}
-		return payload;
 	}
 
 	/**
 	 * Adds basic information like the Edge-ID, date of creation,...
 	 * 
-	 * @param ws       the {@link Worksheet}
-	 * @param edgeId   the edgeId number
-	 * @param fromDate the fromdate the excel exported from
-	 * @param toDate   the todate the excel exported to
+	 * @param ws the {@link Worksheet}
 	 */
-	private static void addBasicInfo(Worksheet ws, String edgId, ZonedDateTime fromDate, ZonedDateTime toDate) {
-
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-		String fromDateString = fromDate.format(formatter);
-		String toDateString = toDate.format(formatter);
-
+	private static void addBasicInfo(Worksheet ws) {
 		addValueBold(ws, 0, 0, "FEMS-Nr.");
-		addValue(ws, 0, 1, edgId);
+		addValue(ws, 0, 1, "{{Edge-ID}}");
 		addValueBold(ws, 1, 0, "Export erstellt am");
-		addValue(ws, 1, 1, fromDateString);
+		addValue(ws, 1, 1, "{{Export erstellt am}}");
 		addValueBold(ws, 2, 0, "Export Zeitraum");
-		addValue(ws, 2, 1, toDateString);
+		addValue(ws, 2, 1, "{{Export Zeitraum}}");
 	}
 
 	/**
@@ -182,7 +146,6 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		} else {
 			addValue(ws, 5, 6, "NA");
 		}
-
 	}
 
 	/**
@@ -202,7 +165,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		addValueBold(ws, 7, 4, "Speicher Beladung [W]");
 		addValueBold(ws, 7, 5, "Speicher Entladung [W]");
 		addValueBold(ws, 7, 6, "Verbrauch [W]");
-		// addValueBold(ws, 7, 7, "State of Charge(Soc) [%]");
+		addValueBold(ws, 7, 7, "State of Charge(Soc) [%]");
 
 		int rowCount = 8;
 
@@ -247,37 +210,50 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				addValue(ws, rowCount, 6, (JsonUtils.getAsInt(values.get(CONSUMPTION_ACTIVE_POWER)) / 4000));
 			}
 
-//			// State of charge
-//			if (!values.get(ESS_SOC).isJsonNull()) {
-//				addValue(ws, rowCount, 6, (JsonUtils.getAsInt(values.get(ESS_SOC))));
-//			}
+//					// State of charge
+//					if (!values.get(ESS_SOC).isJsonNull()) {
+//						addValue(ws, rowCount, 6, (JsonUtils.getAsInt(values.get(ESS_SOC))));
+//					}
 
 			rowCount++;
 		}
 	}
 
-	/**
-	 * Helper method to make the font style to bold in excel
-	 * 
-	 * @param ws     the {@link Worksheet}
-	 * @param row    row number
-	 * @param column column number
-	 * @param value  actual value to be bold
-	 */
 	private static void addValueBold(Worksheet ws, int row, int column, Object value) {
 		addValue(ws, row, column, value);
 		ws.style(row, column).bold().set();
 	}
 
-	/**
-	 * Helper method to add the value in the excel sheet
-	 * 
-	 * @param ws     the {@link Worksheet}
-	 * @param row    row number
-	 * @param column column number
-	 * @param value  actual value in the sheet
-	 */
 	private static void addValue(Worksheet ws, int row, int column, Object value) {
 		ws.value(row, column, value);
 	}
+
+	private SortedMap<ChannelAddress, JsonElement> getMockedEnergyData() {
+
+		SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
+
+		values.put(GRID_BUY_ENERGY, new JsonPrimitive(0));
+		values.put(GRID_SELL_ENERGY, new JsonPrimitive(0));
+		values.put(PRODUCTION_ACTIVE_ENERGY, new JsonPrimitive(500));
+		values.put(CONSUMPTION_ACTIVE_POWER, new JsonPrimitive(600));
+		values.put(CONSUMPTION_ACTIVE_ENERGY, new JsonPrimitive(700));
+		values.put(ESS_ACTIVE_ENERGY, new JsonPrimitive(100));
+
+		return values;
+	}
+
+	private SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> getMockedPowerData() {
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
+
+		SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
+		values.put(GRID_ACTIVE_POWER, new JsonPrimitive(50));
+		values.put(PRODUCTION_ACTIVE_POWER, new JsonPrimitive(250));
+		values.put(CONSUMPTION_ACTIVE_POWER, new JsonPrimitive(600));
+		values.put(ESS_ACTIVE_POWER, new JsonPrimitive(700));
+
+		result.put(ZonedDateTime.of(2020, 07, 01, 0, 0, 0, 0, ZoneId.systemDefault()), values);
+
+		return result;
+	}
+
 }
