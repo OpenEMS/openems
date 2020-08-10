@@ -154,10 +154,10 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(10144, 10150),
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
 								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverter.SCALE_FACTOR_3), //
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
 								new UnsignedDoublewordElement(10153).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)), //
+								ElementToChannelConverter.SCALE_FACTOR_3)), //
 				new FC3ReadRegistersTask(11133, Priority.HIGH, //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11133), DELTA_10000), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11134), DELTA_10000)), //
