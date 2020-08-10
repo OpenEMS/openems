@@ -36,7 +36,7 @@ public class EdgeApp {
 				SDNotify.sendNotify();
 			}
 		}
-		//PreConfig.initConfig(cm, false);
+		//PreConfig.initConfig(cm, false, false);
 		
 		
 	}

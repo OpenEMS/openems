@@ -11,7 +11,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class PreConfig {
 
-	protected static void initConfig(ConfigurationAdmin cm, boolean old) {
+	protected static void initConfig(ConfigurationAdmin cm, boolean old, boolean io) {
 
 		Configuration factory;
 
@@ -71,6 +71,47 @@ public class PreConfig {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+
+		if (io) {
+			try {
+				configs = cm.listConfigurations("(id=io0)");
+
+				if (configs == null || configs.length == 0) {
+					factory = cm.createFactoryConfiguration("io.openems.edge.io.iot2000", null);
+
+					Hashtable<String, Object> iot2000 = new Hashtable<>();
+					iot2000.put("enabled", true);
+					iot2000.put("id", "io0");
+					iot2000.put("alias", "iot2000");
+					factory.update(iot2000);
+				}
+			} catch (IOException | InvalidSyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			for (int i = 0; i < 2; i++) {
+				try {
+					configs = cm.listConfigurations("(id=ctrlIoFixDigitalOutput" + i + ")");
+
+					if (configs == null || configs.length == 0) {
+						factory = cm.createFactoryConfiguration("Controller.Io.FixDigitalOutput", null);
+
+						Hashtable<String, Object> fixDO = new Hashtable<>();
+						fixDO.put("enabled", true);
+						fixDO.put("id", "ctrlIoFixDigitalOutput" + i);
+						fixDO.put("alias", "DQ" + i);
+						fixDO.put("isOn", false);
+						fixDO.put("outputChannelAddress", "io0/Dq" + i);
+						factory.update(fixDO);
+					}
+				} catch (IOException | InvalidSyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 		}
 
 		try {
@@ -246,7 +287,7 @@ public class PreConfig {
 					Configuration bpgridMeter = oldconfigs[0];
 					bpgridMeter.delete();
 				}
-				
+
 				oldconfigs = cm.listConfigurations("(service.factoryPid=Kaco.BlueplanetHybrid10.PVMeter)");
 
 				if (oldconfigs != null) {
@@ -254,7 +295,7 @@ public class PreConfig {
 					Configuration pvmeter = oldconfigs[0];
 					pvmeter.delete();
 				}
-				
+
 				// old Kaco End
 
 				// Create Kaco Core
