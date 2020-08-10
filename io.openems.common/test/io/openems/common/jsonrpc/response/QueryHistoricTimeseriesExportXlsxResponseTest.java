@@ -55,7 +55,7 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 //			payload = os .toByteArray();
 
 			String rootPath = System.getProperty("user.home");
-			try (OutputStream outputStream = new FileOutputStream(rootPath + "\\test.xlsx")) {
+			try (OutputStream outputStream = new FileOutputStream(rootPath + "\\testExcel.xlsx")) {
 				os.writeTo(outputStream);
 			}
 
