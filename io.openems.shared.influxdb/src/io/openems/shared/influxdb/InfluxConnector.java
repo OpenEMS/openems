@@ -169,6 +169,10 @@ public class InfluxConnector {
 			throw new OpenemsException(
 					"InfluxDB read is temporarily blocked [" + this.queryLimit + "]. Query: " + query);
 		}
+		if (this.queryLimit.getLimit() > 0.2 && query.contains("Energy")) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
+					+ "]. Query: " + query);
+		}
 
 		InfluxDB influxDB = this.getConnection();
 
