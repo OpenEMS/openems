@@ -60,7 +60,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class SingleRack extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+		implements Battery, SoltaroBattery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
@@ -97,8 +97,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public SingleRack() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				SoltaroBattery.ChannelId.values(), //
+				Battery.ChannelId.values(), //
 				SingleRack.ChannelId.values() //
 		);
 		this._setChargeMaxCurrent(SingleRack.CHARGE_MAX_A);
