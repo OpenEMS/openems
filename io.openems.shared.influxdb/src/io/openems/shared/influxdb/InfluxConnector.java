@@ -169,10 +169,6 @@ public class InfluxConnector {
 			throw new OpenemsException(
 					"InfluxDB read is temporarily blocked [" + this.queryLimit + "]. Query: " + query);
 		}
-		if (this.queryLimit.getLimit() > 0.2 && query.contains("Energy")) {
-			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
-					+ "]. Query: " + query);
-		}
 
 		InfluxDB influxDB = this.getConnection();
 
@@ -204,6 +200,11 @@ public class InfluxConnector {
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		if (Math.random() * 4 < this.queryLimit.getLimit()) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
+					+ "]. Edge [" + influxEdgeId + "] FromDate [" + fromDate + "] ToDate [" + toDate + "]");
+		}
+
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<ChannelAddress, JsonElement>();
@@ -387,7 +388,7 @@ public class InfluxConnector {
 				}
 			}
 			if (areAllValuesNull) {
-				throw new OpenemsException("Energy values are not available");
+				throw new OpenemsException("Energy values are not available for query: " + query);
 			}
 		}
 
