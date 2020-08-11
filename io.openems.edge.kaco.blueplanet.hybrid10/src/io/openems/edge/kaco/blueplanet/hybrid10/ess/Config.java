@@ -29,9 +29,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Core-ID", description = "ID of Core component")
 	String core_id() default "kacoCore0";
 
-	@AttributeDefinition(name = "Max Power", description = "The maximum power (W) of the battery")
-	int maxP() default 4000;
-
 	@AttributeDefinition(name = "Capacity", description = "The capacity [Wh] of the battery")
 	int capacity() default 10_200;
 
