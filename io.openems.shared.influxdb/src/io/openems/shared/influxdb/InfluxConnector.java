@@ -107,7 +107,11 @@ public class InfluxConnector {
 			influxDB.setDatabase(this.database);
 			influxDB.setRetentionPolicy(this.retentionPolicy);
 			influxDB.enableBatch(BatchOptions.DEFAULTS //
-					.jitterDuration(500) //
+					.precision(TimeUnit.MILLISECONDS) //
+					.flushDuration(5_000 /* milliseconds */) //
+					.jitterDuration(1_000 /* milliseconds */) //
+					.actions(1_000 /* entries */) //
+					.bufferLimit(1_000_000 /* entries */) //
 					.exceptionHandler(this.onWriteError));
 			this._influxDB = influxDB;
 		}
