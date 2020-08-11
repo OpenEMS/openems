@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
-import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
+import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStateActive;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeVersion;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -181,7 +181,9 @@ public class EdgeCache {
 					this.parent.logInfo(this.log,
 							"Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
 					edge.setState(State.ACTIVE);
-					this.parent.odooHandler.writeEdge(edge, new FieldValue<String>(Field.EdgeDevice.STATE, "active"));
+					this.parent.getPostgresHandler().getQueueWriteWorker();
+					QueueWriteWorker queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
+					queueWriteWorker.addTask(new UpdateEdgeStateActive(edge.getOdooId()));
 				}
 			} else {
 				// Set OpenEMS Is Connected in Odoo/Postgres
