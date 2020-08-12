@@ -9,7 +9,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
-import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
+import io.openems.edge.battery.soltaro.single.versionc.enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.enums.Sleep;
