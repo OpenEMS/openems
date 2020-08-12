@@ -394,24 +394,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 			} else {
 				// ActivePower is positive -> DISCHARGE
-
-				/*
-				 * Check if PV is available. Discharge mode changes according to availability of
-				 * PV
-				 * 
-				 * TODO PV mode is not working, need an update from GoodWe for this.
-				 */
-//				Integer productionPower = null;
-//				for (AbstractGoodWeEtCharger charger : this.chargers) {
-//					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
-//				}
-//				if (productionPower == null) {
-//					// No PV-Power -> required to put on SELL_POWER
-//					nextPowerMode = PowerModeEms.SELL_POWER;
-//				} else {
-//					// PV-Power exists -> set DISCHARGE_BAT
-//					nextPowerMode = PowerModeEms.DISCHARGE_BAT;
-//				}
 				nextPowerMode = PowerModeEms.DISCHARGE_PV;
 			}
 		}
