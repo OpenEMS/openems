@@ -8,9 +8,9 @@ import { takeUntil } from 'rxjs/operators';
 export abstract class AbstractHistoryWidget {
 
     //observable is used to fetch new widget data every 5 minutes
-    private refreshWidgetData = interval(300000);
+    // private refreshWidgetData = interval(300000);
 
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
         protected service: Service,
@@ -20,17 +20,19 @@ export abstract class AbstractHistoryWidget {
      * Subscribes to 5 minute Interval Observable to update data in Flat Widget
      */
     protected subscribeWidgetRefresh() {
-        this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.updateValues()
-        })
+        // XXX disabled to reduce server load
+        // this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        //     this.updateValues()
+        // })
     }
 
     /**
      * Unsubscribes to 5 minute Interval Observable
      */
     protected unsubscribeWidgetRefresh() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
+        // XXX disabled to reduce server load
+        // this.ngUnsubscribe.next();
+        // this.ngUnsubscribe.complete();
     }
 
     /**

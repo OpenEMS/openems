@@ -318,7 +318,6 @@ export class Service implements ErrorHandler {
         }
 
         // send merged requests
-        console.log("Merged:", mergedRequests);
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
             let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.fromDate, source.channels);
@@ -334,8 +333,6 @@ export class Service implements ErrorHandler {
                 }
               }
             }).catch(reason => {
-              console.log(reason);
-              console.log(source.promises);
               for (let promise of source.promises) {
                 promise.reject(reason);
               }

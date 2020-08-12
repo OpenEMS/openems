@@ -18,7 +18,7 @@ export abstract class AbstractHistoryChart {
     //observable is used to refresh chart height dependend on the window size
     private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
