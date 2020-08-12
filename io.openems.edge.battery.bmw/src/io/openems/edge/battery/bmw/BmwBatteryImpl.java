@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.bmw.enums.*;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -46,44 +47,18 @@ import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Bms.Bmw.Battery", //
+		name = "BMW Battery", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class BMWBattery extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
+public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
+		implements BmwBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
-	// TODO
-	private static final Integer OPEN_CONTACTORS = 0;
-	private static final Integer CLOSE_CONTACTORS = 4;
+	private final Logger log = LoggerFactory.getLogger(BmwBatteryImpl.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
-
-	private final Logger log = LoggerFactory.getLogger(BMWBattery.class);
-
-	private String modbusBridgeId;
-
-	private State state = State.UNDEFINED;
-
-	// if configuring is needed this is used to go through the necessary steps
-	private Config config;
-
-	// If an error has occurred, this indicates the time when next action could be
-	// done
-	private LocalDateTime errorDelayIsOver = null;
-	private int unsuccessfulStarts = 0;
-	private LocalDateTime startAttemptTime = null;
-	private LocalDateTime pendingTimestamp;
-
-	public BMWBattery() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Battery.ChannelId.values(), //
-				BMWChannelId.values() //
-		);
-	}
 
 	@Reference
 	private ComponentManager manager;
@@ -93,29 +68,43 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
+	private static final Integer OPEN_CONTACTORS = 0;
+	private static final Integer CLOSE_CONTACTORS = 4;
+
+	private State state = State.UNDEFINED;
+
+	private Config config;
+
+	private LocalDateTime errorDelayIsOver = null;
+	private int unsuccessfulStarts = 0;
+	private LocalDateTime startAttemptTime = null;
+	private LocalDateTime pendingTimestamp;
+
+	public BmwBatteryImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Battery.ChannelId.values(), //
+				BMWChannelId.values() //
+		);
+	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
-		this.modbusBridgeId = config.modbus_id();
 		initializeCallbacks();
 	}
 
 	private void handleStateMachine() {
-		log.info("BMWBattery.handleStateMachine(): State: " + this.getStateMachineState());
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
 			this.clearError();
-
 			// TODO Reset BMS? anything else?
-
-			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorDelay());
+			errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.errorDelay());
 			setStateMachineState(State.ERRORDELAY);
-
 			break;
-
 		case ERRORDELAY:
 			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
 				errorDelayIsOver = null;
@@ -137,8 +126,8 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 					unsuccessfulStarts++;
 					this.stopSystem();
 					this.setStateMachineState(State.STOPPING);
-					if (unsuccessfulStarts >= config.maxStartAttempts()) {
-						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
+					if (unsuccessfulStarts >= this.config.maxStartAttempts()) {
+						errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.startUnsuccessfulDelay());
 						this.setStateMachineState(State.ERRORDELAY);
 						unsuccessfulStarts = 0;
 					}
@@ -210,18 +199,9 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 
 		// this.getReadyForWorking().setNextValue(readyForWorking);
 		if (readyForWorking) {
-			try {
-				this.setStartStop(StartStop.START);
-			} catch (OpenemsNamedException e) {
-				log.error("Error while Starting the system");
-				e.printStackTrace();
-			}
+			this._setStartStop(StartStop.START);
 		} else {
-			try {
-				this.setStartStop(StartStop.STOP);
-			} catch (OpenemsNamedException e) {
-				log.error("Error while Stopping the system");
-			}
+			this._setStartStop(StartStop.STOP);
 		}
 	}
 
@@ -230,6 +210,7 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 		try {
 			clearErrorChannel.setNextWriteValue(true);
 		} catch (OpenemsNamedException e) {
+			// TODO should Fault state channel, but after start stop feature
 			log.error("Error while trying to reset the system!");
 		}
 	}
@@ -264,10 +245,8 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 //			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltage_millivolt);
 //		});
 
-		// write battery ranges to according channels in battery api
-		// MAX_VOLTAGE ==> DcVolDynMax Register 1012
-
-		// TODO 23:09:2019 COMMITTED
+//       write battery ranges to according channels in battery api
+//       MAX_VOLTAGE ==> DcVolDynMax Register 1012
 
 		this.channel(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_VOLTAGE).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
@@ -305,7 +284,6 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 			this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(max_current);
 		});
 
-		// !!!!! TODO What values are needed !!!!! Is this correct??
 		// CHARGE_MAX_CURRENT ==> DcAmpDynMin ==> 1011
 		this.channel(BMWChannelId.MINIMUM_LIMIT_DYNAMIC_CURRENT).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
@@ -333,7 +311,7 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleBatteryState() {
-		switch (config.batteryState()) {
+		switch (this.config.batteryState()) {
 		case DEFAULT:
 			handleStateMachine();
 			break;
@@ -346,12 +324,12 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 		}
 	}
 
+//  TODO Check this needed or not
 //	public void shutDownBattery() {
 //		SymmetricEss ess;
 //		try {
 //			ess = this.manager.getComponent(this.config.Inverter_id());
 //		} catch (OpenemsNamedException e1) {
-//			// TODO Auto-generated catch block
 //
 //			e1.printStackTrace();
 //			return;
@@ -364,7 +342,6 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 //			try {
 //				commandChannel.setNextWriteValue(OPEN_CONTACTORS);
 //			} catch (OpenemsNamedException e) {
-//				// TODO Auto-generated catch block
 //				log.error("Problem occurred during send start command");
 //			}
 //		}
@@ -396,17 +373,12 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 		return bmsState == BmsState.ERROR;
 	}
 
-	public String getModbusBridgeId() {
-		return modbusBridgeId;
-	}
-
 	@Override
 	public String debugLog() {
-		return "State:" + this.getStateMachineState() + " | SoC:" + this.getSoc() //
-				+ " | Voltage:" + this.getVoltage() + " | Max Operating Current:"
-				+ this.channel(BMWChannelId.MAXIMUM_OPERATING_CURRENT).value().asString() //
-				+ " | Min Operating Current:" + this.channel(BMWChannelId.MINIMUM_OPERATING_CURRENT).value().asString() //
-		;
+		return "SoC:" + this.getSoc() //
+				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
+				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
+				+ "|State:" + this.state.asCamelCase();
 	}
 
 	private void startSystem() {
@@ -428,16 +400,15 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 		try {
 			commandChannel.setNextWriteValue(OPEN_CONTACTORS);
 		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
 			log.error("Problem occurred during send stopping command");
 		}
 	}
 
-	public State getStateMachineState() {
+	private State getStateMachineState() {
 		return state;
 	}
 
-	public void setStateMachineState(State state) {
+	private void setStateMachineState(State state) {
 		this.state = state;
 		this.channel(BMWChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
@@ -445,18 +416,10 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 
 				new FC16WriteRegistersTask(1399, m(BMWChannelId.HEART_BEAT, new UnsignedWordElement(1399)), //
 						m(BMWChannelId.BMS_STATE_COMMAND, new UnsignedWordElement(1400)), //
-//						m(new BitsWordElement(1400, this) //
-//								.bit(15, BMWChannelId.BMS_STATE_COMMAND_RESET) //
-//								.bit(14, BMWChannelId.BMS_STATE_COMMAND_CLEAR_ERROR) //
-//								.bit(3, BMWChannelId.BMS_STATE_COMMAND_CLOSE_PRECHARGE) //
-//								.bit(2, BMWChannelId.BMS_STATE_COMMAND_CLOSE_CONTACTOR) //
-//								.bit(1, BMWChannelId.BMS_STATE_COMMAND_WAKE_UP_FROM_STOP) //
-//								.bit(0, BMWChannelId.BMS_STATE_COMMAND_ENABLE_BATTERY) //
-//						), //
 						m(BMWChannelId.OPERATING_STATE_INVERTER, new UnsignedWordElement(1401)), //
 						m(BMWChannelId.DC_LINK_VOLTAGE, new UnsignedWordElement(1402),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
@@ -504,7 +467,7 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 						m(BMWChannelId.NOMINAL_ENERGY, new UnsignedWordElement(1022)), //
 						m(BMWChannelId.TOTAL_ENERGY, new UnsignedWordElement(1023)), //
 						m(BMWChannelId.NOMINAL_CAPACITY, new UnsignedWordElement(1024)), //
-						m(BMWChannelId.TOTAL_CAPACITY, new UnsignedWordElement(1025)), //
+						m(Battery.ChannelId.CAPACITY, new UnsignedWordElement(1025)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(1026),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(1027),
@@ -544,9 +507,7 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 						m(BMWChannelId.SOFTWARE_VERSION, new UnsignedDoublewordElement(1052)) //
 				)
 
-		); //
-
-		return protocol;
+		);
 	}
 
 	@Override
@@ -559,6 +520,6 @@ public class BMWBattery extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		this.getStartStopChannel().setNextValue(value);
+		// TODO Auto-generated method stub
 	}
 }

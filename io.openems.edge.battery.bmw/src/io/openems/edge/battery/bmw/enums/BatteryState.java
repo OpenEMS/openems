@@ -1,4 +1,4 @@
-package io.openems.edge.battery.bmw;
+package io.openems.edge.battery.bmw.enums;
 
 
 public enum BatteryState {
