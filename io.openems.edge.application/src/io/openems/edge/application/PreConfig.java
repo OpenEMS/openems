@@ -303,7 +303,7 @@ public class PreConfig {
 
 				Hashtable<String, Object> core = new Hashtable<>();
 				core.put("enabled", true);
-				core.put("serialnumber", "");
+				//core.put("serialnumber", "");
 				core.put("id", "kacoCore0");
 				core.put("alias", "");
 				if (userkey == "") {
