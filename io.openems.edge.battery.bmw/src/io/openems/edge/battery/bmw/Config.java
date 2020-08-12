@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.battery.bmw.enums.BatteryState;
 
 @ObjectClassDefinition( //
-		name = "BMW Battery", //
+		name = "Bmw Battery", //
 		description = "Implements the BMW battery rack system.")
 @interface Config {
 
@@ -46,6 +46,6 @@ import io.openems.edge.battery.bmw.enums.BatteryState;
 	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determinated e.g. in case of reading errors")
 	int pendingTolerance() default 15;
 
-	String webconsole_configurationFactory_nameHint() default "BMW Battery[{id}]";
+	String webconsole_configurationFactory_nameHint() default "Bmw Battery[{id}]";
 
 }
