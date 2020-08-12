@@ -382,6 +382,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		final PowerModeEms nextPowerMode;
 
+		System.out.println("Active power:" + activePower);
 		if (this.config.readOnlyMode()) {
 			// Read-Only-Mode: fall-back to internal self-consumption optimization
 			nextPowerMode = PowerModeEms.AUTO;
@@ -400,17 +401,18 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 				 * 
 				 * TODO PV mode is not working, need an update from GoodWe for this.
 				 */
-				Integer productionPower = null;
-				for (AbstractGoodWeEtCharger charger : this.chargers) {
-					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
-				}
-				if (productionPower == null) {
-					// No PV-Power -> required to put on SELL_POWER
-					nextPowerMode = PowerModeEms.SELL_POWER;
-				} else {
-					// PV-Power exists -> set DISCHARGE_BAT
-					nextPowerMode = PowerModeEms.DISCHARGE_BAT;
-				}
+//				Integer productionPower = null;
+//				for (AbstractGoodWeEtCharger charger : this.chargers) {
+//					productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
+//				}
+//				if (productionPower == null) {
+//					// No PV-Power -> required to put on SELL_POWER
+//					nextPowerMode = PowerModeEms.SELL_POWER;
+//				} else {
+//					// PV-Power exists -> set DISCHARGE_BAT
+//					nextPowerMode = PowerModeEms.DISCHARGE_BAT;
+//				}
+				nextPowerMode = PowerModeEms.DISCHARGE_PV;
 			}
 		}
 
@@ -472,7 +474,9 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		 */
 		final Channel<Integer> batteryPower = this.channel(EssChannelId.P_BATTERY1);
 		Integer activePower = batteryPower.getNextValue().get();
+		Integer productionPower = null;
 		for (AbstractGoodWeEtCharger charger : this.chargers) {
+			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
 			activePower = TypeUtils.sum(activePower, charger.getActualPowerChannel().getNextValue().get());
 		}
 		this._setActivePower(activePower);
@@ -480,20 +484,41 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		/*
 		 * Update Allowed charge and Allowed discharge
 		 */
-
 		Integer soc = this.getSoc().get();
-		Integer maxApparentPower = this.getMaxApparentPower().get();
+		Integer maxBatteryPower = this.config.maxBateryPower();
 
-		if (soc == null || soc >= 99) {
-			this._setAllowedChargePower(0);
-		} else {
-			this._setAllowedChargePower(TypeUtils.multiply(maxApparentPower, -1));
+		Integer allowedCharge = null;
+		Integer allowedDischarge = null;
+
+		if (soc == null) {
+			
+			allowedCharge = 0;
+			allowedDischarge = 0;
+			
+		} else if (soc == 100) {
+			
+			allowedDischarge = maxBatteryPower + productionPower;
+			allowedCharge = 0;
+			
+		} else if (soc >= 50) {
+			
+			allowedDischarge = maxBatteryPower + productionPower;
+			allowedCharge = maxBatteryPower - productionPower;
+			
+		} else if (soc >= 0) {
+			
+			allowedDischarge = productionPower;
+			allowedCharge = maxBatteryPower - productionPower;
+			
 		}
-		if (soc == null || soc <= 0) {
-			this._setAllowedDischargePower(0);
-		} else {
-			this._setAllowedDischargePower(maxApparentPower);
+
+		// to avoid charging when production is greater than maximum battery power.
+		if (allowedCharge < 0) {
+			allowedCharge = 0;
 		}
+
+		this._setAllowedChargePower(TypeUtils.multiply(allowedCharge * -1));
+		this._setAllowedDischargePower(allowedDischarge);
 	}
 
 	@Override
@@ -515,6 +540,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
 			};
 		}
+
 		return Power.NO_CONSTRAINTS;
 	}
 }
