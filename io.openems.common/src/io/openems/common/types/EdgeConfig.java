@@ -360,9 +360,14 @@ public class EdgeConfig {
 			for (Entry<String, JsonElement> property : this.getProperties().entrySet()) {
 				properties.add(property.getKey(), property.getValue());
 			}
+			boolean isEnabled = false;
+			if(this.getProperty("enabled").get().getAsBoolean()) {
+				isEnabled = true;
+			}
 			JsonObjectBuilder result = JsonUtils.buildJsonObject() //
 					.addProperty("alias", this.getAlias()) //
 					.addProperty("factoryId", this.getFactoryId()) //
+					.addProperty("isEnabled", isEnabled) //
 					.add("properties", properties); //
 			switch (jsonFormat) {
 			case WITHOUT_CHANNELS:
