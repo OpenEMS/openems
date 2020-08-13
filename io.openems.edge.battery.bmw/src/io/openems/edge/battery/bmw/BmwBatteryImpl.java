@@ -1,7 +1,6 @@
 package io.openems.edge.battery.bmw;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -23,7 +22,8 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.bmw.enums.*;
+import io.openems.edge.battery.bmw.enums.BmsState;
+import io.openems.edge.battery.bmw.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -400,10 +400,19 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 								.m(BMWChannelId.DC_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.build()), //
-				new FC4ReadInputRegistersTask(1030, Priority.HIGH,
-						m(BMWChannelId.AVERAGE_TEMPERATURE, new UnsignedWordElement(1030)), //
-						m(BMWChannelId.MINIMUM_TEMPERATURE, new UnsignedWordElement(1031)), //
-						m(BMWChannelId.MAXIMUM_TEMPERATURE, new UnsignedWordElement(1032)), //
+				new FC4ReadInputRegistersTask(1030, Priority.HIGH, //
+						m(BMWChannelId.AVERAGE_TEMPERATURE, new UnsignedWordElement(1030))), //
+				new FC4ReadInputRegistersTask(1031, Priority.HIGH, //
+						m(new UnsignedWordElement(1031)) //
+								.m(BMWChannelId.MINIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.build()), //
+				new FC4ReadInputRegistersTask(1032, Priority.HIGH, //
+						m(new UnsignedWordElement(1032)) //
+								.m(BMWChannelId.MAXIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.build()), //
+				new FC4ReadInputRegistersTask(1033, Priority.HIGH,
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1033)), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1034)), //
 						m(BMWChannelId.AVERAGE_CELL_VOLTAGE, new UnsignedWordElement(1035)), //
