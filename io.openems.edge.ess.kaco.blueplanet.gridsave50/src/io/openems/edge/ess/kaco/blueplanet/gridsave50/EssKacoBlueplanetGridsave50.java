@@ -1,7 +1,5 @@
 package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -58,6 +56,9 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -68,12 +69,17 @@ import io.openems.edge.ess.power.api.Relationship;
 		}) //
 // TODO: drop this Component in favour of KACO blueplanet Battery-Inverter implemention + Generic ESS.
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
 	public static final int DEFAULT_UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	private int watchdogInterval = 0;
 	private int maxApparentPower = 0;
@@ -91,6 +97,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	private Battery battery;
 	private Version version = Version.VERSION_5_34;
@@ -356,57 +365,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			calculateEnergy();
 			handleStateMachine();
+			this.calculateEnergy();
 			break;
 		}
-	}
-
-	// These variables are used to calculate the energy
-	LocalDateTime lastPowerValuesTimestamp = null;
-	double lastCurrentValue = 0;
-	double lastVoltageValue = 0;
-	double lastActivePowerValue = 0;
-	double accumulatedChargeEnergy = 0;
-	double accumulatedDischargeEnergy = 0;
-
-	/*
-	 * This calculates charge/discharge energy using voltage value given from the
-	 * connected battery and current value from the inverter
-	 */
-	private void calculateEnergy() {
-		if (this.lastPowerValuesTimestamp != null) {
-
-			long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now())
-					.toMillis();
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-
-			double lastPowerValue = this.lastCurrentValue * this.lastVoltageValue;
-			double energy = lastPowerValue * (((double) passedTimeInMilliSeconds) / 1000.0) / 3600.0; // calculate
-																										// energy in
-																										// watt hours
-
-			if (this.lastActivePowerValue < 0) {
-				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this._setActiveChargeEnergy((long) accumulatedChargeEnergy);
-			} else if (this.lastActivePowerValue > 0) {
-				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this._setActiveDischargeEnergy((long) accumulatedDischargeEnergy);
-			}
-
-			log.debug("accumulated charge energy :" + accumulatedChargeEnergy);
-			log.debug("accumulated discharge energy :" + accumulatedDischargeEnergy);
-
-		} else {
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-		}
-
-		this.lastActivePowerValue = this.getActivePower().orElse(0);
-
-		IntegerReadChannel lastCurrentValueChannel = this.channel(ChannelId.DC_CURRENT);
-		this.lastCurrentValue = lastCurrentValueChannel.value().orElse(0) / 1000.0;
-
-		this.lastVoltageValue = this.battery.getVoltage().orElse(0);
 	}
 
 	private void startGridMode() {
@@ -615,7 +577,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		VERSION_5_34(40070, 40212, 40822, 40876, 40892, 40930), //
 		VERSION_5_56(40070, 40212, 40888, 40942, 40958, 40996);
 //		VERSION_5_56(40070, 40212, 41050, 41104, 41120, 41136);
-		
+
 		private Version(int sunSpec_103, int sunSpec_121, int sunSpec_64201, int sunSpec_64202, int sunSpec_64203,
 				int sunSpec_64302) {
 			this.sunSpec_103 = sunSpec_103;
@@ -637,14 +599,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		
+
 		int SUNSPEC_103 = version.sunSpec_103;
 		int SUNSPEC_121 = version.sunSpec_121;
 		int SUNSPEC_64201 = version.sunSpec_64201;
 		int SUNSPEC_64202 = version.sunSpec_64202;
 		int SUNSPEC_64203 = version.sunSpec_64203;
 		int SUNSPEC_64302 = version.sunSpec_64302;
-		
+
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_103 + 24, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.AC_ENERGY,
@@ -763,4 +725,29 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		Integer activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }
