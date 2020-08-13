@@ -18,7 +18,7 @@ public class DataContainer {
 	 * @return the Channel-Id
 	 */
 	public Set<String> getKeys() {
-		return keys.keySet();
+		return this.keys.keySet();
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class DataContainer {
 	 * @return the current record
 	 */
 	public Float[] getCurrentRecord() {
-		return this.records.get(currentIndex);
+		return this.records.get(this.currentIndex);
 	}
 
 	/**
