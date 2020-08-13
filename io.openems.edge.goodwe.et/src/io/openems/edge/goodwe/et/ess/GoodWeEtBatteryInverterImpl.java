@@ -85,7 +85,7 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus); // Bridge Modbus
+		super.setModbus(modbus);
 	}
 
 	@Activate
@@ -503,10 +503,6 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 			this.calculateAcChargeEnergy.update(activePower * -1);
 			this.calculateAcDischargeEnergy.update(0);
 		}
-
-		/*
-		 * Calculate AC Energy values
-		 */
 
 		/*
 		 * Update Allowed charge and Allowed discharge

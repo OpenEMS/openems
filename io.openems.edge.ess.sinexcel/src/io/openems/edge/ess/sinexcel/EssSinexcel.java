@@ -336,8 +336,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 //		return stateOff.isPresent() && stateOff.get();
 //	}
 
-//------------------------------------------------------------------------------------------------------------------	
-
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 
@@ -359,7 +357,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 						m(SinexcelChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0087))), // in 100 W
 				new FC6WriteRegisterTask(0x0088,
 						m(SinexcelChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0088))), // in 100 var
-// --
+
 				new FC6WriteRegisterTask(0x032B, //
 						m(SinexcelChannelId.CHARGE_MAX_A, new UnsignedWordElement(0x032B))), //
 				new FC6WriteRegisterTask(0x032C, //
@@ -397,7 +395,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 				// m(SinexcelChannelId.SET_ANALOG_DC_DISCHARGE_ENERGY, new
 				// UnsignedWordElement(0x0093))),
 
-//----------------------------------------------------------READ------------------------------------------------------
 				new FC3ReadRegistersTask(0x0001, Priority.ONCE, //
 						m(SinexcelChannelId.MODEL, new StringWordElement(0x0001, 16)), //
 						m(SinexcelChannelId.SERIAL, new StringWordElement(0x0011, 8))), //
@@ -455,7 +452,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 						m(SinexcelChannelId.UPPER_VOLTAGE_LIMIT, new UnsignedWordElement(0x032E), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
-//-----------------------------------------EVENT Bitfield 32------------------------------------------------------------		
 				new FC3ReadRegistersTask(0x0262, Priority.LOW, //
 						m(new BitsWordElement(0x0262, this) //
 								.bit(0, SinexcelChannelId.STATE_0) //

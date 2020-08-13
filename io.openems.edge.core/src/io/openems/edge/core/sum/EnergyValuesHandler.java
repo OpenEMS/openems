@@ -23,9 +23,9 @@ public class EnergyValuesHandler {
 	 * Initial delay in [s] to give the OSGi framework some time to provide a
 	 * {@link Timedata} service if one is configured.
 	 */
-	private final static int INITIAL_DELAY = 60;
+	private static final int INITIAL_DELAY = 60;
 
-	private final static Sum.ChannelId[] ENERGY_CHANNEL_IDS = { //
+	private static final Sum.ChannelId[] ENERGY_CHANNEL_IDS = { //
 			Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY, //
 			Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, //
 			Sum.ChannelId.ESS_DC_CHARGE_ENERGY, Sum.ChannelId.ESS_DC_DISCHARGE_ENERGY, //
@@ -85,7 +85,7 @@ public class EnergyValuesHandler {
 		if (this.scheduledFuture != null) {
 			this.scheduledFuture.cancel(true);
 		}
-	};
+	}
 
 	/**
 	 * Sets the value of the Channel if it is greater-or-equals the lastValue.
