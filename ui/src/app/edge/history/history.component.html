@@ -5,6 +5,27 @@
       <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
     </ion-col>
 
+    <ion-col size="12" size-lg="4" size-xl="4">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-avatar slot="start">
+            <img src="assets/img/kwh.png">
+          </ion-avatar>
+          <ion-label>Info: Energiedaten</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <table class="full_width">
+            <tr>
+              <td *ngIf="edge && service.isKwhAllowed(edge)">
+                Wir beginnen damit, die Energiewerte (kWh) bei unseren Systemen zur Verfügung zu stellen. Hierbei kann
+                es leider systembedingt anfangs zu fehlerhaften Anzeigen kommen.
+              </td>
+            </tr>
+          </table>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
     <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
       <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="4" size-xl="2">
         <storageWidget [period]="service.historyPeriod"></storageWidget>

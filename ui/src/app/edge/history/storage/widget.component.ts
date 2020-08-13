@@ -57,8 +57,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
-                new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
+                new ChannelAddress('_sum', 'EssDcChargeEnergy'),
+                new ChannelAddress('_sum', 'EssDcDischargeEnergy')
             ];
             resolve(channels);
         });
