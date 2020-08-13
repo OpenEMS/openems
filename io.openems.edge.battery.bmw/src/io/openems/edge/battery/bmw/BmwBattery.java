@@ -167,14 +167,6 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.VOLT)), //
 
-		MAXIMUM_LIMIT_DYNAMIC_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE)), //
-
-		MINIMUM_LIMIT_DYNAMIC_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE)), //
-
 		MAXIMUM_LIMIT_DYNAMIC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.VOLT)), //

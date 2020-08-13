@@ -93,7 +93,6 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
-		initializeCallbacks();
 	}
 
 	private void handleStateMachine() {
@@ -218,84 +217,6 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	private void initializeCallbacks() {
-
-		// TODO Check what values to use... !!!
-//		this.channel(BMWChannelId.CLUSTER_1_VOLTAGE).onChange(value -> {
-//			@SuppressWarnings("unchecked")
-//			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
-//			if (!vOpt.isPresent()) {
-//				return;
-//			}
-//			int voltage_volt = (int) (vOpt.get() * 0.001);
-//			log.debug("callback voltage, value: " + voltage_volt);
-//			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_volt);
-//		});
-//
-//		this.channel(BMWChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
-//			@SuppressWarnings("unchecked")
-//			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
-//			if (!vOpt.isPresent()) {
-//				return;
-//			}
-//			int voltage_millivolt = vOpt.get();
-//			log.debug("callback min cell voltage, value: " + voltage_millivolt);
-//			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltage_millivolt);
-//		});
-
-//       write battery ranges to according channels in battery api
-//       MAX_VOLTAGE ==> DcVolDynMax Register 1012
-
-		this.channel(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_VOLTAGE).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
-			if (!vOpt.isPresent()) {
-				return;
-			}
-			int max_charge_voltage = (int) (vOpt.get());
-			log.debug("callback battery range, max charge voltage, value: " + max_charge_voltage);
-			this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(max_charge_voltage);
-		});
-
-		// DISCHARGE_MIN_VOLTAGE ==> DcVolDynMin Register 1013
-		this.channel(BMWChannelId.MINIMUM_LIMIT_DYNAMIC_VOLTAGE).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> vOpt = (Optional<Integer>) newValue.asOptional();
-			if (!vOpt.isPresent()) {
-				return;
-			}
-			int min_discharge_voltage = (int) (vOpt.get());
-			log.debug("callback battery range, min discharge voltage, value: " + min_discharge_voltage);
-			this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(min_discharge_voltage);
-		});
-
-		// !!!!! TODO What values are needed !!!!! Is this correct??
-		// CHARGE_MAX_CURRENT ==> DcAmpDynMax ==> 1010
-		this.channel(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_CURRENT).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
-			if (!cOpt.isPresent()) {
-				return;
-			}
-			int max_current = (int) (cOpt.get() * 1);
-			log.debug("callback battery range, max charge current, value: " + max_current);
-			this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(max_current);
-		});
-
-		// CHARGE_MAX_CURRENT ==> DcAmpDynMin ==> 1011
-		this.channel(BMWChannelId.MINIMUM_LIMIT_DYNAMIC_CURRENT).onChange((oldValue, newValue) -> {
-			@SuppressWarnings("unchecked")
-			Optional<Integer> cOpt = (Optional<Integer>) newValue.asOptional();
-			if (!cOpt.isPresent()) {
-				return;
-			}
-			int max_current = (int) (cOpt.get() * -1);
-			log.debug("callback battery range, max discharge current, value: " + max_current);
-			this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(max_current);
-		});
-
 	}
 
 	@Override
