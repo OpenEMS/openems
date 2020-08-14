@@ -12,8 +12,8 @@ public enum State implements io.openems.edge.common.statemachine.State<State, Co
 	START_BATTERY_INVERTER(11, new StartBatteryInverterHandler()), //
 	STARTED(12, new StartedHandler()), //
 
-	STOP_BATTERY_INVERTER(20, new StopBatteryHandler()), //
-	STOP_BATTERY(21, new StopBatteryInverterHandler()), //
+	STOP_BATTERY_INVERTER(20, new StopBatteryInverterHandler()), //
+	STOP_BATTERY(21, new StopBatteryHandler()), //
 	STOPPED(22, new StoppedHandler()), //
 
 	ERROR(30, new ErrorHandler()), //

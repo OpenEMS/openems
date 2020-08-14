@@ -70,6 +70,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 		})
+// TODO should implement HybridEss
 public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent implements EssFeneconCommercial40,
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 

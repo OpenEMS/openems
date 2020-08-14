@@ -401,7 +401,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -412,7 +412,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -422,6 +422,28 @@ public interface Sum extends OpenemsComponent {
 		ESS_AMPERE_HOURS(Doc.of(OpenemsType.LONG).unit(Unit.AMPERE_HOURS)),
 		
 		
+		/**
+		 * Ess: DC Discharge Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: HybridEss)
+		 * <li>Type: Long
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ESS_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		/**
+		 * Ess: DC Charge Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: HybridEss)
+		 * <li>Type: Long
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ESS_DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
 		/**
 		 * Grid: Buy-from-grid Energy ("Production").
 		 * 
@@ -438,7 +460,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricMeter)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -448,7 +470,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Energy.
 		 * 
 		 * <ul>
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -459,7 +481,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricMeter)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -470,7 +492,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: EssDcCharger)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -482,7 +504,7 @@ public interface Sum extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricMeter)
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -503,6 +525,7 @@ public interface Sum extends OpenemsComponent {
 	/**
 	 * Update all Channel-Values of this Sum-Component.
 	 * 
+	 * <p>
 	 * This method is called by the 'Cycle' just before the
 	 * TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
 	 */

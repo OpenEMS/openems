@@ -38,7 +38,6 @@ public class EdgeApp {
 		}
 		PreConfig.initConfig(cm, false, false);
 		
-		
 	}
 
 	@Deactivate

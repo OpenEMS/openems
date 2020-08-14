@@ -123,6 +123,7 @@ public class SocomecMeterSinglephaseImpl extends AbstractOpenemsModbusComponent 
 					this.protocolCountisE14();
 
 				} else if (//
+				name.startsWith("countis e23") || //
 				name.startsWith("countis e24") || //
 				name.startsWith("diris a-10") || //
 				name.startsWith("diris a10") || //
@@ -133,7 +134,7 @@ public class SocomecMeterSinglephaseImpl extends AbstractOpenemsModbusComponent 
 					this.channel(SocomecMeterSinglephase.ChannelId.NOT_A_SINGLEPHASE_METER).setNextValue(true);
 
 				} else {
-					this.logError(this.log, "Unable to identify Socomec " + name + " meter!");
+					this.logError(this.log, "Unable to identify Socomec [" + name + "] meter!");
 					this.channel(SocomecMeter.ChannelId.UNKNOWN_SOCOMEC_METER).setNextValue(true);
 				}
 			});
@@ -151,73 +152,81 @@ public class SocomecMeterSinglephaseImpl extends AbstractOpenemsModbusComponent 
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new ElementToChannelConverterChain(//
 										ElementToChannelConverter.SCALE_FACTOR_1, //
-										ElementToChannelConverter.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L1))) //
+										ElementToChannelConverter
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new ElementToChannelConverterChain(//
 										ElementToChannelConverter.SCALE_FACTOR_1, //
-										ElementToChannelConverter.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L2))) //
+										ElementToChannelConverter
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new ElementToChannelConverterChain(//
 										ElementToChannelConverter.SCALE_FACTOR_1, //
-										ElementToChannelConverter.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L3))) //
+										ElementToChannelConverter
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build(), //
 						new DummyRegisterElement(0xc55A, 0xc55D), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
 						m(new UnsignedDoublewordElement(0xc560)) //
 								.m(SymmetricMeter.ChannelId.CURRENT,
-										ElementToChannelConverter.INVERT_IF_TRUE(config.invert())) //
+										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L1, new ElementToChannelConverterChain(//
-										ElementToChannelConverter.INVERT_IF_TRUE(config.invert()), //
-										ElementToChannelConverter.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L1))) //
+										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert()), //
+										ElementToChannelConverter
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L2, new ElementToChannelConverterChain(//
-										ElementToChannelConverter.INVERT_IF_TRUE(config.invert()), //
-										ElementToChannelConverter.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L2))) //
+										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert()), //
+										ElementToChannelConverter
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L3, new ElementToChannelConverterChain(//
-										ElementToChannelConverter.INVERT_IF_TRUE(config.invert()), //
-										ElementToChannelConverter.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L3))) //
+										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert()), //
+										ElementToChannelConverter
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build(), //
 						new DummyRegisterElement(0xc562, 0xc567), //
 						m(new SignedDoublewordElement(0xc568)) //
 								.m(SymmetricMeter.ChannelId.ACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()))
+										ElementToChannelConverter
+												.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
 								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, //
 										new ElementToChannelConverterChain(//
 												ElementToChannelConverter
-														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()),
+														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
-														.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L1))) //
+														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, //
 										new ElementToChannelConverterChain(//
 												ElementToChannelConverter
-														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()),
+														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
-														.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L2))) //
+														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
 								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, //
 										new ElementToChannelConverterChain(//
 												ElementToChannelConverter
-														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()),
+														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
-														.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L3))) //
+														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build(), //
 						m(new SignedDoublewordElement(0xc56A)) //
 								.m(SymmetricMeter.ChannelId.REACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()))
+										ElementToChannelConverter
+												.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
 								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, //
 										new ElementToChannelConverterChain(//
 												ElementToChannelConverter
-														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()),
+														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
-														.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L1))) //
+														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, //
 										new ElementToChannelConverterChain(//
 												ElementToChannelConverter
-														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()),
+														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
-														.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L2))) //
+														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
 								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, //
 										new ElementToChannelConverterChain(//
 												ElementToChannelConverter
-														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(config.invert()),
+														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
-														.SET_ZERO_IF_TRUE(config.phase() != SinglePhase.L3))) //
+														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build()));
 		if (this.config.invert()) {
 			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
