@@ -1,10 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Service, EdgeConfig, Edge, Websocket, ChannelAddress, Utils } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, AlertController } from '@ionic/angular';
 import { UpdateSoftwareRequest } from 'src/app/shared/jsonrpc/request/updateSoftwareRequest';
 import { UpdateSoftwareResponse } from 'src/app/shared/jsonrpc/response/updateSoftwareResponse';
-import { Alerts } from 'src/app/shared/service/alerts';
 import { environment } from 'src/environments';
 
 @Component({
@@ -36,11 +35,11 @@ export class KacoUpdateModalComponent implements OnInit {
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public websocket: Websocket,
-        private alerts: Alerts,
+        private alertCtrl: AlertController,
     ) { }
 
     ngOnInit() {
-        this.alerts.load();
+
     }
 
     updateSoftware() {
@@ -83,12 +82,31 @@ export class KacoUpdateModalComponent implements OnInit {
                     break;
             }
             this.modalCtrl.dismiss();
-            this.alerts.updateConfirm(message, restart);
+            this.updateConfirm(message, restart);
             this.isUpdating = false;
             this.btnDisabled = false;
 
         });
 
 
+    }
+
+    async updateConfirm(message: string, restart: boolean) {
+        const alert: HTMLIonAlertElement = await this.alertCtrl.create({
+            header: "Updates",
+            message: message,
+            buttons: [
+                {
+                    text: "Ok",
+                    role: 'cancel',
+                    handler: () => {
+                        if (restart) {
+                            this.service.forceRestart();
+                        }
+                    }
+                }
+            ]
+        });
+        await alert.present();
     }
 }

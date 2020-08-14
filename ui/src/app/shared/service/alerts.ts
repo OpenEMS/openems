@@ -105,27 +105,5 @@ export class Alerts {
         await alert.present();
     }
 
-    async updateConfirm(message: string, restart: boolean) {
-        const alert: HTMLIonAlertElement = await this.alertCtrl.create({
-            header: "Updates",
-            message: message,
-            buttons: [
-                {
-                    text: "Ok",
-                    role: 'cancel',
-                    handler: () => {
-                        if (restart) {
-                            this.service.forceRestart();
-                        }
-                    }
-                }
-            ]
-        });
-        await alert.present();
-    }
-
-    load() {
-        return true;
-    }
 
 }

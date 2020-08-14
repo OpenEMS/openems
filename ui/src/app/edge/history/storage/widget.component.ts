@@ -58,8 +58,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
                 //new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
-            //new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
-            new ChannelAddress('_sum', 'EssAmpereHours')
+                //new ChannelAddress('_sum', 'EssActiveDischargeEnergy'),
+                new ChannelAddress('_sum', 'EssAmpereHours')
             ];
             resolve(channels);
         });
