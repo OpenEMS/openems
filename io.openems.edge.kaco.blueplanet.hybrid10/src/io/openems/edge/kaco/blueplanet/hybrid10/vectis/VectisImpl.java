@@ -29,6 +29,9 @@ import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -37,7 +40,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class VectisImpl extends AbstractOpenemsComponent
-		implements Vectis, SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
+		implements Vectis, SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BpCore core;
@@ -45,7 +48,15 @@ public class VectisImpl extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
 	private Config config;
+
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
@@ -143,6 +154,21 @@ public class VectisImpl extends AbstractOpenemsComponent
 		this._setActivePower(activePower);
 		this._setFrequency(freq);
 		this.channel(Vectis.ChannelId.VECTIS_STATUS).setNextValue(vectisStatus);
+
+		// Calculate Energy
+		if (activePower == null) {
+			// Not available
+			this.calculateProductionEnergy.update(null);
+			this.calculateConsumptionEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateProductionEnergy.update(activePower);
+			this.calculateConsumptionEnergy.update(0);
+		} else {
+			// Sell-To-Grid
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(activePower * -1);
+		}
 	}
 
 	@Override
@@ -153,5 +179,10 @@ public class VectisImpl extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.GRID;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

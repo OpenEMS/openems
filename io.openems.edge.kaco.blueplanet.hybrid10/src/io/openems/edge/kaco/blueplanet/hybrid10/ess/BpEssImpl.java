@@ -3,7 +3,6 @@ package io.openems.edge.kaco.blueplanet.hybrid10.ess;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +34,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -46,6 +46,9 @@ import io.openems.edge.kaco.blueplanet.hybrid10.BpConstants;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.GlobalUtils;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -53,8 +56,8 @@ import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class BpEssImpl extends AbstractOpenemsComponent
-		implements BpEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
+public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, HybridEss, ManagedSymmetricEss, SymmetricEss,
+		OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final int WATCHDOG_SECONDS = 8;
 
@@ -66,8 +69,20 @@ public class BpEssImpl extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
 	@Reference
 	private Power power;
+
+	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
 	private Config config;
 
@@ -76,6 +91,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
+				HybridEss.ChannelId.values(), //
 				ErrorChannelId.values(), //
 				BpEss.ChannelId.values() //
 		);
@@ -104,7 +120,6 @@ public class BpEssImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
-			this.calculateEnergy();
 			break;
 		}
 	}
@@ -112,6 +127,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 	private void updateChannels() {
 		Integer soc = null;
 		Integer activePower = null;
+		Integer dcDischargePower = null;
 		Integer reactivePower = null;
 		GridMode gridMode = GridMode.UNDEFINED;
 		Float bmsVoltage = null;
@@ -129,7 +145,9 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 			if (battery != null) {
 				soc = Math.round(battery.getSOE());
-				activePower = GlobalUtils.roundToPowerPrecision(battery.getPower() - inverter.getPvPower()) * -1; // invert
+				float batteryPower = battery.getPower();
+				activePower = GlobalUtils.roundToPowerPrecision(batteryPower - inverter.getPvPower()) * -1; // invert
+				dcDischargePower = GlobalUtils.roundToPowerPrecision(batteryPower) * -1; // invert
 				bmsVoltage = battery.getBmsVoltage();
 			}
 
@@ -165,6 +183,7 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 		this._setSoc(soc);
 		this._setActivePower(activePower);
+		this._setDcDischargePower(dcDischargePower);
 		this._setReactivePower(reactivePower);
 		this._setGridMode(gridMode);
 
@@ -186,6 +205,36 @@ public class BpEssImpl extends AbstractOpenemsComponent
 
 		// Surplus Feed-In Channel
 		this.channel(BpEss.ChannelId.SURPLUS_FEED_IN).setNextValue(this.calculateSurplusFeedIn());
+
+		// Calculate AC Energy
+		if (activePower == null) {
+			// Not available
+			this.calculateAcChargeEnergy.update(null);
+			this.calculateAcDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Discharge
+			this.calculateAcChargeEnergy.update(0);
+			this.calculateAcDischargeEnergy.update(activePower);
+		} else {
+			// Charge
+			this.calculateAcChargeEnergy.update(activePower * -1);
+			this.calculateAcDischargeEnergy.update(0);
+		}
+
+		// Calculate DC Energy
+		if (dcDischargePower == null) {
+			// Not available
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null);
+		} else if (dcDischargePower > 0) {
+			// Discharge
+			this.calculateDcChargeEnergy.update(0);
+			this.calculateDcDischargeEnergy.update(dcDischargePower);
+		} else {
+			// Charge
+			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
+			this.calculateDcDischargeEnergy.update(0);
+		}
 	}
 
 	/**
@@ -301,34 +350,9 @@ public class BpEssImpl extends AbstractOpenemsComponent
 		return Power.NO_CONSTRAINTS;
 	}
 
-	LocalDateTime lastPowerValuesTimestamp = null;
-	double lastPowerValue = 0;
-	double accumulatedChargeEnergy = 0;
-	double accumulatedDischargeEnergy = 0;
-
-	private void calculateEnergy() {
-		if (this.lastPowerValuesTimestamp != null) {
-
-			long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now())
-					.toMillis();
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-
-			double energy = this.lastPowerValue * (passedTimeInMilliSeconds / 1000) / 3600;
-			// calculate energy in watt hours
-
-			if (this.lastPowerValue < 0) {
-				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
-				this._setActiveChargeEnergy(Math.round(accumulatedChargeEnergy));
-			} else if (this.lastPowerValue > 0) {
-				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
-				this._setActiveDischargeEnergy(Math.round(accumulatedDischargeEnergy));
-			}
-
-		} else {
-			this.lastPowerValuesTimestamp = LocalDateTime.now();
-		}
-
-		this.lastPowerValue = this.getActivePower().orElse(0);
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 }
