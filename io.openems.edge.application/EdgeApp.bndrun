@@ -9,7 +9,8 @@
 	felix.cm.dir=c:/openems-config,\
 	openems.data.dir=/usr/lib/hy-control/data,\
 	#openems.data.dir=c:/openems-data
-	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
+	org.ops4j.pax.logging.DefaultServiceLog.level=INFO,\
+	#org.apache.felix.eventadmin.Timeout=0
 
 -runsystempackages:\
 	sun.misc,\
