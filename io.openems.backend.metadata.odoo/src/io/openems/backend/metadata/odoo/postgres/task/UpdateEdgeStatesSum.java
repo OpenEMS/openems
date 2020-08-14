@@ -111,7 +111,7 @@ public class UpdateEdgeStatesSum extends DatabaseTask {
 
 	/**
 	 * UPDATE {} SET openems_sum_state_level = {}, openems_sum_state_text = {} WHERE
-	 * id = {};
+	 * id = {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error

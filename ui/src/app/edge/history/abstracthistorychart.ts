@@ -13,11 +13,12 @@ export abstract class AbstractHistoryChart {
     public loading: boolean = true;
 
     //observable is used to fetch new chart data every 5 minutes
-    private refreshChartData = interval(300000);
+    // XXX disabled to reduce server load
+    // private refreshChartData = interval(300000);
     //observable is used to refresh chart height dependend on the window size
     private refreshChartHeight = fromEvent(window, 'resize', null, null);
 
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
@@ -84,20 +85,22 @@ export abstract class AbstractHistoryChart {
      * Subscribes to 5 minute Interval Observable and Window Resize Observable to fetch new data and resize chart if needed
      */
     protected subscribeChartRefresh() {
-        this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.updateChart()
-        })
-        this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
-            this.getChartHeight();
-        });
+        // XXX disabled to reduce server load
+        //     this.refreshChartData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        //         this.updateChart()
+        //     })
+        //     this.refreshChartHeight.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(() => {
+        //         this.getChartHeight();
+        //     });
     }
 
     /**
      * Unsubscribes to 5 minute Interval Observable and Window Resize Observable
      */
     protected unsubscribeChartRefresh() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
+        // XXX disabled to reduce server load
+        //     this.ngUnsubscribe.next();
+        //     this.ngUnsubscribe.complete();
     }
 
     /**

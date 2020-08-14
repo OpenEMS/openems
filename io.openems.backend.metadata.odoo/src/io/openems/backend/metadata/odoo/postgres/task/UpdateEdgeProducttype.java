@@ -25,7 +25,7 @@ public class UpdateEdgeProducttype extends DatabaseTask {
 	}
 
 	/**
-	 * UPDATE {} SET version = {} WHERE id = {};
+	 * UPDATE {} SET version = {} WHERE id = {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
@@ -40,7 +40,7 @@ public class UpdateEdgeProducttype extends DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "UpdateEdgeProducttype [odooId=" + odooId + ", producttype=" + producttype + "]";
+		return "UpdateEdgeProducttype [odooId=" + this.odooId + ", producttype=" + this.producttype + "]";
 	}
 
 }

@@ -37,12 +37,12 @@ import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
 
-	public final static String MEASUREMENT = "data";
+	public static final String MEASUREMENT = "data";
 
-	private final static Logger log = LoggerFactory.getLogger(InfluxConnector.class);
-	private final static int CONNECT_TIMEOUT = 10; // [s]
-	private final static int READ_TIMEOUT = 10; // [s]
-	private final static int WRITE_TIMEOUT = 10; // [s]
+	private static final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
+	private static final int CONNECT_TIMEOUT = 10; // [s]
+	private static final int READ_TIMEOUT = 10; // [s]
+	private static final int WRITE_TIMEOUT = 10; // [s]
 
 	private final String ip;
 	private final int port;
@@ -83,13 +83,13 @@ public class InfluxConnector {
 	private InfluxDB _influxDB = null;
 
 	public String getDatabase() {
-		return database;
+		return this.database;
 	}
 
 	/**
-	 * Get InfluxDB Connection
+	 * Get InfluxDB Connection.
 	 * 
-	 * @return
+	 * @return the {@link InfluxDB} connection
 	 */
 	private InfluxDB getConnection() {
 		if (this._influxDB == null) {
@@ -107,7 +107,11 @@ public class InfluxConnector {
 			influxDB.setDatabase(this.database);
 			influxDB.setRetentionPolicy(this.retentionPolicy);
 			influxDB.enableBatch(BatchOptions.DEFAULTS //
-					.jitterDuration(500) //
+					.precision(TimeUnit.MILLISECONDS) //
+					.flushDuration(5_000 /* milliseconds */) //
+					.jitterDuration(1_000 /* milliseconds */) //
+					.actions(1_000 /* entries */) //
+					.bufferLimit(1_000_000 /* entries */) //
 					.exceptionHandler(this.onWriteError));
 			this._influxDB = influxDB;
 		}
@@ -121,9 +125,9 @@ public class InfluxConnector {
 	}
 
 	private static class RandomLimit {
-		private final static double MAX_LIMIT = 0.95;
-		private final static double MIN_LIMIT = 0;
-		private final static double STEP = 0.01;
+		private static final double MAX_LIMIT = 0.95;
+		private static final double MIN_LIMIT = 0;
+		private static final double STEP = 0.01;
 
 		private double limit = 0;
 
@@ -142,7 +146,7 @@ public class InfluxConnector {
 		}
 
 		protected double getLimit() {
-			return limit;
+			return this.limit;
 		}
 
 		@Override
@@ -154,11 +158,11 @@ public class InfluxConnector {
 	private final RandomLimit queryLimit = new RandomLimit();
 
 	/**
-	 * copied from backend.timedata.influx.provider
+	 * Copied from backend.timedata.influx.provider.
 	 * 
-	 * @param query
-	 * @return
-	 * @throws OpenemsException
+	 * @param query the Query
+	 * @return the {@link QueryResult}
+	 * @throws OpenemsException on error
 	 */
 	public QueryResult executeQuery(String query) throws OpenemsException {
 		if (Math.random() < this.queryLimit.getLimit()) {
@@ -196,6 +200,11 @@ public class InfluxConnector {
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		if (Math.random() * 4 < this.queryLimit.getLimit()) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
+					+ "]. Edge [" + influxEdgeId + "] FromDate [" + fromDate + "] ToDate [" + toDate + "]");
+		}
+
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<ChannelAddress, JsonElement>();
@@ -217,7 +226,7 @@ public class InfluxConnector {
 		String query = b.toString();
 
 		// Execute query
-		QueryResult queryResult = executeQuery(query);
+		QueryResult queryResult = this.executeQuery(query);
 
 		// Prepare result
 		SortedMap<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
@@ -234,7 +243,7 @@ public class InfluxConnector {
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
 	 * @param resolution   the resolution in seconds
-	 * @return
+	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(
@@ -271,7 +280,7 @@ public class InfluxConnector {
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
 	 * 
 	 * @param queryResult the Query-Result
-	 * @return
+	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertHistoricDataQueryResult(
@@ -322,7 +331,7 @@ public class InfluxConnector {
 	 * Converts the QueryResult of a Historic-Energy query to a properly typed Map.
 	 * 
 	 * @param queryResult the Query-Result
-	 * @return
+	 * @return the historic energy as Map
 	 * @throws OpenemsException on error
 	 */
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResult(String query,
@@ -379,19 +388,13 @@ public class InfluxConnector {
 				}
 			}
 			if (areAllValuesNull) {
-				throw new OpenemsException("Energy values are not available");
+				throw new OpenemsException("Energy values are not available for query: " + query);
 			}
 		}
 
 		return map;
 	}
 
-	/**
-	 * 
-	 * @param channels
-	 * @return
-	 * @throws OpenemsException
-	 */
 	protected static String toChannelAddressStringData(Set<ChannelAddress> channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (ChannelAddress channel : channels) {

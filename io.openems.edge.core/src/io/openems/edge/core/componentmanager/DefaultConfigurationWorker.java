@@ -63,7 +63,6 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 		"org.ops4j.pax.logging".equals(c.pid))) {
 			// Adding Configuration manually, because this is not a OpenEMS Configuration
 			try {
-				Configuration config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
 				Hashtable<String, Object> log4j = new Hashtable<>();
 				log4j.put("log4j.rootLogger", "INFO, CONSOLE, osgi:*");
 				log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
@@ -71,6 +70,7 @@ public class DefaultConfigurationWorker extends AbstractWorker {
 				log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern",
 						"%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
 				log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
+				Configuration config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
 				config.update(log4j);
 			} catch (IOException e) {
 				this.parent.logError(this.log, "Unable to create Default Logging configuration: " + e.getMessage());

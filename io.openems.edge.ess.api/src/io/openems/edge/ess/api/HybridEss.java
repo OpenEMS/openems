@@ -12,7 +12,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
 /**
  * A {@link HybridEss} is a {@link SymmetricEss} with one or more
- * {@link EssDcCharger}s..
+ * {@link EssDcCharger}s.
  */
 @ProviderType
 public interface HybridEss extends SymmetricEss {

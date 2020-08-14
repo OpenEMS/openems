@@ -16,7 +16,6 @@ import io.openems.edge.timedata.api.TimedataProvider;
  * Calculates the value for energy channels in [Wh] from Power values in [W].
  * 
  * <p>
- * 
  * This is commonly used to calculate SymmetricEss or SymmetricMeter
  * ActiveChargePower and ActiveDischargePower from ActivePower channels. To use
  * it, you have to:
@@ -60,7 +59,6 @@ public class CalculateEnergyFromPower {
 	 * Available States.
 	 * 
 	 * <p>
-	 * 
 	 * IMPLEMENTATION NOTE: we are using a custom StateMachine here and not the
 	 * generic implementation in 'io.openems.edge.common.statemachine', because one
 	 * State-Machine per EnergyCalculator object is required, which is not possible
@@ -92,7 +90,7 @@ public class CalculateEnergyFromPower {
 	 * ContinuousCumulatedEnergy keeps the exceeding energy in [Wmsec]. It is
 	 * continuously updated during CALCULATE_ENERGY_OPERATION state.
 	 */
-	private long continuousCumulatedEnergy = 0l;
+	private long continuousCumulatedEnergy = 0L;
 
 	/**
 	 * Keeps the timestamp of the last data.
@@ -157,10 +155,10 @@ public class CalculateEnergyFromPower {
 								this.baseCumulatedEnergy = TypeUtils.getAsType(OpenemsType.LONG,
 										cumulatedEnergyOpt.get());
 							} catch (IllegalArgumentException e) {
-								this.baseCumulatedEnergy = 0l;
+								this.baseCumulatedEnergy = 0L;
 							}
 						} else {
-							this.baseCumulatedEnergy = 0l;
+							this.baseCumulatedEnergy = 0L;
 						}
 					});
 		}

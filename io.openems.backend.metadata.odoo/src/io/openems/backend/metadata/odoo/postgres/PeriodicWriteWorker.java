@@ -32,7 +32,7 @@ public class PeriodicWriteWorker {
 	/**
 	 * DEBUG_MODE activates printing of reqular statistics about queued tasks.
 	 */
-	private final static boolean DEBUG_MODE = true;
+	private static final boolean DEBUG_MODE = true;
 
 	private static final int UPDATE_INTERVAL_IN_SECONDS = 60;
 
@@ -57,7 +57,7 @@ public class PeriodicWriteWorker {
 
 	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
-				() -> task.accept(this.dataSource), //
+				() -> this.task.accept(this.dataSource), //
 				UPDATE_INTERVAL_IN_SECONDS, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 
@@ -69,15 +69,15 @@ public class PeriodicWriteWorker {
 		// Shutdown executor
 		if (this.executor != null) {
 			try {
-				executor.shutdown();
-				executor.awaitTermination(5, TimeUnit.SECONDS);
+				this.executor.shutdown();
+				this.executor.awaitTermination(5, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 				this.parent.logWarn(this.log, "tasks interrupted");
 			} finally {
-				if (!executor.isTerminated()) {
+				if (!this.executor.isTerminated()) {
 					this.parent.logWarn(this.log, "cancel non-finished tasks");
 				}
-				executor.shutdownNow();
+				this.executor.shutdownNow();
 			}
 		}
 	}
@@ -126,8 +126,8 @@ public class PeriodicWriteWorker {
 		try {
 			new UpdateEdgeStatesSum(edgeIds).execute(dataSource);
 		} catch (SQLException e) {
-			parent.logWarn(this.log,
-					"Unable to execute Task. " + task.getClass().getSimpleName() + ": " + e.getMessage());
+			this.parent.logWarn(this.log,
+					"Unable to execute Task. " + this.task.getClass().getSimpleName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -245,8 +245,8 @@ public class PeriodicWriteWorker {
 	private synchronized void debugLog() {
 		LocalDateTime now = LocalDateTime.now();
 		if (this.lastExecute != null) {
-			parent.logInfo(this.log, "PeriodicWriteWorker. " //
-					+ "Time since last run: [" + ChronoUnit.SECONDS.between(lastExecute, now) + "s]" //
+			this.parent.logInfo(this.log, "PeriodicWriteWorker. " //
+					+ "Time since last run: [" + ChronoUnit.SECONDS.between(this.lastExecute, now) + "s]" //
 			);
 		}
 		this.lastExecute = now;

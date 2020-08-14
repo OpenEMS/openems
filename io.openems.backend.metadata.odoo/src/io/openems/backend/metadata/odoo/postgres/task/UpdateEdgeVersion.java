@@ -26,7 +26,7 @@ public class UpdateEdgeVersion extends DatabaseTask {
 	}
 
 	/**
-	 * UPDATE {} SET version = {} WHERE id = {};
+	 * UPDATE {} SET version = {} WHERE id = {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
@@ -41,7 +41,7 @@ public class UpdateEdgeVersion extends DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "UpdateEdgeVersion [odooId=" + odooId + ", version=" + version + "]";
+		return "UpdateEdgeVersion [odooId=" + this.odooId + ", version=" + this.version + "]";
 	}
 
 }

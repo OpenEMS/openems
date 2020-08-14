@@ -521,6 +521,7 @@ public interface Sum extends OpenemsComponent {
 	/**
 	 * Update all Channel-Values of this Sum-Component.
 	 * 
+	 * <p>
 	 * This method is called by the 'Cycle' just before the
 	 * TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
 	 */

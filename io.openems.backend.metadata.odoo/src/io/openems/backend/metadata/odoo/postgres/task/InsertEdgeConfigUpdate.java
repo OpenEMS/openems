@@ -36,7 +36,7 @@ public class InsertEdgeConfigUpdate extends DatabaseTask {
 
 	/**
 	 * UPDATE {} SET openems_config = {}, openems_config_components = {} WHERE id =
-	 * {};
+	 * {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
@@ -53,7 +53,8 @@ public class InsertEdgeConfigUpdate extends DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "InsertEdgeConfigUpdate [createDate=" + createDate + ", odooId=" + odooId + ", teaser=" + teaser + "]";
+		return "InsertEdgeConfigUpdate [createDate=" + this.createDate + ", odooId=" + this.odooId + ", teaser="
+				+ this.teaser + "]";
 	}
 
 }
