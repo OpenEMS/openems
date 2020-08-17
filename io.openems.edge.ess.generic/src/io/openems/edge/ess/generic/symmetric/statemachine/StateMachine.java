@@ -9,25 +9,23 @@ import io.openems.edge.common.statemachine.StateHandler;
 public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
 
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
-		UNDEFINED(-1, new UndefinedHandler()), //
+		UNDEFINED(-1), //
 
-		START_BATTERY(10, new StartBatteryHandler()), //
-		START_BATTERY_INVERTER(11, new StartBatteryInverterHandler()), //
-		STARTED(12, new StartedHandler()), //
+		START_BATTERY(10), //
+		START_BATTERY_INVERTER(11), //
+		STARTED(12), //
 
-		STOP_BATTERY_INVERTER(20, new StopBatteryInverterHandler()), //
-		STOP_BATTERY(21, new StopBatteryHandler()), //
-		STOPPED(22, new StoppedHandler()), //
+		STOP_BATTERY_INVERTER(20), //
+		STOP_BATTERY(21), //
+		STOPPED(22), //
 
-		ERROR(30, new ErrorHandler()), //
+		ERROR(30), //
 		;
 
 		private final int value;
-		protected final StateHandler<State, Context> handler;
 
-		private State(int value, StateHandler<State, Context> handler) {
+		private State(int value) {
 			this.value = value;
-			this.handler = handler;
 		}
 
 		@Override
@@ -67,9 +65,9 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		case STARTED:
 			return new StartedHandler();
 		case STOP_BATTERY_INVERTER:
-			return new StopBatteryHandler();
-		case STOP_BATTERY:
 			return new StopBatteryInverterHandler();
+		case STOP_BATTERY:
+			return new StopBatteryHandler();
 		case STOPPED:
 			return new StoppedHandler();
 		case ERROR:
