@@ -281,6 +281,8 @@ export class Service implements ErrorHandler {
     if (this.queryEnergyTimeout == null) {
       this.queryEnergyTimeout = setTimeout(() => {
 
+        this.queryEnergyTimeout = null;
+
         // merge requests
         let mergedRequests: {
           fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
