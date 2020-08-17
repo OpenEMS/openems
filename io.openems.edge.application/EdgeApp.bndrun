@@ -28,6 +28,7 @@
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='io.openems.edge.application',\
+	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
@@ -145,6 +146,7 @@
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
+	io.openems.edge.battery.bmw;version=snapshot,\
 	io.openems.edge.battery.bydcommercial;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.batteryinverter.api;version=snapshot,\
