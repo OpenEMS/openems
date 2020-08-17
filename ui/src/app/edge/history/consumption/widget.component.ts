@@ -40,7 +40,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     }
 
     ngOnChanges() {
-        //this.updateValues();
+        this.updateValues();
     };
 
     protected updateValues() {
