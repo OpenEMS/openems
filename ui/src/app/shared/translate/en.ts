@@ -185,6 +185,7 @@ export const TRANSLATION = {
                     status: 'Status',
                     totalCharge: 'Total charge',
                     totalChargingPower: 'Total charging power',
+                    unknown: 'Unknown',
                     unplugged: 'Unplugged',
                     Administration: {
                         carAdministration: 'Car administration',

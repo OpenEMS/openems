@@ -69,7 +69,6 @@ export class EvcsModalComponent implements OnInit {
     switch (chargeState) {
       case ChargeState.STARTING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.starting');
-      case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
         return this.translate.instant('Edge.Index.Widgets.EVCS.error');
       case ChargeState.READY_FOR_CHARGING:
@@ -78,6 +77,8 @@ export class EvcsModalComponent implements OnInit {
         return this.translate.instant('Edge.Index.Widgets.EVCS.notReadyForCharging');
       case ChargeState.AUTHORIZATION_REJECTED:
         return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
+      case ChargeState.UNDEFINED:
+        return this.translate.instant('Edge.Index.Widgets.EVCS.unknown');
       case ChargeState.CHARGING:
         return this.translate.instant('Edge.Index.Widgets.EVCS.charging');
       case ChargeState.ENERGY_LIMIT_REACHED:
@@ -171,8 +172,10 @@ export class EvcsModalComponent implements OnInit {
    * @param event
    */
   updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
+
     let oldMinChargePower = currentController.properties.forceChargeMinPower;
     let newMinChargePower = event.detail.value;
+
     newMinChargePower /= numberOfPhases;
 
     if (this.edge != null) {
