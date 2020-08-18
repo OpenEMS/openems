@@ -2,6 +2,7 @@ package io.openems.common.jsonrpc.response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
@@ -38,12 +39,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResponse {
 
-	public QueryHistoricTimeseriesExportXlsxResponse(UUID id, String edgeId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData,
-			SortedMap<ChannelAddress, JsonElement> historicEnergy) throws IOException, OpenemsNamedException {
-		super(id, generatePayload(edgeId, fromDate, toDate, historicData, historicEnergy));
-		// TODO Auto-generated constructor stub
-	}
+	public static String NOT_AVAILABLE = "nicht verfügbar";
 
 	public static ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
 	public static ChannelAddress GRID_BUY_ENERGY = new ChannelAddress("_sum", "GridBuyEnergy");
@@ -54,21 +50,29 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	public static ChannelAddress CONSUMPTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ConsumptionActiveEnergy");
 	public static ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress("_sum", "EssActivePower");
 	public static ChannelAddress ESS_ACTIVE_ENERGY = new ChannelAddress("_sum", "EssActiveEnergy");
-	// public static ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
+	public static ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
 	public static Set<ChannelAddress> POWER_CHANNELS = Stream.of(//
 			GRID_ACTIVE_POWER, //
 			PRODUCTION_ACTIVE_POWER, //
 			CONSUMPTION_ACTIVE_POWER, //
-			ESS_ACTIVE_POWER).collect(Collectors.toCollection(HashSet::new));
+			ESS_ACTIVE_POWER, //
+			ESS_SOC //
+	).collect(Collectors.toCollection(HashSet::new));
 
 	public static Set<ChannelAddress> ENERGY_CHANNELS = Stream.of(//
 			GRID_BUY_ENERGY, //
 			GRID_SELL_ENERGY, //
 			PRODUCTION_ACTIVE_ENERGY, //
 			CONSUMPTION_ACTIVE_ENERGY, //
-			ESS_ACTIVE_ENERGY // ,ESS_SOC
+			ESS_ACTIVE_ENERGY //
 	).collect(Collectors.toCollection(HashSet::new));
+
+	public QueryHistoricTimeseriesExportXlsxResponse(UUID id, String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData,
+			SortedMap<ChannelAddress, JsonElement> historicEnergy) throws IOException, OpenemsNamedException {
+		super(id, generatePayload(edgeId, fromDate, toDate, historicData, historicEnergy));
+	}
 
 	public static byte[] generatePayload(String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData,
@@ -99,18 +103,18 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	 * @param fromDate the fromdate the excel exported from
 	 * @param toDate   the todate the excel exported to
 	 */
-	private static void addBasicInfo(Worksheet ws, String edgId, ZonedDateTime fromDate, ZonedDateTime toDate) {
+	protected static void addBasicInfo(Worksheet ws, String edgId, ZonedDateTime fromDate, ZonedDateTime toDate) {
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String fromDateString = fromDate.format(formatter);
 		String toDateString = toDate.format(formatter);
 
 		addValueBold(ws, 0, 0, "FEMS-Nr.");
 		addValue(ws, 0, 1, edgId);
 		addValueBold(ws, 1, 0, "Export erstellt am");
-		addValue(ws, 1, 1, fromDateString);
+		addValue(ws, 1, 1, LocalDate.now().toString());
 		addValueBold(ws, 2, 0, "Export Zeitraum");
-		addValue(ws, 2, 1, toDateString);
+		addValue(ws, 2, 1, fromDateString + " - " + toDateString);
 	}
 
 	/**
@@ -120,43 +124,38 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	 * @param data the energy data map
 	 * @throws OpenemsNamedException
 	 */
-	private static void addEnergyData(Worksheet ws, SortedMap<ChannelAddress, JsonElement> data)
+	protected static void addEnergyData(Worksheet ws, SortedMap<ChannelAddress, JsonElement> data)
 			throws OpenemsNamedException {
 
 		// Heading for Grid buy energy
 		addValueBold(ws, 4, 1, "Netzbezug [kWh]");
 
 		// Grid buy energy
-		if (!data.get(GRID_BUY_ENERGY).isJsonNull()) {
-			addValue(ws, 5, 1, JsonUtils.getAsInt(data.get(GRID_BUY_ENERGY)));
-		} else {
-			addValue(ws, 5, 1, "NA");
-		}
+		addvalueIfnotNull(ws, 5, 1, data.get(GRID_BUY_ENERGY));
+
 		// Heading for Grid sell energy
 		addValueBold(ws, 4, 2, "Netzeinspeisung [kWh]");
 
 		// Grid sell energy
-		if (!data.get(GRID_SELL_ENERGY).isJsonNull()) {
-			addValue(ws, 5, 2, JsonUtils.getAsInt(data.get(GRID_SELL_ENERGY)));
-		} else {
-			addValue(ws, 5, 2, "NA");
-		}
+		addvalueIfnotNull(ws, 5, 2, data.get(GRID_SELL_ENERGY));
 
 		// Heading for Production energy
 		addValueBold(ws, 4, 3, "Erzeugung [kWh]");
 
 		// Production energy
-		if (!data.get(PRODUCTION_ACTIVE_ENERGY).isJsonNull()) {
-			addValue(ws, 5, 3, JsonUtils.getAsInt(data.get(PRODUCTION_ACTIVE_ENERGY)));
-		} else {
-			addValue(ws, 5, 3, "NA");
-		}
+		addvalueIfnotNull(ws, 5, 3, data.get(PRODUCTION_ACTIVE_ENERGY));
 
 		// Heading for storage Charge
 		addValueBold(ws, 4, 4, "Speicher Beladung [kWh]");
 
 		// Heading for storage disCharge
 		addValueBold(ws, 4, 5, "Speicher Entladung [kWh]");
+
+		// heading for consumption
+		addValueBold(ws, 4, 6, "Verbrauch [kWh]");
+
+		// Consumption energy
+		addvalueIfnotNull(ws, 5, 6, data.get(CONSUMPTION_ACTIVE_ENERGY));
 
 		// Charge and discharge energy
 		if (!data.get(ESS_ACTIVE_ENERGY).isJsonNull()) {
@@ -169,20 +168,10 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				addValue(ws, 5, 5, essActiveEnergy);
 			}
 		} else {
-			addValue(ws, 5, 4, "NA");
-			addValue(ws, 5, 5, "NA");
+			addValueItalic(ws, 5, 4, NOT_AVAILABLE);
+			addValueItalic(ws, 5, 5, NOT_AVAILABLE);
+
 		}
-
-		// heading for consumption
-		addValueBold(ws, 4, 6, "Verbrauch [kWh]");
-
-		// Consumption energy
-		if (!data.get(CONSUMPTION_ACTIVE_ENERGY).isJsonNull()) {
-			addValue(ws, 5, 6, JsonUtils.getAsInt(data.get(CONSUMPTION_ACTIVE_ENERGY)));
-		} else {
-			addValue(ws, 5, 6, "NA");
-		}
-
 	}
 
 	/**
@@ -192,7 +181,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	 * @param data the power data map
 	 * @throws OpenemsNamedException on error
 	 */
-	private static void addPowerData(Worksheet ws,
+	protected static void addPowerData(Worksheet ws,
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data) throws OpenemsNamedException {
 		// Adding the headers
 		addValueBold(ws, 7, 0, "Datum/Uhrzeit");
@@ -202,7 +191,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		addValueBold(ws, 7, 4, "Speicher Beladung [W]");
 		addValueBold(ws, 7, 5, "Speicher Entladung [W]");
 		addValueBold(ws, 7, 6, "Verbrauch [W]");
-		// addValueBold(ws, 7, 7, "State of Charge(Soc) [%]");
+		addValueBold(ws, 7, 7, "State of Charge(Soc) [%]");
 
 		int rowCount = 8;
 
@@ -212,7 +201,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			// Adding Date/time data column
 			addValue(ws, rowCount, 0, row.getKey().toString());
 
-			if (!values.get(GRID_ACTIVE_POWER).isJsonNull()) {
+			if (checkNull(values.get(GRID_ACTIVE_POWER))) {
 				int gridActivePower = JsonUtils.getAsInt(values.get(GRID_ACTIVE_POWER));
 
 				if (gridActivePower >= 0) {
@@ -227,12 +216,13 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 					addValue(ws, rowCount, 2, (gridActivePower / -1));
 				}
 			}
+
 			// Production power
-			if (!values.get(PRODUCTION_ACTIVE_POWER).isJsonNull()) {
+			if (checkNull(values.get(PRODUCTION_ACTIVE_POWER))) {
 				addValue(ws, rowCount, 3, JsonUtils.getAsInt(values.get(PRODUCTION_ACTIVE_POWER)));
 			}
 
-			if (!values.get(ESS_ACTIVE_POWER).isJsonNull()) {
+			if (checkNull(values.get(ESS_ACTIVE_POWER))) {
 				int essActivePower = JsonUtils.getAsInt(values.get(ESS_ACTIVE_POWER));
 				if (essActivePower >= 0) {
 					addValue(ws, rowCount, 4, (essActivePower));
@@ -243,15 +233,14 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				}
 			}
 			// Consumption power
-			if (!values.get(CONSUMPTION_ACTIVE_POWER).isJsonNull()) {
+			if (checkNull(values.get(CONSUMPTION_ACTIVE_POWER))) {
 				addValue(ws, rowCount, 6, (JsonUtils.getAsInt(values.get(CONSUMPTION_ACTIVE_POWER)) / 4000));
 			}
 
-//			// State of charge
-//			if (!values.get(ESS_SOC).isJsonNull()) {
-//				addValue(ws, rowCount, 6, (JsonUtils.getAsInt(values.get(ESS_SOC))));
-//			}
-
+			// State of charge
+			if (checkNull(values.get(ESS_SOC))) {
+				addValue(ws, rowCount, 7, (JsonUtils.getAsInt(values.get(ESS_SOC))));
+			}
 			rowCount++;
 		}
 	}
@@ -264,9 +253,22 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	 * @param column column number
 	 * @param value  actual value to be bold
 	 */
-	private static void addValueBold(Worksheet ws, int row, int column, Object value) {
+	protected static void addValueBold(Worksheet ws, int row, int column, Object value) {
 		addValue(ws, row, column, value);
 		ws.style(row, column).bold().set();
+	}
+
+	/**
+	 * Helper method to make the font style to bold in excel
+	 * 
+	 * @param ws     the {@link Worksheet}
+	 * @param row    row number
+	 * @param column column number
+	 * @param value  actual value to be bold
+	 */
+	protected static void addValueItalic(Worksheet ws, int row, int column, Object value) {
+		addValue(ws, row, column, value);
+		ws.style(row, column).italic().set();
 	}
 
 	/**
@@ -277,7 +279,44 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	 * @param column column number
 	 * @param value  actual value in the sheet
 	 */
-	private static void addValue(Worksheet ws, int row, int column, Object value) {
+	protected static void addValue(Worksheet ws, int row, int column, Object value) {
 		ws.value(row, column, value);
 	}
+
+	/**
+	 * Method to checks for null value? if not null add the value ; if null add "not
+	 * available"
+	 * 
+	 * @param ws          the {@link Worksheet}
+	 * @param row         row number
+	 * @param col         column number
+	 * @param jsonElement the value
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static void addvalueIfnotNull(Worksheet ws, int row, int col, JsonElement jsonElement)
+			throws OpenemsNamedException {
+
+		if (!jsonElement.isJsonNull()) {
+			addValue(ws, row, col, JsonUtils.getAsInt(jsonElement));
+		} else {
+			addValueItalic(ws, row, col, NOT_AVAILABLE);
+		}
+	}
+
+	/**
+	 * Simple helper method to check null
+	 * 
+	 * @param jsonElement the value
+	 * @return boolean true if not null, false if true
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static boolean checkNull(JsonElement jsonElement) throws OpenemsNamedException {
+
+		if (!jsonElement.isJsonNull()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }
