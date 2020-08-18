@@ -144,7 +144,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 	 * @return the absolute path
 	 */
 	private File getPath() {
-		return new File(System.getProperty("user.home"), config.filename());
+		return new File(System.getProperty("user.home"), this.config.filename());
 	}
 
 	@Override
