@@ -151,14 +151,8 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		// Heading for storage disCharge
 		addValueBold(ws, 4, 5, "Speicher Entladung [kWh]");
 
-		// heading for consumption
-		addValueBold(ws, 4, 6, "Verbrauch [kWh]");
-
-		// Consumption energy
-		addvalueIfnotNull(ws, 5, 6, data.get(CONSUMPTION_ACTIVE_ENERGY));
-
 		// Charge and discharge energy
-		if (!data.get(ESS_ACTIVE_ENERGY).isJsonNull()) {
+		if (checkNull(data.get(ESS_ACTIVE_ENERGY))) {		
 			int essActiveEnergy = JsonUtils.getAsInt(data.get(ESS_ACTIVE_ENERGY));
 			if (essActiveEnergy > 0) {
 				addValue(ws, 5, 4, essActiveEnergy);
@@ -172,6 +166,12 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			addValueItalic(ws, 5, 5, NOT_AVAILABLE);
 
 		}
+		
+		// heading for consumption
+		addValueBold(ws, 4, 6, "Verbrauch [kWh]");
+
+		// Consumption energy
+		addvalueIfnotNull(ws, 5, 6, data.get(CONSUMPTION_ACTIVE_ENERGY));
 	}
 
 	/**
