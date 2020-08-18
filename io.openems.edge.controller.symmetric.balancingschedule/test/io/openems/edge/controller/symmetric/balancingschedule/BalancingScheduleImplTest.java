@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
@@ -23,7 +24,10 @@ public class BalancingScheduleImplTest {
 	private final static String METER_ID = "meter0";
 
 	private final static ChannelAddress CTRL_NO_ACTIVE_SETPOINT = new ChannelAddress(CTRL_ID, "NoActiveSetpoint");
+	private final static ChannelAddress CTRL_GRID_ACTIVE_POWER_SET_POINT = new ChannelAddress(CTRL_ID,
+			"GridActivePowerSetPoint");
 
+	private final static ChannelAddress ESS_GRID_MODE = new ChannelAddress(ESS_ID, "GridMode");
 	private final static ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
 	private final static ChannelAddress SET_ACTIVE_POWER_EQUALS_WITH_PID = new ChannelAddress(ESS_ID,
 			"SetActivePowerEqualsWithPid");
@@ -58,6 +62,7 @@ public class BalancingScheduleImplTest {
 								).build().toString() //
 						).build()) //
 				.next(new TestCase("No active setpoint") //
+						.input(ESS_GRID_MODE, GridMode.ON_GRID) //
 						.input(GRID_ACTIVE_POWER, 4000) //
 						.input(ESS_ACTIVE_POWER, 1000) //
 						.output(CTRL_NO_ACTIVE_SETPOINT, true)) //
@@ -67,6 +72,11 @@ public class BalancingScheduleImplTest {
 						.input(ESS_ACTIVE_POWER, 1000) //
 						.output(CTRL_NO_ACTIVE_SETPOINT, false) //
 						.output(SET_ACTIVE_POWER_EQUALS_WITH_PID, 5000)) //
+				.next(new TestCase("Balance to -2000 via Channel") //
+						.input(CTRL_GRID_ACTIVE_POWER_SET_POINT, -2000) //
+						.input(GRID_ACTIVE_POWER, 4000) //
+						.input(ESS_ACTIVE_POWER, 1000) //
+						.output(SET_ACTIVE_POWER_EQUALS_WITH_PID, 7000)) //
 				.next(new TestCase("Balance to 3000") //
 						.timeleap(clock, 800, ChronoUnit.SECONDS) //
 						.input(GRID_ACTIVE_POWER, 4000) //

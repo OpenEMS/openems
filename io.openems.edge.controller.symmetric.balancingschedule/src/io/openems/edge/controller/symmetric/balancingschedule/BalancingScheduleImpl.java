@@ -125,6 +125,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 		 * Get the current grid connection setpoint from the schedule
 		 */
 		Optional<Integer> gridConnSetPointOpt = this.getGridConnSetPoint();
+		this._setGridActivePowerSetPoint(gridConnSetPointOpt.orElse(null));
 		if (gridConnSetPointOpt.isPresent()) {
 			this._setNoActiveSetpoint(false);
 		} else {
@@ -205,6 +206,13 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 	 * @return the current setpoint.
 	 */
 	private Optional<Integer> getGridConnSetPoint() {
+		// Is the Grid Active-Power Set-Point currently overwritten using the channel?
+		Optional<Integer> setPointFromChannel = this.getGridActivePowerSetPointChannel().getNextWriteValueAndReset();
+		if (setPointFromChannel.isPresent()) {
+			// Yes -> use the channel value
+			return setPointFromChannel;
+		}
+		// No -> use the value from the Schedule
 		long now = ZonedDateTime.now(this.componentManager.getClock()).toEpochSecond();
 		for (GridConnSchedule e : this.schedule) {
 			if (now >= e.getStartTimestamp() && now <= e.getStartTimestamp() + e.getDuration()) {
@@ -212,6 +220,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 				return Optional.ofNullable(e.getActivePowerSetPoint());
 			}
 		}
+		// Still no -> no value available
 		return Optional.empty();
 	}
 }
