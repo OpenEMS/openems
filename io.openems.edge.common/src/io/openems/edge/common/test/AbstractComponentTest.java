@@ -285,6 +285,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * @throws Exception on error
 	 */
 	public SELF activate(AbstractComponentConfig config) throws Exception {
+		// Add the configuration to ConfigurationAdmin
+		for (Object object : this.references) {
+			if (object instanceof DummyConfigurationAdmin) {
+				DummyConfigurationAdmin cm = (DummyConfigurationAdmin) object;
+				cm.addConfig(config);
+			}
+		}
+
 		int configChangeCount = this.getConfigChangeCount();
 		this.callActivate(config);
 
@@ -328,7 +336,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
 					// ComponentContext
-					arg = null; // TODO create DummyComponentContext
+					arg = DummyComponentContext.from(config);
 
 				} else if (parameter.getType().isInstance(config)) {
 					// Config
