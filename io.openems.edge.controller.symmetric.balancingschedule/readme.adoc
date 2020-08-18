@@ -31,7 +31,10 @@ The schedule configuration parameter may be updated
 
 - via a browser using the OpenEMS user interface
 - using the https://openems.github.io/openems.io/openems/latest/backend/backend-to-backend.html#_setgridconnschedule[`SetGridConnSchedule` JSON-RPC Request via OpenEMS Backend]
+- using a direct https://github.com/OpenEMS/openems/blob/develop/io.openems.common/src/io/openems/common/jsonrpc/request/SetGridConnScheduleRequest.java[SetGridConnScheduleRequest] via https://openems.github.io/openems.io/openems/latest/component-communication/index.html#_communicate_with_a_specific_edge_component[JsonApi]
 - or using the https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/jsonrpc/request/updateComponentConfigRequest.ts[`UpdateComponentConfigRequest` JSON-RPC Request]
+
+Be aware that an `UpdateComponentConfigRequest` will always result in a actual configuration file being updated by Apache Felix Configuration Admin, so this command should not be used too frequently, e.g. only once per day. The `SetGridConnScheduleRequest` variant runs only in memory and is not persisted. Downside is, that if OpenEMS Edge gets restarted, the schedule is lost.
 
 == 2. Immediate control of the power target set-point
 

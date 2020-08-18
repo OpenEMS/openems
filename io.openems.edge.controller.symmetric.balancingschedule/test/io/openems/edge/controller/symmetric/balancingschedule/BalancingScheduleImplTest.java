@@ -19,20 +19,20 @@ import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class BalancingScheduleImplTest {
 
-	private final static String CTRL_ID = "ctrl0";
-	private final static String ESS_ID = "ess0";
-	private final static String METER_ID = "meter0";
+	private static final String CTRL_ID = "ctrl0";
+	private static final String ESS_ID = "ess0";
+	private static final String METER_ID = "meter0";
 
-	private final static ChannelAddress CTRL_NO_ACTIVE_SETPOINT = new ChannelAddress(CTRL_ID, "NoActiveSetpoint");
-	private final static ChannelAddress CTRL_GRID_ACTIVE_POWER_SET_POINT = new ChannelAddress(CTRL_ID,
+	private static final ChannelAddress CTRL_NO_ACTIVE_SETPOINT = new ChannelAddress(CTRL_ID, "NoActiveSetpoint");
+	private static final ChannelAddress CTRL_GRID_ACTIVE_POWER_SET_POINT = new ChannelAddress(CTRL_ID,
 			"GridActivePowerSetPoint");
 
-	private final static ChannelAddress ESS_GRID_MODE = new ChannelAddress(ESS_ID, "GridMode");
-	private final static ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
-	private final static ChannelAddress SET_ACTIVE_POWER_EQUALS_WITH_PID = new ChannelAddress(ESS_ID,
+	private static final ChannelAddress ESS_GRID_MODE = new ChannelAddress(ESS_ID, "GridMode");
+	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
+	private static final ChannelAddress SET_ACTIVE_POWER_EQUALS_WITH_PID = new ChannelAddress(ESS_ID,
 			"SetActivePowerEqualsWithPid");
 
-	private final static ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
+	private static final ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
 
 	@Test
 	public void test() throws Exception {
