@@ -94,6 +94,7 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 				int activePowerSetPoint = JsonUtils.getAsInt(se, "activePowerSetPoint");
 				schedule.add(new GridConnSchedule(startTimestamp, duration, activePowerSetPoint));
 			}
+			schedule.sort(Comparator.comparing(GridConnSchedule::getStartTimestamp).reversed());
 			return schedule;
 		}
 
