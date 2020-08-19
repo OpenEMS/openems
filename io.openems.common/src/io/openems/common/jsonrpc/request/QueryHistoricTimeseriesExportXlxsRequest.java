@@ -31,9 +31,9 @@ import io.openems.common.utils.JsonUtils;
  */
 public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "queryHistoricTimeseriesExportXlxs";
+	public static final String METHOD = "queryHistoricTimeseriesExportXlxs";
 
-	private final static DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
+	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
 	public static QueryHistoricTimeseriesExportXlxsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
@@ -56,7 +56,7 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 		super(id, METHOD);
 
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
-		if (timezoneDiff != ZoneOffset.from(toDate).getTotalSeconds()) {
+		if (this.timezoneDiff != ZoneOffset.from(toDate).getTotalSeconds()) {
 			throw new OpenemsException("FromDate and ToDate need to be in the same timezone!");
 		}
 
@@ -74,11 +74,11 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 	}
 
 	public ZonedDateTime getFromDate() {
-		return fromDate;
+		return this.fromDate;
 	}
 
 	public ZonedDateTime getToDate() {
-		return toDate;
+		return this.toDate;
 	}
 
 }

@@ -21,9 +21,9 @@ public interface CommonTimedataService {
 	 * Handles a QueryHistoricTimeseriesExportXlxsRequest request. Exports historic
 	 * data to an Excel file.
 	 * 
-	 * @param request the QueryHistoricTimeseriesExportXlxsRequest request
-	 * @return the QueryHistoricTimeseriesExportXlsxResponse on error
-	 * @throws OpenemsNamedException
+	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest} request
+	 * @return the {@link QueryHistoricTimeseriesExportXlsxResponse}
+	 * @throws OpenemsNamedException on error
 	 */
 	public default QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(
 			String edgeId, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {

@@ -1,16 +1,20 @@
 package io.openems.common.jsonrpc.response;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
+import org.junit.Test;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -20,7 +24,7 @@ import io.openems.common.types.ChannelAddress;
 
 public class QueryHistoricTimeseriesExportXlsxResponseTest {
 
-	private SortedMap<ChannelAddress, JsonElement> getMockedEnergyData() {
+	private static SortedMap<ChannelAddress, JsonElement> getMockedEnergyData() {
 		SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
 
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.GRID_BUY_ENERGY, new JsonPrimitive(500));
@@ -32,8 +36,7 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 		return values;
 	}
 
-	private SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> getMockedPowerData() {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
+	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> getMockedPowerData() {
 
 		SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.GRID_ACTIVE_POWER, new JsonPrimitive(50));
@@ -42,19 +45,21 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_ACTIVE_POWER, new JsonPrimitive(50));
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_SOC, new JsonPrimitive(50));
 
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
 		result.put(ZonedDateTime.of(2020, 07, 01, 0, 15, 0, 0, ZoneId.systemDefault()).plusMinutes(15), values);
 
 		return result;
 	}
 
-	// @Test
-	public void test() throws IOException, OpenemsNamedException {
+	private byte[] generateXlsxFile() throws OpenemsNamedException, IOException {
 		ZonedDateTime fromDate = ZonedDateTime.of(2020, 07, 01, 0, 0, 0, 0, ZoneId.systemDefault());
 		ZonedDateTime toDate = ZonedDateTime.of(2020, 07, 02, 0, 0, 0, 0, ZoneId.systemDefault());
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData = getMockedPowerData();
 
 		SortedMap<ChannelAddress, JsonElement> energyData = getMockedEnergyData();
+
+		final byte[] result;
 
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			Workbook workbook = new Workbook(os, "Historic data", "1.0");
@@ -67,12 +72,36 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 			workbook.finish();
 			os.flush();
 
-			String rootPath = System.getProperty("user.home");
-			try (OutputStream outputStream = new FileOutputStream(rootPath + "\\testExcel.xlsx")) {
-				os.writeTo(outputStream);
-			}
+			result = os.toByteArray();
 
 			os.close();
+		}
+		return result;
+	}
+
+	@Test
+	public void test() throws IOException, OpenemsNamedException {
+		byte[] content = this.generateXlsxFile();
+
+		String expectedPayload = "UEsDBC0ACAAIAAAAAAAAAAAAAAAAAAAAAAAYAAAAeGwvd29ya3".substring(0, 50);
+		String actualPayload = Base64.getEncoder().encodeToString(content).substring(0, 50);
+
+		assertEquals(expectedPayload, actualPayload);
+	}
+
+	/**
+	 * Use this "test" to write an actual Xlsx file with dummy content.
+	 * 
+	 * @throws IOException           on error
+	 * @throws OpenemsNamedException on error
+	 */
+	// @Test
+	public void writeToTempFile() throws IOException, OpenemsNamedException {
+		byte[] content = this.generateXlsxFile();
+
+		String rootPath = System.getProperty("user.home");
+		try (OutputStream outputStream = new FileOutputStream(rootPath + "\\testExcel.xlsx")) {
+			outputStream.write(content);
 		}
 	}
 }

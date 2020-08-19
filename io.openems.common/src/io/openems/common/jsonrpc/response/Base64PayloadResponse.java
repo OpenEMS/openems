@@ -31,7 +31,7 @@ public class Base64PayloadResponse extends JsonrpcResponseSuccess {
 	}
 
 	public String getPayload() {
-		return payload;
+		return this.payload;
 	}
 
 	@Override
