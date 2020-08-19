@@ -8,7 +8,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	org.eclipse.milo.sdk-server;version=0.4
+	org.eclipse.milo.sdk-server;version=0.4.2,\
+	org.eclipse.milo.stack-server;version=0.4.2,\
 
 -testpath: \
 	${testpath}
