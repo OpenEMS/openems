@@ -27,11 +27,12 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 	private static SortedMap<ChannelAddress, JsonElement> getMockedEnergyData() {
 		SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
 
-		values.put(QueryHistoricTimeseriesExportXlsxResponse.GRID_BUY_ENERGY, new JsonPrimitive(500));
-		values.put(QueryHistoricTimeseriesExportXlsxResponse.GRID_SELL_ENERGY, new JsonPrimitive(0));
+		values.put(QueryHistoricTimeseriesExportXlsxResponse.GRID_BUY_ACTIVE_ENERGY, new JsonPrimitive(500));
+		values.put(QueryHistoricTimeseriesExportXlsxResponse.GRID_SELL_ACTIVE_ENERGY, new JsonPrimitive(0));
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.PRODUCTION_ACTIVE_ENERGY, new JsonPrimitive(300));
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.CONSUMPTION_ACTIVE_ENERGY, new JsonPrimitive(700));
-		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_ACTIVE_ENERGY, new JsonPrimitive(100));
+		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_DC_CHARGE_ENERGY, new JsonPrimitive(100));
+		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_DC_DISCHARGE_ENERGY, new JsonPrimitive(80));
 
 		return values;
 	}
@@ -62,8 +63,8 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 		final byte[] result;
 
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			Workbook workbook = new Workbook(os, "Historic data", "1.0");
-			Worksheet ws = workbook.newWorksheet("Sheet1");
+			Workbook workbook = new Workbook(os, "Historic data", null);
+			Worksheet ws = workbook.newWorksheet("Export");
 
 			QueryHistoricTimeseriesExportXlsxResponse.addBasicInfo(ws, "0", fromDate, toDate);
 			QueryHistoricTimeseriesExportXlsxResponse.addEnergyData(ws, energyData);
