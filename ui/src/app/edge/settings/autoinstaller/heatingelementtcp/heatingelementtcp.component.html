@@ -1,0 +1,121 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title>Installations-Status</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card-content *ngIf="loading == true">
+    <ion-grid>
+      <ng-container *ngIf="checkingState == false">
+        <ion-row class="ion-justify-content-center">
+          <ion-note>{{ progressPercentage * 100 }}%</ion-note>
+        </ion-row>
+        <ion-progress-bar [value]="progressPercentage"></ion-progress-bar>
+      </ng-container>
+      <ion-progress-bar *ngIf="checkingState == true" type="indeterminate"></ion-progress-bar>
+      <ion-row *ngFor="let string of loadingStrings" class="ion-justify-content-center">
+        <ion-item lines="none" class="ion-no-padding">
+          <ion-label class="ion-text-center">{{ string.string }}
+          </ion-label>
+          <ng-container [ngSwitch]="string.type">
+            <ion-icon *ngSwitchCase="'success'" color="success" name="checkmark-circle-outline"></ion-icon>
+            <ion-icon *ngSwitchCase="'setup'" color="success" name="information-outline"></ion-icon>
+            <ion-icon *ngSwitchCase="'danger'" color="danger" name="alert-outline"></ion-icon>
+          </ng-container>
+        </ion-item>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+
+  <ion-card-content *ngIf="showInit == true">
+    <ion-grid>
+      <ion-card-title class="ion-text-center">Möchten Sie die Heizstab App wirklich installieren?
+      </ion-card-title>
+      <ion-row class="ion-justify-content-center">
+        <ion-label class="ion-text-center ion-padding-top">
+          Bevor Sie fortfahren, stellen Sie sicher, dass Sie den Heizstab korrekt angeschlossen haben und das
+          Relaisboard erreichbar ist.<br>
+          <ion-text *ngIf="service.translate.currentLang == 'German'" color="primary"> <a target="_blank"
+              href="https://docs.fenecon.de/de/_/latest/_attachments/FEMS_App_Heizstab_6kW_Installations-_und_Benutzerhandbuch.pdf"
+              translate>Edge.Config.Service.ibnLink</a></ion-text>
+          <ion-text *ngIf="service.translate.currentLang != 'German'" color="primary"> <a target="_blank"
+              href="https://docs.fenecon.de/en/_/latest/_attachments/FEMS_App_Heizstab_6kW_Installations-_und_Benutzerhandbuch.pdf"
+              translate>Edge.Config.Service.ibnLink</a></ion-text>
+        </ion-label>
+      </ion-row>
+      <ion-row class="ion-justify-content-center">
+        <ion-button (click)="addHeatingElementComponents()">Ok</ion-button>
+        <ion-button (click)="modalCtrl.dismiss()">Abbrechen</ion-button>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+
+  <ion-card-content *ngIf="running == true && loading == false">
+    <ion-list>
+      <ng-container *ngIf="edge.currentData | async as currentData">
+        <ng-container *ngFor="let component of components" [ngSwitch]="component.factoryId">
+          <ion-item>
+            <ion-label class="ion-text-wrap">
+              <ng-container [ngSwitch]="currentData.channel[component.id+'/State']">
+                <ion-text color="primary">
+                  <h2>{{ component.factoryId }}
+                    <ion-icon *ngSwitchCase="0" size="large" color="success" name="checkmark-circle-outline"></ion-icon>
+                    <ion-icon *ngSwitchCase="1" size="large" color="success" name="information-outline"></ion-icon>
+                  </h2>
+                </ion-text>
+              </ng-container>
+              <ng-container *ngFor="let address of subscribedChannels">
+                <ng-container *ngIf="address.componentId == component.id && address.channelId != 'State'">
+                  <ng-container *ngIf="currentData.channel[address.toString()] == 1">
+                    <ion-label *ngIf="component.channels[address.channelId]['text'].length != 0">
+                      <ng-container [ngSwitch]="component.channels[address.channelId]['level']">
+                        <ion-text *ngSwitchCase="'INFO'" color="success" translate>
+                          General.info&nbsp;
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'WARNING'" color="warning" translate>
+                          General.warning&nbsp;
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'FAULT'" color="danger" translate>
+                          General.fault&nbsp;
+                        </ion-text>
+                      </ng-container>
+                      {{ component.channels[address.channelId]['text'] }}
+                    </ion-label>
+                    <ion-label *ngIf="component.channels[address.channelId]['text'].length == 0">
+                      <ng-container [ngSwitch]="component.channels[address.channelId]['level']">
+                        <ion-text *ngSwitchCase="'INFO'" color="success" translate>
+                          General.info&nbsp;
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'WARNING'" color="warning" translate>
+                          General.warning&nbsp;
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'FAULT'" color="danger" translate>
+                          General.fault&nbsp;
+                        </ion-text>
+                      </ng-container>
+                      {{ address.channelId.toString() }}
+                    </ion-label>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+      </ng-container>
+    </ion-list>
+    <ng-container *ngIf="appWorking.getValue() == true">
+      <ion-card-content>
+        <ion-text class="ion-text-center ion-padding-top">
+          <h2>App wurde korrekt installiert und läuft ohne Fehler</h2>
+        </ion-text>
+        <heatingelement [componentId]="heatingElementId"></heatingelement>
+      </ion-card-content>
+    </ng-container>
+  </ion-card-content>
+</ion-content>
