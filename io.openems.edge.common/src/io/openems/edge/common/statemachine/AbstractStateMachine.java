@@ -1,5 +1,8 @@
 package io.openems.edge.common.statemachine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +15,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
  * @param <CONTEXT> the context type, i.e. a class wrapping a State-Machine
  *                  context
  */
-public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
+public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT> {
 
-	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
+	private final Logger log = LoggerFactory.getLogger(AbstractStateMachine.class);
+
+	private final Map<STATE, StateHandler<STATE, CONTEXT>> stateHandlers = new HashMap<>();
 
 	private final STATE initialState;
 
@@ -29,10 +34,25 @@ public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 	 * 
 	 * @param initialState the initial State
 	 */
-	public StateMachine(STATE initialState) {
+	public AbstractStateMachine(STATE initialState) {
 		this.initialState = initialState;
 		this.state = initialState;
+		for (STATE state : initialState.getStates()) {
+			this.stateHandlers.put(state, this.getStateHandler(state));
+		}
 	}
+
+	/**
+	 * Gets the {@link StateHandler} for each State.
+	 * 
+	 * <p>
+	 * This method is called once for every available State during construction of
+	 * the StateMachine in order to initialize an internal list of StateHandlers.
+	 * 
+	 * @param state the State
+	 * @return the {@link StateHandler} for the given State
+	 */
+	public abstract StateHandler<STATE, CONTEXT> getStateHandler(STATE state);
 
 	/**
 	 * Gets the currently activate State.
@@ -78,7 +98,7 @@ public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 		} else {
 			try {
 				// Call the State Handler and receive next State.
-				nextState = this.state.getHandler().runAndGetNextState(context);
+				nextState = this.stateHandlers.get(state).runAndGetNextState(context);
 			} catch (OpenemsNamedException e) {
 				exception = e;
 				nextState = this.initialState; // set to initial state on error
@@ -94,7 +114,7 @@ public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 
 			// On-Exit of the last State
 			try {
-				lastState.getHandler().onExit(context);
+				this.stateHandlers.get(lastState).onExit(context);
 			} catch (OpenemsNamedException e) {
 				if (exception != null) {
 					e.addSuppressed(exception);
@@ -104,7 +124,7 @@ public class StateMachine<STATE extends State<STATE, CONTEXT>, CONTEXT> {
 
 			// On-Entry of next State
 			try {
-				this.state.getHandler().onEntry(context);
+				this.stateHandlers.get(state).onEntry(context);
 			} catch (OpenemsNamedException e) {
 				if (exception != null) {
 					e.addSuppressed(exception);
