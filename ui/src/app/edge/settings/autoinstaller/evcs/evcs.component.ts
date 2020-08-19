@@ -252,7 +252,7 @@ export class EvcsInstallerComponent {
     }, 14000);
   }
 
-  public gatherAddedComponents(): EdgeConfig.Component[] {
+  private gatherAddedComponents(): EdgeConfig.Component[] {
     let result = [];
     this.config.getComponentsByFactory('Evcs.Keba.KeContact').forEach(component => {
       result.push(component)

@@ -403,7 +403,7 @@ export class HeatingpumpTcpInstallerComponent {
     }, 27000);
   }
 
-  public gatherAddedComponents(): EdgeConfig.Component[] {
+  private gatherAddedComponents(): EdgeConfig.Component[] {
     let result = [];
     this.config.getComponentsByFactory('Bridge.Modbus.Tcp').forEach(component => {
       if (component.id == 'modbus10') {

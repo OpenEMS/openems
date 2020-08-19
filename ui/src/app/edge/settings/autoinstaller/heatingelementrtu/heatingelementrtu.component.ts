@@ -258,7 +258,7 @@ export class HeatingElementRtuInstallerComponent {
     }, 6000);
   }
 
-  public gatherAddedComponents(): EdgeConfig.Component[] {
+  private gatherAddedComponents(): EdgeConfig.Component[] {
     let result = [];
     this.config.getComponentsByFactory('Bridge.Modbus.Serial').forEach(component => {
       if (component.id == 'modbus10') {
