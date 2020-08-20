@@ -51,7 +51,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Kaco.BlueplanetHybrid10.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -59,7 +59,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, HybridEss, ManagedSymmetricEss, SymmetricEss,
 		OpenemsComponent, TimedataProvider, EventHandler {
 
-	private final int WATCHDOG_SECONDS = 8;
+	private static final int WATCHDOG_SECONDS = 8;
 
 	private final Logger log = LoggerFactory.getLogger(BpEssImpl.class);
 
@@ -102,7 +102,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
 
@@ -134,6 +134,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		Float riso = null;
 		Integer inverterStatus = null;
 		Integer batteryStatus = null;
+		PowerManagementConfiguration powerManagementConfiguration = PowerManagementConfiguration.UNDEFINED;
 
 		if (!this.core.isConnected()) {
 			this.logWarn(this.log, "Core is not connected!");
@@ -160,11 +161,19 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 				case 14:
 					gridMode = GridMode.ON_GRID;
 					break;
-
 				}
 
 				inverterStatus = status.getInverterStatus();
 				batteryStatus = status.getBatteryStatus();
+
+				// Read Power Management Configuration, i.e. External EMS, Charging,...
+				int powerConfig = status.getPowerConfig();
+				for (PowerManagementConfiguration thisEnum : PowerManagementConfiguration.values()) {
+					if (thisEnum.getValue() == powerConfig) {
+						powerManagementConfiguration = thisEnum;
+						break;
+					}
+				}
 
 				// Set error channels
 				List<String> errors = status.getErrors().getErrorCodes();
@@ -202,6 +211,24 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		this.channel(BpEss.ChannelId.RISO).setNextValue(riso);
 		this.channel(BpEss.ChannelId.INVERTER_STATUS).setNextValue(inverterStatus);
 		this.channel(BpEss.ChannelId.BATTERY_STATUS).setNextValue(batteryStatus);
+		this.channel(BpEss.ChannelId.POWER_MANAGEMENT_CONFIGURATION).setNextValue(powerManagementConfiguration);
+
+		// Evaluate ExternalControlFault State-Channel
+		switch (powerManagementConfiguration) {
+		case UNDEFINED:
+		case EXTERNAL_EMS:
+			this._setExternalControlFault(false);
+			break;
+		case BATTERY_CHARGING:
+		case MAX_YIELD:
+		case SELF_CONSUMPTION:
+			if (this.config.readOnly()) {
+				this._setExternalControlFault(false);
+			} else {
+				this._setExternalControlFault(true);
+			}
+			break;
+		}
 
 		// Surplus Feed-In Channel
 		this.channel(BpEss.ChannelId.SURPLUS_FEED_IN).setNextValue(this.calculateSurplusFeedIn());

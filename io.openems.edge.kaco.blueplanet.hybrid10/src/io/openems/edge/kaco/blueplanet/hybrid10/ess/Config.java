@@ -3,7 +3,7 @@ package io.openems.edge.kaco.blueplanet.hybrid10.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "KACO blueplanet hybrid 10.0 TL3 Ess", //
 		description = "Implements the Energy Storage System component for KACO blueplanet hybrid 10.0 TL3")
 @interface Config {
