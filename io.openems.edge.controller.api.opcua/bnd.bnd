@@ -1,5 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Api OPC-UA
-Bundle-Vendor: OpenEMS Association e.V.
+Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
@@ -8,8 +8,10 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
+	org.eclipse.milo.sdk-core;version=0.4.2,\
 	org.eclipse.milo.sdk-server;version=0.4.2,\
+	org.eclipse.milo.stack-core;version=0.4.2,\
 	org.eclipse.milo.stack-server;version=0.4.2,\
-
+	
 -testpath: \
 	${testpath}
