@@ -17,8 +17,6 @@ public interface BpEss extends OpenemsComponent {
 				.unit(Unit.VOLT)), //
 		RISO(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.OHM)), //
-		SURPLUS_FEED_IN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
 
 		INVERTER_STATUS(Doc.of(InverterStatus.values())), //
 		BATTERY_STATUS(Doc.of(BatteryStatus.values())), //

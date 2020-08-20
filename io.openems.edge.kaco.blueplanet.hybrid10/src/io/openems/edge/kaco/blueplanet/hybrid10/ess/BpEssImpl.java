@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -29,7 +28,6 @@ import com.ed.data.Settings;
 import com.ed.data.Status;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -230,9 +228,6 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			break;
 		}
 
-		// Surplus Feed-In Channel
-		this.channel(BpEss.ChannelId.SURPLUS_FEED_IN).setNextValue(this.calculateSurplusFeedIn());
-
 		// Calculate AC Energy
 		if (activePower == null) {
 			// Not available
@@ -262,41 +257,6 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
 			this.calculateDcDischargeEnergy.update(0);
 		}
-	}
-
-	/**
-	 * Calculates the Surplus-Feed-In Power, i.e. the power that should be forced to
-	 * be 'discharged' and fed to grid.
-	 * 
-	 * <p>
-	 * This is called by {@link #updateChannels()} once per Cycle to make sure it
-	 * does not change within one Cycle. The value is used in
-	 * {@link #getStaticConstraints()}.
-	 * 
-	 * @return the surplus feed-in power or null for no force feed-in.
-	 */
-	private Integer calculateSurplusFeedIn() {
-		// Is Surplus Feed-In activated?
-		if (!this.config.activateSurplusFeedIn()) {
-			return null;
-		}
-		// Is battery and inverter data available?
-		BatteryData battery = this.core.getBatteryData();
-		InverterData inverter = this.core.getInverterData();
-		if (battery == null || inverter == null) {
-			return null;
-		}
-		// Is battery full?
-		if (battery.getSOE() < 99) {
-			return null;
-		}
-		// Is PV producing?
-		int pvPower = Math.round(inverter.getPvPower());
-		if (pvPower < 10) {
-			return null;
-		}
-		// Active Surplus feed-in
-		return pvPower;
 	}
 
 	@Override
@@ -363,23 +323,33 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
-
-		// Surplus Feed-In?
-		IntegerReadChannel surplusFeedInChannel = this.channel(BpEss.ChannelId.SURPLUS_FEED_IN);
-		Optional<Integer> surplusFeedIn = surplusFeedInChannel.getNextValue().asOptional();
-		if (surplusFeedIn.isPresent()) {
-			return new Constraint[] { //
-					this.createPowerConstraint("Enforce Surplus Feed-In", Phase.ALL, Pwr.ACTIVE,
-							Relationship.GREATER_OR_EQUALS, surplusFeedIn.get()) //
-			};
-		}
-
 		return Power.NO_CONSTRAINTS;
 	}
 
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public Integer getSurplusPower() {
+		// Is battery and inverter data available?
+		BatteryData battery = this.core.getBatteryData();
+		InverterData inverter = this.core.getInverterData();
+		if (battery == null || inverter == null) {
+			return null;
+		}
+		// Is battery full?
+		if (battery.getSOE() < 99) {
+			return null;
+		}
+		// Is PV producing?
+		int pvPower = Math.round(inverter.getPvPower());
+		if (pvPower < 10) {
+			return null;
+		}
+		// Active Surplus feed-in
+		return pvPower;
 	}
 
 }
