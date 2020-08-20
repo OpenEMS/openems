@@ -51,7 +51,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	public static ChannelAddress PRODUCTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ProductionActiveEnergy");
 	public static ChannelAddress CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum", "ConsumptionActivePower");
 	public static ChannelAddress CONSUMPTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ConsumptionActiveEnergy");
-	public static ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress("_sum", "EssActivePower");
+	public static ChannelAddress ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
 	public static ChannelAddress ESS_DC_CHARGE_ENERGY = new ChannelAddress("_sum", "EssDcChargeEnergy");
 	public static ChannelAddress ESS_DC_DISCHARGE_ENERGY = new ChannelAddress("_sum", "EssDcDischargeEnergy");
 	public static ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
@@ -64,7 +64,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			GRID_ACTIVE_POWER, //
 			PRODUCTION_ACTIVE_POWER, //
 			CONSUMPTION_ACTIVE_POWER, //
-			ESS_ACTIVE_POWER, //
+			ESS_DISCHARGE_POWER, //
 			ESS_SOC //
 	).collect(Collectors.toCollection(HashSet::new));
 
@@ -238,14 +238,14 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				addFloatValue(ws, rowCount, 3, JsonUtils.getAsFloat(values.get(PRODUCTION_ACTIVE_POWER)));
 			}
 
-			if (isNotNull(values.get(ESS_ACTIVE_POWER))) {
-				float essActivePower = JsonUtils.getAsFloat(values.get(ESS_ACTIVE_POWER));
-				if (essActivePower >= 0) {
-					addFloatValue(ws, rowCount, 4, essActivePower);
-					addFloatValue(ws, rowCount, 5, 0);
-				} else {
+			if (isNotNull(values.get(ESS_DISCHARGE_POWER))) {
+				float essDischargePower = JsonUtils.getAsFloat(values.get(ESS_DISCHARGE_POWER));
+				if (essDischargePower >= 0) {
 					addFloatValue(ws, rowCount, 4, 0);
-					addFloatValue(ws, rowCount, 5, essActivePower / -1);
+					addFloatValue(ws, rowCount, 5, essDischargePower);
+				} else {
+					addFloatValue(ws, rowCount, 4, essDischargePower / -1);
+					addFloatValue(ws, rowCount, 5, 0);
 				}
 			}
 			// Consumption power
