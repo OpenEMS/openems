@@ -5,6 +5,7 @@ import { Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { isUndefined } from 'util';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: HeatingElementRtuInstallerComponent.SELECTOR,
@@ -30,14 +31,17 @@ export class HeatingElementRtuInstallerComponent {
 
   private static readonly SELECTOR = "heatingElementRtuInstaller";
 
-
   constructor(
-    public service: Service,
-    public modalCtrl: ModalController,
+    private route: ActivatedRoute,
     private websocket: Websocket,
+    public modalCtrl: ModalController,
+    public service: Service,
   ) { }
 
   ngOnInit() {
+    this.service.setCurrentComponent('Automatische Installation', this.route).then(edge => {
+      this.edge = edge;
+    });
     this.service.getConfig().then(config => {
       this.config = config;
     }).then(() => {
@@ -68,9 +72,6 @@ export class HeatingElementRtuInstallerComponent {
         }
       }
     });
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
-    })
   }
 
   // used to assemble properties out of created fields and model from 'gather' methods

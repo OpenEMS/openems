@@ -9,6 +9,7 @@ import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componen
 import { GetNetworkConfigRequest } from '../../network/getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from '../../network/getNetworkConfigResponse';
 import { SetNetworkConfigRequest } from '../../network/setNetworkConfigRequest';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: HeatingpumpTcpInstallerComponent.SELECTOR,
@@ -33,14 +34,17 @@ export class HeatingpumpTcpInstallerComponent {
 
   private static readonly SELECTOR = "heatingpumpTcpInstaller";
 
-
   constructor(
+    private route: ActivatedRoute,
     public service: Service,
     public modalCtrl: ModalController,
     private websocket: Websocket,
   ) { }
 
   ngOnInit() {
+    this.service.setCurrentComponent('Automatische Installation', this.route).then(edge => {
+      this.edge = edge;
+    });
     this.service.getConfig().then(config => {
       this.config = config;
     })
@@ -79,9 +83,6 @@ export class HeatingpumpTcpInstallerComponent {
           }
         }
       });
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
-    })
   }
 
   // used to assemble properties out of created fields and model from 'gather' methods

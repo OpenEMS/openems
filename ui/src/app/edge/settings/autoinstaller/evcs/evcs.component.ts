@@ -9,6 +9,7 @@ import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componen
 import { GetNetworkConfigResponse } from '../../network/getNetworkConfigResponse';
 import { GetNetworkConfigRequest } from '../../network/getNetworkConfigRequest';
 import { SetNetworkConfigRequest } from '../../network/setNetworkConfigRequest';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: EvcsInstallerComponent.SELECTOR,
@@ -34,14 +35,17 @@ export class EvcsInstallerComponent {
 
   private static readonly SELECTOR = "evcsInstaller";
 
-
   constructor(
+    private route: ActivatedRoute,
     public service: Service,
     public modalCtrl: ModalController,
     private websocket: Websocket,
   ) { }
 
   ngOnInit() {
+    this.service.setCurrentComponent('Automatische Installation', this.route).then(edge => {
+      this.edge = edge;
+    });
     this.service.getConfig().then(config => {
       this.config = config;
     }).then(() => {
@@ -65,9 +69,6 @@ export class EvcsInstallerComponent {
         }
       }
     });
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
-    })
   }
 
   // used to assemble properties out of created fields and model from 'gather' methods

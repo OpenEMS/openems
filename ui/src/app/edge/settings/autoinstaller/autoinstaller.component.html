@@ -4,10 +4,10 @@
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" size="large" color="danger" name="flame"></ion-icon>
-          <ion-label translate>Edge.Index.Widgets.Heatingelement.heatingelement<span> RTU</span></ion-label>
+          <ion-label>Heizstab RTU</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-button class="ion-float-right" (click)="presentModalHeatingRTU()">
+          <ion-button class="ion-float-right" (click)="presentModalHeatingelementRTU()">
             <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -17,10 +17,10 @@
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" size="large" color="danger" name="flame"></ion-icon>
-          <ion-label translate>Edge.Index.Widgets.Heatingelement.heatingelement<span> TCP</span></ion-label>
+          <ion-label>Heizstab TCP</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-button class="ion-float-right" (click)="presentModalHeatingTCP()">
+          <ion-button class="ion-float-right" (click)="presentModalHeatingelementTCP()">
             <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -32,7 +32,7 @@
           <ion-avatar>
             <ion-img src="assets/img/evcs.png"></ion-img>
           </ion-avatar>
-          <ion-label class="ion-padding-start">Ladestation</ion-label>
+          <ion-label class="ion-padding-start">KEBA Ladestation</ion-label>
         </ion-item>
         <ion-card-content>
           <ion-button class="ion-float-right" (click)="presentModalEVCS()">
@@ -45,7 +45,7 @@
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" size="large" color="danger" name="thermometer-outline"></ion-icon>
-          <ion-label>Wärmepumpe</ion-label>
+          <ion-label>„SG-Ready“ Wärmepumpe TCP</ion-label>
         </ion-item>
         <ion-card-content>
           <ion-button class="ion-float-right" (click)="presentModalHeatingpump()">

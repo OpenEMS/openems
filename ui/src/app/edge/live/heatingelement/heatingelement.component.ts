@@ -27,13 +27,14 @@ export class HeatingElementComponent {
     public activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
 
     constructor(
+        private route: ActivatedRoute,
         private websocket: Websocket,
         public modalController: ModalController,
         public service: Service,
     ) { }
 
     ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
+        this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.components[this.componentId];

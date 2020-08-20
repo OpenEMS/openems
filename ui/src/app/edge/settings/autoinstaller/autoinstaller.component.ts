@@ -6,7 +6,6 @@ import { HeatingElementRtuInstallerComponent } from './heatingelementrtu/heating
 import { HeatingElementTcpInstallerComponent } from './heatingelementtcp/heatingelementtcp.component';
 import { HeatingpumpTcpInstallerComponent } from './heatingpumptcp/heatingpumptcp.component';
 import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: AutoinstallerComponent.SELECTOR,
@@ -25,7 +24,6 @@ export class AutoinstallerComponent {
     private route: ActivatedRoute,
     private service: Service,
     public modalCtrl: ModalController,
-    private translate: TranslateService,
   ) { }
 
   ngOnInit() {
@@ -37,22 +35,16 @@ export class AutoinstallerComponent {
     });
   }
 
-  public async presentModalHeatingRTU() {
+  public async presentModalHeatingelementRTU() {
     const modal = await this.modalCtrl.create({
       component: HeatingElementRtuInstallerComponent,
-      componentProps: {
-        edge: this.edge,
-      }
     });
     return await modal.present();
   }
 
-  public async presentModalHeatingTCP() {
+  public async presentModalHeatingelementTCP() {
     const modal = await this.modalCtrl.create({
       component: HeatingElementTcpInstallerComponent,
-      componentProps: {
-        edge: this.edge,
-      }
     });
     return await modal.present();
   }
@@ -60,9 +52,6 @@ export class AutoinstallerComponent {
   public async presentModalEVCS() {
     const modal = await this.modalCtrl.create({
       component: EvcsInstallerComponent,
-      componentProps: {
-        edge: this.edge,
-      }
     });
     return await modal.present();
   }
@@ -70,9 +59,6 @@ export class AutoinstallerComponent {
   public async presentModalHeatingpump() {
     const modal = await this.modalCtrl.create({
       component: HeatingpumpTcpInstallerComponent,
-      componentProps: {
-        edge: this.edge,
-      }
     });
     return await modal.present();
   }
