@@ -43,7 +43,7 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.GRID_ACTIVE_POWER, new JsonPrimitive(50));
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.PRODUCTION_ACTIVE_POWER, new JsonPrimitive(50));
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.CONSUMPTION_ACTIVE_POWER, new JsonPrimitive(50));
-		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_ACTIVE_POWER, new JsonPrimitive(50));
+		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_DISCHARGE_POWER, new JsonPrimitive(50));
 		values.put(QueryHistoricTimeseriesExportXlsxResponse.ESS_SOC, new JsonPrimitive(50));
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
