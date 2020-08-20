@@ -65,6 +65,7 @@ public class SurplusFeedToGridControllerImpl extends AbstractOpenemsComponent
 
 		// No surplus power by Ess? -> stop
 		if (surplusPower == null) {
+			this._setSurplusFeedToGridIsLimited(false);
 			return;
 		}
 

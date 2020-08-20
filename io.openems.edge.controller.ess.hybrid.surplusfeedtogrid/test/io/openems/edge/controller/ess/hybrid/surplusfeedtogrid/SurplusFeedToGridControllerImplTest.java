@@ -36,10 +36,12 @@ public class SurplusFeedToGridControllerImplTest {
 				.output(ESS_SET_ACTIVE_POWER_GREATER_OR_EQUALS, null));
 
 		ess.setDummySurplusPower(5000);
+		ess.setDummyMaxApparentPower(10000);
 		test.next(new TestCase() //
 				.output(CTRL_SURPLUS_FEED_TO_GRID_IS_LIMITED, false) //
 				.output(ESS_SET_ACTIVE_POWER_GREATER_OR_EQUALS, 5000));
 
+		ess.setDummySurplusPower(5000);
 		ess.setDummyMaxApparentPower(2000);
 		test.next(new TestCase() //
 				.output(CTRL_SURPLUS_FEED_TO_GRID_IS_LIMITED, true) //
