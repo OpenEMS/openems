@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -29,7 +28,6 @@ import com.ed.data.Settings;
 import com.ed.data.Status;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -51,7 +49,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Kaco.BlueplanetHybrid10.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -59,7 +57,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, HybridEss, ManagedSymmetricEss, SymmetricEss,
 		OpenemsComponent, TimedataProvider, EventHandler {
 
-	private final int WATCHDOG_SECONDS = 8;
+	private static final int WATCHDOG_SECONDS = 8;
 
 	private final Logger log = LoggerFactory.getLogger(BpEssImpl.class);
 
@@ -102,7 +100,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
 
@@ -134,6 +132,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		Float riso = null;
 		Integer inverterStatus = null;
 		Integer batteryStatus = null;
+		PowerManagementConfiguration powerManagementConfiguration = PowerManagementConfiguration.UNDEFINED;
 
 		if (!this.core.isConnected()) {
 			this.logWarn(this.log, "Core is not connected!");
@@ -160,11 +159,19 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 				case 14:
 					gridMode = GridMode.ON_GRID;
 					break;
-
 				}
 
 				inverterStatus = status.getInverterStatus();
 				batteryStatus = status.getBatteryStatus();
+
+				// Read Power Management Configuration, i.e. External EMS, Charging,...
+				int powerConfig = status.getPowerConfig();
+				for (PowerManagementConfiguration thisEnum : PowerManagementConfiguration.values()) {
+					if (thisEnum.getValue() == powerConfig) {
+						powerManagementConfiguration = thisEnum;
+						break;
+					}
+				}
 
 				// Set error channels
 				List<String> errors = status.getErrors().getErrorCodes();
@@ -202,9 +209,24 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		this.channel(BpEss.ChannelId.RISO).setNextValue(riso);
 		this.channel(BpEss.ChannelId.INVERTER_STATUS).setNextValue(inverterStatus);
 		this.channel(BpEss.ChannelId.BATTERY_STATUS).setNextValue(batteryStatus);
+		this.channel(BpEss.ChannelId.POWER_MANAGEMENT_CONFIGURATION).setNextValue(powerManagementConfiguration);
 
-		// Surplus Feed-In Channel
-		this.channel(BpEss.ChannelId.SURPLUS_FEED_IN).setNextValue(this.calculateSurplusFeedIn());
+		// Evaluate ExternalControlFault State-Channel
+		switch (powerManagementConfiguration) {
+		case UNDEFINED:
+		case EXTERNAL_EMS:
+			this._setExternalControlFault(false);
+			break;
+		case BATTERY_CHARGING:
+		case MAX_YIELD:
+		case SELF_CONSUMPTION:
+			if (this.config.readOnly()) {
+				this._setExternalControlFault(false);
+			} else {
+				this._setExternalControlFault(true);
+			}
+			break;
+		}
 
 		// Calculate AC Energy
 		if (activePower == null) {
@@ -235,41 +257,6 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
 			this.calculateDcDischargeEnergy.update(0);
 		}
-	}
-
-	/**
-	 * Calculates the Surplus-Feed-In Power, i.e. the power that should be forced to
-	 * be 'discharged' and fed to grid.
-	 * 
-	 * <p>
-	 * This is called by {@link #updateChannels()} once per Cycle to make sure it
-	 * does not change within one Cycle. The value is used in
-	 * {@link #getStaticConstraints()}.
-	 * 
-	 * @return the surplus feed-in power or null for no force feed-in.
-	 */
-	private Integer calculateSurplusFeedIn() {
-		// Is Surplus Feed-In activated?
-		if (!this.config.activateSurplusFeedIn()) {
-			return null;
-		}
-		// Is battery and inverter data available?
-		BatteryData battery = this.core.getBatteryData();
-		InverterData inverter = this.core.getInverterData();
-		if (battery == null || inverter == null) {
-			return null;
-		}
-		// Is battery full?
-		if (battery.getSOE() < 99) {
-			return null;
-		}
-		// Is PV producing?
-		int pvPower = Math.round(inverter.getPvPower());
-		if (pvPower < 10) {
-			return null;
-		}
-		// Active Surplus feed-in
-		return pvPower;
 	}
 
 	@Override
@@ -336,23 +323,33 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
-
-		// Surplus Feed-In?
-		IntegerReadChannel surplusFeedInChannel = this.channel(BpEss.ChannelId.SURPLUS_FEED_IN);
-		Optional<Integer> surplusFeedIn = surplusFeedInChannel.getNextValue().asOptional();
-		if (surplusFeedIn.isPresent()) {
-			return new Constraint[] { //
-					this.createPowerConstraint("Enforce Surplus Feed-In", Phase.ALL, Pwr.ACTIVE,
-							Relationship.GREATER_OR_EQUALS, surplusFeedIn.get()) //
-			};
-		}
-
 		return Power.NO_CONSTRAINTS;
 	}
 
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public Integer getSurplusPower() {
+		// Is battery and inverter data available?
+		BatteryData battery = this.core.getBatteryData();
+		InverterData inverter = this.core.getInverterData();
+		if (battery == null || inverter == null) {
+			return null;
+		}
+		// Is battery full?
+		if (battery.getSOE() < 99) {
+			return null;
+		}
+		// Is PV producing?
+		int pvPower = Math.round(inverter.getPvPower());
+		if (pvPower < 10) {
+			return null;
+		}
+		// Active Surplus feed-in
+		return pvPower;
 	}
 
 }
