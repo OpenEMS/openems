@@ -21,9 +21,7 @@ export class AutarchyComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-    })
+    this.service.setCurrentComponent('', this.route)
   }
 
   async presentModal() {
