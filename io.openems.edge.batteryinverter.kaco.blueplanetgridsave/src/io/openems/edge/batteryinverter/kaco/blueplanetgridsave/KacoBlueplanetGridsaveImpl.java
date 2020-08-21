@@ -33,7 +33,8 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64202.S64202EnLimit;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.Context;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.State;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.batteryinverter.sunspec.AbstractSunSpecBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -50,7 +51,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.power.api.Phase;
@@ -80,7 +80,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter i
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 

@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class ErrorHandler extends StateHandler<State, Context> {
