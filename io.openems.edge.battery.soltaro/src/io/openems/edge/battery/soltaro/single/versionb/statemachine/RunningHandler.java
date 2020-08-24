@@ -7,11 +7,11 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (context.component.hasError()) {
+		if (ControlAndLogic.hasError(context.component, context.config.numberOfSlaves())) {
 			return State.UNDEFINED;
 		}
 
-		if (!context.component.isSystemRunning()) {
+		if (!ControlAndLogic.isSystemRunning(context.component)) {
 			return State.UNDEFINED;
 		}
 

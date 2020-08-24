@@ -14,8 +14,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.entryAt = Instant.now();
 
-		// Try to stop system
-		context.component.stopSystem();
+		ControlAndLogic.stopSystem(context.component);
 	}
 
 	@Override
@@ -29,8 +28,8 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		System.out.println("Stuck in ERROR_HANDLING: " + context.component.getStateChannel().listStates());
 
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > context.config.errorLevel2Delay()) {
-			context.component.resetSystem();
-			context.component.sleepSystem();
+			ControlAndLogic.resetSystem(context.component);
+			ControlAndLogic.sleepSystem(context.component);
 			// Try again
 			return State.UNDEFINED;
 		}

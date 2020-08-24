@@ -11,7 +11,7 @@ public class StoppedHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (!context.component.isSystemStopped()) {
+		if (!ControlAndLogic.isSystemStopped(context.component)) {
 			return State.UNDEFINED;
 		}
 

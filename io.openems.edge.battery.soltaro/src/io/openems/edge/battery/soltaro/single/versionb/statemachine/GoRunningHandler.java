@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionB;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoRunningHandler extends StateHandler<State, Context> {
@@ -22,23 +21,23 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		
-		if (context.component.isSystemRunning()) {
+		if (ControlAndLogic.isSystemRunning(context.component)) {
 			return State.RUNNING;
 		}
 
 		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > SingleRackVersionB.RETRY_COMMAND_SECONDS;
+				.getSeconds() > ControlAndLogic.RETRY_COMMAND_SECONDS;
 		if (isMaxStartTimePassed) {
 			// First try - or waited long enough for next try
 
-			if (this.attemptCounter > SingleRackVersionB.RETRY_COMMAND_MAX_ATTEMPTS) {
+			if (this.attemptCounter > ControlAndLogic.RETRY_COMMAND_MAX_ATTEMPTS) {
 				// Too many tries
 				context.component._setMaxStartAttempts(true);
 				return State.UNDEFINED;
 
 			} else {
 				// Trying to switch on
-				context.component.startSystem();
+				ControlAndLogic.startSystem(context.component);
 				this.lastAttempt = Instant.now();
 				this.attemptCounter++;
 				return State.GO_RUNNING;
@@ -51,4 +50,9 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		}
 	}
 
+	
+
+	
+	
+	
 }
