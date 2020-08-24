@@ -164,23 +164,29 @@ public class LowFrequencyPowerSmoothing extends AbstractOpenemsComponent impleme
 
 		// int ramp = difference / this.config.Hysteresis();
 
-		if (difference >= (-1 * this.config.threshold())) {
-			if (difference > this.config.threshold())
-//				gridPower = (this.config.threshold() * this.config.Hysteresis()) + pvValuePrevious;
-				gridPower = (this.config.threshold() * 1) + pvValuePrevious;
-		} else {
-//			gridPower = (-1 * this.config.threshold() * this.config.Hysteresis()) + pvValuePrevious;
-			gridPower = (-1 * this.config.threshold() * 1) + pvValuePrevious;
-		}
-		gridPower = pvValueCurrent - gridPower;
+		Integer minThreshold = (-1 * this.config.threshold());
+		Integer maxThreshold = this.config.threshold();
 
-		this.channel(ChannelId.CALCULATED_POWER).setNextValue(gridPower);
+		if (difference >= minThreshold) {
+			if (difference > maxThreshold) {
+//				gridPower = (this.config.threshold() * this.config.Hysteresis()) + pvValuePrevious;
+				gridPower = this.config.threshold() + pvValuePrevious;
+			} else {
+				gridPower = pvValueCurrent;
+			}
+		} else {
+			gridPower = minThreshold + pvValuePrevious;
+		}
+		// gridPower = pvValueCurrent - gridPower;
+		Integer pBattery = pvValueCurrent - gridPower;
+		log.info("PBattery is: "+ pBattery);
+
+		this.channel(ChannelId.CALCULATED_POWER).setNextValue(pBattery);
 		// set result
 		ess.addPowerConstraintAndValidate("Controller.LowFrequencypowerSmoothing", Phase.ALL, Pwr.ACTIVE,
-				Relationship.GREATER_OR_EQUALS, gridPower); //
+				Relationship.GREATER_OR_EQUALS, pBattery); //
 
 		this.lastSetPowerTime = LocalDateTime.now(this.clock);
 		this.firstTime = true;
 	}
-
 }
