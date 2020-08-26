@@ -343,31 +343,26 @@ export class Service implements ErrorHandler {
   /**
    * check if current component is modal component
    */
-  public isModal(): Promise<boolean> {
-    //alb
-    let response;
-    this.modalCtrl.getTop().then(modal => {
-      if (modal === undefined) {
-        console.log("nein")
-        response = false;
-      } else {
-        console.log("ja")
-        response = true;
-      }
-    })
-    return response;
-  }
+  // public isModal(): Promise<boolean> {
+  //   let response;
+  //   this.modalCtrl.getTop().then(modal => {
+  //     if (modal === undefined) {
+  //       console.log("nein")
+  //       response = false;
+  //     } else {
+  //       console.log("ja")
+  //       response = true;
+  //     }
+  //   })
+  //   return response;
+  // }
 
   /**
    * set spinnerId 
    * used for history charts to start spinner only in modal component
    */
   public setSpinnerId(spinnerId: string): string {
-    if (this.isModal() == true) {
-      return spinnerId + 'modal';
-    } else {
-      return spinnerId;
-    }
+    return spinnerId;
   }
 
   /**

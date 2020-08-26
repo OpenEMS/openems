@@ -26,8 +26,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   @Input() private period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
-    console.log("ismodal?", this.service.isModal())
-    this.updateChart();
+    this.modalCtrl.getTop().then(modal => {
+      if (modal === undefined) {
+        this.updateChart();
+      }
+    })
   };
 
   constructor(
@@ -101,12 +104,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   ngOnInit() {
-    console.log("ismodal?", this.service.isModal())
     this.spinnerId = this.service.setSpinnerId("energy-chart");
     this.service.setCurrentComponent('', this.route);
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
     this.subscribeChartRefresh()
+  }
+
+  ionViewWillEnter() {
+    console.log("viewWillEnter")
   }
 
   ngOnDestroy() {
