@@ -344,6 +344,7 @@ export class Service implements ErrorHandler {
    * check if current component is modal component
    */
   public isModal(): Promise<boolean> {
+    //alb
     let response;
     this.modalCtrl.getTop().then(modal => {
       if (modal === undefined) {
