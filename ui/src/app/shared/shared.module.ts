@@ -15,6 +15,7 @@ import { KeysPipe } from './pipe/keys/keys.pipe';
 import { Language } from './translate/language';
 import { NgModule } from '@angular/core';
 import { NgxLoadingModule } from 'ngx-loading';
+import { NgxSpinnerModule } from "ngx-spinner";
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PickDateComponent } from './pickdate/pickdate.component';
 import { RouterModule } from '@angular/router';
@@ -34,6 +35,7 @@ import { Websocket } from './service/websocket';
     FormsModule,
     IonicModule,
     NgxLoadingModule,
+    NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
     ToasterModule,
@@ -71,6 +73,7 @@ import { Websocket } from './service/websocket';
     FormsModule,
     IonicModule,
     NgxLoadingModule,
+    NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
     ToasterModule,

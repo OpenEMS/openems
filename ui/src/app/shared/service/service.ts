@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
@@ -15,6 +15,8 @@ import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { isUndefined } from 'util';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -50,8 +52,10 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService,
+    private spinner: NgxSpinnerService,
     private toaster: ToastController,
+    public modalCtrl: ModalController,
+    public translate: TranslateService,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -335,6 +339,53 @@ export class Service implements ErrorHandler {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
+
+  /**
+   * check if current component is modal component
+   */
+  public isModal(): Promise<boolean> {
+    let response;
+    this.modalCtrl.getTop().then(modal => {
+      if (modal === undefined) {
+        console.log("nein")
+        response = false;
+      } else {
+        console.log("ja")
+        response = true;
+      }
+    })
+    return response;
+  }
+
+  /**
+   * set spinnerId 
+   * used for history charts to start spinner only in modal component
+   */
+  public setSpinnerId(spinnerId: string): string {
+    if (this.isModal() == true) {
+      return spinnerId + 'modal';
+    } else {
+      return spinnerId;
+    }
+  }
+
+  /**
+   * Start NGX-Spinner start visualize loading progress
+   * Spinner will appear inside html tag
+   * @htmlCode <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * @param selector selector for specific spinner
+   */
+  public startSpinner(selector: string) {
+    this.spinner.show(selector, { type: 'ball-clip-rotate-multiple', fullScreen: false });
+  }
+
+  /**
+   * Stop NGX-Spinner stop visualize loading progress
+   * @param selector selector for specific spinner
+   */
+  public stopSpinner(selector: string) {
+    this.spinner.hide(selector);
+  }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({

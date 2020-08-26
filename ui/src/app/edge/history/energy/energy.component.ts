@@ -4,12 +4,10 @@ import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64Pay
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
 import { Component, Input, OnChanges } from '@angular/core';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { EnergyModalComponent } from './modal/modal.component';
 import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { formatNumber } from '@angular/common';
-import { fromEvent, Subject } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
@@ -28,6 +26,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   @Input() private period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
+    console.log("ismodal?", this.service.isModal())
     this.updateChart();
   };
 
@@ -102,6 +101,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   ngOnInit() {
+    console.log("ismodal?", this.service.isModal())
+    this.spinnerId = this.service.setSpinnerId("energy-chart");
     this.service.setCurrentComponent('', this.route);
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
@@ -113,7 +114,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected updateChart() {
+    console.log("update")
     this.loading = true;
+    this.service.startSpinner(this.spinnerId);
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
@@ -317,6 +320,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           }
           this.datasets = datasets;
           this.loading = false;
+          this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
           console.error(reason); // TODO error message
           this.initializeChart();

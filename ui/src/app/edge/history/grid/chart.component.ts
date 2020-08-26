@@ -6,6 +6,7 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'gridChart',
@@ -24,12 +25,14 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
+        private modalCtrl: ModalController,
     ) {
         super(service, translate);
     }
 
 
     ngOnInit() {
+        this.spinnerId = this.service.setSpinnerId('grid-chart');
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }
@@ -40,6 +43,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
     protected updateChart() {
         this.loading = true;
+        this.service.startSpinner(this.spinnerId);
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
             this.colors = [];
@@ -138,7 +142,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
             }
             this.datasets = datasets;
             this.loading = false;
-
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
