@@ -285,8 +285,8 @@
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.0.4,2.0.5)',\
-	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.4,2.0.5)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.0.5,2.0.6)',\
+	org.ops4j.pax.logging.pax-logging-log4j1;version='[2.0.5,2.0.6)',\
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
 	rrd4j;version='[3.7.0,3.7.1)'
