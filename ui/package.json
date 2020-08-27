@@ -31,7 +31,6 @@
     "@ngx-formly/ionic": "^5.9.3",
     "@ngx-translate/core": "^11.0.1",
     "angular-mydatepicker": "^0.5.8",
-    "angular2-toaster": "8.0.0",
     "angular2-uuid": "^1.1.1",
     "chart.js": "^2.9.3",
     "classlist.js": "^1.1.20150312",

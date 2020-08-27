@@ -17,7 +17,9 @@ import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentCompone
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
-import { GridChartOverviewComponent } from './edge/history/grid/gridchart/gridchartoverview.component';
+import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
+import { AutarchyChartOverviewComponent } from './edge/history/autarchy/autarchychartoverview/autarchychartoverview.component';
+import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -32,6 +34,9 @@ const routes: Routes = [
 
   // History Chart Pages
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
+  { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
+
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },

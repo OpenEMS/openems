@@ -35,6 +35,7 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    console.log("JAWOLLJA")
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });

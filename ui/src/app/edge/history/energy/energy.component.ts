@@ -102,6 +102,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   ngOnInit() {
     this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
+    this.service.startSpinner(this.spinnerId);
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
     this.subscribeChartRefresh()
@@ -118,7 +119,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   protected updateChart() {
     this.loading = true;
     this.service.startSpinner(this.spinnerId);
-    console.log("startSpinner")
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {

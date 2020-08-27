@@ -30,6 +30,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
 
 
     ngOnInit() {
+        this.spinnerId = "autarchy-chart";
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }
@@ -39,6 +40,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
@@ -106,7 +108,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
             })
             this.datasets = datasets;
             this.loading = false;
-
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

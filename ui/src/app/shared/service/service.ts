@@ -341,9 +341,12 @@ export class Service implements ErrorHandler {
   private queryEnergyTimeout: any = null;
 
   /**
-   * Start NGX-Spinner start visualize loading progress
+   * Start NGX-Spinner
+   * 
    * Spinner will appear inside html tag only
-   * @htmlCode <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @example <ngx-spinner [name]="YOURSELECTOR"></ngx-spinner>
+   * 
    * @param selector selector for specific spinner
    */
   public startSpinner(selector: string) {
@@ -355,7 +358,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Stop NGX-Spinner stop visualize loading progress
+   * Stop NGX-Spinner
    * @param selector selector for specific spinner
    */
   public stopSpinner(selector: string) {
