@@ -21,7 +21,6 @@ import { PickDateComponent } from './pickdate/pickdate.component';
 import { RouterModule } from '@angular/router';
 import { Service } from './service/service';
 import { SignPipe } from './pipe/sign/sign.pipe';
-import { ToasterModule, ToasterService } from 'angular2-toaster';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { UnitvaluePipe } from './pipe/unitvalue/unitvalue.pipe';
 import { Utils } from './service/utils';
@@ -38,7 +37,6 @@ import { Websocket } from './service/websocket';
     NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
-    ToasterModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
@@ -76,7 +74,6 @@ import { Websocket } from './service/websocket';
     NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
-    ToasterModule,
     TranslateModule,
     // components
     ChartOptionsComponent,
@@ -87,7 +84,6 @@ import { Websocket } from './service/websocket';
     appRoutingProviders,
     DecimalPipe,
     Service,
-    ToasterService,
     UnitvaluePipe,
     Utils,
     Websocket,

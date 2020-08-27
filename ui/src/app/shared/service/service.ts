@@ -341,38 +341,17 @@ export class Service implements ErrorHandler {
   private queryEnergyTimeout: any = null;
 
   /**
-   * check if current component is modal component
-   */
-  // public isModal(): Promise<boolean> {
-  //   let response;
-  //   this.modalCtrl.getTop().then(modal => {
-  //     if (modal === undefined) {
-  //       console.log("nein")
-  //       response = false;
-  //     } else {
-  //       console.log("ja")
-  //       response = true;
-  //     }
-  //   })
-  //   return response;
-  // }
-
-  /**
-   * set spinnerId 
-   * used for history charts to start spinner only in modal component
-   */
-  public setSpinnerId(spinnerId: string): string {
-    return spinnerId;
-  }
-
-  /**
    * Start NGX-Spinner start visualize loading progress
-   * Spinner will appear inside html tag
+   * Spinner will appear inside html tag only
    * @htmlCode <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
    * @param selector selector for specific spinner
    */
   public startSpinner(selector: string) {
-    this.spinner.show(selector, { type: 'ball-clip-rotate-multiple', fullScreen: false });
+    this.spinner.show(selector, {
+      type: 'ball-clip-rotate-multiple',
+      fullScreen: false,
+      bdColor: "rgba(0,0,0,0.2)"
+    });
   }
 
   /**

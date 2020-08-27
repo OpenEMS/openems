@@ -43,7 +43,10 @@ export abstract class AbstractHistoryChart {
         protected service: Service,
         protected translate: TranslateService
     ) {
-        this.service.startSpinner(this.spinnerId);
+        setTimeout(() => {
+            console.log("spinnerId", this.spinnerId)
+            this.service.startSpinner(this.spinnerId);
+        }, 100)
     }
 
     /**

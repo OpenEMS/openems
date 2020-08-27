@@ -57,6 +57,7 @@ import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.compo
 import { FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlechart.component';
 import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
+import { GridChartOverviewComponent } from './grid/gridchart/gridchartoverview.component';
 
 @NgModule({
   imports: [
@@ -106,6 +107,7 @@ import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalcha
     FixDigitalOutputTotalChartComponent,
     FixDigitalOutputWidgetComponent,
     GridChartComponent,
+    GridChartOverviewComponent,
     GridComponent,
     GridModalComponent,
     HeatingelementChartComponent,

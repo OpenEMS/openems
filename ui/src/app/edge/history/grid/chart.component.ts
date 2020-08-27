@@ -6,7 +6,6 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'gridChart',
@@ -25,14 +24,13 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
-        private modalCtrl: ModalController,
     ) {
         super(service, translate);
     }
 
 
     ngOnInit() {
-        this.spinnerId = this.service.setSpinnerId('grid-chart');
+        this.spinnerId = 'grid-chart';
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

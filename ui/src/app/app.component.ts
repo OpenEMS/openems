@@ -18,6 +18,7 @@ export class AppComponent {
 
   public env = environment;
   public backUrl: string | boolean = '/';
+  public showChartPageOnly: boolean = true;
   public enableSideMenu: boolean;
   public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
@@ -122,6 +123,13 @@ export class AppComponent {
     let urlArray = url.split('/');
     let backUrl: string | boolean = '/';
     let file = urlArray.pop();
+
+    // hides header for history charts
+    if (file.endsWith('chart')) {
+      this.showChartPageOnly = true;
+    } else {
+      this.showChartPageOnly = false;
+    }
 
     // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {

@@ -1,5 +1,5 @@
 <ion-app>
-  <ion-header>
+  <ion-header *ngIf="!showChartPageOnly">
     <ion-toolbar color="primary" mode="md">
       <ion-buttons *ngIf="backUrl" slot="start">
         <ion-button [routerLink]="backUrl">
@@ -73,7 +73,7 @@
   </ion-header>
 
   <ion-content>
-    <ion-grid>
+    <ion-grid *ngIf="!showChartPageOnly">
       <ion-row class="ion-justify-content-center">
 
         <ion-col *ngIf="websocket.status == 'connecting'" size="12" size-md="6">

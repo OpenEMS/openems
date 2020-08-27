@@ -17,6 +17,7 @@ import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentCompone
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
+import { GridChartOverviewComponent } from './edge/history/grid/gridchart/gridchartoverview.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -28,6 +29,9 @@ const routes: Routes = [
   { path: 'device/:edgeId', redirectTo: 'device/:edgeId/live', pathMatch: 'full' },
   { path: 'device/:edgeId/live', component: EdgeLiveComponent },
   { path: 'device/:edgeId/history', component: EdgeHistoryComponent },
+
+  // History Chart Pages
+  { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
