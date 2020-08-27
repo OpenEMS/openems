@@ -3,14 +3,12 @@ package io.openems.edge.battery.soltaro.controller.helper;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.ChargeIndication;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBattery, StartStoppable {
+public class DummyBattery extends AbstractOpenemsComponent implements Battery, StartStoppable {
 
 	public static int DEFAULT_SOC = 50;
 	public static int DEFAULT_MIN_CELL_VOLTAGE = 3280;
@@ -18,15 +16,12 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 	public static int DEFAULT_MIN_CELL_TEMPERATURE = 25;
 	public static int DEFAULT_MAX_CELL_TEMPERATURE = 33;
 
-	private static final ChargeIndication DEFAULT_CHARGE_INDICATION = ChargeIndication.STANDBY;
-
 	protected DummyBattery(//
 	) { //
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				StartStoppable.ChannelId.values(), //
-				SoltaroBattery.ChannelId.values() //
+				StartStoppable.ChannelId.values() //
 		);
 
 //		getChargeIndication().onSetNextValue( v -> { 
@@ -47,7 +42,6 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 		setMinimalCellTemperature(DEFAULT_MIN_CELL_TEMPERATURE);
 		setMaximalCellTemperature(DEFAULT_MAX_CELL_TEMPERATURE);
 		setSoc(DEFAULT_SOC);
-		setChargeIndication(DEFAULT_CHARGE_INDICATION);
 	}
 
 	public void setMinimalCellVoltage(int minimalCellVoltage) {
@@ -88,16 +82,6 @@ public class DummyBattery extends AbstractOpenemsComponent implements SoltaroBat
 	public void setMaximalCellTemperatureToUndefined() {
 		this._setMaxCellTemperature(null);
 		this.getMaxCellTemperatureChannel().nextProcessImage();
-	}
-
-	public void setChargeIndication(ChargeIndication chargeIndication) {
-		this.getChargeIndication().setNextValue(chargeIndication);
-		this.getChargeIndication().nextProcessImage();
-	}
-
-	public void setChargeIndicationToUndefined() {
-		this.getChargeIndication().setNextValue(null);
-		this.getChargeIndication().nextProcessImage();
 	}
 
 	public void setSoc(int soc) {
