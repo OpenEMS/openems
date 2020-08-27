@@ -39,5 +39,4 @@ export class EnergymonitorComponent {
       this.edge.unsubscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR);
     }
   }
-
 }

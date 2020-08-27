@@ -33,20 +33,6 @@ export class EvcsComponent {
     // Subscribe to CurrentData
     this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
-      edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
-        // Evcs
-        new ChannelAddress(this.componentId, 'ChargePower'),
-        new ChannelAddress(this.componentId, 'HardwarePowerLimit'),
-        new ChannelAddress(this.componentId, 'Phases'),
-        new ChannelAddress(this.componentId, 'Plug'),
-        new ChannelAddress(this.componentId, 'Status'),
-        new ChannelAddress(this.componentId, 'State'),
-        new ChannelAddress(this.componentId, 'EnergySession'),
-        new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
-        new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
-        new ChannelAddress(this.componentId, 'SetChargePowerLimit')
-      ]);
-
       // Gets the Controller & Component for the given EVCS-Component.
       this.service.getConfig().then(config => {
         let controllers = config.getComponentsByFactory("Controller.Evcs");
@@ -58,6 +44,20 @@ export class EvcsComponent {
           }
         }
       });
+      edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
+        // Evcs
+        new ChannelAddress(this.componentId, 'ChargePower'),
+        new ChannelAddress(this.componentId, 'Phases'),
+        new ChannelAddress(this.componentId, 'Plug'),
+        new ChannelAddress(this.componentId, 'Status'),
+        new ChannelAddress(this.componentId, 'State'),
+        new ChannelAddress(this.componentId, 'EnergySession'),
+        // channels for modal component, subscribe here for better UX
+        new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
+        new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
+        new ChannelAddress(this.componentId, 'SetChargePowerLimit')
+      ]);
+
     });
   }
 
@@ -69,7 +69,6 @@ export class EvcsComponent {
    * 
    */
   getState(state: number, plug: number) {
-
     if (this.controller != null) {
       if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
         return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');

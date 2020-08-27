@@ -12,6 +12,8 @@ public class PidFilter {
 	public static final double DEFAULT_I = 0.3;
 	public static final double DEFAULT_D = 0.1;
 
+	public static final int ERROR_SUM_LIMIT_FACTOR = 10;
+
 	private final double p;
 	private final double i;
 	private final double d;
@@ -154,7 +156,7 @@ public class PidFilter {
 		}
 
 		// apply additional factor to increase limit
-		errorSumLimit *= 2;
+		errorSumLimit *= ERROR_SUM_LIMIT_FACTOR;
 
 		// apply limit
 		if (value < errorSumLimit * -1) {
