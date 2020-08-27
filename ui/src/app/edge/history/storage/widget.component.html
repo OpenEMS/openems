@@ -10,13 +10,13 @@
             <tr>
                 <td style="width:65%" translate>General.chargePower</td>
                 <td style="width:35%" class="align_right">
-                    {{data["_sum/EssActiveChargeEnergy"] | unitvalue:'kWh'}}
+                    {{ data["_sum/EssDcChargeEnergy"] | unitvalue:'kWh' }}
                 </td>
             </tr>
             <tr>
                 <td style="width:65%" translate>General.dischargePower</td>
                 <td style="width:35%" class="align_right">
-                    {{data["_sum/EssActiveDischargeEnergy"] | unitvalue:'kWh'}}
+                    {{ data["_sum/EssDcDischargeEnergy"] | unitvalue:'kWh' }}
                 </td>
             </tr>
         </table>

@@ -97,8 +97,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	public SingleRack() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				Battery.ChannelId.values(), //
 				SingleRack.ChannelId.values() //
 		);
 		this._setChargeMaxCurrent(SingleRack.CHARGE_MAX_A);

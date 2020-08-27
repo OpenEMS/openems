@@ -1,8 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versionb.statemachine;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionb.statemachine.Context;
-import io.openems.edge.battery.soltaro.single.versionb.statemachine.State;
+import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class UndefinedHandler extends StateHandler<State, Context> {

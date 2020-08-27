@@ -27,7 +27,8 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.Context;
-import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.State;
+import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine;
+import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.SoltaroBatteryVersionC;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
@@ -52,7 +53,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -76,7 +76,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 	private Set<Rack> racks = new HashSet<>();

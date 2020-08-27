@@ -1,5 +1,6 @@
 package io.openems.edge.battery.soltaro.single.versionb.statemachine;
 
+import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 

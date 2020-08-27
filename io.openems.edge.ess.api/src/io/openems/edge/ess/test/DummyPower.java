@@ -12,8 +12,9 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class DummyPower implements Power {
 
-	private final int maxApparentPower;
 	private final PidFilter pidFilter;
+
+	private int maxApparentPower;
 
 	public DummyPower(int maxApparentPower) {
 		this(maxApparentPower, PidFilter.DEFAULT_P, PidFilter.DEFAULT_I, PidFilter.DEFAULT_D);
@@ -47,6 +48,10 @@ public class DummyPower implements Power {
 	@Override
 	public void removeConstraint(Constraint constraint) {
 
+	}
+
+	public void setMaxApparentPower(int maxApparentPower) {
+		this.maxApparentPower = maxApparentPower;
 	}
 
 	@Override

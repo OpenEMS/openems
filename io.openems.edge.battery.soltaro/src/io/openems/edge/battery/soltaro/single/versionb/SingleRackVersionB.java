@@ -16,7 +16,7 @@ import io.openems.edge.battery.soltaro.single.versionb.enums.FanStatus;
 import io.openems.edge.battery.soltaro.single.versionb.enums.PreContactorState;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ShortCircuitFunction;
 import io.openems.edge.battery.soltaro.single.versionb.enums.SystemRunMode;
-import io.openems.edge.battery.soltaro.single.versionb.statemachine.State;
+import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;

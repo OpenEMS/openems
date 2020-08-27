@@ -20,7 +20,7 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 16;
+	public final static short VERSION_MINOR = 18;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -54,7 +54,7 @@ public class OpenemsConstants {
 	 * 
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public final static String MANUFACTURER_MODEL = "";
+	public final static String MANUFACTURER_MODEL = "OpenEMS";
 
 	/**
 	 * The options of the device

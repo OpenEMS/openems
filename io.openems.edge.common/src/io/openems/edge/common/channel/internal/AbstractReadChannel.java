@@ -106,7 +106,14 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public void nextProcessImage() {
 		Value<T> oldValue = this.activeValue;
-		boolean valueHasChanged = !Objects.equals(oldValue, this.nextValue);
+		final boolean valueHasChanged;
+		if (oldValue == null && this.nextValue == null) {
+			valueHasChanged = false;
+		} else if (oldValue == null || this.nextValue == null) {
+			valueHasChanged = true;
+		} else {
+			valueHasChanged = !Objects.equals(oldValue.get(), this.nextValue.get());
+		}
 		this.activeValue = this.nextValue;
 		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
 		if (valueHasChanged) {

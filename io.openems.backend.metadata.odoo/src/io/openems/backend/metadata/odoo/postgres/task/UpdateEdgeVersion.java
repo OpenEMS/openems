@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.common.types.SemanticVersion;
 
-public class UpdateEdgeVersion implements DatabaseTask {
+public class UpdateEdgeVersion extends DatabaseTask {
 
 	private final int odooId;
 	private final String version;
@@ -18,7 +18,7 @@ public class UpdateEdgeVersion implements DatabaseTask {
 	}
 
 	@Override
-	public void execute(Connection connection) throws SQLException {
+	protected void _execute(Connection connection) throws SQLException {
 		PreparedStatement ps = this.psUpdateEdgeVersion(connection);
 		ps.setString(1, this.version);
 		ps.setInt(2, this.odooId);
@@ -26,7 +26,7 @@ public class UpdateEdgeVersion implements DatabaseTask {
 	}
 
 	/**
-	 * UPDATE {} SET version = {} WHERE id = {};
+	 * UPDATE {} SET version = {} WHERE id = {};.
 	 * 
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
@@ -41,7 +41,7 @@ public class UpdateEdgeVersion implements DatabaseTask {
 
 	@Override
 	public String toString() {
-		return "UpdateEdgeVersion [odooId=" + odooId + ", version=" + version + "]";
+		return "UpdateEdgeVersion [odooId=" + this.odooId + ", version=" + this.version + "]";
 	}
 
 }

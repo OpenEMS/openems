@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoRunningHandler extends StateHandler<State, Context> {

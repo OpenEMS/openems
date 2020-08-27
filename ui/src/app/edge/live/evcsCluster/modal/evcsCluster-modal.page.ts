@@ -227,7 +227,7 @@ export class ModalComponentEvcsCluster implements OnInit {
     }
 
     /**
-    * Aktivates or deaktivates the Charging
+    * Activates or deactivates the Charging
     * 
     * @param event 
     */

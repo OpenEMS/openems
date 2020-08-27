@@ -81,6 +81,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 		if (timestamp.equals(this.lastTimestamp)) {
 			return;
 		}
+		this.lastTimestamp = timestamp;
 
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
@@ -89,6 +90,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 					// Ignore WRITE_ONLY Channels
 					continue;
 				}
+				
+				
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
@@ -129,10 +132,15 @@ public class RecordWorker extends AbstractImmediateWorker {
 		try {
 			database = this.parent.getRrdDb(record.address, record.unit, record.timestamp - 1);
 
-			// Add Sample to RRD4J
-			Sample sample = database.createSample(record.timestamp);
-			sample.setValue(0, record.value);
-			sample.update();
+			if (database.getLastUpdateTime() < record.timestamp) {
+				// Avoid and silently ignore error "IllegalArgumentException: Bad sample time:
+				// XXX. Last update time was YYY, at least one second step is required".
+
+				// Add Sample to RRD4J
+				Sample sample = database.createSample(record.timestamp);
+				sample.setValue(0, record.value);
+				sample.update();
+			}
 
 			this.parent._setUnableToInsertSample(false);
 
