@@ -3,7 +3,7 @@ package io.openems.edge.controller.symmetric.balancingschedule;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Balancing Schedule Symmetric", //
 		description = "Controls an ESS with the target to keep the grid-meter on a value defined in a Schedule.")
 @interface Config {

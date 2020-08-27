@@ -45,7 +45,7 @@
 			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.moshi</groupId>
 			<artifactId>moshi</artifactId>
-			<version>1.9.3</version>
+			<version>1.10.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.influxdb: influxdb-java -->
@@ -177,7 +177,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.16</version>
+			<version>0.10.17</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
@@ -233,13 +233,13 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.14</version>
+			<version>42.2.15</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.6</version>
+			<version>3.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

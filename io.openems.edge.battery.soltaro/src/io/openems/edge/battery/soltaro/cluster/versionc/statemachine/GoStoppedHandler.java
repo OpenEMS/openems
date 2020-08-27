@@ -7,6 +7,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
+import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.common.channel.EnumWriteChannel;
