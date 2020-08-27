@@ -185,6 +185,7 @@ export const TRANSLATION = {
                     status: 'Postavení',
                     totalCharge: 'Celkový poplatek',
                     totalChargingPower: 'Celkový nabíjecí výkon',
+                    unknown: 'Neznámý',
                     unplugged: 'Odpojena',
                     Administration: {
                         carAdministration: 'Správa aut',

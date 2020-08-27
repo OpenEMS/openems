@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.controller.Config;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
@@ -56,10 +55,6 @@ public class TestNormal {
 	@Test
 	public final void testGetNextStateNormalNoChargingValuesPresent() {
 		// writing two times causes past values in the channel
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-		bms.getChargeIndication().nextProcessImage();
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-		bms.getChargeIndication().nextProcessImage();
 
 		State next = sut.getNextState();
 		assertEquals(State.NORMAL, next);
@@ -70,9 +65,6 @@ public class TestNormal {
 			fail();
 		}
 
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-		bms.getChargeIndication().nextProcessImage();
-
 		// Waiting long enough means that the last charge or discharge action is too
 		// long away, but there are no values, so state should be normal
 		next = sut.getNextState();
@@ -82,10 +74,6 @@ public class TestNormal {
 	@Test
 	public final void testGetNextStateNormalNoChargingValuePresent() {
 		// writing two times causes past values in the channel
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-		bms.getChargeIndication().nextProcessImage();
-		bms.getChargeIndication().setNextValue(ChargeIndication.DISCHARGE);
-		bms.getChargeIndication().nextProcessImage();
 
 		State next = sut.getNextState();
 		assertEquals(State.NORMAL, next);

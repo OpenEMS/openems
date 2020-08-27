@@ -149,8 +149,16 @@ export class Service implements ErrorHandler {
       // Get Edge-ID. If not existing -> resolve null
       let route = activatedRoute.snapshot;
       let edgeId = route.params["edgeId"];
+
       if (edgeId == null) {
-        resolve(null);
+        // allow modal components to get edge id
+        if (route.url.length == 0) {
+          this.getCurrentEdge().then(edge => {
+            resolve(edge);
+          })
+        } else {
+          resolve(null);
+        }
       }
 
       let subscription: Subscription = null;
@@ -368,7 +376,7 @@ export class Service implements ErrorHandler {
     if (!edge) {
       return false;
     }
-    if (['fems7', 'fems66', 'fems566', 'fems888', 'fems1802', 'fems361', 'fems970'].includes(edge.id)) {
+    if (['fems7', 'fems66', 'fems566', 'fems888', 'fems1802', 'fems361', 'fems970', 'fems1327'].includes(edge.id)) {
       return true;
     }
     if (['PRO Hybrid 9-10', 'Pro Hybrid 10-Serie', 'Pro Hybrid GW'].includes(edge.producttype)) {

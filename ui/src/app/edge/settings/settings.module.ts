@@ -1,4 +1,5 @@
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
+import { AutoinstallerComponent } from './autoinstaller/autoinstaller.component';
 import { ChannelsComponent } from './channels/channels.component';
 import { ComponentInstallComponent } from './component/install/install.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
@@ -10,6 +11,10 @@ import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
 import { SharedModule } from './../../shared/shared.module';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
+import { HeatingElementRtuInstallerComponent } from './autoinstaller/heatingelementrtu/heatingelementrtu.component';
+import { HeatingElementTcpInstallerComponent } from './autoinstaller/heatingelementtcp/heatingelementtcp.component';
+import { EvcsInstallerComponent } from './autoinstaller/evcs/evcs.component';
+import { HeatingpumpTcpInstallerComponent } from './autoinstaller/heatingpumptcp/heatingpumptcp.component';
 
 @NgModule({
   imports: [
@@ -17,6 +22,7 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
   ],
   declarations: [
     AliasUpdateComponent,
+    AutoinstallerComponent,
     ChannelsComponent,
     ComponentInstallComponent,
     ComponentInstallIndexComponent,
@@ -26,7 +32,16 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     ProfileComponent,
     SettingsComponent,
     SystemExecuteComponent,
+    HeatingElementRtuInstallerComponent,
+    HeatingElementTcpInstallerComponent,
+    EvcsInstallerComponent,
+    HeatingpumpTcpInstallerComponent,
   ],
-  entryComponents: []
+  entryComponents: [
+    HeatingElementRtuInstallerComponent,
+    HeatingElementTcpInstallerComponent,
+    EvcsInstallerComponent,
+    HeatingpumpTcpInstallerComponent,
+  ]
 })
 export class SettingsModule { }
