@@ -1,17 +1,16 @@
-package io.openems.edge.battery.soltaro;
+package io.openems.edge.battery.soltaro.single.versionb.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum ChargeIndication implements OptionsEnum {
+public enum PreContactorState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	STANDBY(0, "Standby"), //
-	DISCHARGE(1, "Dischare"), //
-	CHARGE(2, "Charge");
+	START(0x1, "Start"), //
+	STOP(0x2, "Stop");
 
-	private int value;
-	private String name;
+	private final int value;
+	private final String name;
 
-	private ChargeIndication(int value, String name) {
+	private PreContactorState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

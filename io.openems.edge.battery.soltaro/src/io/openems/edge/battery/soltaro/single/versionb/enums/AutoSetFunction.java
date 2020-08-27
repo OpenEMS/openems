@@ -1,19 +1,18 @@
-package io.openems.edge.battery.soltaro.controller;
+package io.openems.edge.battery.soltaro.single.versionb.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum State implements OptionsEnum {
+public enum AutoSetFunction implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	NORMAL(0, "Normal"), //
-	LIMIT(1, "Limit"), //
-	FORCE_CHARGE(3, "ForceCharge"), //
-	FULL_CHARGE(4, "FullCharge"), //
-	CHECK(5, "Check");
+	INIT_MODE(0x0, "Init mode"), //
+	START_AUTO_SETTING(0x1, "Start auto setting"), //
+	SUCCES(0x2, "Success"), //
+	FAILURE(0x3, "Failure");
 
 	private final int value;
 	private final String name;
 
-	private State(int value, String name) {
+	private AutoSetFunction(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

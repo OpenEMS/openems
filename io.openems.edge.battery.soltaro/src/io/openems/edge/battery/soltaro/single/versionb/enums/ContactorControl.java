@@ -1,19 +1,17 @@
-package io.openems.edge.battery.soltaro.controller;
+package io.openems.edge.battery.soltaro.single.versionb.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum State implements OptionsEnum {
+public enum ContactorControl implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	NORMAL(0, "Normal"), //
-	LIMIT(1, "Limit"), //
-	FORCE_CHARGE(3, "ForceCharge"), //
-	FULL_CHARGE(4, "FullCharge"), //
-	CHECK(5, "Check");
+	CUT_OFF(0, "Cut off"), //
+	CONNECTION_INITIATING(1, "Connection initiating"), //
+	ON_GRID(3, "On grid");
 
 	private final int value;
 	private final String name;
 
-	private State(int value, String name) {
+	private ContactorControl(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

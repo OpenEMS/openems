@@ -1,19 +1,19 @@
-package io.openems.edge.battery.soltaro.controller;
+package io.openems.edge.battery.soltaro.single.versionb.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum State implements OptionsEnum {
+public enum ClusterRunState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NORMAL(0, "Normal"), //
-	LIMIT(1, "Limit"), //
-	FORCE_CHARGE(3, "ForceCharge"), //
-	FULL_CHARGE(4, "FullCharge"), //
-	CHECK(5, "Check");
+	FULL(1, "Full"), //
+	EMPTY(2, "Empty"), //
+	STANDBY(3, "Standby"), //
+	STOP(4, "Stop");
 
 	private final int value;
 	private final String name;
 
-	private State(int value, String name) {
+	private ClusterRunState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
