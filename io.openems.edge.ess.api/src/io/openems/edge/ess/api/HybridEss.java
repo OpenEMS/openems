@@ -73,6 +73,20 @@ public interface HybridEss extends SymmetricEss {
 	}
 
 	/**
+	 * Gets the Surplus Power of the {@link EssDcCharger}s of this
+	 * {@link HybridEss}.
+	 * 
+	 * <p>
+	 * This value is usually calculated from the
+	 * {@link EssDcCharger#getActualPower()} when the battery is full. It is used by
+	 * the Ess.Hybrid.Surplus-Feed-To-Grid Controller to feed the surplus power to
+	 * grid.
+	 * 
+	 * @return the surplus power, or 'null' if there is no surplus power
+	 */
+	public Integer getSurplusPower();
+
+	/**
 	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
 	 * 
 	 * @return the Channel

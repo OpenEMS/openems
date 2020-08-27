@@ -101,6 +101,7 @@ export class EvcsClusterComponent {
   ngOnDestroy() {
     if (this.edge != null) {
       this.edge.unsubscribeChannels(this.websocket, EvcsClusterComponent.SELECTOR + this.componentId);
+      this.edge.unsubscribeChannels(this.websocket, "evcs");
     }
   }
 

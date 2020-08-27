@@ -185,6 +185,7 @@ export const TRANSLATION = {
                     status: 'Status',
                     totalCharge: 'Gesamte Beladung',
                     totalChargingPower: 'Gesamte Lade-Leistung',
+                    unknown: 'Unbekannt',
                     unplugged: 'Ausgesteckt',
                     Administration: {
                         carAdministration: 'Autoverwaltung',
