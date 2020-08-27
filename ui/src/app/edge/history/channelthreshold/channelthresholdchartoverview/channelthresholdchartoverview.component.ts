@@ -10,7 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 export class ChannelthresholdChartOverviewComponent {
 
 
-    private static readonly SELECTOR = "channelthreshold-chartoverview";
+    private static readonly SELECTOR = "channelthreshold-chart-overview";
 
     public edge: Edge = null;
     public config: EdgeConfig;

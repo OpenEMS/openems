@@ -1,10 +1,8 @@
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { ConsumptionModalComponent } from './modal/modal.component';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
@@ -23,7 +21,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) {
         super(service);
     }
@@ -60,14 +57,6 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
             ];
             resolve(channels);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: ConsumptionModalComponent,
-            cssClass: 'wide-modal'
-        });
-        return await modal.present();
     }
 }
 

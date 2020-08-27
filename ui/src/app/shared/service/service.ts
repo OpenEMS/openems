@@ -16,7 +16,6 @@ import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { isUndefined } from 'util';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -345,7 +344,7 @@ export class Service implements ErrorHandler {
    * 
    * Spinner will appear inside html tag only
    * 
-   * @example <ngx-spinner [name]="YOURSELECTOR"></ngx-spinner>
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
    * 
    * @param selector selector for specific spinner
    */
@@ -353,7 +352,7 @@ export class Service implements ErrorHandler {
     this.spinner.show(selector, {
       type: 'ball-clip-rotate-multiple',
       fullScreen: false,
-      bdColor: "rgba(0,0,0,0.2)"
+      bdColor: "rgba(0,0,0,0.5)"
     });
   }
 

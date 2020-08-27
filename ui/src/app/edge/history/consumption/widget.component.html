@@ -1,4 +1,4 @@
-<ion-card button (click)="presentModal()">
+<ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/consumptionchart">
     <ion-item lines="full" color="light">
         <ion-avatar slot="start">
             <img src="assets/img/consumption.png">
@@ -9,9 +9,8 @@
         <table class="full_width">
             <tr>
                 <td style="width:65%"></td>
-                <td style="width:35%" class="align_right"
-                    *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
-                    {{data["_sum/ConsumptionActiveEnergy"] | unitvalue:'kWh'}}
+                <td style="width:35%" class="align_right" *ngIf="data && service.isKwhAllowed(edge); else noData">
+                    {{ data["_sum/ConsumptionActiveEnergy"] | unitvalue:'kWh' }}
                 </td>
                 <ng-template #noData>
                     <td style="width:35%" class="align_right">

@@ -12,7 +12,7 @@ export class AutarchyChartOverviewComponent {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
-    private static readonly SELECTOR = "autarchychartoverview";
+    private static readonly SELECTOR = "autarchy-chart-overview";
 
     public edge: Edge = null;
 

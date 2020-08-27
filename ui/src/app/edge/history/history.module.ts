@@ -8,7 +8,6 @@ import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalcha
 import { ChanneltresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ConsumptionComponent } from './consumption/widget.component';
 import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
-import { ConsumptionModalComponent } from './consumption/modal/modal.component';
 import { ConsumptionOtherChartComponent } from './consumption/otherchart.component';
 import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
 import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
@@ -56,6 +55,7 @@ import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalcha
 import { GridChartOverviewComponent } from './grid/gridchartoverview/gridchartoverview.component';
 import { AutarchyChartOverviewComponent } from './autarchy/autarchychartoverview/autarchychartoverview.component';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
+import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
 
 @NgModule({
   imports: [
@@ -63,7 +63,6 @@ import { ChannelthresholdChartOverviewComponent } from './channelthreshold/chann
   ],
   entryComponents: [
     AsymmetricPeakshavingModalComponent,
-    ConsumptionModalComponent,
     EnergyModalComponent,
     FixDigitalOutputModalComponent,
     HeatingelementModalComponent,
@@ -88,9 +87,9 @@ import { ChannelthresholdChartOverviewComponent } from './channelthreshold/chann
     ConsumptionComponent,
     ConsumptionEvcsChartComponent,
     ConsumptionMeterChartComponent,
-    ConsumptionModalComponent,
     ConsumptionOtherChartComponent,
     ConsumptionSingleChartComponent,
+    ConsumptionChartOverviewComponent,
     ConsumptionTotalChartComponent,
     EnergyComponent,
     EnergyModalComponent,

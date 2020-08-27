@@ -21,8 +21,6 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
-    private inputChannel = null;
-
     constructor(
         public service: Service,
         private route: ActivatedRoute,
@@ -35,7 +33,6 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-                this.inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
             })
         });
         this.subscribeWidgetRefresh()

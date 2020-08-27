@@ -13,7 +13,7 @@ export class ChpSocChartOverviewComponent {
 
     public component: EdgeConfig.Component;
 
-    private static readonly SELECTOR = "chpsoc-overview";
+    private static readonly SELECTOR = "chpsoc-chart-overview";
 
     constructor(
         public service: Service,
@@ -21,13 +21,11 @@ export class ChpSocChartOverviewComponent {
     ) { }
 
     ngOnInit() {
-        this.service.startSpinner("chpsocOverview");
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.config = config;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-                this.service.stopSpinner("chpsocOverview");
             })
         })
     }
