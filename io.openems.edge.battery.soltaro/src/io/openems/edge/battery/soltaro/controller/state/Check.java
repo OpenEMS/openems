@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.controller.IState;
 import io.openems.edge.battery.soltaro.controller.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -19,7 +19,7 @@ public class Check extends BaseState implements IState {
 	private int criticalLowCellVoltage;
 	private int startSoC = UNDEFINED_VALUE;
 
-	public Check(ManagedSymmetricEss ess, SoltaroBattery bms, int deltaSoC, long unusedTime,
+	public Check(ManagedSymmetricEss ess, Battery bms, int deltaSoC, long unusedTime,
 			int criticalLowCellVoltage) {
 		super(ess, bms);
 		this.deltaSoC = deltaSoC;
@@ -41,26 +41,26 @@ public class Check extends BaseState implements IState {
 		// FORCE_CHARGE: cell voltage is under limit
 
 		if (isNextStateUndefined()) {
-			resetStartSoc();
+			this.resetStartSoc();
 			return State.UNDEFINED;
 		}
 
-		if (startSoC == UNDEFINED_VALUE) {
-			startSoC = getBmsSoC();
+		if (this.startSoC == UNDEFINED_VALUE) {
+			this.startSoC = getBmsSoC();
 		}
 
 		if (getBmsMinCellVoltage() < criticalLowCellVoltage) {
-			resetStartSoc();
+			this.resetStartSoc();
 			return State.FORCE_CHARGE;
 		}
 
-		if (bmsNeedsFullCharge(unusedTime)) {
-			resetStartSoc();
+		if (bmsNeedsFullCharge(this.unusedTime)) {
+			this.resetStartSoc();
 			return State.FULL_CHARGE;
 		}
 
-		if (hasSoCIncreasedEnough()) {
-			resetStartSoc();
+		if (this.hasSoCIncreasedEnough()) {
+			this.resetStartSoc();
 			return State.NORMAL;
 		}
 
@@ -69,7 +69,7 @@ public class Check extends BaseState implements IState {
 
 	@Override
 	public void act() throws OpenemsNamedException {
-		log.info("deny discharging");
+		this.log.info("deny discharging");
 		denyDischarge();
 	}
 
@@ -80,7 +80,7 @@ public class Check extends BaseState implements IState {
 	}
 
 	private void resetStartSoc() {
-		startSoC = -1;
+		this.startSoC = -1;
 	}
 
 }
