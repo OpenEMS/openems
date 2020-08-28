@@ -1,15 +1,15 @@
-<ion-content>
-    <ion-header>
-        <ion-toolbar color="primary">
-            <ion-title translate>General.storageSystem</ion-title>
-            <ion-buttons slot="end">
-                <ion-button (click)="modalCtrl.dismiss()">
-                    <ion-icon name="close-outline"></ion-icon>
-                </ion-button>
-            </ion-buttons>
-        </ion-toolbar>
-    </ion-header>
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-title translate>General.storageSystem</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
 
+<ion-content>
     <!-- one ESS Component -->
     <ng-container *ngIf="essComponents != null && essComponents.length == 1 && edge.currentData | async as currentData">
         <ng-container *ngFor="let component of essComponents">
