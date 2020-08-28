@@ -14,7 +14,6 @@ import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { KeysPipe } from './pipe/keys/keys.pipe';
 import { Language } from './translate/language';
 import { NgModule } from '@angular/core';
-import { NgxLoadingModule } from 'ngx-loading';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PickDateComponent } from './pickdate/pickdate.component';
@@ -33,7 +32,6 @@ import { Websocket } from './service/websocket';
     CommonModule,
     FormsModule,
     IonicModule,
-    NgxLoadingModule,
     NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
@@ -70,7 +68,6 @@ import { Websocket } from './service/websocket';
     FormlyModule,
     FormsModule,
     IonicModule,
-    NgxLoadingModule,
     NgxSpinnerModule,
     ReactiveFormsModule,
     RouterModule,
