@@ -31,7 +31,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 	private boolean isTargetHourCalculated = false;
 	private Integer targetHour;
-	private boolean showPredictionvalue;
+	private boolean debugMode;
 	private Integer[] hourlyProduction = new Integer[24];
 	private Integer[] hourlyConsumption = new Integer[24];
 
@@ -86,10 +86,10 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	 *                        still charges full, even on prediction errors
 	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, String meterId,
-			int noOfBufferHours, boolean showPredictionValues) {
+			int noOfBufferHours, boolean debugMode) {
 		super.activate(context, id, alias, enabled);
 		this.noOfBufferHours = noOfBufferHours;
-		this.showPredictionvalue = showPredictionValues;
+		this.debugMode = debugMode;
 	}
 
 	/**
@@ -145,12 +145,12 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 		}
 
 		// Displays the production values in log.
-		if (this.showPredictionvalue) {
+		if (this.debugMode) {
 			for (int i = 0; i < 24; i++) {
 				System.out.println("Production[" + i + "] " + " - " + this.hourlyProduction[i] + " this.Consumption["
 						+ i + "] " + " - " + hourlyConsumption[i]);
 			}
-			this.showPredictionvalue = false;
+			this.debugMode = false;
 		}
 
 		// target hour = null --> not enough production or Initial run(no values)

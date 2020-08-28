@@ -27,8 +27,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 			+ "charges full, even on prediction errors.")
 	int noOfBufferHours() default 2;
 	
-	@AttributeDefinition(name = "Debug Prediction Values", description = "Displayus the production and consumption energy values")
-	boolean showPreditionValues() default false;
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode (Displays the Predicted Energy Values in the Log")
+	boolean debugMode() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Predictive Delay Charge AC [{id}]";
 }
