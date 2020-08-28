@@ -31,6 +31,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
 
     ngOnInit() {
         this.spinnerId = "chpsoc-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

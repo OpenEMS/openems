@@ -31,6 +31,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
 
     ngOnInit() {
         this.spinnerId = "autarchy-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

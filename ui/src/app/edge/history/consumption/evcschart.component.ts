@@ -31,7 +31,8 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
 
 
     ngOnInit() {
-        this.spinnerId = "consumption-evcs-chart"
+        this.spinnerId = "consumption-evcs-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

@@ -31,6 +31,7 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
 
     ngOnInit() {
         this.spinnerId = 'production-charger-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

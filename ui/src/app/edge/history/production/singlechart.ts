@@ -30,6 +30,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
 
     ngOnInit() {
         this.spinnerId = 'production-single-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

@@ -35,6 +35,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
     ngOnInit() {
         this.spinnerId = "consumption-total-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.setLabel()
         this.subscribeChartRefresh()

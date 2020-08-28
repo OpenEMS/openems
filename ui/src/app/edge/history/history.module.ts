@@ -55,6 +55,7 @@ import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
 import { SymmetricPeakshavingChartoOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchart.component';
 import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
+import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 
 @NgModule({
   imports: [
@@ -67,6 +68,7 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingWidgetComponent,
+    AsymmetricPeakshavingChartOverviewComponent,
     AutarchyChartComponent,
     AutarchyChartOverviewComponent,
     AutarchyWidgetComponent,

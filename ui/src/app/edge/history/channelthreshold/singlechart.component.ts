@@ -31,6 +31,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   ngOnInit() {
     this.spinnerId = "channelthreshold-single-chart";
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
     this.subscribeChartRefresh()
   }

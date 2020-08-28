@@ -34,6 +34,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     ngOnInit() {
         this.spinnerId = "storage-ess-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
         this.subscribeChartRefresh();

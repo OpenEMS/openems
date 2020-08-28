@@ -31,6 +31,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
 
     ngOnInit() {
         this.spinnerId = 'asymmetricpeakshaving-chart';
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

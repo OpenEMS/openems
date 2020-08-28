@@ -31,11 +31,10 @@ export class HistoryComponent implements OnInit {
   constructor(
     public service: Service,
     public translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
-    console.log("JAWOLLJA")
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });

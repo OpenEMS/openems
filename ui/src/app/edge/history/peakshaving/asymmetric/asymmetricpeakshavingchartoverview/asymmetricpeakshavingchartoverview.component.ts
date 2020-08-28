@@ -3,10 +3,10 @@ import { Service, EdgeConfig, Edge } from '../../../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-    selector: AsymmetricPeakshavingModalComponent.SELECTOR,
+    selector: AsymmetricPeakshavingChartOverviewComponent.SELECTOR,
     templateUrl: './asymmetricpeakshavingchartoverview.component.html'
 })
-export class AsymmetricPeakshavingModalComponent {
+export class AsymmetricPeakshavingChartOverviewComponent {
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;

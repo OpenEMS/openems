@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { AboutComponent } from './about/about.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
-import { AsymmetricPeakshavingChartComponent } from './edge/history/peakshaving/asymmetric/chart.component';
+import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { AutarchyChartOverviewComponent } from './edge/history/autarchy/autarchychartoverview/autarchychartoverview.component';
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from './edge/settings/channels/channels.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
@@ -20,14 +20,14 @@ import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { ProductionChartOverviewComponent } from './edge/history/production/productionchartoverview/productionchartoverview.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
+import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SettingsComponent } from './settings/settings.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
+import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
+import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { SymmetricPeakshavingChartComponent } from './edge/history/peakshaving/symmetric/chart.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
-import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
-import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
-import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -47,12 +47,13 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
   { path: 'device/:edgeId/history/productionnchart', component: ProductionChartOverviewComponent },
   { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartComponent },
+  { path: 'device/:edgeId/history/:componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: FixDigitalOutputChartOverviewComponent },
+  { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartComponent },
+
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },

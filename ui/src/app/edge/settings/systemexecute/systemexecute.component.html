@@ -52,7 +52,7 @@
           <ion-label>Latest output</ion-label>
         </ion-item>
         <ion-card-content>
-          <ngx-loading [show]="loading"></ngx-loading>
+          <ion-progress-bar *ngIf="loading" type="indeterminate"></ion-progress-bar>
           <ng-container *ngIf="!loading">
             <ion-item-group *ngIf="stdout.length > 0">
               <ion-item-divider>

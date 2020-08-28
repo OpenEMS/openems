@@ -1,24 +1,24 @@
-<ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title class="ion-text-start ion-padding-left" translate>General.storageSystem</ion-title>
-        <ion-buttons slot="start">
-            <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
-                [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
-        </ion-buttons>
-        <ion-buttons slot="end">
-            <ion-button routerLink="/device/{{edge.id}}/history">
-                <ion-icon name="close-outline"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
-    <ion-toolbar color="primary">
-        <ion-buttons class="ion-justify-content-center">
-            <pickdate></pickdate>
-        </ion-buttons>
-    </ion-toolbar>
-</ion-header>
-
-<ion-content>
+<ion-content *ngIf="edge">
+    <ion-header>
+        <ion-toolbar class="ion-justify-content-center" color="primary">
+            <ion-title class="ion-text-start ion-padding-left" translate>General.storageSystem
+            </ion-title>
+            <ion-buttons slot="start">
+                <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
+                    [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
+            </ion-buttons>
+            <ion-buttons slot="end">
+                <ion-button routerLink="/device/{{edge.id}}/history">
+                    <ion-icon name="close-outline"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar color="primary">
+            <ion-buttons class="ion-justify-content-center">
+                <pickdate></pickdate>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
     <ion-card-content class="underline">
         <table class="full_width">
             <tr>
@@ -40,7 +40,7 @@
             <ion-row class="ion-justify-content-center">
                 <ion-item class="ion-text-center" lines="none">
                     <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
-                    <ion-label>
+                    <ion-label class="ion-text-wrap">
                         <small translate>
                             Edge.Index.Widgets.twoWayInfoStorage
                         </small>
@@ -65,7 +65,7 @@
                 <ion-row class="ion-justify-content-center">
                     <ion-item class="ion-text-center" lines="none">
                         <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
-                        <ion-label>
+                        <ion-label class="ion-text-wrap">
                             <small translate>
                                 Edge.Index.Widgets.twoWayInfoStorage
                             </small>
@@ -104,7 +104,7 @@
                 <ion-row class="ion-justify-content-center">
                     <ion-item class="ion-text-center" lines="none">
                         <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
-                        <ion-label>
+                        <ion-label class="ion-text-wrap">
                             <small translate>
                                 Edge.Index.Widgets.twoWayInfoStorage
                             </small>

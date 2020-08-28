@@ -8,7 +8,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { StatusSingleComponent } from './shared/status/single/status.component';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -69,6 +69,7 @@ export class AppComponent {
       takeUntil(this.ngUnsubscribe),
       filter(event => event instanceof NavigationEnd)
     ).subscribe(event => {
+      window.scrollTo(0, 0);
       this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
     })
 

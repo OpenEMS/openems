@@ -32,6 +32,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
 
     ngOnInit() {
         this.spinnerId = "consumption-meter-chart";
+        this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }

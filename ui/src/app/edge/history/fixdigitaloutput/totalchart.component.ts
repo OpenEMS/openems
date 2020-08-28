@@ -30,6 +30,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
 
   ngOnInit() {
     this.spinnerId = 'fixdigitaloutput-total-chart';
+    this.service.startSpinner(this.spinnerId);
     this.service.setCurrentComponent('', this.route);
     this.subscribeChartRefresh()
   }
