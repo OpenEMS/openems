@@ -3,8 +3,6 @@ import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/share
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ModalController } from '@ionic/angular';
-import { ProductionModalComponent } from './modal/modal.component';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
@@ -17,20 +15,19 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
 
     private static readonly SELECTOR = "productionWidget";
 
-    public data: Cumulated = null;
     public edge: Edge = null;
+    public data: Cumulated = null;
 
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) {
         super(service);
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(response => {
-            this.edge = response;
+        this.service.setCurrentComponent('', this.route).then(edge => {
+            this.edge = edge;
         });
         this.subscribeWidgetRefresh()
     }
@@ -60,14 +57,6 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
             ];
             resolve(channels);
         });
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: ProductionModalComponent,
-            cssClass: 'wide-modal'
-        });
-        return await modal.present();
     }
 }
 

@@ -4,7 +4,6 @@ import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
-import { StorageModalComponent } from './modal/modal.component';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
@@ -23,7 +22,6 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
 
     ) {
         super(service);
@@ -63,13 +61,4 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
             resolve(channels);
         });
     }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: StorageModalComponent,
-            cssClass: 'wide-modal',
-        });
-        return await modal.present();
-    }
 }
-

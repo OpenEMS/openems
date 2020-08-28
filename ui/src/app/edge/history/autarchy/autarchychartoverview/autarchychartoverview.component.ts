@@ -1,5 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Service, Edge } from '../../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
@@ -9,8 +8,6 @@ import { ActivatedRoute } from '@angular/router';
     templateUrl: './autarchychartoverview.component.html'
 })
 export class AutarchyChartOverviewComponent {
-
-    @Input() public period: DefaultTypes.HistoryPeriod;
 
     private static readonly SELECTOR = "autarchy-chart-overview";
 

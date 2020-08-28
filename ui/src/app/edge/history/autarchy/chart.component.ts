@@ -42,6 +42,7 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
     protected updateChart() {
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let result = response.result;
             // convert labels

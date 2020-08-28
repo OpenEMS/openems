@@ -31,6 +31,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   ngOnInit() {
+    this.spinnerId = 'heatingelement-chart';
     this.service.setCurrentComponent('', this.route);
     this.setLabel()
     this.subscribeChartRefresh()
@@ -41,6 +42,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected updateChart() {
+    this.service.startSpinner(this.spinnerId);
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -76,6 +78,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
         }
         this.datasets = datasets;
         this.loading = false;
+        this.service.stopSpinner(this.spinnerId);
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();

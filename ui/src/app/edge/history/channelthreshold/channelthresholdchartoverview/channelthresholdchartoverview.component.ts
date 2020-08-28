@@ -1,5 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component } from '@angular/core';
 import { Service, Utils, EdgeConfig, Edge } from '../../../../shared/shared';
 import { ActivatedRoute } from '@angular/router';
 
@@ -9,13 +8,12 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ChannelthresholdChartOverviewComponent {
 
-
     private static readonly SELECTOR = "channelthreshold-chart-overview";
 
     public edge: Edge = null;
-    public config: EdgeConfig;
+    public config: EdgeConfig = null;
 
-    public component: EdgeConfig.Component;
+    public component: EdgeConfig.Component = null;
 
     public showTotal: boolean = null;
     public channelthresholdComponents: string[] = [];
@@ -29,10 +27,6 @@ export class ChannelthresholdChartOverviewComponent {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-        });
-
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;

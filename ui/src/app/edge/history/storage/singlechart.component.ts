@@ -30,6 +30,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
 
     ngOnInit() {
+        this.spinnerId = "storage-single-chart";
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh();
     }
@@ -39,12 +40,13 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
+        this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     let result = response.result;
-                    this.colors = [];
                     // convert labels
                     let labels: Date[] = [];
                     for (let timestamp of result.timestamps) {
@@ -157,6 +159,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                     });
                     this.datasets = datasets;
                     this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();

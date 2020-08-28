@@ -6,7 +6,7 @@
                 [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
         </ion-buttons>
         <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
+            <ion-button routerLink="/device/{{edge.id}}/history">
                 <ion-icon name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>

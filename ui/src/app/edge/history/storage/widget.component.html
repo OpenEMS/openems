@@ -1,4 +1,4 @@
-<ion-card button (click)="presentModal()">
+<ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/storagechart">
     <ion-item lines="full" color="light">
         <ion-avatar slot="start">
             <img src="assets/img/storage.png">

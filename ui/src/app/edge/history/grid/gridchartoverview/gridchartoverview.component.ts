@@ -8,7 +8,8 @@ import { Service, Edge } from '../../../../shared/shared';
 })
 export class GridChartOverviewComponent {
 
-    private static readonly SELECTOR = "gridchartoverview";
+    private static readonly SELECTOR = "grid-chart-overview";
+
     public edge: Edge = null;
 
     public showPhases: boolean = false;

@@ -30,6 +30,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
 
 
     ngOnInit() {
+        this.spinnerId = 'asymmetricpeakshaving-chart';
         this.service.setCurrentComponent('', this.route);
         this.subscribeChartRefresh()
     }
@@ -39,7 +40,9 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
     }
 
     protected updateChart() {
+        this.service.startSpinner(this.spinnerId);
         this.loading = true;
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             let meterIdActivePowerL1 = this.component.properties['meter.id'] + '/ActivePowerL1';
             let meterIdActivePowerL2 = this.component.properties['meter.id'] + '/ActivePowerL2';
@@ -47,7 +50,6 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
             let peakshavingPower = this.component.id + '/_PropertyPeakShavingPower';
             let rechargePower = this.component.id + '/_PropertyRechargePower';
             let result = response.result;
-            this.colors = [];
             // convert labels
             let labels: Date[] = [];
             for (let timestamp of result.timestamps) {
@@ -203,6 +205,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
             }
             this.datasets = datasets;
             this.loading = false;
+            this.service.stopSpinner(this.spinnerId);
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
