@@ -167,6 +167,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
 			this._setMinCellVoltage(newValue.get());
 		});
+		
+		this.battery.getCapacityChannel().onChange((oldValue, newValue) -> {
+			this._setCapacity(newValue.get());
+		});
 	}
 
 	/**
@@ -219,8 +223,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		final double EFFICIENCY_FACTOR = 0.9;
 		this._setAllowedChargePower((int) (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR));
 		this._setAllowedDischargePower((int) (disMaxA * disMinV * EFFICIENCY_FACTOR));
-		
-		this._setCapacity(battery.getCapacity().get());
 	}
 
 	/**
