@@ -1,7 +1,8 @@
 package io.openems.edge.controller.ess.predictivedelaycharge;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import org.osgi.service.component.ComponentContext;
 
@@ -16,7 +17,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
-import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 
 public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsComponent implements OpenemsComponent {
@@ -31,6 +31,9 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 
 	private boolean isTargetHourCalculated = false;
 	private Integer targetHour;
+	private boolean showPredictionvalue;
+	private Integer[] hourlyProduction = new Integer[24];
+	private Integer[] hourlyConsumption = new Integer[24];
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
@@ -83,9 +86,10 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	 *                        still charges full, even on prediction errors
 	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, String meterId,
-			int noOfBufferHours) {
+			int noOfBufferHours, boolean showPredictionValues) {
 		super.activate(context, id, alias, enabled);
 		this.noOfBufferHours = noOfBufferHours;
+		this.showPredictionvalue = showPredictionValues;
 	}
 
 	/**
@@ -102,7 +106,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			ConsumptionHourlyPredictor consumptionHourlyPredictor, ComponentManager componentManager)
 			throws OpenemsNamedException {
 
-		LocalDateTime now = LocalDateTime.now(this.clock);
+		ZonedDateTime now = ZonedDateTime.now(this.clock).withZoneSameInstant(ZoneOffset.UTC);
 
 		Integer calculatedPower = null;
 
@@ -119,12 +123,15 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 		 * data.
 		 */
 		if (now.getHour() == 0 && !this.isTargetHourCalculated) {
-			HourlyPrediction productionHourlyPredition = productionHourlyPredictor.get24hPrediction();
-			Integer[] hourlyProduction = productionHourlyPredition.getValues();
+			Integer[] hourlyProduction = productionHourlyPredictor.get24hPrediction().getValues();
 			Integer[] hourlyConsumption = consumptionHourlyPredictor.get24hPrediction().getValues();
 
 			// Start hour of the predicted values
-			LocalDateTime predictionStartHour = productionHourlyPredition.getStart();
+			ZonedDateTime predictionStartHour = productionHourlyPredictor.get24hPrediction().getStart();
+
+			// For Debug Purpose
+			hourlyProduction = this.hourlyProduction;
+			hourlyConsumption = this.hourlyConsumption;
 
 			// calculating target hour
 			this.targetHour = this.calculateTargetHour(hourlyProduction, hourlyConsumption, predictionStartHour);
@@ -137,9 +144,17 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 			this.isTargetHourCalculated = false;
 		}
 
+		// Displays the production values in log.
+		if (this.showPredictionvalue) {
+			for (int i = 0; i < 24; i++) {
+				System.out.println("Production[" + i + "] " + " - " + this.hourlyProduction[i] + " this.Consumption["
+						+ i + "] " + " - " + hourlyConsumption[i]);
+			}
+			this.showPredictionvalue = false;
+		}
+
 		// target hour = null --> not enough production or Initial run(no values)
 		if (this.targetHour == null) {
-
 			this.setChannels(State.TARGET_HOUR_NOT_CALCULATED, 0);
 			return null;
 		}
@@ -188,9 +203,9 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	 * @return the target hour
 	 */
 	private Integer calculateTargetHour(Integer[] hourlyProduction, Integer[] hourlyConsumption,
-			LocalDateTime predictionStartHour) {
+			ZonedDateTime predictionStartHour) {
 
-		// counter --> last hour when production > consumption.
+		// lastHour --> last hour when production was greater than consumption.
 		int lastHour = 0;
 		Integer targetHourActual = null;
 		Integer targetHourAdjusted = null;
@@ -239,7 +254,7 @@ public abstract class AbstractPredictiveDelayCharge extends AbstractOpenemsCompo
 	 * @return the current second of the day
 	 */
 	private int currentSecondOfDay() {
-		LocalDateTime now = LocalDateTime.now();
+		ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
 		return now.getHour() * 3600 + now.getMinute() * 60 + now.getSecond();
 	}
 

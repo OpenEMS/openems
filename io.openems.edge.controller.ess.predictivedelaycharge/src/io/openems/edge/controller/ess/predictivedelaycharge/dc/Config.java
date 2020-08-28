@@ -29,6 +29,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Number of buffer hours", description = "The number of buffer hours to make sure the battery still "
 			+ "charges full, even on prediction errors.")
 	int noOfBufferHours() default 2;
+	
+	@AttributeDefinition(name = "Debug Prediction Values", description = "Displayus the production and consumption energy values")
+	boolean showPreditionValues() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Predictive Delay Charge DC [{id}]";
 }

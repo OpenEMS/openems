@@ -53,7 +53,7 @@ public class DcPredictiveDelayCharge extends AbstractPredictiveDelayCharge imple
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.meter_id(),
-				config.noOfBufferHours());
+				config.noOfBufferHours(), config.showPreditionValues());
 		this.config = config;
 	}
 
