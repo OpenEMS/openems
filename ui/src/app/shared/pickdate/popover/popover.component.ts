@@ -2,7 +2,6 @@ import { addDays, getDate, getMonth, getYear, subDays, startOfWeek, endOfWeek } 
 import { Component, Input } from '@angular/core';
 import { DefaultTypes } from '../../service/defaulttypes';
 import { IAngularMyDpOptions, IMyDate, IMyDateRangeModel, CalAnimation } from 'angular-mydatepicker';
-import { isFuture } from 'date-fns';
 import { PopoverController } from '@ionic/angular';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
