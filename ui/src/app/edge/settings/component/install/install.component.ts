@@ -87,6 +87,10 @@ export class ComponentInstallComponent implements OnInit {
     let properties: { name: string, value: any }[] = [];
     for (let controlKey in this.form.controls) {
       let control = this.form.controls[controlKey];
+      if (control.value === null) {
+        // ignore 'null' values
+        continue;
+      }
       let property_id = controlKey.replace('_', '.');
       properties.push({ name: property_id, value: control.value });
     }

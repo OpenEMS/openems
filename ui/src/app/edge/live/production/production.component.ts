@@ -27,30 +27,31 @@ export class ProductionComponent {
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-        })
-        this.service.getConfig().then(config => {
-            this.config = config;
-            let channels = [];
-            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
-            for (let component of this.chargerComponents) {
+            this.service.getConfig().then(config => {
+                this.config = config;
+                let channels = [];
+                this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
+                for (let component of this.chargerComponents) {
+                    channels.push(
+                        new ChannelAddress(component.id, 'ActualPower'),
+                    )
+                }
+                this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
+                for (let component of this.productionMeterComponents) {
+                    channels.push(
+                        new ChannelAddress(component.id, 'ActivePower')
+                    );
+                }
                 channels.push(
-                    new ChannelAddress(component.id, 'ActualPower'),
+                    new ChannelAddress('_sum', 'ProductionActivePower'),
+                    new ChannelAddress('_sum', 'ProductionAcActivePower'),
+                    // channels for modal component, subscribe here for better UX
+                    new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
+                    new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
+                    new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
                 )
-            }
-            this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
-            for (let component of this.productionMeterComponents) {
-                channels.push(
-                    new ChannelAddress(component.id, 'ActivePower')
-                );
-            }
-            channels.push(
-                new ChannelAddress('_sum', 'ProductionActivePower'),
-                new ChannelAddress('_sum', 'ProductionAcActivePower'),
-                new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
-                new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
-                new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
-            )
-            this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
+                this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
+            })
         })
     };
 

@@ -19,7 +19,7 @@ public enum Rack {
 			SoltaroCluster.ChannelId.SUB_MASTER_5_COMMUNICATION_FAILURE);
 
 	/**
-	 * Get the {@link Rack} for the given ID
+	 * Get the {@link Rack} for the given ID.
 	 * 
 	 * @param rackId from 1 to 5
 	 * @return the {@link Rack}
@@ -40,7 +40,7 @@ public enum Rack {
 	public final ClusterVersionBChannelId positiveContactorChannelId;
 	public final SoltaroCluster.ChannelId subMasterCommunicationAlarmChannelId;
 
-	private Rack( //
+	private Rack(//
 			int id, //
 			int addressOffset, //
 			SoltaroCluster.ChannelId usageChannelId, //
@@ -55,7 +55,7 @@ public enum Rack {
 	}
 
 	/**
-	 * Gets the Channel-ID Prefix for this Rack in the form "RACK_<ID>_".
+	 * Gets the Channel-ID Prefix for this Rack in the form "RACK_X_".
 	 * 
 	 * @return the prefix
 	 */
@@ -64,7 +64,7 @@ public enum Rack {
 	}
 
 	/**
-	 * Gets the Channel-Doc Text Prefix for this Rack in the form "Rack <ID> ".
+	 * Gets the Channel-Doc Text Prefix for this Rack in the form "Rack X ".
 	 * 
 	 * @return the prefix
 	 */

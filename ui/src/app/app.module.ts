@@ -27,12 +27,14 @@ import { StatusSingleComponent } from './shared/status/single/status.component';
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import localDE from '@angular/common/locales/de';
+import { FormlyWrapperFormField } from './edge/settings/component/shared/form-field.wrapper';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChartOptionsPopoverComponent,
     InputTypeComponent,
+    FormlyWrapperFormField,
     PickDatePopoverComponent,
     RepeatTypeComponent,
     StatusSingleComponent,
@@ -52,6 +54,9 @@ import localDE from '@angular/common/locales/de';
     EdgeSettingsModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
     FormlyModule.forRoot({
+      wrappers: [
+        { name: 'form-field', component: FormlyWrapperFormField }
+      ],
       types: [
         { name: 'input', component: InputTypeComponent },
         { name: 'repeat', component: RepeatTypeComponent },

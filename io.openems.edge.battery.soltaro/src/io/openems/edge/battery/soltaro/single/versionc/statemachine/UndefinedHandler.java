@@ -1,5 +1,6 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class UndefinedHandler extends StateHandler<State, Context> {

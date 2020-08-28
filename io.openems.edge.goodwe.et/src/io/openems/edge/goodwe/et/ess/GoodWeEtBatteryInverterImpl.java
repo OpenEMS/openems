@@ -549,4 +549,19 @@ public class GoodWeEtBatteryInverterImpl extends AbstractOpenemsModbusComponent 
 		return this.timedata;
 	}
 
+	@Override
+	public Integer getSurplusPower() {
+		if (this.getSoc().orElse(0) < 99) {
+			return null;
+		}
+		Integer productionPower = null;
+		for (AbstractGoodWeEtCharger charger : this.chargers) {
+			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
+		}
+		if (productionPower == null || productionPower < 100) {
+			return null;
+		}
+		return productionPower;
+	}
+
 }
