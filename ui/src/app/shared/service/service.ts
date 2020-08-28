@@ -330,7 +330,7 @@ export class Service implements ErrorHandler {
         // send merged requests
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
-            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.fromDate, source.channels);
+            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
               if (Object.keys(result.data).length != 0) {
