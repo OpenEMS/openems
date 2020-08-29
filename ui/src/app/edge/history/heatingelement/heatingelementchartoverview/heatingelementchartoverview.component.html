@@ -1,4 +1,4 @@
-<ion-content *ngIf="edge">
+<ng-container *ngIf="edge">
     <ion-header>
         <ion-toolbar color="primary">
             <ion-title>{{ component.alias }}</ion-title>
@@ -14,8 +14,10 @@
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
-    <ion-card-content>
-        <heatingelementChart [component]="component" [period]="service.historyPeriod">
-        </heatingelementChart>
-    </ion-card-content>
-</ion-content>
+    <ion-content>
+        <ion-card-content>
+            <heatingelementChart [component]="component" [period]="service.historyPeriod">
+            </heatingelementChart>
+        </ion-card-content>
+    </ion-content>
+</ng-container>

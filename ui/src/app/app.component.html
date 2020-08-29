@@ -1,77 +1,4 @@
 <ion-app>
-  <ion-header *ngIf="!showChartPageOnly">
-    <ion-toolbar color="primary" mode="md">
-      <ion-buttons *ngIf="backUrl" slot="start">
-        <ion-button [routerLink]="backUrl">
-          <ion-icon name="arrow-back-outline"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons slot="start" *ngIf="enableSideMenu">
-        <ion-menu-button autoHide="false"></ion-menu-button>
-      </ion-buttons>
-      <!-- page title is shown if the current page isn't Live nor History -->
-      <ion-title *ngIf="currentPage != 'IndexLive' && currentPage != 'IndexHistory'" class="ion-hide-md-up"
-        slot="start">
-        {{ service.currentPageTitle }}
-      </ion-title>
-      <!-- page title is hidden when 'smartphone resolution' is reached -->
-      <ion-title class="ion-hide-md-down" slot="start">
-        {{ service.currentPageTitle }}
-      </ion-title>
-      <ng-container *ngIf="service.currentEdge | async as edge">
-        <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
-          <ion-buttons>
-            <ion-segment (ionChange)="updateLiveHistorySegment($event)" mode="md" [(ngModel)]="currentPage"
-              class="ion-justify-content-center">
-              <ion-segment-button value="IndexLive">
-                <ion-label translate>General.live</ion-label>
-              </ion-segment-button>
-              <ion-segment-button value="IndexHistory">
-                <ion-label translate>General.history</ion-label>
-              </ion-segment-button>
-            </ion-segment>
-          </ion-buttons>
-        </ng-container>
-      </ng-container>
-      <!-- this title tag is for spacing purpose only -->
-      <ion-title class="ion-hide-md-down" slot="end">
-      </ion-title>
-      <ng-container *ngIf="service.currentEdge | async as edge">
-        <ion-buttons slot="end">
-          <ng-container *ngIf="edge.roleIsAtLeast('admin')">
-            <ng-container *ngIf="edge.currentData | async as currentData">
-              <ng-container *ngIf="currentData.summary.system as sum">
-                <ion-button (click)="presentSingleStatusModal()"
-                  *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory' || currentPage == 'EdgeSettings'"
-                  color="light" fill="solid" shape="round">
-                  <ng-container [ngSwitch]="sum.state">
-                    <ion-icon *ngSwitchCase="0" color="success" name="checkmark-circle-outline"></ion-icon>
-                    <ion-icon *ngSwitchCase="1" color="success" name="information-outline"></ion-icon>
-                    <ion-icon *ngSwitchCase="2" color="warning" name="alert-outline"></ion-icon>
-                    <ion-icon *ngSwitchCase="3" color="danger" name="alert-outline"></ion-icon>
-                  </ng-container>
-                </ion-button>
-              </ng-container>
-            </ng-container>
-            <ng-container *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
-              <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
-                <ion-icon name="bug-outline"></ion-icon>
-              </ion-button>
-            </ng-container>
-          </ng-container>
-        </ion-buttons>
-      </ng-container>
-    </ion-toolbar>
-
-    <ng-container *ngIf="currentPage == 'IndexHistory'">
-      <ion-toolbar color="secondary">
-        <ion-buttons class="ion-justify-content-center">
-          <pickdate></pickdate>
-        </ion-buttons>
-      </ion-toolbar>
-    </ng-container>
-  </ion-header>
-
   <ion-content>
     <ion-grid *ngIf="!showChartPageOnly">
       <ion-row class="ion-justify-content-center">
@@ -102,41 +29,40 @@
       </ion-row>
     </ion-grid>
 
-    <!-- Show Sub-Views -->
-    <router-outlet id="content"></router-outlet>
-    <!-- TODO use ion-router-outlet once it does not break anymore the screen width <ion-router-outlet></ion-router-outlet> -->
-
     <systemLog *ngIf="isSystemLogEnabled"></systemLog>
 
-  </ion-content>
-  <!-- Side Menu  -->
-  <ion-menu type="overlay" side="start" contentId="content">
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-          <ion-menu-button autoHide="false"></ion-menu-button>
-        </ion-buttons>
-        <ion-title translate>Menu.menu</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <ion-list>
-        <ion-item lines="full" *ngIf="env.backend === 'OpenEMS Backend'" routerLinkActive="active" routerLink="/index"
-          (click)="menu.close()">
-          <ion-label translate>Menu.overview</ion-label>
-        </ion-item>
-        <ion-item lines="inset" routerLinkActive="active" routerLink="/about" (click)="menu.close()">
-          <ion-label translate>Menu.aboutUI</ion-label>
-        </ion-item>
-        <ion-item lines="inset" routerLinkActive="active" routerLink="/settings" (click)="menu.close()">
-          <ion-label translate>Menu.generalSettings</ion-label>
-        </ion-item>
-        <nav *ngIf="(service.currentEdge | async) as edge">
-          <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-            <ion-label translate>Menu.edgeSettings</ion-label>
+    <!-- Show Sub-Views -->
+    <ion-router-outlet id="content"></ion-router-outlet>
+
+    <!-- Side Menu  -->
+    <ion-menu type="overlay" side="start" contentId="content">
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-buttons slot="start">
+            <ion-menu-button autoHide="false"></ion-menu-button>
+          </ion-buttons>
+          <ion-title translate>Menu.menu</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+          <ion-item lines="full" *ngIf="env.backend === 'OpenEMS Backend'" routerLinkActive="active" routerLink="/index"
+            (click)="menu.close()">
+            <ion-label translate>Menu.overview</ion-label>
           </ion-item>
-        </nav>
-      </ion-list>
-    </ion-content>
-  </ion-menu>
+          <ion-item lines="inset" routerLinkActive="active" routerLink="/about" (click)="menu.close()">
+            <ion-label translate>Menu.aboutUI</ion-label>
+          </ion-item>
+          <ion-item lines="inset" routerLinkActive="active" routerLink="/settings" (click)="menu.close()">
+            <ion-label translate>Menu.generalSettings</ion-label>
+          </ion-item>
+          <nav *ngIf="(service.currentEdge | async) as edge">
+            <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
+              <ion-label translate>Menu.edgeSettings</ion-label>
+            </ion-item>
+          </nav>
+        </ion-list>
+      </ion-content>
+    </ion-menu>
+  </ion-content>
 </ion-app>

@@ -1,4 +1,4 @@
-<ion-content *ngIf="component && edge">
+<ng-container *ngIf="component && edge">
     <ion-header>
         <ion-toolbar color="primary">
             <ion-title>{{ component.alias }}</ion-title>
@@ -14,8 +14,10 @@
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
-    <ion-card-content>
-        <asymmetricpeakshavingchart [component]="component" [period]="service.historyPeriod">
-        </asymmetricpeakshavingchart>
-    </ion-card-content>
-</ion-content>
+    <ion-content>
+        <ion-card-content>
+            <asymmetricpeakshavingchart [component]="component" [period]="service.historyPeriod">
+            </asymmetricpeakshavingchart>
+        </ion-card-content>
+    </ion-content>
+</ng-container>
