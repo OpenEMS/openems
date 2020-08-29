@@ -108,10 +108,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.subscribeChartRefresh()
   }
 
-  ionViewWillEnter() {
-    console.log("viewWillEnter")
-  }
-
   ngOnDestroy() {
     this.unsubscribeChartRefresh()
   }
