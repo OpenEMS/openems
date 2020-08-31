@@ -113,9 +113,13 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 				name = name.toLowerCase();
 				// NOTE: if you add a meter name here, make sure to also add it in
 				// SocomecMeterSinglephaseImpl.
-				if (name.startsWith("countis e24")) {
+				if (name.startsWith("countis e23")) {
+					this.logInfo(this.log, "Identified Socomec Countis E23 meter");
+					this.protocolCountisE23_E24();
+
+				} else if (name.startsWith("countis e24")) {
 					this.logInfo(this.log, "Identified Socomec Countis E24 meter");
-					this.protocolCountisE24();
+					this.protocolCountisE23_E24();
 
 				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
@@ -134,7 +138,7 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 					this.channel(SocomecMeterThreephase.ChannelId.NOT_A_THREEPHASE_METER).setNextValue(true);
 
 				} else {
-					this.logError(this.log, "Unable to identify Socomec " + name + " meter!");
+					this.logError(this.log, "Unable to identify Socomec [" + name + "] meter!");
 					this.channel(SocomecMeter.ChannelId.UNKNOWN_SOCOMEC_METER).setNextValue(true);
 				}
 			});
@@ -142,9 +146,10 @@ public class SocomecMeterThreephaseImpl extends AbstractOpenemsModbusComponent i
 	}
 
 	/**
-	 * Applies the modbus protocol for Socomec Countis E24.
+	 * Applies the modbus protocol for Socomec Countis E23 and E24. Both are
+	 * identical.
 	 */
-	private void protocolCountisE24() {
+	private void protocolCountisE23_E24() {
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558),

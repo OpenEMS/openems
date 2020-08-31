@@ -21,19 +21,21 @@ public interface CommonTimedataService {
 	 * Handles a QueryHistoricTimeseriesExportXlxsRequest request. Exports historic
 	 * data to an Excel file.
 	 * 
-	 * @param request the QueryHistoricTimeseriesExportXlxsRequest request
-	 * @return the QueryHistoricTimeseriesExportXlsxResponse on error
-	 * @throws OpenemsNamedException
+	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest} request
+	 * @return the {@link QueryHistoricTimeseriesExportXlsxResponse}
+	 * @throws OpenemsNamedException on error
 	 */
 	public default QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(
 			String edgeId, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData = this.queryHistoricData(edgeId,
-				request.getFromDate(), request.getToDate(), request.getDataChannels(), 15 * 60 /* 15 Minutes */);
-		SortedMap<ChannelAddress, JsonElement> historicEnergy = this.queryHistoricEnergy(edgeId, request.getFromDate(),
-				request.getToDate(), request.getEnergyChannels());
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData = this.queryHistoricData(edgeId,
+				request.getFromDate(), request.getToDate(), QueryHistoricTimeseriesExportXlsxResponse.POWER_CHANNELS,
+				15 * 60 /* 15 Minutes */);
+		SortedMap<ChannelAddress, JsonElement> energyData = this.queryHistoricEnergy(edgeId, request.getFromDate(),
+				request.getToDate(), QueryHistoricTimeseriesExportXlsxResponse.ENERGY_CHANNELS);
+
 		try {
-			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), request.getFromDate(),
-					request.getToDate(), historicData, historicEnergy);
+			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), edgeId, request.getFromDate(),
+					request.getToDate(), powerData, energyData);
 		} catch (IOException e) {
 			throw new OpenemsException("QueryHistoricTimeseriesExportXlxsRequest failed: " + e.getMessage());
 		}
