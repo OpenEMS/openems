@@ -84,6 +84,11 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	// State-Machines
 	private final StateMachine stateMachine;
 
+	/**
+	 * Helper wrapping class to handle listeners on battery Channels.
+	 */
+	private final ChannelHandler channelHandler = new ChannelHandler(this);
+
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -113,7 +118,10 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		this.inverterState = config.InverterState();
 
 		// initialize the connection to the battery
-		this.initializeBattery(config.battery_id());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", config.battery_id())) {
+			return;
+		}
+		this.channelHandler.activate(this.battery);
 
 		this.SLOW_CHARGE_VOLTAGE = config.toppingCharge();
 		this.FLOAT_CHARGE_VOLTAGE = config.toppingCharge();
@@ -124,6 +132,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Deactivate
 	protected void deactivate() {
+		this.channelHandler.deactivate();
 		super.deactivate();
 	}
 
@@ -142,35 +151,6 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 //		Battery bms = this.componentManager.getComponent(this.config.battery_id());
 //		this.numberOfSlaves = (int) bms.getComponentContext().getProperties().get("numberOfSlaves");
 //	}
-
-	/**
-	 * Initializes the connection to the Battery.
-	 * 
-	 * @param servicePid this components' Service-PID
-	 * @param batteryId  the Component-ID of the Battery component
-	 */
-	private void initializeBattery(String batteryId) {
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", batteryId)) {
-			return;
-		}
-
-		this.battery.getSocChannel().onChange((oldValue, newValue) -> {
-			this._setSoc(newValue.get());
-			this.channel(SinexcelChannelId.BAT_SOC).setNextValue(newValue.get());
-		});
-
-		this.battery.getVoltageChannel().onChange((oldValue, newValue) -> {
-			this.channel(SinexcelChannelId.BAT_VOLTAGE).setNextValue(newValue.get());
-		});
-
-		this.battery.getMinCellVoltageChannel().onChange((oldValue, newValue) -> {
-			this._setMinCellVoltage(newValue.get());
-		});
-		
-		this.battery.getCapacityChannel().onChange((oldValue, newValue) -> {
-			this._setCapacity(newValue.get());
-		});
-	}
 
 	/**
 	 * Sets the Battery Ranges. Executed on TOPIC_CYCLE_AFTER_PROCESS_IMAGE.

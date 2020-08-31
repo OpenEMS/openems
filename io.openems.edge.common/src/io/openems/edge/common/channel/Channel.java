@@ -16,6 +16,7 @@ import io.openems.edge.common.type.TypeUtils;
  * An OpenEMS Channel holds one specific piece of information of an
  * {@link OpenemsComponent}.
  *
+ * <p>
  * A Channel has
  * <ul>
  * <li>a Channel-ID which is unique among the OpenemsComponent. (see
@@ -31,26 +32,28 @@ import io.openems.edge.common.type.TypeUtils;
  * {@link #onSetNextValue(Consumer)})
  * </ul>
  * 
+ * <p>
  * Channels implement a 'Process Image' pattern. They provide an 'active' value
  * which should be used for any operations on the channel value. The 'next'
  * value is filled by asynchronous workers in the background. At the 'Process
  * Image Switch' the 'next' value is copied to the 'current' value.
  * 
+ * <p>
  * The recommended implementation of an OpenEMS Channel is via
  * {@link AbstractReadChannel}.
  *
- * @param <T>
+ * @param <T> the type of the Channel. One out of {@link OpenemsType}.
  */
 public interface Channel<T> {
 	/**
-	 * Gets the ChannelId of this Channel
+	 * Gets the ChannelId of this Channel.
 	 * 
 	 * @return
 	 */
 	io.openems.edge.common.channel.ChannelId channelId();
 
 	/**
-	 * Gets the ChannelDoc of this Channel
+	 * Gets the ChannelDoc of this Channel.
 	 * 
 	 * @return
 	 */
@@ -59,14 +62,14 @@ public interface Channel<T> {
 	}
 
 	/**
-	 * Gets the OpenemsComponent this Channel belongs to
+	 * Gets the OpenemsComponent this Channel belongs to.
 	 * 
 	 * @return
 	 */
 	OpenemsComponent getComponent();
 
 	/**
-	 * Gets the address of this Channel
+	 * Gets the address of this Channel.
 	 * 
 	 * @return
 	 */
@@ -86,9 +89,10 @@ public interface Channel<T> {
 	OpenemsType getType();
 
 	/**
-	 * Updates the 'next' value of Channel.
+	 * Updates the 'next value' of Channel.
 	 * 
-	 * @param value
+	 * @param value the 'next value'. It is going to be the 'value' after the next
+	 *              ProcessImage gets activated.
 	 */
 	public default void setNextValue(Object value) {
 		try {
@@ -100,11 +104,12 @@ public interface Channel<T> {
 	}
 
 	/**
-	 * Gets the NextValue.
+	 * Gets the 'next value'.
 	 * 
+	 * <p>
 	 * Note that usually you should prefer the value() method.
 	 * 
-	 * @return
+	 * @return the 'next value'
 	 */
 	public Value<T> getNextValue();
 
@@ -113,7 +118,6 @@ public interface Channel<T> {
 	 * Note that usually you should prefer the onUpdate() callback.
 	 * 
 	 * <p>
-	 * 
 	 * Remember to remove the callback using
 	 * {@link #removeOnSetNextValueCallback(Consumer)} once it is not needed
 	 * anymore, e.g. on deactivate().
@@ -125,7 +129,7 @@ public interface Channel<T> {
 	 */
 	// TODO rename to 'addOnSetNextValueCallback()'; apply same naming also for
 	// other callbacks
-	public void onSetNextValue(Consumer<Value<T>> callback);
+	public Consumer<Value<T>> onSetNextValue(Consumer<Value<T>> callback);
 
 	/**
 	 * Removes an onSetNextValue callback.
@@ -138,7 +142,7 @@ public interface Channel<T> {
 	/**
 	 * Internal method. Do not call directly.
 	 * 
-	 * @param value
+	 * @param value the 'next value'
 	 */
 	@Deprecated
 	public void _setNextValue(T value);
@@ -163,7 +167,15 @@ public interface Channel<T> {
 	 * Add an onUpdate callback. It is called, after the active value was updated by
 	 * nextProcessImage().
 	 */
-	public void onUpdate(Consumer<Value<T>> callback);
+	public Consumer<Value<T>> onUpdate(Consumer<Value<T>> callback);
+
+	/**
+	 * Removes an onUpdate callback.
+	 * 
+	 * @see #onUpdate(Consumer)
+	 * @param callback the callback {@link Consumer}
+	 */
+	public void removeOnUpdateCallback(Consumer<Value<?>> callback);
 
 	/**
 	 * Add an onChange callback. It is called, after a new, different active value
@@ -171,11 +183,20 @@ public interface Channel<T> {
 	 * 
 	 * @param callback old value and new value
 	 */
-	public void onChange(BiConsumer<Value<T>, Value<T>> callback);
+	public BiConsumer<Value<T>, Value<T>> onChange(BiConsumer<Value<T>, Value<T>> callback);
+
+	/**
+	 * Removes an onChange callback.
+	 * 
+	 * @see #onChange(BiConsumer)
+	 * @param callback the callback {@link BiConsumer}
+	 */
+	public void removeOnChangeCallback(BiConsumer<?, ?> callback);
 
 	/**
 	 * Deactivates the Channel and makes sure all callbacks are released for garbe
 	 * collection to avoid memory-leaks.
 	 */
 	public void deactivate();
+
 }
