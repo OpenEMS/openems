@@ -21,6 +21,7 @@ export class EvcsModalComponent implements OnInit {
 
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
   public chargeMode: ChargeMode = null;
+  private oldNumberOfPhases: number = null;
 
   constructor(
     protected service: Service,
@@ -172,6 +173,11 @@ export class EvcsModalComponent implements OnInit {
    * @param event
    */
   updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
+
+    if (numberOfPhases != this.oldNumberOfPhases) {
+      this.oldNumberOfPhases = numberOfPhases;
+      return;
+    }
 
     let oldMinChargePower = currentController.properties.forceChargeMinPower;
     let newMinChargePower = event.detail.value;
@@ -412,4 +418,3 @@ enum ChargePlug {
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
   PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7  //Plugged on EVCS and on EV and locked
 }
-

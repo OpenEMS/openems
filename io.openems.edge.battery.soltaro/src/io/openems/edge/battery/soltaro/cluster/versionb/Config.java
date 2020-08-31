@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "BMS Soltaro Cluster Version B", //
 		description = "Implements the Soltaro multi rack battery system.")
 @interface Config {
