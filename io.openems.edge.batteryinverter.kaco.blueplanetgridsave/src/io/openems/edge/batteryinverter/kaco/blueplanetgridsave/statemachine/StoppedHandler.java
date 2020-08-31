@@ -1,5 +1,6 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 

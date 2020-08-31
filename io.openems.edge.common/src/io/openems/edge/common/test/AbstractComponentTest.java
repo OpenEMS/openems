@@ -133,8 +133,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * Applies the values for input channels.
 		 * 
 		 * @param components Referenced components
+		 * @throws OpenemsNamedException    on error
+		 * @throws IllegalArgumentException on error
 		 */
-		protected void applyInputs(Map<String, OpenemsComponent> components) {
+		protected void applyInputs(Map<String, OpenemsComponent> components)
+				throws IllegalArgumentException, OpenemsNamedException {
 			for (ChannelValue input : this.inputs) {
 				OpenemsComponent component = components.get(input.address.getComponentId());
 				if (component == null) {
@@ -143,8 +146,12 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 							+ "was not added to the OpenEMS Component test framework!");
 				}
 				Channel<?> channel = component.channel(input.address.getChannelId());
-				channel.setNextValue(input.getValue());
-				channel.nextProcessImage();
+				if (channel instanceof WriteChannel) {
+					((WriteChannel<?>) channel).setNextWriteValueFromObject(input.getValue());
+				} else {
+					channel.setNextValue(input.getValue());
+					channel.nextProcessImage();
+				}
 			}
 		}
 
@@ -285,6 +292,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * @throws Exception on error
 	 */
 	public SELF activate(AbstractComponentConfig config) throws Exception {
+		// Add the configuration to ConfigurationAdmin
+		for (Object object : this.references) {
+			if (object instanceof DummyConfigurationAdmin) {
+				DummyConfigurationAdmin cm = (DummyConfigurationAdmin) object;
+				cm.addConfig(config);
+			}
+		}
+
 		int configChangeCount = this.getConfigChangeCount();
 		this.callActivate(config);
 
@@ -328,7 +343,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
 					// ComponentContext
-					arg = null; // TODO create DummyComponentContext
+					arg = DummyComponentContext.from(config);
 
 				} else if (parameter.getType().isInstance(config)) {
 					// Config

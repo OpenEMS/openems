@@ -137,7 +137,7 @@ public interface StartStoppable extends OpenemsComponent {
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void start() throws OpenemsNamedException {
-		this._setStartStop(StartStop.START);
+		this.setStartStop(StartStop.START);
 	}
 
 	/**
@@ -149,6 +149,6 @@ public interface StartStoppable extends OpenemsComponent {
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void stop() throws OpenemsNamedException {
-		this._setStartStop(StartStop.STOP);
+		this.setStartStop(StartStop.STOP);
 	}
 }

@@ -184,7 +184,13 @@ export const TRANSLATION = {
                     status: 'Postavení',
                     totalCharge: 'Celkový poplatek',
                     totalChargingPower: 'Celkový nabíjecí výkon',
+                    unknown: 'Neznámý',
                     unplugged: 'Odpojena',
+                    Administration: {
+                        carAdministration: 'Správa aut',
+                        customCarInfo: 'V takovém případě lze vaše vozidlo načíst efektivně pouze z určitého výkonu. Toto tlačítko je součástí vašich možností konfigurace a také automatického načítání.',
+                        renaultZoe: 'Je na této nabíjecí stanici naložen hlavně Renault Zoe?'
+                    },
                     NoConnection: {
                         description: 'Nelze jej připojit k nabíjecí stanici.',
                         help1_1: 'Při opětovném zapnutí se objeví IP nabíjecí stanice',

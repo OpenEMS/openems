@@ -1,9 +1,7 @@
 package io.openems.edge.battery.soltaro;
 
 /**
- * 
- * This type defines the module type
- *
+ * This type defines the module type.
  */
 public enum ModuleType {
 

@@ -6,6 +6,7 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEss;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class StopBatteryHandler extends StateHandler<State, Context> {
 

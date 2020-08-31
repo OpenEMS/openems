@@ -19,6 +19,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -139,8 +140,12 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)) //
-				));
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))),
+
+				new FC3ReadRegistersTask(5800, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(5800)),
+						new DummyRegisterElement(5802, 5815),
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(5816))));
 	}
 
 	@Override
