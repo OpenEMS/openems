@@ -16,6 +16,10 @@ public class DummyPower implements Power {
 
 	private int maxApparentPower;
 
+	public DummyPower() {
+		this(Integer.MAX_VALUE);
+	}
+
 	public DummyPower(int maxApparentPower) {
 		this(maxApparentPower, PidFilter.DEFAULT_P, PidFilter.DEFAULT_I, PidFilter.DEFAULT_D);
 	}

@@ -23,6 +23,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -120,14 +121,14 @@ public class ProductionMeter extends AbstractOpenemsComponent
 		/*
 		 * get and store Simulated Active Power
 		 */
-		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
-
+		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, this.id() + "/ActivePower");
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
-
 		this._setActivePower(simulatedActivePower);
-		this._setActivePowerL1(simulatedActivePower / 3);
-		this._setActivePowerL2(simulatedActivePower / 3);
-		this._setActivePowerL3(simulatedActivePower / 3);
+
+		Integer simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
+		this._setActivePowerL1(simulatedActivePowerByThree);
+		this._setActivePowerL2(simulatedActivePowerByThree);
+		this._setActivePowerL3(simulatedActivePowerByThree);
 	}
 
 	@Override

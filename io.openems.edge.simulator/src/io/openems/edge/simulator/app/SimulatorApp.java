@@ -5,11 +5,15 @@ import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -28,6 +32,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -36,9 +42,13 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractWorker;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
@@ -48,6 +58,9 @@ import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.simulator.app.ExecuteSimulationRequest.Profile;
+import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -56,10 +69,11 @@ import io.openems.edge.common.test.TimeLeapClock;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"id=" + OpenemsConstants.SIMULATOR_ID, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 		})
 public class SimulatorApp extends AbstractOpenemsComponent
-		implements ClockProvider, OpenemsComponent, JsonApi, EventHandler {
+		implements SimulatorDatasource, ClockProvider, OpenemsComponent, JsonApi, EventHandler {
 
 	private static final long MILLISECONDS_BETWEEN_LOGS = 5_000;
 
@@ -76,6 +90,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		private final ExecuteSimulationRequest request;
 		private final TimeLeapClock clock;
 		private final CompletableFuture<ExecuteSimulationResponse> response;
+		private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> collectedData = new TreeMap<>();
 
 		public CurrentSimulation(User user, ExecuteSimulationRequest request, TimeLeapClock clock,
 				CompletableFuture<ExecuteSimulationResponse> response) {
@@ -84,6 +99,14 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			this.request = request;
 			this.clock = clock;
 			this.response = response;
+		}
+
+		public void addData(ZonedDateTime timestamp, List<Channel<?>> channels) {
+			SortedMap<ChannelAddress, JsonElement> values = new TreeMap<ChannelAddress, JsonElement>();
+			for (Channel<?> channel : channels) {
+				values.put(channel.address(), channel.value().asJson());
+			}
+			this.collectedData.put(timestamp, values);
 		}
 	}
 
@@ -152,6 +175,13 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 		this.deleteAllConfigurations(user);
 
+		// Stop Cycle
+		this.setCycleTime(AbstractWorker.ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN);
+
+		// Create Ess.Power with disabled PID filter
+		this.componentManager.handleJsonrpcRequest(user,
+				new CreateComponentConfigRequest("Ess.Power", Arrays.asList(new Property("enablePid", false))));
+
 		// Create Components
 		Set<String> simulatorComponentIds = new HashSet<String>();
 		for (CreateComponentConfigRequest createRequest : request.components) {
@@ -186,8 +216,11 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.collectData();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-			this.onEveryCycle();
+			this.simulateNextCycle();
 			break;
 		}
 	}
@@ -207,7 +240,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	/**
 	 * Is executed on every Cycle After Write Event.
 	 */
-	private void onEveryCycle() {
+	private void simulateNextCycle() {
 		CurrentSimulation currentSimulation = this.currentSimulation;
 		if (currentSimulation == null) {
 			return;
@@ -229,6 +262,24 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		}
 	}
 
+	private void collectData() {
+		CurrentSimulation currentSimulation = this.currentSimulation;
+		if (currentSimulation == null) {
+			return;
+		}
+
+		ZonedDateTime now = ZonedDateTime.now(currentSimulation.clock);
+		List<Channel<?>> channels = new ArrayList<Channel<?>>();
+		for (ChannelAddress channelAddress : currentSimulation.request.collects) {
+			try {
+				channels.add(this.componentManager.getChannel(channelAddress));
+			} catch (IllegalArgumentException | OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+		}
+		currentSimulation.addData(now, channels);
+	}
+
 	/**
 	 * Apply simulated Time-Leap per Cycle.
 	 * 
@@ -236,8 +287,27 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	 * @param currentSimulation the current {@link ExecuteSimulationRequest}
 	 */
 	private void applyTimeLeap(TimeLeapClock clock, ExecuteSimulationRequest currentSimulationRequest) {
-		clock.leap(currentSimulationRequest.clock.timeleapPerCycle, ChronoUnit.MILLIS);
+		if (currentSimulationRequest.clock.executeCycleTwice) {
+			if (++this.repeatCounter == 2) {
+				this.repeatCounter = 0;
+			}
+		}
+		if (this.repeatCounter == 0) {
+			// Apply time leap
+			clock.leap(currentSimulationRequest.clock.timeleapPerCycle, ChronoUnit.MILLIS);
+
+			// Select next profile values
+			for (Profile profile : this.currentSimulation.request.profiles.values()) {
+				profile.selectNextValue();
+			}
+		}
 	}
+
+	/**
+	 * This "flip-flop" boolean is used to implement the 'executeCycleTwice' in the
+	 * {@link ExecuteSimulationRequest}.
+	 */
+	private int repeatCounter = 0;
 
 	/**
 	 * Delete all non-required Components.
@@ -257,7 +327,6 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			}
 			switch (factoryPid) {
 			case "Simulator.App":
-			case "Ess.Power":
 				// ignore
 				break;
 			default:
@@ -281,7 +350,8 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		User user;
 		if (currentSimulation != null) {
 			user = currentSimulation.user;
-			currentSimulation.response.complete(new ExecuteSimulationResponse(currentSimulation.request.getId()));
+			currentSimulation.response.complete(
+					new ExecuteSimulationResponse(currentSimulation.request.getId(), currentSimulation.collectedData));
 		} else {
 			user = null;
 		}
@@ -368,6 +438,27 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			}
 		}
 		throw new OpenemsException("Timeout while waiting for [" + stillExistingComponents + "] to disappear");
+	}
+
+	@Override
+	public Set<String> getKeys() {
+		if (this.currentSimulation == null) {
+			return new HashSet<String>();
+		}
+		return this.currentSimulation.request.profiles.keySet();
+	}
+
+	@Override
+	public int getTimeDelta() {
+		return -1;
+	}
+
+	@Override
+	public <T> T getValue(OpenemsType type, String channelAddress) {
+		if (this.currentSimulation == null) {
+			return null;
+		}
+		return TypeUtils.getAsType(type, this.currentSimulation.request.profiles.get(channelAddress).getCurrentValue());
 	}
 
 }

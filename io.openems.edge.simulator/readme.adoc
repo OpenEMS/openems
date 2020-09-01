@@ -16,105 +16,108 @@ To run a simulation:
 [source,json]
 ----
 {
-    "method": "componentJsonApi",
-    "params": {
-        "componentId": "_simulator",
-        "payload": {
-            "method": "executeSimulation",
-            "params": {
-                "components": [
+    "method":"componentJsonApi",
+    "params":{
+        "componentId":"_simulator",
+        "payload":{
+            "method":"executeSimulation",
+            "params":{
+                "components":[
                     {
-                        "factoryPid": "Scheduler.AllAlphabetically",
-                        "properties": [
+                        "factoryPid":"Scheduler.AllAlphabetically",
+                        "properties":[
                             {
-                                "name": "id",
-                                "value": "scheduler0"
+                                "name":"id",
+                                "value":"scheduler0"
                             }
                         ]
                     },
                     {
-                        "factoryPid": "Simulator.GridMeter.Reacting",
-                        "properties": [
+                        "factoryPid":"Simulator.GridMeter.Reacting",
+                        "properties":[
                             {
-                                "name": "id",
-                                "value": "meter0"
+                                "name":"id",
+                                "value":"meter0"
                             }
                         ]
                     },
                     {
-                        "factoryPid": "Simulator.Datasource.CSV.Direct",
-                        "properties": [
+                        "factoryPid":"Simulator.Datasource.CSV.Direct",
+                        "properties":[
                             {
-                                "name": "id",
-                                "value": "datasource1"
+                                "name":"id",
+                                "value":"datasource1"
                             },
                             {
-                                "name": "source",
-                                "value": "1000\n2000\n2500\n2000"
-                            },
-                            {
-                                "name": "timeDelta",
-                                "value": 5
+                                "name":"source",
+                                "value":"1000\n1000\n1000\n2000\n2000\n2000\n2500\n2500\n2500\n2000\n2000\n2000"
                             }
                         ]
                     },
                     {
-                        "factoryPid": "Simulator.NRCMeter.Acting",
-                        "properties": [
+                        "factoryPid":"Simulator.NRCMeter.Acting",
+                        "properties":[
                             {
-                                "name": "id",
-                                "value": "meter1"
+                                "name":"id",
+                                "value":"meter1"
                             },
                             {
-                                "name": "datasource.id",
-                                "value": "datasource1"
+                                "name":"datasource.id",
+                                "value":"datasource1"
                             }
                         ]
                     },
                     {
-                        "factoryPid": "Simulator.EssSymmetric.Reacting",
-                        "properties": [
+                        "factoryPid":"Simulator.EssSymmetric.Reacting",
+                        "properties":[
                             {
-                                "name": "id",
-                                "value": "ess0"
+                                "name":"id",
+                                "value":"ess0"
                             },
                             {
-                                "name": "maxApparentPower",
-                                "value": 10000
+                                "name":"maxApparentPower",
+                                "value":10000
                             },
                             {
-                                "name": "capacity",
-                                "value": 10000
+                                "name":"capacity",
+                                "value":10000
                             },
                             {
-                                "name": "initialSoc",
-                                "value": 50
+                                "name":"initialSoc",
+                                "value":50
                             }
                         ]
                     },
                     {
-                        "factoryPid": "Controller.Symmetric.Balancing",
-                        "properties": [
+                        "factoryPid":"Controller.Symmetric.Balancing",
+                        "properties":[
                             {
-                                "name": "id",
-                                "value": "ctrlBalancing0"
+                                "name":"id",
+                                "value":"ctrlBalancing0"
                             },
                             {
-                                "name": "ess.id",
-                                "value": "ess0"
+                                "name":"ess.id",
+                                "value":"ess0"
                             },
                             {
-                                "name": "meter.id",
-                                "value": "meter0"
+                                "name":"meter.id",
+                                "value":"meter0"
                             }
                         ]
                     }
                 ],
-                "clock": {
-                    "start": "2000-01-01T13:00:00.00Z",
-                    "end": "2000-01-01T14:00:00.00Z",
-                    "timeleapPerCycle": 1000
-                }
+                "clock":{
+                    "start":"2000-01-01T13:00:00.00Z",
+                    "end":"2000-01-01T13:01:00.00Z",
+                    "timeleapPerCycle":10000,
+                    "executeCycleTwice":true
+                },
+                "collect":[
+                    "_sum/GridActivePower",
+                    "ess0/ActivePower",
+                    "meter1/ActivePower",
+                    "ess0/DebugSetActivePower"
+                ]
             }
         }
     }
