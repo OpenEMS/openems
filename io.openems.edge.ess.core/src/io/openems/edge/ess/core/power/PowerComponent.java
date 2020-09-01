@@ -37,6 +37,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.filter.DisabledPidFilter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;

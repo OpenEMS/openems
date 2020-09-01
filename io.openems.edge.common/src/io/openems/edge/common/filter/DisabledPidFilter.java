@@ -1,4 +1,4 @@
-package io.openems.edge.ess.core.power;
+package io.openems.edge.common.filter;
 
 import io.openems.edge.common.filter.PidFilter;
 

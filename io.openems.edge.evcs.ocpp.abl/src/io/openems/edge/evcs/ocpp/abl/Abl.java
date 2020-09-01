@@ -31,6 +31,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
@@ -68,6 +69,9 @@ public class Abl extends AbstractOcppEvcsComponent
 	);
 
 	private Config config;
+
+	@Reference
+	private EvcsPower evcsPower;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -200,5 +204,10 @@ public class Abl extends AbstractOcppEvcsComponent
 		requests.add(setMeterValueSampledData);
 
 		return requests;
+	}
+
+	@Override
+	public EvcsPower getEvcsPower() {
+		return this.evcsPower;
 	}
 }

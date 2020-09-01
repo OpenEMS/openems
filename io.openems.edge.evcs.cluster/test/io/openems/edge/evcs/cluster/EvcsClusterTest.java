@@ -5,6 +5,7 @@ import org.junit.Test;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest;
@@ -15,7 +16,9 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
+import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.test.DummyAsymmetricMeter;
@@ -151,12 +154,13 @@ public class EvcsClusterTest {
 		ChannelAddress meter0ActivePower3 = new ChannelAddress("meter0", "ActivePowerL3");
 
 		Power power = new DummyPower(20000);
+		EvcsPower evcsPower = new DummyEvcsPower(new DisabledRampFilter());
 
 		// Build and run test
 		ManagedSymmetricEss ess0 = new DummyManagedSymmetricEss("ess0", power);
 		AsymmetricMeter meter0 = new DummyAsymmetricMeter("meter0");
-		ManagedEvcs evcs1 = new DummyManagedEvcs("evcs0");
-		ManagedEvcs evcs2 = new DummyManagedEvcs("evcs1");
+		ManagedEvcs evcs1 = new DummyManagedEvcs("evcs0", evcsPower);
+		ManagedEvcs evcs2 = new DummyManagedEvcs("evcs1", evcsPower);
 
 		/*
 		 * Conditions: - Storage max 60kW - Grid max 22kW i.e. 6kW per phase - Evcss

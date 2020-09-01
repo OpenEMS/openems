@@ -117,12 +117,16 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				if (evcs instanceof ManagedEvcs) {
 					ManagedEvcs managedEvcs = (ManagedEvcs) evcs;
 					int requestedPower = managedEvcs.getSetChargePowerRequestChannel().getNextWriteValue().orElse(0);
+
+					if (requestedPower <= 0) {
+						continue;
+					}
+
+					int guaranteedPower = getGuaranteedPower(evcs);
 					Status status = evcs.getStatus();
 					switch (status) {
 					case CHARGING_FINISHED:
-						if (requestedPower > 0) {
-							managedEvcs.setChargePowerLimit(requestedPower);
-						}
+						managedEvcs.setChargePowerLimit(requestedPower);
 						break;
 					case ERROR:
 					case STARTING:
@@ -130,10 +134,19 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 					case NOT_READY_FOR_CHARGING:
 					case ENERGY_LIMIT_REACHED:
 						break;
+					case READY_FOR_CHARGING:
+
+						// Check if there is enough power for an initial charge
+						if (totalPowerLimit - this.getChargePower().orElse(0) >= guaranteedPower) {
+							managedEvcs.setChargePowerLimit(guaranteedPower);
+							// TODO: managedEvcs._setStatus(Status.UNCONFIRMED_CHARGING); or put this in the
+							// setChargePowerLimit
+							totalPowerLeftMinusGuarantee -= guaranteedPower;
+						}
+						break;
 
 					// EVCS is active.
 					case CHARGING_REJECTED:
-					case READY_FOR_CHARGING:
 					case CHARGING:
 
 						activeEvcss.add(managedEvcs);
@@ -142,15 +155,8 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 						 * Reduces the available power by the guaranteed power of each charging station.
 						 * Sets the minimum power depending on the guaranteed and the maximum Power.
 						 */
-						if (requestedPower > 0) {
-							int evcsMaxPower = evcs.getMaximumPower()
-									.orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
-							int minGurarantee = this.getMinimumChargePowerGuarantee();
-							int guarantee = evcsMaxPower > minGurarantee ? minGurarantee : evcsMaxPower;
-
-							totalPowerLeftMinusGuarantee -= guarantee;
-							evcs._setMinimumPower(guarantee);
-						}
+						totalPowerLeftMinusGuarantee -= guaranteedPower;
+						evcs._setMinimumPower(guaranteedPower);
 					}
 				}
 			}
@@ -198,6 +204,12 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private int getGuaranteedPower(Evcs evcs) {
+		int minGuarantee = this.getMinimumChargePowerGuarantee();
+		int evcsMaxPower = evcs.getMaximumPower().orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
+		return evcsMaxPower > minGuarantee ? minGuarantee : evcsMaxPower;
 	}
 
 	/**

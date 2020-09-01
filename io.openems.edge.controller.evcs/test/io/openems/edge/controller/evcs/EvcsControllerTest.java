@@ -3,6 +3,7 @@ package io.openems.edge.controller.evcs;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -15,6 +16,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 
 public class EvcsControllerTest {
@@ -105,6 +107,7 @@ public class EvcsControllerTest {
 	private static EvcsController controller;
 	private static DummyComponentManager componentManager;
 	private static DummySum sum;
+	private static DummyEvcsPower evcsPower;
 
 	@Test
 	public void excessChargeTest1() throws Exception {
@@ -121,9 +124,11 @@ public class EvcsControllerTest {
 		sum = new DummySum();
 		controller.sum = sum;
 
+		evcsPower = new DummyEvcsPower(new DisabledRampFilter());
+
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
-				Priority.CAR, "ess0", 0);
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0, Priority.CAR,
+				"ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);
 		// Prepare Channels
@@ -135,7 +140,7 @@ public class EvcsControllerTest {
 
 		// Build and run test
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
-		ManagedEvcs evcs = new DummyManagedEvcs("evcs0");
+		ManagedEvcs evcs = new DummyManagedEvcs("evcs0", evcsPower);
 
 		new ControllerTest(controller, componentManager, evcs, controller, sum, ess) //
 				.next(new TestCase() //
@@ -148,7 +153,7 @@ public class EvcsControllerTest {
 
 	@Test
 	public void excessChargeTest2() throws Exception {
-		
+
 		// Initialize mocked Clock
 		final TimeLeapClock clock = new TimeLeapClock();
 
@@ -161,6 +166,8 @@ public class EvcsControllerTest {
 
 		sum = new DummySum();
 		controller.sum = sum;
+
+		evcsPower = new DummyEvcsPower(new DisabledRampFilter());
 
 		// Activate (twice, so that reference target is set)
 		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
@@ -176,10 +183,10 @@ public class EvcsControllerTest {
 		ChannelAddress essAllowedChargePower = new ChannelAddress("ess0", "AllowedChargePower");
 
 		Power power = new DummyPower(30000);
-		
+
 		// Build and run test
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0", power);
-		ManagedEvcs evcs = new DummyManagedEvcs("evcs0");
+		ManagedEvcs evcs = new DummyManagedEvcs("evcs0", evcsPower);
 
 		new ControllerTest(controller, componentManager, evcs, controller, sum, ess) //
 				.next(new TestCase() //
@@ -206,9 +213,11 @@ public class EvcsControllerTest {
 		sum = new DummySum();
 		controller.sum = sum;
 
+		evcsPower = new DummyEvcsPower(new DisabledRampFilter());
+
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0,
-				Priority.CAR, "ess0", 0);
+		MyConfig config = new MyConfig("ctrl0", "", true, "evcs0", true, ChargeMode.EXCESS_POWER, 3333, 0, Priority.CAR,
+				"ess0", 0);
 		controller.activate(null, config);
 		controller.activate(null, config);
 		// Prepare Channels
@@ -223,7 +232,7 @@ public class EvcsControllerTest {
 
 		// Build and run test
 		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
-		ManagedEvcs evcs = new DummyManagedEvcs("evcs0");
+		ManagedEvcs evcs = new DummyManagedEvcs("evcs0", evcsPower);
 
 		new ControllerTest(controller, componentManager, evcs, controller, sum, ess) //
 				.next(new TestCase().input(sumEssActivePower, -10000) //

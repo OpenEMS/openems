@@ -50,7 +50,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	public static final int DEFAULT_PORT = 8887;
 	private final Logger log = LoggerFactory.getLogger(OcppServerImpl.class);
 	protected Config config;
-	
+
 	/**
 	 * The JSON server.
 	 * 
@@ -58,7 +58,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	 * Responsible for the OCPP communication.
 	 */
 	private final MyJsonServer myJsonServer = new MyJsonServer(this);
-	
+
 	/**
 	 * Currently connected sessions with their related evcs components.
 	 */
@@ -108,7 +108,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 
 	/**
 	 * Removes the given Evcs component from the list and checks whether there is a
-	 * present session that should be removed. 
+	 * present session that should be removed.
 	 * 
 	 * @param evcs Evcs that should be removed
 	 */
@@ -129,7 +129,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 		this.ocppEvcss.remove(ocppEvcs.getConfiguredOcppId());
 		ocppEvcs.lostSession();
 	}
-	
+
 	public OcppServerImpl() {
 		super(OpenemsComponent.ChannelId.values() //
 		);
