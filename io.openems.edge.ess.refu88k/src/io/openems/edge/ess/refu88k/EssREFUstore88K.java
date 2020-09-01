@@ -176,6 +176,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		this.isPowerAllowed = false;
 
 		this._setMaxApparentPower(MAX_APPARENT_POWER);
+		this._setCapacity(battery.getCapacity().get());
 
 		EnumReadChannel operatingStateChannel = this.channel(REFUStore88KChannelId.ST);
 		OperatingState operatingState = operatingStateChannel.value().asEnum();
