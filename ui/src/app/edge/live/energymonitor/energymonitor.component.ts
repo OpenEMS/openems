@@ -10,7 +10,7 @@ export class EnergymonitorComponent {
 
   private static readonly SELECTOR = "energymonitor";
 
-  public edge: Edge = null;
+  public edge: Edge | null = null;
 
   constructor(
     private service: Service,

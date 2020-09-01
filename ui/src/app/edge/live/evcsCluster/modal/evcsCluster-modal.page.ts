@@ -13,17 +13,17 @@ type Priority = 'CAR' | 'STORAGE';
 })
 export class ModalComponentEvcsCluster implements OnInit {
 
-    @Input() public edge: Edge;
-    @Input() public config: EdgeConfig.Component = null;
-    @Input() public componentId: string;
+    @Input() public edge: Edge | null = null;
+    @Input() public config: EdgeConfig.Component | null = null;
+    @Input() public componentId: string = '';
     @Input() public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
     @ViewChild(IonReorderGroup, { static: true })
-    public reorderGroup: IonReorderGroup;
+    public reorderGroup: IonReorderGroup | null = null;
 
-    public chargeState: ChargeState;
-    private chargePlug: ChargePlug;
-    public evcsAmount: number;
+    public chargeState: ChargeState | null = null;
+    private chargePlug: ChargePlug | null = null;
+    public evcsAmount: number = 0;
     public swiperIndex: number = 0;
     public slideOpts = {
         noSwiping: true,
@@ -32,9 +32,9 @@ export class ModalComponentEvcsCluster implements OnInit {
         initialSlide: 0,
         speed: 1000,
     };
-    public firstEvcs: string;
-    public lastEvcs: string;
-    public prioritizedEvcsList: string[];
+    public firstEvcs: string = '';
+    public lastEvcs: string = '';
+    public prioritizedEvcsList: string[] = [];
     public evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
 
     constructor(
@@ -48,13 +48,12 @@ export class ModalComponentEvcsCluster implements OnInit {
     }
 
     ngOnInit() {
-
-
-        this.prioritizedEvcsList = this.config.properties["evcs.ids"];
-        this.evcsAmount = this.prioritizedEvcsList.length;
-        this.lastEvcs = this.prioritizedEvcsList[this.evcsAmount - 1]
-        this.firstEvcs = this.prioritizedEvcsList[0];
-
+        if (this.config != null) {
+            this.prioritizedEvcsList = this.config.properties["evcs.ids"];
+            this.evcsAmount = this.prioritizedEvcsList.length;
+            this.lastEvcs = this.prioritizedEvcsList[this.evcsAmount - 1]
+            this.firstEvcs = this.prioritizedEvcsList[0];
+        }
         this.service.getConfig().then(config => {
             this.prioritizedEvcsList.forEach(evcsId => {
                 this.evcsConfigMap[evcsId] = config.getComponent(evcsId);
@@ -68,14 +67,18 @@ export class ModalComponentEvcsCluster implements OnInit {
 
         let newListOrder = this.prioritizedEvcsList;
 
-        if (this.edge != null) {
+        if (this.edge && this.config != null) {
             this.edge.updateComponentConfig(this.websocket, this.config.id, [
                 { name: 'evcs.ids', value: newListOrder }
             ]).then(response => {
-                this.config.properties.chargeMode = newListOrder;
+                if (this.config) {
+                    this.config.properties.chargeMode = newListOrder;
+                }
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
             }).catch(reason => {
-                this.config.properties.chargeMode = oldListOrder;
+                if (this.config) {
+                    this.config.properties.chargeMode = oldListOrder;
+                }
                 this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
             });
@@ -95,7 +98,7 @@ export class ModalComponentEvcsCluster implements OnInit {
         let oldChargeMode = currentController.properties.chargeMode;
         let newChargeMode: ChargeMode;
 
-        switch (event.detail.value) {
+        switch (event.detail.value as ChargeMode) {
             case 'FORCE_CHARGE':
                 newChargeMode = 'FORCE_CHARGE';
                 break;
@@ -124,7 +127,7 @@ export class ModalComponentEvcsCluster implements OnInit {
         let oldPriority = currentController.properties.priority;
         let newPriority: Priority;
 
-        switch (event.detail.value) {
+        switch (event.detail.value as Priority) {
             case 'CAR':
                 newPriority = 'CAR';
                 break;

@@ -15,12 +15,12 @@ export class EvcsComponent {
 
   private static readonly SELECTOR = "evcs";
 
-  @Input() public componentId: string;
+  @Input() public componentId: string = '';
 
-  public edge: Edge = null;
-  public controller: EdgeConfig.Component = null;
-  public evcsComponent: EdgeConfig.Component = null;
-  public chargeMode: ChargeMode = null;
+  public edge: Edge | null = null;
+  public controller: EdgeConfig.Component | null = null;
+  public evcsComponent: EdgeConfig.Component | null = null;
+  public chargeMode: ChargeMode | null = null;
 
   constructor(
     private route: ActivatedRoute,

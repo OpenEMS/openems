@@ -12,10 +12,10 @@ export class ConsumptionComponent {
 
   private static readonly SELECTOR = "consumption";
 
-  public config: EdgeConfig = null;
-  public edge: Edge = null;
-  public evcsComponents: EdgeConfig.Component[] = null;
-  public consumptionMeterComponents: EdgeConfig.Component[] = null;
+  public config: EdgeConfig | null = null;
+  public edge: Edge | null = null;
+  public evcsComponents: EdgeConfig.Component[] = [];
+  public consumptionMeterComponents: EdgeConfig.Component[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -25,7 +25,7 @@ export class ConsumptionComponent {
   ) { }
 
   ngOnInit() {
-    let channels = [];
+    let channels: ChannelAddress[] = [];
     this.service.getConfig().then(config => {
       this.config = config;
       this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
@@ -80,21 +80,23 @@ export class ConsumptionComponent {
     return this.currentTotalChargingPower() + this.currentTotalConsumptionMeterPower();
   }
 
-  private currentTotalChargingPower(): number {
+  public currentTotalChargingPower(): number {
     return this.sumOfChannel(this.evcsComponents, "ChargePower");
   }
 
-  private currentTotalConsumptionMeterPower(): number {
+  public currentTotalConsumptionMeterPower(): number {
     return this.sumOfChannel(this.consumptionMeterComponents, "ActivePower");
   }
 
-  private sumOfChannel(components: EdgeConfig.Component[], channel: String): number {
+  public sumOfChannel(components: EdgeConfig.Component[], channel: String): number {
     let sum = 0;
     components.forEach(component => {
-      let channelValue = this.edge.currentData.value.channel[component.id + "/" + channel];
-      if (channelValue != null) {
-        sum += channelValue;
-      };
+      if (this.edge != null) {
+        let channelValue = this.edge.currentData.value.channel[component.id + "/" + channel];
+        if (channelValue != null) {
+          sum += channelValue;
+        };
+      }
     });
     return sum;
   }

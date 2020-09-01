@@ -27,12 +27,12 @@ export class Service implements ErrorHandler {
   /**
    * Holds the currenty selected Page Title.
    */
-  public currentPageTitle: string;
+  public currentPageTitle: string = '';
 
   /**
    * Holds the current Activated Route
    */
-  private currentActivatedRoute: ActivatedRoute = null;
+  private currentActivatedRoute: ActivatedRoute | null = null;
 
   /**
    * Holds the currently selected Edge.
@@ -373,6 +373,8 @@ export class Service implements ErrorHandler {
     });
     toast.present();
   }
+
+
 
   /**
    * checks if fems is allowed to show kWh

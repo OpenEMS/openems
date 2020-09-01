@@ -15,15 +15,15 @@ export class HeatingElementComponent {
     private static readonly SELECTOR = "heatingelement";
 
 
-    @Input() private componentId: string;
+    @Input() private componentId: string = '';
 
-    private edge: Edge = null;
+    private edge: Edge | null = null;
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
-    public component: EdgeConfig.Component = null;
-    public outputChannelPhaseOne: ChannelAddress = null;
-    public outputChannelPhaseTwo: ChannelAddress = null;
-    public outputChannelPhaseThree: ChannelAddress = null;
+    public component: EdgeConfig.Component | null = null;
+    public outputChannelPhaseOne: ChannelAddress | null = null;
+    public outputChannelPhaseTwo: ChannelAddress | null = null;
+    public outputChannelPhaseThree: ChannelAddress | null = null;
     public activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
 
     constructor(
@@ -54,7 +54,7 @@ export class HeatingElementComponent {
                     let outputChannelArray = [this.outputChannelPhaseOne, this.outputChannelPhaseTwo, this.outputChannelPhaseThree];
                     let value = 0;
                     outputChannelArray.forEach(element => {
-                        if (currentData.channel[element.toString()] == 1) {
+                        if (element != null && currentData.channel[element.toString()] == 1) {
                             value += 1;
                         }
                     })

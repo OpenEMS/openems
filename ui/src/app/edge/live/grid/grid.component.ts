@@ -12,7 +12,7 @@ export class GridComponent {
 
   private static readonly SELECTOR = "grid";
 
-  public edge: Edge = null;
+  public edge: Edge | null = null;
 
   constructor(
     public service: Service,

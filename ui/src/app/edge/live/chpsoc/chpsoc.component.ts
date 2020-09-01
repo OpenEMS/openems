@@ -12,13 +12,13 @@ export class ChpSocComponent {
 
     private static readonly SELECTOR = "chpsoc";
 
-    @Input() private componentId: string;
+    @Input() private componentId: string = '';
 
-    private edge: Edge = null;
+    private edge: Edge | null = null;
 
-    public component: EdgeConfig.Component = null;
-    public inputChannel: ChannelAddress = null;
-    public outputChannel: ChannelAddress = null;
+    public component: EdgeConfig.Component | null = null;
+    public inputChannel: ChannelAddress | null = null;
+    public outputChannel: ChannelAddress | null = null;
 
     constructor(
         private route: ActivatedRoute,

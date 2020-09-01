@@ -15,19 +15,19 @@ import { Service } from 'src/app/shared/shared';
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
   @ViewChild(ConsumptionSectionComponent, { static: true })
-  public consumptionSection: ConsumptionSectionComponent;
+  public consumptionSection: ConsumptionSectionComponent | null = null;
 
   @ViewChild(GridSectionComponent, { static: true })
-  public gridSection: GridSectionComponent;
+  public gridSection: GridSectionComponent | null = null;
 
   @ViewChild(ProductionSectionComponent, { static: true })
-  public productionSection: ProductionSectionComponent;
+  public productionSection: ProductionSectionComponent | null = null;
 
   @ViewChild(StorageSectionComponent, { static: true })
-  public storageSection: StorageSectionComponent;
+  public storageSection: StorageSectionComponent | null = null;
 
   @ViewChild('energymonitorChart', { static: true })
-  private chartDiv: ElementRef;
+  private chartDiv: ElementRef | null = null;
 
   @Input()
   set currentData(currentData: CurrentData) {
@@ -35,10 +35,10 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     this.updateCurrentData(currentData);
   }
 
-  public translation: string;
-  public width: number;
-  public height: number;
-  public gridMode: number;
+  public translation: string = '';
+  public width: number = 0;
+  public height: number = 0;
+  public gridMode: number = 0;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -50,7 +50,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     this.service.startSpinner("live-energymonitor");
     // make sure chart is redrawn in the beginning and on window resize
     setTimeout(() => this.updateOnWindowResize(), 500);
-    const source = fromEvent(window, 'resize', null, null);
+    const source = fromEvent(window, 'resize');
     source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
       this.updateOnWindowResize();
     });
@@ -70,9 +70,10 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
      */
     let summary = currentData.summary;
     [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
-      .filter(section => section != null)
       .forEach(section => {
-        section.updateCurrentData(summary);
+        if (section != null) {
+          section.updateCurrentData(summary);
+        }
       });
   }
 
@@ -81,8 +82,10 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
    */
   private updateOnWindowResize(): void {
     let size = 300;
-    if (this.chartDiv.nativeElement.offsetParent) {
-      size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
+    if (this.chartDiv != null) {
+      if (this.chartDiv.nativeElement.offsetParent) {
+        size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
+      }
     }
     if (size > window.innerHeight) {
       size = window.innerHeight;
@@ -93,9 +96,10 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     var innerRadius = outerRadius - (outerRadius * 0.1378);
     // All sections from update() in section
     [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
-      .filter(section => section != null)
       .forEach(section => {
-        section.updateOnWindowResize(outerRadius, innerRadius, this.height, this.width);
+        if (section != null) {
+          section.updateOnWindowResize(outerRadius, innerRadius, this.height, this.width);
+        }
       });
   }
 

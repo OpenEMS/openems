@@ -5,6 +5,7 @@ import { Service, Utils } from '../../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import Timer = NodeJS.Timer;
 
 @Component({
     selector: '[consumptionsection]',
@@ -30,7 +31,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
     private showAnimation: boolean = false;
     private animationTrigger: boolean = false;
     // animation variable to stop animation on destroy
-    private startAnimation = null;
+    private startAnimation: Timer | null = null;
 
     constructor(
         unitpipe: UnitvaluePipe,
@@ -102,8 +103,10 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        if (this.square != null) {
+            this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
+            this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        }
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -146,12 +149,21 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
             p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.2;
             p.middleLeft.x = p.middleRight.x - animationWidth * 0.2;
         } else {
-            p = null;
+            p = {
+                topLeft: { x: 0, y: 0 },
+                middleLeft: { x: 0, y: 0 },
+                bottomLeft: { x: v, y: 0 },
+                topRight: { x: 0, y: 0 },
+                bottomRight: { x: 0, y: 0 },
+                middleRight: { x: 0, y: 0 }
+            }
         }
         return p;
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        if (this.startAnimation != null) {
+            clearInterval(this.startAnimation);
+        }
     }
 }

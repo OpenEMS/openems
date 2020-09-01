@@ -83,12 +83,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ]
             },
@@ -295,6 +296,9 @@
     "analytics": false
   },
   "schematics": {
+    "@schematics/angular:application": {
+      "strict": true
+    },
     "@ionic/angular-toolkit:component": {
       "styleext": "scss"
     },

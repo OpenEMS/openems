@@ -12,11 +12,11 @@ export class FixDigitalOutputComponent {
 
   private static readonly SELECTOR = "fixdigitaloutput";
 
-  @Input() private componentId: string;
+  @Input() private componentId: string = '';
 
-  public edge: Edge = null;
-  public component: EdgeConfig.Component = null;
-  public outputChannel: string = null;
+  public edge: Edge | null = null;
+  public component: EdgeConfig.Component | null = null;
+  public outputChannel: string = '';
 
   constructor(
     private service: Service,

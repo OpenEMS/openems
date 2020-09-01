@@ -5,6 +5,7 @@ import { Service, Utils } from '../../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import Timer = NodeJS.Timer;
 
 @Component({
     selector: '[gridsection]',
@@ -40,9 +41,9 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
 
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
-    private startAnimation = null;
-    private showBuyAnimation = false;
-    private showSellAnimation = false;
+    private startAnimation: Timer | null = null;
+    private showBuyAnimation: boolean = false;
+    private showSellAnimation: boolean = false;
     public buyAnimationTrigger: boolean = false;
     public sellAnimationTrigger: boolean = false;
 
@@ -127,7 +128,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
                 arrowIndicate);
         } else {
             this.name = this.translate.instant('General.grid')
-            super.updateSectionData(0, null, null);
+            super.updateSectionData(0);
         }
 
         // set grid mode
@@ -163,8 +164,10 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        if (this.square != null) {
+            this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
+            this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        }
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -213,12 +216,21 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             p.topRight.x = p.topLeft.x + animationWidth * 0.2;
             p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.2;
         } else {
-            p = null;
+            p = {
+                bottomRight: { x: 0, y: 0 },
+                bottomLeft: { x: 0, y: 0 },
+                topRight: { x: 0, y: 0 },
+                topLeft: { x: 0, y: 0 },
+                middleLeft: { x: 0, y: 0 },
+                middleRight: { x: 0, y: 0 }
+            };
         }
         return p;
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        if (this.startAnimation != null) {
+            clearInterval(this.startAnimation);
+        }
     }
 }

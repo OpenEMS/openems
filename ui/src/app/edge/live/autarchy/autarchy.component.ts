@@ -12,8 +12,6 @@ export class AutarchyComponent {
 
   private static readonly SELECTOR = "autarchy";
 
-  private edge: Edge = null;
-
   constructor(
     private route: ActivatedRoute,
     public modalCtrl: ModalController,
@@ -21,9 +19,7 @@ export class AutarchyComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-    })
+    this.service.setCurrentComponent('', this.route);
   }
 
   async presentModal() {

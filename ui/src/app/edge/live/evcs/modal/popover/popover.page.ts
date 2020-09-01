@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class EvcsPopoverComponent {
 
-    @Input() public controller: EdgeConfig.Component;
+    @Input() public controller: EdgeConfig.Component | null = null;
 
     constructor(
         protected translate: TranslateService,

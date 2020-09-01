@@ -10,11 +10,11 @@ export class ChannelthresholdComponent {
 
   private static readonly SELECTOR = "channelthreshold";
 
-  @Input() private componentId: string;
+  @Input() private componentId: string = '';
 
-  public edge: Edge = null;
-  public outputChannel: ChannelAddress = null;
-  public component: EdgeConfig.Component = null;
+  public edge: Edge | null = null;
+  public outputChannel: ChannelAddress | null = null;
+  public component: EdgeConfig.Component | null = null;
 
   constructor(
     private route: ActivatedRoute,

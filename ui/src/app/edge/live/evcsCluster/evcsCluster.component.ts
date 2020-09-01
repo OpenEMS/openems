@@ -14,14 +14,14 @@ export class EvcsClusterComponent {
 
   private static readonly SELECTOR = "evcsCluster";
 
-  @Input() public componentId: string;
+  @Input() public componentId: string = '';
 
-  public edge: Edge = null;
+  public edge: Edge | null = null;
   public config: EdgeConfig.Component = new EdgeConfig.Component;
 
-  public channelAdresses = [];
+  public channelAdresses: ChannelAddress[] = [];
   public evcssInCluster: EdgeConfig.Component[] = [];
-  public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
+  public evcsMap: { [sourceId: string]: EdgeConfig.Component | null } = {};
 
   constructor(
     private service: Service,
@@ -63,8 +63,9 @@ export class EvcsClusterComponent {
             this.fillChannelAdresses(component.id);
           }
         }
-
-        this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
+        if (this.edge != null) {
+          this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
+        }
 
         //Initialise the Map with all evcss
         this.evcssInCluster.forEach(evcs => {

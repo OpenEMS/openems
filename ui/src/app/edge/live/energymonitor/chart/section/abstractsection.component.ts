@@ -6,8 +6,10 @@ import * as d3 from 'd3';
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
 export class SectionValue {
-    absolute: number;
-    ratio: number;
+    constructor(
+        public absolute: number,
+        public ratio: number
+    ) { }
 }
 
 export class SvgSquarePosition {
@@ -126,9 +128,9 @@ export abstract class AbstractSection {
     public url: string = window.location.href;
     public valuePath: string = "";
     public outlinePath: string = "";
-    public energyFlow: EnergyFlow = null;
-    public square: SvgSquare;
-    public squarePosition: SvgSquarePosition;
+    public energyFlow: EnergyFlow | null = null;
+    public square: SvgSquare | null = null;
+    public squarePosition: SvgSquarePosition | null = null;
     public name: string = "";
     public sectionId: string = "";
     public isEnabled: boolean = false;
@@ -139,9 +141,9 @@ export abstract class AbstractSection {
     protected outerRadius: number = 0;
     protected height: number = 0;
     protected width: number = 0;
-    protected gridMode: GridMode;
+    protected gridMode: GridMode | null = null;
 
-    private lastCurrentData: DefaultTypes.Summary = null;
+    private lastCurrentData: DefaultTypes.Summary | null = null;
 
     constructor(
         translateName: string,
@@ -218,50 +220,53 @@ export abstract class AbstractSection {
      * @param valueRatio    the relative value of the Secion in [-1,1]
      * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
      */
-    protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
+    protected updateSectionData(valueAbsolute: number, valueRatio?: number, sumRatio?: number) {
         if (!this.isEnabled) {
             return;
         }
-
         // TODO smoothly resize the arc
         this.valueText = this.getValueText(valueAbsolute);
 
-        /*
-         * Create the percentage Arc
-         */
-        let startAngle;
-        switch (this.getRatioType()) {
-            case "Only Positive [0,1]":
-                startAngle = this.getStartAngle();
-                valueRatio = Math.min(1, Math.max(0, valueRatio));
-                break;
-            case "Negative and Positive [-1,1]":
-                startAngle = (this.getStartAngle() + this.getEndAngle()) / 2;
-                valueRatio = Math.min(1, Math.max(-1, valueRatio));
-                break;
-        }
-        let valueEndAngle = (this.getEndAngle() - startAngle) * valueRatio + startAngle;
-        let valueArc = this.getArc()
-            .startAngle(this.deg2rad(startAngle))
-            .endAngle(this.deg2rad(valueEndAngle));
-        this.valuePath = valueArc();
+        if (valueRatio && sumRatio) {
+            /*
+             * Create the percentage Arc
+             */
+            let startAngle;
+            switch (this.getRatioType()) {
+                case "Only Positive [0,1]":
+                    startAngle = this.getStartAngle();
+                    valueRatio = Math.min(1, Math.max(0, valueRatio));
+                    break;
+                case "Negative and Positive [-1,1]":
+                    startAngle = (this.getStartAngle() + this.getEndAngle()) / 2;
+                    valueRatio = Math.min(1, Math.max(-1, valueRatio));
+                    break;
+            }
+            let valueEndAngle = (this.getEndAngle() - startAngle) * valueRatio + startAngle;
+            let valueArc = this.getArc()
+                .startAngle(this.deg2rad(startAngle))
+                .endAngle(this.deg2rad(valueEndAngle));
+            this.valuePath = valueArc();
 
-        /* 
-         * Create the energy flow direction arrow
-         */
-        if (!sumRatio) {
-            sumRatio = 0;
-        } else if (sumRatio > 0 && sumRatio < 0.1) {
-            sumRatio = 0.1 // scale ratio to [0.1,1]
-        } else if (sumRatio < 0 && sumRatio > -0.1) {
-            sumRatio = -0.1 // scale ratio to [-0.1,-1]
-        }
-        sumRatio *= 10;
+            /* 
+             * Create the energy flow direction arrow
+             */
+            if (!sumRatio) {
+                sumRatio = 0;
+            } else if (sumRatio > 0 && sumRatio < 0.1) {
+                sumRatio = 0.1 // scale ratio to [0.1,1]
+            } else if (sumRatio < 0 && sumRatio > -0.1) {
+                sumRatio = -0.1 // scale ratio to [-0.1,-1]
+            }
+            sumRatio *= 10;
 
-        //radius * 1.2 for longer arrows
-        let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
-        let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
-        this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
+            //radius * 1.2 for longer arrows
+            if (this.energyFlow != null) {
+                let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+                let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+                this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
+            }
+        }
     }
 
     /**
@@ -331,7 +336,7 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
-    protected abstract setElementHeight();
+    protected abstract setElementHeight(): void;
 
     protected getArc(): any {
         return d3.arc()

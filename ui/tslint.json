@@ -10,6 +10,7 @@
         "statements"
       ]
     },
+    "no-any": true,
     "array-type": false,
     "arrow-parens": false,
     "arrow-return-shorthand": true,
@@ -116,9 +117,13 @@
     "use-life-cycle-interface": true,
     "use-pipe-transform-interface": true,
     "one-variable-per-declaration": false,
-    "component-class-suffix": [true, "Page", "Component"],
-    "directive-class-suffix": true
-  ,    "variable-name": {
+    "component-class-suffix": [
+      true,
+      "Page",
+      "Component"
+    ],
+    "directive-class-suffix": true,
+    "variable-name": {
       "options": [
         "ban-keywords",
         "check-format",
@@ -135,5 +140,5 @@
         "check-typecast"
       ]
     }
-}
+  }
 }

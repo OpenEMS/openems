@@ -10,8 +10,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class FixDigitalOutputModalComponent {
 
-  @Input() public edge: Edge;
-  @Input() public component: EdgeConfig.Component;
+  @Input() public edge: Edge | null = null;
+  @Input() public component: EdgeConfig.Component | null = null;
 
   constructor(
     protected service: Service,
@@ -27,18 +27,25 @@ export class FixDigitalOutputModalComponent {
    * @param event 
    */
   updateMode(event: CustomEvent) {
-    let oldMode = this.component.properties.isOn;
-    let newMode = event.detail.value;
+    if (this.component && this.edge != null) {
 
-    this.edge.updateComponentConfig(this.websocket, this.component.id, [
-      { name: 'isOn', value: newMode }
-    ]).then(() => {
-      this.component.properties.isOn = newMode;
-      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-    }).catch(reason => {
-      this.component.properties.isOn = oldMode;
-      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-      console.warn(reason);
-    });
+      let oldMode = this.component.properties.isOn;
+      let newMode = event.detail.value;
+
+      this.edge.updateComponentConfig(this.websocket, this.component.id, [
+        { name: 'isOn', value: newMode }
+      ]).then(() => {
+        if (this.component != null) {
+          this.component.properties.isOn = newMode;
+        }
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+      }).catch(reason => {
+        if (this.component != null) {
+          this.component.properties.isOn = oldMode;
+        }
+        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+        console.warn(reason);
+      });
+    }
   }
 }

@@ -14,13 +14,13 @@ type Priority = 'CAR' | 'STORAGE';
 })
 export class EvcsModalComponent implements OnInit {
 
-  @Input() public edge: Edge;
-  @Input() public controller: EdgeConfig.Component;
-  @Input() public componentId: string;
-  @Input() public evcsComponent: EdgeConfig.Component;
+  @Input() public edge: Edge | null = null;
+  @Input() public controller: EdgeConfig.Component | null = null;
+  @Input() public componentId: string = '';
+  @Input() public evcsComponent: EdgeConfig.Component | null = null;
 
   //chargeMode value to determine third state 'Off' (OFF State is not available in EDGE)
-  public chargeMode: ChargeMode = null;
+  public chargeMode: ChargeMode | null = null;
 
   constructor(
     protected service: Service,
@@ -99,7 +99,7 @@ export class EvcsModalComponent implements OnInit {
     let oldEnabledCharging = currentController.properties.enabledCharging;
     let newEnabledCharging: boolean;
 
-    switch (event.detail.value) {
+    switch (event.detail.value as ChargeMode) {
       case 'OFF':
         newChargeMode = 'FORCE_CHARGE';
         this.chargeMode = 'OFF';
@@ -142,7 +142,7 @@ export class EvcsModalComponent implements OnInit {
     let oldPriority = currentController.properties.priority;
     let newPriority: Priority;
 
-    switch (event.detail.value) {
+    switch (event.detail.value as Priority) {
       case 'CAR':
         newPriority = 'CAR';
         break;
@@ -220,7 +220,7 @@ export class EvcsModalComponent implements OnInit {
   */
   allowEnergySessionLimit(currentController: EdgeConfig.Component) {
     let oldLimit = currentController.properties['energySessionLimit'];
-    let newLimit;
+    let newLimit: number = 0;
 
     if (this.edge != null) {
       if (oldLimit > 0) {
@@ -320,22 +320,30 @@ export class EvcsModalComponent implements OnInit {
    * Updates the MinChargePower for Renault Zoe Charging Mode if activated in administration component
    */
   updateRenaultZoeConfig() {
-    if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
+    if (this.evcsComponent != null) {
+      if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
+      }
 
-      let oldMinChargePower = this.controller.properties.forceChargeMinPower;
-      let maxAllowedChargePower = 10 /* Ampere */ * 230 /* Volt */
+      if (this.controller != null) {
+        let oldMinChargePower = this.controller.properties.forceChargeMinPower;
+        let maxAllowedChargePower = 10 /* Ampere */ * 230 /* Volt */
 
-      if (oldMinChargePower < maxAllowedChargePower) {
-        if (this.edge != null) {
-          let newMinChargePower = maxAllowedChargePower;
-          this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-            { name: 'forceChargeMinPower', value: newMinChargePower }
-          ]).then(() => {
-            this.controller.properties.forceChargeMinPower = newMinChargePower;
-          }).catch(reason => {
-            this.controller.properties.forceChargeMinPower = oldMinChargePower;
-            console.warn(reason);
-          });
+        if (oldMinChargePower < maxAllowedChargePower) {
+          if (this.edge != null) {
+            let newMinChargePower = maxAllowedChargePower;
+            this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+              { name: 'forceChargeMinPower', value: newMinChargePower }
+            ]).then(() => {
+              if (this.controller != null) {
+                this.controller.properties.forceChargeMinPower = newMinChargePower;
+              }
+            }).catch(reason => {
+              if (this.controller != null) {
+                this.controller.properties.forceChargeMinPower = oldMinChargePower;
+              }
+              console.warn(reason);
+            });
+          }
         }
       }
     }
@@ -345,8 +353,11 @@ export class EvcsModalComponent implements OnInit {
    * Returns the number of Phases or the default 3.
    */
   getNumberOfPhasesOrThree() {
-    let numberOfPhases = this.edge.currentData['_value'].channel[this.componentId + "/Phases"];
-    numberOfPhases = numberOfPhases == null ? 3 : numberOfPhases;
+    let numberOfPhases: number = 0;
+    if (this.edge != null) {
+      numberOfPhases = this.edge.currentData['_value'].channel[this.componentId + "/Phases"];
+      numberOfPhases = numberOfPhases == null ? 3 : numberOfPhases;
+    }
     return numberOfPhases
   }
 
