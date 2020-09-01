@@ -5,12 +5,9 @@ import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Websocket, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 type Mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
-type updateComponentObject = {
-    name: string,
-    value: string
-}
 
 @Component({
     selector: HeatingElementModalComponent.SELECTOR,
@@ -113,7 +110,7 @@ export class HeatingElementModalComponent implements OnInit {
     }
 
     applyChanges() {
-        let updateComponentArray: updateComponentObject[] = [];
+        let updateComponentArray: DefaultTypes.UpdateComponentObject[] = [];
 
         if (this.formGroup != null) {
             Object.keys(this.formGroup.controls).forEach((element, index) => {

@@ -15,11 +15,11 @@ export class AsymmetricPeakshavingComponent {
 
     private static readonly SELECTOR = "asymmetricpeakshaving";
 
-    @Input() private componentId: string;
+    @Input() private componentId: string = '';
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
-    public mostStressedPhase: BehaviorSubject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }> = new BehaviorSubject(null);
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
+    public mostStressedPhase: BehaviorSubject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }> = new BehaviorSubject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>({ name: "", value: 0 });
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
     constructor(
@@ -36,13 +36,13 @@ export class AsymmetricPeakshavingComponent {
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
                 let meterId = this.component.properties['meter.id'];
-                this.edge.subscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR, [
+                edge.subscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR, [
                     new ChannelAddress(meterId, 'ActivePower'),
                     new ChannelAddress(meterId, 'ActivePowerL1'),
                     new ChannelAddress(meterId, 'ActivePowerL2'),
                     new ChannelAddress(meterId, 'ActivePowerL3')
                 ])
-                this.edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let activePowerL1 = currentData.channel[meterId + '/ActivePowerL1'];
                     let activePowerL2 = currentData.channel[meterId + '/ActivePowerL2'];
                     let activePowerL3 = currentData.channel[meterId + '/ActivePowerL3'];
@@ -81,7 +81,9 @@ export class AsymmetricPeakshavingComponent {
     }
 
     ngOnDestroy() {
-        this.edge.unsubscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR);
+        if (this.edge != null) {
+            this.edge.unsubscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR);
+        }
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
     }

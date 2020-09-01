@@ -13,14 +13,14 @@ export class SinglethresholdComponent {
 
   private static readonly SELECTOR = "singlethreshold";
 
-  @Input() private componentId: string;
+  @Input() private componentId: string = '';
 
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
 
-  public component: EdgeConfig.Component = null;
-  public inputChannel: ChannelAddress;
-  public outputChannel: ChannelAddress;
+  public component: EdgeConfig.Component | null = null;
+  public inputChannel: ChannelAddress | null = null;
+  public outputChannel: ChannelAddress | null = null;
 
   constructor(
     private route: ActivatedRoute,

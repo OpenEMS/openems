@@ -1,12 +1,16 @@
 import { TranslateService } from '@ngx-translate/core';
 import { format, getDay, isSameDay, subDays } from 'date-fns';
-import { EdgeConfig } from '../shared';
 
 export module DefaultTypes {
 
   export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
 
   export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
+
+  export type UpdateComponentObject = {
+    name: string,
+    value: string
+  };
 
   export interface ChannelAddresses {
     [componentId: string]: string[];

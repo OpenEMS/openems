@@ -13,11 +13,11 @@ export class SymmetricPeakshavingComponent {
 
     private static readonly SELECTOR = "symmetricpeakshaving";
 
-    @Input() private componentId: string;
+    @Input() private componentId: string = '';
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -32,7 +32,7 @@ export class SymmetricPeakshavingComponent {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-                this.edge.subscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR, [
+                edge.subscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR, [
                     new ChannelAddress(this.component.properties['meter.id'], 'ActivePower')
                 ])
             });
@@ -40,7 +40,9 @@ export class SymmetricPeakshavingComponent {
     }
 
     ngOnDestroy() {
-        this.edge.unsubscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR);
+        if (this.edge != null) {
+            this.edge.unsubscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR);
+        }
     }
 
     async presentModal() {

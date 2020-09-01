@@ -12,10 +12,10 @@ export class ProductionComponent {
 
     private static readonly SELECTOR = "production";
 
-    public config: EdgeConfig = null;
-    public edge: Edge = null;
-    public productionMeterComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public config: EdgeConfig | null = null;
+    public edge: Edge | null = null;
+    public productionMeterComponents: EdgeConfig.Component[] | null = null;
+    public chargerComponents: EdgeConfig.Component[] | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -50,7 +50,9 @@ export class ProductionComponent {
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             )
-            this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
+            if (this.edge != null) {
+                this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
+            }
         })
     };
 

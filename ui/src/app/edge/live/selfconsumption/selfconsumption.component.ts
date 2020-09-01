@@ -11,7 +11,7 @@ import { SelfconsumptionModalComponent } from './modal/modal.component';
 export class SelfConsumptionComponent {
 
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     constructor(
         private route: ActivatedRoute,

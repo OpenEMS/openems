@@ -10,15 +10,15 @@ import { TranslateService } from '@ngx-translate/core';
 export class StorageModalComponent {
 
 
-    @Input() edge: Edge;
-    @Input() config: EdgeConfig;
-    @Input() essComponents: EdgeConfig.Component[];
-    @Input() chargerComponents: EdgeConfig.Component[];
+    @Input() edge: Edge | null = null;
+    @Input() config: EdgeConfig | null = null;
+    @Input() essComponents: EdgeConfig.Component[] = [];
+    @Input() chargerComponents: EdgeConfig.Component[] = [];
 
     // referene to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
-    public outputChannel: ChannelAddress[] = null;
+    public outputChannel: ChannelAddress[] = [];
 
     constructor(
         public service: Service,
