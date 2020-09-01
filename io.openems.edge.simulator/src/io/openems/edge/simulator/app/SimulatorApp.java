@@ -2,6 +2,7 @@ package io.openems.edge.simulator.app;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -11,6 +12,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -33,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
@@ -47,6 +51,7 @@ import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -61,6 +66,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.simulator.app.ExecuteSimulationRequest.Profile;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -73,7 +79,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 		})
 public class SimulatorApp extends AbstractOpenemsComponent
-		implements SimulatorDatasource, ClockProvider, OpenemsComponent, JsonApi, EventHandler {
+		implements SimulatorDatasource, ClockProvider, OpenemsComponent, JsonApi, EventHandler, Timedata {
 
 	private static final long MILLISECONDS_BETWEEN_LOGS = 5_000;
 
@@ -111,6 +117,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	private volatile CurrentSimulation currentSimulation = null;
+	private volatile CurrentSimulation lastSimulation = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -202,6 +209,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 				request.clock.start.toInstant(), ZoneId.systemDefault());
 
 		// keep simulation data for later use
+		this.lastSimulation = null;
 		this.currentSimulation = new CurrentSimulation(user, request, timeLeapClock, response);
 
 		// Start Simulation Cycles
@@ -356,6 +364,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			user = null;
 		}
 
+		this.lastSimulation = this.currentSimulation;
 		this.currentSimulation = null;
 		this.setCycleTime(Cycle.DEFAULT_CYCLE_TIME);
 
@@ -459,6 +468,93 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			return null;
 		}
 		return TypeUtils.getAsType(type, this.currentSimulation.request.profiles.get(channelAddress).getCurrentValue());
+	}
+
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
+			return new TreeMap<>();
+		}
+		Period fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
+		return this.lastSimulation.collectedData.subMap(fakePeriod.fromDate, fakePeriod.toDate);
+	}
+
+	@Override
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
+			return new TreeMap<>();
+		}
+		Period fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> partOfCollectedData = this.lastSimulation.collectedData
+				.subMap(fakePeriod.fromDate, fakePeriod.toDate);
+		SortedMap<ChannelAddress, JsonElement> result = new TreeMap<ChannelAddress, JsonElement>();
+		SortedMap<ChannelAddress, JsonElement> firstValues = partOfCollectedData.get(partOfCollectedData.firstKey());
+		SortedMap<ChannelAddress, JsonElement> lastValues = partOfCollectedData.get(partOfCollectedData.lastKey());
+		for (ChannelAddress channel : channels) {
+			Long firstValue = (Long) JsonUtils.getAsType(Long.class, firstValues.get(channel));
+			Long lastValue = (Long) JsonUtils.getAsType(Long.class, lastValues.get(channel));
+			if (firstValue != null && lastValue != null) {
+				result.put(channel, new JsonPrimitive(lastValue - firstValue));
+			} else {
+				result.put(channel, JsonNull.INSTANCE);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
+		final JsonElement value;
+		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
+			value = JsonNull.INSTANCE;
+		} else {
+			SortedMap<ChannelAddress, JsonElement> lastValues = this.lastSimulation.collectedData
+					.get(this.lastSimulation.collectedData.lastKey());
+			value = lastValues.get(channelAddress);
+		}
+		return CompletableFuture.completedFuture(Optional.ofNullable(value));
+	}
+
+	/**
+	 * Helper class for
+	 * {@link SimulatorApp#convertToSimulatedFromToDates(ZonedDateTime, ZonedDateTime)}.
+	 */
+	private static class Period {
+		private final ZonedDateTime fromDate;
+		private final ZonedDateTime toDate;
+
+		public Period(ZonedDateTime fromDate, ZonedDateTime toDate) {
+			super();
+			this.fromDate = fromDate;
+			this.toDate = toDate;
+		}
+	}
+
+	/**
+	 * Adjusts the FromDate and ToDate as if they would be current.
+	 * 
+	 * <p>
+	 * For the simulation the fromDate and toDate do not actually matter, so very
+	 * often something like 1st January 2000 will be used. That would be
+	 * inconvenient to visualize in OpenEMS UI, so we fake the dates here.
+	 * 
+	 * @param fromDate the original Request fromDate
+	 * @param toDate   the original Request toDate
+	 * @return a {@link Period} with faked fromDate and toDate
+	 */
+	private Period convertToSimulatedFromToDates(ZonedDateTime fromDate, ZonedDateTime toDate) {
+		if (this.lastSimulation == null) {
+			return null;
+		}
+		long durationDays = Duration.between(fromDate, toDate).toDays();
+		long toDateOffset = Duration.between(toDate, ZonedDateTime.now()).toDays();
+		ZonedDateTime lastCollected = this.lastSimulation.collectedData.lastKey();
+		ZonedDateTime newToDate = lastCollected.minusDays(toDateOffset);
+		ZonedDateTime newFromDate = newToDate.minusDays(durationDays);
+		return new Period(newFromDate, newToDate);
 	}
 
 }
