@@ -8,7 +8,18 @@ import { environment } from '../../environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
-import { IonInfiniteScroll } from '@ionic/angular';
+
+/**
+ * use for Ionic Infinite Scroll
+ */
+export interface AsyncEvent extends CustomEvent {
+  target: EventTarget & {
+    /**
+     * Ends the async loading animation.
+     */
+    complete(): void;
+  };
+}
 
 @Component({
   selector: 'index',
@@ -107,10 +118,10 @@ export class IndexComponent {
     this.service.handleAuthentication(message.result.token, message.result.edges);
   }
 
-  public doInfinite(event: CustomEvent) {
+  public doInfinite(event: AsyncEvent) {
     setTimeout(() => {
       this.slice += 5;
-      event.detail.complete();
+      event.target.complete();
     }, 200);
   }
 
