@@ -19,43 +19,45 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Request for 'queryHistoricTimeseriesEnergy'.
+ * Represents a JSON-RPC Request for 'queryHistoricTimeseriesEnergyPerPeriod'.
  * 
  * <p>
- * This Request is for use-cases where you want to get the energy for one period
- * per Channel, e.g. to show the entire energy over a period as a text. The
- * energy is calculated by subtracting first value of the period ('fromDate')
- * from the last value of the period ('toDate').
+ * This Request is for use-cases where you want to get the energy for each
+ * period (with length 'resolution') per Channel, e.g. to visualize energy in a
+ * histogram chart. For each period the energy is calculated by subtracting
+ * first value of the period from the last value of the period.
  * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "method": "queryHistoricTimeseriesEnergy",
+ *   "method": "queryHistoricTimeseriesEnergyPerPeriod",
  *   "params": {
  *     "timezone": Number,
  *     "fromDate": YYYY-MM-DD,
  *     "toDate": YYYY-MM-DD,
- *     "channels": ChannelAddress[]
+ *     "channels": ChannelAddress[],
+ *     "resolution": Number
  *   }
  * }
  * </pre>
  */
 
-public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
+public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "queryHistoricTimeseriesEnergy";
+	public final static String METHOD = "queryHistoricTimeseriesEnergyPerPeriod";
 
 	private final static DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	public static QueryHistoricTimeseriesEnergyRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+	public static QueryHistoricTimeseriesEnergyPerPeriodRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
 		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		QueryHistoricTimeseriesEnergyRequest result = new QueryHistoricTimeseriesEnergyRequest(r.getId(), fromDate,
-				toDate);
+		int resolution = JsonUtils.getAsInt(p, "resolution");
+		QueryHistoricTimeseriesEnergyPerPeriodRequest result = new QueryHistoricTimeseriesEnergyPerPeriodRequest(r.getId(),
+				fromDate, toDate, resolution);
 		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
 			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
@@ -64,7 +66,7 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 		return result;
 	}
 
-	public static QueryHistoricTimeseriesEnergyRequest from(JsonObject j) throws OpenemsNamedException {
+	public static QueryHistoricTimeseriesEnergyPerPeriodRequest from(JsonObject j) throws OpenemsNamedException {
 		return from(GenericJsonrpcRequest.from(j));
 	}
 
@@ -72,9 +74,10 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
+	private final int resolution;
 
-	public QueryHistoricTimeseriesEnergyRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate)
-			throws OpenemsNamedException {
+	public QueryHistoricTimeseriesEnergyPerPeriodRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate,
+			int resolution) throws OpenemsNamedException {
 		super(id, METHOD);
 
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
@@ -84,11 +87,12 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 		this.fromDate = fromDate;
 		this.toDate = toDate;
+		this.resolution = resolution;
 	}
 
-	public QueryHistoricTimeseriesEnergyRequest(ZonedDateTime fromDate, ZonedDateTime toDate)
+	public QueryHistoricTimeseriesEnergyPerPeriodRequest(ZonedDateTime fromDate, ZonedDateTime toDate, int resolution)
 			throws OpenemsNamedException {
-		this(UUID.randomUUID(), fromDate, toDate);
+		this(UUID.randomUUID(), fromDate, toDate, resolution);
 	}
 
 	private void addChannel(ChannelAddress address) {
@@ -105,6 +109,7 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 				.addProperty("fromDate", FORMAT.format(this.fromDate)) //
 				.addProperty("toDate", FORMAT.format(this.toDate)) //
 				.add("channels", channels) //
+				.addProperty("resolution", resolution) //
 				.build();
 	}
 
@@ -118,5 +123,9 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 	public TreeSet<ChannelAddress> getChannels() {
 		return channels;
+	}
+
+	public int getResolution() {
+		return resolution;
 	}
 }

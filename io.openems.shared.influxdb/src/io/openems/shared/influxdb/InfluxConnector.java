@@ -236,6 +236,58 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Queries historic energy per period.
+	 * 
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param fromDate     the From-Date
+	 * @param toDate       the To-Date
+	 * @param channels     the Channels to query
+	 * @param resolution   the resolution in seconds
+	 * @return the historic data as Map
+	 * @throws OpenemsException on error
+	 */
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
+			int resolution) throws OpenemsNamedException {
+		if (Math.random() * 4 < this.queryLimit.getLimit()) {
+			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
+					+ "]. Edge [" + influxEdgeId + "] FromDate [" + fromDate + "] ToDate [" + toDate + "]");
+		}
+
+		// handle empty call
+		if (channels.isEmpty()) {
+			return new TreeMap<>();
+		}
+
+		// Prepare query string
+		StringBuilder b = new StringBuilder("SELECT ");
+		b.append(InfluxConnector.toChannelAddressStringNonNegativeDifferenceLast(channels));
+		b.append(" FROM data WHERE ");
+		if (influxEdgeId.isPresent()) {
+			b.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
+		}
+		b.append("time > ");
+		b.append(String.valueOf(fromDate.toEpochSecond()));
+		b.append("s");
+		b.append(" AND time < ");
+		b.append(String.valueOf(toDate.toEpochSecond()));
+		b.append("s");
+		b.append(" GROUP BY time(");
+		b.append(resolution);
+		b.append("s) fill(null)");
+		String query = b.toString();
+
+		// Execute query
+		QueryResult queryResult = this.executeQuery(query);
+
+		// Prepare result
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = InfluxConnector
+				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
+
+		return result;
+	}
+
+	/**
 	 * Queries historic data.
 	 * 
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
@@ -406,8 +458,18 @@ public class InfluxConnector {
 	protected static String toChannelAddressStringEnergy(Set<ChannelAddress> channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (ChannelAddress channel : channels) {
-			channelAddresses.add("last(\"" + channel.toString() + "\") - first(\"" + channel.toString() + "\") as \""
+			channelAddresses.add("LAST(\"" + channel.toString() + "\") - FIRST(\"" + channel.toString() + "\") AS \""
 					+ channel.toString() + "\"");
+		}
+		return String.join(", ", channelAddresses);
+	}
+
+	protected static String toChannelAddressStringNonNegativeDifferenceLast(Set<ChannelAddress> channels)
+			throws OpenemsException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (ChannelAddress channel : channels) {
+			channelAddresses.add(
+					"NON_NEGATIVE_DIFFERENCE(LAST(\"" + channel.toString() + "\")) AS \"" + channel.toString() + "\"");
 		}
 		return String.join(", ", channelAddresses);
 	}

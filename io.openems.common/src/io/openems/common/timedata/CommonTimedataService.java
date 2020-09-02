@@ -120,4 +120,24 @@ public interface CommonTimedataService {
 
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
+
+	/**
+	 * Queries historic energy per period.
+	 * 
+	 * <p>
+	 * This is for use-cases where you want to get the energy for each period (with
+	 * length 'resolution') per Channel, e.g. to visualize energy in a histogram
+	 * chart. For each period the energy is calculated by subtracting first value of
+	 * the period from the last value of the period.
+	 * 
+	 * @param edgeId     the Edge-ID; or null query all
+	 * @param fromDate   the From-Date
+	 * @param toDate     the To-Date
+	 * @param channels   the Channels
+	 * @param resolution the Resolution in seconds
+	 */
+
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException;
 }

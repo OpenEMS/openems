@@ -14,7 +14,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.ChannelAddress;
 
 /**
- * Represents a JSON-RPC Response for 'queryHistoricTimeseriesData'.
+ * Represents a JSON-RPC Response for 'queryHistoricTimeseriesEnergyPerPeriod'.
  * 
  * <pre>
  * {
@@ -22,7 +22,7 @@ import io.openems.common.types.ChannelAddress;
  *   "id": "UUID",
  *   "result": {
  *     "timestamps": [
- *       '2011-12-03T10:15:30Z',...
+ *       '2011-12-03T00:00:00Z',...
  *     ],
  *     "data": {
  *       "componentId/channelId": [
@@ -33,15 +33,15 @@ import io.openems.common.types.ChannelAddress;
  * }
  * </pre>
  */
-public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess {
+public class QueryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcResponseSuccess {
 
 	private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table;
 
-	public QueryHistoricTimeseriesDataResponse(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
+	public QueryHistoricTimeseriesEnergyPerPeriodResponse(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
 		this(UUID.randomUUID(), table);
 	}
 
-	public QueryHistoricTimeseriesDataResponse(UUID id,
+	public QueryHistoricTimeseriesEnergyPerPeriodResponse(UUID id,
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
 		super(id);
 		this.table = table;
