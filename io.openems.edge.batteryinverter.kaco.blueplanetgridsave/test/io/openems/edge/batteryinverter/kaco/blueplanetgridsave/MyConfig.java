@@ -58,7 +58,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return "";
+		return "(&(enabled=true)(!(service.pid=" + this.id() + "))(|(id=" + this.modbus_id() + ")))";
 	}
 
 }
