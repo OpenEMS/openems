@@ -39,6 +39,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -503,6 +504,13 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsNamedException {
+		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator-App");
 	}
 
 	@Override
