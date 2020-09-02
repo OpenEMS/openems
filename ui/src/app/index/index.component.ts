@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,6 +8,7 @@ import { environment } from '../../environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import { IonInfiniteScroll } from '@ionic/angular';
 
 @Component({
   selector: 'index',
@@ -24,7 +25,7 @@ export class IndexComponent {
    */
   public noEdges: boolean = false;
 
-  public form: FormGroup;
+  public form: FormGroup | null = null;
   public filter: string = '';
   public filteredEdges: Edge[] = [];
 
@@ -106,10 +107,10 @@ export class IndexComponent {
     this.service.handleAuthentication(message.result.token, message.result.edges);
   }
 
-  doInfinite(infiniteScroll) {
+  public doInfinite(event: CustomEvent) {
     setTimeout(() => {
       this.slice += 5;
-      infiniteScroll.target.complete();
+      event.detail.complete();
     }, 200);
   }
 

@@ -6,6 +6,7 @@ import { PickDatePopoverComponent } from './popover/popover.component';
 import { PopoverController } from '@ionic/angular';
 import { Service } from '../shared';
 import { TranslateService } from '@ngx-translate/core';
+import Timer = NodeJS.Timer;
 
 @Component({
     selector: 'pickdate',
@@ -13,9 +14,9 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class PickDateComponent {
 
-    public disableArrow: boolean = null;
+    public disableArrow: boolean | null = null;
 
-    private changePeriodTimeout = null;
+    private changePeriodTimeout: Timer | null = null;
 
     constructor(
         public service: Service,
@@ -185,19 +186,23 @@ export class PickDateComponent {
      * is used to change date period
      */
     private millisecondsUntilnextPeriod(): number {
+        let response = 0;
         // + 1000 to reach the next day
         switch (this.service.periodString) {
             case 'day': {
                 let currentDayTime = new Date();
                 let endOfDayTime = endOfDay(currentDayTime);
-                return differenceInMilliseconds(endOfDayTime, currentDayTime) + 1000;
+                response = differenceInMilliseconds(endOfDayTime, currentDayTime) + 1000;
+                break;
             }
             case 'week': {
                 let currentDayTime = new Date();
                 let endOfWeekTime = endOfWeek(currentDayTime, { weekStartsOn: 1 })
-                return differenceInMilliseconds(endOfWeekTime, currentDayTime) + 1000;
+                response = differenceInMilliseconds(endOfWeekTime, currentDayTime) + 1000;
+                break;
             }
         }
+        return response
     }
 
     async presentPopover(ev: any) {

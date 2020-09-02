@@ -15,9 +15,9 @@ export class StatusSingleComponent {
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
-    public edge: Edge;
-    public config: EdgeConfig;
-    public components: CategorizedComponents[];
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public components: CategorizedComponents[] = [];
     public subscribedInfoChannels: ChannelAddress[] = [];
     public onInfoChannels: ChannelAddress[] = [];
     public env = environment;
@@ -41,7 +41,7 @@ export class StatusSingleComponent {
             this.components.forEach(categorizedComponent => {
                 categorizedComponent.components.forEach(component => {
                     // sets all arrow buttons to standard position (folded)
-                    component['showProperties'] = false;
+                    component.showProperties = false;
                     this.subscribedInfoChannels.push(
                         new ChannelAddress(component.id, 'State')
                     )
@@ -57,7 +57,7 @@ export class StatusSingleComponent {
 
     public subscribeInfoChannels(component: EdgeConfig.Component) {
         Object.keys(component.channels).forEach(channel => {
-            if (component.channels[channel]['level']) {
+            if (component.channels.channel.level) {
                 this.subscribedInfoChannels.push(new ChannelAddress(component.id, channel))
                 this.onInfoChannels.push(new ChannelAddress(component.id, channel))
             }

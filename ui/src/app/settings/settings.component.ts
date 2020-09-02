@@ -13,7 +13,7 @@ export class SettingsComponent {
 
   public env = environment;
 
-  public edge: Edge = null
+  public edge: Edge | null = null
   public readonly languages: LanguageTag[];
   public currentLanguage: LanguageTag;
 

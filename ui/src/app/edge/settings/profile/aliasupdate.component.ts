@@ -10,12 +10,12 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class AliasUpdateComponent {
 
-    private edge: Edge;
+    private edge: Edge | null = null;
 
-    public component: EdgeConfig.Component = null;
-    public formGroup: FormGroup = null;
-    public factory: EdgeConfig.Factory = null;
-    public componentIcon: string = null;
+    public component: EdgeConfig.Component | null = null;
+    public formGroup: FormGroup | null = null;
+    public factory: EdgeConfig.Factory | null = null;
+    public componentIcon: string = '';
 
     constructor(
         private service: Service,
@@ -40,19 +40,23 @@ export class AliasUpdateComponent {
         })
     }
 
-    updateAlias(alias) {
+    updateAlias(alias: string) {
         let newAlias = alias;
-        if (this.edge != null) {
+        if (this.edge && this.component != null) {
             if (this.component.id == newAlias) {
                 this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
             } else {
                 this.edge.updateComponentConfig(this.websocket, this.component.id, [
                     { name: 'alias', value: newAlias }
                 ]).then(() => {
-                    this.formGroup.markAsPristine();
+                    if (this.formGroup != null) {
+                        this.formGroup.markAsPristine();
+                    }
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 }).catch(reason => {
-                    this.formGroup.markAsPristine();
+                    if (this.formGroup != null) {
+                        this.formGroup.markAsPristine();
+                    }
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                     console.warn(reason);
                 });

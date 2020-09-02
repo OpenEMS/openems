@@ -9,8 +9,8 @@ import { Service } from '../../shared';
 })
 export class ChartOptionsPopoverComponent {
 
-    @Input() public showPhases: boolean;
-    @Input() public showTotal: boolean;
+    @Input() public showPhases: boolean | null = null;
+    @Input() public showTotal: boolean | null = null;
 
     constructor(
         public service: Service,

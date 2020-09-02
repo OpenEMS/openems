@@ -12,8 +12,8 @@ export class ChannelsComponent {
 
   private static readonly SELECTOR = "channels";
 
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
   public subscribedChannels: ChannelAddress[] = [];
 
   constructor(
@@ -66,7 +66,7 @@ export class ChannelsComponent {
   }
 
   setChannelValue(address: ChannelAddress, value: any) {
-    if (this.edge) {
+    if (this.edge && this.service.websocket != null) {
       this.edge.sendRequest(
         this.service.websocket,
         new SetChannelVaLueRequest({

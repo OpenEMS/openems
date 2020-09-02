@@ -1,5 +1,5 @@
 import { BehaviorSubject, Subject } from 'rxjs';
-import { cmp } from 'semver-compare-multi';
+// import { cmp } from 'semver-compare-multi';
 import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
@@ -23,12 +23,12 @@ import { EdgeConfig } from './edgeconfig';
 export class Edge {
 
   constructor(
-    public readonly id: string,
-    public readonly comment: string,
-    public readonly producttype: string,
-    public readonly version: string,
-    public readonly role: Role,
-    public isOnline: boolean
+    public readonly id?: string,
+    public readonly comment?: string,
+    public readonly producttype?: string,
+    public readonly version?: string,
+    public readonly role?: Role,
+    public isOnline?: boolean
   ) { }
 
   // holds currently subscribed channels, identified by source id
@@ -41,7 +41,7 @@ export class Edge {
   public systemLog: Subject<SystemLog> = new Subject<SystemLog>();
 
   // holds config
-  private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
+  private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(new EdgeConfig);
 
   // determine if subscribe on channels was successful
   // used in live component to hide elements while no channel data available
@@ -256,7 +256,7 @@ export class Edge {
    * 
    * TODO deprecated
    */
-  public systemExecute(password: string, command: string, background: boolean, timeout: number): void {
+  public systemExecute(password: string, command: string): void {
     console.warn("Edge.systemExecute()", password, command);
     // let replyStream = this.sendMessageWithReply(DefaultMessages.systemExecute(this.edgeId, password, command, background, timeout));
     // // wait for reply
@@ -276,9 +276,9 @@ export class Edge {
    * 
    * @param version 
    */
-  public isVersionAtLeast(version: string): boolean {
-    return cmp(this.version, version) >= 0;
-  }
+  // public isVersionAtLeast(version: string): boolean {
+  //   return cmp(this.version, version) >= 0;
+  // }
 
   /**
 	 * Evaluates whether the current Role is equal or more privileged than the

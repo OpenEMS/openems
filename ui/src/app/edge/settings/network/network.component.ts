@@ -16,6 +16,12 @@ export interface InterfaceForm {
   fields: FormlyFieldConfig[]
 };
 
+export interface NetworkRequest {
+  interfaces: {
+    [name: string]: NetworkInterface
+  }
+}
+
 @Component({
   selector: NetworkComponent.SELECTOR,
   templateUrl: './network.component.html'
@@ -24,7 +30,7 @@ export class NetworkComponent {
 
   private static readonly SELECTOR = "network";
 
-  public edge: Edge = null;
+  public edge: Edge | null = null;
   public interfaces: InterfaceForm[] = [];
 
   constructor(
@@ -57,19 +63,22 @@ export class NetworkComponent {
       iface.model.dns = null;
     }
 
-    let request = {
+    let request: NetworkRequest = {
       interfaces: {}
     };
+
     request.interfaces[iface.name] = iface.model;
 
-    this.edge.sendRequest(this.websocket,
-      new ComponentJsonApiRequest({
-        componentId: "_host", payload: new SetNetworkConfigRequest(request)
-      })).then(response => {
-        this.service.toast("Successfully updated network configuration for [" + iface.name + "].", 'success');
-      }).catch(reason => {
-        this.service.toast("Error updating [" + iface.name + "]:" + reason.error.message, 'danger');
-      })
+    if (this.edge) {
+      this.edge.sendRequest(this.websocket,
+        new ComponentJsonApiRequest({
+          componentId: "_host", payload: new SetNetworkConfigRequest(request)
+        })).then(response => {
+          this.service.toast("Successfully updated network configuration for [" + iface.name + "].", 'success');
+        }).catch(reason => {
+          this.service.toast("Error updating [" + iface.name + "]:" + reason.error.message, 'danger');
+        })
+    }
   }
 
   private generateInterface(name: string, source: NetworkInterface) {

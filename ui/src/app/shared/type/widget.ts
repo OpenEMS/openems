@@ -40,10 +40,10 @@ export class Widgets {
         let classes: String[] = Object.values(WidgetClass) //
             .filter(v => typeof v === 'string')
             .filter(clazz => {
-                if (!edge.isVersionAtLeast('2018.8')) {
-                    // no filter for deprecated versions
-                    return true;
-                }
+                // if (!edge.isVersionAtLeast('2018.8')) {
+                //     // no filter for deprecated versions
+                //     return true;
+                // }
                 switch (clazz) {
                     case 'Autarchy':
                     case 'Grid':

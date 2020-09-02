@@ -5,6 +5,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
@@ -14,14 +15,14 @@ export class ComponentUpdateComponent implements OnInit {
 
   private static readonly SELECTOR = "componentUpdate";
 
-  public edge: Edge = null;
-  public factory: EdgeConfig.Factory = null;
-  public form: FormGroup = null;
-  public model = null;
-  public fields: FormlyFieldConfig[] = null;
-  public componentIcon: string = null;
+  public edge: Edge | null = null;
+  public factory: EdgeConfig.Factory | null = null;
+  public form: FormGroup | null = null;
+  public model: DefaultTypes.FormlyModel | null = null;
+  public fields: FormlyFieldConfig[] = [];
+  public componentIcon: string = '';
 
-  private componentId: string = null;
+  private componentId: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -43,7 +44,7 @@ export class ComponentUpdateComponent implements OnInit {
       this.factory = config.factories[component.factoryId];
       this.componentIcon = config.getFactoryIcon(this.factory);
       let fields: FormlyFieldConfig[] = [];
-      let model = {};
+      let model: DefaultTypes.FormlyModel = {};
       for (let property of this.factory.properties) {
         if (property.id === 'id') {
           continue; // ignore Component-ID
@@ -62,7 +63,7 @@ export class ComponentUpdateComponent implements OnInit {
         Utils.deepCopy(property.schema, field);
         fields.push(field);
         if (component.properties[property.id]) {
-          model[property_id] = component.properties[property.id];
+          model.property_id = component.properties[property.id];
         }
       }
       this.form = new FormGroup({});
@@ -73,28 +74,35 @@ export class ComponentUpdateComponent implements OnInit {
 
   public submit() {
     let properties: { name: string, value: any }[] = [];
-    for (let controlKey in this.form.controls) {
-      let control = this.form.controls[controlKey];
-      if (control.dirty) {
-        let property_id = controlKey.replace('_', '.');
-        properties.push({ name: property_id, value: control.value });
+    if (this.form && this.edge != null) {
+      for (let controlKey in this.form.controls) {
+        let control = this.form.controls[controlKey];
+        if (control.dirty) {
+          let property_id = controlKey.replace('_', '.');
+          properties.push({ name: property_id, value: control.value });
+        }
       }
+      this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(response => {
+        if (this.form != null) {
+          this.form.markAsPristine();
+        }
+        this.service.toast("Successfully updated " + this.componentId + ".", 'success');
+      }).catch(reason => {
+        this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, 'danger');
+      });
     }
-    this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(response => {
-      this.form.markAsPristine();
-      this.service.toast("Successfully updated " + this.componentId + ".", 'success');
-    }).catch(reason => {
-      this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, 'danger');
-    });
   }
 
   public delete() {
-    this.edge.deleteComponentConfig(this.websocket, this.componentId).then(response => {
-      this.form.markAsPristine();
-      this.service.toast("Successfully deleted " + this.componentId + ".", 'success');
-    }).catch(reason => {
-      this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, 'danger');
-    });
+    if (this.edge != null) {
+      this.edge.deleteComponentConfig(this.websocket, this.componentId).then(response => {
+        if (this.form != null) {
+          this.form.markAsPristine();
+        }
+        this.service.toast("Successfully deleted " + this.componentId + ".", 'success');
+      }).catch(reason => {
+        this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, 'danger');
+      });
+    }
   }
-
 }

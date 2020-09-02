@@ -18,7 +18,7 @@ export class HeaderComponent {
 
     public env = environment;
     public backUrl: string | boolean = '/';
-    public enableSideMenu: boolean;
+    public enableSideMenu: boolean | null = null;
     public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
     public isSystemLogEnabled: boolean = false;
     private ngUnsubscribe: Subject<void> = new Subject<void>();

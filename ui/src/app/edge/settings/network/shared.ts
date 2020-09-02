@@ -1,7 +1,7 @@
 export interface NetworkInterface {
     dhcp?: boolean,
     linkLocalAddressing?: boolean,
-    gateway?: string,
-    dns?: string,
+    gateway?: string | null,
+    dns?: string | null,
     addresses?: string[]
 }

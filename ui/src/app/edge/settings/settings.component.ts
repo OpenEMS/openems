@@ -9,7 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SettingsComponent implements OnInit {
 
-  public edge: Edge = null
+  public edge: Edge | null = null
 
   constructor(
     private route: ActivatedRoute,

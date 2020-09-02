@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { parse } from 'date-fns';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Service, Utils, Websocket } from '../../../shared/shared';
+import { Service, Utils, Websocket, SystemLog } from '../../../shared/shared';
 import { TranslateCompiler, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -94,7 +94,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     this.isSubscribed = true;
   };
 
-  private getColor(level): string {
+  private getColor(level: string): string {
     switch (level) {
       case 'INFO':
         return 'green';

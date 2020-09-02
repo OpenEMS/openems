@@ -20,7 +20,7 @@ export interface CategorizedFactories {
 
 export class EdgeConfig {
 
-    constructor(edge: Edge, source?: EdgeConfig) {
+    constructor(edge?: Edge, source?: EdgeConfig) {
         if (source) {
             this.components = source.components;
             this.factories = source.factories;
@@ -78,7 +78,9 @@ export class EdgeConfig {
         }
 
         // Initialize Widgets
-        this.widgets = Widgets.parseWidgets(edge, this);
+        if (edge != null) {
+            this.widgets = Widgets.parseWidgets(edge, this);
+        }
     }
 
     /**
@@ -99,7 +101,7 @@ export class EdgeConfig {
     /**
      * UI-Widgets.
      */
-    public readonly widgets: Widgets;
+    public readonly widgets: Widgets | null = null;
 
     public isValid(): boolean {
         return Object.keys(this.components).length > 0 && Object.keys(this.factories).length > 0;
@@ -497,7 +499,7 @@ export class EdgeConfig {
      * 
      * @param address the ChannelAddress
      */
-    public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
+    public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel | null {
         let component = this.components[address.componentId];
         if (component) {
             return component.channels[address.channelId];
@@ -509,16 +511,18 @@ export class EdgeConfig {
 
 export module EdgeConfig {
     export class ComponentChannel {
-        public readonly type: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
-        public readonly accessMode: "RO" | "RW" | "WO";
-        public readonly unit: string;
-        public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+        public readonly type?: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
+        public readonly accessMode?: "RO" | "RW" | "WO";
+        public readonly unit?: string;
+        public readonly category?: "OPENEMS_TYPE" | "ENUM" | "STATE";
+        public readonly level?: string
     }
 
     export class Component {
         public id: string = "";
         public alias: string = "";
         public isEnabled: boolean = false;
+        showProperties?: boolean;
 
         constructor(
             public readonly factoryId: string = "",
@@ -528,12 +532,12 @@ export module EdgeConfig {
     }
 
     export class FactoryProperty {
-        public readonly id: string;
-        public readonly name: string;
-        public readonly description: string;
-        public readonly isRequired: boolean;
+        public readonly id?: string;
+        public readonly name?: string;
+        public readonly description?: string;
+        public readonly isRequired?: boolean;
         public readonly defaultValue: any;
-        public readonly schema: {};
+        public readonly schema?: {};
     }
 
     export class Factory {
@@ -552,7 +556,7 @@ export module EdgeConfig {
          * 
          * @param propertyId the Property-ID
          */
-        static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty {
+        static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty | null {
             for (let property of factory.properties) {
                 if (property.id === propertyId) {
                     return property;

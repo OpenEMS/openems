@@ -17,11 +17,11 @@ export class ProfileComponent {
 
   public env = environment;
 
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
   public subscribedChannels: ChannelAddress[] = [];
 
-  public components: CategorizedComponents[];
+  public components: CategorizedComponents[] = [];
 
   constructor(
     private service: Service,

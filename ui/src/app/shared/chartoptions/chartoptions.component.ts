@@ -10,8 +10,8 @@ import { ChartOptionsPopoverComponent } from './popover/popover.component';
 })
 export class ChartOptionsComponent {
 
-    @Input() public showPhases: boolean;
-    @Input() public showTotal: boolean;
+    @Input() public showPhases: boolean | null = null;
+    @Input() public showTotal: boolean | null = null;
     @Output() setShowPhases = new EventEmitter<boolean>();
     @Output() setShowTotal = new EventEmitter<boolean>();
 

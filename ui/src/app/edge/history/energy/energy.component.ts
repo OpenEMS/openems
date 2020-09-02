@@ -92,7 +92,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         }
         fileName += EnergyComponent.EXCEL_EXTENSION;
         FileSaver.saveAs(data, fileName);
-
       }).catch(reason => {
         console.warn(reason);
       })
@@ -130,9 +129,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           // convert datasets
           let datasets = [];
 
-          if (!edge.isVersionAtLeast('2018.8')) {
-            this.convertDeprecatedData(config, result.data); // TODO deprecated
-          }
+          // if (!edge.isVersionAtLeast('2018.8')) {
+          //   this.convertDeprecatedData(config, result.data); // TODO deprecated
+          // }
 
           // push data for right y-axis
           if ('_sum/EssSoc' in result.data) {
@@ -338,60 +337,60 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      if (edge.isVersionAtLeast('2018.8')) {
+      // if (edge.isVersionAtLeast('2018.8')) {
+      //   let result: ChannelAddress[] = [];
+      //   config.widgets.classes.forEach(clazz => {
+      //     switch (clazz.toString()) {
+      //       case 'Grid':
+      //         result.push(new ChannelAddress('_sum', 'GridActivePower'));
+      //         break;
+      //       case 'Consumption':
+      //         result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
+      //         break;
+      //       case 'Storage':
+      //         result.push(new ChannelAddress('_sum', 'EssSoc'))
+      //         result.push(new ChannelAddress('_sum', 'EssActivePower'));
+      //         break;
+      //       case 'Production':
+      //         result.push(
+      //           new ChannelAddress('_sum', 'ProductionActivePower'),
+      //           new ChannelAddress('_sum', 'ProductionDcActualPower'));
+      //         break;
+      //     };
+      //     return false;
+      //   });
+      //   resolve(result);
+
+      // } else {
+      this.service.getConfig().then(config => {
+        let ignoreIds = config.getComponentIdsImplementingNature("FeneconMiniConsumptionMeter");
+        ignoreIds.push.apply(ignoreIds, config.getComponentIdsByFactory("io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature"));
+
+        // TODO: remove after full migration
         let result: ChannelAddress[] = [];
-        config.widgets.classes.forEach(clazz => {
-          switch (clazz.toString()) {
-            case 'Grid':
-              result.push(new ChannelAddress('_sum', 'GridActivePower'));
-              break;
-            case 'Consumption':
-              result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
-              break;
-            case 'Storage':
-              result.push(new ChannelAddress('_sum', 'EssSoc'))
-              result.push(new ChannelAddress('_sum', 'EssActivePower'));
-              break;
-            case 'Production':
-              result.push(
-                new ChannelAddress('_sum', 'ProductionActivePower'),
-                new ChannelAddress('_sum', 'ProductionDcActualPower'));
-              break;
-          };
-          return false;
-        });
+
+        // Ess
+        let asymmetricEssChannels = this.getAsymmetric(config.getComponentIdsImplementingNature("AsymmetricEssNature"), ignoreIds);
+        if (asymmetricEssChannels.length > 0) {
+          // this is an AsymmetricEss Nature
+          result.push.apply(result, asymmetricEssChannels);
+        } else {
+          // this is a SymmetricEss Nature
+          result.push.apply(result, this.getSymmetric(config.getComponentIdsImplementingNature("SymmetricEssNature"), ignoreIds));
+        }
+
+        // Chargers
+        result.push.apply(result, this.getCharger(config.getComponentIdsImplementingNature("ChargerNature"), ignoreIds));
+
+        // Meters
+        let asymmetricMeterIds = config.getComponentIdsImplementingNature("AsymmetricMeterNature");
+        result.push.apply(result, this.getAsymmetric(asymmetricMeterIds, ignoreIds));
+        let symmetricMeterIds = config.getComponentIdsImplementingNature("SymmetricMeterNature").filter(id => !asymmetricMeterIds.includes(id));
+        result.push.apply(result, this.getSymmetric(symmetricMeterIds, ignoreIds));
+
         resolve(result);
-
-      } else {
-        this.service.getConfig().then(config => {
-          let ignoreIds = config.getComponentIdsImplementingNature("FeneconMiniConsumptionMeter");
-          ignoreIds.push.apply(ignoreIds, config.getComponentIdsByFactory("io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature"));
-
-          // TODO: remove after full migration
-          let result: ChannelAddress[] = [];
-
-          // Ess
-          let asymmetricEssChannels = this.getAsymmetric(config.getComponentIdsImplementingNature("AsymmetricEssNature"), ignoreIds);
-          if (asymmetricEssChannels.length > 0) {
-            // this is an AsymmetricEss Nature
-            result.push.apply(result, asymmetricEssChannels);
-          } else {
-            // this is a SymmetricEss Nature
-            result.push.apply(result, this.getSymmetric(config.getComponentIdsImplementingNature("SymmetricEssNature"), ignoreIds));
-          }
-
-          // Chargers
-          result.push.apply(result, this.getCharger(config.getComponentIdsImplementingNature("ChargerNature"), ignoreIds));
-
-          // Meters
-          let asymmetricMeterIds = config.getComponentIdsImplementingNature("AsymmetricMeterNature");
-          result.push.apply(result, this.getAsymmetric(asymmetricMeterIds, ignoreIds));
-          let symmetricMeterIds = config.getComponentIdsImplementingNature("SymmetricMeterNature").filter(id => !asymmetricMeterIds.includes(id));
-          result.push.apply(result, this.getSymmetric(symmetricMeterIds, ignoreIds));
-
-          resolve(result);
-        })
-      }
+      })
+      // }
     })
   }
 

@@ -4,6 +4,7 @@ import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 @Component({
   selector: ComponentInstallComponent.SELECTOR,
@@ -13,13 +14,13 @@ export class ComponentInstallComponent implements OnInit {
 
   private static readonly SELECTOR = "componentInstall";
 
-  public edge: Edge = null;
-  public factory: EdgeConfig.Factory = null;
-  public form = null;
-  public model = null;
-  public fields: FormlyFieldConfig[] = null;
+  public edge: Edge | null = null;
+  public factory: EdgeConfig.Factory | null = null;
+  public form: FormGroup | null = null;
+  public model: DefaultTypes.FormlyModel | null = null;
+  public fields: FormlyFieldConfig[] = [];
 
-  private factoryId: string = null;
+  private factoryId: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -39,7 +40,7 @@ export class ComponentInstallComponent implements OnInit {
       this.factoryId = factoryId;
       this.factory = config.factories[factoryId];
       let fields: FormlyFieldConfig[] = [];
-      let model = {};
+      let model: DefaultTypes.FormlyModel = {};
       for (let property of this.factory.properties) {
         let property_id = property.id.replace('.', '_');
         let field: FormlyFieldConfig = {
@@ -54,7 +55,7 @@ export class ComponentInstallComponent implements OnInit {
         Utils.deepCopy(property.schema, field);
         fields.push(field);
         if (property.defaultValue != null) {
-          model[property_id] = property.defaultValue;
+          model.property_id = property.defaultValue;
 
           // Set the next free Component-ID as defaultValue
           if (property_id == 'id') {
@@ -72,7 +73,7 @@ export class ComponentInstallComponent implements OnInit {
                   }
                 }
               }
-              model[property_id] = thisPrefix + highestSuffix;
+              model.property_id = thisPrefix + highestSuffix;
             }
           }
         }
@@ -85,22 +86,26 @@ export class ComponentInstallComponent implements OnInit {
 
   public submit() {
     let properties: { name: string, value: any }[] = [];
-    for (let controlKey in this.form.controls) {
-      let control = this.form.controls[controlKey];
-      if (control.value === null) {
-        // ignore 'null' values
-        continue;
+    if (this.form != null && this.edge != null) {
+
+      for (let controlKey in this.form.controls) {
+        let control = this.form.controls[controlKey];
+        if (control.value === null) {
+          // ignore 'null' values
+          continue;
+        }
+        let property_id = controlKey.replace('_', '.');
+        properties.push({ name: property_id, value: control.value });
       }
-      let property_id = controlKey.replace('_', '.');
-      properties.push({ name: property_id, value: control.value });
+
+      this.edge.createComponentConfig(this.websocket, this.factoryId, properties).then(response => {
+        if (this.form != null) {
+          this.form.markAsPristine();
+        }
+        this.service.toast("Successfully created in instance of " + this.factoryId + ".", 'success');
+      }).catch(reason => {
+        this.service.toast("Error creating an instance of " + this.factoryId + ":" + reason.error.message, 'danger');
+      });
     }
-
-    this.edge.createComponentConfig(this.websocket, this.factoryId, properties).then(response => {
-      this.form.markAsPristine();
-      this.service.toast("Successfully created in instance of " + this.factoryId + ".", 'success');
-    }).catch(reason => {
-      this.service.toast("Error creating an instance of " + this.factoryId + ":" + reason.error.message, 'danger');
-    });
   }
-
 }

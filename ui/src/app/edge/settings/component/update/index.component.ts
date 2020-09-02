@@ -17,8 +17,8 @@ export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
-  public config: EdgeConfig = null;
-  public list: MyCategorizedComponents[];
+  public config: EdgeConfig | null = null;
+  public list: MyCategorizedComponents[] = [];
 
   public showAllEntries = false;
 

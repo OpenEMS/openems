@@ -17,7 +17,7 @@ export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentInstall";
 
-  public list: MyCategorizedFactories[];
+  public list: MyCategorizedFactories[] = [];
 
   public showAllFactories = false;
 

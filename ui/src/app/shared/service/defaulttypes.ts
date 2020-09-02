@@ -12,6 +12,11 @@ export module DefaultTypes {
     value: string
   };
 
+  export interface FormlyModel {
+    property_id?: string,
+    value?: string
+  }
+
   export interface ChannelAddresses {
     [componentId: string]: string[];
   }
@@ -24,64 +29,64 @@ export module DefaultTypes {
   export interface Summary {
     system: {
       // the balance sheet total power of all power that enters the the system (production, discharge, buy-from-grid), respectively leaves the system (consumption, charge, sell-to-grid)
-      totalPower: number,
+      totalPower: number | null,
       // autarchy in percent
-      autarchy: number,
+      autarchy: number | null,
       // self consumption in percent
-      selfConsumption: number,
+      selfConsumption: number | null,
       // state 0: Ok, 1: Info, 2: Warning, 3: Fault
-      state: number
+      state: number | null
     }, storage: {
-      soc: number,
-      activePowerL1: number,
-      activePowerL2: number,
-      activePowerL3: number,
-      effectiveActivePowerL1: number,
-      effectiveActivePowerL2: number,
-      effectiveActivePowerL3: number,
-      chargeActivePower: number,
-      chargeActivePowerAc: number,
-      chargeActivePowerDc: number,
-      maxChargeActivePower?: number,
-      dischargeActivePower: number,
-      dischargeActivePowerAc: number,
-      dischargeActivePowerDc: number,
-      maxDischargeActivePower?: number,
-      powerRatio: number,
-      maxApparentPower: number,
-      effectivePower: number,
-      effectiveChargePower: number,
-      effectiveDischargePower: number,
-      capacity: number,
+      soc: number | null,
+      activePowerL1: number | null,
+      activePowerL2: number | null,
+      activePowerL3: number | null,
+      effectiveActivePowerL1: number | null,
+      effectiveActivePowerL2: number | null,
+      effectiveActivePowerL3: number | null,
+      chargeActivePower: number | null,
+      chargeActivePowerAc: number | null,
+      chargeActivePowerDc: number | null,
+      maxChargeActivePower?: number | null,
+      dischargeActivePower: number | null,
+      dischargeActivePowerAc: number | null,
+      dischargeActivePowerDc: number | null,
+      maxDischargeActivePower?: number | null,
+      powerRatio: number | null,
+      maxApparentPower: number | null,
+      effectivePower: number | null,
+      effectiveChargePower: number | null,
+      effectiveDischargePower: number | null,
+      capacity: number | null,
     }, production: {
-      powerRatio: number,
-      hasDC: boolean,
-      activePower: number, // sum of activePowerAC and activePowerDC
-      activePowerAc: number,
-      activePowerAcL1: number,
-      activePowerAcL2: number,
-      activePowerAcL3: number,
-      activePowerDc: number,
-      maxActivePower: number
+      powerRatio: number | null,
+      hasDC: boolean | null,
+      activePower: number | null, // sum of activePowerAC and activePowerDC
+      activePowerAc: number | null,
+      activePowerAcL1: number | null,
+      activePowerAcL2: number | null,
+      activePowerAcL3: number | null,
+      activePowerDc: number | null,
+      maxActivePower: number | null
     }, grid: {
-      powerRatio: number,
-      activePowerL1: number,
-      activePowerL2: number,
-      activePowerL3: number,
-      buyActivePower: number,
-      maxBuyActivePower: number,
-      sellActivePower: number,
-      sellActivePowerL1: number,
-      sellActivePowerL2: number,
-      sellActivePowerL3: number,
-      maxSellActivePower: number,
-      gridMode: number
+      powerRatio: number | null,
+      activePowerL1: number | null,
+      activePowerL2: number | null,
+      activePowerL3: number | null,
+      buyActivePower: number | null,
+      maxBuyActivePower: number | null,
+      sellActivePower: number | null,
+      sellActivePowerL1: number | null,
+      sellActivePowerL2: number | null,
+      sellActivePowerL3: number | null,
+      maxSellActivePower: number | null,
+      gridMode: number | null
     }, consumption: {
-      powerRatio: number,
-      activePower: number,
-      activePowerL1: number,
-      activePowerL2: number,
-      activePowerL3: number
+      powerRatio: number | null,
+      activePower: number | null,
+      activePowerL1: number | null,
+      activePowerL2: number | null,
+      activePowerL3: number | null
     }
   }
 

@@ -7,7 +7,7 @@ import { Component, Input } from '@angular/core';
 })
 export class PercentageBarComponent {
 
-    @Input() public value: number;
+    @Input() public value: number = 0;
 
     constructor(
     ) { }
