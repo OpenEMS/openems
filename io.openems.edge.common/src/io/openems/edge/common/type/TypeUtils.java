@@ -31,6 +31,10 @@ public class TypeUtils {
 		if (value instanceof OptionsEnum) {
 			value = ((OptionsEnum) value).getValue();
 		}
+		// Extract Enum (lower priority than OptionsEnum)
+		if (value instanceof Enum<?>) {
+			value = ((Enum<?>) value).ordinal();
+		}
 		switch (type) {
 		case BOOLEAN:
 			if (value == null) {

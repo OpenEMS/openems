@@ -1,6 +1,7 @@
 = B-Control | TQ-Systems EM300 Meter
 
-Implemented Natures::
+Implemented Natures
+
 - SymmetricMeter
 - AsymmetricMeter
 
