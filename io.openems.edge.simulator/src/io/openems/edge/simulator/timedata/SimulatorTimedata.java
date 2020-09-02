@@ -128,7 +128,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
-		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator-App");
+		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator");
 	}
 
 	/**
