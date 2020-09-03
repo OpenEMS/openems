@@ -11,7 +11,7 @@ import { JsonrpcResponseError } from '../jsonrpc/base';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { Edges } from '../jsonrpc/shared';
-import { ChannelAddress } from '../shared';
+import { ChannelAddress, Websocket } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
@@ -47,7 +47,7 @@ export class Service implements ErrorHandler {
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
-  public websocket = null;
+  public websocket: Websocket | null = null;
 
   constructor(
     private router: Router,
@@ -124,7 +124,7 @@ export class Service implements ErrorHandler {
   /**
    * Parses the route params and sets the current edge
    */
-  public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
+  public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge | null> {
     return new Promise((resolve) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
@@ -143,7 +143,24 @@ export class Service implements ErrorHandler {
         resolve(null);
       }
 
-      let subscription: Subscription = null;
+      let subscription: Subscription | null = null;
+
+      let timeout = setTimeout(() => {
+        console.error("Timeout while setting current edge");
+        //  onError();
+      }, Service.TIMEOUT);
+
+      let setCurrentEdge = (edge: Edge | null) => {
+        clearTimeout(timeout);
+        if (edge != this.currentEdge.value) {
+          if (edge && this.websocket != null) {
+            edge.markAsCurrentEdge(this.websocket);
+          }
+          this.currentEdge.next(edge);
+        }
+        resolve(edge);
+      }
+
       let onError = () => {
         if (subscription != null) {
           subscription.unsubscribe();
@@ -151,22 +168,6 @@ export class Service implements ErrorHandler {
         setCurrentEdge.apply(null);
         // redirect to index
         this.router.navigate(['/index']);
-      }
-
-      let timeout = setTimeout(() => {
-        console.error("Timeout while setting current edge");
-        //  onError();
-      }, Service.TIMEOUT);
-
-      let setCurrentEdge = (edge: Edge) => {
-        clearTimeout(timeout);
-        if (edge != this.currentEdge.value) {
-          if (edge != null) {
-            edge.markAsCurrentEdge(this.websocket);
-          }
-          this.currentEdge.next(edge);
-        }
-        resolve(edge);
       }
 
       subscription = this.edges
@@ -200,12 +201,14 @@ export class Service implements ErrorHandler {
   public getConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
       this.getCurrentEdge().then(edge => {
-        edge.getConfig(this.websocket).pipe(
-          filter(config => config != null && config.isValid()),
-          first()
-        ).toPromise()
-          .then(config => resolve(config))
-          .catch(reason => reject(reason));
+        if (this.websocket != null) {
+          edge.getConfig(this.websocket).pipe(
+            filter(config => config != null && config.isValid()),
+            first()
+          ).toPromise()
+            .then(config => resolve(config))
+            .catch(reason => reject(reason));
+        }
       })
         .catch(reason => reject(reason));
     });
@@ -215,25 +218,29 @@ export class Service implements ErrorHandler {
    * Handles being authenticated. Updates the list of Edges.
    */
   public handleAuthentication(token: string, edges: Edges) {
-    this.websocket.status = 'online';
+    if (this.websocket != null) {
+      this.websocket.status = 'online';
 
-    // received login token -> save in cookie
-    this.setToken(token);
+      // received login token -> save in cookie
+      this.setToken(token);
 
-    // Metadata
-    let newEdges = {};
-    for (let edge of edges) {
-      let newEdge = new Edge(
-        edge.id,
-        edge.comment,
-        edge.producttype,
-        ("version" in edge) ? edge["version"] : "0.0.0",
-        Role.getRole(edge.role),
-        edge.isOnline
-      );
-      newEdges[newEdge.id] = newEdge;
+      // Metadata
+      let newEdges = {};
+      for (let edge of edges) {
+        let newEdge = new Edge(
+          edge.id,
+          edge.comment,
+          edge.producttype,
+          ("version" in edge) ? edge["version"] : "0.0.0",
+          Role.getRole(edge.role),
+          edge.isOnline
+        );
+        newEdges[newEdge.id] = newEdge;
+      }
+      this.edges.next(newEdges);
+    } else {
+      console.error("handleAuthentication failed. Websocket is null")
     }
-    this.edges.next(newEdges);
   }
 
   /**
@@ -273,7 +280,7 @@ export class Service implements ErrorHandler {
 
         // merge requests
         let mergedRequests: {
-          fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
+          fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve: any, reject: any }[];
         }[] = [];
         let request;
         while (request = this.queryEnergyQueue.pop()) {
@@ -311,22 +318,26 @@ export class Service implements ErrorHandler {
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
             let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.fromDate, source.channels);
-            edge.sendRequest(this.websocket, request).then(response => {
-              let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-              if (Object.keys(result.data).length != 0) {
-                for (let promise of source.promises) {
-                  promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
+            if (this.websocket != null) {
+              edge.sendRequest(this.websocket, request).then(response => {
+                let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+                if (Object.keys(result.data).length != 0) {
+                  for (let promise of source.promises) {
+                    promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
+                  }
+                } else {
+                  for (let promise of source.promises) {
+                    promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                  }
                 }
-              } else {
+              }).catch(reason => {
                 for (let promise of source.promises) {
-                  promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                  promise.reject(reason);
                 }
-              }
-            }).catch(reason => {
-              for (let promise of source.promises) {
-                promise.reject(reason);
-              }
-            });
+              });
+            } else {
+              console.error("Websocket is null")
+            }
           }
         });
       }, 100);
@@ -335,7 +346,7 @@ export class Service implements ErrorHandler {
   }
 
   private queryEnergyQueue: {
-    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
+    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve: any, reject: any }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
 

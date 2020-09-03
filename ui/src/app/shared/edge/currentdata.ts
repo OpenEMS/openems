@@ -115,10 +115,8 @@ export class CurrentData {
       if (!result.production.maxActivePower) {
         result.production.maxActivePower = 10000;
       }
-      if (result.production.activePower != null) {
-        result.production.powerRatio = Utils.orElse(Utils.divideSafely(result.production.activePower, result.production.maxActivePower), 0);
-        result.production.activePowerDc = c['_sum/ProductionDcActualPower'];
-      }
+      result.production.powerRatio = Utils.orElse(Utils.divideSafely(result.production.activePower != null ? result.production.activePower : 0, result.production.maxActivePower), 0);
+      result.production.activePowerDc = c['_sum/ProductionDcActualPower'];
     }
 
     {
@@ -151,10 +149,8 @@ export class CurrentData {
         result.storage.dischargeActivePowerAc = null;
         result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
       }
-      if (result.storage.chargeActivePowerAc && result.storage.chargeActivePowerDc != null) {
-        result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAc, result.storage.chargeActivePowerDc);
-        result.storage.dischargeActivePower = result.storage.dischargeActivePowerAc;
-      }
+      result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAc, result.storage.chargeActivePowerDc);
+      result.storage.dischargeActivePower = result.storage.dischargeActivePowerAc;
 
       let effectivePower;
       let effectivePowerL1;
@@ -167,26 +163,23 @@ export class CurrentData {
         effectivePowerL2 = null;
         effectivePowerL3 = null;
       } else {
-        if (result.storage.activePowerL1 && result.storage.activePowerL2 && result.storage.activePowerL3 &&
-          result.storage.dischargeActivePowerAc && result.storage.chargeActivePowerAc && result.production.activePowerDc != null) {
-          effectivePowerL1 = Utils.subtractSafely(
-            result.storage.activePowerL1, result.production.activePowerDc / 3);
-          result.storage.effectiveActivePowerL1 = effectivePowerL1;
+        effectivePowerL1 = Utils.subtractSafelyDividor(
+          result.storage.activePowerL1, result.production.activePowerDc, 3, result.production.activePowerDc);
+        result.storage.effectiveActivePowerL1 = effectivePowerL1;
 
-          effectivePowerL2 = Utils.subtractSafely(
-            result.storage.activePowerL2, result.production.activePowerDc / 3);
-          result.storage.effectiveActivePowerL2 = effectivePowerL2;
+        effectivePowerL2 = Utils.subtractSafelyDividor(
+          result.storage.activePowerL2, result.production.activePowerDc, 3, result.production.activePowerDc);
+        result.storage.effectiveActivePowerL2 = effectivePowerL2;
 
-          effectivePowerL3 = Utils.subtractSafely(
-            result.storage.activePowerL3, result.production.activePowerDc / 3);
-          result.storage.effectiveActivePowerL3 = effectivePowerL3;
+        effectivePowerL3 = Utils.subtractSafelyDividor(
+          result.storage.activePowerL3, result.production.activePowerDc, 3, result.production.activePowerDc);
+        result.storage.effectiveActivePowerL3 = effectivePowerL3;
 
-          effectivePower = Utils.subtractSafely(
-            Utils.subtractSafely(
-              Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc
-            ), result.production.activePowerDc);
-          result.storage.effectivePower = effectivePower;
-        }
+        effectivePower = Utils.subtractSafely(
+          Utils.subtractSafely(
+            Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc
+          ), result.production.activePowerDc);
+        result.storage.effectivePower = effectivePower;
       }
       if (effectivePower != null) {
         if (effectivePower > 0) {
@@ -223,22 +216,18 @@ export class CurrentData {
       /*
       * Total
       */
-      if (result.production.activePower && result.storage.dischargeActivePowerAc && result.consumption.activePower != null
-        && result.storage.chargeActivePowerAc != null) {
-        result.system.totalPower = Math.max(
-          // Productions
-          result.grid.buyActivePower
-
-          + (result.production.activePower > 0 ? result.production.activePower : 0)
-          + result.storage.dischargeActivePowerAc,
-          + (result.consumption.activePower < 0 ? result.consumption.activePower * -1 : 0),
-          // Consumptions
-          result.grid.sellActivePower
-          + (result.production.activePower < 0 ? result.production.activePower * -1 : 0)
-          + result.storage.chargeActivePowerAc,
-          + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
-        );
-      }
+      result.system.totalPower = Math.max(
+        // Productions
+        result.grid.buyActivePower
+        + (Utils.orElse(result.production.activePower, 0) > 0 ? Utils.orElse(result.production.activePower, 0) : 0)
+        + Utils.orElse(result.storage.dischargeActivePowerAc, 0),
+        + (Utils.orElse(result.consumption.activePower, 0) < 0 ? Utils.orElse(result.consumption.activePower, 0) * -1 : 0),
+        // Consumptions
+        result.grid.sellActivePower
+        + (Utils.orElse(result.production.activePower, 0) < 0 ? Utils.orElse(result.production.activePower, 0) * -1 : 0)
+        + Utils.orElse(result.storage.chargeActivePowerAc, 0),
+        + (Utils.orElse(result.consumption.activePower, 0) > 0 ? Utils.orElse(result.consumption.activePower, 0) : 0)
+      );
       if (result.consumption.activePower != null) {
         result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
       }
@@ -254,12 +243,12 @@ export class CurrentData {
     return Math.max(
       Utils.orElse(
         (
-          1 - (
+          1 - Utils.orElse((
             Utils.divideSafely(
               Utils.orElse(buyFromGrid, 0),
               Math.max(Utils.orElse(consumptionActivePower, 0), 0)
             )
-          )
+          ), 0)
         ) * 100, 0
       ), 0)
   }
@@ -272,16 +261,16 @@ export class CurrentData {
       return Math.max(
         Utils.orElse(
           (
-            1 - (
+            1 - Utils.orElse((
               Utils.divideSafely(
                 Utils.orElse(sellToGrid, 0), (
-                Utils.addSafely(
+                Utils.orElse(Utils.addSafely(
                   Math.max(Utils.orElse(productionActivePower, 0), 0),
                   Utils.orElse(storageDischargeActivePower, 0)
-                )
+                ), 0)
               )
               )
-            )
+            ), 0)
           ) * 100, 0
         ), 0)
     }

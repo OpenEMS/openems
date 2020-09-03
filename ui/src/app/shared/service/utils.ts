@@ -7,7 +7,7 @@ export class Utils {
    * Promise with timeout
    * Source: https://italonascimento.github.io/applying-a-timeout-to-your-promises/
    */
-  public static timeoutPromise = function (ms, promise) {
+  public static timeoutPromise = function (ms: number, promise: any) {
     // Create a promise that rejects in <ms> milliseconds
     let timeout = new Promise((resolve, reject) => {
       let id = setTimeout(() => {
@@ -100,14 +100,14 @@ export class Utils {
    * @param element
    * @param array
    */
-  public static isLastElement(element, array: any[]) {
+  public static isLastElement(element: any, array: any[]) {
     return element == array[array.length - 1];
   }
 
   /**
    * Returns the short classname
    */
-  public classname(value): string {
+  public classname(value: string): string {
     let parts = value.split(".");
     return parts[parts.length - 1];
   }
@@ -169,13 +169,15 @@ export class Utils {
    * @param v1 
    * @param v2 
    */
-  public static addSafely(v1: number, v2: number): number {
-    if (v1 == null) {
+  public static addSafely(v1: number | null, v2: number | null): number | null {
+    if (v1 == null && v2 != null) {
       return v2;
-    } else if (v2 == null) {
+    } else if (v1 != null && v2 == null) {
       return v1;
-    } else {
+    } else if (v1 != null && v2 != null) {
       return v1 + v2;
+    } else {
+      return null;
     }
   }
 
@@ -185,13 +187,44 @@ export class Utils {
    * @param v1 
    * @param v2 
    */
-  public static subtractSafely(v1: number, v2: number): number {
-    if (v1 == null) {
+  public static subtractSafely(v1: number | null, v2: number | null): number | null {
+    if (v1 == null && v2 != null) {
       return v2;
-    } else if (v2 == null) {
+    } else if (v1 != null && v2 == null) {
       return v1;
-    } else {
+    } else if (v1 != null && v2 != null) {
       return v1 - v2;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Safely subtracts two - possibly 'null' - values: v1 - v2
+   * with dividor for v1 || v2
+   * 
+   * @param v1 value which will be substracted from
+   * @param v2 value which will be the subsctractor
+   * @param dividor
+   * @param v3 set v1 || v2 which will be divided
+   * 
+   */
+  public static subtractSafelyDividor(v1: number | null, v2: number | null, dividor: number, v3: number | null): number | null {
+
+    if (v3 == v2 && v2 != null) {
+      v2 = v2 / dividor;
+    } else if (v3 == v1 && v1 != null) {
+      v1 = v1 / dividor
+    }
+
+    if (v1 == null && v2 != null) {
+      return v2;
+    } else if (v1 != null && v2 == null) {
+      return v1;
+    } else if (v1 != null && v2 != null) {
+      return v1 - v2;
+    } else {
+      return null;
     }
   }
 
@@ -201,7 +234,7 @@ export class Utils {
    * @param v1 
    * @param v2 
    */
-  public static divideSafely(v1: number, v2: number): number {
+  public static divideSafely(v1: number, v2: number): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else if (v2 == 0) {
@@ -217,7 +250,7 @@ export class Utils {
    * @param v1 
    * @param v2 
    */
-  public static multiplySafely(v1: number, v2: number): number {
+  public static multiplySafely(v1: number, v2: number): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else {
@@ -245,7 +278,7 @@ export class Utils {
    * @param orElse the default value
    * @returns      the value or the default value
    */
-  public static orElse(v: number, orElse: number): number {
+  public static orElse(v: number | null, orElse: number): number {
     if (v == null) {
       return orElse;
     } else {
