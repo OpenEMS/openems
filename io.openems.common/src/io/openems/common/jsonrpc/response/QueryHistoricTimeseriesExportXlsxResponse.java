@@ -55,6 +55,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	public static ChannelAddress ESS_DC_CHARGE_ENERGY = new ChannelAddress("_sum", "EssDcChargeEnergy");
 	public static ChannelAddress ESS_DC_DISCHARGE_ENERGY = new ChannelAddress("_sum", "EssDcDischargeEnergy");
 	public static ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
+	public static ChannelAddress ESS_AMPERE_HOURS = new ChannelAddress("_sum", "EssAmpereHours");
 
 	/**
 	 * All Power Channels, i.e. Channels that are exported per channel and
@@ -77,7 +78,8 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			PRODUCTION_ACTIVE_ENERGY, //
 			CONSUMPTION_ACTIVE_ENERGY, //
 			ESS_DC_CHARGE_ENERGY, //
-			ESS_DC_DISCHARGE_ENERGY //
+			ESS_DC_DISCHARGE_ENERGY, //
+			ESS_AMPERE_HOURS
 	).collect(Collectors.toCollection(HashSet::new));
 
 	/**
@@ -145,7 +147,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	 * @param toDate   the todate the excel exported to
 	 */
 	protected static void addBasicInfo(Worksheet ws, String edgId, ZonedDateTime fromDate, ZonedDateTime toDate) {
-		addStringValueBold(ws, 0, 0, "FEMS-Nr.");
+		addStringValueBold(ws, 0, 0, "hy-control-Nr.");
 		addStringValue(ws, 0, 1, edgId);
 		addStringValueBold(ws, 1, 0, "Export erstellt am");
 		addStringValue(ws, 1, 1, ZonedDateTime.now().format(DATE_TIME_FORMATTER));
@@ -184,10 +186,14 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		// Charge energy
 		addStringValueBold(ws, 4, 5, "Speicher Entladung [kWh]");
 		addKwhValueIfnotNull(ws, 5, 5, data.get(ESS_DC_DISCHARGE_ENERGY));
+		
+		// Charge energy
+		addStringValueBold(ws, 4, 6, "Speicher Ladungsmenge [Ah]");
+		addFloatValue(ws, 5, 6, data.get(ESS_AMPERE_HOURS).getAsFloat());
 
 		// Consumption energy
-		addStringValueBold(ws, 4, 6, "Verbrauch [kWh]");
-		addKwhValueIfnotNull(ws, 5, 6, data.get(CONSUMPTION_ACTIVE_ENERGY));
+		addStringValueBold(ws, 4, 7, "Verbrauch [kWh]");
+		addKwhValueIfnotNull(ws, 5, 7, data.get(CONSUMPTION_ACTIVE_ENERGY));
 	}
 
 	/**
