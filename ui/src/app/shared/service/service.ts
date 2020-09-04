@@ -378,7 +378,7 @@ export class Service implements ErrorHandler {
    * checks if fems is allowed to show kWh
    */
   public isKwhAllowed(edge: Edge): boolean {
-    return false;
+    return true;
   }
 
   /**

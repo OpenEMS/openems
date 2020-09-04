@@ -17,6 +17,9 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
 
     public edge: Edge = null;
     public data: Cumulated = null;
+    public chargerComponents: EdgeConfig.Component[] = [];
+    public productionMeterComponents: EdgeConfig.Component[] = [];
+
 
     constructor(
         public service: Service,
@@ -45,16 +48,30 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     this.data = response.result.data;
+                    console.log("data", this.data)
                 })
             });
         })
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        let channels: ChannelAddress[] = [
+            new ChannelAddress('_sum', 'ProductionActiveEnergy')
+        ];
+
+        this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").filter(component => component.isEnabled);
+        for (let component of this.chargerComponents) {
+            channels.push(
+                new ChannelAddress(component.id, 'ActualEnergy'),
+            )
+        }
+        this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
+        for (let component of this.productionMeterComponents) {
+            channels.push(
+                new ChannelAddress(component.id, 'ActiveProductionEnergy')
+            );
+        }
         return new Promise((resolve) => {
-            let channels: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'ProductionActiveEnergy')
-            ];
             resolve(channels);
         });
     }

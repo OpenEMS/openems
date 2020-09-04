@@ -50,6 +50,7 @@ export class ProductionComponent {
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             )
+            console.log("chargerComponents", this.chargerComponents, "\n", "productionMeter", this.productionMeterComponents)
             this.edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, channels);
         })
     };
