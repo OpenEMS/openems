@@ -178,6 +178,7 @@ export const TRANSLATION = {
                     status: 'Staat',
                     totalCharge: 'Totale lading',
                     totalChargingPower: 'Totaal laadvermogen',
+                    unknown: 'Onbekend',
                     unplugged: 'Unplugged',
                     Administration: {
                         carAdministration: 'Auto administratie',

@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.SoltaroBattery;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.Context;
-import io.openems.edge.battery.soltaro.single.versionc.statemachine.State;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine;
+import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -46,7 +46,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.statemachine.StateMachine;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -58,7 +57,7 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		})
 public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent implements SingleRackVersionC,
-		SoltaroBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+		Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(SingleRackVersionCImpl.class);
 
@@ -68,7 +67,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Manages the {@link State}s of the StateMachine.
 	 */
-	private final StateMachine<State, Context> stateMachine = new StateMachine<>(State.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 
@@ -76,7 +75,6 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				SoltaroBattery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SingleRackVersionC.ChannelId.values() //
 		);
@@ -160,26 +158,6 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 				+ "|State:" + this.stateMachine.getCurrentState();
 	}
 
-//	private void checkAllowedCurrent() {
-//		if (isPoleTemperatureTooHot()) {
-//			this.limitMaxCurrent();
-//		}
-//	}
-//
-//	private void limitMaxCurrent() {
-//		// TODO limit current
-//	}
-//
-//	private boolean isPoleTemperatureTooHot() {
-//		StateChannel preAlarmChannel = this.channel(SingleRackVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH);
-//		boolean preAlarm = preAlarmChannel.value().orElse(false);
-//		StateChannel level1Channel = this.channel(SingleRackVersionC.ChannelId.LEVEL1_POWER_POLE_TEMP_HIGH);
-//		boolean level1 = level1Channel.value().orElse(false);
-//		StateChannel level2Channel = this.channel(SingleRackVersionC.ChannelId.LEVEL2_POWER_POLE_TEMP_HIGH);
-//		boolean level2 = level2Channel.value().orElse(false);
-//		return preAlarm || level1 || level2;
-//	}
-
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
@@ -242,7 +220,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 						m(SingleRackVersionC.ChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x20F3)), //
 						m(SingleRackVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x20F4)) //
 				), //
-					// Single Cluster Running Status Registers
+				// Single Cluster Running Status Registers
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100)) //
 								.m(SingleRackVersionC.ChannelId.CLUSTER_1_VOLTAGE,
@@ -254,7 +232,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 										ElementToChannelConverter.SCALE_FACTOR_2) // [mA]
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
-						m(SoltaroBattery.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
+						m(SingleRackVersionC.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), m(new UnsignedWordElement(0x2104)) //
 								.m(SingleRackVersionC.ChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
@@ -333,7 +311,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 								.bit(14, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_HIGH) //
 								.bit(15, SingleRackVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW) //
 						), //
-							// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
+						// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
 						m(new BitsWordElement(0x2141, this) //
 								.bit(0, SingleRackVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
 								.bit(1, SingleRackVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_HIGH) //
@@ -352,7 +330,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 								.bit(14, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_HIGH) //
 								.bit(15, SingleRackVersionC.ChannelId.LEVEL1_DISCHARGE_TEMP_LOW) //
 						), //
-							// Pre-Alarm: Temperature Alarm will active current limication
+						// Pre-Alarm: Temperature Alarm will active current limication
 						m(new BitsWordElement(0x2142, this) //
 								.bit(0, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
 								.bit(1, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
