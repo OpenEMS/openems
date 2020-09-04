@@ -7,7 +7,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.generic.symmetric.statemachine.State;
+import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public interface GenericManagedSymmetricEss extends ManagedSymmetricEss, StartStoppable {
 
