@@ -32,7 +32,7 @@ export class ConsumptionChartOverviewComponent {
                 // determine if singlechart is the only chart that is shown
                 // disable total option to choose for chartoptions component
                 if (this.evcsComponents.length > 0) {
-                    this.showTotal = false;
+                    this.showTotal = true;
                     this.isOnlyChart = false;
                 } else if (this.evcsComponents.length == 0) {
                     this.isOnlyChart = true;

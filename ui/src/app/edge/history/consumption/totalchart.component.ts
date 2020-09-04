@@ -81,6 +81,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     }
                     // convert datasets
                     let datasets = [];
+                    let evcsGreenColor = 255;
 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
@@ -140,14 +141,15 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         })
                                     }
                                     if (channelAddress.channelId == "ChargePower") {
+                                        evcsGreenColor = evcsGreenColor - 35;
                                         datasets.push({
                                             label: (component.id == component.alias ? component.id : component.alias),
                                             data: data,
                                             hidden: false
                                         });
                                         this.colors.push({
-                                            backgroundColor: 'rgba(128,128,128,0.05)',
-                                            borderColor: 'rgba(128,128,128,1)',
+                                            backgroundColor: 'rgba(45,' + evcsGreenColor.toString() + ',171,0.05)',
+                                            borderColor: 'rgba(45,' + evcsGreenColor.toString() + ',171,1)'
                                         })
                                     }
 
