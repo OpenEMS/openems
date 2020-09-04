@@ -58,7 +58,7 @@ export class Websocket {
       return this.isWebsocketConnected;
     }
     if (env.backend !== 'OpenEMS Edge') {
-      this.service.showLoader();
+      this.service.showLoader('Loading...');
     }
 
 

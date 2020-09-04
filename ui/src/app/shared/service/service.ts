@@ -428,8 +428,8 @@ export class Service implements ErrorHandler {
     return this.auth;
   }
 
-  public showLoader() {
-    this.loader = this.loadingController.create({ message: 'Loading...' }).then((res) => { res.present(); });
+  public showLoader(msg: string) {
+    this.loader = this.loadingController.create({ message: msg }).then((res) => { res.present(); });
   }
 
   public hideLoader() {

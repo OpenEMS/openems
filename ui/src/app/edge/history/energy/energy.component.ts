@@ -47,6 +47,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * Export historic data to Excel file.
    */
   public exportToXlxs() {
+    this.service.showLoader("Generiere Datei...");
     this.service.getCurrentEdge().then(edge => {
       // TODO the order of these channels should be reflected in the excel file
       let dataChannels = [
@@ -79,7 +80,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         const data: Blob = new Blob([view], {
           type: EnergyComponent.EXCEL_TYPE
         });
-
+        this.service.hideLoader();
         let fileName = "Export-" + edge.id + "-";
         let dateFrom = this.service.historyPeriod.from;
         let dateTo = this.service.historyPeriod.to;
@@ -93,10 +94,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           fileName += format(dateFrom, "dd.MM.yyyy") + "-" + format(dateTo, "dd.MM.yyyy");
         }
         fileName += EnergyComponent.EXCEL_EXTENSION;
+
         FileSaver.saveAs(data, fileName);
 
       }).catch(reason => {
         console.warn(reason);
+        this.service.spinnerDialog.hide();
       })
     })
   }
