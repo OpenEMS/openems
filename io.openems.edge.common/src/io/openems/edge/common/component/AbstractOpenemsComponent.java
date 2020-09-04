@@ -236,6 +236,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 						.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
 				if (channel == null) {
 					// Channel does not already exist -> create new Channel
+					if(value instanceof Enum<?>) {
+						// TODO ignore enums for now
+						continue;
+					}
+					
 					Doc doc = AbstractOpenemsComponent.getDocFromObject(value);
 					io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
