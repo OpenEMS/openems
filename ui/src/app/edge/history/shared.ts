@@ -5,7 +5,7 @@ import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
 
 export interface Dataset {
     label: string;
-    data: number[];
+    data: number[] | (number | null)[];
     hidden: boolean;
 }
 

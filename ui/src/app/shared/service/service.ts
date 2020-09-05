@@ -156,7 +156,9 @@ export class Service implements ErrorHandler {
           if (edge && this.websocket != null) {
             edge.markAsCurrentEdge(this.websocket);
           }
-          this.currentEdge.next(edge);
+          if (edge != null) {
+            this.currentEdge.next(edge);
+          }
         }
         resolve(edge);
       }

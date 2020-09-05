@@ -7,6 +7,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { interval, Subject, fromEvent } from 'rxjs';
 import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 
+type colorArray = {
+    backgroundColor: string,
+    borderColor: string
+}
+
 export abstract class AbstractHistoryChart {
 
 
@@ -16,14 +21,14 @@ export abstract class AbstractHistoryChart {
     //observable is used to fetch new chart data every 5 minutes
     private refreshChartData = interval(300000);
     //observable is used to refresh chart height dependend on the window size
-    private refreshChartHeight = fromEvent(window, 'resize', null, null);
+    private refreshChartHeight = fromEvent(window, 'resize');
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     protected labels: Date[] = [];
     protected datasets: Dataset[] = EMPTY_DATASET;
-    protected options: ChartOptions;
-    protected colors = []
+    protected options: ChartOptions | null = null;
+    protected colors: colorArray[] = []
 
     // Colors for Phase 1-3
     protected phase1Color = {

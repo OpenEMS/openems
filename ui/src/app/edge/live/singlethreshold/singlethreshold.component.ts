@@ -32,19 +32,21 @@ export class SinglethresholdComponent {
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      this.service.getConfig().then(config => {
-        this.config = config;
-        this.component = config.getComponent(this.componentId);
-        this.outputChannel = ChannelAddress.fromString(
-          this.component.properties['outputChannelAddress']);
-        this.inputChannel = ChannelAddress.fromString(
-          this.component.properties['inputChannelAddress']);
-        edge.subscribeChannels(this.websocket, SinglethresholdComponent.SELECTOR + this.componentId, [
-          this.inputChannel,
-          this.outputChannel
-        ]);
-      })
+      if (edge != null) {
+        this.edge = edge;
+        this.service.getConfig().then(config => {
+          this.config = config;
+          this.component = config.getComponent(this.componentId);
+          this.outputChannel = ChannelAddress.fromString(
+            this.component.properties['outputChannelAddress']);
+          this.inputChannel = ChannelAddress.fromString(
+            this.component.properties['inputChannelAddress']);
+          edge.subscribeChannels(this.websocket, SinglethresholdComponent.SELECTOR + this.componentId, [
+            this.inputChannel,
+            this.outputChannel
+          ]);
+        })
+      }
     });
   }
 

@@ -20,17 +20,19 @@ export class EnergymonitorComponent {
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      edge.subscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR, [
-        // Ess
-        new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'), new ChannelAddress('_sum', 'EssMaxApparentPower'),
-        // Grid
-        new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'),
-        // Production
-        new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
-        // Consumption
-        new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
-      ]);
+      if (edge != null) {
+        this.edge = edge;
+        edge.subscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR, [
+          // Ess
+          new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'), new ChannelAddress('_sum', 'EssMaxApparentPower'),
+          // Grid
+          new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'),
+          // Production
+          new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
+          // Consumption
+          new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
+        ]);
+      }
     });
   }
 

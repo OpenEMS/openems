@@ -30,17 +30,19 @@ export class ChpSocComponent {
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-            this.service.getConfig().then(config => {
-                this.component = config.components[this.componentId];
-                this.outputChannel = ChannelAddress.fromString(
-                    this.component.properties['outputChannelAddress']);
-                this.inputChannel = ChannelAddress.fromString(
-                    this.component.properties['inputChannelAddress']);
-                edge.subscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId, [
-                    this.outputChannel,
-                    this.inputChannel
-                ]);
-            });
+            if (edge != null) {
+                this.service.getConfig().then(config => {
+                    this.component = config.components[this.componentId];
+                    this.outputChannel = ChannelAddress.fromString(
+                        this.component.properties['outputChannelAddress']);
+                    this.inputChannel = ChannelAddress.fromString(
+                        this.component.properties['inputChannelAddress']);
+                    edge.subscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId, [
+                        this.outputChannel,
+                        this.inputChannel
+                    ]);
+                });
+            }
         });
     }
 

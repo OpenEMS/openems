@@ -66,9 +66,9 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
-        let arrowIndicate: number;
+        let arrowIndicate: number | null;
         // only reacts to kW values (50 W => 0.1 kW rounded)
-        if (sum.consumption.activePower > 49) {
+        if (sum.consumption.activePower != null && sum.consumption.activePower > 49) {
             if (!this.animationTrigger) {
                 this.toggleAnimation();
             }

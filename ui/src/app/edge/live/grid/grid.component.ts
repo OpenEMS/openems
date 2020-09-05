@@ -23,14 +23,16 @@ export class GridComponent {
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      edge.subscribeChannels(this.websocket, GridComponent.SELECTOR, [
-        // Grid
-        new ChannelAddress('_sum', 'GridActivePower'),
-        new ChannelAddress('_sum', 'GridActivePowerL1'),
-        new ChannelAddress('_sum', 'GridActivePowerL2'),
-        new ChannelAddress('_sum', 'GridActivePowerL3'),
-      ]);
+      if (edge != null) {
+        this.edge = edge;
+        edge.subscribeChannels(this.websocket, GridComponent.SELECTOR, [
+          // Grid
+          new ChannelAddress('_sum', 'GridActivePower'),
+          new ChannelAddress('_sum', 'GridActivePowerL1'),
+          new ChannelAddress('_sum', 'GridActivePowerL2'),
+          new ChannelAddress('_sum', 'GridActivePowerL3'),
+        ]);
+      }
     });
   }
 

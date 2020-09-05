@@ -10,13 +10,13 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AdministrationComponent {
 
-  @Input() public evcsComponent: EdgeConfig.Component;
-  @Input() public edge: Edge;
+  @Input() public evcsComponent: EdgeConfig.Component | null = null;
+  @Input() public edge: Edge | null = null;
 
   private static readonly SELECTOR = "administration";
 
   // used for ion-toggle in html
-  public isCheckedZoe: boolean = null;
+  public isCheckedZoe: boolean | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -27,34 +27,41 @@ export class AdministrationComponent {
   ) { }
 
   ngOnInit() {
-    if (this.evcsComponent.properties['minHwCurrent'] == 6000) {
-      this.isCheckedZoe = false;
-    } else if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
-      this.isCheckedZoe = true;
+    if (this.evcsComponent != null) {
+      if (this.evcsComponent.properties['minHwCurrent'] == 6000) {
+        this.isCheckedZoe = false;
+      } else if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
+        this.isCheckedZoe = true;
+      }
     }
   }
 
   updateZoeMode(event: CustomEvent) {
-    let newValue = this.evcsComponent.properties['minHwCurrent'];
-    let oldValue = this.evcsComponent.properties['minHwCurrent'];
+    if (this.evcsComponent != null) {
 
-    if (event.detail.checked == true) {
-      newValue = 10000;
-    } else {
-      newValue = 6000;
-    }
+      let newValue = this.evcsComponent.properties['minHwCurrent'];
+      let oldValue = this.evcsComponent.properties['minHwCurrent'];
 
-    if (this.edge != null && oldValue != newValue) {
-      this.edge.updateComponentConfig(this.websocket, this.evcsComponent.id, [
-        { name: 'minHwCurrent', value: newValue }
-      ]).then(() => {
-        this.evcsComponent.properties.minHwCurrent = newValue;
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-      }).catch(reason => {
-        this.evcsComponent.properties.minHwCurrent = oldValue;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
-        console.warn(reason);
-      });
+      if (event.detail.checked == true) {
+        newValue = 10000;
+      } else {
+        newValue = 6000;
+      }
+      if (this.edge != null && oldValue != newValue) {
+        this.edge.updateComponentConfig(this.websocket, this.evcsComponent.id, [
+          { name: 'minHwCurrent', value: newValue }
+        ]).then(() => {
+          if (this.evcsComponent != null) {
+            this.evcsComponent.properties.minHwCurrent = newValue;
+          }
+          this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        }).catch(reason => {
+          if (this.evcsComponent != null) {
+            this.evcsComponent.properties.minHwCurrent = oldValue;
+          } this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+          console.warn(reason);
+        });
+      }
     }
   }
 }

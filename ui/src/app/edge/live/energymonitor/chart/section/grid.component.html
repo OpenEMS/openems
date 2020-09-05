@@ -8,7 +8,7 @@
             <svg:stop offset="100%" [attr.stop-color]="color" />
         </svg:linearGradient>
     </svg:defs>
-    <svg:polygon [attr.points]="energyFlow.points" attr.fill="url({{ url }}#{{ sectionId }})" />
+    <svg:polygon [attr.points]="energyFlow.points" attr.fill="#{{ sectionId }})" style="fill:#1d1d1d" />
     <ng-container *ngIf="buyAnimationTrigger">
         <svg:polygon [@GridBuy]="stateNameBuy" [attr.points]="energyFlow.animationPoints" style="fill:white" />
     </ng-container>

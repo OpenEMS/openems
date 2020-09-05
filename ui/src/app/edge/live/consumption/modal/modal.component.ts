@@ -1,7 +1,6 @@
 import { Component, Input, ViewChild } from '@angular/core';
 import { Edge, Service, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
-import { ConsumptionComponent } from '../consumption.component';
 
 @Component({
     selector: ConsumptionModalComponent.SELECTOR,

@@ -145,7 +145,7 @@ export class HeaderComponent {
         }
     }
 
-    public updateLiveHistorySegment(navigateTo) {
+    public updateLiveHistorySegment(navigateTo: string) {
         if (navigateTo == "IndexLive") {
             this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
 

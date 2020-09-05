@@ -200,41 +200,12 @@ export class Utils {
   }
 
   /**
-   * Safely subtracts two - possibly 'null' - values: v1 - v2
-   * with dividor for v1 || v2
-   * 
-   * @param v1 value which will be substracted from
-   * @param v2 value which will be the subsctractor
-   * @param dividor
-   * @param v3 set v1 || v2 which will be divided
-   * 
-   */
-  public static subtractSafelyDividor(v1: number | null, v2: number | null, dividor: number, v3: number | null): number | null {
-
-    if (v3 == v2 && v2 != null) {
-      v2 = v2 / dividor;
-    } else if (v3 == v1 && v1 != null) {
-      v1 = v1 / dividor
-    }
-
-    if (v1 == null && v2 != null) {
-      return v2;
-    } else if (v1 != null && v2 == null) {
-      return v1;
-    } else if (v1 != null && v2 != null) {
-      return v1 - v2;
-    } else {
-      return null;
-    }
-  }
-
-  /**
    * Safely divides two - possibly 'null' - values: v1 / v2
    * 
    * @param v1 
    * @param v2 
    */
-  public static divideSafely(v1: number, v2: number): number | null {
+  public static divideSafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else if (v2 == 0) {
@@ -250,7 +221,7 @@ export class Utils {
    * @param v1 
    * @param v2 
    */
-  public static multiplySafely(v1: number, v2: number): number | null {
+  public static multiplySafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else {

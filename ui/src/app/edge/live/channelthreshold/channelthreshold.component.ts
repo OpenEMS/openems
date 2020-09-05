@@ -25,14 +25,16 @@ export class ChannelthresholdComponent {
   ngOnInit() {
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      this.service.getConfig().then(config => {
-        this.component = config.getComponent(this.componentId);
-        this.outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-        edge.subscribeChannels(this.websocket, ChannelthresholdComponent.SELECTOR + this.componentId, [
-          this.outputChannel
-        ]);
-      });
+      if (edge != null) {
+        this.edge = edge;
+        this.service.getConfig().then(config => {
+          this.component = config.getComponent(this.componentId);
+          this.outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+          edge.subscribeChannels(this.websocket, ChannelthresholdComponent.SELECTOR + this.componentId, [
+            this.outputChannel
+          ]);
+        });
+      }
     });
   }
 

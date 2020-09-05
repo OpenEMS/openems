@@ -35,53 +35,55 @@ export class EvcsClusterComponent {
   ngOnInit() {
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      edge.subscribeChannels(this.websocket, EvcsClusterComponent.SELECTOR + this.componentId, [
-        // Evcs
-        new ChannelAddress(this.componentId, 'ChargePower'),
-        new ChannelAddress(this.componentId, 'Phases'),
-        new ChannelAddress(this.componentId, 'Plug'),
-        new ChannelAddress(this.componentId, 'Status'),
-        new ChannelAddress(this.componentId, 'State'),
-        new ChannelAddress(this.componentId, 'EnergySession'),
-        new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
-        new ChannelAddress(this.componentId, 'MaximumHardwarePower')
-      ]);
+      if (edge != null) {
+        this.edge = edge;
+        edge.subscribeChannels(this.websocket, EvcsClusterComponent.SELECTOR + this.componentId, [
+          // Evcs
+          new ChannelAddress(this.componentId, 'ChargePower'),
+          new ChannelAddress(this.componentId, 'Phases'),
+          new ChannelAddress(this.componentId, 'Plug'),
+          new ChannelAddress(this.componentId, 'Status'),
+          new ChannelAddress(this.componentId, 'State'),
+          new ChannelAddress(this.componentId, 'EnergySession'),
+          new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
+          new ChannelAddress(this.componentId, 'MaximumHardwarePower')
+        ]);
 
-      this.service.getConfig().then(config => {
+        this.service.getConfig().then(config => {
 
-        this.config = config.components[this.componentId];
+          this.config = config.components[this.componentId];
 
-        let evcsIdsInCluster: String[] = [];
-        evcsIdsInCluster = this.config.properties["evcs.ids"];
+          let evcsIdsInCluster: String[] = [];
+          evcsIdsInCluster = this.config.properties["evcs.ids"];
 
 
-        let nature = 'io.openems.edge.evcs.api.Evcs';
-        for (let component of config.getComponentsImplementingNature(nature)) {
-          if (evcsIdsInCluster.includes(component.id)) {
-            this.evcssInCluster.push(component);
-            this.fillChannelAdresses(component.id);
+          let nature = 'io.openems.edge.evcs.api.Evcs';
+          for (let component of config.getComponentsImplementingNature(nature)) {
+            if (evcsIdsInCluster.includes(component.id)) {
+              this.evcssInCluster.push(component);
+              this.fillChannelAdresses(component.id);
+            }
           }
-        }
-        if (this.edge != null) {
-          this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
-        }
-
-        //Initialise the Map with all evcss
-        this.evcssInCluster.forEach(evcs => {
-          this.evcsMap[evcs.id] = null;
-        });
-
-
-        let controllers = config.getComponentsByFactory("Controller.Evcs");
-
-        //Adds the controllers to the each charging stations 
-        controllers.forEach(controller => {
-          if (evcsIdsInCluster.includes(controller.properties['evcs.id'])) {
-            this.evcsMap[controller.properties['evcs.id']] = controller;
+          if (this.edge != null) {
+            this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
           }
+
+          //Initialise the Map with all evcss
+          this.evcssInCluster.forEach(evcs => {
+            this.evcsMap[evcs.id] = null;
+          });
+
+
+          let controllers = config.getComponentsByFactory("Controller.Evcs");
+
+          //Adds the controllers to the each charging stations 
+          controllers.forEach(controller => {
+            if (evcsIdsInCluster.includes(controller.properties['evcs.id'])) {
+              this.evcsMap[controller.properties['evcs.id']] = controller;
+            }
+          });
         });
-      });
+      }
     });
   }
 

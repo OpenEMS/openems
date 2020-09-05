@@ -94,11 +94,11 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
         // only reacts to kW values (50 W => 0.1 kW rounded)
-        if (sum.grid.buyActivePower && sum.grid.buyActivePower > 49) {
+        if (sum.grid.buyActivePower != null && sum.grid.buyActivePower > 49) {
             if (!this.buyAnimationTrigger) {
                 this.toggleBuyAnimation();
             }
-            let arrowIndicate: number;
+            let arrowIndicate: number | null;
             if (sum.grid.buyActivePower > 49) {
                 arrowIndicate = Utils.multiplySafely(
                     Utils.divideSafely(sum.grid.buyActivePower, sum.system.totalPower), -1)
@@ -115,7 +115,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             if (!this.sellAnimationTrigger) {
                 this.toggleSellAnimation();
             }
-            let arrowIndicate: number;
+            let arrowIndicate: number | null;
             if (sum.grid.sellActivePower > 49) {
                 arrowIndicate = Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower)
             } else {

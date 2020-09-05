@@ -157,11 +157,13 @@ export abstract class AbstractSection {
         this.name = translate.instant(translateName);
         this.energyFlow = this.initEnergyFlow(0);
         service.getConfig().then(config => {
-            config.widgets.classes.forEach(clazz => {
-                if (clazz.toString() === widgetClass) {
-                    this.isEnabled = true;
-                }
-            });
+            if (config.widgets != null) {
+                config.widgets.classes.forEach(clazz => {
+                    if (clazz.toString() === widgetClass) {
+                        this.isEnabled = true;
+                    }
+                });
+            }
         });
     }
 
@@ -220,14 +222,16 @@ export abstract class AbstractSection {
      * @param valueRatio    the relative value of the Secion in [-1,1]
      * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
      */
-    protected updateSectionData(valueAbsolute: number, valueRatio?: number, sumRatio?: number) {
+    protected updateSectionData(valueAbsolute: number | null, valueRatio?: number | null, sumRatio?: number | null) {
         if (!this.isEnabled) {
             return;
         }
         // TODO smoothly resize the arc
-        this.valueText = this.getValueText(valueAbsolute);
+        if (valueAbsolute != null) {
+            this.valueText = this.getValueText(valueAbsolute);
+        }
 
-        if (valueRatio && sumRatio) {
+        if (valueRatio != null && sumRatio != null) {
             /*
              * Create the percentage Arc
              */
@@ -332,7 +336,7 @@ export abstract class AbstractSection {
         );
     }
 
-    protected abstract getImagePath(): string;
+    protected abstract getImagePath(): string | null;
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;

@@ -28,14 +28,16 @@ export class FixDigitalOutputComponent {
   ngOnInit() {
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      this.service.getConfig().then(config => {
-        this.component = config.components[this.componentId];
-        this.outputChannel = this.component.properties['outputChannelAddress']
-        edge.subscribeChannels(this.websocket, FixDigitalOutputComponent.SELECTOR + this.componentId, [
-          ChannelAddress.fromString(this.outputChannel)
-        ]);
-      });
+      if (edge != null) {
+        this.edge = edge;
+        this.service.getConfig().then(config => {
+          this.component = config.components[this.componentId];
+          this.outputChannel = this.component.properties['outputChannelAddress']
+          edge.subscribeChannels(this.websocket, FixDigitalOutputComponent.SELECTOR + this.componentId, [
+            ChannelAddress.fromString(this.outputChannel)
+          ]);
+        });
+      }
     });
   }
 

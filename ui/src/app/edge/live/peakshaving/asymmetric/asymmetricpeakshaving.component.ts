@@ -32,39 +32,41 @@ export class AsymmetricPeakshavingComponent {
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-            this.service.getConfig().then(config => {
-                this.component = config.getComponent(this.componentId);
-                let meterId = this.component.properties['meter.id'];
-                edge.subscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR, [
-                    new ChannelAddress(meterId, 'ActivePower'),
-                    new ChannelAddress(meterId, 'ActivePowerL1'),
-                    new ChannelAddress(meterId, 'ActivePowerL2'),
-                    new ChannelAddress(meterId, 'ActivePowerL3')
-                ])
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let activePowerL1 = currentData.channel[meterId + '/ActivePowerL1'];
-                    let activePowerL2 = currentData.channel[meterId + '/ActivePowerL2'];
-                    let activePowerL3 = currentData.channel[meterId + '/ActivePowerL3'];
-                    let name: 'L1' | 'L2' | 'L3' | '' = '';
-                    let value = null;
-                    if (activePowerL1 > activePowerL2 && activePowerL1 > activePowerL3) {
-                        name = 'L1';
-                        value = activePowerL1;
-                    } else if (activePowerL2 > activePowerL1 && activePowerL2 > activePowerL3) {
-                        name = 'L2';
-                        value = activePowerL2;
-                    } else if (activePowerL3 > activePowerL1 && activePowerL3 > activePowerL1) {
-                        name = 'L3';
-                        value = activePowerL3;
-                    }
-                    if (value < 0) {
-                        name = '';
-                        value = null;
-                    }
-                    this.mostStressedPhase.next({ name: name, value: value });
+            if (edge != null) {
+                this.edge = edge;
+                this.service.getConfig().then(config => {
+                    this.component = config.getComponent(this.componentId);
+                    let meterId = this.component.properties['meter.id'];
+                    edge.subscribeChannels(this.websocket, AsymmetricPeakshavingComponent.SELECTOR, [
+                        new ChannelAddress(meterId, 'ActivePower'),
+                        new ChannelAddress(meterId, 'ActivePowerL1'),
+                        new ChannelAddress(meterId, 'ActivePowerL2'),
+                        new ChannelAddress(meterId, 'ActivePowerL3')
+                    ])
+                    edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                        let activePowerL1 = currentData.channel[meterId + '/ActivePowerL1'];
+                        let activePowerL2 = currentData.channel[meterId + '/ActivePowerL2'];
+                        let activePowerL3 = currentData.channel[meterId + '/ActivePowerL3'];
+                        let name: 'L1' | 'L2' | 'L3' | '' = '';
+                        let value = null;
+                        if (activePowerL1 > activePowerL2 && activePowerL1 > activePowerL3) {
+                            name = 'L1';
+                            value = activePowerL1;
+                        } else if (activePowerL2 > activePowerL1 && activePowerL2 > activePowerL3) {
+                            name = 'L2';
+                            value = activePowerL2;
+                        } else if (activePowerL3 > activePowerL1 && activePowerL3 > activePowerL1) {
+                            name = 'L3';
+                            value = activePowerL3;
+                        }
+                        if (value < 0) {
+                            name = '';
+                            value = null;
+                        }
+                        this.mostStressedPhase.next({ name: name, value: value });
+                    });
                 });
-            });
+            }
         });
     }
 

@@ -11,7 +11,7 @@ export class AutarchyChartOverviewComponent {
 
     private static readonly SELECTOR = "autarchy-chart-overview";
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     constructor(
         public service: Service,

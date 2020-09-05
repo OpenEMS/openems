@@ -33,32 +33,33 @@ export class EvcsComponent {
   ngOnInit() {
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
-        // Evcs
-        new ChannelAddress(this.componentId, 'ChargePower'),
-        new ChannelAddress(this.componentId, 'HardwarePowerLimit'),
-        new ChannelAddress(this.componentId, 'Phases'),
-        new ChannelAddress(this.componentId, 'Plug'),
-        new ChannelAddress(this.componentId, 'Status'),
-        new ChannelAddress(this.componentId, 'State'),
-        new ChannelAddress(this.componentId, 'EnergySession'),
-        new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
-        new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
-        new ChannelAddress(this.componentId, 'SetChargePowerLimit')
-      ]);
-
-      // Gets the Controller & Component for the given EVCS-Component.
-      this.service.getConfig().then(config => {
-        let controllers = config.getComponentsByFactory("Controller.Evcs");
-        this.evcsComponent = config.getComponent(this.componentId);
-        for (let controller of controllers) {
-          let properties = controller.properties;
-          if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
-            this.controller = controller;
+      if (edge != null) {
+        this.edge = edge;
+        edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
+          // Evcs
+          new ChannelAddress(this.componentId, 'ChargePower'),
+          new ChannelAddress(this.componentId, 'HardwarePowerLimit'),
+          new ChannelAddress(this.componentId, 'Phases'),
+          new ChannelAddress(this.componentId, 'Plug'),
+          new ChannelAddress(this.componentId, 'Status'),
+          new ChannelAddress(this.componentId, 'State'),
+          new ChannelAddress(this.componentId, 'EnergySession'),
+          new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
+          new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
+          new ChannelAddress(this.componentId, 'SetChargePowerLimit')
+        ]);
+        // Gets the Controller & Component for the given EVCS-Component.
+        this.service.getConfig().then(config => {
+          let controllers = config.getComponentsByFactory("Controller.Evcs");
+          this.evcsComponent = config.getComponent(this.componentId);
+          for (let controller of controllers) {
+            let properties = controller.properties;
+            if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
+              this.controller = controller;
+            }
           }
-        }
-      });
+        });
+      }
     });
   }
 

@@ -66,9 +66,9 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
-        let arrowIndicate: number;
+        let arrowIndicate: number | null;
         // only reacts to kW values (50 W => 0.1 kW rounded)
-        if (sum.production.activePower > 49) {
+        if (sum.production.activePower != null && sum.production.activePower > 49) {
             if (!this.animationTrigger) {
                 this.toggleAnimation();
             }

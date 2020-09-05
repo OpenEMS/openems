@@ -14,18 +14,18 @@ import * as Chart from 'chart.js';
 })
 export class EvcsChart implements OnInit, OnChanges {
 
-  @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component };
-  @Input() edge: Edge;
-  @Input() currentData: CurrentData;
+  @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component } | null = null;
+  @Input() edge: Edge | null = null;
+  @Input() currentData: CurrentData | null = null;
   @Input() evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
-  @Input() componentId: string;
+  @Input() componentId: string = '';
 
   private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
-  public options: BarChartOptions;
-  public labels: Label[];
-  public datasets: ChartDataSets[];
-  chart: Chart; // This will hold our chart info
+  public options: BarChartOptions | null = null;
+  public labels: Label[] = [];
+  public datasets: ChartDataSets[] = [];
+  chart: Chart | null = null; // This will hold our chart info
 
 
   constructor(
@@ -56,36 +56,40 @@ export class EvcsChart implements OnInit, OnChanges {
     }
     this.loading = true;
     let index = 0;
-    for (let evcsId in this.evcsMap) {
-      let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
-      let chargePowerKW = chargePower / 1000.0
-      let alias = this.evcsConfigMap[evcsId].properties.alias;
-      if (this.datasets[index] == null) {
-        this.datasets.push({
-          label: alias,
-          data: [chargePowerKW != null ? chargePowerKW : 0]
-        });
-      } else if (alias == "") { //this.datasets[index].label
-        this.datasets[index].label = evcsId;
-      } else {
-        this.datasets[index].label = alias;
-        this.datasets[index].data = [chargePowerKW != null ? chargePowerKW : 0];
-      }
-      index++;
-    };
-    this.loading = false;
+    if (this.edge != null) {
+      for (let evcsId in this.evcsMap) {
+        let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
+        let chargePowerKW = chargePower / 1000.0
+        let alias = this.evcsConfigMap[evcsId].properties.alias;
+        if (this.datasets[index] == null) {
+          this.datasets.push({
+            label: alias,
+            data: [chargePowerKW != null ? chargePowerKW : 0]
+          });
+        } else if (alias == "") { //this.datasets[index].label
+          this.datasets[index].label = evcsId;
+        } else {
+          this.datasets[index].label = alias;
+          this.datasets[index].data = [chargePowerKW != null ? chargePowerKW : 0];
+        }
+        index++;
+      };
+      this.loading = false;
+    }
   }
 
   getMaxPower() {
-    let maxPower: number;
-    let minPower = 22;
-    let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
-    let chargePower = this.currentData[this.componentId + '/ChargePower'];
-    maxHW = maxHW == null ? minPower : maxHW / 1000;
-    chargePower = chargePower == null ? 0 : chargePower / 1000;
+    if (this.currentData != null) {
+      let maxPower: number;
+      let minPower = 22;
+      let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
+      let chargePower = this.currentData[this.componentId + '/ChargePower'];
+      maxHW = maxHW == null ? minPower : maxHW / 1000;
+      chargePower = chargePower == null ? 0 : chargePower / 1000;
 
-    maxPower = chargePower < minPower || maxPower < minPower ? minPower : maxHW;
-    return Math.round(maxPower);
+      maxPower = chargePower < minPower ? minPower : maxHW;
+      return Math.round(maxPower);
+    }
   }
 }
 

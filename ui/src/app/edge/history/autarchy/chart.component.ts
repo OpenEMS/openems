@@ -1,7 +1,7 @@
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
+import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Dataset } from './../shared';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AutarchyChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() private period: DefaultTypes.HistoryPeriod | null = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -44,78 +44,79 @@ export class AutarchyChartComponent extends AbstractHistoryChart implements OnIn
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
         this.colors = [];
-        this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
-            // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
-                labels.push(new Date(timestamp));
-            }
-            this.labels = labels;
+        if (this.period != null) {
+            this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+                let result = response.result;
+                // convert labels
+                let labels: Date[] = [];
+                for (let timestamp of result.timestamps) {
+                    labels.push(new Date(timestamp));
+                }
+                this.labels = labels;
 
-            // convert datasets
-            let datasets = [];
+                // convert datasets
+                let datasets: Dataset[] = [];
 
-            // required data for autarchy
-            let buyFromGridData: number[] = [];
-            let consumptionData: number[] = [];
+                // required data for autarchy
+                let buyFromGridData: number[] = [];
+                let consumptionData: number[] = [];
 
-            if ('_sum/ConsumptionActivePower' in result.data) {
+                if ('_sum/ConsumptionActivePower' in result.data) {
+                    /*
+                     * Consumption
+                     */
+                    consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+                        if (value == null) {
+                            return null
+                        } else {
+                            return value;
+                        }
+                    });
+                }
+
+                if ('_sum/GridActivePower' in result.data) {
+                    /*
+                     * Buy From Grid
+                     */
+                    buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
+                        if (value == null) {
+                            return null
+                        } else if (value > 0) {
+                            return value;
+                        } else {
+                            return 0;
+                        }
+                    })
+                };
+
                 /*
-                 * Consumption
-                 */
-                consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+                * Autarchy
+                */
+                let autarchy = consumptionData.map((value, index) => {
                     if (value == null) {
                         return null
                     } else {
-                        return value;
-                    }
-                });
-            }
-
-            if ('_sum/GridActivePower' in result.data) {
-                /*
-                 * Buy From Grid
-                 */
-                buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
-                    if (value == null) {
-                        return null
-                    } else if (value > 0) {
-                        return value;
-                    } else {
-                        return 0;
+                        return CurrentData.calculateAutarchy(buyFromGridData[index], value);
                     }
                 })
-            };
-
-            /*
-            * Autarchy
-            */
-            let autarchy = consumptionData.map((value, index) => {
-                if (value == null) {
-                    return null
-                } else {
-                    return CurrentData.calculateAutarchy(buyFromGridData[index], value);
-                }
-            })
-
-            datasets.push({
-                label: this.translate.instant('General.autarchy'),
-                data: autarchy,
-                hidden: false
-            })
-            this.colors.push({
-                backgroundColor: 'rgba(0,152,204,0.05)',
-                borderColor: 'rgba(0,152,204,1)'
-            })
-            this.datasets = datasets;
-            this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
-        }).catch(reason => {
-            console.error(reason); // TODO error message
-            this.initializeChart();
-            return;
-        });
+                datasets.push({
+                    label: this.translate.instant('General.autarchy'),
+                    data: autarchy,
+                    hidden: false
+                })
+                this.colors.push({
+                    backgroundColor: 'rgba(0,152,204,0.05)',
+                    borderColor: 'rgba(0,152,204,1)'
+                })
+                this.datasets = datasets;
+                this.loading = false;
+                this.service.stopSpinner(this.spinnerId);
+            }).catch(reason => {
+                console.error(reason); // TODO error message
+                this.initializeChart();
+                return;
+            });
+        }
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {

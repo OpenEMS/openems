@@ -39,7 +39,7 @@ import Timer = NodeJS.Timer;
 })
 export class StorageSectionComponent extends AbstractSection implements OnDestroy {
 
-    private socValue: number = 0;
+    private socValue: number | null = 0;
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
     private startAnimation: Timer | null = null;
@@ -94,8 +94,8 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
+        let arrowIndicate: number | null;
         if (sum.storage.effectiveChargePower != null) {
-            let arrowIndicate: number;
             // only reacts to kW values (50 W => 0.1 kW rounded)
             if (sum.storage.effectiveChargePower > 49) {
                 if (!this.chargeAnimationTrigger) {
@@ -112,7 +112,6 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
                 sum.storage.powerRatio,
                 arrowIndicate);
         } else if (sum.storage.effectiveDischargePower != null) {
-            let arrowIndicate: number;
             if (sum.storage.effectiveDischargePower > 49) {
                 if (!this.dischargeAnimationTrigger) {
                     this.toggleDischarge();
@@ -144,29 +143,33 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
         return new SvgSquarePosition(x, y);
     }
 
-    protected getImagePath(): string {
-        if (this.socValue < 11) {
-            return "storage_10_monitor.png"
-        } else if (this.socValue < 21) {
-            return "storage_20_monitor.png"
-        } else if (this.socValue < 31) {
-            return "storage_30_monitor.png"
-        } else if (this.socValue < 41) {
-            return "storage_40_monitor.png"
-        } else if (this.socValue < 51) {
-            return "storage_50_monitor.png"
-        } else if (this.socValue < 61) {
-            return "storage_60_monitor.png"
-        } else if (this.socValue < 71) {
-            return "storage_70_monitor.png"
-        } else if (this.socValue < 81) {
-            return "storage_80_monitor.png"
-        } else if (this.socValue < 91) {
-            return "storage_90_monitor.png"
-        } else if (this.socValue < 101) {
-            return "storage_100_monitor.png"
+    protected getImagePath(): string | null {
+        if (this.socValue != null) {
+            if (this.socValue < 11) {
+                return "storage_10_monitor.png"
+            } else if (this.socValue < 21) {
+                return "storage_20_monitor.png"
+            } else if (this.socValue < 31) {
+                return "storage_30_monitor.png"
+            } else if (this.socValue < 41) {
+                return "storage_40_monitor.png"
+            } else if (this.socValue < 51) {
+                return "storage_50_monitor.png"
+            } else if (this.socValue < 61) {
+                return "storage_60_monitor.png"
+            } else if (this.socValue < 71) {
+                return "storage_70_monitor.png"
+            } else if (this.socValue < 81) {
+                return "storage_80_monitor.png"
+            } else if (this.socValue < 91) {
+                return "storage_90_monitor.png"
+            } else if (this.socValue < 101) {
+                return "storage_100_monitor.png"
+            } else {
+                return "storage_empty_monitor.png"
+            }
         } else {
-            return "storage_empty_monitor.png"
+            return null
         }
     }
 

@@ -29,13 +29,15 @@ export class SymmetricPeakshavingComponent {
 
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-            this.service.getConfig().then(config => {
-                this.component = config.getComponent(this.componentId);
-                edge.subscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR, [
-                    new ChannelAddress(this.component.properties['meter.id'], 'ActivePower')
-                ])
-            });
+            if (edge != null) {
+                this.edge = edge;
+                this.service.getConfig().then(config => {
+                    this.component = config.getComponent(this.componentId);
+                    edge.subscribeChannels(this.websocket, SymmetricPeakshavingComponent.SELECTOR, [
+                        new ChannelAddress(this.component.properties['meter.id'], 'ActivePower')
+                    ])
+                });
+            }
         });
     }
 

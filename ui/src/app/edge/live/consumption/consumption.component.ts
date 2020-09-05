@@ -42,15 +42,17 @@ export class ConsumptionComponent {
       }
     })
     this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-      channels.push(
-        new ChannelAddress('_sum', 'ConsumptionActivePower'),
-        new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
-        new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-        new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
-        new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
-      )
-      this.edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, channels);
+      if (edge != null) {
+        this.edge = edge;
+        channels.push(
+          new ChannelAddress('_sum', 'ConsumptionActivePower'),
+          new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
+          new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
+          new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
+          new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
+        )
+        edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, channels);
+      }
     });
   }
 

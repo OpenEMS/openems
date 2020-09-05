@@ -163,16 +163,13 @@ export class CurrentData {
         effectivePowerL2 = null;
         effectivePowerL3 = null;
       } else {
-        effectivePowerL1 = Utils.subtractSafelyDividor(
-          result.storage.activePowerL1, result.production.activePowerDc, 3, result.production.activePowerDc);
+        effectivePowerL1 = Utils.subtractSafely(result.storage.activePowerL1, result.production.activePowerDc != null ? result.production.activePowerDc / 3 : 0);
         result.storage.effectiveActivePowerL1 = effectivePowerL1;
 
-        effectivePowerL2 = Utils.subtractSafelyDividor(
-          result.storage.activePowerL2, result.production.activePowerDc, 3, result.production.activePowerDc);
+        effectivePowerL2 = Utils.subtractSafely(result.storage.activePowerL2, result.production.activePowerDc != null ? result.production.activePowerDc / 3 : 0);
         result.storage.effectiveActivePowerL2 = effectivePowerL2;
 
-        effectivePowerL3 = Utils.subtractSafelyDividor(
-          result.storage.activePowerL3, result.production.activePowerDc, 3, result.production.activePowerDc);
+        effectivePowerL3 = Utils.subtractSafely(result.storage.activePowerL3, result.production.activePowerDc != null ? result.production.activePowerDc / 3 : 0);
         result.storage.effectiveActivePowerL3 = effectivePowerL3;
 
         effectivePower = Utils.subtractSafely(
