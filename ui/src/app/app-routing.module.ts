@@ -45,7 +45,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
-  { path: 'device/:edgeId/history/productionnchart', component: ProductionChartOverviewComponent },
+  { path: 'device/:edgeId/history/productionchart', component: ProductionChartOverviewComponent },
   { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
   { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
